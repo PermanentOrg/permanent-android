@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Permanent</string>
+    <string name="step_one_title">Share your most cherished memories with total control.</string>
+    <string name="step_one_message">Easily create links to privately shared content that limit how many people can access the content or for how long.</string>
+    <string name="page_two_title">Preserve your most important documents with peace of mind.</string>
+    <string name="page_two_message">We are the most comprehensive consumer digital preservation platform available today.</string>
+    <string name="page_three_title">We will never mine your data, claim your copyright or invade your privacy.</string>
+    <string name="page_three_message">We are backed by a mission-driven, cultural heritage nonprofit dedicated to the public good.</string>
+    <string name="next">Next</string>
+    <string name="get_started">Get Started</string>
+    <string name="skip">Skip</string>
+    <string name="toolbar_title">Permanent.org</string>
+    <string name="onboarding_completed">onboarding completed</string>
+</resources>
