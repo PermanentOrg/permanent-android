@@ -11,4 +11,9 @@
     <string name="skip">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
     <string name="onboarding_completed">onboarding completed</string>
+    <string name="login_screen_title">Login</string>
+    <string name="logn_screen_email_hint">email</string>
+    <string name="login_screen_password_hint">password</string>
+    <string name="login_screen_login">Login</string>
+    <string name="login_screen_forgot_password">Forgot password</string>
 </resources>

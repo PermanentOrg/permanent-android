@@ -1,4 +1,4 @@
-package org.permanent.ui.onboarding
+package org.permanent.permanent.ui.onboarding
 
 import android.content.Context
 import android.content.Intent
@@ -8,7 +8,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import org.permanent.R
 import org.permanent.databinding.ActivityOnboardingBinding
-import org.permanent.ui.MainActivity
+import org.permanent.permanent.ui.LoginActivity
 
 
 class OnboardingActivity : AppCompatActivity() {
@@ -27,7 +27,7 @@ class OnboardingActivity : AppCompatActivity() {
         val onboardingCompleted = sharedPref.getBoolean(getString(R.string.onboarding_completed), false)
 
         if (onboardingCompleted) {
-            startMainActivity()
+            startSignUpActivity()
         }
     }
 
@@ -40,15 +40,15 @@ class OnboardingActivity : AppCompatActivity() {
         // Handle item selection
         return when (item.itemId) {
             R.id.skip -> {
-                startMainActivity()
+                startSignUpActivity()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun startMainActivity() {
-        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+    private fun startSignUpActivity() {
+        startActivity(Intent(this@OnboardingActivity, LoginActivity::class.java))
         finish()
     }
 }

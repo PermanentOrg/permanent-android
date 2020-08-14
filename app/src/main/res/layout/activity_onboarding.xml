@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.onboarding.OnboardingActivity">
+    tools:context=".permanent.ui.onboarding.OnboardingActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/onboardingFragment"
-        android:name="org.permanent.ui.onboarding.OnboardingFragment"
+        android:name="org.permanent.permanent.ui.onboarding.OnboardingFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

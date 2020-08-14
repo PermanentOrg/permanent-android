@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.text.TextUtils" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.LoginViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/white"
+            android:elevation="4dp"
+            android:gravity="center"
+            app:layout_collapseMode="pin"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@string/login_screen_title"
+            app:titleTextColor="@android:color/black" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolBar"
+            android:background="@android:color/white"
+            android:fitsSystemWindows="true"
+            android:padding="20dp"
+            tools:context=".ui.activities.LoginActivity">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvProviderTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textSize="24sp"
+                    android:textStyle="bold">
+
+                </androidx.appcompat.widget.AppCompatTextView>
+
+
+                <RelativeLayout
+                    android:id="@+id/loginEmailContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvProviderTitle">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="3dp"
+                        app:boxCornerRadiusBottomStart="3dp"
+                        app:boxCornerRadiusTopEnd="3dp"
+                        app:boxCornerRadiusTopStart="3dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etMail"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
+                            android:ems="10"
+                            android:hint="@string/logn_screen_email_hint"
+                            android:inputType="textEmailAddress"
+                            android:text="@{viewModel.currentEmail}"
+                            android:textColor="@android:color/black"
+                            android:textColorHint="@android:color/black" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/loginPasswordContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/loginEmailContainer">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="3dp"
+                        app:boxCornerRadiusBottomStart="3dp"
+                        app:boxCornerRadiusTopEnd="3dp"
+                        app:boxCornerRadiusTopStart="3dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:afterTextChanged="@{(editable)->viewModel.onPasswordTextChanged(editable)}"
+                            android:ems="10"
+                            android:hint="@string/login_screen_password_hint"
+                            android:inputType="textPassword"
+                            android:text="@{viewModel.currentPassword}"
+                            android:textColor="@android:color/black"
+                            android:textColorHint="@android:color/black" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+
+                </RelativeLayout>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnSignIn"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/loginPasswordContainer"
+                    android:layout_centerHorizontal="true"
+                    android:onClick="@{() -> viewModel.login()}"
+                    android:text="@string/login_screen_login"
+                    android:textColor="@android:color/white" />
+
+                <androidx.core.widget.ContentLoadingProgressBar
+                    android:id="@+id/progressBar"
+                    style="@style/Widget.AppCompat.ProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:indeterminate="true"
+                    android:visibility="@{viewModel.onIsBusy() ? View.VISIBLE : View.GONE}" />
+
+                <TextView
+                    android:id="@+id/tvForgotPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/btnSignIn"
+                    android:layout_centerHorizontal="true"
+                    android:padding="8dp"
+                    android:text="@string/login_screen_forgot_password" />
+            </RelativeLayout>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+</layout>

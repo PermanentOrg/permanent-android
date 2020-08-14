@@ -1,4 +1,4 @@
-package org.permanent.ui.onboarding
+package org.permanent.permanent.ui.onboarding
 
 import android.content.Context
 import android.content.Intent
@@ -12,7 +12,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import org.permanent.R
 import org.permanent.databinding.FragmentOnboardingBinding
-import org.permanent.ui.MainActivity
+import org.permanent.permanent.ui.MainActivity
 
 class OnboardingFragment : Fragment() {
     private lateinit var onboardingPagesAdapter: OnboardingPagesAdapter

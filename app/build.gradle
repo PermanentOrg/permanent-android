@@ -7,7 +7,7 @@ android {
     buildToolsVersion "30.0.1"
 
     defaultConfig {
-        applicationId "org.permanent"
+        applicationId "org.permanent.permanent"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
@@ -34,6 +34,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 }
 
@@ -46,6 +47,11 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    //====================================== ARCHITECTURE COMPONENTS ===============================
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    //==============================================================================================
 
     // ViewPager2
     implementation "androidx.viewpager2:viewpager2:$viewPager2Version"

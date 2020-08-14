@@ -1,4 +1,4 @@
-package org.permanent.ui.onboarding
+package org.permanent.permanent.ui.onboarding
 
 import android.os.Bundle
 import android.view.LayoutInflater
