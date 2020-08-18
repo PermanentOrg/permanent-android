@@ -80,7 +80,7 @@
                             android:layout_height="match_parent"
                             android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
                             android:ems="10"
-                            android:hint="@string/logn_screen_email_hint"
+                            android:hint="@string/login_screen_email_hint"
                             android:inputType="textEmailAddress"
                             android:text="@{viewModel.currentEmail}"
                             android:textColor="@android:color/black"

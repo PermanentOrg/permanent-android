@@ -1,12 +1,12 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <!-- Theme without ActionBar -->
-    <style name="NoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="NoActionBarTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:actionMenuTextColor">@color/white</item>

@@ -6,43 +6,42 @@
     android:background="@color/colorPrimary">
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/ivOnboardingPage"
         android:layout_width="316dp"
-        android:layout_height="180dp"
+        android:layout_height="260dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.26"
-        app:srcCompat="@drawable/onboarding_page_one" />
+        app:layout_constraintVertical_bias="0.10"
+        app:srcCompat="@drawable/onboarding_page_one_image" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/tvTitleOnboardingPage"
         android:layout_width="316dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/step_one_title"
+        android:text="@string/onboarding_page_one_title"
         android:textColor="@color/white"
         android:textSize="21sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2"
+        app:layout_constraintTop_toBottomOf="@+id/ivOnboardingPage"
         app:layout_constraintVertical_bias="0.17" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/tvTextOnboardingPage"
         android:layout_width="316dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/step_one_message"
+        android:text="@string/onboarding_page_one_text"
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitleOnboardingPage"
         app:layout_constraintVertical_bias="0.12" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
