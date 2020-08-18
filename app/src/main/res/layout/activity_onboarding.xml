@@ -5,9 +5,6 @@
 
     <data>
         <variable
-            name="snapPosition"
-            type="androidx.lifecycle.MutableLiveData&lt;Integer>" />
-        <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.OnboardingViewModel" />
     </data>
@@ -37,7 +34,8 @@
             android:id="@+id/rvOnboarding"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:scrollbars="vertical"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +62,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/colorAccent"
-            android:text="@{snapPosition == 2 ? @string/onboarding_btn_text_get_started : @string/onboarding_btn_text_next}"
+            android:text="@{viewModel.snapPosition == 2 ? @string/onboarding_btn_text_get_started : @string/onboarding_btn_text_next}"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="21sp"

@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.R
@@ -20,12 +18,10 @@ import org.permanent.permanent.viewmodels.OnboardingViewModel
 
 class OnboardingActivity : PermanentBaseActivity() {
 
-    private var currentSnapPosition = MutableLiveData(0)
     private lateinit var binding: ActivityOnboardingBinding
     private lateinit var viewModel: OnboardingViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
-    private lateinit var viewManager: RecyclerView.LayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +30,6 @@ class OnboardingActivity : PermanentBaseActivity() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        binding.snapPosition = currentSnapPosition
 
         if (viewModel.isOnboardingCompleted(getPreferences(Context.MODE_PRIVATE))) {
             startLoginActivity()
@@ -43,27 +38,25 @@ class OnboardingActivity : PermanentBaseActivity() {
         setSupportActionBar(binding.toolbar)
         setupRecyclerView()
         binding.btnOnboarding.setOnClickListener {
-            if(currentSnapPosition.value == viewAdapter.itemCount - 1) {
+            if(viewModel.snapPosition.value == viewAdapter.itemCount - 1) {
                 startLoginActivity()
                 viewModel.setOnboardingCompleted(getPreferences(Context.MODE_PRIVATE))
             } else {
-                currentSnapPosition.value = currentSnapPosition.value?.plus(1)
-                recyclerView.smoothScrollToPosition(currentSnapPosition.value!!)
+                viewModel.snapPosition.value = viewModel.snapPosition.value?.plus(1)
+                recyclerView.smoothScrollToPosition(viewModel.snapPosition.value!!)
             }
         }
     }
 
     private fun setupRecyclerView() {
-        viewManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         viewAdapter = OnboardingPageAdapter()
         val positionChangeListener = object : OnSnapPositionChangeListener {
             override fun onSnapPositionChange(position: Int) {
-                currentSnapPosition.value = position
+                viewModel.snapPosition.value = position
             }
         }
         recyclerView = binding.rvOnboarding.apply {
             setHasFixedSize(true)
-            layoutManager = viewManager
             adapter = viewAdapter
             attachSnapHelperWithListener(
                 PagerSnapHelper(), onSnapPositionChangeListener = positionChangeListener
