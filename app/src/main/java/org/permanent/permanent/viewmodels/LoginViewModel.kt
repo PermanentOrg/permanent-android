@@ -1,16 +1,21 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.text.Editable
 import android.text.TextUtils
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.repositories.ILoginRepository
 
 class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val onError = MutableLiveData<String>()
+    val onBiometricAuthError = MutableLiveData<String>()
+    private val onBiometricAuthSuccess = MutableLiveData<BiometricPrompt.PromptInfo>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedIn = SingleLiveEvent<Void>()
-    private val onRememberMe = SingleLiveEvent<Void>()
+    private val onSignUp = SingleLiveEvent<Void>()
 
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
@@ -29,16 +34,24 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         return currentPassword
     }
 
-    fun onEmailTextChanged(email: CharSequence) {
+    fun onEmailTextChanged(email: Editable) {
         currentEmail.value = email.toString().trim { it <= ' ' }
     }
 
-    fun onPasswordTextChanged(password: CharSequence) {
+    fun onPasswordTextChanged(password: Editable) {
         currentPassword.value = password.toString().trim { it <= ' ' }
     }
 
     fun onError(): MutableLiveData<String> {
         return onError
+    }
+
+    fun onBiometricAuthSuccess(): MutableLiveData<BiometricPrompt.PromptInfo> {
+        return onBiometricAuthSuccess
+    }
+
+    fun onBiometricAuthError(): MutableLiveData<String> {
+        return onBiometricAuthError
     }
 
     fun onIsBusy(): MutableLiveData<Boolean> {
@@ -49,16 +62,36 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         return onLoggedIn
     }
 
-    fun onRememberMe(): MutableLiveData<Void> {
-        return onRememberMe
+    fun onSignUp(): MutableLiveData<Void> {
+        return onSignUp
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    fun signUp() {
+        onSignUp.call()
     }
 
-    fun rememberMe() {
-        onRememberMe.call()
+    fun forgotPassword() {
+        //TODO
+    }
+
+    fun useTouchId() {
+        val biometricManager = BiometricManager.from(getApplication())
+
+        when (biometricManager.canAuthenticate()) {
+            BiometricManager.BIOMETRIC_SUCCESS ->
+            onBiometricAuthSuccess.value = BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric login")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Use account password")
+                .build()
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
+                onBiometricAuthError.value = "No biometric features available on this device."
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
+                onBiometricAuthError.value = "Biometric features are currently unavailable."
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
+                onBiometricAuthError.value = "You haven't associated " +
+                        "any biometric credentials with your account."
+        }
     }
 
     fun login() {
