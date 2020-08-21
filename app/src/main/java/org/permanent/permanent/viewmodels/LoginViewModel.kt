@@ -16,6 +16,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedIn = SingleLiveEvent<Void>()
     private val onSignUp = SingleLiveEvent<Void>()
+    private val onPasswordReset = SingleLiveEvent<Void>()
 
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
@@ -66,12 +67,37 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         return onSignUp
     }
 
+    fun onPasswordReset(): MutableLiveData<Void> {
+        return onPasswordReset
+    }
+
     fun signUp() {
         onSignUp.call()
     }
 
     fun forgotPassword() {
-        //TODO
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        val email = currentEmail.value
+
+        if (TextUtils.isEmpty(email)) {
+            onError.value = "Please enter a valid email address"
+            return
+        }
+
+        isBusy.value = true
+        loginRepository?.forgotPassword(email, object : ILoginRepository.IOnResetPasswordListener {
+            override fun onSuccess() {
+                isBusy.value = false
+                onPasswordReset.call()
+            }
+
+            override fun onFailed(error: String?, errorCode: Int) {
+                isBusy.value = false
+                onError.value = error
+            }
+        })
     }
 
     fun useTouchId() {

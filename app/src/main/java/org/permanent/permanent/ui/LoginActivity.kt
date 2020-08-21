@@ -39,6 +39,12 @@ class LoginActivity : PermanentBaseActivity() {
         navigateSignUp()
     }
 
+    private val onPasswordReset = Observer<Void> {
+        Toast.makeText(this,
+            "Password was reset successfully! Please check your email",
+            Toast.LENGTH_LONG).show()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
@@ -57,6 +63,7 @@ class LoginActivity : PermanentBaseActivity() {
         viewModel.onBiometricAuthSuccess().observe(this, onBiometricAuthSuccess)
         viewModel.onBiometricAuthError().observe(this, onBiometricAuthError)
         viewModel.onSignUp().observe(this, onSignUp)
+        viewModel.onPasswordReset().observe(this, onPasswordReset)
     }
 
     override fun disconnectViewModelEvents() {
@@ -65,6 +72,7 @@ class LoginActivity : PermanentBaseActivity() {
         viewModel.onBiometricAuthSuccess().removeObserver(onBiometricAuthSuccess)
         viewModel.onBiometricAuthError().removeObserver(onBiometricAuthError)
         viewModel.onSignUp().removeObserver(onSignUp)
+        viewModel.onPasswordReset().removeObserver(onPasswordReset)
     }
 
     override fun onResume() {
