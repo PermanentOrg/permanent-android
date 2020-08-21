@@ -86,8 +86,7 @@ class LoginActivity : PermanentBaseActivity() {
     }
 
     private fun navigateSignUp() {
-        //TODO refactor with appropriate Activity
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, SignUpActivity::class.java))
         finish()
     }
 
