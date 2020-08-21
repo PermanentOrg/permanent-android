@@ -31,10 +31,6 @@ class LoginActivity : PermanentBaseActivity() {
         biometricPrompt.authenticate(it)
     }
 
-    private val onBiometricAuthError = Observer<String> { error ->
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show()
-    }
-
     private val onSignUp = Observer<Void> {
         navigateSignUp()
     }
@@ -61,7 +57,6 @@ class LoginActivity : PermanentBaseActivity() {
         viewModel.onError().observe(this, onError)
         viewModel.onLoggedIn().observe(this, onLoggedIn)
         viewModel.onBiometricAuthSuccess().observe(this, onBiometricAuthSuccess)
-        viewModel.onBiometricAuthError().observe(this, onBiometricAuthError)
         viewModel.onSignUp().observe(this, onSignUp)
         viewModel.onPasswordReset().observe(this, onPasswordReset)
     }
@@ -70,7 +65,6 @@ class LoginActivity : PermanentBaseActivity() {
         viewModel.onError().removeObserver(onError)
         viewModel.onLoggedIn().removeObserver(onLoggedIn)
         viewModel.onBiometricAuthSuccess().removeObserver(onBiometricAuthSuccess)
-        viewModel.onBiometricAuthError().removeObserver(onBiometricAuthError)
         viewModel.onSignUp().removeObserver(onSignUp)
         viewModel.onPasswordReset().removeObserver(onPasswordReset)
     }
@@ -101,7 +95,7 @@ class LoginActivity : PermanentBaseActivity() {
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-            viewModel.onBiometricAuthError.value = "Authentication error: $errString"
+            viewModel.onError.value = "Authentication error: $errString"
         }
 
         override fun onAuthenticationSucceeded(
@@ -112,7 +106,7 @@ class LoginActivity : PermanentBaseActivity() {
 
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
-            viewModel.onBiometricAuthError.value = "Authentication failed"
+            viewModel.onError.value = "Authentication failed"
         }
     }
 }

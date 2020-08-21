@@ -10,8 +10,7 @@ import org.permanent.permanent.repositories.ILoginRepository
 
 class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    private val onError = MutableLiveData<String>()
-    val onBiometricAuthError = MutableLiveData<String>()
+    val onError = MutableLiveData<String>()
     private val onBiometricAuthSuccess = MutableLiveData<BiometricPrompt.PromptInfo>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedIn = SingleLiveEvent<Void>()
@@ -49,10 +48,6 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
     fun onBiometricAuthSuccess(): MutableLiveData<BiometricPrompt.PromptInfo> {
         return onBiometricAuthSuccess
-    }
-
-    fun onBiometricAuthError(): MutableLiveData<String> {
-        return onBiometricAuthError
     }
 
     fun onIsBusy(): MutableLiveData<Boolean> {
@@ -111,11 +106,11 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
                 .setNegativeButtonText("Use account password")
                 .build()
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
-                onBiometricAuthError.value = "No biometric features available on this device."
+                onError.value = "No biometric features available on this device."
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
-                onBiometricAuthError.value = "Biometric features are currently unavailable."
+                onError.value = "Biometric features are currently unavailable."
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                onBiometricAuthError.value = "You haven't associated " +
+                onError.value = "You haven't associated " +
                         "any biometric credentials with your account."
         }
     }
