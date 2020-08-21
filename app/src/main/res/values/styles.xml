@@ -7,14 +7,20 @@
 
     <!-- Theme without ActionBar -->
     <style name="NoActionBarTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:actionMenuTextColor">@color/white</item>
         <item name="android:actionMenuTextAppearance">@style/customMenuTextAppearance</item>
+        <item name="textInputStyle">@style/customTextField</item>
     </style>
 
     <style name="customMenuTextAppearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="customTextField" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:textColorHint">@color/lightGrey</item>
     </style>
 </resources>

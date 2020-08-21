@@ -10,9 +10,11 @@
     <string name="onboarding_btn_text_get_started">Get Started</string>
     <string name="toolbar_btn_text_skip">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
-    <string name="login_screen_title">Login</string>
-    <string name="login_screen_email_hint">email</string>
-    <string name="login_screen_password_hint">password</string>
-    <string name="login_screen_login">Login</string>
-    <string name="login_screen_forgot_password">Forgot password</string>
+    <string name="login_screen_email_hint">Email</string>
+    <string name="login_screen_password_hint">Password</string>
+    <string name="login_screen_login">Log In</string>
+    <string name="login_screen_forgot_password">Forgot Password?</string>
+    <string name="login_screen_sign_up">Sign up</string>
+    <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
+    <string name="login_screen_use_touch_id">Use Touch ID</string>
 </resources>
