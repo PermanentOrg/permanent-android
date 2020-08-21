@@ -9,7 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/NoActionBarTheme">
-        <activity android:name=".permanent.ui.MainActivity" />
+        <activity
+            android:name=".permanent.ui.SignUpActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".permanent.ui.MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".permanent.ui.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
@@ -17,7 +22,7 @@
         <activity
             android:name=".permanent.ui.onboarding.OnboardingActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".permanent.ui.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
