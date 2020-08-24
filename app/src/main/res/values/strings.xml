@@ -21,4 +21,7 @@
     <string name="sign_up_screen_full_name_hint">Full Name</string>
     <string name="sign_up_screen_password_hint">Password (min. 8 chars)</string>
     <string name="sign_up_screen_already_have_an_account">Already have an account?</string>
+    <string name="accept_button">Accept</string>
+    <string name="decline_button">Decline</string>
+    <string name="terms_conditions_title">Terms and Conditions</string>
 </resources>

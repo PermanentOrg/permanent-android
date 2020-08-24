@@ -3,8 +3,16 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.text.Editable
 import android.text.TextUtils
+import android.util.Log
+import android.util.Patterns
+import android.widget.Toast
+import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.models.Event
 import org.permanent.permanent.repositories.ISignUpRepository
+import java.util.regex.Pattern
+import kotlin.math.log
+
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -17,6 +25,8 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     private var signUpRepository: ISignUpRepository? = null
+
+    val displayTermsOfServiceTextDialog = MutableLiveData<Event<Unit>>()
 
     init {
         //TODO implement signUp repository
@@ -36,7 +46,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     }
 
     fun onNameTextChanged(name: Editable) {
-        currentName.value = name.toString()
+        currentName.value = name.toString().trim { it <= ' ' }
     }
 
     fun onEmailTextChanged(email: Editable) {
@@ -67,40 +77,59 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         onAlreadyHaveAccount.call()
     }
 
+
     fun signUp() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val name = currentName.value?.trim { it <= ' ' }
+        val name = currentName.value
         val email = currentEmail.value
         val password = currentPassword.value
 
         if (TextUtils.isEmpty(name)) {
-            onError.value = "Please enter your full name"
+            onError.value = "Name"
             return
         }
 
-        if (TextUtils.isEmpty(email)) {
-            onError.value = "Please enter a valid email address"
+        if (!TextUtils.isEmpty(email)) {
+            val pattern: Pattern = Patterns.EMAIL_ADDRESS
+            if (!pattern.matcher(email).matches()) {
+                onError.value = "Email"
+                return
+            }
+
+        } else {
+            onError.value = "Email"
             return
         }
 
         if (TextUtils.isEmpty(password)) {
-            onError.value = "Please enter your password"
+            onError.value = "Password"
             return
         }
 
-        isBusy.value = true
-        signUpRepository?.signUp(name, email, password, object : ISignUpRepository.IOnSignUpListener {
-            override fun onSuccess() {
-                isBusy.value = false
-                onSignedUp.call()
-            }
+        displayTermsOfServiceTextDialog.value = Event(Unit)
+    }
 
-            override fun onFailed(error: String?, errorCode: Int) {
-                isBusy.value = false
-                onError.value = error
-            }
-        })
+    fun makeAccount() {
+        val name = currentName.value
+        val email = currentEmail.value
+        val password = currentPassword.value
+        isBusy.value = true
+        signUpRepository?.signUp(
+            name,
+            email,
+            password,
+            object : ISignUpRepository.IOnSignUpListener {
+                override fun onSuccess() {
+                    isBusy.value = false
+                    onSignedUp.call()
+                }
+
+                override fun onFailed(error: String?, errorCode: Int) {
+                    isBusy.value = false
+                    onError.value = error
+                }
+            })
     }
 }

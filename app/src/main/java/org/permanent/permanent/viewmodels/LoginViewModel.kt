@@ -3,10 +3,12 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.text.Editable
 import android.text.TextUtils
+import android.util.Patterns
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.repositories.ILoginRepository
+import java.util.regex.Pattern
 
 class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -122,8 +124,15 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         val email = currentEmail.value
         val password = currentPassword.value
 
-        if (TextUtils.isEmpty(email)) {
-            onError.value = "Please enter a valid email address"
+        if (!TextUtils.isEmpty(email)) {
+            val pattern: Pattern = Patterns.EMAIL_ADDRESS
+            if (!pattern.matcher(email).matches()) {
+                onError.value = "Email"
+                return
+            }
+
+        } else {
+            onError.value = "Email"
             return
         }
 
