@@ -16,17 +16,20 @@ import kotlin.math.log
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    val nameError = MutableLiveData<String>()
+    val emailError = MutableLiveData<String>()
+    val passwordError = MutableLiveData<String>()
     private val onError = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onSignedUp = SingleLiveEvent<Void>()
     private val onAlreadyHaveAccount = SingleLiveEvent<Void>()
+    private val displayTermsOfServiceTextDialog = SingleLiveEvent<Void>()
 
     private val currentName = MutableLiveData<String>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     private var signUpRepository: ISignUpRepository? = null
 
-    val displayTermsOfServiceTextDialog = MutableLiveData<Event<Unit>>()
 
     init {
         //TODO implement signUp repository
@@ -77,6 +80,49 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         onAlreadyHaveAccount.call()
     }
 
+    fun displayTermsOfServiceTextDialog(): MutableLiveData<Void> {
+        return displayTermsOfServiceTextDialog
+    }
+
+    private fun checkName(name: String?): Boolean {
+        return if (TextUtils.isEmpty(name)) {
+            nameError.value = "Name can not be empty"
+            false
+        } else {
+            nameError.value = null
+            true
+        }
+    }
+
+    private fun checkEmail(email: String?): Boolean {
+        if (!TextUtils.isEmpty(email)) {
+            val pattern: Pattern = Patterns.EMAIL_ADDRESS
+            if (!pattern.matcher(email).matches()) {
+                emailError.value = "Invalid email"
+                return false
+            }
+
+        } else {
+            emailError.value = "Invalid email"
+            return false
+        }
+        emailError.value = null
+        return true
+    }
+
+    private fun checkEmptyPassword(password: String?): Boolean {
+        if (password == null) {
+            passwordError.value = "Password can not be empty"
+            return false
+        } else {
+            if (password.length < 8) {
+                passwordError.value = "Password must be minimum 8 characters long"
+                return false
+            }
+        }
+        passwordError.value = null
+        return true
+    }
 
     fun signUp() {
         if (isBusy.value != null && isBusy.value!!) {
@@ -86,30 +132,15 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         val email = currentEmail.value
         val password = currentPassword.value
 
-        if (TextUtils.isEmpty(name)) {
-            onError.value = "Name"
-            return
-        }
+        if (!checkName(name)) return
 
-        if (!TextUtils.isEmpty(email)) {
-            val pattern: Pattern = Patterns.EMAIL_ADDRESS
-            if (!pattern.matcher(email).matches()) {
-                onError.value = "Email"
-                return
-            }
+        if (!checkEmail(email)) return
 
-        } else {
-            onError.value = "Email"
-            return
-        }
+        if (!checkEmptyPassword(password)) return
 
-        if (TextUtils.isEmpty(password)) {
-            onError.value = "Password"
-            return
-        }
-
-        displayTermsOfServiceTextDialog.value = Event(Unit)
+        displayTermsOfServiceTextDialog.call()
     }
+
 
     fun makeAccount() {
         val name = currentName.value

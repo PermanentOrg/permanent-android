@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import kotlinx.android.synthetic.main.activity_sign_up.view.*
 import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
 import org.permanent.R
 import org.permanent.databinding.ActivitySignUpBinding
@@ -21,25 +22,10 @@ import org.w3c.dom.Text
 class SignUpActivity : PermanentBaseActivity() {
     private lateinit var viewModel: SignUpViewModel
     private lateinit var binding: ActivitySignUpBinding
-    private lateinit var displayTermsOfServiceAlertObserver: Observer<Event<Unit>>
+    private lateinit var displayTermsOfServiceAlertObserver: Observer<Void>
 
 
     private val onError = Observer<String> { error ->
-
-        when(error){
-           "Password" ->{
-               binding.layoutPassword.error = "Please enter your password"
-
-           }
-            "Email" -> {
-                binding.layoutEmail.error = "Please enter valid email address"
-
-            }
-             "Name" -> {
-                 binding.layoutFullName.error = "Please enter your full name"
-
-             }
-        }
 
         Toast.makeText(this, error, Toast.LENGTH_LONG).show()
     }
@@ -60,6 +46,7 @@ class SignUpActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         createObservers()
+        
     }
 
     private fun navigateSignUp() {
@@ -77,13 +64,16 @@ class SignUpActivity : PermanentBaseActivity() {
         viewModel.onError().observe(this, onError)
         viewModel.onSignedUp().observe(this, onSignedUp)
         viewModel.onAlreadyHaveAccount().observe(this, onAlreadyHaveAccount)
-        viewModel.displayTermsOfServiceTextDialog.observe(this, displayTermsOfServiceAlertObserver)
+        viewModel.displayTermsOfServiceTextDialog()
+            .observe(this, displayTermsOfServiceAlertObserver)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.onError().removeObserver(onError)
         viewModel.onSignedUp().removeObserver(onSignedUp)
         viewModel.onAlreadyHaveAccount().removeObserver(onAlreadyHaveAccount)
+        viewModel.displayTermsOfServiceTextDialog()
+            .removeObserver(displayTermsOfServiceAlertObserver)
     }
 
     override fun onResume() {
@@ -98,43 +88,27 @@ class SignUpActivity : PermanentBaseActivity() {
 
     private fun createObservers() {
         displayTermsOfServiceAlertObserver = Observer {
-            it.getContentIfNotHandled()?.let {
 
-                val viewDialog: View =
-                    layoutInflater.inflate(R.layout.dialog_terms_of_service, null)
 
-                val alert = AlertDialog.Builder(this)
-                    .setTitle("Terms and Conditions")
-                    .setView(viewDialog)
-                    .create()
+            val viewDialog: View =
+                layoutInflater.inflate(R.layout.dialog_terms_of_service, null)
 
-                val titleView = TextView(this)
-                titleView.text = getString(R.string.terms_conditions_title)
-                titleView.setBackgroundColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.colorAccent
-                    )
-                )
-                titleView.setPadding(10, 30, 10, 30)
-                titleView.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
-                titleView.textSize = 20F
-                titleView.gravity = Gravity.CENTER
+            val alert = AlertDialog.Builder(this)
+                .setView(viewDialog)
+                .create()
 
-                alert.setCustomTitle(titleView)
-                viewDialog.webviewtermsOfService.loadUrl("https://www.permanent.org/privacy-policy/")
-                viewDialog.btnAccept.setOnClickListener { _ ->
-                    viewModel.makeAccount()
-                    alert.dismiss()
-                }
-                viewDialog.btnDecline.setOnClickListener { _ ->
-                    Toast.makeText(this, "Declined Terms of Service", Toast.LENGTH_SHORT).show()
-                    alert.dismiss()
-                }
-
-                alert.show()
-
+            viewDialog.webviewtermsOfService.loadUrl("https://www.permanent.org/privacy-policy/")
+            viewDialog.btnAccept.setOnClickListener { _ ->
+                viewModel.makeAccount()
+                alert.dismiss()
             }
+            viewDialog.btnDecline.setOnClickListener { _ ->
+                Toast.makeText(this, R.string.sign_up_terms_declined, Toast.LENGTH_SHORT).show()
+                alert.dismiss()
+            }
+
+            alert.show()
+
         }
     }
 }

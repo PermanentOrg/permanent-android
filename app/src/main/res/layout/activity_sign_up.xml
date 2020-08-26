@@ -63,7 +63,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitleSignUp"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.nameError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFullName"
@@ -74,7 +75,8 @@
                 android:inputType="textCapWords"
                 android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
                 android:textColor="@color/white"
-                android:textCursorDrawable="@null" />
+                android:textCursorDrawable="@null"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -96,7 +98,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutFullName"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.emailError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etMail"
@@ -129,7 +132,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.passwordError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"

@@ -132,7 +132,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
             }
 
         } else {
-            onError.value = "Email"
+            onError.value = "Please enter a valid email address"
             return
         }
 
