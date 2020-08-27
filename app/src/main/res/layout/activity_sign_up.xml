@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="android.view.View" />
 
         <variable
@@ -70,13 +71,12 @@
                 android:id="@+id/etFullName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/sign_up_screen_full_name_hint"
-                android:text="@{viewModel.currentName}"
-                android:inputType="textCapWords"
                 android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
+                android:hint="@string/sign_up_screen_full_name_hint"
+                android:inputType="textCapWords"
+                android:text="@{viewModel.currentName}"
                 android:textColor="@color/white"
-                android:textCursorDrawable="@null"
-                />
+                android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -139,10 +139,10 @@
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:afterTextChanged="@{(editable)->viewModel.onPasswordTextChanged(editable)}"
                 android:hint="@string/sign_up_screen_password_hint"
                 android:inputType="textPassword"
                 android:text="@{viewModel.currentPassword}"
-                android:afterTextChanged="@{(editable)->viewModel.onPasswordTextChanged(editable)}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />
 

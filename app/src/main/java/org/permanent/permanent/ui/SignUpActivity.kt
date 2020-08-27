@@ -46,7 +46,7 @@ class SignUpActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         createObservers()
-        
+
     }
 
     private fun navigateSignUp() {

@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.util.Patterns
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.repositories.ILoginRepository
 import java.util.regex.Pattern
@@ -13,6 +14,8 @@ import java.util.regex.Pattern
 class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     val onError = MutableLiveData<String>()
+    private val emailError = MutableLiveData<String>()
+    private val passwordError = MutableLiveData<String>()
     private val onBiometricAuthSuccess = MutableLiveData<BiometricPrompt.PromptInfo>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedIn = SingleLiveEvent<Void>()
@@ -34,6 +37,14 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
     fun getCurrentPassword(): MutableLiveData<String>? {
         return currentPassword
+    }
+
+    fun emailError(): LiveData<String> {
+        return emailError
+    }
+
+    fun passwordError(): LiveData<String> {
+        return passwordError
     }
 
     fun onEmailTextChanged(email: Editable) {
@@ -102,11 +113,11 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
         when (biometricManager.canAuthenticate()) {
             BiometricManager.BIOMETRIC_SUCCESS ->
-            onBiometricAuthSuccess.value = BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Biometric login")
-                .setSubtitle("Log in using your biometric credential")
-                .setNegativeButtonText("Use account password")
-                .build()
+                onBiometricAuthSuccess.value = BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Biometric login")
+                    .setSubtitle("Log in using your biometric credential")
+                    .setNegativeButtonText("Use account password")
+                    .build()
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
                 onError.value = "No biometric features available on this device."
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
@@ -117,6 +128,31 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         }
     }
 
+    private fun checkEmail(email: String?): Boolean {
+        if (!email.isNullOrEmpty()) {
+            val pattern: Pattern = Patterns.EMAIL_ADDRESS
+            if (!pattern.matcher(email).matches()) {
+                emailError.value = "Please enter a valid email address"
+                return false
+            }
+
+        } else {
+            emailError.value = "Please enter a valid email address"
+            return false
+        }
+        emailError.value = null
+        return true
+    }
+
+    private fun checkPassword(password: String?): Boolean {
+        if (TextUtils.isEmpty(password)) {
+            passwordError.value = "Please enter your password"
+            return false
+        }
+        passwordError.value=null
+        return true
+    }
+
     fun login() {
         if (isBusy.value != null && isBusy.value!!) {
             return
@@ -124,22 +160,9 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         val email = currentEmail.value
         val password = currentPassword.value
 
-        if (!TextUtils.isEmpty(email)) {
-            val pattern: Pattern = Patterns.EMAIL_ADDRESS
-            if (!pattern.matcher(email).matches()) {
-                onError.value = "Email"
-                return
-            }
+        if (!checkEmail(email)) return
 
-        } else {
-            onError.value = "Please enter a valid email address"
-            return
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            onError.value = "Please enter your password"
-            return
-        }
+        if (!checkPassword(password)) return
 
         isBusy.value = true
         loginRepository?.login(email, password, object : ILoginRepository.IOnLoginListener {
@@ -154,4 +177,6 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
             }
         })
     }
+
+
 }

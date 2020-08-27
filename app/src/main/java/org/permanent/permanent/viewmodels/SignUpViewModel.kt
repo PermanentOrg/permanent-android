@@ -7,6 +7,7 @@ import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.databinding.ObservableField
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Event
 import org.permanent.permanent.repositories.ISignUpRepository
@@ -16,9 +17,9 @@ import kotlin.math.log
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    val nameError = MutableLiveData<String>()
-    val emailError = MutableLiveData<String>()
-    val passwordError = MutableLiveData<String>()
+    private val nameError = MutableLiveData<String>()
+    private val emailError = MutableLiveData<String>()
+    private val passwordError = MutableLiveData<String>()
     private val onError = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onSignedUp = SingleLiveEvent<Void>()
@@ -64,6 +65,18 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         return onError
     }
 
+    fun nameError(): LiveData<String> {
+        return nameError
+    }
+
+    fun emailError(): LiveData<String> {
+        return emailError
+    }
+
+    fun passwordError(): LiveData<String> {
+        return passwordError
+    }
+
     fun onIsBusy(): MutableLiveData<Boolean> {
         return isBusy
     }
@@ -95,7 +108,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     }
 
     private fun checkEmail(email: String?): Boolean {
-        if (!TextUtils.isEmpty(email)) {
+        if (!email.isNullOrEmpty()) {
             val pattern: Pattern = Patterns.EMAIL_ADDRESS
             if (!pattern.matcher(email).matches()) {
                 emailError.value = "Invalid email"

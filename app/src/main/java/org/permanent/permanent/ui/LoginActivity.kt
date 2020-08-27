@@ -36,9 +36,11 @@ class LoginActivity : PermanentBaseActivity() {
     }
 
     private val onPasswordReset = Observer<Void> {
-        Toast.makeText(this,
+        Toast.makeText(
+            this,
             "Password was reset successfully! Please check your email",
-            Toast.LENGTH_LONG).show()
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,7 +89,6 @@ class LoginActivity : PermanentBaseActivity() {
 
     private fun navigateSignUp() {
         startActivity(Intent(this, SignUpActivity::class.java))
-        finish()
     }
 
     private val biometricAuthCallback = object : BiometricPrompt.AuthenticationCallback() {
@@ -98,7 +99,8 @@ class LoginActivity : PermanentBaseActivity() {
         }
 
         override fun onAuthenticationSucceeded(
-            result: BiometricPrompt.AuthenticationResult) {
+            result: BiometricPrompt.AuthenticationResult
+        ) {
             super.onAuthenticationSucceeded(result)
             navigateLogIn()
         }

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <import type="android.view.View" />
 
         <variable
@@ -61,16 +62,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitleLogin"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.emailError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etMail"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
                 android:hint="@string/login_screen_email_hint"
                 android:inputType="textEmailAddress"
                 android:text="@{viewModel.currentEmail}"
-                android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -94,16 +96,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.passwordError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:afterTextChanged="@{(editable)->viewModel.onPasswordTextChanged(editable)}"
                 android:hint="@string/login_screen_password_hint"
                 android:inputType="textPassword"
                 android:text="@{viewModel.currentPassword}"
-                android:afterTextChanged="@{(editable)->viewModel.onPasswordTextChanged(editable)}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />
 
@@ -116,8 +119,8 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="32dp"
-            android:visibility="gone"
             android:onClick="@{() -> viewModel.useTouchId()}"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -162,12 +165,12 @@
             android:layout_marginTop="12dp"
             android:layout_marginEnd="32dp"
             android:backgroundTint="@color/colorAccent"
+            android:onClick="@{() -> viewModel.login()}"
             android:text="@string/login_screen_login"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:onClick="@{() -> viewModel.login()}"
             app:cornerRadius="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -183,12 +186,12 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
             android:background="@null"
+            android:onClick="@{() -> viewModel.signUp()}"
             android:text="@string/login_screen_sign_up"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:onClick="@{() -> viewModel.signUp()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -203,12 +206,12 @@
             android:layout_marginStart="32dp"
             android:layout_marginEnd="32dp"
             android:background="@null"
+            android:onClick="@{() -> viewModel.forgotPassword()}"
             android:text="@string/login_screen_forgot_password"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:onClick="@{() -> viewModel.forgotPassword()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
