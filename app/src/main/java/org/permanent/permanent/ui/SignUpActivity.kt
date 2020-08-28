@@ -3,21 +3,16 @@ package org.permanent.permanent.ui
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import kotlinx.android.synthetic.main.activity_sign_up.view.*
 import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
 import org.permanent.R
 import org.permanent.databinding.ActivitySignUpBinding
-import org.permanent.permanent.models.Event
+import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SignUpViewModel
-import org.w3c.dom.Text
 
 class SignUpActivity : PermanentBaseActivity() {
     private lateinit var viewModel: SignUpViewModel
@@ -50,15 +45,19 @@ class SignUpActivity : PermanentBaseActivity() {
     }
 
     private fun navigateSignUp() {
-        //TODO refactor with appropriate Activity
-        startActivity(Intent(this, MainActivity::class.java))
+        val intent = Intent(Intent(this, TwoStepVerificationActivity::class.java))
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
         finish()
     }
 
     private fun navigateAlreadyHaveAccount() {
-        startActivity(Intent(this, LoginActivity::class.java))
+        val intent = Intent(Intent(this, LoginActivity::class.java))
+        startActivity(intent)
         finish()
     }
+
+
 
     override fun connectViewModelEvents() {
         viewModel.onError().observe(this, onError)
@@ -99,7 +98,8 @@ class SignUpActivity : PermanentBaseActivity() {
 
             viewDialog.webviewtermsOfService.loadUrl(getString(R.string.terms_of_service_privacy_policy_url))
             viewDialog.btnAccept.setOnClickListener { _ ->
-                viewModel.makeAccount()
+                //viewModel.makeAccount()
+                navigateSignUp()
                 alert.dismiss()
             }
             viewDialog.btnDecline.setOnClickListener { _ ->

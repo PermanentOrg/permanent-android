@@ -8,14 +8,15 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.R
 import org.permanent.permanent.repositories.ILoginRepository
 import java.util.regex.Pattern
 
 class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     val onError = MutableLiveData<String>()
-    private val emailError = MutableLiveData<String>()
-    private val passwordError = MutableLiveData<String>()
+    private val emailError = MutableLiveData<Int>()
+    private val passwordError = MutableLiveData<Int>()
     private val onBiometricAuthSuccess = MutableLiveData<BiometricPrompt.PromptInfo>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedIn = SingleLiveEvent<Void>()
@@ -39,11 +40,11 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         return currentPassword
     }
 
-    fun emailError(): LiveData<String> {
+    fun emailError(): LiveData<Int> {
         return emailError
     }
 
-    fun passwordError(): LiveData<String> {
+    fun passwordError(): LiveData<Int> {
         return passwordError
     }
 
@@ -129,16 +130,16 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
     }
 
     private fun checkEmail(email: String?): Boolean {
-        if (!email.isNullOrEmpty()) {
+        if (email.isNullOrEmpty()) {
+            emailError.value = R.string.invalid_email_error
+            return false
+        } else {
             val pattern: Pattern = Patterns.EMAIL_ADDRESS
             if (!pattern.matcher(email).matches()) {
-                emailError.value = "Please enter a valid email address"
+                emailError.value = R.string.invalid_email_error
                 return false
             }
 
-        } else {
-            emailError.value = "Please enter a valid email address"
-            return false
         }
         emailError.value = null
         return true
@@ -146,10 +147,10 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
     private fun checkPassword(password: String?): Boolean {
         if (TextUtils.isEmpty(password)) {
-            passwordError.value = "Please enter your password"
+            passwordError.value = R.string.login_password_error
             return false
         }
-        passwordError.value=null
+        passwordError.value = null
         return true
     }
 
