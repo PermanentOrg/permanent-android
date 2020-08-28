@@ -97,7 +97,7 @@ class SignUpActivity : PermanentBaseActivity() {
                 .setView(viewDialog)
                 .create()
 
-            viewDialog.webviewtermsOfService.loadUrl("https://www.permanent.org/privacy-policy/")
+            viewDialog.webviewtermsOfService.loadUrl(getString(R.string.terms_of_service_privacy_policy_url))
             viewDialog.btnAccept.setOnClickListener { _ ->
                 viewModel.makeAccount()
                 alert.dismiss()

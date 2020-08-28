@@ -38,7 +38,7 @@ class LoginActivity : PermanentBaseActivity() {
     private val onPasswordReset = Observer<Void> {
         Toast.makeText(
             this,
-            "Password was reset successfully! Please check your email",
+            getString(R.string.login_screen_password_reset_message),
             Toast.LENGTH_LONG
         ).show()
     }
@@ -95,7 +95,9 @@ class LoginActivity : PermanentBaseActivity() {
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-            viewModel.onError.value = "Authentication error: $errString"
+            viewModel.onError.value = getString(
+                R.string.login_screen_biometric_authentication_error_message
+            ) + errString
         }
 
         override fun onAuthenticationSucceeded(
@@ -107,7 +109,8 @@ class LoginActivity : PermanentBaseActivity() {
 
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
-            viewModel.onError.value = "Authentication failed"
+            viewModel.onError.value =
+                getString(R.string.login_biometric_authentication_failed_message)
         }
     }
 }
