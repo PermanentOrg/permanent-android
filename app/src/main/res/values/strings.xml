@@ -21,4 +21,12 @@
     <string name="sign_up_screen_full_name_hint">Full Name</string>
     <string name="sign_up_screen_password_hint">Password (min. 8 chars)</string>
     <string name="sign_up_screen_already_have_an_account">Already have an account?</string>
+    <string name="terms_of_service_accept_button">Accept</string>
+    <string name="terms_of_service_decline_button">Decline</string>
+    <string name="terms_conditions_title">Terms and Conditions</string>
+    <string name="sign_up_terms_declined">Declined Terms and Conditions</string>
+    <string name="terms_of_service_privacy_policy_url">https://www.permanent.org/privacy-policy/</string>
+    <string name="login_screen_password_reset_message">Password was reset successfully! Please check your email</string>
+    <string name="login_biometric_authentication_failed_message">Authentication failed</string>
+    <string name="login_screen_biometric_authentication_error_message">\"Authentication error: \"</string>
 </resources>

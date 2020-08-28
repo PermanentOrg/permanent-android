@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="android.view.View" />
 
         <variable
@@ -63,16 +64,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitleSignUp"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.nameError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFullName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/sign_up_screen_full_name_hint"
-                android:text="@{viewModel.currentName}"
-                android:inputType="textCapWords"
                 android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
+                android:hint="@string/sign_up_screen_full_name_hint"
+                android:inputType="textCapWords"
+                android:text="@{viewModel.currentName}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -96,7 +98,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutFullName"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.emailError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etMail"
@@ -129,16 +132,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.passwordError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:afterTextChanged="@{(editable)->viewModel.onPasswordTextChanged(editable)}"
                 android:hint="@string/sign_up_screen_password_hint"
                 android:inputType="textPassword"
                 android:text="@{viewModel.currentPassword}"
-                android:afterTextChanged="@{(editable)->viewModel.onPasswordTextChanged(editable)}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />
 
