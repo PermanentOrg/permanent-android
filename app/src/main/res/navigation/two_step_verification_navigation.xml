@@ -3,20 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/two_step_verification_navigation"
-    app:startDestination="@id/twoStepVerificationFragment">
+    app:startDestination="@id/twoStepVerificationPhoneFragment">
 
     <fragment
-        android:id="@+id/twoStepVerificationFragment"
+        android:id="@+id/twoStepVerificationPhoneFragment"
         android:name="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationPhoneFragment"
         android:label="TwoStepVerificationFragment"
         tools:layout="@layout/fragment_two_step_verification">
         <action
-            android:id="@+id/action_twoStepVerificationFragment_to_twoStepVerificationCodeFragment"
+            android:id="@+id/action_twoStepVerificationPhoneFragment_to_twoStepVerificationCodeFragment"
             app:destination="@id/twoStepVerificationCodeFragment"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_twoStepVerificationPhoneFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit" />
     </fragment>
     <fragment
         android:id="@+id/twoStepVerificationCodeFragment"
@@ -25,6 +30,16 @@
         tools:layout="@layout/fragment_two_step_verification_code">
         <action
             android:id="@+id/action_twoStepVerificationCodeFragment_to_twoStepVerificationFragment"
-            app:destination="@id/twoStepVerificationFragment" />
+            app:destination="@id/twoStepVerificationPhoneFragment" />
+        <action
+            android:id="@+id/action_twoStepVerificationCodeFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit" />
     </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="org.permanent.permanent.ui.MainActivity"
+        android:label="MainActivity"
+        tools:layout="@layout/activity_main"/>
 </navigation>

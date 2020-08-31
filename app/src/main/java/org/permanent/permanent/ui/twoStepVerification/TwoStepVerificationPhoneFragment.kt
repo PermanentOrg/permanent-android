@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.twoStepVerification
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -46,11 +47,12 @@ class TwoStepVerificationPhoneFragment : Fragment() {
     }
 
     private fun navigateSubmit() {
-        this.findNavController().navigate(R.id.action_twoStepVerificationFragment_to_twoStepVerificationCodeFragment)
+        this.findNavController().navigate(R.id.action_twoStepVerificationPhoneFragment_to_twoStepVerificationCodeFragment)
     }
 
     private fun navigateSkip() {
-        //TODO refactor with appropriate Activity
+        findNavController().navigate(R.id.action_twoStepVerificationPhoneFragment_to_mainActivity,)
+        activity?.finish()
     }
 
     override fun onResume() {
