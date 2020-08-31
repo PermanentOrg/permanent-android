@@ -3,22 +3,60 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".permanent.ui.MainActivity">
+        android:orientation="vertical">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/mainActivityNavHostFragment"
-            android:name="androidx.navigation.fragment.NavHostFragment"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/mainToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:logo="@drawable/toolbar_logo"
+            app:title="@string/toolbar_title"
+            app:titleMarginStart="24dp"
+            app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
+            app:titleTextColor="@color/colorAccent" />
+
+<!--        <TextView-->
+<!--            android:id="@+id/toolbarTitle"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            tools:text="Permanent.org"-->
+<!--            android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
+<!--            android:textColor="@color/colorAccent"-->
+<!--            android:layout_marginStart="12dp"/>-->
+
+        <androidx.drawerlayout.widget.DrawerLayout xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/mainActivityDrawerLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:defaultNavHost="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:navGraph="@navigation/main_activity_navigation" />
+            tools:context=".permanent.ui.MainActivity">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/mainActivityNavHostFragment"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:defaultNavHost="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:navGraph="@navigation/main_activity_navigation" />
+
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/mainActivityNavigationView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                app:menu="@menu/menu_drawer" />
+
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+
+    </LinearLayout>
 </layout>
