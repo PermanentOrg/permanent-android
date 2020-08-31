@@ -166,6 +166,9 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         if (!checkPassword(password)) return
 
         isBusy.value = true
+        //TODO 1 remove after Login is implemented
+        isBusy.value = false
+        onLoggedIn.call()
         loginRepository?.login(email, password, object : ILoginRepository.IOnLoginListener {
             override fun onSuccess() {
                 isBusy.value = false

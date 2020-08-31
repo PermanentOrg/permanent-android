@@ -10,4 +10,8 @@
         android:name="org.permanent.permanent.ui.MainFragment"
         android:label="MainFragment"
         tools:layout="@layout/fragment_main"/>
+    <fragment
+        android:id="@+id/secondaryFragment"
+        android:name="org.permanent.permanent.ui.SecondaryFragment"
+        android:label="SecondaryFragment" />
 </navigation>
