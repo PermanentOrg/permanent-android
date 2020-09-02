@@ -8,15 +8,17 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.R
 import org.permanent.permanent.repositories.ILoginRepository
 import java.util.regex.Pattern
 
 class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    val onError = MutableLiveData<String>()
-    private val emailError = MutableLiveData<String>()
-    private val passwordError = MutableLiveData<String>()
-    private val onBiometricAuthSuccess = MutableLiveData<BiometricPrompt.PromptInfo>()
+    val onError = MutableLiveData<Int>()
+    val authenticationError = MutableLiveData<String>()
+    private val emailError = MutableLiveData<Int>()
+    private val passwordError = MutableLiveData<Int>()
+    private val onBiometricAuthSuccess = SingleLiveEvent<Void>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedIn = SingleLiveEvent<Void>()
     private val onSignUp = SingleLiveEvent<Void>()
@@ -24,6 +26,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
+
     private var loginRepository: ILoginRepository? = null
 
     init {
@@ -39,11 +42,11 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         return currentPassword
     }
 
-    fun emailError(): LiveData<String> {
+    fun emailError(): LiveData<Int> {
         return emailError
     }
 
-    fun passwordError(): LiveData<String> {
+    fun passwordError(): LiveData<Int> {
         return passwordError
     }
 
@@ -55,11 +58,15 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         currentPassword.value = password.toString().trim { it <= ' ' }
     }
 
-    fun onError(): MutableLiveData<String> {
+    fun onError(): LiveData<Int> {
         return onError
     }
 
-    fun onBiometricAuthSuccess(): MutableLiveData<BiometricPrompt.PromptInfo> {
+    fun onAuthenticationError(): LiveData<String>{
+        return authenticationError
+    }
+
+    fun onBiometricAuthSuccess(): LiveData<Void> {
         return onBiometricAuthSuccess
     }
 
@@ -90,7 +97,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         val email = currentEmail.value
 
         if (TextUtils.isEmpty(email)) {
-            onError.value = "Please enter a valid email address"
+            onError.value = R.string.invalid_email_error
             return
         }
 
@@ -103,7 +110,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
             override fun onFailed(error: String?, errorCode: Int) {
                 isBusy.value = false
-                onError.value = error
+                authenticationError.value = error
             }
         })
     }
@@ -113,32 +120,27 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
         when (biometricManager.canAuthenticate()) {
             BiometricManager.BIOMETRIC_SUCCESS ->
-                onBiometricAuthSuccess.value = BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Biometric login")
-                    .setSubtitle("Log in using your biometric credential")
-                    .setNegativeButtonText("Use account password")
-                    .build()
+                onBiometricAuthSuccess.call()
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
-                onError.value = "No biometric features available on this device."
+                onError.value = R.string.login_no_biometric_error
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
-                onError.value = "Biometric features are currently unavailable."
+                onError.value = R.string.login_biometric_unavailable_error
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                onError.value = "You haven't associated " +
-                        "any biometric credentials with your account."
+                onError.value = R.string.login_biometric_not_setup_error
         }
     }
 
     private fun checkEmail(email: String?): Boolean {
-        if (!email.isNullOrEmpty()) {
+        if (email.isNullOrEmpty()) {
+            emailError.value = R.string.invalid_email_error
+            return false
+        } else {
             val pattern: Pattern = Patterns.EMAIL_ADDRESS
             if (!pattern.matcher(email).matches()) {
-                emailError.value = "Please enter a valid email address"
+                emailError.value = R.string.invalid_email_error
                 return false
             }
 
-        } else {
-            emailError.value = "Please enter a valid email address"
-            return false
         }
         emailError.value = null
         return true
@@ -146,10 +148,10 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
     private fun checkPassword(password: String?): Boolean {
         if (TextUtils.isEmpty(password)) {
-            passwordError.value = "Please enter your password"
+            passwordError.value = R.string.login_password_error
             return false
         }
-        passwordError.value=null
+        passwordError.value = null
         return true
     }
 
@@ -173,7 +175,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
             override fun onFailed(error: String?, errorCode: Int) {
                 isBusy.value = false
-                onError.value = error
+                authenticationError.value = error
             }
         })
     }

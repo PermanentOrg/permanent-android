@@ -28,6 +28,9 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".permanent.ui.twoStepVerification.TwoStepVerificationActivity"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".permanent.ui.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait">

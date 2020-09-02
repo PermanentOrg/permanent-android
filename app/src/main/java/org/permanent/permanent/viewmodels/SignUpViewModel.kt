@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.R
 import org.permanent.permanent.models.Event
 import org.permanent.permanent.repositories.ISignUpRepository
 import java.util.regex.Pattern
@@ -17,9 +18,9 @@ import kotlin.math.log
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    private val nameError = MutableLiveData<String>()
-    private val emailError = MutableLiveData<String>()
-    private val passwordError = MutableLiveData<String>()
+    private val nameError = MutableLiveData<Int>()
+    private val emailError = MutableLiveData<Int>()
+    private val passwordError = MutableLiveData<Int>()
     private val onError = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onSignedUp = SingleLiveEvent<Void>()
@@ -49,6 +50,18 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         return currentPassword
     }
 
+    fun getNameError(): LiveData<Int> {
+        return nameError
+    }
+
+    fun getEmailError(): LiveData<Int> {
+        return emailError
+    }
+
+    fun getPasswordError(): LiveData<Int> {
+        return passwordError
+    }
+
     fun onNameTextChanged(name: Editable) {
         currentName.value = name.toString().trim { it <= ' ' }
     }
@@ -63,18 +76,6 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun onError(): MutableLiveData<String> {
         return onError
-    }
-
-    fun nameError(): LiveData<String> {
-        return nameError
-    }
-
-    fun emailError(): LiveData<String> {
-        return emailError
-    }
-
-    fun passwordError(): LiveData<String> {
-        return passwordError
     }
 
     fun onIsBusy(): MutableLiveData<Boolean> {
@@ -99,7 +100,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     private fun checkName(name: String?): Boolean {
         return if (TextUtils.isEmpty(name)) {
-            nameError.value = "Name can not be empty"
+            nameError.value = R.string.sign_up_empty_name_error
             false
         } else {
             nameError.value = null
@@ -108,16 +109,16 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     }
 
     private fun checkEmail(email: String?): Boolean {
-        if (!email.isNullOrEmpty()) {
+        if (email.isNullOrEmpty()) {
+            emailError.value = R.string.invalid_email_error
+            return false
+        } else {
             val pattern: Pattern = Patterns.EMAIL_ADDRESS
             if (!pattern.matcher(email).matches()) {
-                emailError.value = "Invalid email"
+                emailError.value = R.string.invalid_email_error
                 return false
             }
 
-        } else {
-            emailError.value = "Invalid email"
-            return false
         }
         emailError.value = null
         return true
@@ -125,11 +126,11 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     private fun checkEmptyPassword(password: String?): Boolean {
         if (password == null) {
-            passwordError.value = "Password can not be empty"
+            passwordError.value = R.string.no_password_error
             return false
         } else {
             if (password.length < 8) {
-                passwordError.value = "Password must be minimum 8 characters long"
+                passwordError.value = R.string.sign_up_password_too_small_error
                 return false
             }
         }
