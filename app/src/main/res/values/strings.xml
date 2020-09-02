@@ -46,4 +46,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="two_step_verification_done_button">Done</string>
+    <string name="login_no_biometric_error">No biometric features available on this device.</string>
+    <string name="login_biometric_unavailable_error">Biometric features are currently unavailable.</string>
+    <string name="login_biometric_not_setup_error">You haven\'t associated any biometric credentials with your account.</string>
+    <string name="login_biometric_title">Biometric login</string>
+    <string name="login_biometric_subtitle">Log in using your biometric credential</string>
+    <string name="login_biometric_negative_button">Use account password</string>
 </resources>

@@ -19,30 +19,6 @@ class LoginActivity : PermanentBaseActivity() {
     private lateinit var executor: Executor
     private lateinit var biometricPrompt: BiometricPrompt
 
-    private val onError = Observer<String> { error ->
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show()
-    }
-
-    private val onLoggedIn = Observer<Void> {
-        navigateLogIn()
-    }
-
-    private val onBiometricAuthSuccess = Observer<BiometricPrompt.PromptInfo> {
-        biometricPrompt.authenticate(it)
-    }
-
-    private val onSignUp = Observer<Void> {
-        navigateSignUp()
-    }
-
-    private val onPasswordReset = Observer<Void> {
-        Toast.makeText(
-            this,
-            getString(R.string.login_screen_password_reset_message),
-            Toast.LENGTH_LONG
-        ).show()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
@@ -61,6 +37,41 @@ class LoginActivity : PermanentBaseActivity() {
         viewModel.onBiometricAuthSuccess().observe(this, onBiometricAuthSuccess)
         viewModel.onSignUp().observe(this, onSignUp)
         viewModel.onPasswordReset().observe(this, onPasswordReset)
+        viewModel.onAuthenticationError().observe(this,onAuthenticationError)
+    }
+
+    private val onError = Observer<Int> { error ->
+        val errorMessage = this.resources.getString(error)
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+    }
+
+    private val onAuthenticationError = Observer<String> { error ->
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+    }
+
+    private val onLoggedIn = Observer<Void> {
+        navigateLogIn()
+    }
+
+    private val onBiometricAuthSuccess = Observer<Void> {
+        val biometricBuilder = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(getString(R.string.login_biometric_title))
+            .setSubtitle(getString(R.string.login_biometric_subtitle))
+            .setNegativeButtonText(getString(R.string.login_biometric_negative_button))
+            .build()
+        biometricPrompt.authenticate(biometricBuilder)
+    }
+
+    private val onSignUp = Observer<Void> {
+        navigateSignUp()
+    }
+
+    private val onPasswordReset = Observer<Void> {
+        Toast.makeText(
+            this,
+            getString(R.string.login_screen_password_reset_message),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     override fun disconnectViewModelEvents() {
@@ -69,6 +80,7 @@ class LoginActivity : PermanentBaseActivity() {
         viewModel.onBiometricAuthSuccess().removeObserver(onBiometricAuthSuccess)
         viewModel.onSignUp().removeObserver(onSignUp)
         viewModel.onPasswordReset().removeObserver(onPasswordReset)
+        viewModel.onAuthenticationError().removeObserver(onAuthenticationError)
     }
 
     override fun onResume() {
@@ -95,7 +107,7 @@ class LoginActivity : PermanentBaseActivity() {
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-            viewModel.onError.value = getString(
+            viewModel.authenticationError.value = getString(
                 R.string.login_screen_biometric_authentication_error_message
             ) + errString
         }
@@ -109,7 +121,7 @@ class LoginActivity : PermanentBaseActivity() {
 
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
-            viewModel.onError.value =
+            viewModel.authenticationError.value =
                 getString(R.string.login_biometric_authentication_failed_message)
         }
     }
