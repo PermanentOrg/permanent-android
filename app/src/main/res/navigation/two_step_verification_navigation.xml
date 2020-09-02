@@ -39,7 +39,7 @@
     </fragment>
     <activity
         android:id="@+id/mainActivity"
-        android:name="org.permanent.permanent.ui.MainActivity"
+        android:name="org.permanent.permanent.ui.mainScreen.MainActivity"
         android:label="MainActivity"
         tools:layout="@layout/activity_main"/>
 </navigation>
