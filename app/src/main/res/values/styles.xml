@@ -23,4 +23,8 @@
     <style name="customTextField" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <item name="android:textColorHint">@color/lightGrey</item>
     </style>
+
+    <style name="customDrawerTextStyle" >
+        <item name="android:textSize">18sp</item>
+    </style>
 </resources>

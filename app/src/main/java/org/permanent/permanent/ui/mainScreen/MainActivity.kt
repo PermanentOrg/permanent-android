@@ -1,16 +1,14 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.mainScreen
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import org.permanent.R
 import org.permanent.databinding.ActivityMainBinding
+import org.permanent.permanent.ui.PermanentBaseActivity
 
 class MainActivity : PermanentBaseActivity() {
 
@@ -27,6 +25,7 @@ class MainActivity : PermanentBaseActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainActivityNavHostFragment) as NavHostFragment
         navigationController = navHostFragment.navController
+
         binding.mainActivityNavigationView.setupWithNavController(navigationController)
 
         val topLevelDestination = setOf(
@@ -37,6 +36,14 @@ class MainActivity : PermanentBaseActivity() {
             AppBarConfiguration(topLevelDestination, binding.mainActivityDrawerLayout)
 
         binding.mainToolbar.setupWithNavController(navigationController, appBarConfiguration)
+        setUpListeners()
+
+    }
+
+    private fun setUpListeners(){
+        navigationController.addOnDestinationChangedListener { _, _, _ ->
+            binding.mainToolbar.setNavigationIcon(R.drawable.ic_baseline_camera_24)
+        }
     }
 
     override fun connectViewModelEvents() {

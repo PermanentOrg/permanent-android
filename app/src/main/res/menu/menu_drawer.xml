@@ -7,18 +7,35 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/mainFragment"
-            android:title="Primary" />
+            android:icon="@drawable/ic_baseline_folder_24"
+            android:title="MyFiles" />
 
         <item
             android:id="@+id/secondaryFragment"
-            android:title="Secondary"/>
+            android:icon="@drawable/ic_baseline_share_24"
+            android:title="Shares" />
+        <item
+            android:id="@+id/publicFragment"
+            android:icon="@drawable/ic_baseline_public_24"
+            android:title="Public" />
 
     </group>
 
-    <group
-        android:id="@+id/group2">
+    <group android:id="@+id/group2"
+        android:checkableBehavior="single">
         <item
-            android:id="@+id/secondGroup"
-            android:title="secondGroup"/>
+            android:id="@+id/relationshipsFragment"
+            android:icon="@drawable/ic_baseline_relationships_24"
+            android:title="Relationships" />
+
+        <item
+            android:id="@+id/membersFragment"
+            android:icon="@drawable/ic_baseline_members_24"
+            android:title="Members" />
+
+        <item
+            android:id="@+id/AppsFragment"
+            android:icon="@drawable/ic_baseline_members_24"
+            android:title="Apps" />
     </group>
 </menu>

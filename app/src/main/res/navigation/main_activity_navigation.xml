@@ -7,11 +7,11 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="org.permanent.permanent.ui.MainFragment"
-        android:label="MainFragment"
+        android:name="org.permanent.permanent.ui.mainScreen.MainFragment"
+        android:label="MyFiles"
         tools:layout="@layout/fragment_main"/>
     <fragment
         android:id="@+id/secondaryFragment"
-        android:name="org.permanent.permanent.ui.SecondaryFragment"
-        android:label="SecondaryFragment" />
+        android:name="org.permanent.permanent.ui.mainScreen.SecondaryFragment"
+        android:label="Shares" />
 </navigation>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,27 +14,14 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:logo="@drawable/toolbar_logo"
-            app:title="@string/toolbar_title"
-            app:titleMarginStart="24dp"
             app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
-            app:titleTextColor="@color/colorAccent" />
+            app:titleTextColor="@color/white" />
 
-<!--        <TextView-->
-<!--            android:id="@+id/toolbarTitle"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="center"-->
-<!--            tools:text="Permanent.org"-->
-<!--            android:textAppearance="@style/TextAppearance.AppCompat.Large"-->
-<!--            android:textColor="@color/colorAccent"-->
-<!--            android:layout_marginStart="12dp"/>-->
-
-        <androidx.drawerlayout.widget.DrawerLayout xmlns:tools="http://schemas.android.com/tools"
+        <androidx.drawerlayout.widget.DrawerLayout
             android:id="@+id/mainActivityDrawerLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".permanent.ui.MainActivity">
+            tools:context=".permanent.ui.mainScreen.MainActivity">
 
 
             <androidx.fragment.app.FragmentContainerView
@@ -50,9 +38,13 @@
 
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/mainActivityNavigationView"
-                android:layout_width="match_parent"
+                android:layout_width="250dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
+                android:background="@color/colorPrimary"
+                app:itemTextAppearance="@style/customDrawerTextStyle"
+                app:itemTextColor="@color/white"
+                app:itemIconTint="@color/white"
                 app:menu="@menu/menu_drawer" />
 
         </androidx.drawerlayout.widget.DrawerLayout>
