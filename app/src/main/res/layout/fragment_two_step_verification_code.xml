@@ -81,8 +81,10 @@
                 android:id="@+id/etVerificationCode"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:afterTextChanged="@{(editable)->viewModel.onCurrentVerificationCodeChanged(editable)}"
                 android:hint="@string/two_step_verification_input_code"
                 android:inputType="phone"
+                android:text="@{viewModel.currentVerificationCode}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>

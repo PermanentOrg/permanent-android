@@ -10,12 +10,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.R
-import org.permanent.databinding.FragmentTwoStepVerificationBinding
+import org.permanent.databinding.FragmentTwoStepVerificationPhoneBinding
 
 class TwoStepVerificationPhoneFragment : Fragment() {
 
     private lateinit var viewModel: TwoStepVerificationPhoneViewModel
-    private lateinit var binding: FragmentTwoStepVerificationBinding
+    private lateinit var binding: FragmentTwoStepVerificationPhoneBinding
 
 
     override fun onCreateView(
@@ -24,7 +24,7 @@ class TwoStepVerificationPhoneFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = FragmentTwoStepVerificationBinding.inflate(inflater, container, false)
+        binding = FragmentTwoStepVerificationPhoneBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(TwoStepVerificationPhoneViewModel::class.java)

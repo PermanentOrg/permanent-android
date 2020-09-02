@@ -43,7 +43,6 @@
     <string name="two_step_verification_phone_hint">Your phone number</string>
     <string name="two_step_verification_message">Add an extra layer of security by entering a verification code we send to your phone</string>
     <string name="two_step_verification_title">Protect your account with 2-Step Verification</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="two_step_verification_done_button">Done</string>
     <string name="login_no_biometric_error">No biometric features available on this device.</string>

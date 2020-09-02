@@ -45,14 +45,14 @@ class SignUpActivity : PermanentBaseActivity() {
     }
 
     private fun navigateSignUp() {
-        val intent = Intent(Intent(this, TwoStepVerificationActivity::class.java))
+        val intent = Intent(this, TwoStepVerificationActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
     }
 
     private fun navigateAlreadyHaveAccount() {
-        val intent = Intent(Intent(this, LoginActivity::class.java))
+        val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
@@ -98,6 +98,7 @@ class SignUpActivity : PermanentBaseActivity() {
 
             viewDialog.webviewtermsOfService.loadUrl(getString(R.string.terms_of_service_privacy_policy_url))
             viewDialog.btnAccept.setOnClickListener { _ ->
+                //TODO remove after makeAccount() implementation
                 //viewModel.makeAccount()
                 navigateSignUp()
                 alert.dismiss()

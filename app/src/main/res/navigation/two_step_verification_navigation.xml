@@ -9,7 +9,7 @@
         android:id="@+id/twoStepVerificationPhoneFragment"
         android:name="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationPhoneFragment"
         android:label="TwoStepVerificationFragment"
-        tools:layout="@layout/fragment_two_step_verification">
+        tools:layout="@layout/fragment_two_step_verification_phone">
         <action
             android:id="@+id/action_twoStepVerificationPhoneFragment_to_twoStepVerificationCodeFragment"
             app:destination="@id/twoStepVerificationCodeFragment"
