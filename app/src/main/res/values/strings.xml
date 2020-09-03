@@ -6,9 +6,9 @@
     <string name="onboarding_page_two_text">We are the most comprehensive consumer digital preservation platform available today.</string>
     <string name="onboarding_page_three_title">We will never mine your data, claim your copyright or invade your privacy.</string>
     <string name="onboarding_page_three_text">We are backed by a mission-driven, cultural heritage nonprofit dedicated to the public good.</string>
-    <string name="onboarding_btn_text_next">Next</string>
-    <string name="onboarding_btn_text_get_started">Get Started</string>
-    <string name="toolbar_btn_text_skip">Skip</string>
+    <string name="onboarding_next_button">Next</string>
+    <string name="onboarding_get_started_button">Get Started</string>
+    <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
     <string name="login_screen_email_hint">Email</string>
     <string name="login_screen_password_hint">Password</string>
@@ -43,7 +43,6 @@
     <string name="two_step_verification_phone_hint">Your phone number</string>
     <string name="two_step_verification_message">Add an extra layer of security by entering a verification code we send to your phone</string>
     <string name="two_step_verification_title">Protect your account with 2-Step Verification</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="two_step_verification_done_button">Done</string>
     <string name="login_no_biometric_error">No biometric features available on this device.</string>
     <string name="login_biometric_unavailable_error">Biometric features are currently unavailable.</string>
@@ -51,4 +50,6 @@
     <string name="login_biometric_title">Biometric login</string>
     <string name="login_biometric_subtitle">Log in using your biometric credential</string>
     <string name="login_biometric_negative_button">Use account password</string>
+    <string name="welcome_text">This archive represents your personal digital legacy. Upload your most important digital records then share them with total control.</string>
+    <string name="welcome_start_preserving_button">Start Preserving</string>
 </resources>
