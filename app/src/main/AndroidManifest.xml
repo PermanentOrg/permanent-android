@@ -22,6 +22,7 @@
         <activity
             android:name=".permanent.ui.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".permanent.ui.onboarding.OnboardingActivity"

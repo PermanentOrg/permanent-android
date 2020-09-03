@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group
+        android:id="@+id/group1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/mainFragment"
+            android:title="Storage" />
+
+        <item
+            android:id="@+id/secondaryFragment"
+            android:title="Account Info" />
+        <item
+            android:id="@+id/activityFragment"
+            android:title="Activity Feed" />
+
+
+        <item
+            android:id="@+id/NotificationsFragment"
+            android:title="Notification Settings" />
+
+        <item
+            android:id="@+id/invitationsFragment"
+            android:title="Invitations" />
+
+        <item
+            android:id="@+id/securityFragment"
+            android:title="Security" />
+
+        <item
+            android:id="@+id/supportFragment"
+            android:title="Contact Support" />
+
+        <item
+            android:id="@+id/logOut"
+            android:title="Log Out" />
+    </group>
+</menu>
