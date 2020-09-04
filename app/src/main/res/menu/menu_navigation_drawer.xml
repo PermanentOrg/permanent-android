@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group
+        android:id="@+id/group1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/mainFragment"
+            android:icon="@drawable/ic_baseline_folder_24"
+            android:title="@string/menu_drawer_myfiles" />
+
+        <item
+            android:id="@+id/secondaryFragment"
+            android:icon="@drawable/ic_baseline_share_24"
+            android:title="@string/menu_drawer_shares" />
+        <item
+            android:id="@+id/publicFragment"
+            android:icon="@drawable/ic_baseline_public_24"
+            android:title="@string/menu_drawer_public" />
+
+    </group>
+
+    <group android:id="@+id/group2"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/relationshipsFragment"
+            android:icon="@drawable/ic_baseline_relationships_24"
+            android:title="@string/menu_drawer_relationships" />
+
+        <item
+            android:id="@+id/membersFragment"
+            android:icon="@drawable/ic_baseline_members_24"
+            android:title="@string/menu_drawer_members" />
+
+        <item
+            android:id="@+id/AppsFragment"
+            android:icon="@drawable/ic_baseline_members_24"
+            android:title="@string/menu_drawer_apps" />
+    </group>
+</menu>

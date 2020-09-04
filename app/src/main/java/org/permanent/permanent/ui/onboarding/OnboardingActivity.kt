@@ -13,6 +13,7 @@ import org.permanent.R
 import org.permanent.databinding.ActivityOnboardingBinding
 import org.permanent.permanent.ui.LoginActivity
 import org.permanent.permanent.ui.PermanentBaseActivity
+import org.permanent.permanent.ui.mainScreen.MainActivity
 import org.permanent.permanent.viewmodels.OnboardingViewModel
 
 
@@ -66,7 +67,7 @@ class OnboardingActivity : PermanentBaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.menu_onboarding, menu)
         return true
     }
 
@@ -82,7 +83,8 @@ class OnboardingActivity : PermanentBaseActivity() {
     }
 
     private fun startLoginActivity() {
-        startActivity(Intent(this@OnboardingActivity, LoginActivity::class.java))
+        //TODO Change activity
+        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
         finish()
     }
 

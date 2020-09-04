@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.mainScreen
 
 import android.os.Bundle
 import android.view.LayoutInflater
