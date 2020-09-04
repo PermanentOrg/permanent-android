@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "name": "Permanent Illustrations",
+      "type": "folder",
+      "date": "02-23-2020",
+      "shared" : true,
+      "thumbnails": [
+        "https://www.wanderlustplanet.com/wp-content/uploads/2020/05/travel-background-with-landmarks-around-world_23-2147769351-626x515.jpg",
+        "https://i.pinimg.com/originals/6f/95/24/6f95245fded8fcc08887d79b4fadd6e4.jpg",
+        "https://scontent.ftsr1-1.fna.fbcdn.net/v/t1.0-9/p960x960/30715992_365360423949131_723246495209357312_o.jpg?_nc_cat=106&_nc_sid=85a577&_nc_ohc=umIUdoja-iAAX8JKGLC&_nc_ht=scontent.ftsr1-1.fna&tp=6&oh=1841b7d72f33ec8954c5234f86c0c58a&oe=5F74DABD",
+        "https://cdn.mos.cms.futurecdn.net/BX7vjSt8KMtcBHyisvcSPK-1200-80.jpg",
+        "https://nobilsushi.ro/en/wp-content/uploads/sites/2/2016/04/Sushi-box-28.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRWVtc7C3u71aHH6_iF8nmqjkFDG8Zww9dYaw&usqp=CAU",
+        "https://imgix.bustle.com/uploads/getty/2020/6/11/16a5e937-5403-469a-930a-c569bf51726d-getty-1167560425.jpg?w=960&h=540&fit=crop&crop=faces&auto=format%2Ccompress&cs=srgb&q=70",
+        "https://newgiftstogive.files.wordpress.com/2012/10/4.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6tE1amcoIdprw5Dy4TofW8qYnXqfsxIDOpA&usqp=CAU"
+      ]
+    },
+    {
+      "name": "Profile Photos",
+      "type": "folder",
+      "date": "02-20-2020",
+      "shared": false,
+      "thumbnails": [
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQaASfZbZl1D_utrzuxN7BfKF_GxH1i1QkY1w&usqp=CAU"
+      ]
+    },
+    {
+      "name": "Cat",
+      "type": "photo",
+      "date": "02-18-2020",
+      "shared": false,
+      "thumbnail": "https://scontent.ftsr1-1.fna.fbcdn.net/v/t1.0-9/p960x960/30715992_365360423949131_723246495209357312_o.jpg?_nc_cat=106&_nc_sid=85a577&_nc_ohc=umIUdoja-iAAX8JKGLC&_nc_ht=scontent.ftsr1-1.fna&tp=6&oh=1841b7d72f33ec8954c5234f86c0c58a&oe=5F74DABD"
+    },
+    {
+      "name": "Chicken",
+      "type": "photo",
+      "date": "02-16-2020",
+      "shared": false,
+      "thumbnail": "https://cdn.mos.cms.futurecdn.net/BX7vjSt8KMtcBHyisvcSPK-1200-80.jpg"
+    }
+  ]
+}

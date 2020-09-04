@@ -16,10 +16,11 @@ import org.permanent.databinding.NavHeaderBinding
 import org.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PermanentBaseActivity
 import org.permanent.permanent.viewmodels.MainActivityViewModel
+import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
 
-    private lateinit var viewModel: MainActivityViewModel
+    private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var headerBinding: NavHeaderBinding
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
@@ -28,7 +29,7 @@ class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
