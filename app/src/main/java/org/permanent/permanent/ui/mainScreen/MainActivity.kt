@@ -19,7 +19,6 @@ import org.permanent.databinding.ActivityMainBinding
 import org.permanent.databinding.NavHeaderBinding
 import org.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PermanentBaseActivity
-import org.permanent.permanent.viewmodels.MainActivityViewModel
 import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
