@@ -1,7 +1,10 @@
 package org.permanent.permanent.ui.mainScreen
 
+import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -10,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.R
 import org.permanent.databinding.ActivityMainBinding
 import org.permanent.databinding.NavHeaderBinding
@@ -59,6 +63,30 @@ class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
         setUpListeners()
         binding.mainToolbar.inflateMenu(R.menu.menu_profile_settings)
         binding.mainToolbar.setOnMenuItemClickListener(this)
+
+        if (!viewModel.isWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))) {
+            showWelcomeDialog()
+        }
+
+    }
+
+    private fun showWelcomeDialog() {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_welcome, null)
+
+        val alert = AlertDialog.Builder(this)
+            .setView(viewDialog)
+            .create()
+
+        viewDialog.ivBtnClose.setOnClickListener {
+            viewModel.setWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))
+            alert.dismiss()
+        }
+        viewDialog.btnStartPreserving.setOnClickListener {
+            viewModel.setWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))
+            alert.dismiss()
+        }
+
+        alert.show()
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
