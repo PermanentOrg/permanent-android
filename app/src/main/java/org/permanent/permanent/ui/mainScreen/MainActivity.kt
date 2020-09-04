@@ -16,7 +16,7 @@ import androidx.navigation.ui.setupWithNavController
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.R
 import org.permanent.databinding.ActivityMainBinding
-import org.permanent.databinding.NavHeaderBinding
+import org.permanent.databinding.NavMainHeaderBinding
 import org.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PermanentBaseActivity
 import org.permanent.permanent.viewmodels.MainViewModel
@@ -25,7 +25,7 @@ class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
-    private lateinit var headerBinding: NavHeaderBinding
+    private lateinit var headerBinding: NavMainHeaderBinding
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navigationController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -42,7 +42,7 @@ class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
         headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.mainActivitySettingNavigationView.getHeaderView(0))
         headerSettingsBinding.viewModel = viewModel
 
-        headerBinding = NavHeaderBinding.bind(binding.mainActivityNavigationView.getHeaderView(0))
+        headerBinding = NavMainHeaderBinding.bind(binding.mainActivityNavigationView.getHeaderView(0))
         headerBinding.viewModel = viewModel
 
         val navHostFragment =
@@ -60,7 +60,7 @@ class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
         binding.mainActivitySettingNavigationView.setupWithNavController(navigationController)
         binding.mainToolbar.setupWithNavController(navigationController, appBarConfiguration)
         setUpListeners()
-        binding.mainToolbar.inflateMenu(R.menu.menu_profile_settings)
+        binding.mainToolbar.inflateMenu(R.menu.menu_toolbar_settings)
         binding.mainToolbar.setOnMenuItemClickListener(this)
 
         if (!viewModel.isWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))) {

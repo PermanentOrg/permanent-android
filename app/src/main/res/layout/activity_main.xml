@@ -60,7 +60,7 @@
                 app:headerLayout="@layout/nav_settings_header"
                 app:itemTextAppearance="@style/customDrawerTextStyle"
                 app:itemTextColor="@color/colorPrimary"
-                app:menu="@menu/menu_settings" />
+                app:menu="@menu/menu_settings_drawer" />
 
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/mainActivityNavigationView"
@@ -68,12 +68,12 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:background="@color/colorPrimary"
-                app:headerLayout="@layout/nav_header"
+                app:headerLayout="@layout/nav_main_header"
                 app:itemBackground="@drawable/drawer_selected_item"
                 app:itemIconTint="@color/white"
                 app:itemTextAppearance="@style/customDrawerTextStyle"
                 app:itemTextColor="@color/white"
-                app:menu="@menu/menu_drawer"
+                app:menu="@menu/menu_navigation_drawer"
                 app:theme="@style/customDrawerStyle" />
 
 

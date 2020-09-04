@@ -32,7 +32,7 @@
             android:id="@+id/tvHeaderSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tap here to manage archive"
+            android:text="@string/nav_header_subtitle_text"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"

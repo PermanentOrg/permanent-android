@@ -7,34 +7,34 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/mainFragment"
-            android:title="Storage" />
+            android:title="@string/menu_settings_drawer_storage" />
 
         <item
             android:id="@+id/secondaryFragment"
-            android:title="Account Info" />
+            android:title="@string/menu_settings_drawer_account" />
         <item
             android:id="@+id/activityFragment"
-            android:title="Activity Feed" />
+            android:title="@string/menu_settings_drawer_activity" />
 
 
         <item
             android:id="@+id/NotificationsFragment"
-            android:title="Notification Settings" />
+            android:title="@string/menu_settings_drawer_notifications" />
 
         <item
             android:id="@+id/invitationsFragment"
-            android:title="Invitations" />
+            android:title="@string/menu_settings_drawer_invitations" />
 
         <item
             android:id="@+id/securityFragment"
-            android:title="Security" />
+            android:title="@string/menu_settings_drawer_security" />
 
         <item
             android:id="@+id/supportFragment"
-            android:title="Contact Support" />
+            android:title="@string/menu_settings_drawer_support" />
 
         <item
             android:id="@+id/logOut"
-            android:title="Log Out" />
+            android:title="@string/menu_settings_drawer_logout" />
     </group>
 </menu>

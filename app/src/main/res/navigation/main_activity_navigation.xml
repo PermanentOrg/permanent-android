@@ -8,10 +8,10 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="org.permanent.permanent.ui.mainScreen.MainFragment"
-        android:label="MyFiles"
+        android:label="@string/main_navigation_Myfiles"
         tools:layout="@layout/fragment_main"/>
     <fragment
         android:id="@+id/secondaryFragment"
         android:name="org.permanent.permanent.ui.mainScreen.SecondaryFragment"
-        android:label="Shares" />
+        android:label="@string/main_navigation_shares" />
 </navigation>

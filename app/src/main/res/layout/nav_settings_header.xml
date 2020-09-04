@@ -23,7 +23,7 @@
             android:id="@+id/tvHeaderTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Logged in as:"
+            android:text="@string/nav_settings_header_title_text"
             android:textColor="@color/blueGrey"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -43,7 +43,7 @@
             app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle" />
 
         <ProgressBar
-            android:id="@+id/progressbarSpaceUsed"
+            android:id="@+id/pbSpaceUsed"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="fill_parent"
             android:layout_height="20dp"
@@ -65,7 +65,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/progressbarSpaceUsed" />
+            app:layout_constraintTop_toBottomOf="@id/pbSpaceUsed" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

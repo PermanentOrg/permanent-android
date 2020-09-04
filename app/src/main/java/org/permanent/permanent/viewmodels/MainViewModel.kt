@@ -9,11 +9,11 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val currentAccount = MutableLiveData<String>()
     private val currentSpaceUsed = MutableLiveData<Int>()
 
-    fun currentAccount(): MutableLiveData<String> {
+    fun getCurrentAccount(): MutableLiveData<String> {
         return currentAccount
     }
 
-    fun currentSpaceUsed(): MutableLiveData<Int> {
+    fun getCurrentSpaceUsed(): MutableLiveData<Int> {
         return currentSpaceUsed
     }
 
