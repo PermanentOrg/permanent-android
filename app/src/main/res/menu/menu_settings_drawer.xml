@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group
+        android:id="@+id/group1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/mainFragment"
+            android:title="@string/menu_settings_drawer_storage" />
+
+        <item
+            android:id="@+id/secondaryFragment"
+            android:title="@string/menu_settings_drawer_account" />
+        <item
+            android:id="@+id/activityFragment"
+            android:title="@string/menu_settings_drawer_activity" />
+
+
+        <item
+            android:id="@+id/NotificationsFragment"
+            android:title="@string/menu_settings_drawer_notifications" />
+
+        <item
+            android:id="@+id/invitationsFragment"
+            android:title="@string/menu_settings_drawer_invitations" />
+
+        <item
+            android:id="@+id/securityFragment"
+            android:title="@string/menu_settings_drawer_security" />
+
+        <item
+            android:id="@+id/supportFragment"
+            android:title="@string/menu_settings_drawer_support" />
+
+        <item
+            android:id="@+id/logOut"
+            android:title="@string/menu_settings_drawer_logout" />
+    </group>
+</menu>

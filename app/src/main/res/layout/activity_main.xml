@@ -1,30 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.MainViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".permanent.ui.MainActivity">
+        android:orientation="vertical">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/mainActivityNavHostFragment"
-            android:name="androidx.navigation.fragment.NavHostFragment"
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/mainActivityDrawerLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:defaultNavHost="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:navGraph="@navigation/main_activity_navigation" />
+            tools:context=".permanent.ui.mainScreen.MainActivity">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:id="@+id/mainLinearLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/mainToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
+                    app:titleTextColor="@color/white" />
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/mainActivityNavHostFragment"
+                    android:name="androidx.navigation.fragment.NavHostFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:defaultNavHost="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:navGraph="@navigation/main_activity_navigation" />
+            </LinearLayout>
+
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/mainActivitySettingNavigationView"
+                android:layout_width="250dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                app:headerLayout="@layout/nav_settings_header"
+                app:itemTextAppearance="@style/customDrawerTextStyle"
+                app:itemTextColor="@color/colorPrimary"
+                app:menu="@menu/menu_settings_drawer" />
+
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/mainActivityNavigationView"
+                android:layout_width="250dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:background="@color/colorPrimary"
+                app:headerLayout="@layout/nav_main_header"
+                app:itemBackground="@drawable/drawer_selected_item"
+                app:itemIconTint="@color/white"
+                app:itemTextAppearance="@style/customDrawerTextStyle"
+                app:itemTextColor="@color/white"
+                app:menu="@menu/menu_navigation_drawer"
+                app:theme="@style/customDrawerStyle" />
+
+
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+
+    </LinearLayout>
 </layout>

@@ -13,6 +13,7 @@
         <item name="android:actionMenuTextColor">@color/white</item>
         <item name="android:actionMenuTextAppearance">@style/customMenuTextAppearance</item>
         <item name="textInputStyle">@style/customTextField</item>
+        <item name="listPreferredItemHeightSmall">54dp</item>
     </style>
 
     <style name="customMenuTextAppearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
@@ -22,5 +23,13 @@
 
     <style name="customTextField" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <item name="android:textColorHint">@color/lightGrey</item>
+    </style>
+
+    <style name="customDrawerStyle">
+        <item name="android:listDivider">@color/white</item>
+    </style>
+    <style name="customDrawerTextStyle" >
+        <item name="android:textSize">18sp</item>
+
     </style>
 </resources>
