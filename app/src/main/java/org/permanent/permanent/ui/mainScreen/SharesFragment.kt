@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
+import org.permanent.R
 import org.permanent.databinding.FragmentSharesBinding
+import org.permanent.permanent.Constants
 
 class SharesFragment : Fragment() {
 
@@ -32,9 +34,9 @@ class SharesFragment : Fragment() {
 
         TabLayoutMediator(binding.tabs,viewPager){tab , position ->
             when(position){
-                0 -> tab.text= "Shared by me"
-                1 -> tab.text= "Shared with me"
-                else -> tab.text= "Shared by me"
+                Constants.POSITION_SHARED_BY_ME_FRAGMENT -> tab.text= getString(R.string.shared_by_me_tab_name_)
+                Constants.POSITION_SHARED_WITH_ME_FRAGMENT -> tab.text= getString(R.string.shared_with_me_tab_name)
+                else -> tab.text= getString(R.string.shared_by_me_tab_name_)
             }
         }.attach()
     }
