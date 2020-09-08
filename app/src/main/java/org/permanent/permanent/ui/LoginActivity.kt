@@ -32,12 +32,12 @@ class LoginActivity : PermanentBaseActivity() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.onError().observe(this, onError)
-        viewModel.onLoggedIn().observe(this, onLoggedIn)
-        viewModel.onBiometricAuthSuccess().observe(this, onBiometricAuthSuccess)
-        viewModel.onSignUp().observe(this, onSignUp)
-        viewModel.onPasswordReset().observe(this, onPasswordReset)
-        viewModel.onAuthenticationError().observe(this,onAuthenticationError)
+        viewModel.getOnError().observe(this, onError)
+        viewModel.getOnLoggedIn().observe(this, onLoggedIn)
+        viewModel.getOnBiometricAuthSuccess().observe(this, onBiometricAuthSuccess)
+        viewModel.getOnSignUp().observe(this, onSignUp)
+        viewModel.getOnPasswordReset().observe(this, onPasswordReset)
+        viewModel.getOnAuthenticationError().observe(this,onAuthenticationError)
     }
 
     private val onError = Observer<Int> { error ->
@@ -75,12 +75,12 @@ class LoginActivity : PermanentBaseActivity() {
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.onError().removeObserver(onError)
-        viewModel.onLoggedIn().removeObserver(onLoggedIn)
-        viewModel.onBiometricAuthSuccess().removeObserver(onBiometricAuthSuccess)
-        viewModel.onSignUp().removeObserver(onSignUp)
-        viewModel.onPasswordReset().removeObserver(onPasswordReset)
-        viewModel.onAuthenticationError().removeObserver(onAuthenticationError)
+        viewModel.getOnError().removeObserver(onError)
+        viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
+        viewModel.getOnBiometricAuthSuccess().removeObserver(onBiometricAuthSuccess)
+        viewModel.getOnSignUp().removeObserver(onSignUp)
+        viewModel.getOnPasswordReset().removeObserver(onPasswordReset)
+        viewModel.getOnAuthenticationError().removeObserver(onAuthenticationError)
     }
 
     override fun onResume() {

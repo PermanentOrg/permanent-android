@@ -42,11 +42,11 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         return currentPassword
     }
 
-    fun emailError(): LiveData<Int> {
+    fun getEmailError(): LiveData<Int> {
         return emailError
     }
 
-    fun passwordError(): LiveData<Int> {
+    fun getPasswordError(): LiveData<Int> {
         return passwordError
     }
 
@@ -58,31 +58,31 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         currentPassword.value = password.toString().trim { it <= ' ' }
     }
 
-    fun onError(): LiveData<Int> {
+    fun getOnError(): LiveData<Int> {
         return onError
     }
 
-    fun onAuthenticationError(): LiveData<String>{
+    fun getOnAuthenticationError(): LiveData<String>{
         return authenticationError
     }
 
-    fun onBiometricAuthSuccess(): LiveData<Void> {
+    fun getOnBiometricAuthSuccess(): LiveData<Void> {
         return onBiometricAuthSuccess
     }
 
-    fun onIsBusy(): MutableLiveData<Boolean> {
+    fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy
     }
 
-    fun onLoggedIn(): MutableLiveData<Void> {
+    fun getOnLoggedIn(): MutableLiveData<Void> {
         return onLoggedIn
     }
 
-    fun onSignUp(): MutableLiveData<Void> {
+    fun getOnSignUp(): MutableLiveData<Void> {
         return onSignUp
     }
 
-    fun onPasswordReset(): MutableLiveData<Void> {
+    fun getOnPasswordReset(): MutableLiveData<Void> {
         return onPasswordReset
     }
 
@@ -179,6 +179,4 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
             }
         })
     }
-
-
 }

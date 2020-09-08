@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="org.permanent.permanent.ui.MainFragment"
+        android:name="org.permanent.permanent.ui.myFiles.MyFilesFragment"
         android:label="MainFragment"
         tools:layout="@layout/fragment_main"/>
 </navigation>

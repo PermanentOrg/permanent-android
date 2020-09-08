@@ -20,7 +20,7 @@ class MainActivity : PermanentBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
         binding.executePendingBindings()
-        binding.lifecycleOwner=this
+        binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         binding.viewModel = viewModel
 
