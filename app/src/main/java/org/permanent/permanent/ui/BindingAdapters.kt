@@ -8,7 +8,7 @@ import com.squareup.picasso.Picasso
 import org.permanent.R
 
 
-@BindingAdapter("app:imageResourceId")
+@BindingAdapter("imageResourceId")
 fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
     view.setImageResource(imageDrawableId)
 }
