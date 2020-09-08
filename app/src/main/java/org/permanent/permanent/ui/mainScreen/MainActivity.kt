@@ -51,7 +51,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         val topLevelDestination = setOf(
             R.id.mainFragment,
-            R.id.secondaryFragment
+            R.id.sharesFragment
         )
         appBarConfiguration =
             AppBarConfiguration(topLevelDestination, binding.mainActivityDrawerLayout)

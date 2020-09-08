@@ -10,6 +10,7 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.R
+import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Event
 import org.permanent.permanent.repositories.ISignUpRepository
 import java.util.regex.Pattern
@@ -129,7 +130,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
             passwordError.value = R.string.no_password_error
             return false
         } else {
-            if (password.length < 8) {
+            if (password.length < Constants.MIN_PASSWORD_LENGTH) {
                 passwordError.value = R.string.sign_up_password_too_small_error
                 return false
             }

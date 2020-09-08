@@ -77,4 +77,6 @@
     <string name="my_files_sort_criteria_date">Date</string>
     <string name="my_files_sort_criteria_file_type">File Type</string>
     <string name="my_files_no_files_text">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
+    <string name="shared_by_me_tab_name_">Shared by me</string>
+    <string name="shared_with_me_tab_name">Shared with me</string>
 </resources>
