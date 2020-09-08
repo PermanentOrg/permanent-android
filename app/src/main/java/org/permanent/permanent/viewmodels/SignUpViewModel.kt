@@ -74,19 +74,19 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         currentPassword.value = password.toString().trim { it <= ' ' }
     }
 
-    fun onError(): MutableLiveData<String> {
+    fun getOnError(): MutableLiveData<String> {
         return onError
     }
 
-    fun onIsBusy(): MutableLiveData<Boolean> {
+    fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy
     }
 
-    fun onSignedUp(): MutableLiveData<Void> {
+    fun getOnSignedUp(): MutableLiveData<Void> {
         return onSignedUp
     }
 
-    fun onAlreadyHaveAccount(): MutableLiveData<Void> {
+    fun getOnAlreadyHaveAccount(): MutableLiveData<Void> {
         return onAlreadyHaveAccount
     }
 
@@ -94,7 +94,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         onAlreadyHaveAccount.call()
     }
 
-    fun displayTermsOfServiceTextDialog(): MutableLiveData<Void> {
+    fun getDisplayTermsOfServiceTextDialog(): MutableLiveData<Void> {
         return displayTermsOfServiceTextDialog
     }
 

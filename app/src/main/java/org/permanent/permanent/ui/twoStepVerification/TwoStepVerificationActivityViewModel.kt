@@ -5,5 +5,4 @@ import org.permanent.permanent.viewmodels.ObservableAndroidViewModel
 
 class TwoStepVerificationActivityViewModel(application: Application):ObservableAndroidViewModel(application) {
 
-
 }

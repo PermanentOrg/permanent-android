@@ -21,7 +21,7 @@ import org.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PermanentBaseActivity
 import org.permanent.permanent.viewmodels.MainViewModel
 
-class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
+class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
@@ -106,5 +106,4 @@ class MainActivity : PermanentBaseActivity(),Toolbar.OnMenuItemClickListener {
     override fun disconnectViewModelEvents() {
 
     }
-
 }
