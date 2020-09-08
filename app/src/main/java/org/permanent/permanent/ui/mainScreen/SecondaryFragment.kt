@@ -5,10 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import org.permanent.databinding.FragmentMainBinding
 import org.permanent.databinding.FragmentSecondaryBinding
 
-class SecondaryFragment:Fragment() {
+class SecondaryFragment : Fragment() {
 
     private lateinit var binding: FragmentSecondaryBinding
     override fun onCreateView(

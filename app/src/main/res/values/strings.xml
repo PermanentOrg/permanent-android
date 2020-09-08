@@ -71,4 +71,10 @@
     <string name="menu_settings_drawer_logout">Log Out</string>
     <string name="main_navigation_Myfiles">MyFiles</string>
     <string name="main_navigation_shares">Shares</string>
+    <string name="my_files_search_hint"><font size="14">Search Files</font></string>
+    <string name="my_files_title">My Files</string>
+    <string name="my_files_sort_criteria_name">Name</string>
+    <string name="my_files_sort_criteria_date">Date</string>
+    <string name="my_files_sort_criteria_file_type">File Type</string>
+    <string name="my_files_no_files_text">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
 </resources>

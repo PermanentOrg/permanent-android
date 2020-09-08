@@ -21,7 +21,6 @@ class SignUpActivity : PermanentBaseActivity() {
 
 
     private val onError = Observer<String> { error ->
-
         Toast.makeText(this, error, Toast.LENGTH_LONG).show()
     }
 
@@ -60,18 +59,18 @@ class SignUpActivity : PermanentBaseActivity() {
 
 
     override fun connectViewModelEvents() {
-        viewModel.onError().observe(this, onError)
-        viewModel.onSignedUp().observe(this, onSignedUp)
-        viewModel.onAlreadyHaveAccount().observe(this, onAlreadyHaveAccount)
-        viewModel.displayTermsOfServiceTextDialog()
+        viewModel.getOnError().observe(this, onError)
+        viewModel.getOnSignedUp().observe(this, onSignedUp)
+        viewModel.getOnAlreadyHaveAccount().observe(this, onAlreadyHaveAccount)
+        viewModel.getDisplayTermsOfServiceTextDialog()
             .observe(this, displayTermsOfServiceAlertObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.onError().removeObserver(onError)
-        viewModel.onSignedUp().removeObserver(onSignedUp)
-        viewModel.onAlreadyHaveAccount().removeObserver(onAlreadyHaveAccount)
-        viewModel.displayTermsOfServiceTextDialog()
+        viewModel.getOnError().removeObserver(onError)
+        viewModel.getOnSignedUp().removeObserver(onSignedUp)
+        viewModel.getOnAlreadyHaveAccount().removeObserver(onAlreadyHaveAccount)
+        viewModel.getDisplayTermsOfServiceTextDialog()
             .removeObserver(displayTermsOfServiceAlertObserver)
     }
 
@@ -87,7 +86,6 @@ class SignUpActivity : PermanentBaseActivity() {
 
     private fun createObservers() {
         displayTermsOfServiceAlertObserver = Observer {
-
 
             val viewDialog: View =
                 layoutInflater.inflate(R.layout.dialog_terms_of_service, null)
@@ -109,7 +107,6 @@ class SignUpActivity : PermanentBaseActivity() {
             }
 
             alert.show()
-
         }
     }
 }

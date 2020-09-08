@@ -21,10 +21,8 @@ class TwoStepVerificationActivity : PermanentBaseActivity() {
     }
 
     override fun connectViewModelEvents() {
-
     }
 
     override fun disconnectViewModelEvents() {
-
     }
 }
