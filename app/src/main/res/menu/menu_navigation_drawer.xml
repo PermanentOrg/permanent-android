@@ -11,7 +11,7 @@
             android:title="@string/menu_drawer_myfiles" />
 
         <item
-            android:id="@+id/secondaryFragment"
+            android:id="@+id/sharesFragment"
             android:icon="@drawable/ic_baseline_share_24"
             android:title="@string/menu_drawer_shares" />
         <item

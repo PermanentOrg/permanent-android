@@ -84,7 +84,7 @@ class OnboardingActivity : PermanentBaseActivity() {
 
     private fun startLoginActivity() {
         //TODO Change activity
-        startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+        startActivity(Intent(this@OnboardingActivity, LoginActivity::class.java))
         finish()
     }
 

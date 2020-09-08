@@ -11,7 +11,7 @@
         android:label="@string/main_navigation_Myfiles"
         tools:layout="@layout/fragment_main"/>
     <fragment
-        android:id="@+id/secondaryFragment"
-        android:name="org.permanent.permanent.ui.mainScreen.SecondaryFragment"
+        android:id="@+id/sharesFragment"
+        android:name="org.permanent.permanent.ui.mainScreen.SharesFragment"
         android:label="@string/main_navigation_shares" />
 </navigation>
