@@ -79,4 +79,11 @@
     <string name="my_files_no_files_text">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
+    <string name="file_options_menu_item_download">Download</string>
+    <string name="file_options_menu_item_copy">Copy</string>
+    <string name="file_options_menu_item_move">Move</string>
+    <string name="file_options_menu_item_publish">Publish</string>
+    <string name="file_options_menu_item_delete">Delete</string>
+    <string name="file_options_menu_item_edit">Edit</string>
+    <string name="file_options_menu_item_share">Share</string>
 </resources>

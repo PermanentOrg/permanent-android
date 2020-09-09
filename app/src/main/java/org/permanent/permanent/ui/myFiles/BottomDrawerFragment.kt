@@ -6,17 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.permanent.databinding.BottomMenuLayoutBinding
+import org.permanent.databinding.FileBottomMenuBinding
+import org.permanent.permanent.Constants
 
-class BottomNavigationDrawerFragment : BottomSheetDialogFragment() {
+class BottomDrawerFragment : BottomSheetDialogFragment() {
 
-    private lateinit var binding: BottomMenuLayoutBinding
+    private lateinit var binding: FileBottomMenuBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = BottomMenuLayoutBinding.inflate(inflater, container, false)
+        binding = FileBottomMenuBinding.inflate(inflater, container, false)
+        binding.executePendingBindings()
+        binding.lifecycleOwner = this
+        binding.tvFileName.text = arguments?.getString(Constants.FILE_NAME)
+
         return binding.root
     }
 
@@ -27,9 +33,6 @@ class BottomNavigationDrawerFragment : BottomSheetDialogFragment() {
             Toast.makeText(context, "Download btn pressed", Toast.LENGTH_LONG).show()
         }
         binding.btnCopy.setOnClickListener {
-            Toast.makeText(context, "Copy btn pressed", Toast.LENGTH_LONG).show()
-        }
-        binding.btnDelete.setOnClickListener {
             Toast.makeText(context, "Copy btn pressed", Toast.LENGTH_LONG).show()
         }
     }

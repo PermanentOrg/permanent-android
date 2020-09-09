@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.MainFragmentViewModel" />
+            type="org.permanent.permanent.viewmodels.MyFilesViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

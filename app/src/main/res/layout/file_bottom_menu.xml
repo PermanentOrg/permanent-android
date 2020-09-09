@@ -1,80 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/layoutBottomMenu"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clBottomMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDownload"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvFileName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Download"
-            style="@style/customButtonDrawerBottomFragment"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="16dp"
+            android:text="File Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCopy"
+            android:id="@+id/btnDownload"
+            style="@style/customButtonBottomDrawerStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Copy"
-            style="@style/customButtonDrawerBottomFragment"
+            android:layout_marginTop="8dp"
+            android:text="@string/file_options_menu_item_download"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFileName" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCopy"
+            style="@style/customButtonBottomDrawerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/file_options_menu_item_copy"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnDownload" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMove"
+            style="@style/customButtonBottomDrawerStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Move"
-            style="@style/customButtonDrawerBottomFragment"
+            android:text="@string/file_options_menu_item_move"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnCopy" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPublish"
+            style="@style/customButtonBottomDrawerStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Publish"
-            style="@style/customButtonDrawerBottomFragment"
+            android:text="@string/file_options_menu_item_publish"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnMove" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDelete"
+            style="@style/customButtonBottomDrawerStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Delete"
-            style="@style/customButtonDrawerBottomFragment"
             android:backgroundTint="@color/deepRed"
+            android:text="@string/file_options_menu_item_delete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnPublish" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEdit"
+            style="@style/customButtonBottomDrawerStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit"
-            style="@style/customButtonDrawerBottomFragment"
+            android:text="@string/file_options_menu_item_edit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnDelete" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnShare"
+            style="@style/customButtonBottomDrawerStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Share"
-            style="@style/customButtonDrawerBottomFragment"
+            android:text="@string/file_options_menu_item_share"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnEdit" />

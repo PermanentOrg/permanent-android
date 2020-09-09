@@ -10,7 +10,9 @@ import org.permanent.permanent.models.File
 import java.util.*
 import kotlin.collections.ArrayList
 
-class FilesAdapter(private val files: ArrayList<File>, val onMoreClickListener: OnMoreClickListener)
+class FilesAdapter(
+    private val files: ArrayList<File>,
+    private val fileOptionsClickListener: FileOptionsClickListener)
     : RecyclerView.Adapter<FileViewHolder>(), Filterable {
 
     var fileFilteredList = ArrayList<File>()
@@ -25,7 +27,7 @@ class FilesAdapter(private val files: ArrayList<File>, val onMoreClickListener: 
             parent,
             false
         )
-        return FileViewHolder(binding, onMoreClickListener)
+        return FileViewHolder(binding, fileOptionsClickListener)
     }
 
     override fun getItemCount() = fileFilteredList.size
