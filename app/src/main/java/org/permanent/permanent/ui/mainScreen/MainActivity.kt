@@ -84,7 +84,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             viewModel.setWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))
             alert.dismiss()
         }
-
         alert.show()
     }
 

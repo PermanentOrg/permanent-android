@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,12 +22,13 @@ import org.permanent.permanent.viewmodels.MainFragmentViewModel
 import java.io.IOException
 
 
-class MyFilesFragment : PermanentBaseFragment() {
+class MyFilesFragment : PermanentBaseFragment(),OnMoreClickListener {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var viewModel: MainFragmentViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
+    private lateinit var supportFragmentManager: FragmentManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,13 +40,13 @@ class MyFilesFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(MainFragmentViewModel::class.java)
         binding.viewModel = viewModel
+        supportFragmentManager = parentFragmentManager
         setupRecyclerView()
-
         return binding.root
     }
 
     private fun setupRecyclerView() {
-        viewAdapter = FilesAdapter(readUserFilesFromAssets())
+        viewAdapter = FilesAdapter(readUserFilesFromAssets(),this)
         recyclerView = binding.rvFiles.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
@@ -54,6 +57,8 @@ class MyFilesFragment : PermanentBaseFragment() {
                     DividerItemDecoration.VERTICAL))
         }
     }
+
+
 
     private fun readUserFilesFromAssets(): List<File> {
         try {
@@ -78,5 +83,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     override fun disconnectViewModelEvents() {
+    }
+
+    override fun onMoreClick() {
+        val bottomNavDrawer = BottomNavigationDrawerFragment()
+        bottomNavDrawer.show(supportFragmentManager,bottomNavDrawer.tag)
     }
 }
