@@ -69,7 +69,7 @@
     <string name="menu_settings_drawer_security">Security</string>
     <string name="menu_settings_drawer_support">Contact Support</string>
     <string name="menu_settings_drawer_logout">Log Out</string>
-    <string name="main_navigation_Myfiles">MyFiles</string>
+    <string name="main_navigation_my_files">MyFiles</string>
     <string name="main_navigation_shares">Shares</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>

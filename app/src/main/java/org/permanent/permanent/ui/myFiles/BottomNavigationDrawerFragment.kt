@@ -1,16 +1,12 @@
 package org.permanent.permanent.ui.myFiles
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.android.synthetic.main.bottom_menu_layout.*
-import org.permanent.R
 import org.permanent.databinding.BottomMenuLayoutBinding
-import org.permanent.databinding.FragmentMainBinding
 
 class BottomNavigationDrawerFragment : BottomSheetDialogFragment() {
 
@@ -37,5 +33,4 @@ class BottomNavigationDrawerFragment : BottomSheetDialogFragment() {
             Toast.makeText(context, "Copy btn pressed", Toast.LENGTH_LONG).show()
         }
     }
-
 }
