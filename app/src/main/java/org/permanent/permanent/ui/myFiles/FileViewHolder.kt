@@ -12,7 +12,7 @@ class FileViewHolder(
     fun bind(file: File) {
         binding.file = file
         binding.executePendingBindings()
-        binding.ivMore.setOnClickListener {
+        binding.btnFileOptions.setOnClickListener {
             fileOptionsClickListener.onFileOptionsClick(file)
         }
     }
