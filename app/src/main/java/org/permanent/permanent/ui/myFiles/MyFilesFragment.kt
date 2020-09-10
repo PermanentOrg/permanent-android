@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,17 +14,18 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import org.permanent.databinding.FragmentMyFilesBinding
+import org.permanent.permanent.Constants
 import org.permanent.permanent.models.File
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.readJsonAsset
-import org.permanent.permanent.viewmodels.MainFragmentViewModel
+import org.permanent.permanent.viewmodels.MyFilesViewModel
 import java.io.IOException
 
 
-class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
+class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, FileOptionsClickListener {
 
     private lateinit var binding: FragmentMyFilesBinding
-    private lateinit var viewModel: MainFragmentViewModel
+    private lateinit var viewModel: MyFilesViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: FilesAdapter
 
@@ -35,7 +37,7 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        viewModel = ViewModelProvider(this).get(MainFragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
         binding.viewModel = viewModel
         setupRecyclerView()
         binding.etSearchQuery.addTextChangedListener(this)
@@ -44,7 +46,7 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
     }
 
     private fun setupRecyclerView() {
-        viewAdapter = FilesAdapter(readUserFilesFromAssets())
+        viewAdapter = FilesAdapter(readUserFilesFromAssets(), this)
         recyclerView = binding.rvFiles.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
@@ -52,9 +54,7 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
             addItemDecoration(
                 DividerItemDecoration(
                     this.context,
-                    DividerItemDecoration.VERTICAL
-                )
-            )
+                    DividerItemDecoration.VERTICAL))
         }
     }
 
@@ -79,6 +79,14 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
             ex.message?.let { Log.e("data", it) }
         }
         return emptyList<File>() as ArrayList<File>
+    }
+
+    override fun onFileOptionsClick(file: File) {
+        val bottomDrawerFragment = BottomDrawerFragment()
+        val bundle = Bundle()
+        bundle.putString(Constants.FILE_NAME, file.name)
+        bottomDrawerFragment.arguments = bundle
+        bottomDrawerFragment.show((context as AppCompatActivity).supportFragmentManager, bottomDrawerFragment.tag)
     }
 
     override fun connectViewModelEvents() {

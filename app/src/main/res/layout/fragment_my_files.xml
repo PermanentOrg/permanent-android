@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.MainFragmentViewModel" />
+            type="org.permanent.permanent.viewmodels.MyFilesViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -190,6 +190,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ivCat"
             app:layout_constraintVertical_bias="0.0" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

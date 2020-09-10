@@ -52,15 +52,15 @@
             app:layout_constraintTop_toTopOf="@+id/guideline"
             app:layout_constraintVertical_bias="0.0" />
 
-        <ImageView
-            android:id="@+id/ivMore"
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/btnFileOptions"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="40dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
+            app:icon="@drawable/ic_more_middle_grey"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_more_middle_grey" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
