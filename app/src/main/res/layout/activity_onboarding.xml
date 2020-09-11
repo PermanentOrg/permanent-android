@@ -28,7 +28,7 @@
             app:title="@string/toolbar_title"
             app:titleMarginStart="24dp"
             app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
-            app:titleTextColor="@color/colorAccent" />
+            app:titleTextColor="@color/accent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvOnboarding"
@@ -51,7 +51,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.84"
             app:spi_dotColor="@color/white"
-            app:spi_dotSelectedColor="@color/colorAccent"
+            app:spi_dotSelectedColor="@color/accent"
             app:spi_dotSelectedSize="8dp"
             app:spi_dotSize="8dp" />
 
@@ -61,7 +61,7 @@
             android:layout_width="316dp"
             android:layout_height="56dp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/colorAccent"
+            android:backgroundTint="@color/accent"
             android:text="@{viewModel.snapPosition == 2 ? @string/onboarding_get_started_button : @string/onboarding_next_button}"
             android:textAllCaps="false"
             android:textColor="@color/white"

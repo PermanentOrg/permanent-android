@@ -22,7 +22,7 @@ import org.permanent.permanent.viewmodels.MyFilesViewModel
 import java.io.IOException
 
 
-class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, FileOptionsClickListener {
+class MyFilesFragment : PermanentBaseFragment(), SimplifiedTextWatcher, FileOptionsClickListener {
 
     private lateinit var binding: FragmentMyFilesBinding
     private lateinit var viewModel: MyFilesViewModel
@@ -51,10 +51,7 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, FileOptio
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = viewAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL))
+            addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         }
     }
 

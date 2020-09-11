@@ -19,7 +19,7 @@
             app:tabBackground="@android:color/white"
             app:tabGravity="fill"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/colorPrimary"
+            app:tabSelectedTextColor="@color/primary"
             app:tabTextColor="@android:color/darker_gray" />
 
         <androidx.viewpager2.widget.ViewPager2

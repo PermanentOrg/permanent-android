@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#131B4A</color>
+    <color name="accent">#FF9933</color>
+    <color name="primary">#131B4A</color>
     <color name="lightBlue">#1D4BB2</color>
     <color name="blueGrey">#465084</color>
     <color name="barneyPurple">#800080</color>
     <color name="deepRed">#A10000</color>
-    <color name="colorAccent">#FF9933</color>
     <color name="dotGreen">#1BC917</color>
     <color name="green">#167D14</color>
     <color name="paleGreen">#CAE5C9</color>
