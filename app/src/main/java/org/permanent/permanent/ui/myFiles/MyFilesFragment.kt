@@ -53,6 +53,8 @@ class MyFilesFragment : PermanentBaseFragment(), SimplifiedTextWatcher, FileOpti
             adapter = viewAdapter
             addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         }
+//        ItemTouchHelper(SwipeHelper()).attachToRecyclerView(recyclerView)
+        context?.let { SwipeeHelper(it).attachToRecyclerView(recyclerView) }
     }
 
     override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
@@ -83,7 +85,10 @@ class MyFilesFragment : PermanentBaseFragment(), SimplifiedTextWatcher, FileOpti
         val bundle = Bundle()
         bundle.putString(Constants.FILE_NAME, file.name)
         bottomDrawerFragment.arguments = bundle
-        bottomDrawerFragment.show((context as AppCompatActivity).supportFragmentManager, bottomDrawerFragment.tag)
+        bottomDrawerFragment.show(
+            (context as AppCompatActivity).supportFragmentManager,
+            bottomDrawerFragment.tag
+        )
     }
 
     override fun connectViewModelEvents() {
