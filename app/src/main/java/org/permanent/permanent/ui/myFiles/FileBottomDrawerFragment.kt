@@ -9,7 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.databinding.FileBottomMenuBinding
 import org.permanent.permanent.Constants
 
-class BottomDrawerFragment : BottomSheetDialogFragment() {
+class FileBottomDrawerFragment : BottomSheetDialogFragment() {
 
     private lateinit var binding: FileBottomMenuBinding
 
