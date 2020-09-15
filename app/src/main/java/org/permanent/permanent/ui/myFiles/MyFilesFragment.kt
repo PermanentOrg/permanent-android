@@ -22,7 +22,11 @@ import org.permanent.permanent.viewmodels.MyFilesViewModel
 import java.io.IOException
 
 
-class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, FileOptionsClickListener {
+class MyFilesFragment :
+    PermanentBaseFragment(),
+    PermanentTextWatcher,
+    FileOptionsClickListener,
+    View.OnClickListener {
 
     private lateinit var binding: FragmentMyFilesBinding
     private lateinit var viewModel: MyFilesViewModel
@@ -41,6 +45,7 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, FileOptio
         binding.viewModel = viewModel
         setupRecyclerView()
         binding.etSearchQuery.addTextChangedListener(this)
+        binding.clFolderDropdown.setOnClickListener(this)
 
         return binding.root
     }
@@ -82,9 +87,17 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, FileOptio
     }
 
     override fun onFileOptionsClick(file: File) {
-        val bottomDrawerFragment = BottomDrawerFragment()
+        val bottomDrawerFragment = FileOptionsFragment()
         val bundle = Bundle()
         bundle.putString(Constants.FILE_NAME, file.name)
+        bottomDrawerFragment.arguments = bundle
+        bottomDrawerFragment.show((context as AppCompatActivity).supportFragmentManager, bottomDrawerFragment.tag)
+    }
+
+    override fun onClick(view: View) {
+        val bottomDrawerFragment = FolderOptionsFragment()
+        val bundle = Bundle()
+        bundle.putString(Constants.FOLDER_NAME, "My Files")
         bottomDrawerFragment.arguments = bundle
         bottomDrawerFragment.show((context as AppCompatActivity).supportFragmentManager, bottomDrawerFragment.tag)
     }

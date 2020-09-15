@@ -2,6 +2,12 @@
 <layout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.FileOptionsViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clBottomMenu"
         android:layout_width="match_parent"
@@ -28,6 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/file_options_menu_item_download"
+            android:onClick="@{() -> viewModel.onDownloadBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFileName" />
@@ -38,6 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/file_options_menu_item_copy"
+            android:onClick="@{() -> viewModel.onCopyBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnDownload" />
@@ -48,6 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/file_options_menu_item_move"
+            android:onClick="@{() -> viewModel.onMoveBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnCopy" />
@@ -58,6 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/file_options_menu_item_publish"
+            android:onClick="@{() -> viewModel.onPublishBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnMove" />
@@ -69,6 +79,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/deepRed"
             android:text="@string/file_options_menu_item_delete"
+            android:onClick="@{() -> viewModel.onDeleteBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnPublish" />
@@ -79,6 +90,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/file_options_menu_item_edit"
+            android:onClick="@{() -> viewModel.onEditBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnDelete" />
@@ -89,6 +101,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/file_options_menu_item_share"
+            android:onClick="@{() -> viewModel.onShareBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnEdit" />
