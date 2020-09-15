@@ -8,5 +8,6 @@ class Constants {
         const val POSITION_SHARED_WITH_ME_FRAGMENT = 1
         const val MIN_PASSWORD_LENGTH = 8
         const val FILE_NAME = "file_name"
+        const val FOLDER_NAME = "folder_name"
     }
 }

@@ -30,7 +30,7 @@
             app:placeholder="@{@drawable/ic_photo_middle_grey}"/>
 
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/tvFileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
