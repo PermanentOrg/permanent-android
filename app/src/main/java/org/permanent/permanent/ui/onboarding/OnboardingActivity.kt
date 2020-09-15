@@ -9,8 +9,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import org.permanent.R
-import org.permanent.databinding.ActivityOnboardingBinding
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.ActivityOnboardingBinding
 import org.permanent.permanent.ui.LoginActivity
 import org.permanent.permanent.ui.PermanentBaseActivity
 import org.permanent.permanent.ui.mainScreen.MainActivity

@@ -3,8 +3,8 @@ package org.permanent.permanent.ui.twoStepVerification
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.R
-import org.permanent.databinding.ActivityTwoStepVerificationBinding
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.ActivityTwoStepVerificationBinding
 import org.permanent.permanent.ui.PermanentBaseActivity
 
 class TwoStepVerificationActivity : PermanentBaseActivity() {

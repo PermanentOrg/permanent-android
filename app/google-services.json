@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "1071143441498",
+    "firebase_url": "https://permanent-2c747.firebaseio.com",
+    "project_id": "permanent-2c747",
+    "storage_bucket": "permanent-2c747.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071143441498:android:7b137e7c98c5efcedd7463",
+        "android_client_info": {
+          "package_name": "org.permanent.permanent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1071143441498-rfo40bh6do7am40832kfjakain01qq54.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV2PxBCKGL7Zj1nJ1k_80DhJ6EdMRgi9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1071143441498-rfo40bh6do7am40832kfjakain01qq54.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1071143441498-8oqv6oe2fefmkl1842f2m1uv575uv0kp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.permanent.permanent"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071143441498:android:87e2542373eb7bf2dd7463",
+        "android_client_info": {
+          "package_name": "org.permanent.permanent.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1071143441498-rfo40bh6do7am40832kfjakain01qq54.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV2PxBCKGL7Zj1nJ1k_80DhJ6EdMRgi9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1071143441498-rfo40bh6do7am40832kfjakain01qq54.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1071143441498-8oqv6oe2fefmkl1842f2m1uv575uv0kp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.permanent.permanent"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

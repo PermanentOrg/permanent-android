@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.twoStepVerification
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import org.permanent.R
-import org.permanent.databinding.FragmentTwoStepVerificationPhoneBinding
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.FragmentTwoStepVerificationPhoneBinding
 
 class TwoStepVerificationPhoneFragment : Fragment() {
 

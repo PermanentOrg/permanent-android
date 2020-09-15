@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import org.permanent.databinding.FragmentTabSharedBinding
+import org.permanent.permanent.databinding.FragmentTabSharedBinding
 
 class SharedByMeFragment: Fragment() {
     private lateinit var binding: FragmentTabSharedBinding

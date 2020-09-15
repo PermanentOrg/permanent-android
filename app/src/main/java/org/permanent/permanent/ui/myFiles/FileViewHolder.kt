@@ -1,7 +1,7 @@
 package org.permanent.permanent.ui.myFiles
 
 import androidx.recyclerview.widget.RecyclerView
-import org.permanent.databinding.ItemFileBinding
+import org.permanent.permanent.databinding.ItemFileBinding
 import org.permanent.permanent.models.File
 
 class FileViewHolder(

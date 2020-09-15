@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.permanent.databinding.FileBottomMenuBinding
+import org.permanent.permanent.databinding.FileBottomMenuBinding
 import org.permanent.permanent.Constants
 
 class BottomDrawerFragment : BottomSheetDialogFragment() {

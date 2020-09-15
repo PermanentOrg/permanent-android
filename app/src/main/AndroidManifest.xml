@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.permanent">
+    package="org.permanent.permanent">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -12,27 +12,26 @@
         android:supportsRtl="true"
         android:theme="@style/NoActionBarTheme">
 
-
         <activity
-            android:name=".permanent.ui.SignUpActivity"
+            android:name=".ui.SignUpActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".permanent.ui.mainScreen.MainActivity"
+            android:name=".ui.mainScreen.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".permanent.ui.LoginActivity"
+            android:name=".ui.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".permanent.ui.onboarding.OnboardingActivity"
+            android:name=".ui.onboarding.OnboardingActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".permanent.ui.twoStepVerification.TwoStepVerificationActivity"
+            android:name=".ui.twoStepVerification.TwoStepVerificationActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".permanent.ui.SplashActivity"
+            android:name=".ui.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -42,5 +41,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

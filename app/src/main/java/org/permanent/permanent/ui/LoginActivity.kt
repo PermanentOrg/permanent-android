@@ -8,8 +8,8 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.R
-import org.permanent.databinding.ActivityLoginBinding
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.ActivityLoginBinding
 import org.permanent.permanent.ui.mainScreen.MainActivity
 import org.permanent.permanent.viewmodels.LoginViewModel
 import java.util.concurrent.Executor

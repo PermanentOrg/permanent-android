@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
-import org.permanent.databinding.ItemFileBinding
+import org.permanent.permanent.databinding.ItemFileBinding
 import org.permanent.permanent.models.File
 import java.util.*
 import kotlin.collections.ArrayList

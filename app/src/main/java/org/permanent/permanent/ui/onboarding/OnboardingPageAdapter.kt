@@ -3,8 +3,8 @@ package org.permanent.permanent.ui.onboarding
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import org.permanent.R
-import org.permanent.databinding.OnboardingPageBinding
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.OnboardingPageBinding
 import org.permanent.permanent.models.OnboardingPage
 
 

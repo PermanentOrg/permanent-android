@@ -5,10 +5,9 @@ import android.text.Editable
 import android.text.TextUtils
 import android.util.Patterns
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.R
+import org.permanent.permanent.R
 import org.permanent.permanent.repositories.ILoginRepository
 import java.util.regex.Pattern
 

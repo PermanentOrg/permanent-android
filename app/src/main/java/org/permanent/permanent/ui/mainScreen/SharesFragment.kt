@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
-import org.permanent.R
-import org.permanent.databinding.FragmentSharesBinding
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.FragmentSharesBinding
 import org.permanent.permanent.Constants
 
 class SharesFragment : Fragment() {

@@ -4,7 +4,7 @@ import android.app.Application
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.R
+import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.ObservableAndroidViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
