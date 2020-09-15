@@ -3,7 +3,7 @@ package org.permanent.permanent.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import org.permanent.R
+import org.permanent.permanent.R
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import java.util.*
 import kotlin.concurrent.schedule

@@ -13,7 +13,7 @@ class TwoStepVerificationCodeViewModel(application: Application): ObservableAndr
         return currentVerificationCode
     }
 
-    fun onCurrentVerificationCodeChanged(currentCode : Editable){
+    fun onCurrentVerificationCodeChanged(currentCode : Editable) {
 
     }
 

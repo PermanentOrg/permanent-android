@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.permanent.databinding.FolderOptionsBinding
+import org.permanent.permanent.databinding.FolderOptionsBinding
 import org.permanent.permanent.Constants
 import org.permanent.permanent.viewmodels.FolderOptionsViewModel
 

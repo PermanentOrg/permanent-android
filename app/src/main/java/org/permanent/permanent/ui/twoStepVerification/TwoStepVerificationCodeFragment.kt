@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.databinding.FragmentTwoStepVerificationCodeBinding
+import org.permanent.permanent.databinding.FragmentTwoStepVerificationCodeBinding
 
 class TwoStepVerificationCodeFragment : Fragment() {
 

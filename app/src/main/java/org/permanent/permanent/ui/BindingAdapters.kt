@@ -5,7 +5,7 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
-import org.permanent.R
+import org.permanent.permanent.R
 
 
 @BindingAdapter("imageResourceId")

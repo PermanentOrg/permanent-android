@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
-import org.permanent.databinding.FragmentMyFilesBinding
+import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.File
 import org.permanent.permanent.ui.PermanentBaseFragment

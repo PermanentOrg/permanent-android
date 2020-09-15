@@ -14,10 +14,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
-import org.permanent.R
-import org.permanent.databinding.ActivityMainBinding
-import org.permanent.databinding.NavMainHeaderBinding
-import org.permanent.databinding.NavSettingsHeaderBinding
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.ActivityMainBinding
+import org.permanent.permanent.databinding.NavMainHeaderBinding
+import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PermanentBaseActivity
 import org.permanent.permanent.viewmodels.MainViewModel
 

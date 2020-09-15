@@ -3,18 +3,13 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.text.Editable
 import android.text.TextUtils
-import android.util.Log
 import android.util.Patterns
-import android.widget.Toast
-import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.R
 import org.permanent.permanent.Constants
-import org.permanent.permanent.models.Event
+import org.permanent.permanent.R
 import org.permanent.permanent.repositories.ISignUpRepository
 import java.util.regex.Pattern
-import kotlin.math.log
 
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {

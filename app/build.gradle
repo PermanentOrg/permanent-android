@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 30
@@ -21,6 +23,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".dev"
         }
     }
 
@@ -59,7 +64,7 @@ dependencies {
     //==============================================================================================
 
     //====================================== MATERIAL COMPONENTS ===================================
-    implementation 'com.google.android.material:material:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
     //==============================================================================================
 
     //======================================== RECYCLER VIEW =======================================
@@ -70,6 +75,11 @@ dependencies {
     implementation 'ru.tinkoff.scrollingpagerindicator:scrollingpagerindicator:1.2.0'
     //==============================================================================================
 
+    //========================================= FIREBASE ===========================================
+    implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:17.2.1'
+    //==============================================================================================
+
     //========================================= BIOMETRIC ==========================================
     implementation 'androidx.biometric:biometric:1.0.1'
     //==============================================================================================
@@ -78,7 +88,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     //==============================================================================================
 
-    //========================================= PICASSO ===============================================
+    //========================================= PICASSO ============================================
     implementation 'com.squareup.picasso:picasso:2.71828'
     //==============================================================================================
 }

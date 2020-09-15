@@ -11,13 +11,10 @@ class SharesViewPagerAdapter(fragment: Fragment):FragmentStateAdapter(fragment) 
     override fun getItemCount(): Int = NUMBER_OF_FRAGMENTS
 
     override fun createFragment(position: Int): Fragment {
-        val fragment:Fragment
-
-        fragment = when(position){
+        return when(position) {
             Constants.POSITION_SHARED_BY_ME_FRAGMENT -> SharedByMeFragment()
             Constants.POSITION_SHARED_WITH_ME_FRAGMENT -> SharedWithMeFragment()
             else -> SharedByMeFragment()
         }
-        return fragment
     }
 }
