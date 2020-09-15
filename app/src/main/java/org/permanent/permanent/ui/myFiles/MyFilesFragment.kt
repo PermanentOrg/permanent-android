@@ -87,7 +87,7 @@ class MyFilesFragment :
     }
 
     override fun onFileOptionsClick(file: File) {
-        val bottomDrawerFragment = FileBottomDrawerFragment()
+        val bottomDrawerFragment = FileOptionsFragment()
         val bundle = Bundle()
         bundle.putString(Constants.FILE_NAME, file.name)
         bottomDrawerFragment.arguments = bundle
@@ -95,7 +95,7 @@ class MyFilesFragment :
     }
 
     override fun onClick(view: View) {
-        val bottomDrawerFragment = FolderBottomDrawerFragment()
+        val bottomDrawerFragment = FolderOptionsFragment()
         val bundle = Bundle()
         bundle.putString(Constants.FOLDER_NAME, "My Files")
         bottomDrawerFragment.arguments = bundle
