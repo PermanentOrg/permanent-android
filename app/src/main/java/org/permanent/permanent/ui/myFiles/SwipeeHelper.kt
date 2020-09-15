@@ -112,7 +112,7 @@ class SwipeeHelper(context: Context): ItemTouchHelper.SimpleCallback(
     }
 
     private fun drawButtons(
-        c: Canvas,
+        canvas: Canvas,
         itemView: View,
         buffer: List<UnderlayButton>,
         pos: Int,
@@ -123,7 +123,7 @@ class SwipeeHelper(context: Context): ItemTouchHelper.SimpleCallback(
         for (button in buffer) {
             val left = right - dButtonWidth
             button.onDraw(
-                c,
+                canvas,
                 RectF(
                     left,
                     itemView.top.toFloat(),
