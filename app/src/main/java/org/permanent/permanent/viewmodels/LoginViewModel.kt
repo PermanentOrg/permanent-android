@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.ILoginRepository
+import org.permanent.permanent.repositories.LoginRepositoryImpl
 import java.util.regex.Pattern
 
 class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -26,12 +27,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
 
-    private var loginRepository: ILoginRepository? = null
-
-    init {
-        //TODO implement login repository
-//        loginRepository = FirebaseLoginRepository()
-    }
+    private var loginRepository: ILoginRepository = LoginRepositoryImpl()
 
     fun getCurrentEmail(): MutableLiveData<String>? {
         return currentEmail
@@ -101,7 +97,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         }
 
         isBusy.value = true
-        loginRepository?.forgotPassword(email, object : ILoginRepository.IOnResetPasswordListener {
+        loginRepository.forgotPassword(email!!, object : ILoginRepository.IOnResetPasswordListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onPasswordReset.call()
@@ -162,20 +158,16 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         val password = currentPassword.value
 
         if (!checkEmail(email)) return
-
         if (!checkPassword(password)) return
 
         isBusy.value = true
-        //TODO 1 remove after Login is implemented
-        isBusy.value = false
-        onLoggedIn.call()
-        loginRepository?.login(email, password, object : ILoginRepository.IOnLoginListener {
+        loginRepository.login(email!!, password!!, object : ILoginRepository.IOnLoginListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onLoggedIn.call()
             }
 
-            override fun onFailed(error: String?, errorCode: Int) {
+            override fun onFailed(error: String?) {
                 isBusy.value = false
                 authenticationError.value = error
             }
