@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationCodeViewModel" />
+            type="org.permanent.permanent.viewmodels.CodeVerificationViewModel" />
     </data>
 
 

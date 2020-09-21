@@ -7,11 +7,11 @@
 
     <fragment
         android:id="@+id/twoStepVerificationPhoneFragment"
-        android:name="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationPhoneFragment"
+        android:name="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationEnablingFragment"
         android:label="TwoStepVerificationFragment"
-        tools:layout="@layout/fragment_two_step_verification_phone">
+        tools:layout="@layout/fragment_two_step_verification_enabling">
         <action
-            android:id="@+id/action_twoStepVerificationPhoneFragment_to_twoStepVerificationCodeFragment"
+            android:id="@+id/action_twoStepVerificationPhoneFragment_to_codeVerificationFragment"
             app:destination="@id/twoStepVerificationCodeFragment"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit"
@@ -25,9 +25,9 @@
     </fragment>
     <fragment
         android:id="@+id/twoStepVerificationCodeFragment"
-        android:name="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationCodeFragment"
+        android:name="org.permanent.permanent.ui.CodeVerificationFragment"
         android:label="TwoStepVerificationCodeFragment"
-        tools:layout="@layout/fragment_two_step_verification_code">
+        tools:layout="@layout/fragment_verification_code">
         <action
             android:id="@+id/action_twoStepVerificationCodeFragment_to_twoStepVerificationFragment"
             app:destination="@id/twoStepVerificationPhoneFragment" />

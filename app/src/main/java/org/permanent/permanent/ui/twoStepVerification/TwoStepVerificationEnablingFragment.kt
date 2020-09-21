@@ -9,12 +9,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentTwoStepVerificationPhoneBinding
+import org.permanent.permanent.databinding.FragmentTwoStepVerificationEnablingBinding
+import org.permanent.permanent.viewmodels.TwoStepVerificationEnablingViewModel
 
-class TwoStepVerificationPhoneFragment : Fragment() {
+class TwoStepVerificationEnablingFragment : Fragment() {
 
-    private lateinit var viewModel: TwoStepVerificationPhoneViewModel
-    private lateinit var binding: FragmentTwoStepVerificationPhoneBinding
+    private lateinit var viewModel: TwoStepVerificationEnablingViewModel
+    private lateinit var binding: FragmentTwoStepVerificationEnablingBinding
 
 
     override fun onCreateView(
@@ -23,10 +24,10 @@ class TwoStepVerificationPhoneFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = FragmentTwoStepVerificationPhoneBinding.inflate(inflater, container, false)
+        binding = FragmentTwoStepVerificationEnablingBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        viewModel = ViewModelProvider(this).get(TwoStepVerificationPhoneViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(TwoStepVerificationEnablingViewModel::class.java)
         binding.viewModel = viewModel
 
         viewModel.onSkipTwoStep().observe(viewLifecycleOwner, onSkipTwoStepObserver)
@@ -46,7 +47,7 @@ class TwoStepVerificationPhoneFragment : Fragment() {
     }
 
     private fun navigateSubmit() {
-        this.findNavController().navigate(R.id.action_twoStepVerificationPhoneFragment_to_twoStepVerificationCodeFragment)
+        this.findNavController().navigate(R.id.action_twoStepVerificationPhoneFragment_to_codeVerificationFragment)
     }
 
     private fun navigateSkip() {

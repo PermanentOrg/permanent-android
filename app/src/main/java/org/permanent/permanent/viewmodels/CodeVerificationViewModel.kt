@@ -1,11 +1,10 @@
-package org.permanent.permanent.ui.twoStepVerification
+package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.text.Editable
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.viewmodels.ObservableAndroidViewModel
 
-class TwoStepVerificationCodeViewModel(application: Application): ObservableAndroidViewModel(application) {
+class CodeVerificationViewModel(application: Application): ObservableAndroidViewModel(application) {
 
     private val currentVerificationCode = MutableLiveData<String>()
 

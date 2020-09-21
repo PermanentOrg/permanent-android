@@ -10,7 +10,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationPhoneViewModel" />
+            type="org.permanent.permanent.viewmodels.TwoStepVerificationEnablingViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -40,7 +40,6 @@ class SignUpActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         createObservers()
-
     }
 
     private fun navigateSignUp() {
@@ -55,8 +54,6 @@ class SignUpActivity : PermanentBaseActivity() {
         startActivity(intent)
         finish()
     }
-
-
 
     override fun connectViewModelEvents() {
         viewModel.getOnError().observe(this, onError)
