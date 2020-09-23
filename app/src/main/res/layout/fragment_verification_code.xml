@@ -53,14 +53,13 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="32dp"
             android:gravity="center"
-            android:text="@string/two_step_verification_enter_code_message"
+            android:text="@string/verification_code_enter_verification_code"
             android:textColor="@color/white"
             android:textSize="21sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivLockImage" />
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutVerificationCode"
@@ -75,32 +74,34 @@
             app:hintTextColor="@color/lightGrey"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvVerificationMessage">
+            app:layout_constraintTop_toBottomOf="@id/tvVerificationMessage"
+            app:setError="@{viewModel.getCodeError()}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etVerificationCode"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:afterTextChanged="@{(editable)->viewModel.onCurrentVerificationCodeChanged(editable)}"
-                android:hint="@string/two_step_verification_input_code"
+                android:afterTextChanged="@{(editable)->viewModel.onCurrentCodeChanged(editable)}"
+                android:hint="@string/verification_code_enter_code_hint"
                 android:inputType="phone"
-                android:text="@{viewModel.currentVerificationCode}"
+                android:text="@{viewModel.verificationCode}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSubmit"
+            android:id="@+id/btnDone"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="32dp"
             android:backgroundTint="@color/colorAccent"
-            android:text="@string/two_step_verification_done_button"
+            android:text="@string/verification_code_button_done"
             android:textAllCaps="false"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:onClick="@{() -> viewModel.done()}"
             app:cornerRadius="32dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -119,6 +120,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="@{viewModel.getIsBusy() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

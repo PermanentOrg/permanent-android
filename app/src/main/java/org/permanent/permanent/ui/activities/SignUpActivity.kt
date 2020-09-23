@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySignUpBinding
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SignUpViewModel
 

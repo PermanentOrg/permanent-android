@@ -5,5 +5,5 @@ import java.util.ArrayList
 class RequestVO {
     var apiKey: String? = null
     var csrf: String? = null
-    var data: List<Datum> = ArrayList()
+    var data: List<Datum>? = ArrayList()
 }

@@ -1,7 +1,8 @@
-package org.permanent.permanent.network.models
+package org.permanent.permanent.network
 
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.network.models.*
 
 class RequestContainer(var csrf: String) {
     // Don't rename this property, is used in the api call
@@ -26,14 +27,22 @@ class RequestContainer(var csrf: String) {
     fun addAccount(email: String): RequestContainer {
         val account = AccountVO()
         account.primaryEmail = email
-        RequestVO.data[0].AccountVO = account
+        RequestVO.data?.get(0)?.AccountVO = account
         return this
     }
 
     fun addAccountPassword(password: String): RequestContainer {
         val accountPassword = AccountPasswordVO()
         accountPassword.password = password
-        RequestVO.data[0].AccountPasswordVO = accountPassword
+        RequestVO.data?.get(0)?.AccountPasswordVO = accountPassword
+        return this
+    }
+
+    fun addAuth(authToken: String): RequestContainer {
+        val auth = AuthVO()
+        auth.token = authToken
+        auth.type = Constants.AUTH_TYPE_MFA_VALIDATION
+        RequestVO.data?.get(0)?.AuthVO = auth
         return this
     }
 }

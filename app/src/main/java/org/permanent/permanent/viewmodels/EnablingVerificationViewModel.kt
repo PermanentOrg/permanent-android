@@ -9,7 +9,7 @@ import org.permanent.permanent.R
 import java.util.regex.Pattern
 
 
-class TwoStepVerificationEnablingViewModel(application: Application) :
+class EnablingVerificationViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
     private val currentPhoneNumber = MutableLiveData<String>()
     private val onSkipTwoStep = SingleLiveEvent<Void>()

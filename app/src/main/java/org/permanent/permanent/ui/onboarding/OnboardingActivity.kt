@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityOnboardingBinding
-import org.permanent.permanent.ui.activities.LoginActivity
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
 import org.permanent.permanent.viewmodels.OnboardingViewModel
 
