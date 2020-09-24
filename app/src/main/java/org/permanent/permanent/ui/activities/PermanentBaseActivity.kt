@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.activities
 
 import androidx.appcompat.app.AppCompatActivity
 

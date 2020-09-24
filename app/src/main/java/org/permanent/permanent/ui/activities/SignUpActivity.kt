@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.activities
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySignUpBinding
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SignUpViewModel
 
@@ -40,7 +41,6 @@ class SignUpActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         createObservers()
-
     }
 
     private fun navigateSignUp() {
@@ -55,8 +55,6 @@ class SignUpActivity : PermanentBaseActivity() {
         startActivity(intent)
         finish()
     }
-
-
 
     override fun connectViewModelEvents() {
         viewModel.getOnError().observe(this, onError)

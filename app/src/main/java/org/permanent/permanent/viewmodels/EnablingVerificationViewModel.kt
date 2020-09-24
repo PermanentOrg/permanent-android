@@ -1,17 +1,15 @@
-package org.permanent.permanent.ui.twoStepVerification
+package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
-import org.permanent.permanent.viewmodels.ObservableAndroidViewModel
-import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 import java.util.regex.Pattern
 
 
-class TwoStepVerificationPhoneViewModel(application: Application) :
+class EnablingVerificationViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
     private val currentPhoneNumber = MutableLiveData<String>()
     private val onSkipTwoStep = SingleLiveEvent<Void>()

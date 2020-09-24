@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/login_navigation"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="org.permanent.permanent.ui.login.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_codeVerificationFragment"
+            app:destination="@id/codeVerificationFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/codeVerificationFragment"
+        android:name="org.permanent.permanent.ui.CodeVerificationFragment"
+        android:label="CodeVerificationFragment"
+        tools:layout="@layout/fragment_verification_code">
+    </fragment>
+    <activity
+        android:id="@+id/loginActivity"
+        android:name="org.permanent.permanent.ui.login.LoginActivity"
+        android:label="LoginActivity"
+        tools:layout="@layout/activity_login"/>
+</navigation>
