@@ -32,8 +32,10 @@ class NetworkClient(application: Application) {
 
     init {
         val cookieJar: ClearableCookieJar =
-            PersistentCookieJar(SetCookieCache(),
-                SharedPrefsCookiePersistor(application.applicationContext))
+            PersistentCookieJar(
+                SetCookieCache(),
+                SharedPrefsCookiePersistor(application.applicationContext)
+            )
 
         val interceptor = HttpLoggingInterceptor()
         interceptor.level =
@@ -53,6 +55,12 @@ class NetworkClient(application: Application) {
 
         loginService = retrofit.create(LoginService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
+    }
+
+    fun checkIsUserLoggedIn(): Call<ResponseVO> {
+        val request = toJson(RequestContainer(""))
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+        return retrofit.create(LoginService::class.java).loggedIn(requestBody)
     }
 
     fun login(email: String, password: String): Call<ResponseVO> {

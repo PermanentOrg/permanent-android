@@ -10,6 +10,10 @@ import retrofit2.http.POST
  * Retrofit Service to handle login
  */
 interface LoginService {
+
+    @POST("auth/loggedIn")
+    fun loggedIn(@Body requestBody: RequestBody?): Call<ResponseVO>
+
     @POST("auth/login")
     fun login(@Body request: RequestBody): Call<ResponseVO>
 

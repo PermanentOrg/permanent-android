@@ -18,8 +18,8 @@ class Constants {
         const val ERROR_SERVER_ERROR = "error.api.invalid_request"
         const val ERROR_NO_API_KEY = "error.api.no_key"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
-        const val PREFERENCES_NAME = "permanent_preferences"
-        const val PREFERENCES_SAVED_EMAIL = "preferences_saved_email"
-        const val PREFERENCES_SAVED_CSRF = "preferences_saved_csrf"
+        const val PREFS_NAME = "permanent_preferences"
+        const val PREFS_SAVED_EMAIL = "preferences_saved_email"
+        const val PREFS_SAVED_CSRF = "preferences_saved_csrf"
     }
 }

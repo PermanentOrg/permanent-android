@@ -16,7 +16,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLoginBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.activities.SignUpActivity
-import org.permanent.permanent.ui.mainScreen.MainActivity
+import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.viewmodels.LoginFragmentViewModel
 import java.util.concurrent.Executor
 

@@ -1,7 +1,5 @@
 package org.permanent.permanent.network.models
 
-import java.util.*
-
 class ResponseVO {
     var Results: List<ResultVO>? = null
     var isSuccessful: Boolean? = false
@@ -13,4 +11,8 @@ class ResponseVO {
     var vaultExpirationTime: String? = null
     var createDT: String? = null
     var updatedDT: String? = null
+
+    fun isUserLoggedIn(): Boolean? {
+        return Results?.get(0)?.data?.get(0)?.SimpleVO?.value
+    }
 }

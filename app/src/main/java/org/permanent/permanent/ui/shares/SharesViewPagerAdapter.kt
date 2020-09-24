@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.mainScreen
+package org.permanent.permanent.ui.shares
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter

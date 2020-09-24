@@ -10,11 +10,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentVerificationEnablingBinding
-import org.permanent.permanent.viewmodels.EnablingVerificationViewModel
+import org.permanent.permanent.viewmodels.PhoneVerificationViewModel
 
-class EnablingVerificationFragment : Fragment() {
+class PhoneVerificationFragment : Fragment() {
 
-    private lateinit var verificationViewModel: EnablingVerificationViewModel
+    private lateinit var verificationViewModel: PhoneVerificationViewModel
     private lateinit var binding: FragmentVerificationEnablingBinding
 
     override fun onCreateView(
@@ -26,7 +26,7 @@ class EnablingVerificationFragment : Fragment() {
         binding = FragmentVerificationEnablingBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        verificationViewModel = ViewModelProvider(this).get(EnablingVerificationViewModel::class.java)
+        verificationViewModel = ViewModelProvider(this).get(PhoneVerificationViewModel::class.java)
         binding.viewModel = verificationViewModel
 
         verificationViewModel.onSkipTwoStep().observe(viewLifecycleOwner, onSkipTwoStepObserver)

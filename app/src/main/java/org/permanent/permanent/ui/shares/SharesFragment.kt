@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.mainScreen
+package org.permanent.permanent.ui.shares
 
 import android.os.Bundle
 import android.view.LayoutInflater

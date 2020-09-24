@@ -16,7 +16,7 @@
             android:name=".ui.activities.SignUpActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.mainScreen.MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.login.LoginActivity"

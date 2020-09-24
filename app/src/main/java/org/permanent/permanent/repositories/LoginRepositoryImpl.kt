@@ -13,8 +13,30 @@ import retrofit2.Response
 class LoginRepositoryImpl(val application: Application) : ILoginRepository {
 
     private val sharedPreferences: SharedPreferences =
-        application.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE)
+        application.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
     private val networkClient: NetworkClient = NetworkClient(application)
+
+    override fun checkIsUserLoggedIn(
+        listener: ILoginRepository.IOnLoggedInListener
+    ) {
+        networkClient.checkIsUserLoggedIn().enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
+                val responseVO = retrofitResponse.body()
+                saveCsrfTo(sharedPreferences, responseVO?.csrf!!)
+
+                if(retrofitResponse.isSuccessful) {
+                    responseVO.isUserLoggedIn()?.let { listener.onResponse(it) }
+                        ?: listener.onResponse(false)
+                } else {
+                    listener.onResponse(false)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onResponse(false)
+            }
+        })
+    }
 
     override fun login(
         email: String,
@@ -72,23 +94,23 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
 
     private fun saveEmailTo(preferences: SharedPreferences, email: String) {
         with(preferences.edit()) {
-            putString(Constants.PREFERENCES_SAVED_EMAIL, email)
+            putString(Constants.PREFS_SAVED_EMAIL, email)
             apply()
         }
     }
 
     private fun getEmailFrom(preferences: SharedPreferences): String {
-        return preferences.getString(Constants.PREFERENCES_SAVED_EMAIL, "")!!
+        return preferences.getString(Constants.PREFS_SAVED_EMAIL, "")!!
     }
 
     private fun saveCsrfTo(preferences: SharedPreferences, csrf: String) {
         with(preferences.edit()) {
-            putString(Constants.PREFERENCES_SAVED_CSRF, csrf)
+            putString(Constants.PREFS_SAVED_CSRF, csrf)
             apply()
         }
     }
 
     private fun getCsrfFrom(preferences: SharedPreferences): String {
-        return preferences.getString(Constants.PREFERENCES_SAVED_CSRF, "")!!
+        return preferences.getString(Constants.PREFS_SAVED_CSRF, "")!!
     }
 }
