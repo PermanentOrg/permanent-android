@@ -26,7 +26,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun checkIsUserLoggedIn() {
         isBusy.value = true
-        loginRepository.checkIsUserLoggedIn(object : ILoginRepository.IOnLoggedInListener {
+        loginRepository.verifyLoggedIn(object : ILoginRepository.IOnLoggedInListener {
             override fun onResponse(isLoggedIn: Boolean) {
                 isBusy.value = false
                 onLoggedInResponse.value = isLoggedIn

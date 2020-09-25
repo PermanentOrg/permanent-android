@@ -57,10 +57,10 @@ class NetworkClient(application: Application) {
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
     }
 
-    fun checkIsUserLoggedIn(): Call<ResponseVO> {
+    fun verifyLoggedIn(): Call<ResponseVO> {
         val request = toJson(RequestContainer(""))
         val requestBody: RequestBody = request.toRequestBody(JSON)
-        return retrofit.create(LoginService::class.java).loggedIn(requestBody)
+        return retrofit.create(LoginService::class.java).verifyLoggedIn(requestBody)
     }
 
     fun login(email: String, password: String): Call<ResponseVO> {

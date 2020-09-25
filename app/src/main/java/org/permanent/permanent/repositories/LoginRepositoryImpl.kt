@@ -16,10 +16,10 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
         application.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
     private val networkClient: NetworkClient = NetworkClient(application)
 
-    override fun checkIsUserLoggedIn(
+    override fun verifyLoggedIn(
         listener: ILoginRepository.IOnLoggedInListener
     ) {
-        networkClient.checkIsUserLoggedIn().enqueue(object : Callback<ResponseVO> {
+        networkClient.verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
                 val responseVO = retrofitResponse.body()
                 saveCsrfTo(sharedPreferences, responseVO?.csrf!!)
