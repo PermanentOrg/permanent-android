@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.onboarding
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -9,10 +8,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityOnboardingBinding
-import org.permanent.permanent.ui.LoginActivity
-import org.permanent.permanent.ui.PermanentBaseActivity
+import org.permanent.permanent.ui.activities.PermanentBaseActivity
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.viewmodels.OnboardingViewModel
 
 
@@ -31,16 +31,11 @@ class OnboardingActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        if (viewModel.isOnboardingCompleted(getPreferences(Context.MODE_PRIVATE))) {
-            startLoginActivity()
-        }
-
         setSupportActionBar(binding.toolbar)
         setupRecyclerView()
         binding.btnOnboarding.setOnClickListener {
             if(viewModel.snapPosition.value == viewAdapter.itemCount - 1) {
-                startLoginActivity()
-                viewModel.setOnboardingCompleted(getPreferences(Context.MODE_PRIVATE))
+                onOnboardingCompleted()
             } else {
                 viewModel.snapPosition.value = viewModel.snapPosition.value?.plus(1)
                 recyclerView.smoothScrollToPosition(viewModel.snapPosition.value!!)
@@ -73,12 +68,16 @@ class OnboardingActivity : PermanentBaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.skip -> {
-                startLoginActivity()
-                viewModel.setOnboardingCompleted(getPreferences(Context.MODE_PRIVATE))
+                onOnboardingCompleted()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun onOnboardingCompleted() {
+        viewModel.setOnboardingCompleted(getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE))
+        startLoginActivity()
     }
 
     private fun startLoginActivity() {

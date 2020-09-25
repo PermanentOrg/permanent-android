@@ -9,12 +9,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.ILoginRepository
+import org.permanent.permanent.repositories.LoginRepositoryImpl
 import java.util.regex.Pattern
 
-class LoginViewModel(application: Application) : ObservableAndroidViewModel(application) {
-
-    val onError = MutableLiveData<Int>()
-    val authenticationError = MutableLiveData<String>()
+class LoginFragmentViewModel(application: Application) : ObservableAndroidViewModel(application) {
+    val errorMessage = MutableLiveData<String>()
+    private val errorStringId = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
     private val onBiometricAuthSuccess = SingleLiveEvent<Void>()
@@ -26,12 +26,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
 
-    private var loginRepository: ILoginRepository? = null
-
-    init {
-        //TODO implement login repository
-//        loginRepository = FirebaseLoginRepository()
-    }
+    private var loginRepository: ILoginRepository = LoginRepositoryImpl(application)
 
     fun getCurrentEmail(): MutableLiveData<String>? {
         return currentEmail
@@ -57,12 +52,12 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         currentPassword.value = password.toString().trim { it <= ' ' }
     }
 
-    fun getOnError(): LiveData<Int> {
-        return onError
+    fun getErrorStringId(): LiveData<Int> {
+        return errorStringId
     }
 
-    fun getOnAuthenticationError(): LiveData<String>{
-        return authenticationError
+    fun getErrorMessage(): LiveData<String> {
+        return errorMessage
     }
 
     fun getOnBiometricAuthSuccess(): LiveData<Void> {
@@ -96,12 +91,12 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         val email = currentEmail.value
 
         if (TextUtils.isEmpty(email)) {
-            onError.value = R.string.invalid_email_error
+            errorStringId.value = R.string.invalid_email_error
             return
         }
 
         isBusy.value = true
-        loginRepository?.forgotPassword(email, object : ILoginRepository.IOnResetPasswordListener {
+        loginRepository.forgotPassword(email!!, object : ILoginRepository.IOnResetPasswordListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onPasswordReset.call()
@@ -109,7 +104,7 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
 
             override fun onFailed(error: String?, errorCode: Int) {
                 isBusy.value = false
-                authenticationError.value = error
+                errorMessage.value = error
             }
         })
     }
@@ -121,11 +116,11 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
             BiometricManager.BIOMETRIC_SUCCESS ->
                 onBiometricAuthSuccess.call()
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
-                onError.value = R.string.login_no_biometric_error
+                errorStringId.value = R.string.login_no_biometric_error
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
-                onError.value = R.string.login_biometric_unavailable_error
+                errorStringId.value = R.string.login_biometric_unavailable_error
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                onError.value = R.string.login_biometric_not_setup_error
+                errorStringId.value = R.string.login_biometric_not_setup_error
         }
     }
 
@@ -162,22 +157,18 @@ class LoginViewModel(application: Application) : ObservableAndroidViewModel(appl
         val password = currentPassword.value
 
         if (!checkEmail(email)) return
-
         if (!checkPassword(password)) return
 
         isBusy.value = true
-        //TODO 1 remove after Login is implemented
-        isBusy.value = false
-        onLoggedIn.call()
-        loginRepository?.login(email, password, object : ILoginRepository.IOnLoginListener {
+        loginRepository.login(email!!, password!!, object : ILoginRepository.IOnLoginListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onLoggedIn.call()
             }
 
-            override fun onFailed(error: String?, errorCode: Int) {
+            override fun onFailed(error: String?) {
                 isBusy.value = false
-                authenticationError.value = error
+                errorMessage.value = error
             }
         })
     }

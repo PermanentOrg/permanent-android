@@ -13,13 +13,13 @@
         android:theme="@style/NoActionBarTheme">
 
         <activity
-            android:name=".ui.SignUpActivity"
+            android:name=".ui.activities.SignUpActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.mainScreen.MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.LoginActivity"
+            android:name=".ui.login.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
@@ -31,7 +31,7 @@
             android:name=".ui.twoStepVerification.TwoStepVerificationActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".ui.SplashActivity"
+            android:name=".ui.activities.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>

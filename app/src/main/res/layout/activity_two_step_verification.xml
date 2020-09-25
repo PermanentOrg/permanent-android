@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivityViewModel" />
+            type="org.permanent.permanent.viewmodels.TwoStepVerificationViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

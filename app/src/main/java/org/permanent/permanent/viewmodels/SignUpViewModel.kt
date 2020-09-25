@@ -122,7 +122,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     private fun checkEmptyPassword(password: String?): Boolean {
         if (password == null) {
-            passwordError.value = R.string.no_password_error
+            passwordError.value = R.string.password_empty_error
             return false
         } else {
             if (password.length < Constants.MIN_PASSWORD_LENGTH) {

@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.mainScreen
+package org.permanent.permanent.ui.activities
 
 import android.content.Context
 import android.os.Bundle
@@ -18,7 +18,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
-import org.permanent.permanent.ui.PermanentBaseActivity
 import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {

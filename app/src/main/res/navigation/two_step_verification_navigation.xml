@@ -3,43 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/two_step_verification_navigation"
-    app:startDestination="@id/twoStepVerificationPhoneFragment">
+    app:startDestination="@id/enablingVerificationFragment">
 
     <fragment
-        android:id="@+id/twoStepVerificationPhoneFragment"
-        android:name="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationPhoneFragment"
-        android:label="TwoStepVerificationFragment"
-        tools:layout="@layout/fragment_two_step_verification_phone">
+        android:id="@+id/enablingVerificationFragment"
+        android:name="org.permanent.permanent.ui.twoStepVerification.PhoneVerificationFragment"
+        android:label="EnablingVerificationFragment"
+        tools:layout="@layout/fragment_verification_enabling">
         <action
-            android:id="@+id/action_twoStepVerificationPhoneFragment_to_twoStepVerificationCodeFragment"
-            app:destination="@id/twoStepVerificationCodeFragment"
+            android:id="@+id/action_enablingVerificationFragment_to_codeVerificationFragment"
+            app:destination="@id/codeVerificationFragment"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
-            android:id="@+id/action_twoStepVerificationPhoneFragment_to_mainActivity"
+            android:id="@+id/action_enablingVerificationFragment_to_mainActivity"
             app:destination="@id/mainActivity"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit" />
     </fragment>
     <fragment
-        android:id="@+id/twoStepVerificationCodeFragment"
-        android:name="org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationCodeFragment"
-        android:label="TwoStepVerificationCodeFragment"
-        tools:layout="@layout/fragment_two_step_verification_code">
+        android:id="@+id/codeVerificationFragment"
+        android:name="org.permanent.permanent.ui.CodeVerificationFragment"
+        android:label="CodeVerificationFragment"
+        tools:layout="@layout/fragment_verification_code">
         <action
-            android:id="@+id/action_twoStepVerificationCodeFragment_to_twoStepVerificationFragment"
-            app:destination="@id/twoStepVerificationPhoneFragment" />
+            android:id="@+id/action_codeVerificationFragment_to_enablingVerificationFragment"
+            app:destination="@id/enablingVerificationFragment" />
         <action
-            android:id="@+id/action_twoStepVerificationCodeFragment_to_mainActivity"
+            android:id="@+id/action_codeVerificationFragment_to_mainActivity"
             app:destination="@id/mainActivity"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit" />
     </fragment>
     <activity
         android:id="@+id/mainActivity"
-        android:name="org.permanent.permanent.ui.mainScreen.MainActivity"
+        android:name="org.permanent.permanent.ui.activities.MainActivity"
         android:label="MainActivity"
         tools:layout="@layout/activity_main"/>
 </navigation>
