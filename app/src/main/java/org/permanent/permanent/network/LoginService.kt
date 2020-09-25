@@ -18,5 +18,5 @@ interface LoginService {
     fun login(@Body request: RequestBody): Call<ResponseVO>
 
     @POST("auth/verify")
-    fun verify(@Body requestBody: RequestBody): Call<ResponseVO>
+    fun verifyCode(@Body requestBody: RequestBody): Call<ResponseVO>
 }

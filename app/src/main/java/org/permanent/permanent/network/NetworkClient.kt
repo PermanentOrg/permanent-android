@@ -78,7 +78,7 @@ class NetworkClient(application: Application) {
         )
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
-        return retrofit.create(LoginService::class.java).verify(requestBody)
+        return retrofit.create(LoginService::class.java).verifyCode(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {
