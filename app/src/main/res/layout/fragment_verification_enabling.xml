@@ -10,7 +10,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.EnablingVerificationViewModel" />
+            type="org.permanent.permanent.viewmodels.PhoneVerificationViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

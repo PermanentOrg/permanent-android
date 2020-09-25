@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/enablingVerificationFragment"
-        android:name="org.permanent.permanent.ui.twoStepVerification.EnablingVerificationFragment"
+        android:name="org.permanent.permanent.ui.twoStepVerification.PhoneVerificationFragment"
         android:label="EnablingVerificationFragment"
         tools:layout="@layout/fragment_verification_enabling">
         <action
@@ -39,7 +39,7 @@
     </fragment>
     <activity
         android:id="@+id/mainActivity"
-        android:name="org.permanent.permanent.ui.mainScreen.MainActivity"
+        android:name="org.permanent.permanent.ui.activities.MainActivity"
         android:label="MainActivity"
         tools:layout="@layout/activity_main"/>
 </navigation>

@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.databinding.FragmentVerificationCodeBinding
-import org.permanent.permanent.ui.mainScreen.MainActivity
+import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.viewmodels.CodeVerificationViewModel
 
 class CodeVerificationFragment : PermanentBaseFragment() {

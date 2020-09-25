@@ -15,8 +15,4 @@ class OnboardingViewModel(application: Application) : ObservableAndroidViewModel
             apply()
         }
     }
-
-    fun isOnboardingCompleted(preferences: SharedPreferences): Boolean {
-        return preferences.getBoolean(Constants.IS_ONBOARDING_COMPLETED, false)
-    }
 }

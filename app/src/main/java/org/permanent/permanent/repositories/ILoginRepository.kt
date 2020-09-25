@@ -2,9 +2,14 @@ package org.permanent.permanent.repositories
 
 
 interface ILoginRepository {
+    fun checkIsUserLoggedIn(listener: IOnLoggedInListener)
     fun login(email: String, password: String, listener: IOnLoginListener)
     fun verify(code: String, listener: IOnVerifyListener)
     fun forgotPassword(email: String, listener: IOnResetPasswordListener)
+
+    interface IOnLoggedInListener {
+        fun onResponse(isLoggedIn: Boolean)
+    }
 
     interface IOnLoginListener {
         fun onSuccess()
