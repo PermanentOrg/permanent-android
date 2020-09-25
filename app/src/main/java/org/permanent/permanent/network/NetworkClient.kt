@@ -72,10 +72,15 @@ class NetworkClient(application: Application) {
         return retrofit.create(LoginService::class.java).login(requestBody)
     }
 
+    fun forgotPassword(email: String): Call<ResponseVO> {
+        val request: String = toJson(RequestContainer("").addAccount(email))
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return retrofit.create(LoginService::class.java).forgotPassword(requestBody)
+    }
+
     fun verifyCode(code: String, csrf: String, email: String): Call<ResponseVO>  {
-        val request = toJson(
-            RequestContainer(csrf).addAuth(code).addAccount(email)
-        )
+        val request = toJson(RequestContainer(csrf).addAuth(code).addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
         return retrofit.create(LoginService::class.java).verifyCode(requestBody)

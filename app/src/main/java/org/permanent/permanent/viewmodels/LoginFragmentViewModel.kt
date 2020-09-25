@@ -80,35 +80,6 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
         return onPasswordReset
     }
 
-    fun signUp() {
-        onSignUp.call()
-    }
-
-    fun forgotPassword() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-        val email = currentEmail.value
-
-        if (TextUtils.isEmpty(email)) {
-            errorStringId.value = R.string.invalid_email_error
-            return
-        }
-
-        isBusy.value = true
-        loginRepository.forgotPassword(email!!, object : ILoginRepository.IOnResetPasswordListener {
-            override fun onSuccess() {
-                isBusy.value = false
-                onPasswordReset.call()
-            }
-
-            override fun onFailed(error: String?, errorCode: Int) {
-                isBusy.value = false
-                errorMessage.value = error
-            }
-        })
-    }
-
     fun useTouchId() {
         val biometricManager = BiometricManager.from(getApplication())
 
@@ -164,6 +135,35 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
             override fun onSuccess() {
                 isBusy.value = false
                 onLoggedIn.call()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                errorMessage.value = error
+            }
+        })
+    }
+
+    fun signUp() {
+        onSignUp.call()
+    }
+
+    fun forgotPassword() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        val email = currentEmail.value
+
+        if (TextUtils.isEmpty(email)) {
+            errorStringId.value = R.string.invalid_email_error
+            return
+        }
+
+        isBusy.value = true
+        loginRepository.forgotPassword(email!!, object : ILoginRepository.IOnResetPasswordListener {
+            override fun onSuccess() {
+                isBusy.value = false
+                onPasswordReset.call()
             }
 
             override fun onFailed(error: String?) {
