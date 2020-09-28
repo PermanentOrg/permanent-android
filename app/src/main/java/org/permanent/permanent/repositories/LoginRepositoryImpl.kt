@@ -61,6 +61,26 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
         })
     }
 
+    override fun forgotPassword(
+        email: String,
+        listener: ILoginRepository.IOnResetPasswordListener
+    ) {
+        networkClient.forgotPassword(email).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                if(response.isSuccessful && response.body()?.isSuccessful!!) {
+                    listener.onSuccess()
+                } else {
+                    listener.onFailed(response.body()?.Results?.get(0)?.message?.get(0)
+                        ?: response.errorBody()?.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
     override fun verify(
         code: String,
         listener: ILoginRepository.IOnVerifyListener
@@ -83,13 +103,6 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
                 listener.onFailed(t.message)
             }
         })
-    }
-
-    override fun forgotPassword(
-        email: String,
-        listener: ILoginRepository.IOnResetPasswordListener
-    ) {
-        TODO("Not yet implemented")
     }
 
     private fun saveEmailTo(preferences: SharedPreferences, email: String) {

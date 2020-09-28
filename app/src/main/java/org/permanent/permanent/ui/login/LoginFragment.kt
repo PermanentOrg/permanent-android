@@ -118,7 +118,6 @@ class LoginFragment  : PermanentBaseFragment() {
     }
 
     private fun navigateLogIn() {
-        //TODO refactor with appropriate Activity
         startActivity(Intent(context, MainActivity::class.java))
         activity?.finish()
     }

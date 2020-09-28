@@ -32,6 +32,7 @@ hs_err_pid*
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/dictionaries/
 .DS_Store
 /build
 /captures
