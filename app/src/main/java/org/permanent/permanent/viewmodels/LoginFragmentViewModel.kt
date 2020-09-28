@@ -96,16 +96,10 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     private fun checkEmail(email: String?): Boolean {
-        if (email.isNullOrEmpty()) {
+        val pattern: Pattern = Patterns.EMAIL_ADDRESS
+        if (email.isNullOrEmpty() || !pattern.matcher(email).matches()) {
             emailError.value = R.string.invalid_email_error
             return false
-        } else {
-            val pattern: Pattern = Patterns.EMAIL_ADDRESS
-            if (!pattern.matcher(email).matches()) {
-                emailError.value = R.string.invalid_email_error
-                return false
-            }
-
         }
         emailError.value = null
         return true
@@ -154,10 +148,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
         }
         val email = currentEmail.value
 
-        if (TextUtils.isEmpty(email)) {
-            errorStringId.value = R.string.invalid_email_error
-            return
-        }
+        if (!checkEmail(email)) return
 
         isBusy.value = true
         loginRepository.forgotPassword(email!!, object : ILoginRepository.IOnResetPasswordListener {
