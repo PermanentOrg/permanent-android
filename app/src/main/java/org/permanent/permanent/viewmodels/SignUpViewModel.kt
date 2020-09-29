@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.ISignUpRepository
+import org.permanent.permanent.repositories.SignUpRepositoryImpl
 import java.util.regex.Pattern
 
 
@@ -17,22 +18,16 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val nameError = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
-    private val onError = MutableLiveData<String>()
+    private val onErrorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onSignedUp = SingleLiveEvent<Void>()
+    private val onReadyToShowTermsDialog = SingleLiveEvent<Void>()
     private val onAlreadyHaveAccount = SingleLiveEvent<Void>()
-    private val displayTermsOfServiceTextDialog = SingleLiveEvent<Void>()
 
     private val currentName = MutableLiveData<String>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
-    private var signUpRepository: ISignUpRepository? = null
-
-
-    init {
-        //TODO implement signUp repository
-//        signUpRepository = FirebaseSignUpRepository()
-    }
+    private var signUpRepository: ISignUpRepository = SignUpRepositoryImpl(application)
 
     fun getCurrentName(): MutableLiveData<String>? {
         return currentName
@@ -70,8 +65,8 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         currentPassword.value = password.toString().trim { it <= ' ' }
     }
 
-    fun getOnError(): MutableLiveData<String> {
-        return onError
+    fun getOnErrorMessage(): MutableLiveData<String> {
+        return onErrorMessage
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
@@ -82,16 +77,16 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         return onSignedUp
     }
 
+    fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> {
+        return onReadyToShowTermsDialog
+    }
+
     fun getOnAlreadyHaveAccount(): MutableLiveData<Void> {
         return onAlreadyHaveAccount
     }
 
     fun alreadyHaveAccount() {
         onAlreadyHaveAccount.call()
-    }
-
-    fun getDisplayTermsOfServiceTextDialog(): MutableLiveData<Void> {
-        return displayTermsOfServiceTextDialog
     }
 
     private fun checkName(name: String?): Boolean {
@@ -105,23 +100,17 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     }
 
     private fun checkEmail(email: String?): Boolean {
-        if (email.isNullOrEmpty()) {
+        val pattern: Pattern = Patterns.EMAIL_ADDRESS
+        if (email.isNullOrEmpty() || !pattern.matcher(email).matches()) {
             emailError.value = R.string.invalid_email_error
             return false
-        } else {
-            val pattern: Pattern = Patterns.EMAIL_ADDRESS
-            if (!pattern.matcher(email).matches()) {
-                emailError.value = R.string.invalid_email_error
-                return false
-            }
-
         }
         emailError.value = null
         return true
     }
 
     private fun checkEmptyPassword(password: String?): Boolean {
-        if (password == null) {
+        if (password.isNullOrEmpty()) {
             passwordError.value = R.string.password_empty_error
             return false
         } else {
@@ -134,7 +123,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         return true
     }
 
-    fun signUp() {
+    fun onSignUpBtnClick() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -143,33 +132,34 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         val password = currentPassword.value
 
         if (!checkName(name)) return
-
         if (!checkEmail(email)) return
-
         if (!checkEmptyPassword(password)) return
 
-        displayTermsOfServiceTextDialog.call()
+        onReadyToShowTermsDialog.call()
     }
 
-
     fun makeAccount() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
         val name = currentName.value
         val email = currentEmail.value
         val password = currentPassword.value
+
         isBusy.value = true
-        signUpRepository?.signUp(
-            name,
-            email,
-            password,
+        signUpRepository.signUp(
+            name!!,
+            email!!,
+            password!!,
             object : ISignUpRepository.IOnSignUpListener {
                 override fun onSuccess() {
                     isBusy.value = false
                     onSignedUp.call()
                 }
 
-                override fun onFailed(error: String?, errorCode: Int) {
+                override fun onFailed(error: String?) {
                     isBusy.value = false
-                    onError.value = error
+                    onErrorMessage.value = error
                 }
             })
     }

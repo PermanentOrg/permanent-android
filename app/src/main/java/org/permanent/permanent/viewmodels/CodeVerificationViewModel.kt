@@ -67,7 +67,7 @@ class CodeVerificationViewModel(application: Application): ObservableAndroidView
         if (!checkEmptyCode(code)) return
 
         isBusy.value = true
-        loginRepository.verify(code!!, object : ILoginRepository.IOnVerifyListener {
+        loginRepository.verifyCode(code!!, object : ILoginRepository.IOnVerifyListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onCodeVerified.call()

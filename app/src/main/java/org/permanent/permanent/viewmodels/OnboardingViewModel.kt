@@ -3,7 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.Constants
+import org.permanent.permanent.ui.IS_ONBOARDING_COMPLETED
 
 class OnboardingViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -11,7 +11,7 @@ class OnboardingViewModel(application: Application) : ObservableAndroidViewModel
 
     fun setOnboardingCompleted(preferences: SharedPreferences) {
         with(preferences.edit()) {
-            putBoolean(Constants.IS_ONBOARDING_COMPLETED, true)
+            putBoolean(IS_ONBOARDING_COMPLETED, true)
             apply()
         }
     }

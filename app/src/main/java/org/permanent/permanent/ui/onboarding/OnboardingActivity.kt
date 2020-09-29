@@ -8,9 +8,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityOnboardingBinding
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.viewmodels.OnboardingViewModel
@@ -76,7 +76,7 @@ class OnboardingActivity : PermanentBaseActivity() {
     }
 
     private fun onOnboardingCompleted() {
-        viewModel.setOnboardingCompleted(getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE))
+        viewModel.setOnboardingCompleted(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
         startLoginActivity()
     }
 

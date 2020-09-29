@@ -86,6 +86,16 @@ class NetworkClient(application: Application) {
         return retrofit.create(LoginService::class.java).verifyCode(requestBody)
     }
 
+    fun signUp(fullName: String, email: String, password: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer("")
+            .addAccountPassword(password, password)
+            .addAccount(fullName, email)
+        )
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return retrofit.create(LoginService::class.java).signUp(requestBody)
+    }
+
     private fun toJson(container: RequestContainer): String {
         return jsonAdapter.toJson(container)
     }

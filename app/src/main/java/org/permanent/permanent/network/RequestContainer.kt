@@ -31,10 +31,26 @@ class RequestContainer(var csrf: String) {
         return this
     }
 
+    fun addAccount(fullName: String, email: String): RequestContainer {
+        val accountVO = AccountVO()
+        accountVO.fullName = fullName
+        accountVO.primaryEmail = email
+        accountVO.optIn = false
+        accountVO.agreed = true
+        RequestVO.data?.get(0)?.AccountVO = accountVO
+        return this
+    }
+
     fun addAccountPassword(password: String): RequestContainer {
         val accountPassword = AccountPasswordVO()
         accountPassword.password = password
         RequestVO.data?.get(0)?.AccountPasswordVO = accountPassword
+        return this
+    }
+
+    fun addAccountPassword(password: String, passwordVerify: String): RequestContainer {
+        addAccountPassword(password)
+        RequestVO.data?.get(0)?.AccountPasswordVO?.passwordVerify = passwordVerify
         return this
     }
 
