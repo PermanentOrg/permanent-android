@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySignUpBinding
 import org.permanent.permanent.ui.login.LoginActivity
@@ -18,15 +19,24 @@ import org.permanent.permanent.viewmodels.SignUpViewModel
 class SignUpActivity : PermanentBaseActivity() {
     private lateinit var viewModel: SignUpViewModel
     private lateinit var binding: ActivitySignUpBinding
-    private lateinit var displayTermsOfServiceAlertObserver: Observer<Void>
 
-
-    private val onError = Observer<String> { error ->
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+    private val onErrorMessage = Observer<String> { errorMessage ->
+        when(errorMessage) {
+            Constants.ERROR_ACCOUNT_DUPLICATE -> Toast.makeText(
+                this,
+                R.string.sign_up_email_in_use_error,
+                Toast.LENGTH_LONG
+            ).show()
+            else -> Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+        }
     }
 
     private val onSignedUp = Observer<Void> {
         navigateSignUp()
+    }
+
+    private val onReadyToShowTermsDialog = Observer<Void> {
+        showTermsDialog()
     }
 
     private val onAlreadyHaveAccount = Observer<Void> {
@@ -40,7 +50,25 @@ class SignUpActivity : PermanentBaseActivity() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        createObservers()
+    }
+
+    private fun showTermsDialog() {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_terms_of_service, null)
+
+        val alert = AlertDialog.Builder(this)
+            .setView(viewDialog)
+            .create()
+
+        viewDialog.webviewtermsOfService.loadUrl(Constants.URL_PRIVACY_POLICY)
+        viewDialog.btnAccept.setOnClickListener {
+            viewModel.makeAccount()
+            alert.dismiss()
+        }
+        viewDialog.btnDecline.setOnClickListener {
+            Toast.makeText(this, R.string.sign_up_terms_declined, Toast.LENGTH_SHORT).show()
+            alert.dismiss()
+        }
+        alert.show()
     }
 
     private fun navigateSignUp() {
@@ -57,19 +85,17 @@ class SignUpActivity : PermanentBaseActivity() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnError().observe(this, onError)
+        viewModel.getOnErrorMessage().observe(this, onErrorMessage)
         viewModel.getOnSignedUp().observe(this, onSignedUp)
+        viewModel.getOnReadyToShowTermsDialog().observe(this, onReadyToShowTermsDialog)
         viewModel.getOnAlreadyHaveAccount().observe(this, onAlreadyHaveAccount)
-        viewModel.getDisplayTermsOfServiceTextDialog()
-            .observe(this, displayTermsOfServiceAlertObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnError().removeObserver(onError)
+        viewModel.getOnErrorMessage().removeObserver(onErrorMessage)
         viewModel.getOnSignedUp().removeObserver(onSignedUp)
+        viewModel.getOnReadyToShowTermsDialog().removeObserver(onReadyToShowTermsDialog)
         viewModel.getOnAlreadyHaveAccount().removeObserver(onAlreadyHaveAccount)
-        viewModel.getDisplayTermsOfServiceTextDialog()
-            .removeObserver(displayTermsOfServiceAlertObserver)
     }
 
     override fun onResume() {
@@ -80,31 +106,5 @@ class SignUpActivity : PermanentBaseActivity() {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-    }
-
-    private fun createObservers() {
-        displayTermsOfServiceAlertObserver = Observer {
-
-            val viewDialog: View =
-                layoutInflater.inflate(R.layout.dialog_terms_of_service, null)
-
-            val alert = AlertDialog.Builder(this)
-                .setView(viewDialog)
-                .create()
-
-            viewDialog.webviewtermsOfService.loadUrl(getString(R.string.terms_of_service_privacy_policy_url))
-            viewDialog.btnAccept.setOnClickListener { _ ->
-                //TODO remove after makeAccount() implementation
-                //viewModel.makeAccount()
-                navigateSignUp()
-                alert.dismiss()
-            }
-            viewDialog.btnDecline.setOnClickListener { _ ->
-                Toast.makeText(this, R.string.sign_up_terms_declined, Toast.LENGTH_SHORT).show()
-                alert.dismiss()
-            }
-
-            alert.show()
-        }
     }
 }

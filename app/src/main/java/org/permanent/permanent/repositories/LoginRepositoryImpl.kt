@@ -3,9 +3,10 @@ package org.permanent.permanent.repositories
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import org.permanent.permanent.Constants
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -13,7 +14,8 @@ import retrofit2.Response
 class LoginRepositoryImpl(val application: Application) : ILoginRepository {
 
     private val sharedPreferences: SharedPreferences =
-        application.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val prefsHelper = PreferencesHelper(sharedPreferences)
     private val networkClient: NetworkClient = NetworkClient(application)
 
     override fun verifyLoggedIn(
@@ -22,10 +24,10 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
         networkClient.verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
                 val responseVO = retrofitResponse.body()
-                saveCsrfTo(sharedPreferences, responseVO?.csrf!!)
+                responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
 
                 if(retrofitResponse.isSuccessful) {
-                    responseVO.isUserLoggedIn()?.let { listener.onResponse(it) }
+                    responseVO?.isUserLoggedIn()?.let { listener.onResponse(it) }
                         ?: listener.onResponse(false)
                 } else {
                     listener.onResponse(false)
@@ -43,10 +45,10 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
         password: String,
         listener: ILoginRepository.IOnLoginListener
     ) {
-        saveEmailTo(sharedPreferences, email)
+        prefsHelper.saveEmail(email)
         networkClient.login(email, password).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                saveCsrfTo(sharedPreferences, response.body()?.csrf!!)
+                prefsHelper.saveCsrf(response.body()?.csrf!!)
                 if(response.isSuccessful && response.body()?.isSuccessful!!) {
                     listener.onSuccess()
                 } else {
@@ -81,14 +83,14 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
         })
     }
 
-    override fun verify(
+    override fun verifyCode(
         code: String,
         listener: ILoginRepository.IOnVerifyListener
     ) {
         networkClient.verifyCode(
             code,
-            getCsrfFrom(sharedPreferences),
-            getEmailFrom(sharedPreferences)
+            prefsHelper.getCsrf(),
+            prefsHelper.getEmail()
         ).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 if(response.isSuccessful && response.body()?.isSuccessful!!) {
@@ -103,27 +105,5 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
                 listener.onFailed(t.message)
             }
         })
-    }
-
-    private fun saveEmailTo(preferences: SharedPreferences, email: String) {
-        with(preferences.edit()) {
-            putString(Constants.PREFS_SAVED_EMAIL, email)
-            apply()
-        }
-    }
-
-    private fun getEmailFrom(preferences: SharedPreferences): String {
-        return preferences.getString(Constants.PREFS_SAVED_EMAIL, "")!!
-    }
-
-    private fun saveCsrfTo(preferences: SharedPreferences, csrf: String) {
-        with(preferences.edit()) {
-            putString(Constants.PREFS_SAVED_CSRF, csrf)
-            apply()
-        }
-    }
-
-    private fun getCsrfFrom(preferences: SharedPreferences): String {
-        return preferences.getString(Constants.PREFS_SAVED_CSRF, "")!!
     }
 }

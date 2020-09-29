@@ -3,9 +3,9 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.Constants
 import org.permanent.permanent.repositories.ILoginRepository
 import org.permanent.permanent.repositories.LoginRepositoryImpl
+import org.permanent.permanent.ui.IS_ONBOARDING_COMPLETED
 
 class SplashViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val isBusy = MutableLiveData<Boolean>()
@@ -13,7 +13,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
     private val loginRepository: ILoginRepository = LoginRepositoryImpl(application)
 
     fun isOnboardingCompleted(preferences: SharedPreferences): Boolean {
-        return preferences.getBoolean(Constants.IS_ONBOARDING_COMPLETED, false)
+        return preferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
     }
 
     fun getOnLoggedInResponse(): MutableLiveData<Boolean> {

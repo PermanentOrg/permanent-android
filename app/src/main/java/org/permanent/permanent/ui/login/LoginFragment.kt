@@ -112,7 +112,7 @@ class LoginFragment  : PermanentBaseFragment() {
     private val onPasswordReset = Observer<Void> {
         Toast.makeText(
             context,
-            getString(R.string.login_screen_password_reset_message),
+            getString(R.string.login_screen_password_reset_message, viewModel.getCurrentEmail()?.value),
             Toast.LENGTH_LONG
         ).show()
     }
