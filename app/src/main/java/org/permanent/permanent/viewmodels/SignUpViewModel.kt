@@ -146,21 +146,23 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         val email = currentEmail.value
         val password = currentPassword.value
 
-        isBusy.value = true
-        signUpRepository.signUp(
-            name!!,
-            email!!,
-            password!!,
-            object : ISignUpRepository.IOnSignUpListener {
-                override fun onSuccess() {
-                    isBusy.value = false
-                    onSignedUp.call()
-                }
+        if (name != null && email != null && password != null) {
+            isBusy.value = true
+            signUpRepository.signUp(
+                name,
+                email,
+                password,
+                object : ISignUpRepository.IOnSignUpListener {
+                    override fun onSuccess() {
+                        isBusy.value = false
+                        onSignedUp.call()
+                    }
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    onErrorMessage.value = error
-                }
-            })
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        onErrorMessage.value = error
+                    }
+                })
+        }
     }
 }

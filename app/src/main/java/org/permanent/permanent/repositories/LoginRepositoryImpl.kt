@@ -24,10 +24,10 @@ class LoginRepositoryImpl(val application: Application) : ILoginRepository {
         networkClient.verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
                 val responseVO = retrofitResponse.body()
-                prefsHelper.saveCsrf(responseVO?.csrf!!)
+                responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
 
                 if(retrofitResponse.isSuccessful) {
-                    responseVO.isUserLoggedIn()?.let { listener.onResponse(it) }
+                    responseVO?.isUserLoggedIn()?.let { listener.onResponse(it) }
                         ?: listener.onResponse(false)
                 } else {
                     listener.onResponse(false)
