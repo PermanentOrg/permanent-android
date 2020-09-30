@@ -16,7 +16,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLoginBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.activities.SignUpActivity
-import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.viewmodels.LoginFragmentViewModel
 import java.util.concurrent.Executor
 
@@ -52,7 +51,7 @@ class LoginFragment  : PermanentBaseFragment() {
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
             super.onAuthenticationSucceeded(result)
-            navigateLogIn()
+            startMainActivity()
         }
 
         override fun onAuthenticationFailed() {
@@ -70,8 +69,7 @@ class LoginFragment  : PermanentBaseFragment() {
     private val onErrorMessage = Observer<String> { errorMessage ->
         when (errorMessage) {
             Constants.ERROR_MFA_TOKEN -> {
-                this.findNavController().navigate(
-                    R.id.action_loginFragment_to_codeVerificationFragment)
+                findNavController().navigate(R.id.action_loginFragment_to_codeVerificationFragment)
             }
             Constants.ERROR_UNKNOWN_SIGNIN -> Toast.makeText(
                 context,
@@ -93,7 +91,7 @@ class LoginFragment  : PermanentBaseFragment() {
     }
 
     private val onLoggedIn = Observer<Void> {
-        navigateLogIn()
+        startMainActivity()
     }
 
     private val onBiometricAuthSuccess = Observer<Void> {
@@ -117,8 +115,8 @@ class LoginFragment  : PermanentBaseFragment() {
         ).show()
     }
 
-    private fun navigateLogIn() {
-        startActivity(Intent(context, MainActivity::class.java))
+    private fun startMainActivity() {
+        findNavController().navigate(R.id.action_loginFragment_to_mainActivity)
         activity?.finish()
     }
 

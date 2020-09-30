@@ -20,6 +20,9 @@ class SignUpActivity : PermanentBaseActivity() {
     private lateinit var viewModel: SignUpViewModel
     private lateinit var binding: ActivitySignUpBinding
 
+    private val onSignedUp = Observer<Void> { startTwoStepActivity() }
+    private val onReadyToShowTermsDialog = Observer<Void> { showTermsDialog() }
+    private val onAlreadyHaveAccount = Observer<Void> { startLoginActivity() }
     private val onErrorMessage = Observer<String> { errorMessage ->
         when(errorMessage) {
             Constants.ERROR_ACCOUNT_DUPLICATE -> Toast.makeText(
@@ -29,18 +32,6 @@ class SignUpActivity : PermanentBaseActivity() {
             ).show()
             else -> Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
         }
-    }
-
-    private val onSignedUp = Observer<Void> {
-        navigateSignUp()
-    }
-
-    private val onReadyToShowTermsDialog = Observer<Void> {
-        showTermsDialog()
-    }
-
-    private val onAlreadyHaveAccount = Observer<Void> {
-        navigateAlreadyHaveAccount()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,15 +62,14 @@ class SignUpActivity : PermanentBaseActivity() {
         alert.show()
     }
 
-    private fun navigateSignUp() {
-        val intent = Intent(this, TwoStepVerificationActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    private fun startLoginActivity() {
+        val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
 
-    private fun navigateAlreadyHaveAccount() {
-        val intent = Intent(this, LoginActivity::class.java)
+    private fun startTwoStepActivity() {
+        val intent = Intent(this, TwoStepVerificationActivity::class.java)
         startActivity(intent)
         finish()
     }

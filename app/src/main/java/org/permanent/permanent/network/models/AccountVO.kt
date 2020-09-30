@@ -1,6 +1,7 @@
 package org.permanent.permanent.network.models
 
 class AccountVO {
+    var accountId: String? = null
     var primaryEmail: String? = null
     var rememberMe: Boolean? = false
     var agreed: Boolean? = false

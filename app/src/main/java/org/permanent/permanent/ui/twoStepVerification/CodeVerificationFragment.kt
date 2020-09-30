@@ -1,6 +1,5 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.twoStepVerification
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +7,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentVerificationCodeBinding
-import org.permanent.permanent.ui.activities.MainActivity
+import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.CodeVerificationViewModel
 
 class CodeVerificationFragment : PermanentBaseFragment() {
@@ -30,15 +31,15 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     private val onCodeVerified = Observer<Void> {
-        navigateCodeVerified()
+        startMainActivity()
     }
 
     private val onErrorMessage = Observer<String> { errorMessage ->
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
     }
 
-    private fun navigateCodeVerified() {
-        startActivity(Intent(context, MainActivity::class.java))
+    private fun startMainActivity() {
+        findNavController().navigate(R.id.action_codeVerificationFragment_to_mainActivity)
         activity?.finish()
     }
 

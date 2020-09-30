@@ -26,7 +26,7 @@ class NetworkClient(application: Application) {
         if (Constants.BUILD_ENV == BuildEnvOption.STAGING) Constants.URL_STAGING
         else Constants.URL_PROD
     private val retrofit: Retrofit
-    private val loginService: LoginService
+    private val authService: AuthService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val JSON: MediaType = "application/json;charset=UTF-8".toMediaType()
 
@@ -53,14 +53,14 @@ class NetworkClient(application: Application) {
             .client(okHttpClient)
             .build()
 
-        loginService = retrofit.create(LoginService::class.java)
+        authService = retrofit.create(AuthService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
     }
 
     fun verifyLoggedIn(): Call<ResponseVO> {
         val request = toJson(RequestContainer(""))
         val requestBody: RequestBody = request.toRequestBody(JSON)
-        return retrofit.create(LoginService::class.java).verifyLoggedIn(requestBody)
+        return retrofit.create(AuthService::class.java).verifyLoggedIn(requestBody)
     }
 
     fun login(email: String, password: String): Call<ResponseVO> {
@@ -69,31 +69,40 @@ class NetworkClient(application: Application) {
         )
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
-        return retrofit.create(LoginService::class.java).login(requestBody)
+        return retrofit.create(AuthService::class.java).login(requestBody)
     }
 
     fun forgotPassword(email: String): Call<ResponseVO> {
         val request: String = toJson(RequestContainer("").addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
-        return retrofit.create(LoginService::class.java).forgotPassword(requestBody)
+        return retrofit.create(AuthService::class.java).forgotPassword(requestBody)
     }
 
-    fun verifyCode(code: String, csrf: String, email: String): Call<ResponseVO>  {
+    fun verifyCode(code: String, csrf: String?, email: String): Call<ResponseVO>  {
         val request = toJson(RequestContainer(csrf).addAuth(code).addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
-        return retrofit.create(LoginService::class.java).verifyCode(requestBody)
+        return retrofit.create(AuthService::class.java).verifyCode(requestBody)
     }
 
     fun signUp(fullName: String, email: String, password: String): Call<ResponseVO> {
         val request = toJson(RequestContainer("")
             .addAccountPassword(password, password)
-            .addAccount(fullName, email)
+            .addAccount(fullName, email, true)
         )
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
-        return retrofit.create(LoginService::class.java).signUp(requestBody)
+        return retrofit.create(AccountService::class.java).signUp(requestBody)
+    }
+
+    fun updatePhoneNumber(accountId: String, phoneNumber: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer("")
+            .addAccount(accountId, phoneNumber)
+        )
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return retrofit.create(AccountService::class.java).updatePhone(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

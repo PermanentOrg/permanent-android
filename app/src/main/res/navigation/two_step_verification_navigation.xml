@@ -3,34 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/two_step_verification_navigation"
-    app:startDestination="@id/enablingVerificationFragment">
+    app:startDestination="@id/phoneVerificationFragment">
 
     <fragment
-        android:id="@+id/enablingVerificationFragment"
+        android:id="@+id/phoneVerificationFragment"
         android:name="org.permanent.permanent.ui.twoStepVerification.PhoneVerificationFragment"
-        android:label="EnablingVerificationFragment"
-        tools:layout="@layout/fragment_verification_enabling">
+        android:label="PhoneVerificationFragment"
+        tools:layout="@layout/fragment_verification_phone">
         <action
-            android:id="@+id/action_enablingVerificationFragment_to_codeVerificationFragment"
+            android:id="@+id/action_phoneVerificationFragment_to_codeVerificationFragment"
             app:destination="@id/codeVerificationFragment"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
-            android:id="@+id/action_enablingVerificationFragment_to_mainActivity"
+            android:id="@+id/action_phoneVerificationFragment_to_mainActivity"
             app:destination="@id/mainActivity"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit" />
     </fragment>
     <fragment
         android:id="@+id/codeVerificationFragment"
-        android:name="org.permanent.permanent.ui.CodeVerificationFragment"
+        android:name="org.permanent.permanent.ui.twoStepVerification.CodeVerificationFragment"
         android:label="CodeVerificationFragment"
         tools:layout="@layout/fragment_verification_code">
         <action
-            android:id="@+id/action_codeVerificationFragment_to_enablingVerificationFragment"
-            app:destination="@id/enablingVerificationFragment" />
+            android:id="@+id/action_codeVerificationFragment_to_phoneVerificationFragment"
+            app:destination="@id/phoneVerificationFragment" />
         <action
             android:id="@+id/action_codeVerificationFragment_to_mainActivity"
             app:destination="@id/mainActivity"

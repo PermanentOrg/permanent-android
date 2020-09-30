@@ -19,10 +19,10 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getAccountId(): String {
-        return sharedPreferences.getString(PREFS_SAVED_ACCOUNT_ID, "")!!
+    fun getAccountId(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_ACCOUNT_ID, "")
     }
-
+    
     fun saveEmail(email: String) {
         with(sharedPreferences.edit()) {
             putString(PREFS_SAVED_EMAIL, email)
@@ -30,8 +30,8 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getEmail(): String {
-        return sharedPreferences.getString(PREFS_SAVED_EMAIL, "")!!
+    fun getEmail(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_EMAIL, "")
     }
 
     fun savePassword(pass: String) {
@@ -41,8 +41,8 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getPassword(): String {
-        return sharedPreferences.getString(PREFS_SAVED_PASSWORD, "")!!
+    fun getPassword(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_PASSWORD, "")
     }
 
     fun saveCsrf(csrf: String) {
@@ -52,7 +52,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getCsrf(): String {
-        return sharedPreferences.getString(PREFS_SAVED_CSRF, "")!!
+    fun getCsrf(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_CSRF, "")
     }
 }
