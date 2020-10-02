@@ -32,10 +32,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1071143441498-8oqv6oe2fefmkl1842f2m1uv575uv0kp.apps.googleusercontent.com",
+              "client_id": "1071143441498-v7ais30fvbvkict8mhskerjn12739bje.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "org.permanent.permanent"
+                "bundle_id": "org.permanent.permanent.staging"
               }
             }
           ]
@@ -44,9 +44,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1071143441498:android:87e2542373eb7bf2dd7463",
+        "mobilesdk_app_id": "1:1071143441498:android:75fd393c7bb8ea75dd7463",
         "android_client_info": {
-          "package_name": "org.permanent.permanent.dev"
+          "package_name": "org.permanent.permanent.staging"
         }
       },
       "oauth_client": [
@@ -68,10 +68,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1071143441498-8oqv6oe2fefmkl1842f2m1uv575uv0kp.apps.googleusercontent.com",
+              "client_id": "1071143441498-v7ais30fvbvkict8mhskerjn12739bje.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "org.permanent.permanent"
+                "bundle_id": "org.permanent.permanent.staging"
               }
             }
           ]

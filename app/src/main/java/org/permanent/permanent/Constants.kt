@@ -2,7 +2,7 @@ package org.permanent.permanent
 
 class Constants {
     companion object {
-        val BUILD_ENV = BuildEnvOption.PROD
+        val BUILD_ENV = BuildEnvOption.STAGING
         const val POSITION_SHARED_BY_ME_FRAGMENT = 0
         const val POSITION_SHARED_WITH_ME_FRAGMENT = 1
         const val MIN_PASSWORD_LENGTH = 8
