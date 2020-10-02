@@ -28,7 +28,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
         val prefsHelper = context?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             ?.let { sharedPreferences -> PreferencesHelper(sharedPreferences) }
 
-        if (prefsHelper?.isPhoneVerified() != null && prefsHelper.isPhoneVerified()) {
+        if (isLoginFlow() || prefsHelper!= null && prefsHelper.isPhoneVerified()) {
             startMainActivity()
         } else {
             startPhoneVerificationFragment()
@@ -45,6 +45,10 @@ class CodeVerificationFragment : PermanentBaseFragment() {
         viewModel = ViewModelProvider(this).get(CodeVerificationViewModel::class.java)
         binding.viewModel = viewModel
         return binding.root
+    }
+
+    private fun isLoginFlow(): Boolean {
+        return findNavController().graph.id == R.id.login_navigation
     }
 
     private fun startMainActivity() {

@@ -48,9 +48,9 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         networkClient.login(email, password).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
+                responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
+                prefsHelper.saveEmail(email)
                 if(response.isSuccessful && responseVO?.isSuccessful!!) {
-                    prefsHelper.saveEmail(email)
-                    responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
