@@ -8,8 +8,8 @@ import androidx.biometric.BiometricManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
-import org.permanent.permanent.repositories.ILoginRepository
-import org.permanent.permanent.repositories.LoginRepositoryImpl
+import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import java.util.regex.Pattern
 
 class LoginFragmentViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -26,7 +26,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
 
-    private var loginRepository: ILoginRepository = LoginRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
     fun getCurrentEmail(): MutableLiveData<String>? {
         return currentEmail
@@ -125,7 +125,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
         if (!checkPassword(password)) return
 
         isBusy.value = true
-        loginRepository.login(email!!, password!!, object : ILoginRepository.IOnLoginListener {
+        authRepository.login(email!!, password!!, object : IAuthenticationRepository.IOnLoginListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onLoggedIn.call()
@@ -151,7 +151,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
         if (!checkEmail(email)) return
 
         isBusy.value = true
-        loginRepository.forgotPassword(email!!, object : ILoginRepository.IOnResetPasswordListener {
+        authRepository.forgotPassword(email!!, object : IAuthenticationRepository.IOnResetPasswordListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onPasswordReset.call()

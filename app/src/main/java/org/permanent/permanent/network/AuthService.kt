@@ -9,7 +9,7 @@ import retrofit2.http.POST
 /**
  * Retrofit Service to handle login
  */
-interface LoginService {
+interface AuthService {
 
     @POST("auth/loggedIn")
     fun verifyLoggedIn(@Body requestBody: RequestBody): Call<ResponseVO>
@@ -22,7 +22,4 @@ interface LoginService {
 
     @POST("auth/verify")
     fun verifyCode(@Body requestBody: RequestBody): Call<ResponseVO>
-
-    @POST("account/post")
-    fun signUp(@Body requestBody: RequestBody): Call<ResponseVO>
 }

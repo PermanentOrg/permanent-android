@@ -1,7 +1,7 @@
 package org.permanent.permanent.repositories
 
 
-interface ILoginRepository {
+interface IAuthenticationRepository {
     fun verifyLoggedIn(listener: IOnLoggedInListener)
     fun login(email: String, password: String, listener: IOnLoginListener)
     fun forgotPassword(email: String, listener: IOnResetPasswordListener)

@@ -7,7 +7,7 @@ const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val PREFS_SAVED_ACCOUNT_ID = "preferences_saved_account_id"
 const val PREFS_SAVED_EMAIL = "preferences_saved_email"
-const val PREFS_SAVED_PASSWORD = "preferences_saved_password"
+const val PREFS_IS_PHONE_VERIFIED = "preferences_is_phone_verified"
 const val PREFS_SAVED_CSRF = "preferences_saved_csrf"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
@@ -19,8 +19,8 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getAccountId(): String {
-        return sharedPreferences.getString(PREFS_SAVED_ACCOUNT_ID, "")!!
+    fun getAccountId(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_ACCOUNT_ID, "")
     }
 
     fun saveEmail(email: String) {
@@ -30,29 +30,31 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getEmail(): String {
-        return sharedPreferences.getString(PREFS_SAVED_EMAIL, "")!!
+    fun getEmail(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_EMAIL, "")
     }
 
-    fun savePassword(pass: String) {
+    fun savePhoneVerified() {
         with(sharedPreferences.edit()) {
-            putString(PREFS_SAVED_PASSWORD, pass)
+            putBoolean(PREFS_IS_PHONE_VERIFIED, true)
             apply()
         }
     }
 
-    fun getPassword(): String {
-        return sharedPreferences.getString(PREFS_SAVED_PASSWORD, "")!!
+    fun isPhoneVerified(): Boolean {
+        return sharedPreferences.getBoolean(PREFS_IS_PHONE_VERIFIED, false)
     }
 
-    fun saveCsrf(csrf: String) {
-        with(sharedPreferences.edit()) {
-            putString(PREFS_SAVED_CSRF, csrf)
-            apply()
+    fun saveCsrf(csrf: String?) {
+        csrf?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_SAVED_CSRF, csrf)
+                apply()
+            }
         }
     }
 
-    fun getCsrf(): String {
-        return sharedPreferences.getString(PREFS_SAVED_CSRF, "")!!
+    fun getCsrf(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_CSRF, "")
     }
 }

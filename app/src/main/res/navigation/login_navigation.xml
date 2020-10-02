@@ -17,16 +17,26 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_loginFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit" />
     </fragment>
     <fragment
         android:id="@+id/codeVerificationFragment"
-        android:name="org.permanent.permanent.ui.CodeVerificationFragment"
+        android:name="org.permanent.permanent.ui.twoStepVerification.CodeVerificationFragment"
         android:label="CodeVerificationFragment"
         tools:layout="@layout/fragment_verification_code">
+        <action
+            android:id="@+id/action_codeVerificationFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit" />
     </fragment>
     <activity
-        android:id="@+id/loginActivity"
-        android:name="org.permanent.permanent.ui.login.LoginActivity"
-        android:label="LoginActivity"
-        tools:layout="@layout/activity_login"/>
+        android:id="@+id/mainActivity"
+        android:name="org.permanent.permanent.ui.activities.MainActivity"
+        android:label="MainActivity"
+        tools:layout="@layout/activity_main"/>
 </navigation>

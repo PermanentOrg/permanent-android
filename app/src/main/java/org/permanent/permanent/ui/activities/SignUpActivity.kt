@@ -16,33 +16,28 @@ import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SignUpViewModel
 
+const val SKIP_CODE_VERIFICATION = "skip_code_verification"
+
 class SignUpActivity : PermanentBaseActivity() {
     private lateinit var viewModel: SignUpViewModel
     private lateinit var binding: ActivitySignUpBinding
 
+    private val onLoggedIn = Observer<Void> { startTwoStepActivity(true) }
+    private val onReadyToShowTermsDialog = Observer<Void> { showTermsDialog() }
+    private val onAlreadyHaveAccount = Observer<Void> { startLoginActivity() }
     private val onErrorMessage = Observer<String> { errorMessage ->
         when(errorMessage) {
+            //Sign up error
             Constants.ERROR_ACCOUNT_DUPLICATE -> Toast.makeText(
                 this,
                 R.string.sign_up_email_in_use_error,
                 Toast.LENGTH_LONG
             ).show()
+            //Login error
+            Constants.ERROR_MFA_TOKEN -> startTwoStepActivity(false)
             else -> Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
         }
     }
-
-    private val onSignedUp = Observer<Void> {
-        navigateSignUp()
-    }
-
-    private val onReadyToShowTermsDialog = Observer<Void> {
-        showTermsDialog()
-    }
-
-    private val onAlreadyHaveAccount = Observer<Void> {
-        navigateAlreadyHaveAccount()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
@@ -71,29 +66,29 @@ class SignUpActivity : PermanentBaseActivity() {
         alert.show()
     }
 
-    private fun navigateSignUp() {
-        val intent = Intent(this, TwoStepVerificationActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    private fun startLoginActivity() {
+        val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
 
-    private fun navigateAlreadyHaveAccount() {
-        val intent = Intent(this, LoginActivity::class.java)
+    private fun startTwoStepActivity(skipCodeVerification: Boolean) {
+        val intent = Intent(this, TwoStepVerificationActivity::class.java)
+        intent.putExtra(SKIP_CODE_VERIFICATION, skipCodeVerification)
         startActivity(intent)
         finish()
     }
 
     override fun connectViewModelEvents() {
         viewModel.getOnErrorMessage().observe(this, onErrorMessage)
-        viewModel.getOnSignedUp().observe(this, onSignedUp)
+        viewModel.getOnLoggedIn().observe(this, onLoggedIn)
         viewModel.getOnReadyToShowTermsDialog().observe(this, onReadyToShowTermsDialog)
         viewModel.getOnAlreadyHaveAccount().observe(this, onAlreadyHaveAccount)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnErrorMessage().removeObserver(onErrorMessage)
-        viewModel.getOnSignedUp().removeObserver(onSignedUp)
+        viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
         viewModel.getOnReadyToShowTermsDialog().removeObserver(onReadyToShowTermsDialog)
         viewModel.getOnAlreadyHaveAccount().removeObserver(onAlreadyHaveAccount)
     }
