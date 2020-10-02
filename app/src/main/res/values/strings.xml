@@ -92,4 +92,6 @@
     <string name="login_bad_credentials">Incorrect username or password</string>
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
+    <string name="forgot_password_cancel_button">Cancel</string>
+    <string name="forgot_password_reset_button">Reset</string>
 </resources>

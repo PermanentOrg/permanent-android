@@ -6,22 +6,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogForgotPasswordBinding
 import org.permanent.permanent.databinding.FragmentLoginBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.activities.SignUpActivity
+import org.permanent.permanent.viewmodels.ForgotPasswordViewModel
 import org.permanent.permanent.viewmodels.LoginFragmentViewModel
 import java.util.concurrent.Executor
 
 class LoginFragment  : PermanentBaseFragment() {
-    private lateinit var viewModel: LoginFragmentViewModel
+    private lateinit var fragmentViewModel: LoginFragmentViewModel
+    private lateinit var dialogViewModel: ForgotPasswordViewModel
     private lateinit var binding: FragmentLoginBinding
+    private lateinit var dialogBinding: DialogForgotPasswordBinding
     private lateinit var executor: Executor
     private lateinit var biometricPrompt: BiometricPrompt
 
@@ -33,8 +39,8 @@ class LoginFragment  : PermanentBaseFragment() {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        viewModel = ViewModelProvider(this).get(LoginFragmentViewModel::class.java)
-        binding.viewModel = viewModel
+        fragmentViewModel = ViewModelProvider(this).get(LoginFragmentViewModel::class.java)
+        binding.viewModel = fragmentViewModel
 
         executor = ContextCompat.getMainExecutor(context)
         biometricPrompt = BiometricPrompt(this, executor, biometricAuthCallback)
@@ -45,8 +51,9 @@ class LoginFragment  : PermanentBaseFragment() {
     private val biometricAuthCallback = object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-            viewModel.errorMessage.value = getString(
-                R.string.login_screen_biometric_authentication_error_message) + errString
+            fragmentViewModel.errorMessage.value = getString(
+                R.string.login_screen_biometric_authentication_error_message
+            ) + errString
         }
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -56,7 +63,7 @@ class LoginFragment  : PermanentBaseFragment() {
 
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
-            viewModel.errorMessage.value =
+            fragmentViewModel.errorMessage.value =
                 getString(R.string.login_biometric_authentication_failed_message)
         }
     }
@@ -110,9 +117,47 @@ class LoginFragment  : PermanentBaseFragment() {
     private val onPasswordReset = Observer<Void> {
         Toast.makeText(
             context,
-            getString(R.string.login_screen_password_reset_message, viewModel.getCurrentEmail()?.value),
+            getString(
+                R.string.login_screen_password_reset_message,
+                dialogViewModel.getCurrentEmail()?.value
+            ),
             Toast.LENGTH_LONG
         ).show()
+    }
+
+    private val onReadyToShowForgotPassDialog = Observer<Void> {
+        showForgotPassDialog()
+    }
+
+    private fun showForgotPassDialog() {
+        dialogBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context),
+            R.layout.dialog_forgot_password, null, false
+        )
+        dialogBinding.executePendingBindings()
+        dialogViewModel = ViewModelProvider(this).get(ForgotPasswordViewModel::class.java)
+        dialogBinding.viewModel = dialogViewModel
+        val thisContext = context
+
+        if (thisContext != null) {
+            val alert = AlertDialog.Builder(thisContext)
+                .setView(dialogBinding.root)
+                .create()
+
+            dialogBinding.btnReset.setOnClickListener {
+                val email = dialogViewModel.getValidatedEmail()
+                if (email != null) {
+                    fragmentViewModel.resetPassword(email)
+                    alert.dismiss()
+                } else {
+                    Toast.makeText(context, R.string.invalid_email_error, Toast.LENGTH_LONG).show()
+                }
+            }
+            dialogBinding.btnCancel.setOnClickListener {
+                alert.dismiss()
+            }
+            alert.show()
+        }
     }
 
     private fun startMainActivity() {
@@ -125,21 +170,25 @@ class LoginFragment  : PermanentBaseFragment() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getErrorStringId().observe(this, onErrorStringId)
-        viewModel.getOnLoggedIn().observe(this, onLoggedIn)
-        viewModel.getOnBiometricAuthSuccess().observe(this, onBiometricAuthSuccess)
-        viewModel.getOnSignUp().observe(this, onSignUp)
-        viewModel.getOnPasswordReset().observe(this, onPasswordReset)
-        viewModel.getErrorMessage().observe(this, onErrorMessage)
+        fragmentViewModel.getErrorStringId().observe(this, onErrorStringId)
+        fragmentViewModel.getOnLoggedIn().observe(this, onLoggedIn)
+        fragmentViewModel.getOnBiometricAuthSuccess().observe(this, onBiometricAuthSuccess)
+        fragmentViewModel.getOnSignUp().observe(this, onSignUp)
+        fragmentViewModel.getOnPasswordReset().observe(this, onPasswordReset)
+        fragmentViewModel.getOnReadyToShowForgotPassDialog().observe(this,
+            onReadyToShowForgotPassDialog)
+        fragmentViewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getErrorStringId().removeObserver(onErrorStringId)
-        viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
-        viewModel.getOnBiometricAuthSuccess().removeObserver(onBiometricAuthSuccess)
-        viewModel.getOnSignUp().removeObserver(onSignUp)
-        viewModel.getOnPasswordReset().removeObserver(onPasswordReset)
-        viewModel.getErrorMessage().removeObserver(onErrorMessage)
+        fragmentViewModel.getErrorStringId().removeObserver(onErrorStringId)
+        fragmentViewModel.getOnLoggedIn().removeObserver(onLoggedIn)
+        fragmentViewModel.getOnBiometricAuthSuccess().removeObserver(onBiometricAuthSuccess)
+        fragmentViewModel.getOnSignUp().removeObserver(onSignUp)
+        fragmentViewModel.getOnPasswordReset().removeObserver(onPasswordReset)
+        fragmentViewModel.getOnReadyToShowForgotPassDialog().removeObserver(
+            onReadyToShowForgotPassDialog)
+        fragmentViewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 
     override fun onResume() {

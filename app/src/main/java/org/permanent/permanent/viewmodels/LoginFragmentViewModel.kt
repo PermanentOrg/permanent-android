@@ -8,8 +8,8 @@ import androidx.biometric.BiometricManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
-import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IAuthenticationRepository
 import java.util.regex.Pattern
 
 class LoginFragmentViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -22,7 +22,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     private val onLoggedIn = SingleLiveEvent<Void>()
     private val onSignUp = SingleLiveEvent<Void>()
     private val onPasswordReset = SingleLiveEvent<Void>()
-
+    private val onReadyToShowForgotPassDialog = SingleLiveEvent<Void>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
 
@@ -78,6 +78,10 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnPasswordReset(): MutableLiveData<Void> {
         return onPasswordReset
+    }
+
+    fun getOnReadyToShowForgotPassDialog(): MutableLiveData<Void> {
+        return onReadyToShowForgotPassDialog
     }
 
     fun useTouchId() {
@@ -142,16 +146,20 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
         onSignUp.call()
     }
 
-    fun forgotPassword() {
+    fun onForgotPasswordBtnClick() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val email = currentEmail.value
 
-        if (!checkEmail(email)) return
+        onReadyToShowForgotPassDialog.call()
+    }
 
+    fun resetPassword(email: String) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
         isBusy.value = true
-        authRepository.forgotPassword(email!!, object : IAuthenticationRepository.IOnResetPasswordListener {
+        authRepository.forgotPassword(email, object : IAuthenticationRepository.IOnResetPasswordListener {
             override fun onSuccess() {
                 isBusy.value = false
                 onPasswordReset.call()
