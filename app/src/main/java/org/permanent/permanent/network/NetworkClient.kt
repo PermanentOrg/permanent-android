@@ -89,17 +89,15 @@ class NetworkClient(application: Application) {
     fun signUp(fullName: String, email: String, password: String): Call<ResponseVO> {
         val request = toJson(RequestContainer("")
             .addAccountPassword(password, password)
-            .addAccount(fullName, email, true)
+            .addAccount(fullName, email)
         )
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
         return retrofit.create(AccountService::class.java).signUp(requestBody)
     }
 
-    fun updatePhoneNumber(accountId: String, phoneNumber: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer("")
-            .addAccount(accountId, phoneNumber)
-        )
+    fun update(csrf: String?, accountId: String, email: String, phoneNumber: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addAccount(accountId, email, phoneNumber))
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
         return retrofit.create(AccountService::class.java).updatePhone(requestBody)

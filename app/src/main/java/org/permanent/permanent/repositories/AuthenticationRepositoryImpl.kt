@@ -96,10 +96,12 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 it
             ).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    if(response.isSuccessful && response.body()?.isSuccessful!!) {
+                    val responseVO = response.body()
+                    if(response.isSuccessful && responseVO?.isSuccessful!!) {
+                        responseVO.csrf?.let { csrf -> prefsHelper.saveCsrf(csrf) }
                         listener.onSuccess()
                     } else {
-                        listener.onFailed(response.body()?.Results?.get(0)?.message?.get(0)
+                        listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0)
                             ?: response.errorBody()?.toString())
                     }
                 }

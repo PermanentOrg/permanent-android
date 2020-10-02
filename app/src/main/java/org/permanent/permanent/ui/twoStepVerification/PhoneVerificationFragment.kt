@@ -33,7 +33,7 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onLoggedIn = Observer<Void> {
+    private val onVerificationReady = Observer<Void> {
         startMainActivity()
     }
 
@@ -45,8 +45,6 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
                 R.string.sign_up_phone_invalid_error,
                 Toast.LENGTH_LONG
             ).show()
-            //Login error
-            Constants.ERROR_MFA_TOKEN -> startCodeVerificationFragment()
             Constants.ERROR_SERVER_ERROR -> Toast.makeText(
                 context,
                 R.string.server_error,
@@ -66,18 +64,13 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         activity?.finish()
     }
 
-    private fun startCodeVerificationFragment() {
-        this.findNavController()
-            .navigate(R.id.action_phoneVerificationFragment_to_codeVerificationFragment)
-    }
-
     override fun connectViewModelEvents() {
-        viewModel.getOnLoggedIn().observe(this, onLoggedIn)
+        viewModel.getOnVerificationReady().observe(this, onVerificationReady)
         viewModel.getOnErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
+        viewModel.getOnVerificationReady().removeObserver(onVerificationReady)
         viewModel.getOnErrorMessage().removeObserver(onErrorMessage)
     }
 

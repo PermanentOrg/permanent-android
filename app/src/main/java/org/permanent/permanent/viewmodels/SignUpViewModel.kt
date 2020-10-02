@@ -11,6 +11,8 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import java.util.regex.Pattern
@@ -23,16 +25,14 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val passwordError = MutableLiveData<Int>()
     private val onErrorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onSignedUp = SingleLiveEvent<Void>()
+    private val onLoggedIn = SingleLiveEvent<Void>()
     private val onReadyToShowTermsDialog = SingleLiveEvent<Void>()
     private val onAlreadyHaveAccount = SingleLiveEvent<Void>()
     private val currentName = MutableLiveData<String>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-    private val sharedPreferences: SharedPreferences =
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val prefsHelper = PreferencesHelper(sharedPreferences)
+    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
     fun getCurrentName(): MutableLiveData<String>? {
         return currentName
@@ -78,8 +78,8 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         return isBusy
     }
 
-    fun getOnSignedUp(): MutableLiveData<Void> {
-        return onSignedUp
+    fun getOnLoggedIn(): MutableLiveData<Void> {
+        return onLoggedIn
     }
 
     fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> {
@@ -103,8 +103,8 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         val password = currentPassword.value
 
         if (!isNameValid(name)) return
-        if (isEmailValid(email)) email?.let { prefsHelper.saveEmail(it) } else return
-        if (isPasswordValid(password)) password?.let { prefsHelper.savePassword(it) } else return
+        if (!isEmailValid(email)) return
+        if (!isPasswordValid(password)) return
 
         onReadyToShowTermsDialog.call()
     }
@@ -126,7 +126,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
                 object : IAccountRepository.IOnSignUpListener {
                     override fun onSuccess() {
                         isBusy.value = false
-                        onSignedUp.call()
+                        login(email, password)
                     }
 
                     override fun onFailed(error: String?) {
@@ -135,6 +135,24 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
                     }
                 })
         }
+    }
+
+    fun login(email: String, password: String) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        isBusy.value = true
+        authRepository.login(email, password, object : IAuthenticationRepository.IOnLoginListener {
+            override fun onSuccess() {
+                isBusy.value = false
+                onLoggedIn.call()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                onErrorMessage.value = error
+            }
+        })
     }
 
     private fun isNameValid(name: String?): Boolean {

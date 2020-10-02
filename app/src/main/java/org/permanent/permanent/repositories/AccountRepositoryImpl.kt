@@ -34,7 +34,6 @@ class AccountRepositoryImpl(val application: Application) : IAccountRepository {
                     accountId?.let { prefsHelper.saveAccountId(it) }
                     // We save these here in order to use them for the background login call
                     prefsHelper.saveEmail(email)
-                    prefsHelper.savePassword(password)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
@@ -50,19 +49,28 @@ class AccountRepositoryImpl(val application: Application) : IAccountRepository {
         })
     }
 
-    override fun updatePhoneNumber(
+    override fun update(
         phoneNumber: String,
         listener: IAccountRepository.IOnPhoneUpdatedListener
     ) {
-        prefsHelper.getAccountId()?.let {
-            networkClient.updatePhoneNumber(it, phoneNumber).enqueue(object : Callback<ResponseVO> {
+        val accountId = prefsHelper.getAccountId()
+        val email = prefsHelper.getEmail()
+
+        if (accountId != null && email != null) {
+            networkClient.update(
+                prefsHelper.getCsrf(),
+                accountId,
+                email,
+                phoneNumber
+            ).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    prefsHelper.saveCsrf(response.body()?.csrf!!)
-                    if (response.isSuccessful && response.body()?.isSuccessful!!) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess()
                     } else {
                         listener.onFailed(
-                            response.body()?.Results?.get(0)?.message?.get(0)
+                            responseVO?.Results?.get(0)?.message?.get(0)
                                 ?: response.errorBody()?.toString()
                         )
                     }
