@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySplashBinding
-import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
@@ -25,15 +24,12 @@ class SplashActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        if (viewModel.isOnboardingCompleted(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))) {
-            viewModel.checkIsUserLoggedIn()
-        } else {
-            startOnboardingActivity()
-        }
+        viewModel.checkIsUserLoggedIn()
     }
 
     private val loggedInResponseObserver = Observer<Boolean> { isLoggedIn ->
         if (isLoggedIn) startMainActivity()
+        else if (!viewModel.isOnboardingCompleted(this)) startOnboardingActivity()
         else startLoginActivity()
     }
 
