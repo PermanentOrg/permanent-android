@@ -4,7 +4,6 @@ import android.app.Application
 import android.text.Editable
 import android.text.TextUtils
 import android.util.Patterns
-import androidx.biometric.BiometricManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
@@ -13,11 +12,10 @@ import org.permanent.permanent.repositories.IAuthenticationRepository
 import java.util.regex.Pattern
 
 class LoginFragmentViewModel(application: Application) : ObservableAndroidViewModel(application) {
-    val errorMessage = MutableLiveData<String>()
+    private val errorMessage = MutableLiveData<String>()
     private val errorStringId = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
-    private val onBiometricAuthSuccess = SingleLiveEvent<Void>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedIn = SingleLiveEvent<Void>()
     private val onSignUp = SingleLiveEvent<Void>()
@@ -25,7 +23,6 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     private val onReadyToShowForgotPassDialog = SingleLiveEvent<Void>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
-
     private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
     fun getCurrentEmail(): MutableLiveData<String>? {
@@ -60,10 +57,6 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
         return errorMessage
     }
 
-    fun getOnBiometricAuthSuccess(): LiveData<Void> {
-        return onBiometricAuthSuccess
-    }
-
     fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy
     }
@@ -82,21 +75,6 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnReadyToShowForgotPassDialog(): MutableLiveData<Void> {
         return onReadyToShowForgotPassDialog
-    }
-
-    fun useTouchId() {
-        val biometricManager = BiometricManager.from(getApplication())
-
-        when (biometricManager.canAuthenticate()) {
-            BiometricManager.BIOMETRIC_SUCCESS ->
-                onBiometricAuthSuccess.call()
-            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
-                errorStringId.value = R.string.login_no_biometric_error
-            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE ->
-                errorStringId.value = R.string.login_biometric_unavailable_error
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                errorStringId.value = R.string.login_biometric_not_setup_error
-        }
     }
 
     private fun checkEmail(email: String?): Boolean {

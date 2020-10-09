@@ -74,6 +74,13 @@ class NetworkClient(application: Application) {
         return authService.login(requestBody)
     }
 
+    fun logout(csrf: String?): Call<ResponseVO> {
+        var request: String = toJson(RequestContainer(csrf))
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return authService.logout(requestBody)
+    }
+
     fun forgotPassword(email: String): Call<ResponseVO> {
         val request: String = toJson(RequestContainer("").addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(JSON)

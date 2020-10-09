@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 
 const val PREFS_NAME = "permanent_preferences"
 const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
+const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val PREFS_SAVED_ACCOUNT_ID = "preferences_saved_account_id"
 const val PREFS_SAVED_EMAIL = "preferences_saved_email"
@@ -11,6 +12,21 @@ const val PREFS_IS_PHONE_VERIFIED = "preferences_is_phone_verified"
 const val PREFS_SAVED_CSRF = "preferences_saved_csrf"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
+
+    fun isOnboardingCompleted(): Boolean {
+        return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
+    }
+
+    fun saveUserLoggedIn(isLoggedIn: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_USER_LOGGED_IN, isLoggedIn)
+            apply()
+        }
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return sharedPreferences.getBoolean(IS_USER_LOGGED_IN, false)
+    }
 
     fun saveAccountId(id: String) {
         with(sharedPreferences.edit()) {

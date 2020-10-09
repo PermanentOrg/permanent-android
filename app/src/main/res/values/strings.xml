@@ -26,8 +26,6 @@
     <string name="terms_conditions_title">Terms and Conditions</string>
     <string name="sign_up_terms_declined">Declined Terms and Conditions</string>
     <string name="login_screen_password_reset_message">An email with instructions to change your password has been sent at %s.</string>
-    <string name="login_biometric_authentication_failed_message">Authentication failed</string>
-    <string name="login_screen_biometric_authentication_error_message">\"Authentication error: \"</string>
     <string name="verification_code_enter_verification_code">Enter verification code</string>
     <string name="verification_code_enter_code_hint">Enter the 4-digit code</string>
     <string name="verification_code_button_done">Done</string>
@@ -47,12 +45,18 @@
     <string name="two_step_verification_phone_hint">Your phone number</string>
     <string name="two_step_verification_message">Add an extra layer of security by entering a verification code we send to your phone</string>
     <string name="two_step_verification_title">Protect your account with 2-Step Verification</string>
-    <string name="login_no_biometric_error">No biometric features available on this device.</string>
-    <string name="login_biometric_unavailable_error">Biometric features are currently unavailable.</string>
-    <string name="login_biometric_not_setup_error">You haven\'t associated any biometric credentials with your account.</string>
+    <string name="login_biometric_error_no_biometric_hardware">No biometric features available on this device.</string>
+    <string name="login_biometric_error_unavailable">Biometric features are currently unavailable.</string>
+    <string name="login_biometric_error_timeout">Biometrics undetected.</string>
+    <string name="login_biometric_error_failed">Authentication failed.</string>
+    <string name="login_biometric_error_no_biometrics_enrolled_title">No biometrics enrolled</string>
+    <string name="login_biometric_error_no_biometrics_enrolled_message">Would you like to enroll them?</string>
+    <string name="login_biometric_error_too_many_failed_attempts">Too many failed attempts. Please login with you credentials.</string>
     <string name="login_biometric_title">Biometric login</string>
-    <string name="login_biometric_subtitle">Log in using your biometric credential</string>
-    <string name="login_biometric_negative_button">Use account password</string>
+    <string name="login_biometric_message">Log in using your biometric credential.</string>
+    <string name="login_biometric_welcome_message">Welcome back</string>
+    <string name="login_biometric_unlock_with_biometrics_button">Unlock with Biometrics</string>
+    <string name="login_biometric_use_credentials_button">Use credentials instead</string>
     <string name="welcome_text">This archive represents your personal digital legacy. Upload your most important digital records then share them with total control.</string>
     <string name="welcome_start_preserving_button">Start Preserving</string>
     <string name="nav_header_subtitle_text">Tap here to manage archive</string>
@@ -92,6 +96,7 @@
     <string name="login_bad_credentials">Incorrect username or password</string>
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
-    <string name="forgot_password_cancel_button">Cancel</string>
-    <string name="forgot_password_reset_button">Reset</string>
+    <string name="reset_button">Reset</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="yes_button">Yes</string>
 </resources>

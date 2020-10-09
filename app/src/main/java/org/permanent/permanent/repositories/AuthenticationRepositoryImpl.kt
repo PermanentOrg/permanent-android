@@ -26,7 +26,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 val responseVO = retrofitResponse.body()
                 responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
 
-                if(retrofitResponse.isSuccessful) {
+                if (retrofitResponse.isSuccessful) {
                     responseVO?.isUserLoggedIn()?.let { listener.onResponse(it) }
                         ?: listener.onResponse(false)
                 } else {
@@ -50,12 +50,34 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 val responseVO = response.body()
                 responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
                 prefsHelper.saveEmail(email)
-                if(response.isSuccessful && responseVO?.isSuccessful!!) {
+                if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
                         responseVO?.Results?.get(0)?.message?.get(0)
-                        ?: response.errorBody()?.toString())
+                            ?: response.errorBody()?.toString()
+                    )
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun logout(listener: IAuthenticationRepository.IOnLogoutListener) {
+        networkClient.logout(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
+                if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                    listener.onSuccess()
+                } else {
+                    listener.onFailed(
+                        responseVO?.Results?.get(0)?.message?.get(0)
+                            ?: response.errorBody()?.toString()
+                    )
                 }
             }
 
@@ -71,7 +93,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     ) {
         networkClient.forgotPassword(email).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                if(response.isSuccessful && response.body()?.isSuccessful!!) {
+                if (response.isSuccessful && response.body()?.isSuccessful!!) {
                     listener.onSuccess()
                 } else {
                     listener.onFailed(response.body()?.Results?.get(0)?.message?.get(0)
@@ -97,7 +119,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
             ).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    if(response.isSuccessful && responseVO?.isSuccessful!!) {
+                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         responseVO.csrf?.let { csrf -> prefsHelper.saveCsrf(csrf) }
                         listener.onSuccess()
                     } else {

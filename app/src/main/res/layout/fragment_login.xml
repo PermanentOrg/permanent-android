@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <import type="android.view.View" />
-
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.LoginFragmentViewModel" />
@@ -112,56 +110,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutUseTouchId"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="32dp"
-            android:visibility="gone"
-            android:onClick="@{() -> viewModel.useTouchId()}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutPassword"
-            app:layout_constraintVertical_bias="0.0">
-
-            <TextView
-                android:id="@+id/tvUseTouchId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="32dp"
-                android:text="@string/login_screen_use_touch_id"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/ivFingerprint"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/tvUseTouchId"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/login_screen_fingerprint" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
             android:backgroundTint="@color/colorAccent"
             android:onClick="@{() -> viewModel.login()}"
@@ -171,12 +126,12 @@
             android:textSize="20sp"
             android:textStyle="bold"
             app:cornerRadius="32dp"
-            app:layout_goneMarginTop="18dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutUseTouchId"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/layoutPassword"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_goneMarginTop="18dp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSignUp"
