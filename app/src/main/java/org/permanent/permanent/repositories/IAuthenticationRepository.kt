@@ -4,6 +4,7 @@ package org.permanent.permanent.repositories
 interface IAuthenticationRepository {
     fun verifyLoggedIn(listener: IOnLoggedInListener)
     fun login(email: String, password: String, listener: IOnLoginListener)
+    fun logout(listener: IOnLogoutListener)
     fun forgotPassword(email: String, listener: IOnResetPasswordListener)
     fun verifyCode(code: String, listener: IOnVerifyListener)
 
@@ -12,6 +13,11 @@ interface IAuthenticationRepository {
     }
 
     interface IOnLoginListener {
+        fun onSuccess()
+        fun onFailed(error: String?)
+    }
+
+    interface IOnLogoutListener {
         fun onSuccess()
         fun onFailed(error: String?)
     }

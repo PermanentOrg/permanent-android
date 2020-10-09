@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.twoStepVerification
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,9 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentVerificationCodeBinding
-import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.viewmodels.CodeVerificationViewModel
 
 class CodeVerificationFragment : PermanentBaseFragment() {
@@ -25,14 +22,15 @@ class CodeVerificationFragment : PermanentBaseFragment() {
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
     }
     private val onCodeVerified = Observer<Void> {
-        val prefsHelper = context?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            ?.let { sharedPreferences -> PreferencesHelper(sharedPreferences) }
-
-        if (isLoginFlow() || prefsHelper!= null && prefsHelper.isPhoneVerified()) {
+        if (isLoginFlow()) {
             startMainActivity()
         } else {
             startPhoneVerificationFragment()
         }
+    }
+
+    private fun isLoginFlow(): Boolean {
+        return findNavController().graph.id == R.id.login_navigation
     }
 
     override fun onCreateView(
@@ -45,10 +43,6 @@ class CodeVerificationFragment : PermanentBaseFragment() {
         viewModel = ViewModelProvider(this).get(CodeVerificationViewModel::class.java)
         binding.viewModel = viewModel
         return binding.root
-    }
-
-    private fun isLoginFlow(): Boolean {
-        return findNavController().graph.id == R.id.login_navigation
     }
 
     private fun startMainActivity() {

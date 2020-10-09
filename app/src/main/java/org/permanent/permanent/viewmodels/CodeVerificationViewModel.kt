@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IAuthenticationRepository
 
 class CodeVerificationViewModel(application: Application): ObservableAndroidViewModel(application) {
 
@@ -15,8 +15,8 @@ class CodeVerificationViewModel(application: Application): ObservableAndroidView
     private val codeError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onCodeVerified = SingleLiveEvent<Void>()
-    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
     private val errorMessage = MutableLiveData<String>()
+    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
     fun getVerificationCode() : MutableLiveData<String>{
         return currentCode

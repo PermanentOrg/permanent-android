@@ -36,4 +36,6 @@ class LoginActivity : PermanentBaseActivity() {
         super.onPause()
         disconnectViewModelEvents()
     }
+
+    override fun onBackPressed() {}
 }

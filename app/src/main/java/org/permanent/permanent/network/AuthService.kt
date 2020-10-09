@@ -17,6 +17,9 @@ interface AuthService {
     @POST("auth/login")
     fun login(@Body request: RequestBody): Call<ResponseVO>
 
+    @POST("auth/logout")
+    fun logout(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("auth/sendEmailForgotPassword")
     fun forgotPassword(@Body request: RequestBody): Call<ResponseVO>
 

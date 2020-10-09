@@ -3,8 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/login_navigation"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/biometricsFragment">
 
+    <fragment
+        android:id="@+id/biometricsFragment"
+        android:name="org.permanent.permanent.ui.login.BiometricsFragment"
+        android:label="BiometricsFragment"
+        tools:layout="@layout/fragment_biometrics">
+        <action
+            android:id="@+id/action_biometricsFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_biometricsFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit" />
+    </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="org.permanent.permanent.ui.login.LoginFragment"
