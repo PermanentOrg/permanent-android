@@ -8,7 +8,6 @@ const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val PREFS_SAVED_ACCOUNT_ID = "preferences_saved_account_id"
 const val PREFS_SAVED_EMAIL = "preferences_saved_email"
-const val PREFS_IS_PHONE_VERIFIED = "preferences_is_phone_verified"
 const val PREFS_SAVED_CSRF = "preferences_saved_csrf"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
@@ -48,17 +47,6 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getEmail(): String? {
         return sharedPreferences.getString(PREFS_SAVED_EMAIL, "")
-    }
-
-    fun savePhoneVerified() {
-        with(sharedPreferences.edit()) {
-            putBoolean(PREFS_IS_PHONE_VERIFIED, true)
-            apply()
-        }
-    }
-
-    fun isPhoneVerified(): Boolean {
-        return sharedPreferences.getBoolean(PREFS_IS_PHONE_VERIFIED, false)
     }
 
     fun saveCsrf(csrf: String?) {
