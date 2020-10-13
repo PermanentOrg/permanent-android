@@ -1,7 +1,7 @@
 package org.permanent.permanent.ui.myFiles
 
-import org.permanent.permanent.models.File
+import org.permanent.permanent.network.models.RecordVO
 
 interface FileOptionsClickListener {
-    fun onFileOptionsClick(file: File)
+    fun onFileOptionsClick(file: RecordVO)
 }

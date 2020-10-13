@@ -71,4 +71,23 @@ class RequestContainer(csrf: String?) {
         RequestVO.data?.get(0)?.AuthVO = auth
         return this
     }
+
+    fun addFolder(archiveNumber: String): RequestContainer {
+        val folderVO = FolderVO()
+        folderVO.archiveNbr = archiveNumber
+        RequestVO.data?.get(0)?.FolderVO = folderVO
+        return this
+    }
+
+    fun addFolder(archiveNumber: String, childLinks: List<Int?>): RequestContainer {
+        addFolder(archiveNumber)
+        val childItems: MutableList<RecordVO> = ArrayList()
+        for (childLink in childLinks) {
+            val childFolder = RecordVO()
+            childFolder.folder_linkId = childLink
+            childItems.add(childFolder)
+        }
+        RequestVO.data?.get(0)?.FolderVO?.ChildItemVOs = childItems
+        return this
+    }
 }

@@ -9,6 +9,7 @@ class Constants {
         const val VERIFICATION_CODE_LENGTH = 4
         const val FILE_NAME = "file_name"
         const val FOLDER_NAME = "folder_name"
+        const val MY_FILES_FOLDER = "My Files"
         const val URL_STAGING = "https://staging.permanent.org/api/"
         const val URL_PROD = "https://www.permanent.org/api/"
         const val URL_PRIVACY_POLICY = "https://www.permanent.org/privacy-policy/"

@@ -11,7 +11,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AccountRepositoryImpl(val application: Application) : IAccountRepository {
+class AccountRepositoryImpl(application: Application) : IAccountRepository {
 
     private val sharedPreferences: SharedPreferences =
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

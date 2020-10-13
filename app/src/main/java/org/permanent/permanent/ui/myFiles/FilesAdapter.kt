@@ -6,20 +6,16 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemFileBinding
-import org.permanent.permanent.models.File
+import org.permanent.permanent.network.models.RecordVO
 import java.util.*
 import kotlin.collections.ArrayList
 
 class FilesAdapter(
-    private val files: ArrayList<File>,
+    private val files: List<RecordVO>,
     private val fileOptionsClickListener: FileOptionsClickListener)
     : RecyclerView.Adapter<FileViewHolder>(), Filterable {
 
-    var fileFilteredList = ArrayList<File>()
-
-    init {
-        fileFilteredList = files
-    }
+    private var fileFilteredList: MutableList<RecordVO> = files.toMutableList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val binding = ItemFileBinding.inflate(
@@ -43,12 +39,12 @@ class FilesAdapter(
                 val charSearch = charSequence.toString()
 
                 fileFilteredList = if (charSearch.isEmpty()) {
-                    files
+                    files.toMutableList()
                 } else {
-                    val resultList = ArrayList<File>()
+                    val resultList = ArrayList<RecordVO>()
                     for (file in files) {
-                        if (file.name.toLowerCase(Locale.ROOT).contains(
-                                charSearch.toLowerCase(Locale.ROOT))) {
+                        if (file.displayName != null && file.displayName!!.toLowerCase(Locale.ROOT)
+                                .contains(charSearch.toLowerCase(Locale.ROOT))) {
                             resultList.add(file)
                         }
                     }
@@ -61,7 +57,7 @@ class FilesAdapter(
 
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                fileFilteredList = results?.values as ArrayList<File>
+                fileFilteredList = results?.values as ArrayList<RecordVO>
                 notifyDataSetChanged()
             }
         }

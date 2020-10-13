@@ -6,7 +6,7 @@
     <data>
         <variable
             name="file"
-            type="org.permanent.permanent.models.File" />
+            type="org.permanent.permanent.network.models.RecordVO" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,15 +26,15 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:imageUrl="@{file.type.equals(&quot;folder&quot;) ? null : file.thumbnails[0]}"
-            app:placeholder="@{@drawable/ic_photo_middle_grey}"/>
+            app:imageUrl="@{file.thumbURL500}"
+            app:fileType="@{file.typeEnum}"/>
 
         <TextView
             android:id="@+id/tvFileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@{file.name}"
+            android:text="@{file.displayName}"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
             app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@{file.date}"
+            android:text="@{file.getDate()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
             app:layout_constraintTop_toTopOf="@+id/guideline"

@@ -16,7 +16,7 @@ class PhoneVerificationViewModel(application: Application) :
     private val onVerificationReady = SingleLiveEvent<Void>()
     private val phoneError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
-    val onErrorMessage = MutableLiveData<String>()
+    private val onErrorMessage = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     fun onCurrentPhoneNumberChanged(number: Editable) {

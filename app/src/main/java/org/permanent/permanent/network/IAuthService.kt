@@ -6,10 +6,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-/**
- * Retrofit Service to handle login
- */
-interface AuthService {
+interface IAuthService {
 
     @POST("auth/loggedIn")
     fun verifyLoggedIn(@Body requestBody: RequestBody): Call<ResponseVO>
