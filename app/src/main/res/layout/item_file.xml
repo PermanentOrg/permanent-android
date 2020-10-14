@@ -16,18 +16,25 @@
 
         <ImageView
             android:id="@+id/ivThumbnail"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:layout_marginStart="12dp"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
+            app:fileType="@{file.typeEnum}"
+            app:imageUrl="@{file.thumbURL500}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:imageUrl="@{file.thumbURL500}"
-            app:fileType="@{file.typeEnum}"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.50" />
 
         <TextView
             android:id="@+id/tvFileName"
@@ -53,7 +60,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <Button
-            android:id="@+id/btnFileOptions"
+            android:id="@+id/btnOptions"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
@@ -62,11 +69,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.50"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

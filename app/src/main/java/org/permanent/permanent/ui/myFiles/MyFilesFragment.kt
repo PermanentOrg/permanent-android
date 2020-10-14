@@ -6,17 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
-import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.Constants
+import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
 
-class MyFilesFragment :
-    PermanentBaseFragment(),
-    PermanentTextWatcher,
-    View.OnClickListener {
+class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, View.OnClickListener {
 
     private lateinit var binding: FragmentMyFilesBinding
     private lateinit var viewModel: MyFilesViewModel

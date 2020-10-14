@@ -11,11 +11,12 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class FilesAdapter(
-    private val files: List<RecordVO>,
+    private val fileClickListener: FileClickListener,
     private val fileOptionsClickListener: FileOptionsClickListener)
     : RecyclerView.Adapter<FileViewHolder>(), Filterable {
 
-    private var fileFilteredList: MutableList<RecordVO> = files.toMutableList()
+    private var files: List<RecordVO> = ArrayList()
+    private var filteredList: MutableList<RecordVO> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val binding = ItemFileBinding.inflate(
@@ -23,13 +24,19 @@ class FilesAdapter(
             parent,
             false
         )
-        return FileViewHolder(binding, fileOptionsClickListener)
+        return FileViewHolder(binding, fileClickListener, fileOptionsClickListener)
     }
 
-    override fun getItemCount() = fileFilteredList.size
+    fun set(records: List<RecordVO>) {
+        files = records
+        filteredList = files.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    override fun getItemCount() = filteredList.size
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
-        holder.bind(fileFilteredList[position])
+        holder.bind(filteredList[position])
     }
 
     override fun getFilter(): Filter {
@@ -38,7 +45,7 @@ class FilesAdapter(
             override fun performFiltering(charSequence: CharSequence): FilterResults {
                 val charSearch = charSequence.toString()
 
-                fileFilteredList = if (charSearch.isEmpty()) {
+                filteredList = if (charSearch.isEmpty()) {
                     files.toMutableList()
                 } else {
                     val resultList = ArrayList<RecordVO>()
@@ -51,13 +58,13 @@ class FilesAdapter(
                     resultList
                 }
                 val filterResults = FilterResults()
-                filterResults.values = fileFilteredList
+                filterResults.values = filteredList
                 return filterResults
             }
 
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                fileFilteredList = results?.values as ArrayList<RecordVO>
+                filteredList = results?.values as ArrayList<RecordVO>
                 notifyDataSetChanged()
             }
         }

@@ -25,6 +25,7 @@ class BiometricsFragment : PermanentBaseFragment() {
     }
     private val onNavigateToMainActivity = Observer<Void> {
         findNavController().navigate(R.id.action_biometricsFragment_to_mainActivity)
+        activity?.finish()
     }
     private val onNavigateToLoginFragment = Observer<Void> {
         findNavController().navigate(R.id.action_biometricsFragment_to_loginFragment)

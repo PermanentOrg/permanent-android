@@ -3,7 +3,7 @@ package org.permanent.permanent.network.models
 class RecordVO {
     var id: Int? = null
     var displayName: String? = null
-    var createdDT: String? = null
+    var displayDT: String? = null
     var type: String? = null
     var typeEnum: Type? = null
     var folder_linkId: Int? = null
@@ -17,7 +17,7 @@ class RecordVO {
     var thumbURL2000: String? = null
 
     fun getDate(): String? {
-        return createdDT?.substringBefore("T")
+        return displayDT?.substringBefore("T")
     }
 
     enum class Type {
