@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_activity_navigation"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/myFilesFragment">
 
     <fragment
-        android:id="@+id/mainFragment"
+        android:id="@+id/myFilesFragment"
         android:name="org.permanent.permanent.ui.myFiles.MyFilesFragment"
         android:label="@string/main_navigation_my_files"
         tools:layout="@layout/fragment_my_files"/>

@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui.activities
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -18,10 +19,14 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
+    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var prefsHelper: PreferencesHelper
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var headerBinding: NavMainHeaderBinding
@@ -32,13 +37,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.mainActivitySettingNavigationView.getHeaderView(0))
+        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
         headerSettingsBinding.viewModel = viewModel
 
         headerBinding = NavMainHeaderBinding.bind(binding.mainActivityNavigationView.getHeaderView(0))
@@ -49,23 +53,25 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         navigationController = navHostFragment.navController
 
         val topLevelDestination = setOf(
-            R.id.mainFragment,
+            R.id.myFilesFragment,
             R.id.sharesFragment
         )
         appBarConfiguration =
             AppBarConfiguration(topLevelDestination, binding.mainActivityDrawerLayout)
 
         binding.mainActivityNavigationView.setupWithNavController(navigationController)
-        binding.mainActivitySettingNavigationView.setupWithNavController(navigationController)
+        binding.settingsNavigationView.setupWithNavController(navigationController)
         binding.mainToolbar.setupWithNavController(navigationController, appBarConfiguration)
         setUpListeners()
         binding.mainToolbar.inflateMenu(R.menu.menu_toolbar_settings)
         binding.mainToolbar.setOnMenuItemClickListener(this)
 
-        if (!viewModel.isWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))) {
+        sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefsHelper = PreferencesHelper(sharedPrefs)
+
+        if (!prefsHelper.isWelcomeDialogSeen()) {
             showWelcomeDialog()
         }
-
     }
 
     private fun showWelcomeDialog() {
@@ -76,11 +82,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             .create()
 
         viewDialog.ivBtnClose.setOnClickListener {
-            viewModel.setWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))
+            prefsHelper.setWelcomeDialogSeen()
             alert.dismiss()
         }
         viewDialog.btnStartPreserving.setOnClickListener {
-            viewModel.setWelcomeDialogSeen(getPreferences(Context.MODE_PRIVATE))
+            prefsHelper.setWelcomeDialogSeen()
             alert.dismiss()
         }
         alert.show()
@@ -93,7 +99,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private fun setUpListeners(){
         navigationController.addOnDestinationChangedListener { _, _, _ ->
-            binding.mainToolbar.setNavigationIcon(R.drawable.ic_baseline_camera_24)
+            binding.mainToolbar.setNavigationIcon(R.drawable.ic_account_circle_white)
         }
     }
 

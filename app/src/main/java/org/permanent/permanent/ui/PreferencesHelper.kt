@@ -16,6 +16,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
     }
 
+    fun setWelcomeDialogSeen() {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_WELCOME_SEEN, true)
+            apply()
+        }
+    }
+
+    fun isWelcomeDialogSeen(): Boolean {
+        return sharedPreferences.getBoolean(IS_WELCOME_SEEN, false)
+    }
+
     fun saveUserLoggedIn(isLoggedIn: Boolean) {
         with(sharedPreferences.edit()) {
             putBoolean(IS_USER_LOGGED_IN, isLoggedIn)
