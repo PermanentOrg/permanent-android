@@ -26,8 +26,9 @@ class NetworkClient(application: Application) {
         if (Constants.BUILD_ENV == BuildEnvOption.STAGING) Constants.URL_STAGING
         else Constants.URL_PROD
     private val retrofit: Retrofit
-    private val authService: AuthService
-    private val accountService: AccountService
+    private val authService: IAuthService
+    private val accountService: IAccountService
+    private val fileService: IFileService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val JSON: MediaType = "application/json;charset=UTF-8".toMediaType()
 
@@ -54,8 +55,9 @@ class NetworkClient(application: Application) {
             .client(okHttpClient)
             .build()
 
-        authService = retrofit.create(AuthService::class.java)
-        accountService = retrofit.create(AccountService::class.java)
+        authService = retrofit.create(IAuthService::class.java)
+        accountService = retrofit.create(IAccountService::class.java)
+        fileService = retrofit.create(IFileService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
     }
 
@@ -75,7 +77,7 @@ class NetworkClient(application: Application) {
     }
 
     fun logout(csrf: String?): Call<ResponseVO> {
-        var request: String = toJson(RequestContainer(csrf))
+        val request: String = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
         return authService.logout(requestBody)
@@ -110,6 +112,27 @@ class NetworkClient(application: Application) {
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
         return accountService.updatePhone(requestBody)
+    }
+
+    fun getRoot(csrf: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf))
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return fileService.getRoot(requestBody)
+    }
+
+    fun navigateMin(csrf: String?, archiveNumber: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber))
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return fileService.navigateMin(requestBody)
+    }
+
+    fun getLeanItems(csrf: String?, archiveNumber: String, childItems: List<Int>): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber, childItems))
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return fileService.getLeanItems(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

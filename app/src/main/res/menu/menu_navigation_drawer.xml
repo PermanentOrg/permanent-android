@@ -6,17 +6,17 @@
         android:id="@+id/group1"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/mainFragment"
-            android:icon="@drawable/ic_baseline_folder_24"
+            android:id="@+id/myFilesFragment"
+            android:icon="@drawable/ic_folder_white"
             android:title="@string/menu_drawer_myfiles" />
 
         <item
             android:id="@+id/sharesFragment"
-            android:icon="@drawable/ic_baseline_share_24"
+            android:icon="@drawable/ic_share_white"
             android:title="@string/menu_drawer_shares" />
         <item
             android:id="@+id/publicFragment"
-            android:icon="@drawable/ic_baseline_public_24"
+            android:icon="@drawable/ic_public_white"
             android:title="@string/menu_drawer_public" />
 
     </group>
@@ -25,17 +25,17 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/relationshipsFragment"
-            android:icon="@drawable/ic_baseline_relationships_24"
+            android:icon="@drawable/ic_relationships_white"
             android:title="@string/menu_drawer_relationships" />
 
         <item
             android:id="@+id/membersFragment"
-            android:icon="@drawable/ic_baseline_members_24"
+            android:icon="@drawable/ic_members_white"
             android:title="@string/menu_drawer_members" />
 
         <item
             android:id="@+id/AppsFragment"
-            android:icon="@drawable/ic_baseline_members_24"
+            android:icon="@drawable/ic_members_white"
             android:title="@string/menu_drawer_apps" />
     </group>
 </menu>

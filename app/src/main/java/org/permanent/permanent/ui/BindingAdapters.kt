@@ -1,11 +1,11 @@
 package org.permanent.permanent.ui
 
-import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import org.permanent.permanent.R
+import org.permanent.permanent.network.models.RecordVO
 
 
 @BindingAdapter("imageResourceId")
@@ -13,12 +13,12 @@ fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
     view.setImageResource(imageDrawableId)
 }
 
-@BindingAdapter("imageUrl", "placeholder")
-fun loadImage(view: ImageView, url: String?, placeholder: Drawable) {
-    if(url == null) {
+@BindingAdapter("fileType", "imageUrl")
+fun loadImage(view: ImageView, fileType: RecordVO.Type, url: String?) {
+    if (fileType == RecordVO.Type.Folder) {
         view.setImageResource(R.drawable.ic_folder_barney_purple)
     } else {
-        Picasso.get().load(url).placeholder(placeholder).into(view)
+        Picasso.get().load(url).placeholder(R.drawable.ic_photo_middle_grey).fit().into(view)
     }
 }
 

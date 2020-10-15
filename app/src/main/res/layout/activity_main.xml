@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="android.view.View" />
-
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.MainViewModel" />
@@ -17,7 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
 
         <androidx.drawerlayout.widget.DrawerLayout
             android:id="@+id/mainActivityDrawerLayout"
@@ -53,7 +49,7 @@
             </LinearLayout>
 
             <com.google.android.material.navigation.NavigationView
-                android:id="@+id/mainActivitySettingNavigationView"
+                android:id="@+id/settingsNavigationView"
                 android:layout_width="250dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="end"
@@ -75,10 +71,6 @@
                 app:itemTextColor="@color/white"
                 app:menu="@menu/menu_navigation_drawer"
                 app:theme="@style/customDrawerStyle" />
-
-
         </androidx.drawerlayout.widget.DrawerLayout>
-
-
     </LinearLayout>
 </layout>

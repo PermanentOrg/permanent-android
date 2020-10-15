@@ -6,20 +6,17 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemFileBinding
-import org.permanent.permanent.models.File
+import org.permanent.permanent.network.models.RecordVO
 import java.util.*
 import kotlin.collections.ArrayList
 
 class FilesAdapter(
-    private val files: ArrayList<File>,
+    private val fileClickListener: FileClickListener,
     private val fileOptionsClickListener: FileOptionsClickListener)
     : RecyclerView.Adapter<FileViewHolder>(), Filterable {
 
-    var fileFilteredList = ArrayList<File>()
-
-    init {
-        fileFilteredList = files
-    }
+    private var files: List<RecordVO> = ArrayList()
+    private var filteredList: MutableList<RecordVO> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val binding = ItemFileBinding.inflate(
@@ -27,13 +24,19 @@ class FilesAdapter(
             parent,
             false
         )
-        return FileViewHolder(binding, fileOptionsClickListener)
+        return FileViewHolder(binding, fileClickListener, fileOptionsClickListener)
     }
 
-    override fun getItemCount() = fileFilteredList.size
+    fun set(records: List<RecordVO>) {
+        files = records
+        filteredList = files.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    override fun getItemCount() = filteredList.size
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
-        holder.bind(fileFilteredList[position])
+        holder.bind(filteredList[position])
     }
 
     override fun getFilter(): Filter {
@@ -42,26 +45,26 @@ class FilesAdapter(
             override fun performFiltering(charSequence: CharSequence): FilterResults {
                 val charSearch = charSequence.toString()
 
-                fileFilteredList = if (charSearch.isEmpty()) {
-                    files
+                filteredList = if (charSearch.isEmpty()) {
+                    files.toMutableList()
                 } else {
-                    val resultList = ArrayList<File>()
+                    val resultList = ArrayList<RecordVO>()
                     for (file in files) {
-                        if (file.name.toLowerCase(Locale.ROOT).contains(
-                                charSearch.toLowerCase(Locale.ROOT))) {
+                        if (file.displayName != null && file.displayName!!.toLowerCase(Locale.ROOT)
+                                .contains(charSearch.toLowerCase(Locale.ROOT))) {
                             resultList.add(file)
                         }
                     }
                     resultList
                 }
                 val filterResults = FilterResults()
-                filterResults.values = fileFilteredList
+                filterResults.values = filteredList
                 return filterResults
             }
 
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                fileFilteredList = results?.values as ArrayList<File>
+                filteredList = results?.values as ArrayList<RecordVO>
                 notifyDataSetChanged()
             }
         }

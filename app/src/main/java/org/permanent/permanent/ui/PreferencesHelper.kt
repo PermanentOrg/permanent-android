@@ -9,11 +9,23 @@ const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val PREFS_SAVED_ACCOUNT_ID = "preferences_saved_account_id"
 const val PREFS_SAVED_EMAIL = "preferences_saved_email"
 const val PREFS_SAVED_CSRF = "preferences_saved_csrf"
+const val PREFS_SAVED_MY_FILES_ARCHIVE_NR = "preferences_saved_my_files_archive_nr"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isOnboardingCompleted(): Boolean {
         return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
+    }
+
+    fun setWelcomeDialogSeen() {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_WELCOME_SEEN, true)
+            apply()
+        }
+    }
+
+    fun isWelcomeDialogSeen(): Boolean {
+        return sharedPreferences.getBoolean(IS_WELCOME_SEEN, false)
     }
 
     fun saveUserLoggedIn(isLoggedIn: Boolean) {
@@ -60,5 +72,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getCsrf(): String? {
         return sharedPreferences.getString(PREFS_SAVED_CSRF, "")
+    }
+
+    fun saveMyFilesArchiveNr(archiveNumber: String) {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_SAVED_MY_FILES_ARCHIVE_NR, archiveNumber)
+                apply()
+        }
+    }
+
+    fun getMyFilesArchiveNr(): String? {
+        return sharedPreferences.getString(PREFS_SAVED_MY_FILES_ARCHIVE_NR, "")
     }
 }
