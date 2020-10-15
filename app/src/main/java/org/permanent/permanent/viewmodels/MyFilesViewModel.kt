@@ -50,12 +50,18 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     private fun populateMyFiles() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        isBusy.value = true
         fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
             override fun onSuccess(myFilesRecord: RecordVO) {
+                isBusy.value = false
                 getChildRecordsOf(myFilesRecord)
             }
 
             override fun onFailed(error: String?) {
+                isBusy.value = false
                 onErrorMessage.value = error
             }
         })
