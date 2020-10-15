@@ -20,15 +20,15 @@ class FileRepositoryImpl(application: Application): IFileRepository {
     private val prefsHelper = PreferencesHelper(sharedPreferences)
     private val networkClient: NetworkClient = NetworkClient(application)
 
-    override fun getRootFilesRecord(listener: IFileRepository.IOnMyFilesArchiveNrListener) {
+    override fun getMyFilesRecord(listener: IFileRepository.IOnMyFilesArchiveNrListener) {
         networkClient.getRoot(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
-                val myFilesRecordVO = responseVO?.getMyFilesRecordVO()
+                val myFilesRecord = responseVO?.getMyFilesRecordVO()
 
-                if (myFilesRecordVO != null) {
-                    listener.onSuccess(myFilesRecordVO)
+                if (myFilesRecord != null) {
+                    listener.onSuccess(myFilesRecord)
                 } else {
                     listener.onFailed(
                         responseVO?.Results?.get(0)?.message?.get(0)

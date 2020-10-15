@@ -75,6 +75,20 @@
             app:layout_constraintTop_toBottomOf="@+id/clSearch"
             app:layout_constraintVertical_bias="0.0">
 
+            <Button
+                android:id="@+id/btnBack"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{viewModel.getIsRoot() ? View.GONE : View.VISIBLE}"
+                android:onClick="@{() -> viewModel.onBackBtnClick()}"
+                app:icon="@drawable/ic_arrow_back_middle_grey"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
                 android:id="@+id/tvFolderName"
                 android:layout_width="wrap_content"
@@ -86,7 +100,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnBack"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
@@ -95,6 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="8dp"
+                android:visibility="@{viewModel.getIsRoot() ? View.GONE : View.VISIBLE}"
                 app:layout_constraintBottom_toBottomOf="@+id/tvFolderName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tvFolderName"
@@ -215,6 +230,16 @@
             app:layout_constraintTop_toBottomOf="@+id/ivCat"
             app:layout_constraintVertical_bias="0.0" />
 
-
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="@{viewModel.getIsBusy() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
