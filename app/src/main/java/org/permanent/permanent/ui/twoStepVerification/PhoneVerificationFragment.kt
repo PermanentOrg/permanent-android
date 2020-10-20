@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.Constants
+import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentVerificationPhoneBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -30,11 +31,22 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         viewModel = ViewModelProvider(this).get(PhoneVerificationViewModel::class.java)
         binding.viewModel = viewModel
 
+        context?.let {
+            val permissionHelper = PermissionsHelper()
+            if (!permissionHelper.hasSMSGroupPermission(it))
+            permissionHelper.requestSMSGroupPermission(this)
+        }
+
         return binding.root
     }
 
-    private val onVerificationReady = Observer<Void> {
-        startMainActivity()
+    private val onVerificationSkipped = Observer<Void> {
+        findNavController().navigate(R.id.action_phoneVerificationFragment_to_mainActivity)
+        activity?.finish()
+    }
+
+    private val onSMSCodeSent = Observer<Void> {
+        findNavController().navigate(R.id.action_phoneVerificationFragment_to_codeVerificationFragment)
     }
 
     private val onErrorMessage = Observer<String> { errorMessage ->
@@ -59,18 +71,15 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         }
     }
 
-    private fun startMainActivity() {
-        findNavController().navigate(R.id.action_phoneVerificationFragment_to_mainActivity)
-        activity?.finish()
-    }
-
     override fun connectViewModelEvents() {
-        viewModel.getOnVerificationReady().observe(this, onVerificationReady)
+        viewModel.getOnVerificationSkipped().observe(this, onVerificationSkipped)
+        viewModel.getOnSMSCodeSent().observe(this, onSMSCodeSent)
         viewModel.getOnErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnVerificationReady().removeObserver(onVerificationReady)
+        viewModel.getOnVerificationSkipped().removeObserver(onVerificationSkipped)
+        viewModel.getOnSMSCodeSent().removeObserver(onSMSCodeSent)
         viewModel.getOnErrorMessage().removeObserver(onErrorMessage)
     }
 

@@ -32,7 +32,7 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addAccount(accountId: String, email: String, phoneNumber: String): RequestContainer {
+    fun addAccount(accountId: String, email: String, phoneNumber: String?): RequestContainer {
         val account = AccountVO()
         account.accountId = accountId
         account.primaryEmail = email
@@ -64,10 +64,10 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addAuth(authToken: String): RequestContainer {
+    fun addAuth(authToken: String, authType: String): RequestContainer {
         val auth = AuthVO()
         auth.token = authToken
-        auth.type = Constants.AUTH_TYPE_MFA_VALIDATION
+        auth.type = authType
         RequestVO.data?.get(0)?.AuthVO = auth
         return this
     }

@@ -14,11 +14,14 @@ class Constants {
         const val URL_PROD = "https://www.permanent.org/api/"
         const val URL_PRIVACY_POLICY = "https://www.permanent.org/privacy-policy/"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
+        const val AUTH_TYPE_PHONE = "type.auth.phone"
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
         const val ERROR_UNKNOWN_SIGNIN = "warning.signin.unknown"
         const val ERROR_SERVER_ERROR = "error.api.invalid_request"
         const val ERROR_NO_API_KEY = "error.api.no_key"
         const val ERROR_ACCOUNT_DUPLICATE = "warning.registration.duplicate_email"
         const val ERROR_PHONE_INVALID = "warning.validation.phone"
+        const val SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED"
+        const val REQUEST_CODE_SMS_PERMISSION = 123
     }
 }

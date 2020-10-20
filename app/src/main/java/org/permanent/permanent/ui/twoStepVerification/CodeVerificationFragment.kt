@@ -17,20 +17,18 @@ class CodeVerificationFragment : PermanentBaseFragment() {
 
     private lateinit var binding: FragmentVerificationCodeBinding
     private lateinit var viewModel: CodeVerificationViewModel
+    private var smsVerificationCodeHelper: SmsVerificationCodeHelper? = null
 
     private val onErrorMessage = Observer<String> { errorMessage ->
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
     }
     private val onCodeVerified = Observer<Void> {
-        if (isLoginFlow()) {
+        if (isLoginFlow() || viewModel.isSmsCodeFlow) {
             startMainActivity()
-        } else {
-            startPhoneVerificationFragment()
-        }
+        } else startPhoneVerificationFragment()
     }
-
-    private fun isLoginFlow(): Boolean {
-        return findNavController().graph.id == R.id.login_navigation
+    private val onSmsCodeReceived = Observer<String> {
+        binding.etVerificationCode.setText(it)
     }
 
     override fun onCreateView(
@@ -42,7 +40,12 @@ class CodeVerificationFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(CodeVerificationViewModel::class.java)
         binding.viewModel = viewModel
+
         return binding.root
+    }
+
+    private fun isLoginFlow(): Boolean {
+        return findNavController().graph.id == R.id.login_navigation
     }
 
     private fun startMainActivity() {
@@ -57,20 +60,32 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     override fun connectViewModelEvents() {
         viewModel.getOnCodeVerified().observe(this, onCodeVerified)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
+        smsVerificationCodeHelper?.getCode()?.observe(this, onSmsCodeReceived)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnCodeVerified().removeObserver(onCodeVerified)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
+        smsVerificationCodeHelper?.getCode()?.removeObserver(onSmsCodeReceived)
     }
 
     override fun onResume() {
         super.onResume()
+        if (isSmsCodeFlow()) {
+            viewModel.isSmsCodeFlow = true
+            smsVerificationCodeHelper = context?.let { SmsVerificationCodeHelper(it) }
+            smsVerificationCodeHelper?.registerReceiver()
+        }
         connectViewModelEvents()
     }
 
     override fun onPause() {
         super.onPause()
+        if (viewModel.isSmsCodeFlow) smsVerificationCodeHelper?.unregisterReceiver()
         disconnectViewModelEvents()
+    }
+
+    private fun isSmsCodeFlow(): Boolean {
+        return findNavController().previousBackStackEntry?.destination?.id == R.id.phoneVerificationFragment
     }
 }

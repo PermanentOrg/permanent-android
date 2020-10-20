@@ -20,6 +20,9 @@ interface IAuthService {
     @POST("auth/sendEmailForgotPassword")
     fun forgotPassword(@Body request: RequestBody): Call<ResponseVO>
 
+    @POST("auth/resendTextCreatedAccount")
+    fun sendSMSVerificationCode(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("auth/verify")
     fun verifyCode(@Body requestBody: RequestBody): Call<ResponseVO>
 }

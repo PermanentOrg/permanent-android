@@ -1,20 +1,16 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import android.text.Editable
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 import java.util.regex.Pattern
 
 
@@ -59,15 +55,15 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     }
 
     fun onNameTextChanged(name: Editable) {
-        currentName.value = name.toString().trim { it <= ' ' }
+        currentName.value = name.toString()
     }
 
     fun onEmailTextChanged(email: Editable) {
-        currentEmail.value = email.toString().trim { it <= ' ' }
+        currentEmail.value = email.toString()
     }
 
     fun onPasswordTextChanged(password: Editable) {
-        currentPassword.value = password.toString().trim { it <= ' ' }
+        currentPassword.value = password.toString()
     }
 
     fun getOnErrorMessage(): MutableLiveData<String> {
@@ -98,13 +94,9 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val name = currentName.value
-        val email = currentEmail.value
-        val password = currentPassword.value
-
-        if (!isNameValid(name)) return
-        if (!isEmailValid(email)) return
-        if (!isPasswordValid(password)) return
+        if (!isNameValid()) return
+        if (!isEmailValid()) return
+        if (!isPasswordValid()) return
 
         onReadyToShowTermsDialog.call()
     }
@@ -155,7 +147,10 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         })
     }
 
-    private fun isNameValid(name: String?): Boolean {
+    private fun isNameValid(): Boolean {
+        currentName.value = currentName.value?.trim()
+        val name = currentName.value
+
         return if (name.isNullOrEmpty()) {
             nameError.value = R.string.sign_up_empty_name_error
             false
@@ -165,8 +160,11 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         }
     }
 
-    private fun isEmailValid(email: String?): Boolean {
+    private fun isEmailValid(): Boolean {
+        currentEmail.value = currentEmail.value?.trim()
+        val email = currentEmail.value
         val pattern: Pattern = Patterns.EMAIL_ADDRESS
+
         if (email.isNullOrEmpty() || !pattern.matcher(email).matches()) {
             emailError.value = R.string.invalid_email_error
             return false
@@ -175,7 +173,10 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         return true
     }
 
-    private fun isPasswordValid(password: String?): Boolean {
+    private fun isPasswordValid(): Boolean {
+        currentPassword.value = currentPassword.value?.trim()
+        val password = currentPassword.value
+
         if (password.isNullOrEmpty()) {
             passwordError.value = R.string.password_empty_error
             return false
