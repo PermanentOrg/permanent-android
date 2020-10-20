@@ -24,7 +24,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         networkClient.verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
                 val responseVO = retrofitResponse.body()
-                responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
+                prefsHelper.saveCsrf(responseVO?.csrf)
 
                 if (retrofitResponse.isSuccessful) {
                     responseVO?.isUserLoggedIn()?.let { listener.onResponse(it) }
@@ -48,8 +48,9 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         networkClient.login(email, password).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
+                prefsHelper.saveCsrf(responseVO?.csrf)
                 prefsHelper.saveEmail(email)
+
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     listener.onSuccess()
                 } else {
@@ -70,7 +71,8 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         networkClient.logout(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                responseVO?.csrf?.let { prefsHelper.saveCsrf(it) }
+                prefsHelper.saveCsrf(responseVO?.csrf)
+
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     listener.onSuccess()
                 } else {
@@ -93,11 +95,15 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     ) {
         networkClient.forgotPassword(email).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                if (response.isSuccessful && response.body()?.isSuccessful!!) {
+                val responseVO = response.body()
+                prefsHelper.saveCsrf(responseVO?.csrf)
+
+                if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     listener.onSuccess()
                 } else {
-                    listener.onFailed(response.body()?.Results?.get(0)?.message?.get(0)
-                        ?: response.errorBody()?.toString())
+                    listener.onFailed(
+                        responseVO?.Results?.get(0)?.message?.get(0)
+                            ?: response.errorBody()?.toString())
                 }
             }
 
@@ -107,20 +113,56 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         })
     }
 
+    override fun sendSMSVerificationCode(
+        listener: IAuthenticationRepository.IOnSMSCodeSentListener
+    ) {
+        val accountId = prefsHelper.getAccountId()
+        val email = prefsHelper.getEmail()
+
+        if (accountId != null && email != null) {
+            networkClient.sendSMSVerificationCode(
+                prefsHelper.getCsrf(),
+                accountId,
+                email,
+            ).enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+
+                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                        listener.onSuccess()
+                    } else {
+                        listener.onFailed(
+                            responseVO?.Results?.get(0)?.message?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+        }
+    }
+
     override fun verifyCode(
         code: String,
+        authType: String,
         listener: IAuthenticationRepository.IOnVerifyListener
     ) {
         prefsHelper.getEmail()?.let {
             networkClient.verifyCode(
                 code,
+                authType,
                 prefsHelper.getCsrf(),
                 it
             ).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                        responseVO.csrf?.let { csrf -> prefsHelper.saveCsrf(csrf) }
                         listener.onSuccess()
                     } else {
                         listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0)

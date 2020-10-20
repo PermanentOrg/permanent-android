@@ -11,6 +11,7 @@ import org.permanent.permanent.repositories.IAuthenticationRepository
 
 class CodeVerificationViewModel(application: Application): ObservableAndroidViewModel(application) {
 
+    var isSmsCodeFlow = false
     private val currentCode = MutableLiveData<String>()
     private val codeError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
@@ -42,12 +43,14 @@ class CodeVerificationViewModel(application: Application): ObservableAndroidView
         return errorMessage
     }
 
-    private fun checkEmptyCode(code: String?): Boolean {
-        if (code == null) {
+    private fun isCodeValid(): Boolean {
+        currentCode.value = currentCode.value?.trim()
+        val trimmedCode = currentCode.value
+
+        if (trimmedCode.isNullOrEmpty()) {
             codeError.value = R.string.verification_code_empty_error
             return false
         } else {
-            val trimmedCode = code.trim { it <= ' ' }
             if (trimmedCode.length < Constants.VERIFICATION_CODE_LENGTH
                 || trimmedCode.length > Constants.VERIFICATION_CODE_LENGTH) {
                 codeError.value = R.string.verification_code_length_error
@@ -62,21 +65,27 @@ class CodeVerificationViewModel(application: Application): ObservableAndroidView
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val code = currentCode.value
+        if (!isCodeValid()) return
 
-        if (!checkEmptyCode(code)) return
+        currentCode.value?.let {
+            isBusy.value = true
+            authRepository.verifyCode(it, getAuthType(),
+                object : IAuthenticationRepository.IOnVerifyListener {
+                override fun onSuccess() {
+                    isBusy.value = false
+                    onCodeVerified.call()
+                }
 
-        isBusy.value = true
-        authRepository.verifyCode(code!!, object : IAuthenticationRepository.IOnVerifyListener {
-            override fun onSuccess() {
-                isBusy.value = false
-                onCodeVerified.call()
-            }
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    errorMessage.value = error
+                }
+            })
+        }
+    }
 
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                errorMessage.value = error
-            }
-        })
+    private fun getAuthType(): String {
+        if (isSmsCodeFlow) return Constants.AUTH_TYPE_PHONE
+        return Constants.AUTH_TYPE_MFA_VALIDATION
     }
 }

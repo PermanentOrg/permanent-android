@@ -6,7 +6,8 @@ interface IAuthenticationRepository {
     fun login(email: String, password: String, listener: IOnLoginListener)
     fun logout(listener: IOnLogoutListener)
     fun forgotPassword(email: String, listener: IOnResetPasswordListener)
-    fun verifyCode(code: String, listener: IOnVerifyListener)
+    fun sendSMSVerificationCode(listener: IOnSMSCodeSentListener)
+    fun verifyCode(code: String, authType: String, listener: IOnVerifyListener)
 
     interface IOnLoggedInListener {
         fun onResponse(isLoggedIn: Boolean)
@@ -28,6 +29,11 @@ interface IAuthenticationRepository {
     }
 
     interface IOnVerifyListener {
+        fun onSuccess()
+        fun onFailed(error: String?)
+    }
+
+    interface IOnSMSCodeSentListener {
         fun onSuccess()
         fun onFailed(error: String?)
     }

@@ -6,18 +6,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.repositories.IAuthenticationRepository
 import java.util.regex.Pattern
 
 
 class PhoneVerificationViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
     private val currentPhoneNumber = MutableLiveData<String>()
-    private val onVerificationReady = SingleLiveEvent<Void>()
+    private val onVerificationSkipped = SingleLiveEvent<Void>()
+    private val onSMSCodeSent = SingleLiveEvent<Void>()
     private val phoneError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onErrorMessage = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
     fun onCurrentPhoneNumberChanged(number: Editable) {
         currentPhoneNumber.value = number.toString().trim { it <= ' ' }
@@ -35,8 +39,12 @@ class PhoneVerificationViewModel(application: Application) :
         return isBusy
     }
 
-    fun getOnVerificationReady(): MutableLiveData<Void> {
-        return onVerificationReady
+    fun getOnVerificationSkipped(): MutableLiveData<Void> {
+        return onVerificationSkipped
+    }
+
+    fun getOnSMSCodeSent(): MutableLiveData<Void> {
+        return onSMSCodeSent
     }
 
     fun getOnErrorMessage(): LiveData<String> {
@@ -44,7 +52,7 @@ class PhoneVerificationViewModel(application: Application) :
     }
 
     fun skipTwoStep() {
-        onVerificationReady.call()
+        onVerificationSkipped.call()
     }
 
     fun submit() {
@@ -71,7 +79,7 @@ class PhoneVerificationViewModel(application: Application) :
         accountRepository.update(phone, object : IAccountRepository.IOnPhoneUpdatedListener {
             override fun onSuccess() {
                 isBusy.value = false
-                onVerificationReady.call()
+                sendSMSVerificationCode()
             }
 
             override fun onFailed(error: String?) {
@@ -79,5 +87,24 @@ class PhoneVerificationViewModel(application: Application) :
                 onErrorMessage.value = error
             }
         })
+    }
+
+    private fun sendSMSVerificationCode() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        isBusy.value = true
+        authRepository.sendSMSVerificationCode(
+            object : IAuthenticationRepository.IOnSMSCodeSentListener {
+                override fun onSuccess() {
+                    isBusy.value = false
+                    onSMSCodeSent.call()
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    onErrorMessage.value = error
+                }
+            })
     }
 }

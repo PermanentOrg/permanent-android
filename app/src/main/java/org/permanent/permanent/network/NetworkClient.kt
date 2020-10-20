@@ -90,8 +90,15 @@ class NetworkClient(application: Application) {
         return authService.forgotPassword(requestBody)
     }
 
-    fun verifyCode(code: String, csrf: String?, email: String): Call<ResponseVO>  {
-        val request = toJson(RequestContainer(csrf).addAuth(code).addAccount(email))
+    fun sendSMSVerificationCode(csrf: String?, accountId: String, email: String): Call<ResponseVO>  {
+        val request = toJson(RequestContainer(csrf).addAccount(accountId, email, null))
+        val requestBody: RequestBody = request.toRequestBody(JSON)
+
+        return authService.sendSMSVerificationCode(requestBody)
+    }
+
+    fun verifyCode(code: String, authType: String,  csrf: String?, email: String): Call<ResponseVO>  {
+        val request = toJson(RequestContainer(csrf).addAuth(code, authType).addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(JSON)
 
         return authService.verifyCode(requestBody)
