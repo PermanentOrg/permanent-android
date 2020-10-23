@@ -61,13 +61,14 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clFolderDropdown"
+            android:id="@+id/clCurrentFolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:paddingTop="8dp"
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
+            android:onClick="@{() -> viewModel.onCurrentFolderClick()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -123,11 +124,11 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/clFolderDropdown"
+            app:layout_constraintBottom_toBottomOf="@+id/clCurrentFolder"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/clFolderDropdown"
-            app:layout_constraintTop_toTopOf="@+id/clFolderDropdown"
+            app:layout_constraintStart_toEndOf="@+id/clCurrentFolder"
+            app:layout_constraintTop_toTopOf="@+id/clCurrentFolder"
             app:srcCompat="@drawable/ic_grid_middle_grey" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -143,7 +144,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/clFolderDropdown"
+            app:layout_constraintTop_toBottomOf="@+id/clCurrentFolder"
             app:layout_constraintVertical_bias="0.0">
 
             <TextView
@@ -192,6 +193,7 @@
             android:layout_marginBottom="32dp"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="@{() -> viewModel.onAddBtnClick()}"
             app:backgroundTint="@color/colorAccent"
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -220,7 +222,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="@string/my_files_no_files_text"
+            android:text="@string/my_files_no_files"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:visibility="@{viewModel.getExistsFiles() ? View.GONE : View.VISIBLE}"

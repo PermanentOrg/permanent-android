@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
@@ -30,7 +29,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEdit"
-            style="@style/customButtonBottomDrawerStyle"
+            style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -42,7 +41,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnShare"
-            style="@style/customButtonBottomDrawerStyle"
+            style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/file_options_menu_item_share"
@@ -53,7 +52,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPublish"
-            style="@style/customButtonBottomDrawerStyle"
+            style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/file_options_menu_item_publish"

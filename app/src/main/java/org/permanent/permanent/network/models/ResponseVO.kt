@@ -25,11 +25,15 @@ class ResponseVO {
         return null
     }
 
+    fun getRecordVO(): RecordVO? {
+        return Results?.get(0)?.data?.get(0)?.RecordVO
+    }
+
     fun getChildItemVOs(): List<RecordVO>? {
         return getFolderVO()?.ChildItemVOs
     }
 
-    private fun getFolderVO(): FolderVO? {
+    fun getFolderVO(): FolderVO? {
         return Results?.get(0)?.data?.get(0)?.FolderVO
     }
 
@@ -49,5 +53,9 @@ class ResponseVO {
         }
 
         return recordVOs
+    }
+
+    fun getMessages(): List<String?>? {
+        return Results?.get(0)?.message
     }
 }

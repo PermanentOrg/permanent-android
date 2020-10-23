@@ -6,13 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.permanent.permanent.databinding.FileOptionsBinding
 import org.permanent.permanent.Constants
+import org.permanent.permanent.databinding.FragmentFileOptionsBinding
 import org.permanent.permanent.viewmodels.FileOptionsViewModel
 
 class FileOptionsFragment : BottomSheetDialogFragment() {
 
-    private lateinit var binding: FileOptionsBinding
+    private lateinit var binding: FragmentFileOptionsBinding
     private lateinit var viewModel: FileOptionsViewModel
 
     override fun onCreateView(
@@ -20,7 +20,7 @@ class FileOptionsFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FileOptionsBinding.inflate(inflater, container, false)
+        binding = FragmentFileOptionsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(FileOptionsViewModel::class.java)

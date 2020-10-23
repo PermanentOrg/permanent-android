@@ -4,15 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.permanent.Constants
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
 
-class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, View.OnClickListener {
+class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
 
     private lateinit var binding: FragmentMyFilesBinding
     private lateinit var viewModel: MyFilesViewModel
@@ -29,8 +27,8 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, View.OnCl
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
         binding.viewModel = viewModel
         viewModel.initRecyclerView(binding.rvFiles)
+        viewModel.set(parentFragmentManager)
         binding.etSearchQuery.addTextChangedListener(this)
-        binding.clFolderDropdown.setOnClickListener(this)
 
         return binding.root
     }
@@ -39,14 +37,6 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher, View.OnCl
         viewAdapter.filter.filter(charSequence)
         binding.ivSearchIcon.visibility =
             if (charSequence.toString().isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    override fun onClick(view: View) {
-        val bottomDrawerFragment = FolderOptionsFragment()
-        val bundle = Bundle()
-        bundle.putString(Constants.FOLDER_NAME, Constants.MY_FILES_FOLDER)
-        bottomDrawerFragment.arguments = bundle
-        bottomDrawerFragment.show((context as AppCompatActivity).supportFragmentManager, bottomDrawerFragment.tag)
     }
 
     override fun connectViewModelEvents() {
