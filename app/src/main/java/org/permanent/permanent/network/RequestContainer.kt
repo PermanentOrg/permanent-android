@@ -90,8 +90,7 @@ class RequestContainer(csrf: String?) {
         RequestVO.data?.get(0)?.FolderVO?.ChildItemVOs = childItems
         return this
     }
-
-
+    
     fun addRecord(displayName: String?, uploadName: String, parentFolderId: Int,
                   parentFolderLinkId: Int): RequestContainer {
         val recordVO = RecordVO()

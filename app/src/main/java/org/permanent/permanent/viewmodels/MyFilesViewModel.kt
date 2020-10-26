@@ -2,6 +2,7 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.os.Bundle
+import android.text.Editable
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -21,6 +22,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val existsFiles = MutableLiveData(false)
     private val isRoot = MutableLiveData(true)
+    private val currentSearchQuery = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onErrorMessage = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -107,6 +109,15 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getIsRoot(): MutableLiveData<Boolean> {
         return isRoot
+    }
+
+    fun getCurrentSearchQuery(): MutableLiveData<String>? {
+        return currentSearchQuery
+    }
+
+    fun onSearchQueryTextChanged(query: Editable) {
+        currentSearchQuery.value = query.toString().trim { it <= ' ' }
+        viewAdapter.filter.filter(query)
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {

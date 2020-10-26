@@ -10,11 +10,10 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
 
-class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
+class MyFilesFragment : PermanentBaseFragment() {
 
     private lateinit var binding: FragmentMyFilesBinding
     private lateinit var viewModel: MyFilesViewModel
-    private lateinit var viewAdapter: FilesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,15 +27,8 @@ class MyFilesFragment : PermanentBaseFragment(), PermanentTextWatcher {
         binding.viewModel = viewModel
         viewModel.initRecyclerView(binding.rvFiles)
         viewModel.set(parentFragmentManager)
-        binding.etSearchQuery.addTextChangedListener(this)
 
         return binding.root
-    }
-
-    override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
-        viewAdapter.filter.filter(charSequence)
-        binding.ivSearchIcon.visibility =
-            if (charSequence.toString().isEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun connectViewModelEvents() {

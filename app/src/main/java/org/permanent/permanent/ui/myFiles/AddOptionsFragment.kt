@@ -84,7 +84,7 @@ class AddOptionsFragment: BottomSheetDialogFragment(), View.OnClickListener {
             Constants.REQUEST_CODE_FILE_SELECT -> if (resultCode == Activity.RESULT_OK) {
 
                 if (intent?.data != null) {
-                    upload(intent.data!!)
+                    viewModel.upload(intent.data!!)
 
                 } else if (intent?.clipData != null) {
                     val clipData: ClipData = intent.clipData!!
@@ -96,27 +96,9 @@ class AddOptionsFragment: BottomSheetDialogFragment(), View.OnClickListener {
                         uris.add(originalUri)
                         i++
                     }
-                    upload(uris)
+                    viewModel.upload(uris)
                 }
             }
-        }
-    }
-
-    private fun upload(originalUri: Uri) {
-        requireActivity().contentResolver.takePersistableUriPermission(
-            originalUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        viewModel.setupUploadWorker(originalUri)
-    }
-
-    private fun upload(uris: List<Uri>) {
-        if (uris.isNotEmpty()) {
-            for (uri in uris) {
-                requireActivity().contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-            }
-            viewModel.setupUploadWorkers(uris)
         }
     }
 }

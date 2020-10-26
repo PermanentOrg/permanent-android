@@ -119,7 +119,6 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
 
         if (messages == null || messages.isEmpty()) {
             return context.getString(R.string.upload_record_not_created_error)
-
         } else if (recordId == null) {
             return messages[0]!!
         }

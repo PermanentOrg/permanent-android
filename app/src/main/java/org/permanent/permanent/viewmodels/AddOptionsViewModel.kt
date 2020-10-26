@@ -1,6 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Intent
 import android.net.Uri
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -11,13 +12,31 @@ import org.permanent.permanent.ui.myFiles.WORKER_INPUT_URI_KEY
 import org.permanent.permanent.ui.myFiles.WORKER_TAG_UPLOAD
 
 class AddOptionsViewModel(application: Application) : ObservableAndroidViewModel(application) {
-
+    private val appContext = application.applicationContext
     private val workManager: WorkManager = WorkManager.getInstance()
 
     fun onNewFolderBtnClick() {
     }
 
-    fun setupUploadWorker(originalUri: Uri) {
+    fun upload(originalUri: Uri) {
+        appContext.contentResolver.takePersistableUriPermission(
+            originalUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        setupUploadWorker(originalUri)
+    }
+
+    fun upload(uris: List<Uri>) {
+        if (uris.isNotEmpty()) {
+            for (uri in uris) {
+                appContext.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            setupUploadWorkers(uris)
+        }
+    }
+
+    private fun setupUploadWorker(originalUri: Uri) {
         val builder: Data.Builder = Data.Builder()
         builder.putString(WORKER_INPUT_URI_KEY, originalUri.toString())
         val request: OneTimeWorkRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java)
@@ -36,7 +55,7 @@ class AddOptionsViewModel(application: Application) : ObservableAndroidViewModel
      *
      * @param uris - list of uris to upload
      */
-    fun setupUploadWorkers(uris: List<Uri>) {
+    private fun setupUploadWorkers(uris: List<Uri>) {
         if (uris.isNotEmpty()) {
             var continuation: WorkContinuation =
                 workManager.beginWith(getUploadRequest(uris[0].toString()))
