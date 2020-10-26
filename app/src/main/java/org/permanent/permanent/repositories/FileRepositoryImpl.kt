@@ -1,24 +1,27 @@
 package org.permanent.permanent.repositories
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import okhttp3.MediaType
+import org.permanent.permanent.R
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.STATUS_OK
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
 import java.util.*
 
-class FileRepositoryImpl(application: Application): IFileRepository {
+class FileRepositoryImpl(val context: Context): IFileRepository {
 
     private val sharedPreferences: SharedPreferences =
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val prefsHelper = PreferencesHelper(sharedPreferences)
-    private val networkClient: NetworkClient = NetworkClient(application)
+    private val networkClient: NetworkClient = NetworkClient(context)
 
     override fun getMyFilesRecord(listener: IFileRepository.IOnMyFilesArchiveNrListener) {
         networkClient.getRoot(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
@@ -28,6 +31,8 @@ class FileRepositoryImpl(application: Application): IFileRepository {
                 val myFilesRecord = responseVO?.getMyFilesRecordVO()
 
                 if (myFilesRecord != null) {
+                    myFilesRecord.folderId?.let { prefsHelper.saveFolderId(it) }
+                    myFilesRecord.folder_linkId?.let { prefsHelper.saveFolderLinkId(it) }
                     listener.onSuccess(myFilesRecord)
                 } else {
                     listener.onFailed(
@@ -43,13 +48,17 @@ class FileRepositoryImpl(application: Application): IFileRepository {
         })
     }
 
-    override fun getChildRecordsOf(myFilesArchiveNr: String,
-                                   listener: IFileRepository.IOnRecordsRetrievedListener) {
+    override fun getChildRecordsOf(
+        myFilesArchiveNr: String,
+        listener: IFileRepository.IOnRecordsRetrievedListener
+    ) {
         navigateMin(myFilesArchiveNr, listener)
     }
 
-    override fun navigateMin(archiveNumber: String,
-                             listener: IFileRepository.IOnRecordsRetrievedListener) {
+    override fun navigateMin(
+        archiveNumber: String,
+        listener: IFileRepository.IOnRecordsRetrievedListener
+    ) {
         networkClient.navigateMin(prefsHelper.getCsrf(), archiveNumber)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(
@@ -75,15 +84,19 @@ class FileRepositoryImpl(application: Application): IFileRepository {
             })
     }
 
-    override fun getLeanItems(archiveNumber: String, childLinks: List<Int>,
-                              listener: IFileRepository.IOnRecordsRetrievedListener
+    override fun getLeanItems(
+        archiveNumber: String, childLinkIds: List<Int>,
+        listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        networkClient.getLeanItems(prefsHelper.getCsrf(), archiveNumber, childLinks)
+        networkClient.getLeanItems(prefsHelper.getCsrf(), archiveNumber, childLinkIds)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
+                    val folderVO = responseVO?.getFolderVO()
+                    folderVO?.folderId?.let { prefsHelper.saveFolderId(it) }
+                    folderVO?.folder_linkId?.let { prefsHelper.saveFolderLinkId(it) }
                     listener.onSuccess(responseVO?.getRecordVOs())
                 }
 
@@ -91,5 +104,43 @@ class FileRepositoryImpl(application: Application): IFileRepository {
                     listener.onFailed(t.message)
                 }
             })
+    }
+
+    override fun startUploading(file: File, displayName: String?, mediaType: MediaType): String {
+        val response = networkClient.createUploadMetaData(
+            prefsHelper.getCsrf(), file.name,
+            displayName, prefsHelper.getFolderId(), prefsHelper.getFolderLinkId()
+        ).execute()
+
+        val responseVO = response.body()
+        prefsHelper.saveCsrf(responseVO?.csrf)
+        val messages: MutableList<String?>? = responseVO?.getMessages()?.toMutableList()
+        val recordId = responseVO?.getRecordVO()?.recordId
+
+        if (messages == null || messages.isEmpty()) {
+            return context.getString(R.string.upload_record_not_created_error)
+        } else if (recordId == null) {
+            return messages[0]!!
+        }
+        uploadFile(file, displayName, mediaType, recordId, messages)
+
+        return STATUS_OK
+    }
+
+
+    override fun uploadFile(
+        file: File,
+        displayName: String?,
+        mediaType: MediaType,
+        recordId: Int,
+        messages: MutableList<String?>
+    ) {
+        val response = networkClient.uploadFile(file, mediaType, recordId).execute()
+        val responseBody = response.body()
+
+        if (responseBody?.string() == STATUS_OK) {
+            file.delete()
+            messages.add(STATUS_OK)
+        }
     }
 }

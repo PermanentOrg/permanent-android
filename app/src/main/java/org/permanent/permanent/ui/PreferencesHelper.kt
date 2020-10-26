@@ -10,6 +10,8 @@ const val PREFS_SAVED_ACCOUNT_ID = "preferences_saved_account_id"
 const val PREFS_SAVED_EMAIL = "preferences_saved_email"
 const val PREFS_SAVED_CSRF = "preferences_saved_csrf"
 const val PREFS_SAVED_MY_FILES_ARCHIVE_NR = "preferences_saved_my_files_archive_nr"
+const val PREFS_SAVED_FOLDER_ID = "preferences_saved_folder_id"
+const val PREFS_SAVED_FOLDER_LINK_ID = "preferences_saved_folder_link_id"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -83,5 +85,27 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getMyFilesArchiveNr(): String? {
         return sharedPreferences.getString(PREFS_SAVED_MY_FILES_ARCHIVE_NR, "")
+    }
+
+    fun saveFolderId(folderId: Int) {
+        with(sharedPreferences.edit()) {
+            putInt(PREFS_SAVED_FOLDER_ID, folderId)
+            apply()
+        }
+    }
+
+    fun getFolderId(): Int {
+        return sharedPreferences.getInt(PREFS_SAVED_FOLDER_ID, 0)
+    }
+
+    fun saveFolderLinkId(folderLinkId: Int) {
+        with(sharedPreferences.edit()) {
+            putInt(PREFS_SAVED_FOLDER_LINK_ID, folderLinkId)
+            apply()
+        }
+    }
+
+    fun getFolderLinkId(): Int {
+        return sharedPreferences.getInt(PREFS_SAVED_FOLDER_LINK_ID, 0)
     }
 }

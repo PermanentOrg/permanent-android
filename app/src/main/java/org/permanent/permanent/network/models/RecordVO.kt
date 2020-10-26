@@ -4,8 +4,15 @@ class RecordVO {
     var id: Int? = null
     var displayName: String? = null
     var displayDT: String? = null
+    var uploadFileName: String? = null
     var type: String? = null
     var typeEnum: Type? = null
+    var isFolder: Boolean? = null
+    var dataStatus: Int? = null
+    var isRecord: Boolean? = null
+    var isFetching: Boolean? = null
+    var parentFolderId: Int? = null
+    var parentFolder_linkId: Int? = null
     var folder_linkId: Int? = null
     var recordId: Int? = null
     var folderId: Int? = null
