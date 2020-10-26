@@ -50,21 +50,6 @@ class LoginFragment  : PermanentBaseFragment() {
             Constants.ERROR_MFA_TOKEN -> {
                 findNavController().navigate(R.id.action_loginFragment_to_codeVerificationFragment)
             }
-            Constants.ERROR_UNKNOWN_SIGNIN -> Toast.makeText(
-                context,
-                R.string.login_bad_credentials,
-                Toast.LENGTH_LONG
-            ).show()
-            Constants.ERROR_SERVER_ERROR -> Toast.makeText(
-                context,
-                R.string.server_error,
-                Toast.LENGTH_LONG
-            ).show()
-            Constants.ERROR_NO_API_KEY -> Toast.makeText(
-                context,
-                R.string.no_api_key,
-                Toast.LENGTH_LONG
-            ).show()
             else -> Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
         }
     }
@@ -98,6 +83,7 @@ class LoginFragment  : PermanentBaseFragment() {
             R.layout.dialog_forgot_password, null, false
         )
         dialogBinding.executePendingBindings()
+        dialogBinding.lifecycleOwner = this
         dialogViewModel = ViewModelProvider(this).get(ForgotPasswordViewModel::class.java)
         dialogBinding.viewModel = dialogViewModel
         val thisContext = context
@@ -112,8 +98,6 @@ class LoginFragment  : PermanentBaseFragment() {
                 if (email != null) {
                     fragmentViewModel.resetPassword(email)
                     alert.dismiss()
-                } else {
-                    Toast.makeText(context, R.string.invalid_email_error, Toast.LENGTH_LONG).show()
                 }
             }
             dialogBinding.btnCancel.setOnClickListener {

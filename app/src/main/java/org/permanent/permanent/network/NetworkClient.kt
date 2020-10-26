@@ -34,8 +34,10 @@ class NetworkClient(context: Context) {
         Constants.URL_UPLOAD_STAGING else Constants.URL_UPLOAD_PROD
 
     init {
-        val cookieJar: ClearableCookieJar = PersistentCookieJar(SetCookieCache(),
-            SharedPrefsCookiePersistor(context.applicationContext))
+        val cookieJar: ClearableCookieJar = PersistentCookieJar(
+            SetCookieCache(),
+            SharedPrefsCookiePersistor(context.applicationContext)
+        )
 
         val interceptor = HttpLoggingInterceptor()
         interceptor.level =
@@ -141,8 +143,17 @@ class NetworkClient(context: Context) {
         return fileService.getLeanItems(requestBody)
     }
 
-    fun createUploadMetaData(csrf: String?, fileName: String, displayName: String?, folderId: Int,
-                             folderLinkId: Int): Call<ResponseVO> {
+    fun createFolder(csrf: String?, name: String, folderId: Int, folderLinkId: Int): Call<ResponseVO> {
+        val json = toJson(RequestContainer(csrf).addFolder(name, folderId, folderLinkId))
+        val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
+
+        return fileService.createFolder(requestBody)
+    }
+
+    fun createUploadMetaData(
+        csrf: String?, fileName: String, displayName: String?, folderId: Int,
+        folderLinkId: Int
+    ): Call<ResponseVO> {
         val request =
             toJson(RequestContainer(csrf).addRecord(displayName, fileName, folderId, folderLinkId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -154,7 +165,8 @@ class NetworkClient(context: Context) {
         val recordIdRequestBody = recordId.toString().toRequestBody(MultipartBody.FORM)
         val fileRequestBody = file.asRequestBody(mediaType)
         val body: MultipartBody.Part = MultipartBody.Part.createFormData(
-            Constants.FORM_DATA_NAME_THE_FILE, file.name, fileRequestBody)
+            Constants.FORM_DATA_NAME_THE_FILE, file.name, fileRequestBody
+        )
 
         return fileService.upload(uploadUrl, recordIdRequestBody, body)
     }

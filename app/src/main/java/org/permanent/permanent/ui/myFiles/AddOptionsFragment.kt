@@ -10,18 +10,38 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogNewFolderBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
+import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.AddOptionsViewModel
+import org.permanent.permanent.viewmodels.NewFolderViewModel
 
-class AddOptionsFragment: BottomSheetDialogFragment(), View.OnClickListener {
+class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
 
     private lateinit var binding: FragmentAddOptionsBinding
     private lateinit var viewModel: AddOptionsViewModel
+    private lateinit var dialogViewModel: NewFolderViewModel
+    private lateinit var dialogBinding: DialogNewFolderBinding
+
+    private val onErrorStringId = Observer<Int> { errorId ->
+        val errorMessage = this.resources.getString(errorId)
+        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+    }
+
+    private val onErrorMessage = Observer<String> { errorMessage ->
+        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+    }
+
+    private val onFolderCreated = Observer<Void> {
+        super.dismiss()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,20 +53,43 @@ class AddOptionsFragment: BottomSheetDialogFragment(), View.OnClickListener {
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(AddOptionsViewModel::class.java)
         binding.viewModel = viewModel
+        dialogViewModel = ViewModelProvider(this).get(NewFolderViewModel::class.java)
+        binding.btnNewFolder.setOnClickListener(this)
         binding.btnUpload.setOnClickListener(this)
 
         return binding.root
     }
 
     override fun onClick(view: View) {
-        // on upload btn click
-        context?.let {
-            val permissionHelper = PermissionsHelper()
-            if (!permissionHelper.hasReadStoragePermission(it)) {
-                permissionHelper.requestReadStoragePermission(this)
-            } else {
-                startFileSelectionActivity()
+        when(view.id) {
+            R.id.btnNewFolder -> showNewFolderDialog()
+            R.id.btnUpload -> context?.let {
+                val permissionHelper = PermissionsHelper()
+                if (!permissionHelper.hasReadStoragePermission(it)) {
+                    permissionHelper.requestReadStoragePermission(this)
+                } else {
+                    startFileSelectionActivity()
+                }
             }
+        }
+    }
+
+    private fun showNewFolderDialog() {
+        dialogBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context),
+            R.layout.dialog_new_folder, null, false
+        )
+        dialogBinding.executePendingBindings()
+        dialogBinding.lifecycleOwner = this
+        dialogBinding.viewModel = dialogViewModel
+        val thisContext = context
+
+        if (thisContext != null) {
+            val alert = AlertDialog.Builder(thisContext)
+                .setView(dialogBinding.root)
+                .create()
+            dialogViewModel.setDialog(alert)
+            alert.show()
         }
     }
 
@@ -61,10 +104,7 @@ class AddOptionsFragment: BottomSheetDialogFragment(), View.OnClickListener {
                 ) {
                     startFileSelectionActivity()
                 } else {
-                    Toast.makeText(
-                        context, R.string.upload_no_permissions_error,
-                        Toast.LENGTH_LONG
-                    ).show()
+                    dialogViewModel.errorStringId.value = R.string.upload_no_permissions_error
                 }
         }
     }
@@ -100,5 +140,27 @@ class AddOptionsFragment: BottomSheetDialogFragment(), View.OnClickListener {
                 }
             }
         }
+    }
+
+    override fun connectViewModelEvents() {
+        dialogViewModel.getOnFolderCreated().observe(this, onFolderCreated)
+        dialogViewModel.getErrorStringId().observe(this, onErrorStringId)
+        dialogViewModel.getErrorMessage().observe(this, onErrorMessage)
+    }
+
+    override fun disconnectViewModelEvents() {
+        dialogViewModel.getOnFolderCreated().removeObserver(onFolderCreated)
+        dialogViewModel.getErrorStringId().removeObserver(onErrorStringId)
+        dialogViewModel.getErrorMessage().removeObserver(onErrorMessage)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
     }
 }

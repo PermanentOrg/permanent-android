@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.ForgotPasswordViewModel" />
+            type="org.permanent.permanent.viewmodels.NewFolderViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +24,7 @@
             android:gravity="center"
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
-            android:text="@string/login_screen_forgot_password"
+            android:text="@string/new_folder_title"
             android:textColor="@color/colorPrimary"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -35,7 +36,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutEmail"
+            android:id="@+id/layoutFolderName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -50,16 +51,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             app:layout_constraintVertical_bias="0.0"
-            app:setError="@{viewModel.emailError}">
+            app:setError="@{viewModel.nameError}">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etMail"
+                android:id="@+id/etFolderName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
-                android:hint="@string/login_screen_email_hint"
-                android:inputType="textEmailAddress"
-                android:text="@{viewModel.getCurrentEmail()}"
+                android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
+                android:hint="@string/new_folder_hint"
+                android:inputType="text"
+                android:text="@{viewModel.getCurrentFolderName()}"
                 android:textColor="@color/black"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -75,14 +76,15 @@
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/deepRed"
             android:text="@string/cancel_button"
+            android:onClick="@{() -> viewModel.onCancelBtnClick()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
+            app:layout_constraintTop_toBottomOf="@+id/layoutFolderName"
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnReset"
+            android:id="@+id/btnCreate"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="0dp"
             android:layout_height="56dp"
@@ -90,11 +92,12 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/reset_button"
+            android:text="@string/create_button"
+            android:onClick="@{() -> viewModel.onCreateBtnClick()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
+            app:layout_constraintTop_toBottomOf="@+id/layoutFolderName"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -104,5 +107,17 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.50" />
 
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:indeterminateTint="@color/colorPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="@{viewModel.getIsBusy() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
