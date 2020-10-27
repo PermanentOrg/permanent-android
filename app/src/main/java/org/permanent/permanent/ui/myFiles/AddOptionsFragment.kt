@@ -29,6 +29,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var viewModel: AddOptionsViewModel
     private lateinit var dialogViewModel: NewFolderViewModel
     private lateinit var dialogBinding: DialogNewFolderBinding
+    private lateinit var alertDialog: AlertDialog
 
     private val onErrorStringId = Observer<Int> { errorId ->
         val errorMessage = this.resources.getString(errorId)
@@ -40,6 +41,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     }
 
     private val onFolderCreated = Observer<Void> {
+        if (alertDialog != null && alertDialog.isShowing) alertDialog.dismiss()
         super.dismiss()
     }
 
@@ -85,11 +87,16 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         val thisContext = context
 
         if (thisContext != null) {
-            val alert = AlertDialog.Builder(thisContext)
+            alertDialog = AlertDialog.Builder(thisContext)
                 .setView(dialogBinding.root)
                 .create()
-            dialogViewModel.setDialog(alert)
-            alert.show()
+            dialogBinding.btnCreate.setOnClickListener {
+                dialogViewModel.createNewFolder()
+            }
+            dialogBinding.btnCancel.setOnClickListener {
+                alertDialog.dismiss()
+            }
+            alertDialog.show()
         }
     }
 

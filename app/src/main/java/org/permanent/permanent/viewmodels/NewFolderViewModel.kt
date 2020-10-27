@@ -2,7 +2,6 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.text.Editable
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
@@ -11,7 +10,6 @@ import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
 class NewFolderViewModel (application: Application) : ObservableAndroidViewModel(application) {
-    private lateinit var alertDialog: AlertDialog
     private val currentFolderName = MutableLiveData<String>()
     private val nameError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
@@ -19,10 +17,6 @@ class NewFolderViewModel (application: Application) : ObservableAndroidViewModel
     private val errorMessage = MutableLiveData<String>()
     val errorStringId = MutableLiveData<Int>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
-
-    fun setDialog(alert: AlertDialog) {
-       alertDialog = alert
-    }
 
     fun getCurrentFolderName(): MutableLiveData<String>? {
         return currentFolderName
@@ -63,7 +57,7 @@ class NewFolderViewModel (application: Application) : ObservableAndroidViewModel
         return name
     }
 
-    fun onCreateBtnClick() {
+    fun createNewFolder() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -76,13 +70,11 @@ class NewFolderViewModel (application: Application) : ObservableAndroidViewModel
                 object : IFileRepository.IOnFolderCreatedListener {
                     override fun onSuccess() {
                         isBusy.value = false
-                        alertDialog.dismiss()
                         onFolderCreated.call()
                     }
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        alertDialog.dismiss()
                         when (error) {
                             Constants.ERROR_SERVER_ERROR -> errorStringId.value =
                                 R.string.server_error
@@ -91,9 +83,5 @@ class NewFolderViewModel (application: Application) : ObservableAndroidViewModel
                     }
                 })
         }
-    }
-
-    fun onCancelBtnClick() {
-        alertDialog.dismiss()
     }
 }
