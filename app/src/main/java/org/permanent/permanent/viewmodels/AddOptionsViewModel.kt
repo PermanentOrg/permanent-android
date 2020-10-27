@@ -15,9 +15,6 @@ class AddOptionsViewModel(application: Application) : ObservableAndroidViewModel
     private val appContext = application.applicationContext
     private val workManager: WorkManager = WorkManager.getInstance()
 
-    fun onNewFolderBtnClick() {
-    }
-
     fun upload(originalUri: Uri) {
         appContext.contentResolver.takePersistableUriPermission(
             originalUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)

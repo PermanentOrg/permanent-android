@@ -29,5 +29,6 @@ class Constants {
         const val REQUEST_CODE_READ_STORAGE_PERMISSION = 124
         const val REQUEST_CODE_FILE_SELECT = 125
         const val FORM_DATA_NAME_THE_FILE = "thefile"
+        const val FOLDER_CREATED_PREFIX = "New folder"
     }
 }

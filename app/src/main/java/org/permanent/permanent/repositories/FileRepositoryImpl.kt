@@ -3,6 +3,7 @@ package org.permanent.permanent.repositories
 import android.content.Context
 import android.content.SharedPreferences
 import okhttp3.MediaType
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.RecordVO
@@ -104,6 +105,26 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                     listener.onFailed(t.message)
                 }
             })
+    }
+
+    override fun createFolder(name: String, listener: IFileRepository.IOnFolderCreatedListener) {
+        networkClient.createFolder(prefsHelper.getCsrf(), name, prefsHelper.getFolderId(),
+            prefsHelper.getFolderLinkId()).enqueue(object : Callback<ResponseVO> {
+
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                prefsHelper.saveCsrf(responseVO?.csrf)
+                val firstMessage = responseVO?.getMessages()?.get(0)
+
+                if (firstMessage != null && firstMessage.startsWith(Constants.FOLDER_CREATED_PREFIX))
+                    listener.onSuccess()
+                else listener.onFailed(context.getString(R.string.upload_folder_not_created_error))
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
     }
 
     override fun startUploading(file: File, displayName: String?, mediaType: MediaType): String {

@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAuthenticationRepository
@@ -115,7 +116,13 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                errorMessage.value = error
+                when (error) {
+                    Constants.ERROR_UNKNOWN_SIGNIN -> errorStringId.value =
+                        R.string.login_bad_credentials
+                    Constants.ERROR_SERVER_ERROR -> errorStringId.value =
+                        R.string.server_error
+                    else -> errorMessage.value = error
+                }
             }
         })
     }
@@ -145,7 +152,11 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                errorMessage.value = error
+                when (error) {
+                    Constants.ERROR_SERVER_ERROR -> errorStringId.value =
+                        R.string.server_error
+                    else -> errorMessage.value = error
+                }
             }
         })
     }

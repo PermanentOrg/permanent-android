@@ -10,6 +10,7 @@ interface IFileRepository {
     fun navigateMin(archiveNumber: String, listener: IOnRecordsRetrievedListener)
     fun getLeanItems(archiveNumber: String, childLinkIds: List<Int>,
                      listener: IOnRecordsRetrievedListener)
+    fun createFolder(name: String, listener: IOnFolderCreatedListener)
     fun startUploading(file: File, displayName: String?, mediaType: MediaType): String
     fun uploadFile(
         file: File,
@@ -26,6 +27,11 @@ interface IFileRepository {
 
     interface IOnRecordsRetrievedListener {
         fun onSuccess(records: List<RecordVO>?)
+        fun onFailed(error: String?)
+    }
+
+    interface IOnFolderCreatedListener {
+        fun onSuccess()
         fun onFailed(error: String?)
     }
 }

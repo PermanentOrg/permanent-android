@@ -33,7 +33,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/superLightGrey"
-            android:onClick="@{() -> viewModel.onNewFolderBtnClick()}"
             android:text="@string/add_options_menu_item_new_folder"
             android:textColor="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"

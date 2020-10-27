@@ -18,12 +18,17 @@ interface IFileService {
     @POST("folder/getLeanItems")
     fun getLeanItems(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/post")
+    fun createFolder(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("record/postMetaBatch")
     fun postMeta(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @Multipart
     @POST
-    fun upload(@Url url: String, @Part("recordid") requestBody: RequestBody,
+    fun upload(
+        @Url url: String,
+        @Part("recordid") requestBody: RequestBody,
         @Part file: MultipartBody.Part
     ): Call<ResponseBody>
 }
