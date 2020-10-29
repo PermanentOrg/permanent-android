@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.Constants
@@ -29,7 +30,8 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var viewModel: AddOptionsViewModel
     private lateinit var dialogViewModel: NewFolderViewModel
     private lateinit var dialogBinding: DialogNewFolderBinding
-    private lateinit var alertDialog: AlertDialog
+    private var alertDialog: AlertDialog? = null
+    private val uploadsList = MutableLiveData<List<Uri>>()
 
     private val onErrorStringId = Observer<Int> { errorId ->
         val errorMessage = this.resources.getString(errorId)
@@ -41,8 +43,10 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     }
 
     private val onFolderCreated = Observer<Void> {
-        if (alertDialog != null && alertDialog.isShowing) alertDialog.dismiss()
-        super.dismiss()
+        (parentFragment?.childFragmentManager?.fragments?.get(0) as MyFilesFragment)
+            .refreshCurrentFolder()
+        alertDialog?.dismiss()
+        dismiss()
     }
 
     override fun onCreateView(
@@ -94,9 +98,9 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
                 dialogViewModel.createNewFolder()
             }
             dialogBinding.btnCancel.setOnClickListener {
-                alertDialog.dismiss()
+                alertDialog?.dismiss()
             }
-            alertDialog.show()
+            alertDialog?.show()
         }
     }
 
@@ -129,24 +133,31 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, intent)
         when (requestCode) {
             Constants.REQUEST_CODE_FILE_SELECT -> if (resultCode == Activity.RESULT_OK) {
-
                 if (intent?.data != null) {
-                    viewModel.upload(intent.data!!)
-
+                    uploadsList.value = listOf(intent.data!!)
                 } else if (intent?.clipData != null) {
-                    val clipData: ClipData = intent.clipData!!
-                    val itemCount = clipData.itemCount
-                    val uris: MutableList<Uri> = ArrayList()
-                    var i = 0
-                    while (i < itemCount) {
-                        val originalUri = clipData.getItemAt(i).uri
-                        uris.add(originalUri)
-                        i++
-                    }
-                    viewModel.upload(uris)
+                    uploadsList.value = getUris(intent)
                 }
+                dismiss()
             }
         }
+    }
+
+    private fun getUris(intent: Intent): List<Uri> {
+        val clipData: ClipData = intent.clipData!!
+        val itemCount = clipData.itemCount
+        val uris: MutableList<Uri> = ArrayList()
+        var i = 0
+        while (i < itemCount) {
+            val originalUri = clipData.getItemAt(i).uri
+            uris.add(originalUri)
+            i++
+        }
+        return uris
+    }
+
+    fun getOnUploadsSelected(): MutableLiveData<List<Uri>> {
+        return uploadsList
     }
 
     override fun connectViewModelEvents() {

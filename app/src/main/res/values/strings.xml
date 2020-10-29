@@ -108,4 +108,6 @@
     <string name="create_button">Create</string>
     <string name="new_folder_title">Create New Folder</string>
     <string name="new_folder_hint">Folder Name</string>
+    <string name="my_files_uploads_title">Uploads</string>
+    <string name="my_files_uploads_waiting">Waiting…</string>
 </resources>

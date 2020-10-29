@@ -18,7 +18,7 @@ fun loadImage(view: ImageView, fileType: RecordVO.Type, url: String?) {
     if (fileType == RecordVO.Type.Folder) {
         view.setImageResource(R.drawable.ic_folder_barney_purple)
     } else {
-        Picasso.get().load(url).placeholder(R.drawable.ic_photo_middle_grey).fit().into(view)
+        Picasso.get().load(url).placeholder(R.drawable.ic_photo_barney_purple).fit().into(view)
     }
 }
 
