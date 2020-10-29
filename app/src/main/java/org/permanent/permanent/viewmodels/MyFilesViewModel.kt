@@ -23,6 +23,7 @@ import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -237,10 +238,22 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun removeUpload(upload: Upload?) {
         uploadsAdapter.remove(upload)
+        addFakeFileToAdapter(upload)
+
         if (uploadsAdapter.itemCount == 0) {
             existsUploads.value = false
             refreshCurrentFolder()
         }
+    }
+
+    private fun addFakeFileToAdapter(upload: Upload?) {
+        val sdf = SimpleDateFormat("yyyy-M-dd")
+        val currentDate = sdf.format(Date())
+        val fakeFile = RecordVO()
+        fakeFile.displayDT = currentDate
+        fakeFile.displayName = upload?.displayName
+        fakeFile.typeEnum = RecordVO.Type.Image
+        filesAdapter.add(fakeFile)
     }
 
     fun refreshUploadsAdapter() {
