@@ -44,7 +44,20 @@ class MyFilesFragment : PermanentBaseFragment(), View.OnClickListener {
     }
 
     private val onUploadsSelected = Observer<List<Uri>> { uploadsList ->
-        viewModel.upload(uploadsList)
+        val uploadWorkInfos = viewModel.upload(uploadsList)
+
+        for (workInfoLiveData in uploadWorkInfos) {
+            workInfoLiveData.observe(this, {
+                val uploadById = viewModel.getUploadById(it.id)
+
+                if (it.state.isFinished) {
+                    viewModel.removeUpload(uploadById)
+                } else {
+                    uploadById?.setState(it.state)
+                    viewModel.refreshUploadsAdapter()
+                }
+            })
+        }
     }
 
     fun refreshCurrentFolder() {

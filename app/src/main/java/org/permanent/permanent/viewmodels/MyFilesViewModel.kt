@@ -38,7 +38,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onErrorMessage = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<RecordVO> = Stack()
-    private var uploadsAdapter: UploadsAdapter = UploadsAdapter(this)
+    private var uploadsAdapter: UploadsAdapter = UploadsAdapter(appContext, this)
     private var filesAdapter: FilesAdapter = FilesAdapter(this, this)
     private lateinit var currentFolder: RecordVO
     private lateinit var uploadsRecyclerView: RecyclerView
@@ -56,11 +56,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = uploadsAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL)
-            )
         }
     }
 
@@ -197,46 +192,59 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         getChildRecordsOf(parentRecord)
     }
 
-    private val workInfosLiveData
-            = workManager.getWorkInfosByTagLiveData(WORKER_TAG_UPLOAD)
-
-    fun getWorkInfos(): LiveData<MutableList<WorkInfo>> {
-        return workInfosLiveData
-    }
-
-    fun upload(uris: List<Uri>) {
+    fun upload(uris: List<Uri>): List<LiveData<WorkInfo>> {
         if (uris.isNotEmpty()) {
             for (uri in uris) {
                 appContext.contentResolver.takePersistableUriPermission(
                     uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            setupUploadWorkers(uris)
+            existsUploads.value = true
+            return setupUploadWorkers(uploadsAdapter.set(uris)).map {
+                workManager.getWorkInfoByIdLiveData(it.uploadId) }
         }
+        return emptyList()
     }
 
-    private fun setupUploadWorkers(uris: List<Uri>) {
-        if (uris.isNotEmpty()) {
-            val firstUploadRequest = getUploadRequest(uris[0])
+    private fun setupUploadWorkers(uploads: List<Upload>): List<Upload> {
+        if (uploads.isNotEmpty()) {
+            var workContinuation = workManager.beginWith(getUploadRequest(uploads[0]))
 
-            if (uris.size == 1) {
-                workManager.enqueue(firstUploadRequest)
-            } else {
-                var workContinuation = workManager.beginWith(firstUploadRequest)
-                for (i in 1 until uris.size) {
-                    workContinuation = workContinuation.then(getUploadRequest(uris[i]))
-                }
-                workContinuation.enqueue()
+            for (i in 1 until uploads.size) {
+                workContinuation = workContinuation.then(getUploadRequest(uploads[i]))
             }
+            workContinuation.enqueue()
         }
+        return uploads
     }
 
-    private fun getUploadRequest(uri: Uri): OneTimeWorkRequest {
-        val builder = Data.Builder().apply { putString(WORKER_INPUT_URI_KEY, uri.toString()) }
-
-        return OneTimeWorkRequest.Builder(UploadWorker::class.java)
+    private fun getUploadRequest(upload: Upload): OneTimeWorkRequest {
+        val builder = Data.Builder().apply { putString(WORKER_INPUT_URI_KEY, upload.uri.toString()) }
+        val workRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java)
             .addTag(WORKER_TAG_UPLOAD)
             .setInputData(builder.build())
             .build()
+        upload.setId(workRequest.id)
+
+        return workRequest
+    }
+
+    fun getUploadById(id: UUID): Upload? {
+        for(upload in uploadsAdapter.getUploads()) {
+            if (upload.uploadId == id) return upload
+        }
+        return null
+    }
+
+    fun removeUpload(upload: Upload?) {
+        uploadsAdapter.remove(upload)
+        if (uploadsAdapter.itemCount == 0) {
+            existsUploads.value = false
+            refreshCurrentFolder()
+        }
+    }
+
+    fun refreshUploadsAdapter() {
+        uploadsAdapter.notifyDataSetChanged()
     }
 
     override fun onCancelClick(upload: Upload) {
