@@ -1,6 +1,5 @@
 package org.permanent.permanent.viewmodels
 
-import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import androidx.fragment.app.Fragment
@@ -21,9 +20,9 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
     private var prefsHelper = PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
     private var goldFinger = Goldfinger.Builder(context).build()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onNavigateToSettings = SingleLiveEvent<Void>()
     private val onNavigateToMainActivity = SingleLiveEvent<Void>()
     private val onNavigateToLoginFragment = SingleLiveEvent<Void>()
+    private val onShowOpenSettingsQuestionDialog = SingleLiveEvent<Void>()
     private val errorMessage = MutableLiveData<String>()
     private val errorStringId = MutableLiveData<Int>()
     private lateinit var promptParams: Goldfinger.PromptParams
@@ -59,16 +58,16 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
         return isBusy
     }
 
-    fun getOnNavigateToSettings(): LiveData<Void> {
-        return onNavigateToSettings
-    }
-
     fun getOnNavigateToMainActivity(): LiveData<Void> {
         return onNavigateToMainActivity
     }
 
     fun getOnNavigateToLoginFragment(): LiveData<Void> {
         return onNavigateToLoginFragment
+    }
+
+    fun getOnShowOpenSettingsQuestionDialog(): LiveData<Void> {
+        return onShowOpenSettingsQuestionDialog
     }
 
     fun getErrorMessage(): LiveData<String> {
@@ -104,7 +103,7 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
             Goldfinger.Reason.USER_CANCELED -> messageId = 0
             Goldfinger.Reason.AUTHENTICATION_START -> messageId = 0
             Goldfinger.Reason.AUTHENTICATION_SUCCESS -> onNavigateToMainActivity.call()
-            Goldfinger.Reason.NO_BIOMETRICS -> showOpenSettingsQuestionDialog()
+            Goldfinger.Reason.NO_BIOMETRICS -> onShowOpenSettingsQuestionDialog.call()
             Goldfinger.Reason.HW_NOT_PRESENT ->
                 messageId = R.string.login_biometric_error_no_biometric_hardware
             Goldfinger.Reason.HARDWARE_UNAVAILABLE ->
@@ -125,20 +124,6 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
             Goldfinger.Reason.UNKNOWN -> messageId = R.string.login_biometric_error_failed
         }
         if (messageId != 0) errorStringId.value = messageId
-    }
-
-    private fun showOpenSettingsQuestionDialog() {
-        val alertDialog: AlertDialog? = context.let {
-            val builder = AlertDialog.Builder(it)
-            builder.apply {
-                setTitle(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_title))
-                setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
-                setPositiveButton(R.string.yes_button) { _, _ -> onNavigateToSettings.call() }
-                setNegativeButton(R.string.cancel_button) { _, _ -> }
-            }
-            builder.create()
-        }
-        alertDialog?.show()
     }
 
     fun logout() {

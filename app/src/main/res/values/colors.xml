@@ -11,7 +11,8 @@
     <color name="paleGreen">#CAE5C9</color>
     <color name="dullGreen">#82B15F</color>
     <color name="white">#FFFFFF</color>
-    <color name="lightGrey">#B4B4B4</color>
     <color name="superLightGrey">#EBEBEB</color>
+    <color name="lightGrey">#B4B4B4</color>
+    <color name="middleGrey">#606060</color>
     <color name="black">#000000</color>
 </resources>

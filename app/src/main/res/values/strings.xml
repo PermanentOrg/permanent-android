@@ -84,7 +84,8 @@
     <string name="my_files_sort_criteria_name">Name</string>
     <string name="my_files_sort_criteria_date">Date</string>
     <string name="my_files_sort_criteria_file_type">File Type</string>
-    <string name="my_files_no_files">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
+    <string name="my_files_no_files_root">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
+    <string name="my_files_no_files">This folder is empty</string>
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
     <string name="file_options_menu_item_download">Download</string>

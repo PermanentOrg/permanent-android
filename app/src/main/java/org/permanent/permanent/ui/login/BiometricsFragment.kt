@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.login
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -20,15 +21,15 @@ class BiometricsFragment : PermanentBaseFragment() {
     private lateinit var viewModel: BiometricsViewModel
     private lateinit var binding: FragmentBiometricsBinding
 
-    private val onNavigateToSettings = Observer<Void> {
-        startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
-    }
     private val onNavigateToMainActivity = Observer<Void> {
         findNavController().navigate(R.id.action_biometricsFragment_to_mainActivity)
         activity?.finish()
     }
     private val onNavigateToLoginFragment = Observer<Void> {
         findNavController().navigate(R.id.action_biometricsFragment_to_loginFragment)
+    }
+    private val onShowOpenSettingsQuestionDialog = Observer<Void> {
+        showOpenSettingsQuestionDialog()
     }
     private val onErrorMessage = Observer<String> { errorMessage ->
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
@@ -57,18 +58,30 @@ class BiometricsFragment : PermanentBaseFragment() {
         return binding.root
     }
 
+    private fun showOpenSettingsQuestionDialog() {
+        AlertDialog.Builder(context).apply {
+            setTitle(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_title))
+            setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
+            setPositiveButton(R.string.yes_button) { _, _ ->
+                startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) }
+            setNegativeButton(R.string.cancel_button) { _, _ -> }
+            create()
+            show()
+        }
+    }
+
     override fun connectViewModelEvents() {
-        viewModel.getOnNavigateToSettings().observe(this, onNavigateToSettings)
         viewModel.getOnNavigateToMainActivity().observe(this, onNavigateToMainActivity)
         viewModel.getOnNavigateToLoginFragment().observe(this, onNavigateToLoginFragment)
+        viewModel.getOnShowOpenSettingsQuestionDialog().observe(this, onShowOpenSettingsQuestionDialog)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
         viewModel.getErrorStringId().observe(this, onErrorStringId)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnNavigateToSettings().removeObserver(onNavigateToSettings)
         viewModel.getOnNavigateToMainActivity().removeObserver(onNavigateToMainActivity)
         viewModel.getOnNavigateToLoginFragment().removeObserver(onNavigateToLoginFragment)
+        viewModel.getOnShowOpenSettingsQuestionDialog().removeObserver(onShowOpenSettingsQuestionDialog)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
         viewModel.getErrorStringId().removeObserver(onErrorStringId)
     }
