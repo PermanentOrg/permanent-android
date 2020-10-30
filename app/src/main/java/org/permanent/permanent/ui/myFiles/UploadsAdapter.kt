@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemUploadBinding
 import org.permanent.permanent.models.Upload
+import java.util.*
+import kotlin.collections.ArrayList
 
 class UploadsAdapter(
     val context: Context,
@@ -25,22 +27,16 @@ class UploadsAdapter(
     }
 
     fun set(uriList: List<Uri>): List<Upload> {
-        uploads = getUploads(uriList)
+        uploads = uriList.map { Upload(context, it) }.toMutableList()
         notifyDataSetChanged()
         return uploads
     }
 
-    private fun getUploads(uriList: List<Uri>): MutableList<Upload> {
-        val uploadList: MutableList<Upload> = ArrayList()
-
-        for (uri in uriList) {
-            uploadList.add(Upload(context, uri))
+    fun getUploadById(id: UUID): Upload? {
+        for(upload in uploads) {
+            if (upload.uuid == id) return upload
         }
-        return uploadList
-    }
-
-    fun getUploads(): List<Upload> {
-        return uploads
+        return null
     }
 
     override fun getItemCount() = uploads.size

@@ -37,25 +37,18 @@ class MyFilesFragment : PermanentBaseFragment(), View.OnClickListener {
         return binding.root
     }
 
+    // On fabAdd click
     override fun onClick(view: View) {
-        // On FAB click
         addOptionsFragment = AddOptionsFragment()
         addOptionsFragment?.show(parentFragmentManager, addOptionsFragment?.tag)
     }
 
-    private val onUploadsSelected = Observer<List<Uri>> { uploadsList ->
-        val uploadWorkInfos = viewModel.upload(uploadsList)
+    private val onFilesSelectedToUpload = Observer<List<Uri>> { files ->
+        val uploadWorkInfos = viewModel.upload(files)
 
         for (workInfoLiveData in uploadWorkInfos) {
             workInfoLiveData.observe(this, {
-                val uploadById = viewModel.getUploadById(it.id)
-
-                if (it.state.isFinished) {
-                    viewModel.removeUpload(uploadById)
-                } else {
-                    uploadById?.setState(it.state)
-                    viewModel.refreshUploadsAdapter()
-                }
+                viewModel.onUploadStateChanged(it.id, it.state)
             })
         }
     }
@@ -65,11 +58,11 @@ class MyFilesFragment : PermanentBaseFragment(), View.OnClickListener {
     }
 
     override fun connectViewModelEvents() {
-        addOptionsFragment?.getOnUploadsSelected()?.observe(this, onUploadsSelected)
+        addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
     override fun disconnectViewModelEvents() {
-        addOptionsFragment?.getOnUploadsSelected()?.removeObserver(onUploadsSelected)
+        addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
     }
 
     override fun onResume() {

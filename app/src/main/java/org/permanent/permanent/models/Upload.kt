@@ -3,7 +3,6 @@ package org.permanent.permanent.models
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import java.io.IOException
@@ -11,7 +10,7 @@ import java.util.*
 
 
 class Upload(context: Context, val uri: Uri) {
-    lateinit var uploadId: UUID
+    lateinit var uuid: UUID
     val displayName: String? = getName(context, uri)
     val isUploading = MutableLiveData(false)
 
@@ -32,11 +31,10 @@ class Upload(context: Context, val uri: Uri) {
     }
 
     fun setId(id: UUID) {
-        uploadId = id
+        uuid = id
     }
 
     fun setState(state: WorkInfo.State) {
-        Log.d("Upload", state.name + uploadId)
         isUploading.value = (state == WorkInfo.State.ENQUEUED || state == WorkInfo.State.RUNNING)
     }
 }

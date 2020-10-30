@@ -1,5 +1,6 @@
 package org.permanent.permanent.viewmodels
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
@@ -199,9 +200,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 appContext.contentResolver.takePersistableUriPermission(
                     uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
+            val uploads = uploadsAdapter.set(uris)
+            val uploadsWithWorkIds = setupUploadWorkers(uploads)
             existsUploads.value = true
-            return setupUploadWorkers(uploadsAdapter.set(uris)).map {
-                workManager.getWorkInfoByIdLiveData(it.uploadId) }
+            return uploadsWithWorkIds.map { workManager.getWorkInfoByIdLiveData(it.uuid) }
         }
         return emptyList()
     }
@@ -229,24 +231,28 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return workRequest
     }
 
-    fun getUploadById(id: UUID): Upload? {
-        for(upload in uploadsAdapter.getUploads()) {
-            if (upload.uploadId == id) return upload
+    fun onUploadStateChanged(uploadId: UUID, state: WorkInfo.State) {
+        val upload = uploadsAdapter.getUploadById(uploadId)
+
+        if (state.isFinished) {
+            remove(upload)
+            addFakeItemToFilesList(upload)
+        } else {
+            upload?.setState(state)
+            uploadsAdapter.notifyDataSetChanged()
         }
-        return null
     }
 
-    fun removeUpload(upload: Upload?) {
+    private fun remove(upload: Upload?) {
         uploadsAdapter.remove(upload)
-        addFakeFileToAdapter(upload)
-
         if (uploadsAdapter.itemCount == 0) {
             existsUploads.value = false
             refreshCurrentFolder()
         }
     }
 
-    private fun addFakeFileToAdapter(upload: Upload?) {
+    @SuppressLint("SimpleDateFormat")
+    private fun addFakeItemToFilesList(upload: Upload?) {
         val sdf = SimpleDateFormat("yyyy-M-dd")
         val currentDate = sdf.format(Date())
         val fakeFile = RecordVO()
@@ -254,10 +260,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         fakeFile.displayName = upload?.displayName
         fakeFile.typeEnum = RecordVO.Type.Image
         filesAdapter.add(fakeFile)
-    }
-
-    fun refreshUploadsAdapter() {
-        uploadsAdapter.notifyDataSetChanged()
     }
 
     override fun onCancelClick(upload: Upload) {
