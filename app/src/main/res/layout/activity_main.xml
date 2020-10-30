@@ -48,18 +48,18 @@
                     app:navGraph="@navigation/main_activity_navigation" />
             </LinearLayout>
 
-            <com.google.android.material.navigation.NavigationView
-                android:id="@+id/settingsNavigationView"
-                android:layout_width="250dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="end"
-                app:headerLayout="@layout/nav_settings_header"
-                app:itemTextAppearance="@style/customDrawerTextStyle"
-                app:itemTextColor="@color/colorPrimary"
-                app:menu="@menu/menu_settings_drawer" />
+<!--            <com.google.android.material.navigation.NavigationView-->
+<!--                android:id="@+id/settingsNavigationView"-->
+<!--                android:layout_width="250dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_gravity="end"-->
+<!--                app:headerLayout="@layout/nav_settings_header"-->
+<!--                app:itemTextAppearance="@style/customDrawerTextStyle"-->
+<!--                app:itemTextColor="@color/colorPrimary"-->
+<!--                app:menu="@menu/menu_settings_drawer" />-->
 
             <com.google.android.material.navigation.NavigationView
-                android:id="@+id/mainActivityNavigationView"
+                android:id="@+id/accountNavigationView"
                 android:layout_width="250dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"

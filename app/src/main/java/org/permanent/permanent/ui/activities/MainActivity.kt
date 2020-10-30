@@ -42,10 +42,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
-        headerSettingsBinding.viewModel = viewModel
+//        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
+//        headerSettingsBinding.viewModel = viewModel
 
-        headerBinding = NavMainHeaderBinding.bind(binding.mainActivityNavigationView.getHeaderView(0))
+        headerBinding = NavMainHeaderBinding.bind(binding.accountNavigationView.getHeaderView(0))
         headerBinding.viewModel = viewModel
 
         val navHostFragment =
@@ -59,12 +59,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         appBarConfiguration =
             AppBarConfiguration(topLevelDestination, binding.mainActivityDrawerLayout)
 
-        binding.mainActivityNavigationView.setupWithNavController(navigationController)
-        binding.settingsNavigationView.setupWithNavController(navigationController)
+        binding.accountNavigationView.setupWithNavController(navigationController)
+//        binding.settingsNavigationView.setupWithNavController(navigationController)
         binding.mainToolbar.setupWithNavController(navigationController, appBarConfiguration)
         setUpListeners()
-        binding.mainToolbar.inflateMenu(R.menu.menu_toolbar_settings)
-        binding.mainToolbar.setOnMenuItemClickListener(this)
+//        binding.mainToolbar.inflateMenu(R.menu.menu_toolbar_settings)
+//        binding.mainToolbar.setOnMenuItemClickListener(this)
 
         sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefsHelper = PreferencesHelper(sharedPrefs)
