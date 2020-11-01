@@ -25,9 +25,8 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
     private val onShowOpenSettingsQuestionDialog = SingleLiveEvent<Void>()
     private val errorMessage = MutableLiveData<String>()
     private val errorStringId = MutableLiveData<Int>()
-    private lateinit var promptParams: Goldfinger.PromptParams
-
     private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
+    private lateinit var promptParams: Goldfinger.PromptParams
 
     init {
         if(skipLogin()) {

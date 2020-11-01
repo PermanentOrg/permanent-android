@@ -1,14 +1,17 @@
 package org.permanent.permanent.ui.activities
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -21,6 +24,7 @@ import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
@@ -33,6 +37,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navigationController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private val onNavigateToLogin = Observer<Void> {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+    private val onErrorMessage = Observer<String> { errorMessage ->
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,7 +104,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         alert.show()
     }
 
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
+    override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
         binding.mainActivityDrawerLayout.openDrawer(GravityCompat.END)
         return true
     }
@@ -104,10 +116,22 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     override fun connectViewModelEvents() {
-
+        viewModel.getOnNavigateToLoginFragment().observe(this, onNavigateToLogin)
+        viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnNavigateToLoginFragment().removeObserver(onNavigateToLogin)
+        viewModel.getErrorMessage().removeObserver(onErrorMessage)
+    }
 
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
     }
 }

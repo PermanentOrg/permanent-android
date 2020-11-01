@@ -71,6 +71,20 @@
                 app:itemTextColor="@color/white"
                 app:menu="@menu/menu_navigation_drawer"
                 app:theme="@style/customDrawerStyle" />
+
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/progressBar"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:indeterminate="true"
+                android:visibility="@{viewModel.getIsBusy() ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnUseCredentials"
+                app:layout_constraintVertical_bias="0.0" />
         </androidx.drawerlayout.widget.DrawerLayout>
     </LinearLayout>
 </layout>
