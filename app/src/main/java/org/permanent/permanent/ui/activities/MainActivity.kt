@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -54,24 +53,24 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-//        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
-//        headerSettingsBinding.viewModel = viewModel
-
         headerBinding = NavMainHeaderBinding.bind(binding.accountNavigationView.getHeaderView(0))
         headerBinding.viewModel = viewModel
+//        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
+//        headerSettingsBinding.viewModel = viewModel
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainActivityNavHostFragment) as NavHostFragment
         navigationController = navHostFragment.navController
 
-        val topLevelDestination = setOf(
-            R.id.myFilesFragment,
-            R.id.sharesFragment
-        )
+        val topLevelDestination = setOf(R.id.myFilesFragment, R.id.sharesFragment)
         appBarConfiguration =
             AppBarConfiguration(topLevelDestination, binding.mainActivityDrawerLayout)
 
         binding.accountNavigationView.setupWithNavController(navigationController)
+        binding.accountNavigationView.setNavigationItemSelectedListener { item ->
+            if (item.itemId == R.id.logout) viewModel.logout()
+            true
+        }
 //        binding.settingsNavigationView.setupWithNavController(navigationController)
         binding.mainToolbar.setupWithNavController(navigationController, appBarConfiguration)
         setUpListeners()
@@ -104,8 +103,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         alert.show()
     }
 
+    // On settings icon click
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
-        binding.mainActivityDrawerLayout.openDrawer(GravityCompat.END)
+//        binding.mainActivityDrawerLayout.openDrawer(GravityCompat.END)
         return true
     }
 

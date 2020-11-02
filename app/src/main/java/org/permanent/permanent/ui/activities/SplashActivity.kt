@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySplashBinding
+import org.permanent.permanent.ui.IS_USER_LOGGED_IN
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
@@ -36,7 +37,7 @@ class SplashActivity : PermanentBaseActivity() {
         prefsHelper.saveUserLoggedIn(isLoggedIn)
 
         if (!isLoggedIn && !prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
-         else startLoginActivity()
+         else startLoginActivity(isLoggedIn)
     }
 
     override fun connectViewModelEvents() {
@@ -62,8 +63,10 @@ class SplashActivity : PermanentBaseActivity() {
         finish()
     }
 
-    private fun startLoginActivity() {
-        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+    private fun startLoginActivity(isLoggedIn: Boolean) {
+        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
+        intent.putExtra(IS_USER_LOGGED_IN, isLoggedIn)
+        startActivity(intent)
         finish()
     }
 }
