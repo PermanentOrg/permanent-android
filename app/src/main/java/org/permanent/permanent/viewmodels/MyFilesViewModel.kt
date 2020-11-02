@@ -1,25 +1,38 @@
 package org.permanent.permanent.viewmodels
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
-    FileClickListener, FileOptionsClickListener {
-
+    UploadCancelClickListener, FileClickListener, FileOptionsClickListener {
+    private val appContext = application.applicationContext
+    private val workManager: WorkManager = WorkManager.getInstance()
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
+    private val existsUploads = MutableLiveData(false)
     private val existsFiles = MutableLiveData(false)
     private val isRoot = MutableLiveData(true)
     private val currentSearchQuery = MutableLiveData<String>()
@@ -27,16 +40,33 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onErrorMessage = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<RecordVO> = Stack()
-    private var viewAdapter: FilesAdapter = FilesAdapter(this, this)
-    private lateinit var recyclerView: RecyclerView
+    private var uploadsAdapter: UploadsAdapter = UploadsAdapter(appContext, this)
+    private var filesAdapter: FilesAdapter = FilesAdapter(this, this)
+    private lateinit var currentFolder: RecordVO
+    private lateinit var uploadsRecyclerView: RecyclerView
+    private lateinit var filesRecyclerView: RecyclerView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
 
-    fun initRecyclerView(rvFiles: RecyclerView) {
-        recyclerView = rvFiles
-        recyclerView.apply {
+    fun set(fragmentManager: FragmentManager) {
+        this.fragmentManager = fragmentManager
+    }
+
+    fun initUploadsRecyclerView(rvUploads: RecyclerView) {
+        uploadsRecyclerView = rvUploads
+        uploadsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
-            adapter = viewAdapter
+            adapter = uploadsAdapter
+        }
+    }
+
+    fun initFilesRecyclerView(rvFiles: RecyclerView) {
+        filesRecyclerView = rvFiles
+        filesRecyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = filesAdapter
             addItemDecoration(
                 DividerItemDecoration(
                     this.context,
@@ -45,62 +75,65 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         }
     }
 
-    fun set(fragmentManager: FragmentManager) {
-        this.fragmentManager = fragmentManager
-    }
-
-    init {
+    fun initSwipeRefreshLayout(refreshLayout: SwipeRefreshLayout) {
+        this.swipeRefreshLayout = refreshLayout
+        swipeRefreshLayout.setOnRefreshListener { refreshCurrentFolder() }
         populateMyFiles()
     }
 
+    fun refreshCurrentFolder() {
+        getChildRecordsOf(currentFolder)
+    }
+
     private fun populateMyFiles() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-        isBusy.value = true
+        swipeRefreshLayout.isRefreshing = true
         fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
             override fun onSuccess(myFilesRecord: RecordVO) {
-                isBusy.value = false
+                swipeRefreshLayout.isRefreshing = false
+                currentFolder = myFilesRecord
+                folderPathStack.push(currentFolder)
                 getChildRecordsOf(myFilesRecord)
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
+                swipeRefreshLayout.isRefreshing = false
                 onErrorMessage.value = error
             }
         })
     }
 
     private fun getChildRecordsOf(parentRecord: RecordVO) {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
         parentRecord.archiveNbr?.let {
-            isBusy.value = true
-            folderPathStack.push(parentRecord)
-            fileRepository.getChildRecordsOf(it, object : IFileRepository.IOnRecordsRetrievedListener {
-                override fun onSuccess(records: List<RecordVO>?) {
-                    isBusy.value = false
-                    val parentName = parentRecord.displayName
-                    folderName.value = parentName
-                    isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER)
+            swipeRefreshLayout.isRefreshing = true
+            fileRepository.getChildRecordsOf(
+                it,
+                object : IFileRepository.IOnRecordsRetrievedListener {
+                    override fun onSuccess(records: List<RecordVO>?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        val parentName = parentRecord.displayName
+                        folderName.value = parentName
+                        isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER)
 
-                    if (records != null) {
-                        existsFiles.value = records.isNotEmpty()
-                        viewAdapter.set(records)
+                        if (records != null) {
+                            existsFiles.value = records.isNotEmpty()
+                            filesAdapter.set(records)
+                        }
                     }
-                }
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    onErrorMessage.value = error
-                }
-            })
+                    override fun onFailed(error: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        onErrorMessage.value = error
+                    }
+                })
         }
     }
 
     fun getFolderName(): MutableLiveData<String> {
         return folderName
+    }
+
+    fun getExistsUploads(): MutableLiveData<Boolean> {
+        return existsUploads
     }
 
     fun getExistsFiles(): MutableLiveData<Boolean> {
@@ -117,7 +150,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onSearchQueryTextChanged(query: Editable) {
         currentSearchQuery.value = query.toString().trim { it <= ' ' }
-        viewAdapter.filter.filter(query)
+        filesAdapter.filter.filter(query)
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
@@ -125,8 +158,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onFileClick(file: RecordVO) {
-        if (file.typeEnum == RecordVO.Type.Folder)
+        if (file.typeEnum == RecordVO.Type.Folder) {
+            currentFolder = file
+            folderPathStack.push(currentFolder)
             getChildRecordsOf(file)
+        }
     }
 
     override fun onFileOptionsClick(file: RecordVO) {
@@ -137,16 +173,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         showBottomSheetFragment(fragment)
     }
 
-    fun onCurrentFolderClick() {
+    fun onFolderOptionsClick() {
         val fragment = FolderOptionsFragment()
         val bundle = Bundle()
         bundle.putString(Constants.FOLDER_NAME, Constants.MY_FILES_FOLDER)
         fragment.arguments = bundle
-        showBottomSheetFragment(fragment)
-    }
-
-    fun onAddBtnClick() {
-        val fragment = AddOptionsFragment()
         showBottomSheetFragment(fragment)
     }
 
@@ -158,6 +189,80 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         // This is the record of the current folder but we need his parent
         folderPathStack.pop()
         val parentRecord = folderPathStack.pop()
+        currentFolder = parentRecord
+        folderPathStack.push(currentFolder)
         getChildRecordsOf(parentRecord)
+    }
+
+    fun upload(uris: List<Uri>): List<LiveData<WorkInfo>> {
+        if (uris.isNotEmpty()) {
+            for (uri in uris) {
+                appContext.contentResolver.takePersistableUriPermission(
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val uploads = uploadsAdapter.set(uris)
+            val uploadsWithWorkIds = setupUploadWorkers(uploads)
+            existsUploads.value = true
+            return uploadsWithWorkIds.map { workManager.getWorkInfoByIdLiveData(it.uuid) }
+        }
+        return emptyList()
+    }
+
+    private fun setupUploadWorkers(uploads: List<Upload>): List<Upload> {
+        if (uploads.isNotEmpty()) {
+            var workContinuation = workManager.beginWith(getUploadRequest(uploads[0]))
+
+            for (i in 1 until uploads.size) {
+                workContinuation = workContinuation.then(getUploadRequest(uploads[i]))
+            }
+            workContinuation.enqueue()
+        }
+        return uploads
+    }
+
+    private fun getUploadRequest(upload: Upload): OneTimeWorkRequest {
+        val builder = Data.Builder().apply { putString(WORKER_INPUT_URI_KEY, upload.uri.toString()) }
+        val workRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java)
+            .addTag(WORKER_TAG_UPLOAD)
+            .setInputData(builder.build())
+            .build()
+        upload.setId(workRequest.id)
+
+        return workRequest
+    }
+
+    fun onUploadStateChanged(uploadId: UUID, state: WorkInfo.State) {
+        val upload = uploadsAdapter.getUploadById(uploadId)
+
+        if (state.isFinished) {
+            remove(upload)
+            addFakeItemToFilesList(upload)
+        } else {
+            upload?.setState(state)
+            uploadsAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun remove(upload: Upload?) {
+        uploadsAdapter.remove(upload)
+        if (uploadsAdapter.itemCount == 0) {
+            existsUploads.value = false
+            refreshCurrentFolder()
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun addFakeItemToFilesList(upload: Upload?) {
+        val sdf = SimpleDateFormat("yyyy-M-dd")
+        val currentDate = sdf.format(Date())
+        val fakeFile = RecordVO()
+        fakeFile.displayDT = currentDate
+        fakeFile.displayName = upload?.displayName
+        fakeFile.typeEnum = RecordVO.Type.Image
+        filesAdapter.add(fakeFile)
+    }
+
+    override fun onCancelClick(upload: Upload) {
+        TODO("Not yet implemented")
     }
 }

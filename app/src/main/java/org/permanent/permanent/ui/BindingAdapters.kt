@@ -15,10 +15,14 @@ fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
 
 @BindingAdapter("fileType", "imageUrl")
 fun loadImage(view: ImageView, fileType: RecordVO.Type, url: String?) {
-    if (fileType == RecordVO.Type.Folder) {
-        view.setImageResource(R.drawable.ic_folder_barney_purple)
-    } else {
-        Picasso.get().load(url).placeholder(R.drawable.ic_photo_middle_grey).fit().into(view)
+    when {
+        fileType == RecordVO.Type.Folder -> {
+            view.setImageResource(R.drawable.ic_folder_barney_purple)
+        }
+        url == null -> {
+            view.setImageResource(R.drawable.ic_cloud_upload)
+        }
+        else -> Picasso.get().load(url).placeholder(R.drawable.ic_photo_barney_purple).fit().into(view)
     }
 }
 

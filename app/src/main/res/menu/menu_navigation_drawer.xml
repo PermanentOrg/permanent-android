@@ -37,5 +37,9 @@
             android:id="@+id/AppsFragment"
             android:icon="@drawable/ic_members_white"
             android:title="@string/menu_drawer_apps" />
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/ic_logout_white"
+            android:title="@string/menu_settings_drawer_logout" />
     </group>
 </menu>

@@ -3,8 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/login_navigation"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/biometricsFragment">
+    app:startDestination="@id/loginFragment">
 
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="org.permanent.permanent.ui.login.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_codeVerificationFragment"
+            app:destination="@id/codeVerificationFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_loginFragment_to_biometricsFragment"
+            app:destination="@id/biometricsFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_loginFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit" />
+    </fragment>
     <fragment
         android:id="@+id/biometricsFragment"
         android:name="org.permanent.permanent.ui.login.BiometricsFragment"
@@ -19,24 +44,6 @@
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_biometricsFragment_to_mainActivity"
-            app:destination="@id/mainActivity"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit" />
-    </fragment>
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="org.permanent.permanent.ui.login.LoginFragment"
-        android:label="LoginFragment"
-        tools:layout="@layout/fragment_login">
-        <action
-            android:id="@+id/action_loginFragment_to_codeVerificationFragment"
-            app:destination="@id/codeVerificationFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
-        <action
-            android:id="@+id/action_loginFragment_to_mainActivity"
             app:destination="@id/mainActivity"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit" />

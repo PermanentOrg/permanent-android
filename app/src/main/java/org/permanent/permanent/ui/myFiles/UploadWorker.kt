@@ -58,14 +58,14 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
 
     private fun uploadFile(uri: Uri): String? {
         val type = context.contentResolver.getType(uri)?.toMediaTypeOrNull()
-        val returnCursor =
+        var output: OutputStream? = null
+        val cursor =
             applicationContext.contentResolver.query(uri, null, null,
                 null, null)
-        val nameIndex = returnCursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        returnCursor?.moveToFirst()
-        val displayName = nameIndex?.let { returnCursor.getString(it) }
-        var output: OutputStream? = null
         try {
+            val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            cursor?.moveToFirst()
+            val displayName = nameIndex?.let { cursor.getString(it) }
             val inputStream = applicationContext.contentResolver.openInputStream(uri)
             if (inputStream != null) {
                 val file = File(applicationContext.cacheDir, displayName)
@@ -83,6 +83,7 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
+            cursor?.close()
             output?.close()
         }
 

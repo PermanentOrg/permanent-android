@@ -14,8 +14,7 @@ class FilesAdapter(
     private val fileClickListener: FileClickListener,
     private val fileOptionsClickListener: FileOptionsClickListener)
     : RecyclerView.Adapter<FileViewHolder>(), Filterable {
-
-    private var files: List<RecordVO> = ArrayList()
+    private var files: MutableList<RecordVO> = ArrayList()
     private var filteredList: MutableList<RecordVO> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
@@ -28,8 +27,14 @@ class FilesAdapter(
     }
 
     fun set(records: List<RecordVO>) {
-        files = records
-        filteredList = files.toMutableList()
+        files = records.toMutableList()
+        filteredList = files
+        notifyDataSetChanged()
+    }
+
+    fun add(fakeFile: RecordVO) {
+        files.add(fakeFile)
+        filteredList = files
         notifyDataSetChanged()
     }
 
