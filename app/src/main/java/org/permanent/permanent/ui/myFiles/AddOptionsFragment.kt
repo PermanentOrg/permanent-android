@@ -31,7 +31,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var dialogViewModel: NewFolderViewModel
     private lateinit var dialogBinding: DialogNewFolderBinding
     private var alertDialog: AlertDialog? = null
-    private val filesToUpload = MutableLiveData<List<Uri>>()
+    private val filesToUpload = MutableLiveData<MutableList<Uri>>()
 
     private val onErrorStringId = Observer<Int> { errorId ->
         val errorMessage = this.resources.getString(errorId)
@@ -134,7 +134,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         when (requestCode) {
             Constants.REQUEST_CODE_FILE_SELECT -> if (resultCode == Activity.RESULT_OK) {
                 if (intent?.data != null) {
-                    filesToUpload.value = listOf(intent.data!!)
+                    filesToUpload.value = mutableListOf(intent.data!!)
                 } else if (intent?.clipData != null) {
                     filesToUpload.value = getUris(intent)
                 }
@@ -143,7 +143,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         }
     }
 
-    private fun getUris(intent: Intent): List<Uri> {
+    private fun getUris(intent: Intent): MutableList<Uri> {
         val clipData: ClipData = intent.clipData!!
         val itemCount = clipData.itemCount
         val uris: MutableList<Uri> = ArrayList()
@@ -156,7 +156,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         return uris
     }
 
-    fun getOnFilesSelected(): MutableLiveData<List<Uri>> {
+    fun getOnFilesSelected(): MutableLiveData<MutableList<Uri>> {
         return filesToUpload
     }
 

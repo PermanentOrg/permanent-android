@@ -7,16 +7,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Upload
@@ -24,14 +20,15 @@ import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.*
-import org.permanent.permanent.ui.myFiles.upload.*
+import org.permanent.permanent.ui.myFiles.upload.UploadCancelClickListener
+import org.permanent.permanent.ui.myFiles.upload.UploadQueue
+import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
-    UploadCancelClickListener, FileClickListener, FileOptionsClickListener {
+    UploadCancelClickListener, FileClickListener, FileOptionsClickListener, Upload.IOnFinishedListener {
     private val appContext = application.applicationContext
-    private val workManager: WorkManager = WorkManager.getInstance()
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val existsUploads = MutableLiveData(false)
     private val existsFiles = MutableLiveData(false)
@@ -41,8 +38,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onErrorMessage = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<RecordVO> = Stack()
-    private var uploadsAdapter: UploadsAdapter = UploadsAdapter(appContext, this)
     private var filesAdapter: FilesAdapter = FilesAdapter(this, this)
+    private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var currentFolder: RecordVO
     private lateinit var uploadsRecyclerView: RecyclerView
     private lateinit var filesRecyclerView: RecyclerView
@@ -53,8 +50,9 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         this.fragmentManager = fragmentManager
     }
 
-    fun initUploadsRecyclerView(rvUploads: RecyclerView) {
+    fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
         uploadsRecyclerView = rvUploads
+        uploadsAdapter = UploadsAdapter(appContext, lifecycleOwner, this)
         uploadsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
@@ -195,59 +193,34 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         getChildRecordsOf(parentRecord)
     }
 
-    fun upload(uris: List<Uri>): List<LiveData<WorkInfo>> {
-        if (uris.isNotEmpty()) {
-            for (uri in uris) {
-                appContext.contentResolver.takePersistableUriPermission(
-                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            val uploads = uploadsAdapter.set(uris)
-            val uploadsWithWorkIds = setupUploadWorkers(uploads)
-            existsUploads.value = true
-            return uploadsWithWorkIds.map { workManager.getWorkInfoByIdLiveData(it.uuid) }
+    fun upload(owner: LifecycleOwner, uris: List<Uri>) {
+        // persisting read uri permission
+        for (uri in uris) {
+            appContext.contentResolver.takePersistableUriPermission(
+                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return emptyList()
+        val uploads = enqueueWork(owner, uris)
+        uploadsAdapter.set(uploads)
+        existsUploads.value = true
     }
 
-    private fun setupUploadWorkers(uploads: List<Upload>): List<Upload> {
-        if (uploads.isNotEmpty()) {
-            var workContinuation = workManager.beginWith(getUploadRequest(uploads[0]))
+    private fun enqueueWork(lifecycleOwner: LifecycleOwner, uris: List<Uri>): MutableList<Upload> {
+        val uploadQueue = UploadQueue(appContext, Upload(appContext, uris[0], this))
 
-            for (i in 1 until uploads.size) {
-                workContinuation = workContinuation.then(getUploadRequest(uploads[i]))
-            }
-            workContinuation.enqueue()
+        for (i in 1 until uris.size) {
+            uploadQueue.add(Upload(appContext, uris[i], this))
         }
-        return uploads
+        return uploadQueue.enqueueOn(lifecycleOwner)
     }
 
-    private fun getUploadRequest(upload: Upload): OneTimeWorkRequest {
-        val builder = Data.Builder().apply { putString(WORKER_INPUT_URI_KEY, upload.uri.toString()) }
-        val workRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java)
-            .addTag(WORKER_TAG_UPLOAD)
-            .setInputData(builder.build())
-            .build()
-        upload.setId(workRequest.id)
-
-        return workRequest
-    }
-
-    fun onUploadStateChanged(uploadId: UUID, state: WorkInfo.State, progress: Int) {
-        val upload = uploadsAdapter.getUploadById(uploadId)
-
-        if (state.isFinished) {
-            remove(upload)
-            addFakeItemToFilesList(upload)
-        } else {
-            upload?.setState(state)
-            upload?.setProgress(progress)
-            uploadsAdapter.notifyDataSetChanged()
-        }
+    override fun onFinished(upload: Upload) {
+        remove(upload)
+        addFakeItemToFilesList(upload)
     }
 
     private fun remove(upload: Upload?) {
         uploadsAdapter.remove(upload)
-        if (uploadsAdapter.itemCount == 0) {
+        if (uploadsAdapter.isEmpty()) {
             existsUploads.value = false
             refreshCurrentFolder()
         }

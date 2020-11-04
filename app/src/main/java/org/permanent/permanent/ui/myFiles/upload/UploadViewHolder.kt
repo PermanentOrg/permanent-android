@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles.upload
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemUploadBinding
 import org.permanent.permanent.models.Upload
@@ -9,9 +10,10 @@ class UploadViewHolder(
     private val uploadCancelClickListener: UploadCancelClickListener)
     : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(upload: Upload) {
+    fun bind(upload: Upload, lifecycleOwner: LifecycleOwner) {
         binding.upload = upload
         binding.executePendingBindings()
+        binding.lifecycleOwner = lifecycleOwner
         binding.btnCancel.setOnClickListener { uploadCancelClickListener.onCancelClick(upload) }
     }
 }

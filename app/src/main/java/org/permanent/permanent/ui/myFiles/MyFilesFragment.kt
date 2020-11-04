@@ -9,7 +9,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.myFiles.upload.UPLOAD_PROGRESS
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
 
@@ -30,7 +29,7 @@ class MyFilesFragment : PermanentBaseFragment(), View.OnClickListener {
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
         binding.viewModel = viewModel
         viewModel.set(parentFragmentManager)
-        viewModel.initUploadsRecyclerView(binding.rvUploads)
+        viewModel.initUploadsRecyclerView(binding.rvUploads, this)
         viewModel.initFilesRecyclerView(binding.rvFiles)
         viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
         binding.fabAdd.setOnClickListener(this)
@@ -44,14 +43,10 @@ class MyFilesFragment : PermanentBaseFragment(), View.OnClickListener {
         addOptionsFragment?.show(parentFragmentManager, addOptionsFragment?.tag)
     }
 
-    private val onFilesSelectedToUpload = Observer<List<Uri>> { files ->
-        val uploadWorkInfos = viewModel.upload(files)
-
-        for (workInfoLiveData in uploadWorkInfos) {
-            workInfoLiveData.observe(this, {
-                val progress = it.progress.getInt(UPLOAD_PROGRESS, 0)
-                viewModel.onUploadStateChanged(it.id, it.state, progress)
-            })
+    private val onFilesSelectedToUpload = Observer<MutableList<Uri>> { fileUriList ->
+        if (fileUriList.isNotEmpty()) {
+            viewModel.upload(this, fileUriList)
+            fileUriList.clear()
         }
     }
 
