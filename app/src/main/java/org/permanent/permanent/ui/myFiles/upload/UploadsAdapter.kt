@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.myFiles
+package org.permanent.permanent.ui.myFiles.upload
 
 import android.content.Context
 import android.net.Uri

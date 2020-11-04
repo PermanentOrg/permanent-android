@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.myFiles
+package org.permanent.permanent.ui.myFiles.upload
 
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemUploadBinding

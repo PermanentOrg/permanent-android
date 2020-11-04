@@ -16,6 +16,8 @@ import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
+import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -161,12 +163,13 @@ class NetworkClient(context: Context) {
         return fileService.postMeta(requestBody)
     }
 
-    fun uploadFile(file: File, mediaType: MediaType, recordId: Int): Call<ResponseBody> {
+    fun uploadFile(
+        file: File, mediaType: MediaType, recordId: Int, listener: CountingRequestListener
+    ): Call<ResponseBody> {
         val recordIdRequestBody = recordId.toString().toRequestBody(MultipartBody.FORM)
-        val fileRequestBody = file.asRequestBody(mediaType)
+        val fileRequestBody = CountingRequestBody(file.asRequestBody(mediaType), listener)
         val body: MultipartBody.Part = MultipartBody.Part.createFormData(
-            Constants.FORM_DATA_NAME_THE_FILE, file.name, fileRequestBody
-        )
+            Constants.FORM_DATA_NAME_THE_FILE, file.name, fileRequestBody)
 
         return fileService.upload(uploadUrl, recordIdRequestBody, body)
     }

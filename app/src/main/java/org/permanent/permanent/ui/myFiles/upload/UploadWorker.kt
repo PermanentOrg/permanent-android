@@ -1,9 +1,10 @@
-package org.permanent.permanent.ui.myFiles
+package org.permanent.permanent.ui.myFiles.upload
 
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
+import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -26,6 +27,7 @@ const val UPLOAD_WORKER = "UPLOAD_WORKER"
 private const val STATUS_OUT_OF_SPACE = "warning.financial.account.no_space_left"
 private const val STATUS_ERROR = "Error"
 const val STATUS_OK = "OK"
+const val UPLOAD_PROGRESS = "upload_progress"
 
 class UploadWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
@@ -37,31 +39,35 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
 
         return if (url != null) {
             val uri = Uri.parse(url)
-            val result = uploadFile(uri)
+            val result = uploadFile(uri, object : CountingRequestListener {
+                override fun onProgressUpdate(bytesWritten: Long, contentLength: Long) {
+                    val progress = 100 * bytesWritten / contentLength
+                    setProgressAsync(Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build())
+                }
+            })
 
             if (result == STATUS_OK) {
-                Log.d(UPLOAD_WORKER,"STATUS_OK")
+                Log.d(UPLOAD_WORKER, "STATUS_OK")
                 Result.success()
             } else {
                 if (result == STATUS_OUT_OF_SPACE) {
-                    Log.d(UPLOAD_WORKER,"no_space_left")
+                    Log.d(UPLOAD_WORKER, "no_space_left")
                 } else {
-                    Log.d(UPLOAD_WORKER,"visit_website")
+                    Log.d(UPLOAD_WORKER, "visit_website")
                 }
                 Result.failure()
             }
         } else {
-            Log.d(UPLOAD_WORKER,"url null")
+            Log.d(UPLOAD_WORKER, "url null")
             Result.failure()
         }
     }
 
-    private fun uploadFile(uri: Uri): String? {
-        val type = context.contentResolver.getType(uri)?.toMediaTypeOrNull()
+    private fun uploadFile(uri: Uri, listener: CountingRequestListener): String? {
         var output: OutputStream? = null
         val cursor =
-            applicationContext.contentResolver.query(uri, null, null,
-                null, null)
+            applicationContext.contentResolver.query(
+                uri, null, null, null, null)
         try {
             val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             cursor?.moveToFirst()
@@ -77,8 +83,9 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                     output.write(buffer, 0, read)
                 }
                 output.flush()
-
-                return type?.let { fileRepository.startUploading(file, displayName, it) }
+                val mediaType = context.contentResolver.getType(uri)?.toMediaTypeOrNull()
+                return mediaType?.let {
+                    fileRepository.startUploading(file, displayName, it, listener) }
             }
         } catch (e: IOException) {
             e.printStackTrace()

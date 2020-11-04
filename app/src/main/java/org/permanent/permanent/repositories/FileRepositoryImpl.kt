@@ -10,7 +10,8 @@ import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.myFiles.STATUS_OK
+import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
+import org.permanent.permanent.ui.myFiles.upload.STATUS_OK
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -127,7 +128,9 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         })
     }
 
-    override fun startUploading(file: File, displayName: String?, mediaType: MediaType): String {
+    override fun startUploading(
+        file: File, displayName: String?, mediaType: MediaType, listener: CountingRequestListener
+    ): String {
         val response = networkClient.createUploadMetaData(
             prefsHelper.getCsrf(), file.name,
             displayName, prefsHelper.getFolderId(), prefsHelper.getFolderLinkId()
@@ -143,20 +146,20 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         } else if (recordId == null) {
             return messages[0]!!
         }
-        uploadFile(file, displayName, mediaType, recordId, messages)
+        uploadFile(file, displayName, mediaType, recordId, messages, listener)
 
         return STATUS_OK
     }
-
 
     override fun uploadFile(
         file: File,
         displayName: String?,
         mediaType: MediaType,
         recordId: Int,
-        messages: MutableList<String?>
+        messages: MutableList<String?>,
+        listener: CountingRequestListener
     ) {
-        val response = networkClient.uploadFile(file, mediaType, recordId).execute()
+        val response = networkClient.uploadFile(file, mediaType, recordId, listener).execute()
         val responseBody = response.body()
 
         if (responseBody?.string() == STATUS_OK) {
