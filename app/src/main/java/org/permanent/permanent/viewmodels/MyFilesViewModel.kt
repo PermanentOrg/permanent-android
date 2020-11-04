@@ -24,6 +24,7 @@ import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.*
+import org.permanent.permanent.ui.myFiles.upload.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -231,7 +232,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return workRequest
     }
 
-    fun onUploadStateChanged(uploadId: UUID, state: WorkInfo.State) {
+    fun onUploadStateChanged(uploadId: UUID, state: WorkInfo.State, progress: Int) {
         val upload = uploadsAdapter.getUploadById(uploadId)
 
         if (state.isFinished) {
@@ -239,6 +240,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             addFakeItemToFilesList(upload)
         } else {
             upload?.setState(state)
+            upload?.setProgress(progress)
             uploadsAdapter.notifyDataSetChanged()
         }
     }

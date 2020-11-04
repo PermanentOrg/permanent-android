@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.myFiles.upload.UPLOAD_PROGRESS
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
 
@@ -48,7 +49,8 @@ class MyFilesFragment : PermanentBaseFragment(), View.OnClickListener {
 
         for (workInfoLiveData in uploadWorkInfos) {
             workInfoLiveData.observe(this, {
-                viewModel.onUploadStateChanged(it.id, it.state)
+                val progress = it.progress.getInt(UPLOAD_PROGRESS, 0)
+                viewModel.onUploadStateChanged(it.id, it.state, progress)
             })
         }
     }

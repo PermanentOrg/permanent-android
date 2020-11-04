@@ -13,6 +13,7 @@ class Upload(context: Context, val uri: Uri) {
     lateinit var uuid: UUID
     val displayName: String? = getName(context, uri)
     val isUploading = MutableLiveData(false)
+    val progress = MutableLiveData<Int>()
 
     private fun getName(context: Context, uri: Uri): String? {
         var displayName: String? = null
@@ -36,5 +37,9 @@ class Upload(context: Context, val uri: Uri) {
 
     fun setState(state: WorkInfo.State) {
         isUploading.value = (state == WorkInfo.State.ENQUEUED || state == WorkInfo.State.RUNNING)
+    }
+
+    fun setProgress(progress: Int) {
+        this.progress.value = progress
     }
 }
