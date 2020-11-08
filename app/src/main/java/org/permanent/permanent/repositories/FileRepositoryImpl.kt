@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import okhttp3.MediaType
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
@@ -33,8 +34,6 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                 val myFilesRecord = responseVO?.getMyFilesRecordVO()
 
                 if (myFilesRecord != null) {
-                    myFilesRecord.folderId?.let { prefsHelper.saveFolderId(it) }
-                    myFilesRecord.folder_linkId?.let { prefsHelper.saveFolderLinkId(it) }
                     listener.onSuccess(myFilesRecord)
                 } else {
                     listener.onFailed(
@@ -96,9 +95,6 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
-                    val folderVO = responseVO?.getFolderVO()
-                    folderVO?.folderId?.let { prefsHelper.saveFolderId(it) }
-                    folderVO?.folder_linkId?.let { prefsHelper.saveFolderLinkId(it) }
                     listener.onSuccess(responseVO?.getRecordVOs())
                 }
 
@@ -108,9 +104,13 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun createFolder(name: String, listener: IFileRepository.IOnFolderCreatedListener) {
-        networkClient.createFolder(prefsHelper.getCsrf(), name, prefsHelper.getFolderId(),
-            prefsHelper.getFolderLinkId()).enqueue(object : Callback<ResponseVO> {
+    override fun createFolder(
+        parentFolderIdentifier: FolderIdentifier,
+        name: String,
+        listener: IFileRepository.IOnFolderCreatedListener
+    ) {
+        networkClient.createFolder(prefsHelper.getCsrf(), name, parentFolderIdentifier.folderId,
+            parentFolderIdentifier.folderLinkId).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -128,12 +128,12 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         })
     }
 
-    override fun startUploading(
-        file: File, displayName: String?, mediaType: MediaType, listener: CountingRequestListener
+    override fun startUploading(folderId: Int, folderLinkId: Int, file: File, displayName: String?,
+                                mediaType: MediaType, listener: CountingRequestListener
     ): String {
         val response = networkClient.createUploadMetaData(
             prefsHelper.getCsrf(), file.name,
-            displayName, prefsHelper.getFolderId(), prefsHelper.getFolderLinkId()
+            displayName, folderId, folderLinkId
         ).execute()
 
         val responseVO = response.body()

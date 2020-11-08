@@ -9,19 +9,22 @@ import android.text.Editable
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.Folder
+import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
-import org.permanent.permanent.ui.myFiles.*
+import org.permanent.permanent.ui.myFiles.FileClickListener
+import org.permanent.permanent.ui.myFiles.FileOptionsClickListener
+import org.permanent.permanent.ui.myFiles.FileOptionsFragment
+import org.permanent.permanent.ui.myFiles.FolderOptionsFragment
 import org.permanent.permanent.ui.myFiles.upload.UploadCancelClickListener
-import org.permanent.permanent.ui.myFiles.upload.UploadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,21 +33,23 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     UploadCancelClickListener, FileClickListener, FileOptionsClickListener, Upload.IOnFinishedListener {
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
-    private val existsUploads = MutableLiveData(false)
     private val existsFiles = MutableLiveData(false)
     private val isRoot = MutableLiveData(true)
     private val currentSearchQuery = MutableLiveData<String>()
-    private val isBusy = MutableLiveData<Boolean>()
     private val onErrorMessage = MutableLiveData<String>()
+    private val onFilesRetrieved = SingleLiveEvent<List<RecordVO>>()
+    private val onFilesFilterQuery = MutableLiveData<Editable>()
+    private val onNewFile = MutableLiveData<RecordVO>()
+    private val onShowAddOptionsFragment = SingleLiveEvent<FolderIdentifier>()
+
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<RecordVO> = Stack()
-    private var filesAdapter: FilesAdapter = FilesAdapter(this, this)
     private lateinit var uploadsAdapter: UploadsAdapter
-    private lateinit var currentFolder: RecordVO
+    private lateinit var currentFolder: Folder
     private lateinit var uploadsRecyclerView: RecyclerView
-    private lateinit var filesRecyclerView: RecyclerView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
+    private lateinit var lifecycleOwner: LifecycleOwner
 
     fun set(fragmentManager: FragmentManager) {
         this.fragmentManager = fragmentManager
@@ -52,25 +57,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
         uploadsRecyclerView = rvUploads
+        this.lifecycleOwner = lifecycleOwner
         uploadsAdapter = UploadsAdapter(appContext, lifecycleOwner, this)
         uploadsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = uploadsAdapter
-        }
-    }
-
-    fun initFilesRecyclerView(rvFiles: RecyclerView) {
-        filesRecyclerView = rvFiles
-        filesRecyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = filesAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL)
-            )
         }
     }
 
@@ -81,7 +73,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun refreshCurrentFolder() {
-        getChildRecordsOf(currentFolder)
+        loadFilesOf(currentFolder)
     }
 
     private fun populateMyFiles() {
@@ -89,9 +81,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
             override fun onSuccess(myFilesRecord: RecordVO) {
                 swipeRefreshLayout.isRefreshing = false
-                currentFolder = myFilesRecord
-                folderPathStack.push(currentFolder)
-                getChildRecordsOf(myFilesRecord)
+                folderPathStack.push(myFilesRecord)
+                loadAllChildrenOf(myFilesRecord)
             }
 
             override fun onFailed(error: String?) {
@@ -101,21 +92,21 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         })
     }
 
-    private fun getChildRecordsOf(parentRecord: RecordVO) {
-        parentRecord.archiveNbr?.let {
+    private fun loadFilesOf(folder: Folder) {
+        folder.getArchiveNr()?.let {
             swipeRefreshLayout.isRefreshing = true
             fileRepository.getChildRecordsOf(
                 it,
                 object : IFileRepository.IOnRecordsRetrievedListener {
                     override fun onSuccess(records: List<RecordVO>?) {
                         swipeRefreshLayout.isRefreshing = false
-                        val parentName = parentRecord.displayName
+                        val parentName = folder.getDisplayName()
                         folderName.value = parentName
                         isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER)
 
                         if (records != null) {
                             existsFiles.value = records.isNotEmpty()
-                            filesAdapter.set(records)
+                            onFilesRetrieved.value = records
                         }
                     }
 
@@ -132,7 +123,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun getExistsUploads(): MutableLiveData<Boolean> {
-        return existsUploads
+        return uploadsAdapter.getExistsUploads()
     }
 
     fun getExistsFiles(): MutableLiveData<Boolean> {
@@ -149,19 +140,27 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onSearchQueryTextChanged(query: Editable) {
         currentSearchQuery.value = query.toString().trim { it <= ' ' }
-        filesAdapter.filter.filter(query)
+        onFilesFilterQuery.value = query
     }
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
+    fun getOnFilesRetrieved(): MutableLiveData<List<RecordVO>> {
+        return onFilesRetrieved
     }
 
-    override fun onFileClick(file: RecordVO) {
-        if (file.typeEnum == RecordVO.Type.Folder) {
-            currentFolder = file
-            folderPathStack.push(currentFolder)
-            getChildRecordsOf(file)
-        }
+    fun getOnFilesFilterQuery(): MutableLiveData<Editable> {
+        return onFilesFilterQuery
+    }
+
+    fun getOnNewFile(): MutableLiveData<RecordVO> {
+        return onNewFile
+    }
+
+    fun getOnShowAddOptionsFragment(): MutableLiveData<FolderIdentifier> {
+        return onShowAddOptionsFragment
+    }
+
+    fun onAddFabClick() {
+        onShowAddOptionsFragment.value = currentFolder.getFolderIdentifier()
     }
 
     override fun onFileOptionsClick(file: RecordVO) {
@@ -184,33 +183,46 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         fragment.show(fragmentManager, fragment.tag)
     }
 
-    fun onBackBtnClick() {
-        // This is the record of the current folder but we need his parent
-        folderPathStack.pop()
-        val parentRecord = folderPathStack.pop()
-        currentFolder = parentRecord
-        folderPathStack.push(currentFolder)
-        getChildRecordsOf(parentRecord)
+    override fun onFileClick(file: RecordVO) {
+        if (file.typeEnum == RecordVO.Type.Folder) {
+            currentFolder.getUploadQueue()?.removeListeners()
+            folderPathStack.push(file)
+            loadAllChildrenOf(file)
+        }
     }
 
-    fun upload(owner: LifecycleOwner, uris: List<Uri>) {
-        // persisting read uri permission
+    fun onBackBtnClick() {
+        currentFolder.getUploadQueue()?.removeListeners()
+        // This is the record of the current folder but we need his parent
+        folderPathStack.pop()
+        val previousFolder = folderPathStack.pop()
+        folderPathStack.push(previousFolder)
+        loadAllChildrenOf(previousFolder)
+    }
+
+    private fun loadAllChildrenOf(folderInfo: RecordVO) {
+        currentFolder = Folder(appContext, folderInfo)
+        loadEnqueuedUploads(currentFolder, lifecycleOwner)
+        loadFilesOf(currentFolder)
+    }
+
+    private fun loadEnqueuedUploads(folder: Folder, lifecycleOwner: LifecycleOwner) {
+        folder.newUploadQueue(lifecycleOwner, this)
+            ?.getEnqueuedUploadsLiveData()?.let { enqueuedUploadsLiveData ->
+                enqueuedUploadsLiveData.observe(lifecycleOwner, { enqueuedUploads ->
+                    uploadsAdapter.set(enqueuedUploads)
+                })
+            }
+    }
+
+    fun enqueueFilesForUpload(uris: List<Uri>) {
+        val uploadQueue = currentFolder.getUploadQueue()
         for (uri in uris) {
             appContext.contentResolver.takePersistableUriPermission(
                 uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            uploadQueue?.addNewUploadFor(uri)
         }
-        val uploads = enqueueWork(owner, uris)
-        uploadsAdapter.set(uploads)
-        existsUploads.value = true
-    }
-
-    private fun enqueueWork(lifecycleOwner: LifecycleOwner, uris: List<Uri>): MutableList<Upload> {
-        val uploadQueue = UploadQueue(appContext, Upload(appContext, uris[0], this))
-
-        for (i in 1 until uris.size) {
-            uploadQueue.add(Upload(appContext, uris[i], this))
-        }
-        return uploadQueue.enqueueOn(lifecycleOwner)
+        uploadQueue?.enqueuePendingUploads()
     }
 
     override fun onFinished(upload: Upload) {
@@ -220,8 +232,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     private fun remove(upload: Upload?) {
         uploadsAdapter.remove(upload)
-        if (uploadsAdapter.isEmpty()) {
-            existsUploads.value = false
+        if (uploadsAdapter.itemCount == 0) {
             refreshCurrentFolder()
         }
     }
@@ -232,9 +243,9 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         val currentDate = sdf.format(Date())
         val fakeFile = RecordVO()
         fakeFile.displayDT = currentDate
-        fakeFile.displayName = upload?.displayName
+        fakeFile.displayName = upload?.getDisplayName()
         fakeFile.typeEnum = RecordVO.Type.Image
-        filesAdapter.add(fakeFile)
+        onNewFile.value = fakeFile
     }
 
     override fun onCancelClick(upload: Upload) {

@@ -4,17 +4,17 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemUploadBinding
 import org.permanent.permanent.models.Upload
-import kotlin.collections.ArrayList
 
 class UploadsAdapter(
     val context: Context,
     val lifecycleOwner: LifecycleOwner,
     private val uploadCancelClickListener: UploadCancelClickListener
 ) : RecyclerView.Adapter<UploadViewHolder>() {
-
+    private val existsUploads = MutableLiveData(false)
     private var uploads: MutableList<Upload> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UploadViewHolder {
@@ -28,6 +28,7 @@ class UploadsAdapter(
 
     fun set(uploads: MutableList<Upload>) {
         this.uploads = uploads
+        existsUploads.value = this.uploads.isNotEmpty()
         notifyDataSetChanged()
     }
 
@@ -39,10 +40,11 @@ class UploadsAdapter(
 
     fun remove(upload: Upload?) {
         uploads.remove(upload)
+        existsUploads.value = uploads.isNotEmpty()
         notifyDataSetChanged()
     }
 
-    fun isEmpty(): Boolean {
-        return uploads.isEmpty()
+    fun getExistsUploads(): MutableLiveData<Boolean> {
+        return existsUploads
     }
 }

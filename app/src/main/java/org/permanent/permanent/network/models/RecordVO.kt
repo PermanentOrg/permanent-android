@@ -1,5 +1,7 @@
 package org.permanent.permanent.network.models
 
+import org.permanent.permanent.models.FolderIdentifier
+
 class RecordVO {
     var id: Int? = null
     var displayName: String? = null
@@ -25,6 +27,12 @@ class RecordVO {
 
     fun getDate(): String? {
         return displayDT?.substringBefore("T")
+    }
+
+    fun getFolderIdentifier(): FolderIdentifier? {
+        if (folderId != null && folder_linkId != null)
+            return FolderIdentifier(folderId!!, folder_linkId!!)
+        return null
     }
 
     enum class Type {

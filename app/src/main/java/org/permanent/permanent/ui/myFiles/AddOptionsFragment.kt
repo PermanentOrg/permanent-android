@@ -20,12 +20,13 @@ import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogNewFolderBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
+import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.AddOptionsViewModel
 import org.permanent.permanent.viewmodels.NewFolderViewModel
 
+const val FOLDER_IDENTIFIER_KEY = "folder_identifier"
 class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
-
     private lateinit var binding: FragmentAddOptionsBinding
     private lateinit var viewModel: AddOptionsViewModel
     private lateinit var dialogViewModel: NewFolderViewModel
@@ -47,6 +48,12 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
             .refreshCurrentFolder()
         alertDialog?.dismiss()
         dismiss()
+    }
+
+    fun setBundle(folderIdentifier: FolderIdentifier?) {
+        val bundle = Bundle()
+        bundle.putParcelable(FOLDER_IDENTIFIER_KEY, folderIdentifier)
+        this.arguments = bundle
     }
 
     override fun onCreateView(
@@ -95,7 +102,8 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
                 .setView(dialogBinding.root)
                 .create()
             dialogBinding.btnCreate.setOnClickListener {
-                dialogViewModel.createNewFolder()
+                val currentFolderIdentifier = arguments?.getParcelable<FolderIdentifier>(FOLDER_IDENTIFIER_KEY)
+                dialogViewModel.createNewFolder(currentFolderIdentifier)
             }
             dialogBinding.btnCancel.setOnClickListener {
                 alertDialog?.dismiss()

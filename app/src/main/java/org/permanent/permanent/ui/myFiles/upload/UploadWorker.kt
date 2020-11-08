@@ -2,7 +2,6 @@ package org.permanent.permanent.ui.myFiles.upload
 
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
 import androidx.work.Data
 import androidx.work.Worker
@@ -21,11 +20,12 @@ import java.io.OutputStream
  * Mandatory input param WORKER_INPUT_URI_KEY - Uri of record to upload
  */
 
-const val WORKER_INPUT_URI_KEY = "WORKER_INPUT_URI_KEY"
-const val WORKER_TAG_UPLOAD = "WORKER_TAG_UPLOAD"
-const val UPLOAD_WORKER = "UPLOAD_WORKER"
+const val WORKER_INPUT_FOLDER_ID_KEY = "worker_input_folder_id_key"
+const val WORKER_INPUT_FOLDER_LINK_ID_KEY = "worker_input_folder_link_id_key"
+const val WORKER_INPUT_URI_KEY = "worker_input_uri_key"
+const val WORKER_INPUT_FILE_DISPLAY_NAME_KEY = "worker_input_file_name_key"
+const val UPLOAD_WORKER = "upload_worker"
 private const val STATUS_OUT_OF_SPACE = "warning.financial.account.no_space_left"
-private const val STATUS_ERROR = "Error"
 const val STATUS_OK = "OK"
 const val UPLOAD_PROGRESS = "upload_progress"
 
@@ -35,19 +35,31 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
     private var fileRepository: IFileRepository = FileRepositoryImpl(context)
 
     override fun doWork(): Result {
+        val folderId = inputData.getInt(WORKER_INPUT_FOLDER_ID_KEY, 0)
+        val folderLinkId = inputData.getInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, 0)
         val url = inputData.getString(WORKER_INPUT_URI_KEY)
+        val displayName = inputData.getString(WORKER_INPUT_FILE_DISPLAY_NAME_KEY)
 
         return if (url != null) {
+            var result = ""
             val uri = Uri.parse(url)
-            val result = uploadFile(uri, object : CountingRequestListener {
-                override fun onProgressUpdate(bytesWritten: Long, contentLength: Long) {
-                    val progress = 100 * bytesWritten / contentLength
-                    setProgressAsync(Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build())
-                }
-            })
+            val mediaType = context.contentResolver.getType(uri)?.toMediaTypeOrNull()
+            val file = getFileToUpload(uri, displayName)
+
+            if (mediaType != null && file != null) {
+                result = fileRepository.startUploading(folderId, folderLinkId, file, displayName,
+                    mediaType, object : CountingRequestListener {
+                        override fun onProgressUpdate(bytesWritten: Long, contentLength: Long) {
+                            val progress = 100 * bytesWritten / contentLength
+                            setProgressAsync(
+                                Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build()
+                            )
+                        }
+                    })
+            }
 
             if (result == STATUS_OK) {
-                Log.d(UPLOAD_WORKER, "STATUS_OK")
+                Log.d(UPLOAD_WORKER, "status_ok")
                 Result.success()
             } else {
                 if (result == STATUS_OUT_OF_SPACE) {
@@ -63,15 +75,9 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
         }
     }
 
-    private fun uploadFile(uri: Uri, listener: CountingRequestListener): String? {
+    private fun getFileToUpload(uri: Uri, displayName: String?): File? {
         var output: OutputStream? = null
-        val cursor =
-            applicationContext.contentResolver.query(
-                uri, null, null, null, null)
         try {
-            val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            cursor?.moveToFirst()
-            val displayName = nameIndex?.let { cursor.getString(it) }
             val inputStream = applicationContext.contentResolver.openInputStream(uri)
             if (inputStream != null) {
                 val file = File(applicationContext.cacheDir, displayName)
@@ -83,17 +89,13 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                     output.write(buffer, 0, read)
                 }
                 output.flush()
-                val mediaType = context.contentResolver.getType(uri)?.toMediaTypeOrNull()
-                return mediaType?.let {
-                    fileRepository.startUploading(file, displayName, it, listener) }
+                return file
             }
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
-            cursor?.close()
             output?.close()
         }
-
-        return STATUS_ERROR
+        return null
     }
 }
