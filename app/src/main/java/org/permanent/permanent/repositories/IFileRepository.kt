@@ -1,6 +1,7 @@
 package org.permanent.permanent.repositories
 
 import okhttp3.MediaType
+import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import java.io.File
@@ -11,10 +12,10 @@ interface IFileRepository {
     fun navigateMin(archiveNumber: String, listener: IOnRecordsRetrievedListener)
     fun getLeanItems(archiveNumber: String, childLinkIds: List<Int>,
                      listener: IOnRecordsRetrievedListener)
-    fun createFolder(name: String, listener: IOnFolderCreatedListener)
-    fun startUploading(
-        file: File, displayName: String?, mediaType: MediaType, listener: CountingRequestListener
-    ): String
+    fun createFolder(
+        parentFolderIdentifier: FolderIdentifier, name: String, listener: IOnFolderCreatedListener)
+    fun startUploading(folderId: Int, folderLinkId: Int, file: File, displayName: String?,
+                       mediaType: MediaType, listener: CountingRequestListener): String
     fun uploadFile(
         file: File,
         displayName: String?,

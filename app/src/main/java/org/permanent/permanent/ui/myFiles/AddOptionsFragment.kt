@@ -20,18 +20,19 @@ import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogNewFolderBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
+import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.AddOptionsViewModel
 import org.permanent.permanent.viewmodels.NewFolderViewModel
 
+const val FOLDER_IDENTIFIER_KEY = "folder_identifier"
 class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
-
     private lateinit var binding: FragmentAddOptionsBinding
     private lateinit var viewModel: AddOptionsViewModel
     private lateinit var dialogViewModel: NewFolderViewModel
     private lateinit var dialogBinding: DialogNewFolderBinding
     private var alertDialog: AlertDialog? = null
-    private val filesToUpload = MutableLiveData<List<Uri>>()
+    private val filesToUpload = MutableLiveData<MutableList<Uri>>()
 
     private val onErrorStringId = Observer<Int> { errorId ->
         val errorMessage = this.resources.getString(errorId)
@@ -47,6 +48,12 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
             .refreshCurrentFolder()
         alertDialog?.dismiss()
         dismiss()
+    }
+
+    fun setBundle(folderIdentifier: FolderIdentifier?) {
+        val bundle = Bundle()
+        bundle.putParcelable(FOLDER_IDENTIFIER_KEY, folderIdentifier)
+        this.arguments = bundle
     }
 
     override fun onCreateView(
@@ -95,7 +102,8 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
                 .setView(dialogBinding.root)
                 .create()
             dialogBinding.btnCreate.setOnClickListener {
-                dialogViewModel.createNewFolder()
+                val currentFolderIdentifier = arguments?.getParcelable<FolderIdentifier>(FOLDER_IDENTIFIER_KEY)
+                dialogViewModel.createNewFolder(currentFolderIdentifier)
             }
             dialogBinding.btnCancel.setOnClickListener {
                 alertDialog?.dismiss()
@@ -134,7 +142,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         when (requestCode) {
             Constants.REQUEST_CODE_FILE_SELECT -> if (resultCode == Activity.RESULT_OK) {
                 if (intent?.data != null) {
-                    filesToUpload.value = listOf(intent.data!!)
+                    filesToUpload.value = mutableListOf(intent.data!!)
                 } else if (intent?.clipData != null) {
                     filesToUpload.value = getUris(intent)
                 }
@@ -143,7 +151,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         }
     }
 
-    private fun getUris(intent: Intent): List<Uri> {
+    private fun getUris(intent: Intent): MutableList<Uri> {
         val clipData: ClipData = intent.clipData!!
         val itemCount = clipData.itemCount
         val uris: MutableList<Uri> = ArrayList()
@@ -156,7 +164,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         return uris
     }
 
-    fun getOnFilesSelected(): MutableLiveData<List<Uri>> {
+    fun getOnFilesSelected(): MutableLiveData<MutableList<Uri>> {
         return filesToUpload
     }
 

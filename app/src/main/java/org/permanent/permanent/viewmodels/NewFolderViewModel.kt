@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
@@ -57,16 +58,17 @@ class NewFolderViewModel (application: Application) : ObservableAndroidViewModel
         return name
     }
 
-    fun createNewFolder() {
+    fun createNewFolder(parentFolderIdentifier: FolderIdentifier?) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         val folderName = getValidatedFolderName()
 
-        folderName?.let {
+        if (parentFolderIdentifier != null && folderName != null) {
             isBusy.value = true
             fileRepository.createFolder(
-                it,
+                parentFolderIdentifier,
+                folderName,
                 object : IFileRepository.IOnFolderCreatedListener {
                     override fun onSuccess() {
                         isBusy.value = false
