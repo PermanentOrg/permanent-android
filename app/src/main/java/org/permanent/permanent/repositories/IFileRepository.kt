@@ -29,8 +29,11 @@ interface IFileRepository {
         folderLinkId: Int,
         archiveNr: String,
         archiveId: Int,
-        recordId: Int)
-    fun downloadFile(downloadUrl: String, fileOutputStream: OutputStream)
+        recordId: Int,
+        listener: CountingRequestListener
+    )
+    fun downloadFile(
+        downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: RecordVO)

@@ -48,8 +48,7 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
             if (mediaType != null && file != null) {
                 result = fileRepository.startUploading(folderId, folderLinkId, file, displayName,
                     mediaType, object : CountingRequestListener {
-                        override fun onProgressUpdate(bytesWritten: Long, contentLength: Long) {
-                            val progress = 100 * bytesWritten / contentLength
+                        override fun onProgressUpdate(progress: Long) {
                             setProgressAsync(
                                 Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build()
                             )

@@ -180,7 +180,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         folderLinkId: Int,
         archiveNr: String,
         archiveId: Int,
-        recordId: Int
+        recordId: Int,
+        listener: CountingRequestListener
     ) {
         val response = networkClient.getRecord(
             prefsHelper.getCsrf(), folderLinkId, archiveNr, archiveId, recordId).execute()
@@ -188,20 +189,32 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         val downloadURL = downloadData?.downloadURL
         val fileName = downloadData?.fileName
         if (downloadURL != null && fileName != null) {
-            downloadFile(downloadURL, getFileOutputStream(fileName))
+            downloadFile(downloadURL, getFileOutputStream(fileName), listener)
         }
     }
 
-    override fun downloadFile(downloadUrl: String, fileOutputStream: OutputStream) {
+    override fun downloadFile(
+        downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener) {
         try {
             val response = networkClient.downloadRecord(downloadUrl).execute()
+            val contentLength = response.body()?.contentLength()
             val inputStream = response.body()?.byteStream()
             if (inputStream != null) {
                 try {
-                    val buffer = ByteArray(4 * 1024) // or other buffer size
-                    var read: Int
-                    while (inputStream.read(buffer).also { read = it } != -1) {
-                        fileOutputStream.write(buffer, 0, read)
+                    val data = ByteArray(4 * 1024) // or other buffer size
+                    var totalCount = 0L
+                    var count: Int
+                    var reportedProgress = 0L
+                    while (inputStream.read(data).also { count = it } != -1) {
+                        totalCount += count
+                        fileOutputStream.write(data, 0, count)
+                        if (contentLength != null && contentLength > 0) {
+                            val newProgress = 100 * totalCount / contentLength
+                            if (reportedProgress != newProgress) {
+                                reportedProgress = newProgress
+                                listener.onProgressUpdate(reportedProgress)
+                            }
+                        }
                     }
                     fileOutputStream.flush()
                 } catch (e: Exception) {

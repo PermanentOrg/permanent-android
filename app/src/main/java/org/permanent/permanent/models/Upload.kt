@@ -87,8 +87,9 @@ class Upload private constructor(val context: Context, val listener: IOnFinished
             listener.onFinished(this)
             return@Observer
         }
-        isUploading.value = state == WorkInfo.State.RUNNING
-        progress.value = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
+        if (isUploading.value == false) isUploading.value = state == WorkInfo.State.RUNNING
+        val progressValue = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
+        progress.value = progressValue
     }
 
     interface IOnFinishedListener {

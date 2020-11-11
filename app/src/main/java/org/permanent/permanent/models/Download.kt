@@ -10,10 +10,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.ui.myFiles.download.DownloadWorker
-import org.permanent.permanent.ui.myFiles.download.WORKER_INPUT_ARCHIVE_ID_KEY
-import org.permanent.permanent.ui.myFiles.download.WORKER_INPUT_ARCHIVE_NR_KEY
-import org.permanent.permanent.ui.myFiles.download.WORKER_INPUT_RECORD_ID_KEY
+import org.permanent.permanent.ui.myFiles.download.*
 import org.permanent.permanent.ui.myFiles.upload.WORKER_INPUT_FOLDER_LINK_ID_KEY
 import java.util.*
 
@@ -82,8 +79,9 @@ class Download private constructor(val context: Context, val listener: IOnFinish
             listener.onFinished(this)
             return@Observer
         }
-        isDownloading.value = state == WorkInfo.State.RUNNING
-//        progress.value = workInfo.progress.getInt(DOWNLOAD_PROGRESS, 0)
+        if(isDownloading.value == false) isDownloading.value = state == WorkInfo.State.RUNNING
+        val progressValue = workInfo.progress.getInt(DOWNLOAD_PROGRESS, 0)
+        progress.value = progressValue
     }
 
     interface IOnFinishedListener {
