@@ -7,13 +7,13 @@ import org.permanent.permanent.models.Upload
 
 class UploadViewHolder(
     private val binding: ItemUploadBinding,
-    private val uploadCancelClickListener: UploadCancelClickListener)
+    private val uploadCancelListener: UploadCancelListener)
     : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(upload: Upload, lifecycleOwner: LifecycleOwner) {
         binding.upload = upload
         binding.executePendingBindings()
         binding.lifecycleOwner = lifecycleOwner
-        binding.btnCancel.setOnClickListener { uploadCancelClickListener.onCancelClick(upload) }
+        binding.btnCancel.setOnClickListener { uploadCancelListener.onCancelClick(upload) }
     }
 }

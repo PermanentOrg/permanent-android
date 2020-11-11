@@ -2,6 +2,8 @@ package org.permanent.permanent.repositories
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Environment
+import android.util.Log
 import okhttp3.MediaType
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
@@ -17,6 +19,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.util.*
 
 class FileRepositoryImpl(val context: Context): IFileRepository {
@@ -109,8 +114,10 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         name: String,
         listener: IFileRepository.IOnFolderCreatedListener
     ) {
-        networkClient.createFolder(prefsHelper.getCsrf(), name, parentFolderIdentifier.folderId,
-            parentFolderIdentifier.folderLinkId).enqueue(object : Callback<ResponseVO> {
+        networkClient.createFolder(
+            prefsHelper.getCsrf(), name, parentFolderIdentifier.folderId,
+            parentFolderIdentifier.folderLinkId
+        ).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -128,8 +135,9 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         })
     }
 
-    override fun startUploading(folderId: Int, folderLinkId: Int, file: File, displayName: String?,
-                                mediaType: MediaType, listener: CountingRequestListener
+    override fun startUploading(
+        folderId: Int, folderLinkId: Int, file: File, displayName: String?,
+        mediaType: MediaType, listener: CountingRequestListener
     ): String {
         val response = networkClient.createUploadMetaData(
             prefsHelper.getCsrf(), file.name,
@@ -166,5 +174,68 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             file.delete()
             messages.add(STATUS_OK)
         }
+    }
+
+    override fun startDownloading(
+        folderLinkId: Int,
+        archiveNr: String,
+        archiveId: Int,
+        recordId: Int
+    ) {
+        val response = networkClient.getRecord(
+            prefsHelper.getCsrf(), folderLinkId, archiveNr, archiveId, recordId).execute()
+        val downloadData = response.body()?.getDownloadData()
+        val downloadURL = downloadData?.downloadURL
+        val fileName = downloadData?.fileName
+        if (downloadURL != null && fileName != null) {
+            downloadFile(downloadURL, getFileOutputStream(fileName))
+        }
+    }
+
+    override fun downloadFile(downloadUrl: String, fileOutputStream: OutputStream) {
+        try {
+            val response = networkClient.downloadRecord(downloadUrl).execute()
+            val inputStream = response.body()?.byteStream()
+            if (inputStream != null) {
+                try {
+                    val buffer = ByteArray(4 * 1024) // or other buffer size
+                    var read: Int
+                    while (inputStream.read(buffer).also { read = it } != -1) {
+                        fileOutputStream.write(buffer, 0, read)
+                    }
+                    fileOutputStream.flush()
+                } catch (e: Exception) {
+                    Log.e(FileRepositoryImpl::class.java.simpleName, e.message!!)
+                    return
+                } finally {
+                    inputStream.close()
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(FileRepositoryImpl::class.java.simpleName, e.message!!)
+        } finally {
+            fileOutputStream.close()
+        }
+    }
+
+    private fun getFileOutputStream(fileName : String) : FileOutputStream {
+        var file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            fileName)
+
+        if(file.exists()) {
+            var i = 1
+            val parts = fileName.split(".")
+            val name = parts[0]
+            val exts = parts[1]
+            while (file.exists()) {
+                file = File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    "$name ($i).$exts"
+                )
+                i++
+            }
+        }
+        return FileOutputStream(file)
     }
 }

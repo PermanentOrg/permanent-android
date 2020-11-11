@@ -135,6 +135,36 @@
             app:srcCompat="@drawable/ic_grid_middle_grey" />
 
         <TextView
+            android:id="@+id/tvDownloadsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/my_files_downloads_title"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="@{viewModel.getExistsDownloads() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clFolderOptions"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDownloads"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="@{viewModel.getExistsDownloads() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDownloadsTitle"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
             android:id="@+id/tvUploadsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -149,7 +179,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/clFolderOptions"
+            app:layout_constraintTop_toBottomOf="@+id/rvDownloads"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.recyclerview.widget.RecyclerView

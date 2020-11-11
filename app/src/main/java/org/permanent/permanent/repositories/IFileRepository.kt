@@ -5,6 +5,7 @@ import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import java.io.File
+import java.io.OutputStream
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IOnMyFilesArchiveNrListener)
@@ -24,6 +25,12 @@ interface IFileRepository {
         messages: MutableList<String?>,
         listener: CountingRequestListener
     )
+    fun startDownloading(
+        folderLinkId: Int,
+        archiveNr: String,
+        archiveId: Int,
+        recordId: Int)
+    fun downloadFile(downloadUrl: String, fileOutputStream: OutputStream)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: RecordVO)

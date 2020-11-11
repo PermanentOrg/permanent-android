@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.Folder
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Upload
@@ -22,25 +23,30 @@ import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.FileClickListener
 import org.permanent.permanent.ui.myFiles.FileOptionsClickListener
-import org.permanent.permanent.ui.myFiles.FileOptionsFragment
 import org.permanent.permanent.ui.myFiles.FolderOptionsFragment
-import org.permanent.permanent.ui.myFiles.upload.UploadCancelClickListener
+import org.permanent.permanent.ui.myFiles.download.DownloadCancelListener
+import org.permanent.permanent.ui.myFiles.upload.UploadCancelListener
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
-    UploadCancelClickListener, FileClickListener, FileOptionsClickListener, Upload.IOnFinishedListener {
+    FileClickListener, FileOptionsClickListener, UploadCancelListener, Upload.IOnFinishedListener,
+    DownloadCancelListener, Download.IOnFinishedListener {
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
-    private val existsFiles = MutableLiveData(false)
     private val isRoot = MutableLiveData(true)
     private val currentSearchQuery = MutableLiveData<String>()
+    private val existsFiles = MutableLiveData(false)
+    private lateinit var existsDownloads: MutableLiveData<Boolean>
     private val onErrorMessage = MutableLiveData<String>()
+    private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
+    private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onFilesRetrieved = SingleLiveEvent<List<RecordVO>>()
     private val onFilesFilterQuery = MutableLiveData<Editable>()
-    private val onNewFile = MutableLiveData<RecordVO>()
+    private val onNewTemporaryFile = SingleLiveEvent<RecordVO>()
     private val onShowAddOptionsFragment = SingleLiveEvent<FolderIdentifier>()
+    private val onShowFileOptionsFragment = SingleLiveEvent<RecordVO>()
 
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<RecordVO> = Stack()
@@ -58,7 +64,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
         uploadsRecyclerView = rvUploads
         this.lifecycleOwner = lifecycleOwner
-        uploadsAdapter = UploadsAdapter(appContext, lifecycleOwner, this)
+        uploadsAdapter = UploadsAdapter(lifecycleOwner, this)
         uploadsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
@@ -72,24 +78,77 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         populateMyFiles()
     }
 
-    fun refreshCurrentFolder() {
-        loadFilesOf(currentFolder)
+    fun getFolderName(): MutableLiveData<String> {
+        return folderName
     }
 
-    private fun populateMyFiles() {
-        swipeRefreshLayout.isRefreshing = true
-        fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
-            override fun onSuccess(myFilesRecord: RecordVO) {
-                swipeRefreshLayout.isRefreshing = false
-                folderPathStack.push(myFilesRecord)
-                loadAllChildrenOf(myFilesRecord)
-            }
+    fun setExistsDownloads(existsDownloads: MutableLiveData<Boolean>) {
+        this.existsDownloads = existsDownloads
+    }
 
-            override fun onFailed(error: String?) {
-                swipeRefreshLayout.isRefreshing = false
-                onErrorMessage.value = error
-            }
-        })
+    fun getExistsDownloads(): MutableLiveData<Boolean> {
+        return existsDownloads
+    }
+
+    fun getExistsUploads(): MutableLiveData<Boolean> {
+        return uploadsAdapter.getExistsUploads()
+    }
+
+    fun getExistsFiles(): MutableLiveData<Boolean> {
+        return existsFiles
+    }
+
+    fun getIsRoot(): MutableLiveData<Boolean> {
+        return isRoot
+    }
+
+    fun getCurrentSearchQuery(): MutableLiveData<String>? {
+        return currentSearchQuery
+    }
+
+    fun onSearchQueryTextChanged(query: Editable) {
+        currentSearchQuery.value = query.toString().trim { it <= ' ' }
+        onFilesFilterQuery.value = query
+    }
+
+    fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> {
+        return onDownloadsRetrieved
+    }
+
+    fun getOnDownloadFinished(): MutableLiveData<Download> {
+        return onDownloadFinished
+    }
+
+    fun getOnFilesRetrieved(): MutableLiveData<List<RecordVO>> {
+        return onFilesRetrieved
+    }
+
+    fun getOnFilesFilterQuery(): MutableLiveData<Editable> {
+        return onFilesFilterQuery
+    }
+
+    fun getOnNewTemporaryFile(): MutableLiveData<RecordVO> {
+        return onNewTemporaryFile
+    }
+
+    fun getOnShowAddOptionsFragment(): MutableLiveData<FolderIdentifier> {
+        return onShowAddOptionsFragment
+    }
+
+    fun onAddFabClick() {
+        onShowAddOptionsFragment.value = currentFolder.getFolderIdentifier()
+    }
+
+    fun getOnShowFileOptionsFragment(): MutableLiveData<RecordVO> {
+        return onShowFileOptionsFragment
+    }
+
+    override fun onFileOptionsClick(file: RecordVO) {
+        onShowFileOptionsFragment.value = file
+    }
+
+    fun refreshCurrentFolder() {
+        loadFilesOf(currentFolder)
     }
 
     private fun loadFilesOf(folder: Folder) {
@@ -118,57 +177,30 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         }
     }
 
-    fun getFolderName(): MutableLiveData<String> {
-        return folderName
+    private fun populateMyFiles() {
+        swipeRefreshLayout.isRefreshing = true
+        fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
+            override fun onSuccess(myFilesRecord: RecordVO) {
+                swipeRefreshLayout.isRefreshing = false
+                folderPathStack.push(myFilesRecord)
+                loadAllChildrenOf(myFilesRecord)
+                loadEnqueuedDownloads(currentFolder, lifecycleOwner)
+            }
+
+            override fun onFailed(error: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                onErrorMessage.value = error
+            }
+        })
     }
 
-    fun getExistsUploads(): MutableLiveData<Boolean> {
-        return uploadsAdapter.getExistsUploads()
-    }
-
-    fun getExistsFiles(): MutableLiveData<Boolean> {
-        return existsFiles
-    }
-
-    fun getIsRoot(): MutableLiveData<Boolean> {
-        return isRoot
-    }
-
-    fun getCurrentSearchQuery(): MutableLiveData<String>? {
-        return currentSearchQuery
-    }
-
-    fun onSearchQueryTextChanged(query: Editable) {
-        currentSearchQuery.value = query.toString().trim { it <= ' ' }
-        onFilesFilterQuery.value = query
-    }
-
-    fun getOnFilesRetrieved(): MutableLiveData<List<RecordVO>> {
-        return onFilesRetrieved
-    }
-
-    fun getOnFilesFilterQuery(): MutableLiveData<Editable> {
-        return onFilesFilterQuery
-    }
-
-    fun getOnNewFile(): MutableLiveData<RecordVO> {
-        return onNewFile
-    }
-
-    fun getOnShowAddOptionsFragment(): MutableLiveData<FolderIdentifier> {
-        return onShowAddOptionsFragment
-    }
-
-    fun onAddFabClick() {
-        onShowAddOptionsFragment.value = currentFolder.getFolderIdentifier()
-    }
-
-    override fun onFileOptionsClick(file: RecordVO) {
-        val fragment = FileOptionsFragment()
-        val bundle = Bundle()
-        bundle.putString(Constants.FILE_NAME, file.displayName)
-        fragment.arguments = bundle
-        showBottomSheetFragment(fragment)
+    private fun loadEnqueuedDownloads(folder: Folder, lifecycleOwner: LifecycleOwner) {
+        folder.newDownloadQueue(lifecycleOwner, this)
+            ?.getEnqueuedDownloadsLiveData()?.let { enqueuedDownloadsLiveData ->
+                enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
+                    onDownloadsRetrieved.value = enqueuedDownloads
+                })
+            }
     }
 
     fun onFolderOptionsClick() {
@@ -226,15 +258,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onFinished(upload: Upload) {
-        remove(upload)
-        addFakeItemToFilesList(upload)
-    }
-
-    private fun remove(upload: Upload?) {
+        upload.removeWorkInfoObserver()
         uploadsAdapter.remove(upload)
         if (uploadsAdapter.itemCount == 0) {
             refreshCurrentFolder()
         }
+        addFakeItemToFilesList(upload)
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -244,11 +273,25 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         val fakeFile = RecordVO()
         fakeFile.displayDT = currentDate
         fakeFile.displayName = upload?.getDisplayName()
-        fakeFile.typeEnum = RecordVO.Type.Image
-        onNewFile.value = fakeFile
+        fakeFile.typeEnum = RecordVO.Type.File
+        onNewTemporaryFile.value = fakeFile
     }
 
     override fun onCancelClick(upload: Upload) {
+        TODO("Not yet implemented")
+    }
+
+    fun download(file: RecordVO) {
+        val uploadQueue = currentFolder.getDownloadQueue()
+        uploadQueue?.enqueueNewDownloadFor(file)
+    }
+
+    override fun onFinished(download: Download) {
+        download.removeWorkInfoObserver()
+        onDownloadFinished.value = download
+    }
+
+    override fun onCancelClick(download: Download) {
         TODO("Not yet implemented")
     }
 }

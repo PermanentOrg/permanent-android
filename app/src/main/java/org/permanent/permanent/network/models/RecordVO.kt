@@ -24,6 +24,7 @@ class RecordVO {
     var thumbURL500: String? = null
     var thumbURL1000: String? = null
     var thumbURL2000: String? = null
+    var FileVOs: List<FileVO>? = null
 
     fun getDate(): String? {
         return displayDT?.substringBefore("T")
@@ -36,6 +37,6 @@ class RecordVO {
     }
 
     enum class Type {
-        Image, Folder
+        File, Folder
     }
 }

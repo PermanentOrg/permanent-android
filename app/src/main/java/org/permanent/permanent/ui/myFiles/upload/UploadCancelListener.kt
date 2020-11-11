@@ -2,6 +2,6 @@ package org.permanent.permanent.ui.myFiles.upload
 
 import org.permanent.permanent.models.Upload
 
-interface UploadCancelClickListener {
+interface UploadCancelListener {
     fun onCancelClick(upload: Upload)
 }

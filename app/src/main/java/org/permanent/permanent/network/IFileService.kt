@@ -31,4 +31,11 @@ interface IFileService {
         @Part("recordid") requestBody: RequestBody,
         @Part file: MultipartBody.Part
     ): Call<ResponseBody>
+
+    @POST("record/get")
+    fun getRecord(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @Streaming
+    @GET
+    fun download(@Url url: String): Call<ResponseBody>
 }

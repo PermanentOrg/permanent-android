@@ -36,12 +36,11 @@ class Upload private constructor(val context: Context, val listener: IOnFinished
             putString(WORKER_INPUT_URI_KEY, uri.toString())
             putString(WORKER_INPUT_FILE_DISPLAY_NAME_KEY, displayName)
         }
-        val workReq = OneTimeWorkRequest.Builder(UploadWorker::class.java)
+        workRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java)
             .addTag(displayName) // sync with the other secondary constructor
             .setInputData(builder.build())
             .build()
-        workRequest = workReq
-        uuid = workReq.id
+        uuid = workRequest!!.id
         workInfoLiveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(uuid)
     }
 

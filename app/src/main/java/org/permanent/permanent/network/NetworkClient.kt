@@ -174,6 +174,24 @@ class NetworkClient(context: Context) {
         return fileService.upload(uploadUrl, recordIdRequestBody, body)
     }
 
+    fun getRecord(
+        csrf: String?,
+        folderLinkId: Int,
+        archiveNr: String,
+        archiveId: Int,
+        recordId: Int
+    ): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf)
+            .addRecord(folderLinkId, archiveNr, archiveId, recordId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return fileService.getRecord(requestBody)
+    }
+
+    fun downloadRecord(url: String): Call<ResponseBody> {
+        return fileService.download(url)
+    }
+
     private fun toJson(container: RequestContainer): String {
         return jsonAdapter.toJson(container)
     }

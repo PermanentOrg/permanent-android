@@ -110,5 +110,7 @@
     <string name="new_folder_title">Create New Folder</string>
     <string name="new_folder_hint">Folder Name</string>
     <string name="my_files_uploads_title">Uploads</string>
+    <string name="my_files_downloads_title">Downloads</string>
     <string name="my_files_uploads_waiting">Waiting…</string>
+    <string name="download_no_permissions_error">Cannot download file without write permission.</string>
 </resources>

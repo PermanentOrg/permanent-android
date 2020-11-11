@@ -6,6 +6,10 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
+const val REQUEST_CODE_SMS_PERMISSION = 123
+const val REQUEST_CODE_READ_STORAGE_PERMISSION = 124
+const val REQUEST_CODE_WRITE_STORAGE_PERMISSION = 125
+
 class PermissionsHelper {
 
     fun hasSMSGroupPermission(ctx: Context): Boolean {
@@ -18,7 +22,7 @@ class PermissionsHelper {
     fun requestSMSGroupPermission(fragment: Fragment) {
         fragment.requestPermissions(arrayOf(
             Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS),
-            Constants.REQUEST_CODE_SMS_PERMISSION)
+            REQUEST_CODE_SMS_PERMISSION)
     }
 
     fun hasReadStoragePermission(ctx: Context): Boolean {
@@ -28,6 +32,16 @@ class PermissionsHelper {
 
     fun requestReadStoragePermission(fragment: Fragment) {
         fragment.requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-            Constants.REQUEST_CODE_READ_STORAGE_PERMISSION)
+            REQUEST_CODE_READ_STORAGE_PERMISSION)
+    }
+
+    fun hasWriteStoragePermission(ctx: Context): Boolean {
+        return (ContextCompat.checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED)
+    }
+
+    fun requestWriteStoragePermission(fragment: Fragment) {
+        fragment.requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            REQUEST_CODE_WRITE_STORAGE_PERMISSION)
     }
 }

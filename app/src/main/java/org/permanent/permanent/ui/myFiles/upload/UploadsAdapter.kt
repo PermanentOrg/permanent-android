@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.myFiles.upload
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
@@ -10,9 +9,8 @@ import org.permanent.permanent.databinding.ItemUploadBinding
 import org.permanent.permanent.models.Upload
 
 class UploadsAdapter(
-    val context: Context,
     val lifecycleOwner: LifecycleOwner,
-    private val uploadCancelClickListener: UploadCancelClickListener
+    private val uploadCancelListener: UploadCancelListener
 ) : RecyclerView.Adapter<UploadViewHolder>() {
     private val existsUploads = MutableLiveData(false)
     private var uploads: MutableList<Upload> = ArrayList()
@@ -23,7 +21,7 @@ class UploadsAdapter(
             parent,
             false
         )
-        return UploadViewHolder(binding, uploadCancelClickListener)
+        return UploadViewHolder(binding, uploadCancelListener)
     }
 
     fun set(uploads: MutableList<Upload>) {
