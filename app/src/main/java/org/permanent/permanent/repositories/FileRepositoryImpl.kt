@@ -201,6 +201,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             val inputStream = response.body()?.byteStream()
             if (inputStream != null) {
                 try {
+                    val updateInterval = 7
                     val data = ByteArray(4 * 1024) // or other buffer size
                     var totalCount = 0L
                     var count: Int
@@ -208,9 +209,10 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                     while (inputStream.read(data).also { count = it } != -1) {
                         totalCount += count
                         fileOutputStream.write(data, 0, count)
+                        // Report progress
                         if (contentLength != null && contentLength > 0) {
                             val newProgress = 100 * totalCount / contentLength
-                            if (reportedProgress != newProgress) {
+                            if (newProgress >= reportedProgress + updateInterval) {
                                 reportedProgress = newProgress
                                 listener.onProgressUpdate(reportedProgress)
                             }
