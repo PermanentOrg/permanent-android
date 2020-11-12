@@ -24,6 +24,7 @@ import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.FileClickListener
 import org.permanent.permanent.ui.myFiles.FileOptionsClickListener
 import org.permanent.permanent.ui.myFiles.FolderOptionsFragment
+import org.permanent.permanent.ui.myFiles.SortOptionsFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadCancelListener
 import org.permanent.permanent.ui.myFiles.upload.UploadCancelListener
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -36,6 +37,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isRoot = MutableLiveData(true)
+    private val isSortedAsc = MutableLiveData(true)
+
     private val currentSearchQuery = MutableLiveData<String>()
     private val existsFiles = MutableLiveData(false)
     private lateinit var existsDownloads: MutableLiveData<Boolean>
@@ -100,6 +103,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getIsRoot(): MutableLiveData<Boolean> {
         return isRoot
+    }
+
+    fun getIsSortedAsc(): MutableLiveData<Boolean> {
+        return isSortedAsc
     }
 
     fun getCurrentSearchQuery(): MutableLiveData<String>? {
@@ -205,6 +212,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onFolderOptionsClick() {
         val fragment = FolderOptionsFragment()
+        val bundle = Bundle()
+        bundle.putString(Constants.FOLDER_NAME, Constants.MY_FILES_FOLDER)
+        fragment.arguments = bundle
+        showBottomSheetFragment(fragment)
+    }
+
+    fun onSortOptionsClick() {
+        val fragment = SortOptionsFragment()
         val bundle = Bundle()
         bundle.putString(Constants.FOLDER_NAME, Constants.MY_FILES_FOLDER)
         fragment.arguments = bundle
