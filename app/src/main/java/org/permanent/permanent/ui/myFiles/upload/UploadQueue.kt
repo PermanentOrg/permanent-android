@@ -58,6 +58,7 @@ class UploadQueue(
 
     fun enqueuePendingUploads() {
         workContinuation?.enqueue()
+        workContinuation = null
         for (upload in pendingUploads) {
             upload.observeWorkInfoOn(lifecycleOwner)
             enqueuedUploads.value?.add(upload)
