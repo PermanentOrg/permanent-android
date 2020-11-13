@@ -33,9 +33,10 @@ class LoginActivity : PermanentBaseActivity() {
         super.onResume()
         connectViewModelEvents()
         val isUserLoggedIn = intent.extras?.getBoolean(IS_USER_LOGGED_IN)
-        if (isUserLoggedIn !== null && isUserLoggedIn)
-            binding.loginNavHostFragment.findNavController()
-                .navigate(R.id.action_loginFragment_to_biometricsFragment)
+        val navController = binding.loginNavHostFragment.findNavController()
+        if (isUserLoggedIn !== null && isUserLoggedIn
+            && navController.currentDestination?.id == R.id.loginFragment)
+            navController.navigate(R.id.action_loginFragment_to_biometricsFragment)
     }
 
     override fun onPause() {
