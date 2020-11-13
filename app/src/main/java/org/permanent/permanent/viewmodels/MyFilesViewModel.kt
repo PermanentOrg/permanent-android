@@ -25,6 +25,7 @@ import org.permanent.permanent.ui.myFiles.FileClickListener
 import org.permanent.permanent.ui.myFiles.FileOptionsClickListener
 import org.permanent.permanent.ui.myFiles.FolderOptionsFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadCancelListener
+import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadCancelListener
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
@@ -52,6 +53,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private var folderPathStack: Stack<RecordVO> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var currentFolder: Folder
+    private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsRecyclerView: RecyclerView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
@@ -184,7 +186,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(myFilesRecord)
                 loadAllChildrenOf(myFilesRecord)
-                loadEnqueuedDownloads(currentFolder, lifecycleOwner)
+                loadEnqueuedDownloads(lifecycleOwner)
             }
 
             override fun onFailed(error: String?) {
@@ -192,15 +194,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 onErrorMessage.value = error
             }
         })
-    }
-
-    private fun loadEnqueuedDownloads(folder: Folder, lifecycleOwner: LifecycleOwner) {
-        folder.newDownloadQueue(lifecycleOwner, this)
-            ?.getEnqueuedDownloadsLiveData()?.let { enqueuedDownloadsLiveData ->
-                enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
-                    onDownloadsRetrieved.value = enqueuedDownloads
-                })
-            }
     }
 
     fun onFolderOptionsClick() {
@@ -247,6 +240,15 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             }
     }
 
+    private fun loadEnqueuedDownloads(lifecycleOwner: LifecycleOwner) {
+        downloadQueue = DownloadQueue(appContext, lifecycleOwner, this)
+        downloadQueue.getEnqueuedDownloadsLiveData().let { enqueuedDownloadsLiveData ->
+                enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
+                    onDownloadsRetrieved.value = enqueuedDownloads
+                })
+            }
+    }
+
     fun enqueueFilesForUpload(uris: List<Uri>) {
         val uploadQueue = currentFolder.getUploadQueue()
         for (uri in uris) {
@@ -282,8 +284,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun download(file: RecordVO) {
-        val uploadQueue = currentFolder.getDownloadQueue()
-        uploadQueue?.enqueueNewDownloadFor(file)
+        downloadQueue.enqueueNewDownloadFor(file)
     }
 
     override fun onFinished(download: Download) {
