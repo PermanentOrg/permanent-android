@@ -109,7 +109,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun onSearchQueryTextChanged(query: Editable) {
-        currentSearchQuery.value = query.toString().trim { it <= ' ' }
+        currentSearchQuery.value = query.toString()
         onFilesFilterQuery.value = query
     }
 
