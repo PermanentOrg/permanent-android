@@ -13,7 +13,7 @@ android {
         applicationId "org.permanent.permanent"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 3
+        versionCode 4
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -85,7 +85,7 @@ dependencies {
 
     //========================================= FIREBASE ===========================================
     implementation 'com.google.firebase:firebase-analytics-ktx:18.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:17.2.2'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:17.3.0'
     //==============================================================================================
 
     //========================================= BIOMETRICS ==========================================
