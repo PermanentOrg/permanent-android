@@ -134,4 +134,18 @@ class RequestContainer(csrf: String?) {
         RequestVO.data?.get(0)?.RecordVO = recordVO
         return this
     }
+
+    fun addRecord(record: RecordVO, ): RequestContainer {
+        return if (record.typeEnum == RecordVO.Type.Folder) {
+            val folderVO = FolderVO()
+            folderVO.folder_linkId = record.folder_linkId
+            RequestVO.data?.get(0)?.FolderVO = folderVO
+            this
+        } else {
+            val recordVO = RecordVO()
+            recordVO.folder_linkId = record.folder_linkId
+            RequestVO.data?.get(0)?.RecordVO = recordVO
+            this
+        }
+    }
 }

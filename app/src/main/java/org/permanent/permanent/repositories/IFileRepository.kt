@@ -34,6 +34,7 @@ interface IFileRepository {
     )
     fun downloadFile(
         downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener)
+    fun deleteRecord(record: RecordVO, listener: IOnRecordDeletedListener)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: RecordVO)
@@ -46,6 +47,11 @@ interface IFileRepository {
     }
 
     interface IOnFolderCreatedListener {
+        fun onSuccess()
+        fun onFailed(error: String?)
+    }
+
+    interface IOnRecordDeletedListener {
         fun onSuccess()
         fun onFailed(error: String?)
     }

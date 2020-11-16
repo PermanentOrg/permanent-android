@@ -183,7 +183,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         recordId: Int,
         listener: CountingRequestListener
     ) {
-        val response = networkClient.getRecord(
+        val response = networkClient.getFile(
             prefsHelper.getCsrf(), folderLinkId, archiveNr, archiveId, recordId).execute()
         val downloadData = response.body()?.getDownloadData()
         val downloadURL = downloadData?.downloadURL
@@ -196,7 +196,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     override fun downloadFile(
         downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener) {
         try {
-            val response = networkClient.downloadRecord(downloadUrl).execute()
+            val response = networkClient.downloadFile(downloadUrl).execute()
             val contentLength = response.body()?.contentLength()
             val inputStream = response.body()?.byteStream()
             if (inputStream != null) {
@@ -252,5 +252,32 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             }
         }
         return FileOutputStream(file)
+    }
+
+    override fun deleteRecord(
+        record: RecordVO,
+        listener: IFileRepository.IOnRecordDeletedListener
+    ) {
+        networkClient.deleteRecord(prefsHelper.getCsrf(), record)
+            ?.enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    val firstMessage = responseVO?.getMessages()?.get(0)
+
+                    if (firstMessage != null && (firstMessage == Constants.FILE_DELETED_SUCCESSFULLY
+                                || firstMessage == Constants.FOLDER_DELETED_SUCCESSFULLY)) {
+                        listener.onSuccess()
+                    } else if (record.typeEnum == RecordVO.Type.Folder) {
+                        listener.onFailed(context.getString(R.string.my_files_folder_not_deleted_error))
+                    } else {
+                        listener.onFailed(context.getString(R.string.my_files_file_not_deleted_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 }
