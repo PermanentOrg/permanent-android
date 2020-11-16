@@ -24,7 +24,6 @@ const val WORKER_INPUT_FOLDER_ID_KEY = "worker_input_folder_id_key"
 const val WORKER_INPUT_FOLDER_LINK_ID_KEY = "worker_input_folder_link_id_key"
 const val WORKER_INPUT_URI_KEY = "worker_input_uri_key"
 const val WORKER_INPUT_FILE_DISPLAY_NAME_KEY = "worker_input_file_name_key"
-const val UPLOAD_WORKER = "upload_worker"
 private const val STATUS_OUT_OF_SPACE = "warning.financial.account.no_space_left"
 const val STATUS_OK = "OK"
 const val UPLOAD_PROGRESS = "upload_progress"
@@ -49,8 +48,7 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
             if (mediaType != null && file != null) {
                 result = fileRepository.startUploading(folderId, folderLinkId, file, displayName,
                     mediaType, object : CountingRequestListener {
-                        override fun onProgressUpdate(bytesWritten: Long, contentLength: Long) {
-                            val progress = 100 * bytesWritten / contentLength
+                        override fun onProgressUpdate(progress: Long) {
                             setProgressAsync(
                                 Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build()
                             )
@@ -59,18 +57,18 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
             }
 
             if (result == STATUS_OK) {
-                Log.d(UPLOAD_WORKER, "status_ok")
+                Log.d(UploadWorker::class.java.simpleName, "status_ok")
                 Result.success()
             } else {
                 if (result == STATUS_OUT_OF_SPACE) {
-                    Log.d(UPLOAD_WORKER, "no_space_left")
+                    Log.d(UploadWorker::class.java.simpleName, "no_space_left")
                 } else {
-                    Log.d(UPLOAD_WORKER, "visit_website")
+                    Log.d(UploadWorker::class.java.simpleName, "visit_website")
                 }
                 Result.failure()
             }
         } else {
-            Log.d(UPLOAD_WORKER, "url null")
+            Log.d(UploadWorker::class.java.simpleName, "url null")
             Result.failure()
         }
     }

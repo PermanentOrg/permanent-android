@@ -7,7 +7,7 @@ class Constants {
         const val POSITION_SHARED_WITH_ME_FRAGMENT = 1
         const val MIN_PASSWORD_LENGTH = 8
         const val VERIFICATION_CODE_LENGTH = 4
-        const val FILE_NAME = "file_name"
+        const val REQUEST_CODE_FILE_SELECT = 200
         const val FOLDER_NAME = "folder_name"
         const val MY_FILES_FOLDER = "My Files"
         const val URL_STAGING = "https://staging.permanent.org/api/"
@@ -25,9 +25,6 @@ class Constants {
         const val ERROR_ACCOUNT_DUPLICATE = "warning.registration.duplicate_email"
         const val ERROR_PHONE_INVALID = "warning.validation.phone"
         const val SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED"
-        const val REQUEST_CODE_SMS_PERMISSION = 123
-        const val REQUEST_CODE_READ_STORAGE_PERMISSION = 124
-        const val REQUEST_CODE_FILE_SELECT = 125
         const val FORM_DATA_NAME_THE_FILE = "thefile"
         const val FOLDER_CREATED_PREFIX = "New folder"
     }

@@ -30,11 +30,7 @@ class ResponseVO {
     }
 
     fun getChildItemVOs(): List<RecordVO>? {
-        return getFolderVO()?.ChildItemVOs
-    }
-
-    fun getFolderVO(): FolderVO? {
-        return Results?.get(0)?.data?.get(0)?.FolderVO
+        return Results?.get(0)?.data?.get(0)?.FolderVO?.ChildItemVOs
     }
 
     fun getRecordVOs(): List<RecordVO>? {
@@ -47,7 +43,7 @@ class ResponseVO {
                     recordVO.typeEnum = RecordVO.Type.Folder
                 } else {
                     recordVO.id = recordVO.recordId
-                    recordVO.typeEnum = RecordVO.Type.Image
+                    recordVO.typeEnum = RecordVO.Type.File
                 }
             }
         }
@@ -57,5 +53,21 @@ class ResponseVO {
 
     fun getMessages(): List<String?>? {
         return Results?.get(0)?.message
+    }
+
+    fun getDownloadData(): DownloadData? {
+        if (!Results.isNullOrEmpty()) {
+            for (result in Results!!) {
+                val datum = result.data?.get(0)
+                val fileVO: FileVO? = datum?.RecordVO?.FileVOs?.get(0)
+                val downloadDatum = DownloadData()
+                downloadDatum.displayName = datum?.RecordVO!!.displayName
+                downloadDatum.downloadURL = fileVO?.downloadURL
+                downloadDatum.contentType = fileVO?.contentType
+                downloadDatum.fileName = datum.RecordVO!!.uploadFileName
+                return downloadDatum
+            }
+        }
+        return null
     }
 }

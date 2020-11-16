@@ -43,6 +43,7 @@ class BiometricsFragment : PermanentBaseFragment() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(BiometricsViewModel::class.java)
         viewModel.buildPromptParams(this)
+        viewModel.authenticateUser()
     }
 
     override fun onCreateView(

@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
+import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogNewFolderBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
 import org.permanent.permanent.models.FolderIdentifier
@@ -50,7 +51,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         dismiss()
     }
 
-    fun setBundle(folderIdentifier: FolderIdentifier?) {
+    fun setBundleArguments(folderIdentifier: FolderIdentifier?) {
         val bundle = Bundle()
         bundle.putParcelable(FOLDER_IDENTIFIER_KEY, folderIdentifier)
         this.arguments = bundle
@@ -117,7 +118,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         grantResults: IntArray
     ) {
         when (requestCode) {
-            Constants.REQUEST_CODE_READ_STORAGE_PERMISSION ->
+            REQUEST_CODE_READ_STORAGE_PERMISSION ->
                 if (grantResults.isNotEmpty()
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 ) {
