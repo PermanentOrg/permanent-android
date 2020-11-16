@@ -15,6 +15,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
@@ -174,7 +175,7 @@ class NetworkClient(context: Context) {
         return fileService.upload(uploadUrl, recordIdRequestBody, body)
     }
 
-    fun getRecord(
+    fun getFile(
         csrf: String?,
         folderLinkId: Int,
         archiveNr: String,
@@ -188,8 +189,18 @@ class NetworkClient(context: Context) {
         return fileService.getRecord(requestBody)
     }
 
-    fun downloadRecord(url: String): Call<ResponseBody> {
+    fun downloadFile(url: String): Call<ResponseBody> {
         return fileService.download(url)
+    }
+
+    fun deleteRecord(csrf: String?, record: RecordVO): Call<ResponseVO>? {
+        val request = toJson(RequestContainer(csrf).addRecord(record))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return if (record.typeEnum == RecordVO.Type.Folder) {
+            fileService.deleteFolder(requestBody)
+        } else {
+            fileService.deleteRecord(requestBody)
+        }
     }
 
     private fun toJson(container: RequestContainer): String {

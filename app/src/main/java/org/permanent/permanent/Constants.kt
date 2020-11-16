@@ -27,5 +27,7 @@ class Constants {
         const val SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED"
         const val FORM_DATA_NAME_THE_FILE = "thefile"
         const val FOLDER_CREATED_PREFIX = "New folder"
+        const val FILE_DELETED_SUCCESSFULLY = "Record(s) have been deleted."
+        const val FOLDER_DELETED_SUCCESSFULLY = "Folder has been deleted."
     }
 }

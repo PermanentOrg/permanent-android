@@ -21,6 +21,9 @@ interface IFileService {
     @POST("folder/post")
     fun createFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/delete")
+    fun deleteFolder(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("record/postMetaBatch")
     fun postMeta(@Body requestBody: RequestBody): Call<ResponseVO>
 
@@ -38,4 +41,7 @@ interface IFileService {
     @Streaming
     @GET
     fun download(@Url url: String): Call<ResponseBody>
+
+    @POST("record/delete")
+    fun deleteRecord(@Body requestBody: RequestBody): Call<ResponseVO>
 }

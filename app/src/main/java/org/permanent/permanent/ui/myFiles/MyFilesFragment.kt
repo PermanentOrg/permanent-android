@@ -30,7 +30,6 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var filesAdapter: FilesAdapter
     private var addOptionsFragment: AddOptionsFragment? = null
     private var fileOptionsFragment: FileOptionsFragment? = null
-    private var fileToShowOptionsFor: RecordVO? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,20 +82,25 @@ class MyFilesFragment : PermanentBaseFragment() {
         addOptionsFragment = AddOptionsFragment()
         addOptionsFragment?.setBundleArguments(it)
         addOptionsFragment?.show(parentFragmentManager, addOptionsFragment?.tag)
+        addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
     private val onShowFileOptionsFragment = Observer<RecordVO> {
-        fileToShowOptionsFor = it
         fileOptionsFragment = FileOptionsFragment()
-        fileOptionsFragment?.setBundleArguments(it.displayName)
+        fileOptionsFragment?.setBundleArguments(it)
         fileOptionsFragment?.show(parentFragmentManager, fileOptionsFragment?.tag)
         fileOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
+        fileOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onFileDownloadRequest = Observer<Void> {
-        if (fileToShowOptionsFor != null && fileToShowOptionsFor?.typeEnum != RecordVO.Type.Folder) {
-            viewModel.download(fileToShowOptionsFor!!)
+    private val onFileDownloadRequest = Observer<RecordVO> {
+        if (it.typeEnum != RecordVO.Type.Folder) {
+            viewModel.download(it)
         }
+    }
+
+    private val onRefreshFolder = Observer<Void> {
+        viewModel.refreshCurrentFolder()
     }
 
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {
@@ -125,10 +129,6 @@ class MyFilesFragment : PermanentBaseFragment() {
         }
     }
 
-    fun refreshCurrentFolder() {
-        viewModel.refreshCurrentFolder()
-    }
-
     override fun connectViewModelEvents() {
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
@@ -149,7 +149,9 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
         viewModel.getOnShowFileOptionsFragment().removeObserver(onShowFileOptionsFragment)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
+        addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         fileOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
+        fileOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
     }
 
     override fun onResume() {

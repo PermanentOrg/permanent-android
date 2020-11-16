@@ -34,6 +34,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var dialogBinding: DialogNewFolderBinding
     private var alertDialog: AlertDialog? = null
     private val filesToUpload = MutableLiveData<MutableList<Uri>>()
+    private val onRefreshFolder = MutableLiveData<Void>()
 
     private val onErrorStringId = Observer<Int> { errorId ->
         val errorMessage = this.resources.getString(errorId)
@@ -45,8 +46,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     }
 
     private val onFolderCreated = Observer<Void> {
-        (parentFragment?.childFragmentManager?.fragments?.get(0) as MyFilesFragment)
-            .refreshCurrentFolder()
+        onRefreshFolder.value = onRefreshFolder.value
         alertDialog?.dismiss()
         dismiss()
     }
@@ -167,6 +167,10 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
 
     fun getOnFilesSelected(): MutableLiveData<MutableList<Uri>> {
         return filesToUpload
+    }
+
+    fun getOnRefreshFolder(): MutableLiveData<Void> {
+        return onRefreshFolder
     }
 
     override fun connectViewModelEvents() {

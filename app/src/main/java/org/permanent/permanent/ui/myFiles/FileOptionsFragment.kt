@@ -13,19 +13,22 @@ import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.FragmentFileOptionsBinding
+import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.FileOptionsViewModel
 
-const val FILE_NAME = "file_name"
+const val PARCELABLE_FILE_KEY = "parcelable_file_key"
 
 class FileOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentFileOptionsBinding
     private lateinit var viewModel: FileOptionsViewModel
-    private val onFileDownloadRequest = MutableLiveData<Void>()
+    private var record: RecordVO? = null
+    private val onFileDownloadRequest = MutableLiveData<RecordVO>()
+    private val onRefreshFolder = MutableLiveData<Void>()
 
-    fun setBundleArguments(fileDisplayName: String?) {
+    fun setBundleArguments(file: RecordVO) {
         val bundle = Bundle()
-        bundle.putString(FILE_NAME, fileDisplayName)
+        bundle.putParcelable(PARCELABLE_FILE_KEY, file)
         this.arguments = bundle
     }
 
@@ -39,8 +42,8 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        binding.tvFileName.text = arguments?.getString(FILE_NAME)
-
+        record = arguments?.getParcelable(PARCELABLE_FILE_KEY)
+        binding.tvFileName.text = record?.displayName
         return binding.root
     }
 
@@ -50,7 +53,24 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
 
     private val onFileDownloadRequestObserver = Observer<Void> {
         dismiss()
-        onFileDownloadRequest.value = onFileDownloadRequest.value
+        onFileDownloadRequest.value = record
+    }
+
+    private val onRecordDeleteRequestObserver = Observer<Void> {
+        record?.let { record -> viewModel.delete(record) }
+    }
+
+    private val onRecordDeletedObserver = Observer<Void> {
+        dismiss()
+        onRefreshFolder.value = onRefreshFolder.value
+        if (record?.typeEnum == RecordVO.Type.Folder)
+            Toast.makeText(context, R.string.my_files_folder_deleted, Toast.LENGTH_LONG).show()
+        else Toast.makeText(context, R.string.my_files_file_deleted, Toast.LENGTH_LONG).show()
+    }
+
+    private val onErrorMessageObserver = Observer<String> {
+        dismiss()
+        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
     override fun onRequestPermissionsResult(
@@ -70,18 +90,28 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    fun getOnFileDownloadRequest(): MutableLiveData<Void> {
+    fun getOnFileDownloadRequest(): MutableLiveData<RecordVO> {
         return onFileDownloadRequest
+    }
+
+    fun getOnRefreshFolder(): MutableLiveData<Void> {
+        return onRefreshFolder
     }
 
     override fun connectViewModelEvents() {
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
+        viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequestObserver)
+        viewModel.getOnRecordDeleted().observe(this, onRecordDeletedObserver)
+        viewModel.getOnErrorMessage().observe(this, onErrorMessageObserver)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
+        viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequestObserver)
+        viewModel.getOnRecordDeleted().removeObserver(onRecordDeletedObserver)
+        viewModel.getOnErrorMessage().removeObserver(onErrorMessageObserver)
     }
 
     override fun onResume() {
