@@ -200,6 +200,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:paddingTop="8dp"
+            android:onClick="@{() -> viewModel.onSortOptionsClick()}"
             android:paddingEnd="8dp"
             android:paddingBottom="8dp"
             android:visibility="@{viewModel.getExistsFiles() || viewModel.getExistsUploads() ? View.VISIBLE : View.GONE}"
@@ -235,7 +236,8 @@
                 app:layout_constraintStart_toEndOf="@+id/tvSortCriteria"
                 app:layout_constraintTop_toTopOf="@+id/tvSortCriteria"
                 app:layout_constraintVertical_bias="1.0"
-                app:srcCompat="@drawable/ic_arrow_down_middle_grey" />
+                android:src="@{viewModel.getIsSortedAsc() ? @drawable/ic_arrow_down_middle_grey : @drawable/ic_arrow_up_middle_grey}"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

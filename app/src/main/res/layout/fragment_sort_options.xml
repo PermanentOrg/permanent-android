@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.SortOptionsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clBottomMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvFolderName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="16dp"
+            tools:text="Folder Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNameAsc"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/file_sort_menu_item_name_asc"
+            android:onClick="@{() -> viewModel.onSortOptionClicked(0)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFolderName" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNameDesc"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/file_sort_menu_item_name_desc"
+            android:onClick="@{() -> viewModel.onSortOptionClicked(1)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnNameAsc" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDateAsc"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/file_sort_menu_item_date_asc"
+            android:onClick="@{() -> viewModel.onSortOptionClicked(2)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnNameDesc" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDateDesc"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/file_sort_menu_item_date_asc"
+            android:onClick="@{() -> viewModel.onSortOptionClicked(3)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnDateAsc" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTypeAsc"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/file_sort_menu_item_type_asc"
+            android:onClick="@{() -> viewModel.onSortOptionClicked(4)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnDateDesc" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTypeDesc"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/file_sort_menu_item_type_desc"
+            android:onClick="@{() -> viewModel.onSortOptionClicked(5)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnTypeAsc" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

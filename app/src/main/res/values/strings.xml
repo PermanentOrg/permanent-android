@@ -95,6 +95,12 @@
     <string name="file_options_menu_item_delete">Delete</string>
     <string name="file_options_menu_item_edit">Edit</string>
     <string name="file_options_menu_item_share">Share</string>
+    <string name="file_sort_menu_item_name_asc">Name (Ascending)</string>
+    <string name="file_sort_menu_item_name_desc">Name (Descending)</string>
+    <string name="file_sort_menu_item_date_asc">Date (Ascending)</string>
+    <string name="file_sort_menu_item_date_desc">Date (Descending)</string>
+    <string name="file_sort_menu_item_type_asc">File Type (Ascending)</string>
+    <string name="file_sort_menu_item_type_desc">File Type (Descending)</string>
     <string name="login_bad_credentials">Incorrect username or password</string>
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
