@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.Constants.Companion.FILE_PROVIDER_NAME
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_FILE_SELECT
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_IMAGE_CAPTURE
+import org.permanent.permanent.Constants.Companion.REQUEST_CODE_VIDEO_CAPTURE
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
@@ -81,7 +82,8 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         dialogViewModel = ViewModelProvider(this).get(NewFolderViewModel::class.java)
         binding.btnNewFolder.setOnClickListener(this)
-        binding.btnUploadFromCamera.setOnClickListener(this)
+        binding.btnTakePhoto.setOnClickListener(this)
+        binding.btnTakeVideo.setOnClickListener(this)
         binding.btnUpload.setOnClickListener(this)
 
         return binding.root
@@ -90,7 +92,8 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     override fun onClick(view: View) {
         when (view.id) {
             R.id.btnNewFolder -> showNewFolderDialog()
-            R.id.btnUploadFromCamera -> dispatchTakePictureIntent()
+            R.id.btnTakePhoto -> dispatchTakePictureIntent()
+            R.id.btnTakeVideo -> dispatchTakeVideoIntent()
             R.id.btnUpload -> context?.let {
                 val permissionHelper = PermissionsHelper()
                 if (!permissionHelper.hasReadStoragePermission(it)) {
@@ -150,6 +153,14 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         }
     }
 
+    private fun dispatchTakeVideoIntent() {
+        Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
+            context?.packageManager?.let { takeVideoIntent.resolveActivity(it)?.also {
+                startActivityForResult(takeVideoIntent, REQUEST_CODE_VIDEO_CAPTURE) }
+            }
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>,
         grantResults: IntArray
@@ -196,6 +207,9 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
             }
             REQUEST_CODE_IMAGE_CAPTURE -> if (resultCode == RESULT_OK) {
                 filesToUpload.value = mutableListOf(photoURI)
+            }
+            REQUEST_CODE_VIDEO_CAPTURE -> if (resultCode == RESULT_OK) {
+                intent?.data?.let { filesToUpload.value = mutableListOf(it) }
             }
         }
         dismiss()

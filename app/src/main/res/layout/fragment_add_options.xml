@@ -26,15 +26,26 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnUploadFromCamera"
+            android:id="@+id/btnTakePhoto"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/colorAccent"
-            android:text="@string/add_options_menu_item_upload_from_camera"
+            android:text="@string/add_options_menu_item_take_photo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnUpload" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTakeVideo"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorAccent"
+            android:text="@string/add_options_menu_item_take_video"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnTakePhoto" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNewFolder"
@@ -48,6 +59,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnUploadFromCamera" />
+            app:layout_constraintTop_toBottomOf="@id/btnTakeVideo" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
