@@ -3,12 +3,13 @@ package org.permanent.permanent.models
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.upload.UploadQueue
 
 class Folder(val context: Context, private val folderInfo: RecordVO) {
     private var uploadQueue: UploadQueue? = null
 
-    fun newUploadQueue(lifecycleOwner: LifecycleOwner, listener: Upload.IOnFinishedListener
+    fun newUploadQueue(lifecycleOwner: LifecycleOwner, listener: OnFinishedListener
     ): UploadQueue? {
         val archiveNr = folderInfo.archiveNbr
         val folderIdentifier = folderInfo.getFolderIdentifier()

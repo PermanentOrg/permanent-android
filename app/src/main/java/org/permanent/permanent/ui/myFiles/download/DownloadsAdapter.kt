@@ -7,10 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemDownloadBinding
 import org.permanent.permanent.models.Download
+import org.permanent.permanent.ui.myFiles.CancelListener
 
 class DownloadsAdapter(
     val lifecycleOwner: LifecycleOwner,
-    private val downloadCancelListener: DownloadCancelListener
+    private val cancelListener: CancelListener
 ) : RecyclerView.Adapter<DownloadViewHolder>() {
     private val existsDownloads = MutableLiveData(false)
     private var downloads: MutableList<Download> = ArrayList()
@@ -21,7 +22,7 @@ class DownloadsAdapter(
             parent,
             false
         )
-        return DownloadViewHolder(binding, downloadCancelListener)
+        return DownloadViewHolder(binding, cancelListener)
     }
 
     fun set(downloads: MutableList<Download>) {

@@ -7,10 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemUploadBinding
 import org.permanent.permanent.models.Upload
+import org.permanent.permanent.ui.myFiles.CancelListener
 
 class UploadsAdapter(
     val lifecycleOwner: LifecycleOwner,
-    private val uploadCancelListener: UploadCancelListener
+    private val cancelListener: CancelListener
 ) : RecyclerView.Adapter<UploadViewHolder>() {
     private val existsUploads = MutableLiveData(false)
     private var uploads: MutableList<Upload> = ArrayList()
@@ -21,7 +22,7 @@ class UploadsAdapter(
             parent,
             false
         )
-        return UploadViewHolder(binding, uploadCancelListener)
+        return UploadViewHolder(binding, cancelListener)
     }
 
     fun set(uploads: MutableList<Upload>) {

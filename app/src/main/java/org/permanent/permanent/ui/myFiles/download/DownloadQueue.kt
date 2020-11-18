@@ -7,11 +7,12 @@ import androidx.work.WorkManager
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FILE_DOWNLOAD_TAG
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.ui.myFiles.OnFinishedListener
 
 class DownloadQueue(
     val context: Context,
     val lifecycleOwner: LifecycleOwner,
-    private val onDownloadFinishedListener: Download.IOnFinishedListener
+    private val onFinishedListener: OnFinishedListener
 ) {
     private val enqueuedDownloads: MutableLiveData<MutableList<Download>> = MutableLiveData()
     private val workManager = WorkManager.getInstance(context)
@@ -21,7 +22,7 @@ class DownloadQueue(
         val workInfoList = workManager.getWorkInfosByTag(FILE_DOWNLOAD_TAG).get()
         for (workInfo in workInfoList) {
             if (!workInfo.state.isFinished) {
-                val restoredDownload = Download(context, workInfo, onDownloadFinishedListener)
+                val restoredDownload = Download(context, workInfo, onFinishedListener)
                 restoredDownload.observeWorkInfoOn(lifecycleOwner)
                 enqueuedDownloads.value?.add(restoredDownload)
             }
@@ -34,7 +35,7 @@ class DownloadQueue(
     }
 
     fun enqueueNewDownloadFor(file: RecordVO) {
-        val download = Download(context, file, onDownloadFinishedListener)
+        val download = Download(context, file, onFinishedListener)
         download.getWorkRequest()?.let { workManager.enqueue(it) }
         download.observeWorkInfoOn(lifecycleOwner)
         enqueuedDownloads.value?.add(download)

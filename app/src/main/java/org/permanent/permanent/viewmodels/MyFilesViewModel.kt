@@ -2,7 +2,6 @@ package org.permanent.permanent.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -21,20 +20,14 @@ import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
-import org.permanent.permanent.ui.myFiles.FileClickListener
-import org.permanent.permanent.ui.myFiles.FileOptionsClickListener
-import org.permanent.permanent.ui.myFiles.FolderOptionsFragment
-import org.permanent.permanent.ui.myFiles.SortOptionsFragment
-import org.permanent.permanent.ui.myFiles.download.DownloadCancelListener
+import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
-import org.permanent.permanent.ui.myFiles.upload.UploadCancelListener
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
-    FileClickListener, FileOptionsClickListener, UploadCancelListener, Upload.IOnFinishedListener,
-    DownloadCancelListener, Download.IOnFinishedListener {
+    FileClickListener, FileOptionsClickListener, CancelListener, OnFinishedListener {
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isRoot = MutableLiveData(true)
@@ -258,10 +251,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private fun loadEnqueuedDownloads(lifecycleOwner: LifecycleOwner) {
         downloadQueue = DownloadQueue(appContext, lifecycleOwner, this)
         downloadQueue.getEnqueuedDownloadsLiveData().let { enqueuedDownloadsLiveData ->
-                enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
-                    onDownloadsRetrieved.value = enqueuedDownloads
-                })
-            }
+            enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
+                onDownloadsRetrieved.value = enqueuedDownloads
+            })
+        }
     }
 
     fun enqueueFilesForUpload(uris: List<Uri>) {
