@@ -1,21 +1,27 @@
 package org.permanent.permanent.ui.myFiles
 
-import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.ClipData
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.permanent.Constants
+import org.permanent.permanent.Constants.Companion.FILE_PROVIDER_NAME
+import org.permanent.permanent.Constants.Companion.REQUEST_CODE_FILE_SELECT
+import org.permanent.permanent.Constants.Companion.REQUEST_CODE_IMAGE_CAPTURE
+import org.permanent.permanent.Constants.Companion.REQUEST_CODE_VIDEO_CAPTURE
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
@@ -25,6 +31,11 @@ import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.AddOptionsViewModel
 import org.permanent.permanent.viewmodels.NewFolderViewModel
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 const val FOLDER_IDENTIFIER_KEY = "folder_identifier"
 class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
@@ -32,6 +43,8 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var viewModel: AddOptionsViewModel
     private lateinit var dialogViewModel: NewFolderViewModel
     private lateinit var dialogBinding: DialogNewFolderBinding
+    private lateinit var currentPhotoPath: String
+    private lateinit var photoURI: Uri
     private var alertDialog: AlertDialog? = null
     private val filesToUpload = MutableLiveData<MutableList<Uri>>()
     private val onRefreshFolder = MutableLiveData<Void>()
@@ -69,14 +82,18 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         dialogViewModel = ViewModelProvider(this).get(NewFolderViewModel::class.java)
         binding.btnNewFolder.setOnClickListener(this)
+        binding.btnTakePhoto.setOnClickListener(this)
+        binding.btnTakeVideo.setOnClickListener(this)
         binding.btnUpload.setOnClickListener(this)
 
         return binding.root
     }
 
     override fun onClick(view: View) {
-        when(view.id) {
+        when (view.id) {
             R.id.btnNewFolder -> showNewFolderDialog()
+            R.id.btnTakePhoto -> dispatchTakePictureIntent()
+            R.id.btnTakeVideo -> dispatchTakeVideoIntent()
             R.id.btnUpload -> context?.let {
                 val permissionHelper = PermissionsHelper()
                 if (!permissionHelper.hasReadStoragePermission(it)) {
@@ -103,13 +120,44 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
                 .setView(dialogBinding.root)
                 .create()
             dialogBinding.btnCreate.setOnClickListener {
-                val currentFolderIdentifier = arguments?.getParcelable<FolderIdentifier>(FOLDER_IDENTIFIER_KEY)
+                val currentFolderIdentifier =
+                    arguments?.getParcelable<FolderIdentifier>(FOLDER_IDENTIFIER_KEY)
                 dialogViewModel.createNewFolder(currentFolderIdentifier)
             }
             dialogBinding.btnCancel.setOnClickListener {
                 alertDialog?.dismiss()
             }
             alertDialog?.show()
+        }
+    }
+
+    private fun dispatchTakePictureIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            // Ensure that there's a camera activity to handle the intent
+            context?.packageManager?.let {
+                takePictureIntent.resolveActivity(it)?.also {
+                    // Create the File where the photo should go
+                    val photoFile: File? = try {
+                        createImageFile()
+                    } catch (ex: IOException) {
+                        Toast.makeText(context, ex.message, Toast.LENGTH_LONG).show()
+                        null
+                    }
+                    photoFile?.let { file -> context?.let { ctx ->
+                        photoURI = FileProvider.getUriForFile(ctx, FILE_PROVIDER_NAME, file) }
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                        startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun dispatchTakeVideoIntent() {
+        Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
+            context?.packageManager?.let { takeVideoIntent.resolveActivity(it)?.also {
+                startActivityForResult(takeVideoIntent, REQUEST_CODE_VIDEO_CAPTURE) }
+            }
         }
     }
 
@@ -135,21 +183,36 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
             type = "*/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
-        startActivityForResult(intent, Constants.REQUEST_CODE_FILE_SELECT)
+        startActivityForResult(intent, REQUEST_CODE_FILE_SELECT)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
         when (requestCode) {
-            Constants.REQUEST_CODE_FILE_SELECT -> if (resultCode == Activity.RESULT_OK) {
+            REQUEST_CODE_FILE_SELECT -> if (resultCode == RESULT_OK) {
+                var urisToUpload = emptyList<Uri>().toMutableList()
                 if (intent?.data != null) {
-                    filesToUpload.value = mutableListOf(intent.data!!)
+                    urisToUpload.add(intent.data!!)
                 } else if (intent?.clipData != null) {
-                    filesToUpload.value = getUris(intent)
+                    urisToUpload = getUris(intent)
                 }
-                dismiss()
+                // Requesting read uri permission
+                for (uri in urisToUpload) {
+                    context?.contentResolver?.takePersistableUriPermission(
+                        uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                }
+                // Start uploading files
+                filesToUpload.value = urisToUpload
+            }
+            REQUEST_CODE_IMAGE_CAPTURE -> if (resultCode == RESULT_OK) {
+                filesToUpload.value = mutableListOf(photoURI)
+            }
+            REQUEST_CODE_VIDEO_CAPTURE -> if (resultCode == RESULT_OK) {
+                intent?.data?.let { filesToUpload.value = mutableListOf(it) }
             }
         }
+        dismiss()
     }
 
     private fun getUris(intent: Intent): MutableList<Uri> {
@@ -163,6 +226,15 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
             i++
         }
         return uris
+    }
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        val timeStamp: String = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(Date())
+        val storageDir: File? = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile("${timeStamp}_", ".jpg", storageDir).apply {
+            currentPhotoPath = absolutePath
+        }
     }
 
     fun getOnFilesSelected(): MutableLiveData<MutableList<Uri>> {

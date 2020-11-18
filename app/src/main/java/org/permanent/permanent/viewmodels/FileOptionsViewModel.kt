@@ -1,6 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.network.models.RecordVO
@@ -18,7 +19,8 @@ class FileOptionsViewModel(application: Application) : ObservableAndroidViewMode
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun onDownloadBtnClick() {
-        if (!PermissionsHelper().hasWriteStoragePermission(appContext)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+            && !PermissionsHelper().hasWriteStoragePermission(appContext)) {
             onRequestWritePermission.value = onRequestWritePermission.value
         } else {
             startFileDownload()
