@@ -267,8 +267,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun enqueueFilesForUpload(uris: List<Uri>) {
         val uploadQueue = currentFolder.getUploadQueue()
         for (uri in uris) {
-            appContext.contentResolver.takePersistableUriPermission(
-                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             uploadQueue?.addNewUploadFor(uri)
         }
         uploadQueue?.enqueuePendingUploads()

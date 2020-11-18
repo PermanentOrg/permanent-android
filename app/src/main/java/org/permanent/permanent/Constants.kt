@@ -8,6 +8,7 @@ class Constants {
         const val MIN_PASSWORD_LENGTH = 8
         const val VERIFICATION_CODE_LENGTH = 4
         const val REQUEST_CODE_FILE_SELECT = 200
+        const val REQUEST_CODE_IMAGE_CAPTURE = 201
         const val FOLDER_NAME = "folder_name"
         const val MY_FILES_FOLDER = "My Files"
         const val URL_STAGING = "https://staging.permanent.org/api/"
@@ -29,5 +30,7 @@ class Constants {
         const val FOLDER_CREATED_PREFIX = "New folder"
         const val FILE_DELETED_SUCCESSFULLY = "Record(s) have been deleted."
         const val FOLDER_DELETED_SUCCESSFULLY = "Folder has been deleted."
+        // This is also used in manifest
+        const val FILE_PROVIDER_NAME = "org.permanent.permanent.fileprovider"
     }
 }
