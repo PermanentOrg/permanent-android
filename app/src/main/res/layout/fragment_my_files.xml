@@ -215,7 +215,7 @@
                 android:id="@+id/tvSortCriteria"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/my_files_sort_criteria_name"
+                android:text="@{viewModel.getSortName()}"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"

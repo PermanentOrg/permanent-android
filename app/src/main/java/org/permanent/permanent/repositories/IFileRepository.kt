@@ -9,8 +9,8 @@ import java.io.OutputStream
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IOnMyFilesArchiveNrListener)
-    fun getChildRecordsOf(myFilesArchiveNr: String, listener: IOnRecordsRetrievedListener)
-    fun navigateMin(archiveNumber: String, listener: IOnRecordsRetrievedListener)
+    fun getChildRecordsOf(myFilesArchiveNr: String, sort: String?, listener: IOnRecordsRetrievedListener)
+    fun navigateMin(archiveNumber: String, sort: String?, listener: IOnRecordsRetrievedListener)
     fun getLeanItems(archiveNumber: String, sort: String?, childLinkIds: List<Int>,
                      listener: IOnRecordsRetrievedListener)
     fun createFolder(

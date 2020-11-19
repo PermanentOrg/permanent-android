@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.ClipData
 import android.content.Intent
@@ -228,6 +229,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         return uris
     }
 
+    @SuppressLint("SimpleDateFormat")
     @Throws(IOException::class)
     private fun createImageFile(): File {
         val timeStamp: String = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(Date())

@@ -30,6 +30,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var filesAdapter: FilesAdapter
     private var addOptionsFragment: AddOptionsFragment? = null
     private var fileOptionsFragment: FileOptionsFragment? = null
+    private var sortOptionsFragment: SortOptionsFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -93,10 +94,21 @@ class MyFilesFragment : PermanentBaseFragment() {
         fileOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
+    private val onShowSortOptionsFragment = Observer<SortType> {
+        sortOptionsFragment = SortOptionsFragment()
+        sortOptionsFragment?.setBundleArguments(it)
+        sortOptionsFragment?.show(parentFragmentManager, fileOptionsFragment?.tag)
+        sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
+    }
+
     private val onFileDownloadRequest = Observer<RecordVO> {
         if (it.typeEnum != RecordVO.Type.Folder) {
             viewModel.download(it)
         }
+    }
+
+    private val onSortRequest = Observer<SortType> {
+        viewModel.setSortType(it)
     }
 
     private val onRefreshFolder = Observer<Void> {
@@ -137,6 +149,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnNewTemporaryFile().observe(this, onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
         viewModel.getOnShowFileOptionsFragment().observe(this, onShowFileOptionsFragment)
+        viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
@@ -148,10 +161,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnNewTemporaryFile().removeObserver(onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
         viewModel.getOnShowFileOptionsFragment().removeObserver(onShowFileOptionsFragment)
+        viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         fileOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         fileOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
+        sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }
 
     override fun onResume() {

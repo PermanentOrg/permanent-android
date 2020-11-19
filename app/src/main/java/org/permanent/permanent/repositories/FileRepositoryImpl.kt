@@ -56,13 +56,15 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
 
     override fun getChildRecordsOf(
         myFilesArchiveNr: String,
+        sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        navigateMin(myFilesArchiveNr, listener)
+        navigateMin(myFilesArchiveNr, sort, listener)
     }
 
     override fun navigateMin(
         archiveNumber: String,
+        sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
         networkClient.navigateMin(prefsHelper.getCsrf(), archiveNumber)
@@ -80,7 +82,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                         for (recordVO in childItemVOs) {
                             recordVO?.folder_linkId?.let { folderLinkIds.add(it) }
                         }
-                        getLeanItems(archiveNumber, null, folderLinkIds, listener)
+                        getLeanItems(archiveNumber, sort, folderLinkIds, listener)
                     }
                 }
 
