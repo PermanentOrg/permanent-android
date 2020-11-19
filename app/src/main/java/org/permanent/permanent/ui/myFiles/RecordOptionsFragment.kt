@@ -12,23 +12,23 @@ import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
-import org.permanent.permanent.databinding.FragmentFileOptionsBinding
+import org.permanent.permanent.databinding.FragmentRecordOptionsBinding
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.viewmodels.FileOptionsViewModel
+import org.permanent.permanent.viewmodels.RecordOptionsViewModel
 
-const val PARCELABLE_FILE_KEY = "parcelable_file_key"
+const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
 
 class FileOptionsFragment : PermanentBottomSheetFragment() {
-    private lateinit var binding: FragmentFileOptionsBinding
-    private lateinit var viewModel: FileOptionsViewModel
+    private lateinit var binding: FragmentRecordOptionsBinding
+    private lateinit var viewModel: RecordOptionsViewModel
     private var record: RecordVO? = null
     private val onFileDownloadRequest = MutableLiveData<RecordVO>()
     private val onRefreshFolder = MutableLiveData<Void>()
 
-    fun setBundleArguments(file: RecordVO) {
+    fun setBundleArguments(record: RecordVO) {
         val bundle = Bundle()
-        bundle.putParcelable(PARCELABLE_FILE_KEY, file)
+        bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
         this.arguments = bundle
     }
 
@@ -37,13 +37,13 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModel = ViewModelProvider(this).get(FileOptionsViewModel::class.java)
-        binding = FragmentFileOptionsBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(RecordOptionsViewModel::class.java)
+        binding = FragmentRecordOptionsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        record = arguments?.getParcelable(PARCELABLE_FILE_KEY)
-        binding.tvFileName.text = record?.displayName
+        record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
+        viewModel.setRecord(record)
         return binding.root
     }
 
