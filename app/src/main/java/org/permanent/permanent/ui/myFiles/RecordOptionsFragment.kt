@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
@@ -57,7 +59,7 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
     }
 
     private val onRecordDeleteRequestObserver = Observer<Void> {
-        record?.let { record -> viewModel.delete(record) }
+        showDeleteDialog()
     }
 
     private val onRecordDeletedObserver = Observer<Void> {
@@ -71,6 +73,23 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
     private val onErrorMessageObserver = Observer<String> {
         dismiss()
         Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showDeleteDialog() {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
+
+        val alert = AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.delete_record_title, record?.displayName)
+        viewDialog.btnDelete.setOnClickListener {
+            record?.let { record -> viewModel.delete(record) }
+            alert.dismiss()
+        }
+        viewDialog.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
     }
 
     override fun onRequestPermissionsResult(
