@@ -10,12 +10,13 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.download.*
 import org.permanent.permanent.ui.myFiles.upload.WORKER_INPUT_FOLDER_LINK_ID_KEY
 import java.util.*
 
 const val FILE_DOWNLOAD_TAG = "file_download_tag"
-class Download private constructor(val context: Context, val listener: IOnFinishedListener) {
+class Download private constructor(val context: Context, val listener: OnFinishedListener) {
     private lateinit var workInfoLiveData: LiveData<WorkInfo>
     private lateinit var uuid: UUID
     private lateinit var displayName: String
@@ -26,7 +27,7 @@ class Download private constructor(val context: Context, val listener: IOnFinish
     constructor(
         context: Context,
         file: RecordVO,
-        listener: IOnFinishedListener
+        listener: OnFinishedListener
     ) : this(context, listener) {
         displayName = file.displayName ?: ""
         val folderLinkId = file.folder_linkId
@@ -50,7 +51,7 @@ class Download private constructor(val context: Context, val listener: IOnFinish
         }
     }
 
-    constructor(context: Context, workInfo: WorkInfo, listener: IOnFinishedListener
+    constructor(context: Context, workInfo: WorkInfo, listener: OnFinishedListener
     ) : this(context, listener) {
         for (tag in workInfo.tags) {
             if (!tag.contains(DownloadWorker::class.java.simpleName)
@@ -82,9 +83,5 @@ class Download private constructor(val context: Context, val listener: IOnFinish
         if(isDownloading.value == false) isDownloading.value = state == WorkInfo.State.RUNNING
         val progressValue = workInfo.progress.getInt(DOWNLOAD_PROGRESS, 0)
         progress.value = progressValue
-    }
-
-    interface IOnFinishedListener {
-        fun onFinished(download: Download)
     }
 }

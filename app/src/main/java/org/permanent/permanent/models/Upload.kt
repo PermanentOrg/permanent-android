@@ -11,11 +11,12 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.upload.*
 import java.io.IOException
 import java.util.*
 
-class Upload private constructor(val context: Context, val listener: IOnFinishedListener) {
+class Upload private constructor(val context: Context, val listener: OnFinishedListener) {
     private lateinit var workInfoLiveData: LiveData<WorkInfo>
     private lateinit var uuid: UUID
     private lateinit var displayName: String
@@ -27,7 +28,7 @@ class Upload private constructor(val context: Context, val listener: IOnFinished
         context: Context,
         folderIdentifier: FolderIdentifier,
         uri: Uri,
-        listener: IOnFinishedListener
+        listener: OnFinishedListener
     ) : this(context, listener) {
         displayName = getName(uri)
         val builder = Data.Builder().apply {
@@ -44,7 +45,7 @@ class Upload private constructor(val context: Context, val listener: IOnFinished
         workInfoLiveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(uuid)
     }
 
-    constructor(context: Context, workInfo: WorkInfo, listener: IOnFinishedListener
+    constructor(context: Context, workInfo: WorkInfo, listener: OnFinishedListener
     ) : this(context, listener) {
         for (tag in workInfo.tags) {
             if (!tag.contains(UploadWorker::class.java.simpleName)) displayName = tag
@@ -90,9 +91,5 @@ class Upload private constructor(val context: Context, val listener: IOnFinished
         if (isUploading.value == false) isUploading.value = state == WorkInfo.State.RUNNING
         val progressValue = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
         progress.value = progressValue
-    }
-
-    interface IOnFinishedListener {
-        fun onFinished(upload: Upload)
     }
 }

@@ -8,15 +8,22 @@ import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
-class FileOptionsViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class RecordOptionsViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData<Boolean>()
+    private val isFolder = MutableLiveData(false)
+    private val recordName = MutableLiveData<String>()
     private val onRequestWritePermission = SingleLiveEvent<Void>()
     private val onFileDownloadRequest = MutableLiveData<Void>()
     private val onFileDeleteRequest = MutableLiveData<Void>()
     private val onRecordDeleted = SingleLiveEvent<Void>()
     private val onErrorMessage = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+
+    fun setRecord(record: RecordVO?) {
+        isFolder.value = record?.typeEnum == RecordVO.Type.Folder
+        recordName.value = record?.displayName
+    }
 
     fun onDownloadBtnClick() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
@@ -29,6 +36,14 @@ class FileOptionsViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy
+    }
+
+    fun getIsFolder(): MutableLiveData<Boolean> {
+        return isFolder
+    }
+
+    fun getName(): MutableLiveData<String> {
+        return recordName
     }
 
     fun getOnRequestWritePermission(): MutableLiveData<Void> {

@@ -56,13 +56,15 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
 
     override fun getChildRecordsOf(
         myFilesArchiveNr: String,
+        sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        navigateMin(myFilesArchiveNr, listener)
+        navigateMin(myFilesArchiveNr, sort, listener)
     }
 
     override fun navigateMin(
         archiveNumber: String,
+        sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
         networkClient.navigateMin(prefsHelper.getCsrf(), archiveNumber)
@@ -80,7 +82,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                         for (recordVO in childItemVOs) {
                             recordVO?.folder_linkId?.let { folderLinkIds.add(it) }
                         }
-                        getLeanItems(archiveNumber, folderLinkIds, listener)
+                        getLeanItems(archiveNumber, sort, folderLinkIds, listener)
                     }
                 }
 
@@ -90,11 +92,10 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun getLeanItems(
-        archiveNumber: String, childLinkIds: List<Int>,
+    override fun getLeanItems(archiveNumber: String, sort: String?, childLinkIds: List<Int>,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        networkClient.getLeanItems(prefsHelper.getCsrf(), archiveNumber, childLinkIds)
+        networkClient.getLeanItems(prefsHelper.getCsrf(), archiveNumber, sort, childLinkIds)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

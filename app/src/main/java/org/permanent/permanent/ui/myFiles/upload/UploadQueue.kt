@@ -10,13 +10,14 @@ import androidx.work.WorkContinuation
 import androidx.work.WorkManager
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Upload
+import org.permanent.permanent.ui.myFiles.OnFinishedListener
 
 class UploadQueue(
     val context: Context,
     private val folderIdentifier: FolderIdentifier,
     val lifecycleOwner: LifecycleOwner,
     val id: String,
-    private val onUploadFinishedListener: Upload.IOnFinishedListener
+    private val onFinishedListener: OnFinishedListener
 ) {
     private val pendingUploads: MutableList<Upload> = ArrayList()
     private val enqueuedUploads: MutableLiveData<MutableList<Upload>> = MutableLiveData()
@@ -27,7 +28,7 @@ class UploadQueue(
         val workInfoList = WorkManager.getInstance(context).getWorkInfosForUniqueWork(id).get()
         for (workInfo in workInfoList) {
             if (!workInfo.state.isFinished) {
-                val restoredUpload = Upload(context, workInfo, onUploadFinishedListener)
+                val restoredUpload = Upload(context, workInfo, onFinishedListener)
                 restoredUpload.observeWorkInfoOn(lifecycleOwner)
                 enqueuedUploads.value?.add(restoredUpload)
             }
@@ -40,7 +41,7 @@ class UploadQueue(
     }
 
     fun addNewUploadFor(uri: Uri) {
-        add(Upload(context, folderIdentifier, uri, onUploadFinishedListener))
+        add(Upload(context, folderIdentifier, uri, onFinishedListener))
     }
 
     @SuppressLint("EnqueueWork")

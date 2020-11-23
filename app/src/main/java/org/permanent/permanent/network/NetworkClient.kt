@@ -93,14 +93,17 @@ class NetworkClient(context: Context) {
         return authService.forgotPassword(requestBody)
     }
 
-    fun sendSMSVerificationCode(csrf: String?, accountId: String, email: String): Call<ResponseVO>  {
-        val request = toJson(RequestContainer(csrf).addAccount(accountId, email, null))
+    fun sendSMSVerificationCode(csrf: String?, accountId: String, email: String
+    ): Call<ResponseVO>  {
+        val request = toJson(RequestContainer(csrf)
+            .addAccount(accountId, email, null))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return authService.sendSMSVerificationCode(requestBody)
     }
 
-    fun verifyCode(code: String, authType: String, csrf: String?, email: String): Call<ResponseVO>  {
+    fun verifyCode(code: String, authType: String, csrf: String?, email: String
+    ): Call<ResponseVO>  {
         val request = toJson(RequestContainer(csrf).addAuth(code, authType).addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
@@ -118,7 +121,8 @@ class NetworkClient(context: Context) {
         return accountService.signUp(requestBody)
     }
 
-    fun update(csrf: String?, accountId: String, email: String, phoneNumber: String): Call<ResponseVO> {
+    fun update(csrf: String?, accountId: String, email: String, phoneNumber: String
+    ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAccount(accountId, email, phoneNumber))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
@@ -133,20 +137,22 @@ class NetworkClient(context: Context) {
     }
 
     fun navigateMin(csrf: String?, archiveNumber: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber))
+        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber, null))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.navigateMin(requestBody)
     }
 
-    fun getLeanItems(csrf: String?, archiveNumber: String, childItems: List<Int>): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber, childItems))
+    fun getLeanItems(csrf: String?, archiveNumber: String, sort: String?, childItems: List<Int>
+    ): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber, sort, childItems))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.getLeanItems(requestBody)
     }
 
-    fun createFolder(csrf: String?, name: String, folderId: Int, folderLinkId: Int): Call<ResponseVO> {
+    fun createFolder(csrf: String?, name: String, folderId: Int, folderLinkId: Int
+    ): Call<ResponseVO> {
         val json = toJson(RequestContainer(csrf).addFolder(name, folderId, folderLinkId))
         val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
 

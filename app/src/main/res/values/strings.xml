@@ -108,8 +108,8 @@
     <string name="cancel_button">Cancel</string>
     <string name="yes_button">Yes</string>
     <string name="add_options_menu_item_upload">Upload</string>
-    <string name="add_options_menu_item_take_photo">Upload Photo from Camera</string>
-    <string name="add_options_menu_item_take_video">Upload Video from Camera</string>
+    <string name="add_options_menu_item_take_photo">Take Photo</string>
+    <string name="add_options_menu_item_take_video">Take Video</string>
     <string name="add_options_menu_item_new_folder">New Folder</string>
     <string name="upload_no_permissions_error">Cannot select files to upload without read permissions.</string>
     <string name="upload_record_not_created_error">Record could not be created</string>
@@ -120,9 +120,11 @@
     <string name="my_files_folder_deleted">Folder has been deleted.</string>
     <string name="create_button">Create</string>
     <string name="new_folder_title">Create New Folder</string>
+    <string name="delete_record_title">Delete \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
     <string name="my_files_uploads_title">Uploads</string>
     <string name="my_files_downloads_title">Downloads</string>
     <string name="my_files_uploads_waiting">Waiting…</string>
     <string name="download_no_permissions_error">Cannot download file without write permission.</string>
+    <string name="delete_button">Delete</string>
 </resources>

@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.FileOptionsViewModel" />
+            type="org.permanent.permanent.viewmodels.RecordOptionsViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="16dp"
-            android:text="File Name"
+            android:text="@{viewModel.getName()}"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -37,6 +37,7 @@
             android:layout_marginTop="8dp"
             android:onClick="@{() -> viewModel.onDownloadBtnClick()}"
             android:text="@string/file_options_menu_item_download"
+            android:visibility="@{viewModel.getIsFolder() ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFileName" />
@@ -48,6 +49,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onCopyBtnClick()}"
             android:text="@string/file_options_menu_item_copy"
+            android:visibility="@{viewModel.getIsFolder() ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnDownload" />
@@ -59,6 +61,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onMoveBtnClick()}"
             android:text="@string/file_options_menu_item_move"
+            android:visibility="@{viewModel.getIsFolder() ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnCopy" />
@@ -70,6 +73,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onPublishBtnClick()}"
             android:text="@string/file_options_menu_item_publish"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnMove" />
@@ -79,9 +83,11 @@
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="@color/deepRed"
             android:onClick="@{() -> viewModel.onDeleteBtnClick()}"
             android:text="@string/file_options_menu_item_delete"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnPublish" />
@@ -93,6 +99,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onEditBtnClick()}"
             android:text="@string/file_options_menu_item_edit"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnDelete" />
@@ -104,6 +111,7 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onShareBtnClick()}"
             android:text="@string/file_options_menu_item_share"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnEdit" />
