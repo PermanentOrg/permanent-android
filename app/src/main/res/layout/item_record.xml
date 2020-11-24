@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="org.permanent.permanent.models.RecordType" />
+        <import type="android.view.View" />
         <variable
-            name="file"
-            type="org.permanent.permanent.network.models.RecordVO" />
+            name="record"
+            type="org.permanent.permanent.models.Record" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,8 +22,8 @@
             android:layout_marginStart="12dp"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            app:fileType="@{file.typeEnum}"
-            app:imageUrl="@{file.thumbURL500}"
+            app:fileType="@{record.type}"
+            app:imageUrl="@{record.thumbURL500}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -43,7 +44,7 @@
             android:layout_marginStart="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{file.displayName}"
+            android:text="@{record.displayName}"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
             app:layout_constraintEnd_toStartOf="@+id/btnOptions"
@@ -56,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@{file.getDate()}"
+            android:text="@{record.displayDate}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
             app:layout_constraintTop_toTopOf="@+id/guideline"
@@ -72,5 +73,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/whiteTransparent"
+            android:visibility="@{record.isRelocateMode &amp;&amp; record.type == RecordType.FILE ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -5,6 +5,7 @@ class Datum {
     var AccountVO: AccountVO? = null
     var AuthVO: AuthVO? = null
     var FolderVO: FolderVO? = null
+    var FolderDestVO: FolderDestVO? = null
     var ArchiveVO: ArchiveVO? = null
     var RecordVO: RecordVO? = null
     var SimpleVO: SimpleVO? = null

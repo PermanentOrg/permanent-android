@@ -15,8 +15,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
-import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
@@ -199,13 +201,33 @@ class NetworkClient(context: Context) {
         return fileService.download(url)
     }
 
-    fun deleteRecord(csrf: String?, record: RecordVO): Call<ResponseVO>? {
+    fun deleteRecord(csrf: String?, record: Record): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(record))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return if (record.typeEnum == RecordVO.Type.Folder) {
+        return if (record.type == RecordType.FOLDER) {
             fileService.deleteFolder(requestBody)
         } else {
             fileService.deleteRecord(requestBody)
+        }
+    }
+
+    fun relocateRecord(
+        csrf: String?, recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType)
+    : Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addRecord(recordToRelocate).addFolderDest(destFolderLinkId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return if (recordToRelocate.type == RecordType.FOLDER) {
+            if (relocationType == RelocationType.MOVE) {
+                fileService.moveFolder(requestBody)
+            } else {
+                fileService.copyFolder(requestBody)
+            }
+        } else {
+            if (relocationType == RelocationType.MOVE) {
+                fileService.moveRecord(requestBody)
+            } else {
+                fileService.copyRecord(requestBody)
+            }
         }
     }
 

@@ -4,9 +4,11 @@ import android.app.Application
 import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.PermissionsHelper
-import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.ui.myFiles.RelocationType
 
 class RecordOptionsViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val appContext = application.applicationContext
@@ -16,12 +18,13 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onRequestWritePermission = SingleLiveEvent<Void>()
     private val onFileDownloadRequest = MutableLiveData<Void>()
     private val onFileDeleteRequest = MutableLiveData<Void>()
+    private val onRelocateRequest = MutableLiveData<RelocationType>()
     private val onRecordDeleted = SingleLiveEvent<Void>()
     private val onErrorMessage = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun setRecord(record: RecordVO?) {
-        isFolder.value = record?.typeEnum == RecordVO.Type.Folder
+    fun setRecord(record: Record?) {
+        isFolder.value = record?.type == RecordType.FOLDER
         recordName.value = record?.displayName
     }
 
@@ -67,9 +70,15 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onCopyBtnClick() {
+        onRelocateRequest.value = RelocationType.COPY
     }
 
     fun onMoveBtnClick() {
+        onRelocateRequest.value = RelocationType.MOVE
+    }
+
+    fun getOnRelocateRequest(): MutableLiveData<RelocationType> {
+        return onRelocateRequest
     }
 
     fun onPublishBtnClick() {
@@ -93,14 +102,14 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun onShareBtnClick() {
     }
 
-    fun delete(record: RecordVO) {
+    fun delete(record: Record) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
 
         isBusy.value = true
-        fileRepository.deleteRecord(record, object : IFileRepository.IOnRecordDeletedListener {
-            override fun onSuccess() {
+        fileRepository.deleteRecord(record, object : IFileRepository.IOnResponseListener {
+            override fun onSuccess(message: String?) {
                 isBusy.value = false
                 onRecordDeleted.call()
             }

@@ -17,7 +17,7 @@
             android:id="@+id/clSearch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.getExistsFiles() || viewModel.getExistsUploads() ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.existsFiles || viewModel.getExistsUploads() ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -271,6 +271,7 @@
             app:backgroundTint="@color/colorAccent"
             app:fabSize="auto"
             android:onClick="@{()-> viewModel.onAddFabClick()}"
+            android:visibility="@{viewModel.isRelocationMode ? View.GONE: View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -278,6 +279,47 @@
             app:maxImageSize="40dp"
             app:srcCompat="@drawable/ic_plus_white"
             app:tint="@null" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@color/white"
+            android:visibility="@{viewModel.isRelocationMode ? View.VISIBLE: View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/btnRelocate"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{() -> viewModel.onRelocateBtnClick()}"
+                android:text="@{viewModel.relocationType.name()}"
+                android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId ? @color/colorPrimary : @color/lightGrey}"
+                android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btnCancel"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{() -> viewModel.onCancelRelocationBtnClick()}"
+                android:text="@string/cancel_button"
+                android:textColor="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnRelocate"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:id="@+id/ivCat"

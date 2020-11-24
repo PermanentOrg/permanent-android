@@ -15,20 +15,22 @@ import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.FragmentRecordOptionsBinding
-import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.RecordOptionsViewModel
 
 const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
 
-class FileOptionsFragment : PermanentBottomSheetFragment() {
+class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentRecordOptionsBinding
     private lateinit var viewModel: RecordOptionsViewModel
-    private var record: RecordVO? = null
-    private val onFileDownloadRequest = MutableLiveData<RecordVO>()
+    private var record: Record? = null
+    private val onFileDownloadRequest = MutableLiveData<Record>()
+    private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
     private val onRefreshFolder = MutableLiveData<Void>()
 
-    fun setBundleArguments(record: RecordVO) {
+    fun setBundleArguments(record: Record) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
         this.arguments = bundle
@@ -62,10 +64,15 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
         showDeleteDialog()
     }
 
+    private val onRelocateRequestObserver = Observer<RelocationType> {
+        dismiss()
+        record?.let { record ->  onRecordRelocateRequest.value = Pair(record, it) }
+    }
+
     private val onRecordDeletedObserver = Observer<Void> {
         dismiss()
         onRefreshFolder.value = onRefreshFolder.value
-        if (record?.typeEnum == RecordVO.Type.Folder)
+        if (record?.type == RecordType.FOLDER)
             Toast.makeText(context, R.string.my_files_folder_deleted, Toast.LENGTH_LONG).show()
         else Toast.makeText(context, R.string.my_files_file_deleted, Toast.LENGTH_LONG).show()
     }
@@ -109,8 +116,12 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    fun getOnFileDownloadRequest(): MutableLiveData<RecordVO> {
+    fun getOnFileDownloadRequest(): MutableLiveData<Record> {
         return onFileDownloadRequest
+    }
+
+    fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, RelocationType>> {
+        return onRecordRelocateRequest
     }
 
     fun getOnRefreshFolder(): MutableLiveData<Void> {
@@ -121,6 +132,7 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequestObserver)
+        viewModel.getOnRelocateRequest().observe(this, onRelocateRequestObserver)
         viewModel.getOnRecordDeleted().observe(this, onRecordDeletedObserver)
         viewModel.getOnErrorMessage().observe(this, onErrorMessageObserver)
     }
@@ -129,6 +141,7 @@ class FileOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequestObserver)
+        viewModel.getOnRelocateRequest().removeObserver(onRelocateRequestObserver)
         viewModel.getOnRecordDeleted().removeObserver(onRecordDeletedObserver)
         viewModel.getOnErrorMessage().removeObserver(onErrorMessageObserver)
     }
