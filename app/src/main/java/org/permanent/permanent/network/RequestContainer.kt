@@ -2,6 +2,8 @@ package org.permanent.permanent.network
 
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.*
 
 class RequestContainer(csrf: String?) {
@@ -136,17 +138,24 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addRecord(record: RecordVO, ): RequestContainer {
-        return if (record.typeEnum == RecordVO.Type.Folder) {
+    fun addRecord(record: Record): RequestContainer {
+        return if (record.type == RecordType.FOLDER) {
             val folderVO = FolderVO()
-            folderVO.folder_linkId = record.folder_linkId
+            folderVO.folder_linkId = record.folderLinkId
             RequestVO.data?.get(0)?.FolderVO = folderVO
             this
         } else {
             val recordVO = RecordVO()
-            recordVO.folder_linkId = record.folder_linkId
+            recordVO.folder_linkId = record.folderLinkId
             RequestVO.data?.get(0)?.RecordVO = recordVO
             this
         }
+    }
+
+    fun addFolderDest(folderLinkId: Int): RequestContainer {
+        val folderDestVO = FolderDestVO()
+        folderDestVO.folder_linkId = folderLinkId
+        RequestVO.data?.get(0)?.FolderDestVO = folderDestVO
+        return this
     }
 }

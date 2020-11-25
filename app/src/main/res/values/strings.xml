@@ -113,8 +113,6 @@
     <string name="add_options_menu_item_new_folder">New Folder</string>
     <string name="upload_no_permissions_error">Cannot select files to upload without read permissions.</string>
     <string name="upload_record_not_created_error">Record could not be created</string>
-    <string name="upload_folder_not_created_error">Folder could not be created</string>
-    <string name="my_files_file_not_deleted_error">File could not be deleted.</string>
     <string name="my_files_file_deleted">File has been deleted.</string>
     <string name="my_files_folder_not_deleted_error">Folder could not be deleted.</string>
     <string name="my_files_folder_deleted">Folder has been deleted.</string>
@@ -127,4 +125,8 @@
     <string name="my_files_uploads_waiting">Waiting…</string>
     <string name="download_no_permissions_error">Cannot download file without write permission.</string>
     <string name="delete_button">Delete</string>
+    <string name="generic_error">Something went wrong. Please try again later.</string>
+    <string name="relocation_success">%s %s successfully.</string>
+    <string name="relocation_type_copied">copied</string>
+    <string name="relocation_type_moved">moved</string>
 </resources>

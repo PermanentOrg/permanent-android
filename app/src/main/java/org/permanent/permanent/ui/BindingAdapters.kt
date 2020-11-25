@@ -5,7 +5,7 @@ import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import org.permanent.permanent.R
-import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.models.RecordType
 
 
 @BindingAdapter("imageResourceId")
@@ -14,11 +14,9 @@ fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
 }
 
 @BindingAdapter("fileType", "imageUrl")
-fun loadImage(view: ImageView, fileType: RecordVO.Type, url: String?) {
+fun loadImage(view: ImageView, fileType: RecordType, url: String?) {
     when (fileType) {
-        RecordVO.Type.Folder -> {
-            view.setImageResource(R.drawable.ic_folder_barney_purple)
-        }
+        RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
         else -> Picasso.get().load(url).placeholder(R.drawable.ic_stop_light_grey).fit().into(view)
     }
 }

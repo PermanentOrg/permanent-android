@@ -9,7 +9,6 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.download.*
 import org.permanent.permanent.ui.myFiles.upload.WORKER_INPUT_FOLDER_LINK_ID_KEY
@@ -26,14 +25,14 @@ class Download private constructor(val context: Context, val listener: OnFinishe
 
     constructor(
         context: Context,
-        file: RecordVO,
+        record: Record,
         listener: OnFinishedListener
     ) : this(context, listener) {
-        displayName = file.displayName ?: ""
-        val folderLinkId = file.folder_linkId
-        val archiveNr = file.archiveNbr
-        val archiveId = file.archiveId
-        val recordId = file.recordId
+        displayName = record.displayName ?: ""
+        val folderLinkId = record.folderLinkId
+        val archiveNr = record.archiveNr
+        val archiveId = record.archiveId
+        val recordId = record.recordId
         if (folderLinkId != null && archiveNr != null && archiveId != null && recordId != null) {
             val builder = Data.Builder().apply {
                 putInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, folderLinkId)

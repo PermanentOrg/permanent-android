@@ -15,7 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FolderIdentifier
-import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.viewmodels.MyFilesViewModel
@@ -27,16 +28,16 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
     private lateinit var filesRecyclerView: RecyclerView
-    private lateinit var filesAdapter: FilesAdapter
+    private lateinit var recordsAdapter: RecordsAdapter
     private var addOptionsFragment: AddOptionsFragment? = null
-    private var fileOptionsFragment: FileOptionsFragment? = null
+    private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -48,6 +49,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         initDownloadsRecyclerView(binding.rvDownloads)
         initFilesRecyclerView(binding.rvFiles)
         return binding.root
+    }
+
+    private val onShowMessage = Observer<String> {
+        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
     private val onFilesSelectedToUpload = Observer<MutableList<Uri>> { fileUriList ->
@@ -67,16 +72,16 @@ class MyFilesFragment : PermanentBaseFragment() {
         downloadsAdapter.set(it)
     }
 
-    private val onFilesRetrieved = Observer<List<RecordVO>> {
-        filesAdapter.set(it)
+    private val onRecordsRetrieved = Observer<List<Record>> {
+        recordsAdapter.set(it)
     }
 
-    private val onFilesFilterQuery = Observer<Editable> {
-        filesAdapter.filter.filter(it)
+    private val onRecordsFilterQuery = Observer<Editable> {
+        recordsAdapter.filter.filter(it)
     }
 
-    private val onNewTemporaryFile = Observer<RecordVO> {
-        filesAdapter.add(it)
+    private val onNewTemporaryFile = Observer<Record> {
+        recordsAdapter.add(it)
     }
 
     private val onShowAddOptionsFragment = Observer<FolderIdentifier> {
@@ -86,25 +91,30 @@ class MyFilesFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowFileOptionsFragment = Observer<RecordVO> {
-        fileOptionsFragment = FileOptionsFragment()
-        fileOptionsFragment?.setBundleArguments(it)
-        fileOptionsFragment?.show(parentFragmentManager, fileOptionsFragment?.tag)
-        fileOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
-        fileOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
+    private val onShowRecordOptionsFragment = Observer<Record> {
+        recordOptionsFragment = RecordOptionsFragment()
+        recordOptionsFragment?.setBundleArguments(it)
+        recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
+        recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
+        recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
+        recordOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
         sortOptionsFragment = SortOptionsFragment()
         sortOptionsFragment?.setBundleArguments(it)
-        sortOptionsFragment?.show(parentFragmentManager, fileOptionsFragment?.tag)
+        sortOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
     }
 
-    private val onFileDownloadRequest = Observer<RecordVO> {
-        if (it.typeEnum != RecordVO.Type.Folder) {
+    private val onFileDownloadRequest = Observer<Record> {
+        if (it.type != RecordType.FOLDER) {
             viewModel.download(it)
         }
+    }
+
+    private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
+        viewModel.setRelocationMode(it)
     }
 
     private val onSortRequest = Observer<SortType> {
@@ -128,11 +138,11 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
         filesRecyclerView = rvFiles
-        filesAdapter = FilesAdapter(viewModel, viewModel)
+        recordsAdapter = RecordsAdapter(viewModel, viewModel, this, viewModel.getIsRelocationMode())
         filesRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
-            adapter = filesAdapter
+            adapter = recordsAdapter
             addItemDecoration(
                 DividerItemDecoration(
                     this.context,
@@ -142,30 +152,33 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     override fun connectViewModelEvents() {
+        viewModel.getOnShowMessage().observe(this, onShowMessage)
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
-        viewModel.getOnFilesRetrieved().observe(this, onFilesRetrieved)
-        viewModel.getOnFilesFilterQuery().observe(this, onFilesFilterQuery)
+        viewModel.getOnFilesRetrieved().observe(this, onRecordsRetrieved)
+        viewModel.getOnFilesFilterQuery().observe(this, onRecordsFilterQuery)
         viewModel.getOnNewTemporaryFile().observe(this, onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
-        viewModel.getOnShowFileOptionsFragment().observe(this, onShowFileOptionsFragment)
+        viewModel.getOnShowFileOptionsFragment().observe(this, onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnShowMessage().removeObserver(onShowMessage)
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
-        viewModel.getOnFilesRetrieved().removeObserver(onFilesRetrieved)
-        viewModel.getOnFilesFilterQuery().removeObserver(onFilesFilterQuery)
+        viewModel.getOnFilesRetrieved().removeObserver(onRecordsRetrieved)
+        viewModel.getOnFilesFilterQuery().removeObserver(onRecordsFilterQuery)
         viewModel.getOnNewTemporaryFile().removeObserver(onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
-        viewModel.getOnShowFileOptionsFragment().removeObserver(onShowFileOptionsFragment)
+        viewModel.getOnShowFileOptionsFragment().removeObserver(onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
-        fileOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
-        fileOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
+        recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
+        recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
+        recordOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }
 

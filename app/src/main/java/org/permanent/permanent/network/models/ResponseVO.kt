@@ -1,6 +1,8 @@
 package org.permanent.permanent.network.models
 
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 
 class ResponseVO {
     var Results: List<ResultVO>? = null
@@ -11,13 +13,13 @@ class ResponseVO {
         return Results?.get(0)?.data?.get(0)?.SimpleVO?.value
     }
 
-    fun getMyFilesRecordVO(): RecordVO? {
+    fun getMyFilesRecord(): Record? {
         val recordVOs: List<RecordVO>? = getChildItemVOs()
 
         if (recordVOs != null) {
             for (recordVO in recordVOs) {
                 if (recordVO.displayName.equals(Constants.MY_FILES_FOLDER)) {
-                    return recordVO
+                    return Record(recordVO)
                 }
             }
         }
@@ -33,22 +35,27 @@ class ResponseVO {
         return Results?.get(0)?.data?.get(0)?.FolderVO?.ChildItemVOs
     }
 
-    fun getRecordVOs(): List<RecordVO>? {
-        val recordVOs = getChildItemVOs()
+    fun getRecords(): List<Record> {
+        val records = ArrayList<Record>()
+        val recordVOs: List<RecordVO>? = getChildItemVOs()
 
         if (recordVOs != null) {
             for (recordVO in recordVOs) {
+                val newRecord: Record
                 if (recordVO.folderId != null) {
                     recordVO.id = recordVO.folderId
-                    recordVO.typeEnum = RecordVO.Type.Folder
+                    newRecord = Record(recordVO)
+                    newRecord.type = RecordType.FOLDER
                 } else {
                     recordVO.id = recordVO.recordId
-                    recordVO.typeEnum = RecordVO.Type.File
+                    newRecord = Record(recordVO)
+                    newRecord.type = RecordType.FILE
                 }
+                records.add(newRecord)
             }
         }
 
-        return recordVOs
+        return records
     }
 
     fun getMessages(): List<String?>? {

@@ -49,7 +49,6 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onCopyBtnClick()}"
             android:text="@string/file_options_menu_item_copy"
-            android:visibility="@{viewModel.getIsFolder() ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnDownload" />
@@ -61,7 +60,6 @@
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.onMoveBtnClick()}"
             android:text="@string/file_options_menu_item_move"
-            android:visibility="@{viewModel.getIsFolder() ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnCopy" />

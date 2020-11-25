@@ -24,6 +24,12 @@ interface IFileService {
     @POST("folder/delete")
     fun deleteFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/copy")
+    fun copyFolder(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("folder/move")
+    fun moveFolder(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("record/postMetaBatch")
     fun postMeta(@Body requestBody: RequestBody): Call<ResponseVO>
 
@@ -44,4 +50,10 @@ interface IFileService {
 
     @POST("record/delete")
     fun deleteRecord(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("record/copy")
+    fun copyRecord(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("record/move")
+    fun moveRecord(@Body requestBody: RequestBody): Call<ResponseVO>
 }

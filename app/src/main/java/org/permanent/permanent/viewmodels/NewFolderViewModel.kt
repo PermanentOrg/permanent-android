@@ -69,8 +69,8 @@ class NewFolderViewModel (application: Application) : ObservableAndroidViewModel
             fileRepository.createFolder(
                 parentFolderIdentifier,
                 folderName,
-                object : IFileRepository.IOnFolderCreatedListener {
-                    override fun onSuccess() {
+                object : IFileRepository.IOnResponseListener {
+                    override fun onSuccess(message: String?) {
                         isBusy.value = false
                         onFolderCreated.call()
                     }

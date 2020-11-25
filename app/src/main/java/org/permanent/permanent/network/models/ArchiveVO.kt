@@ -22,5 +22,4 @@ class ArchiveVO {
     var status: String? = null
     var createdDT: String? = null
     var updatedDT: String? = null
-
 }

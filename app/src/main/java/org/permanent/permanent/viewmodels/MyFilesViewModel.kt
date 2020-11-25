@@ -13,10 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
-import org.permanent.permanent.models.Download
-import org.permanent.permanent.models.Folder
-import org.permanent.permanent.models.FolderIdentifier
-import org.permanent.permanent.models.Upload
+import org.permanent.permanent.models.*
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -27,31 +25,33 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
-    FileClickListener, FileOptionsClickListener, CancelListener, OnFinishedListener {
+    RecordClickListener, RecordOptionsClickListener, CancelListener, OnFinishedListener {
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isRoot = MutableLiveData(true)
     private val isSortedAsc = MutableLiveData(true)
     private val sortName: MutableLiveData<String> = MutableLiveData(SortType.NAME_ASCENDING.toUIString())
+    private val isRelocationMode = MutableLiveData(false)
+    private val relocationType = MutableLiveData<RelocationType>()
     private val currentSortType: MutableLiveData<SortType> = MutableLiveData(SortType.NAME_ASCENDING)
-
     private val currentSearchQuery = MutableLiveData<String>()
+    private var currentFolder = MutableLiveData<Folder>()
     private val existsFiles = MutableLiveData(false)
-    private lateinit var existsDownloads: MutableLiveData<Boolean>
-    private val onErrorMessage = MutableLiveData<String>()
+    private var existsDownloads = MutableLiveData(false)
+    private val recordToRelocate = MutableLiveData<Record>()
+    private val onShowMessage = MutableLiveData<String>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
-    private val onFilesRetrieved = SingleLiveEvent<List<RecordVO>>()
+    private val onFilesRetrieved = SingleLiveEvent<List<Record>>()
     private val onFilesFilterQuery = MutableLiveData<Editable>()
-    private val onNewTemporaryFile = SingleLiveEvent<RecordVO>()
+    private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onShowAddOptionsFragment = SingleLiveEvent<FolderIdentifier>()
-    private val onShowFileOptionsFragment = SingleLiveEvent<RecordVO>()
-    private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
+    private val onShowFileOptionsFragment = SingleLiveEvent<Record>()
 
+    private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
-    private var folderPathStack: Stack<RecordVO> = Stack()
+    private var folderPathStack: Stack<Record> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
-    private lateinit var currentFolder: Folder
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsRecyclerView: RecyclerView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -111,13 +111,33 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return sortName
     }
 
-    fun getCurrentSearchQuery(): MutableLiveData<String>? {
+    fun getRecordToRelocate(): MutableLiveData<Record> {
+        return recordToRelocate
+    }
+
+    fun getIsRelocationMode(): MutableLiveData<Boolean> {
+        return isRelocationMode
+    }
+
+    fun getRelocationType(): MutableLiveData<RelocationType> {
+        return relocationType
+    }
+
+    fun getCurrentFolder(): MutableLiveData<Folder> {
+        return currentFolder
+    }
+
+    fun getCurrentSearchQuery(): MutableLiveData<String> {
         return currentSearchQuery
     }
 
     fun onSearchQueryTextChanged(query: Editable) {
         currentSearchQuery.value = query.toString()
         onFilesFilterQuery.value = query
+    }
+
+    fun getOnShowMessage(): MutableLiveData<String> {
+        return onShowMessage
     }
 
     fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> {
@@ -128,7 +148,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return onDownloadFinished
     }
 
-    fun getOnFilesRetrieved(): MutableLiveData<List<RecordVO>> {
+    fun getOnFilesRetrieved(): MutableLiveData<List<Record>> {
         return onFilesRetrieved
     }
 
@@ -136,20 +156,20 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return onFilesFilterQuery
     }
 
-    fun getOnNewTemporaryFile(): MutableLiveData<RecordVO> {
+    fun getOnNewTemporaryFile(): MutableLiveData<Record> {
         return onNewTemporaryFile
     }
 
     fun refreshCurrentFolder() {
-        loadFilesOf(currentFolder, currentSortType.value)
+        loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
-    private fun loadFilesOf(folder: Folder, sortType: SortType?) {
-        folder.getArchiveNr()?.let {
+    private fun loadFilesOf(folder: Folder?, sortType: SortType?) {
+        folder?.getArchiveNr()?.let {
             swipeRefreshLayout.isRefreshing = true
             fileRepository.getChildRecordsOf(it, sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(records: List<RecordVO>?) {
+                    override fun onSuccess(records: List<Record>?) {
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
                         folderName.value = parentName
@@ -163,7 +183,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
                     override fun onFailed(error: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        onErrorMessage.value = error
+                        onShowMessage.value = error
                     }
                 })
         }
@@ -172,7 +192,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private fun populateMyFiles() {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
-            override fun onSuccess(myFilesRecord: RecordVO) {
+            override fun onSuccess(myFilesRecord: Record) {
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(myFilesRecord)
                 loadAllChildrenOf(myFilesRecord)
@@ -181,7 +201,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                onErrorMessage.value = error
+                onShowMessage.value = error
             }
         })
     }
@@ -191,15 +211,15 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun onAddFabClick() {
-        onShowAddOptionsFragment.value = currentFolder.getFolderIdentifier()
+        onShowAddOptionsFragment.value = currentFolder.value?.getFolderIdentifier()
     }
 
-    fun getOnShowFileOptionsFragment(): MutableLiveData<RecordVO> {
+    fun getOnShowFileOptionsFragment(): MutableLiveData<Record> {
         return onShowFileOptionsFragment
     }
 
-    override fun onFileOptionsClick(file: RecordVO) {
-        onShowFileOptionsFragment.value = file
+    override fun onRecordOptionsClick(record: Record) {
+        onShowFileOptionsFragment.value = record
     }
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> {
@@ -222,16 +242,16 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         fragment.show(fragmentManager, fragment.tag)
     }
 
-    override fun onFileClick(file: RecordVO) {
-        if (file.typeEnum == RecordVO.Type.Folder) {
-            currentFolder.getUploadQueue()?.removeListeners()
-            folderPathStack.push(file)
-            loadAllChildrenOf(file)
+    override fun onRecordClick(record: Record) {
+        if (record.type == RecordType.FOLDER) {
+            currentFolder.value?.getUploadQueue()?.removeListeners()
+            folderPathStack.push(record)
+            loadAllChildrenOf(record)
         }
     }
 
     fun onBackBtnClick() {
-        currentFolder.getUploadQueue()?.removeListeners()
+        currentFolder.value?.getUploadQueue()?.removeListeners()
         // This is the record of the current folder but we need his parent
         folderPathStack.pop()
         val previousFolder = folderPathStack.pop()
@@ -239,14 +259,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         loadAllChildrenOf(previousFolder)
     }
 
-    private fun loadAllChildrenOf(folderInfo: RecordVO) {
-        currentFolder = Folder(appContext, folderInfo)
-        loadEnqueuedUploads(currentFolder, lifecycleOwner)
-        loadFilesOf(currentFolder, currentSortType.value)
+    private fun loadAllChildrenOf(folderInfo: Record) {
+        currentFolder.value = Folder(appContext, folderInfo)
+        loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
+        loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
-    private fun loadEnqueuedUploads(folder: Folder, lifecycleOwner: LifecycleOwner) {
-        folder.newUploadQueue(lifecycleOwner, this)
+    private fun loadEnqueuedUploads(folder: Folder?, lifecycleOwner: LifecycleOwner) {
+        folder?.newUploadQueue(lifecycleOwner, this)
             ?.getEnqueuedUploadsLiveData()?.let { enqueuedUploadsLiveData ->
                 enqueuedUploadsLiveData.observe(lifecycleOwner, { enqueuedUploads ->
                     uploadsAdapter.set(enqueuedUploads)
@@ -264,7 +284,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun enqueueFilesForUpload(uris: List<Uri>) {
-        val uploadQueue = currentFolder.getUploadQueue()
+        val uploadQueue = currentFolder.value?.getUploadQueue()
         for (uri in uris) {
             uploadQueue?.addNewUploadFor(uri)
         }
@@ -284,19 +304,19 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private fun addFakeItemToFilesList(upload: Upload?) {
         val sdf = SimpleDateFormat("yyyy-M-dd")
         val currentDate = sdf.format(Date())
-        val fakeFile = RecordVO()
-        fakeFile.displayDT = currentDate
-        fakeFile.displayName = upload?.getDisplayName()
-        fakeFile.typeEnum = RecordVO.Type.File
-        onNewTemporaryFile.value = fakeFile
+        val fakeRecordInfo = RecordVO()
+        fakeRecordInfo.displayDT = currentDate
+        fakeRecordInfo.displayName = upload?.getDisplayName()
+        val fakeRecord = Record(fakeRecordInfo)
+        fakeRecord.type = RecordType.FILE
+        onNewTemporaryFile.value = fakeRecord
     }
 
     override fun onCancelClick(upload: Upload) {
-        TODO("Not yet implemented")
     }
 
-    fun download(file: RecordVO) {
-        downloadQueue.enqueueNewDownloadFor(file)
+    fun download(record: Record) {
+        downloadQueue.enqueueNewDownloadFor(record)
     }
 
     override fun onFinished(download: Download) {
@@ -305,7 +325,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onCancelClick(download: Download) {
-        TODO("Not yet implemented")
     }
 
     fun setSortType(sortType: SortType) {
@@ -314,6 +333,39 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         isSortedAsc.value = sortType == SortType.FILE_TYPE_ASCENDING
                 || sortType == SortType.DATE_ASCENDING
                 || sortType == SortType.NAME_ASCENDING
-        loadFilesOf(currentFolder, currentSortType.value)
+        loadFilesOf(currentFolder.value, currentSortType.value)
+    }
+
+    fun setRelocationMode(relocationPair: Pair<Record, RelocationType>) {
+        recordToRelocate.value = relocationPair.first
+        relocationType.value = relocationPair.second
+        isRelocationMode.value = true
+    }
+
+    fun onRelocateBtnClick() {
+        isRelocationMode.value = false
+        swipeRefreshLayout.isRefreshing = true
+        val recordValue = recordToRelocate.value
+        val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
+        val relocationTypeValue = relocationType.value
+        if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
+            fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
+                object : IFileRepository.IOnResponseListener {
+                    override fun onSuccess(message: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        onShowMessage.value = message
+                        onNewTemporaryFile.value = recordToRelocate.value
+                    }
+
+                    override fun onFailed(error: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        onShowMessage.value = error
+                    }
+                })
+        }
+    }
+
+    fun onCancelRelocationBtnClick() {
+        isRelocationMode.value = false
     }
 }

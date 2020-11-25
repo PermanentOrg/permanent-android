@@ -2,7 +2,8 @@ package org.permanent.permanent.repositories
 
 import okhttp3.MediaType
 import org.permanent.permanent.models.FolderIdentifier
-import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import java.io.File
 import java.io.OutputStream
@@ -14,7 +15,7 @@ interface IFileRepository {
     fun getLeanItems(archiveNumber: String, sort: String?, childLinkIds: List<Int>,
                      listener: IOnRecordsRetrievedListener)
     fun createFolder(
-        parentFolderIdentifier: FolderIdentifier, name: String, listener: IOnFolderCreatedListener)
+        parentFolderIdentifier: FolderIdentifier, name: String, listener: IOnResponseListener)
     fun startUploading(folderId: Int, folderLinkId: Int, file: File, displayName: String?,
                        mediaType: MediaType, listener: CountingRequestListener): String
     fun uploadFile(
@@ -34,25 +35,22 @@ interface IFileRepository {
     )
     fun downloadFile(
         downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener)
-    fun deleteRecord(record: RecordVO, listener: IOnRecordDeletedListener)
+    fun deleteRecord(record: Record, listener: IOnResponseListener)
+    fun relocateRecord(recordToRelocate: Record, destFolderLinkId: Int,
+                       relocationType: RelocationType, listener: IOnResponseListener)
 
     interface IOnMyFilesArchiveNrListener {
-        fun onSuccess(myFilesRecord: RecordVO)
+        fun onSuccess(myFilesRecord: Record)
         fun onFailed(error: String?)
     }
 
     interface IOnRecordsRetrievedListener {
-        fun onSuccess(records: List<RecordVO>?)
+        fun onSuccess(records: List<Record>?)
         fun onFailed(error: String?)
     }
 
-    interface IOnFolderCreatedListener {
-        fun onSuccess()
-        fun onFailed(error: String?)
-    }
-
-    interface IOnRecordDeletedListener {
-        fun onSuccess()
+    interface IOnResponseListener {
+        fun onSuccess(message: String?)
         fun onFailed(error: String?)
     }
 }
