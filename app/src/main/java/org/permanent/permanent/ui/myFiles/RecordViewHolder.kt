@@ -2,20 +2,29 @@ package org.permanent.permanent.ui.myFiles
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.item_record.view.*
+import kotlinx.android.synthetic.main.item_record_underlay.view.*
 import org.permanent.permanent.databinding.ItemRecordBinding
 import org.permanent.permanent.models.Record
 
-class RecordViewHolder(
-    private val binding: ItemRecordBinding,
-    private val recordClickListener: RecordClickListener,
-    private val recordOptionsClickListener: RecordOptionsClickListener)
+class RecordViewHolder(val binding: ItemRecordBinding, private val recordListener: RecordListener)
     : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(record: Record, lifecycleOwner: LifecycleOwner) {
         binding.record = record
         binding.executePendingBindings()
         binding.lifecycleOwner = lifecycleOwner
-        binding.btnOptions.setOnClickListener { recordOptionsClickListener.onRecordOptionsClick(record) }
-        binding.root.setOnClickListener { recordClickListener.onRecordClick(record) }
+        binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
+        binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }
+        binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnDelete
+            .setOnClickListener {
+                recordListener.onRecordDeleteFromSwipeClick(record)
+                binding.layoutSwipeReveal.close(true)
+            }
+        binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnMore
+            .setOnClickListener {
+                recordListener.onRecordOptionsClick(record)
+                binding.layoutSwipeReveal.close(true)
+            }
     }
 }

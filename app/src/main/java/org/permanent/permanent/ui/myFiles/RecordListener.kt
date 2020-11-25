@@ -2,6 +2,8 @@ package org.permanent.permanent.ui.myFiles
 
 import org.permanent.permanent.models.Record
 
-interface RecordClickListener {
+interface RecordListener {
     fun onRecordClick(record: Record)
+    fun onRecordOptionsClick(record: Record)
+    fun onRecordDeleteFromSwipeClick(record: Record)
 }

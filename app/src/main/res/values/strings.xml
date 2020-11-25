@@ -125,6 +125,8 @@
     <string name="my_files_uploads_waiting">Waiting…</string>
     <string name="download_no_permissions_error">Cannot download file without write permission.</string>
     <string name="delete_button">Delete</string>
+    <string name="share_button">Share</string>
+    <string name="more_button">More</string>
     <string name="generic_error">Something went wrong. Please try again later.</string>
     <string name="relocation_success">%s %s successfully.</string>
     <string name="relocation_type_copied">copied</string>

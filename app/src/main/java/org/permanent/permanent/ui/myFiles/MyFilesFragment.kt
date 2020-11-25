@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.app.AlertDialog
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.dialog_delete.view.*
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FolderIdentifier
@@ -96,6 +99,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.setBundleArguments(it)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
+        recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
         recordOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
@@ -111,6 +115,22 @@ class MyFilesFragment : PermanentBaseFragment() {
         if (it.type != RecordType.FOLDER) {
             viewModel.download(it)
         }
+    }
+
+    private val onRecordDeleteRequest = Observer<Record> { record ->
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
+        val alert = AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
+        viewDialog.btnDelete.setOnClickListener {
+            viewModel.delete(record)
+            alert.dismiss()
+        }
+        viewDialog.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
@@ -138,7 +158,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
         filesRecyclerView = rvFiles
-        recordsAdapter = RecordsAdapter(viewModel, viewModel, this, viewModel.getIsRelocationMode())
+        recordsAdapter = RecordsAdapter(viewModel, this, viewModel.getIsRelocationMode())
         filesRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
@@ -161,6 +181,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
         viewModel.getOnShowFileOptionsFragment().observe(this, onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
+        viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
@@ -174,9 +195,11 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
         viewModel.getOnShowFileOptionsFragment().removeObserver(onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
+        viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
+        recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         recordOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)

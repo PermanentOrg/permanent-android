@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
+import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.RecordVO
@@ -25,7 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
-    RecordClickListener, RecordOptionsClickListener, CancelListener, OnFinishedListener {
+    RecordListener, RecordOptionsClickListener, CancelListener, OnFinishedListener {
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isRoot = MutableLiveData(true)
@@ -47,8 +48,9 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onShowAddOptionsFragment = SingleLiveEvent<FolderIdentifier>()
     private val onShowFileOptionsFragment = SingleLiveEvent<Record>()
-
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
+    private val onRecordDeleteRequest = SingleLiveEvent<Record>()
+
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<Record> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
@@ -222,6 +224,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         onShowFileOptionsFragment.value = record
     }
 
+    override fun onRecordDeleteFromSwipeClick(record: Record) {
+        onRecordDeleteRequest.value = record
+    }
+
+    fun getOnRecordDeleteRequest(): MutableLiveData<Record> {
+        return onRecordDeleteRequest
+    }
+
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> {
         return onShowSortOptionsFragment
     }
@@ -355,6 +365,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                         swipeRefreshLayout.isRefreshing = false
                         onShowMessage.value = message
                         onNewTemporaryFile.value = recordToRelocate.value
+                        existsFiles.value = true
                     }
 
                     override fun onFailed(error: String?) {
@@ -367,5 +378,23 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onCancelRelocationBtnClick() {
         isRelocationMode.value = false
+    }
+
+    fun delete(record: Record) {
+        swipeRefreshLayout.isRefreshing = true
+        fileRepository.deleteRecord(record, object : IFileRepository.IOnResponseListener {
+            override fun onSuccess(message: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                refreshCurrentFolder()
+                if (record.type == RecordType.FOLDER)
+                    onShowMessage.value = appContext.getString(R.string.my_files_folder_deleted)
+                else onShowMessage.value = appContext.getString(R.string.my_files_file_deleted)
+            }
+
+            override fun onFailed(error: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                onShowMessage.value = error
+            }
+        })
     }
 }
