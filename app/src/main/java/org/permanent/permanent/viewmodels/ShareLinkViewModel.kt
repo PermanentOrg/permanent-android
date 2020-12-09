@@ -25,6 +25,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
     private val existsArchives = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    private val showSnackBar = MutableLiveData<String>()
     private val onRevokeLinkRequest = MutableLiveData<Void>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
 
@@ -82,6 +83,10 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         return showMessage
     }
 
+    fun getShowSnackBar(): LiveData<String> {
+        return showSnackBar
+    }
+
     fun getOnRevokeLinkRequest(): LiveData<Void> {
         return onRevokeLinkRequest
     }
@@ -114,7 +119,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         val clip: ClipData = ClipData.newPlainText(
             appContext.getString(R.string.share_link_share_link_title), sharableLink.value)
         clipboard.setPrimaryClip(clip)
-        showMessage.value = appContext.getString(R.string.share_link_link_copied)
+        showSnackBar.value = appContext.getString(R.string.share_link_link_copied)
     }
 
     fun onManageLinkBtnClick() {

@@ -2,14 +2,18 @@ package org.permanent.permanent.ui.myFiles.linkshare
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentShareLinkBinding
@@ -55,8 +59,21 @@ class ShareLinkFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onErrorMessage = Observer<String> { errorMessage ->
-        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+    private val onShowMessage = Observer<String> { message ->
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
+    private val onShowSnackBar = Observer<String> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        val params = view.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.TOP
+        params.topMargin = 232
+        view.layoutParams = params
+        snackBar.show()
     }
 
     private val onRevokeLinkRequest = Observer<Void> {
@@ -77,12 +94,14 @@ class ShareLinkFragment : PermanentBaseFragment() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getShowMessage().observe(this, onErrorMessage)
+        viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getShowSnackBar().observe(this, onShowSnackBar)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getShowMessage().removeObserver(onErrorMessage)
+        viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getShowSnackBar().removeObserver(onShowSnackBar)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
     }
 
