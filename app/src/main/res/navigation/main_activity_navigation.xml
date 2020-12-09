@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/shareLinkFragment"
-        android:name="org.permanent.permanent.ui.myFiles.ShareLinkFragment"
+        android:name="org.permanent.permanent.ui.myFiles.linkshare.ShareLinkFragment"
         android:label="@string/main_navigation_share_link" />
     <fragment
         android:id="@+id/sharesFragment"

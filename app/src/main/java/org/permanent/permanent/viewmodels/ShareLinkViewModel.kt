@@ -32,6 +32,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         this.record = record
         recordName.value = record.displayName
         checkForExistingLink(record)
+        existsArchives.value = !record.shares.isNullOrEmpty()
     }
 
     private fun checkForExistingLink(record: Record) {
