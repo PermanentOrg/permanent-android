@@ -56,4 +56,13 @@ interface IFileService {
 
     @POST("record/move")
     fun moveRecord(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("share/getLink")
+    fun getShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("share/generateShareLink")
+    fun generateShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("share/dropShareLink")
+    fun deleteShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
 }

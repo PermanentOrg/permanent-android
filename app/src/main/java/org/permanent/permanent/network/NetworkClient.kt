@@ -18,6 +18,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
@@ -229,6 +230,22 @@ class NetworkClient(context: Context) {
                 fileService.copyRecord(requestBody)
             }
         }
+    }
+
+    fun requestShareLink(csrf: String?, record: Record, requestType: RequestType): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addRecord(record))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return if (requestType == RequestType.GET) {
+            fileService.getShareLink(requestBody)
+        } else {
+            fileService.generateShareLink(requestBody)
+        }
+    }
+
+    fun deleteShareLink(csrf: String?, shareVO: Shareby_urlVO): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addShare(shareVO))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.deleteShareLink(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

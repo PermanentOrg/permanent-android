@@ -158,4 +158,13 @@ class RequestContainer(csrf: String?) {
         RequestVO.data?.get(0)?.FolderDestVO = folderDestVO
         return this
     }
+
+    fun addShare(shareVO: Shareby_urlVO): RequestContainer {
+        val shareByUrlVO = Shareby_urlVO()
+        shareByUrlVO.shareby_urlId = shareVO.shareby_urlId
+        shareByUrlVO.byAccountId = shareVO.byAccountId
+        shareByUrlVO.byArchiveId = shareVO.byArchiveId
+        RequestVO.data?.get(0)?.Shareby_urlVO = shareByUrlVO
+        return this
+    }
 }

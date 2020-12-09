@@ -10,8 +10,10 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.NetworkClient
+import org.permanent.permanent.network.RequestType
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RelocationType
@@ -298,6 +300,47 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                         else context.getString(R.string.relocation_type_copied)
                         listener.onSuccess(context.getString(R.string.relocation_success,
                             recordToRelocate.type?.name?.toLowerCase()?.capitalize(), relocationVerb))
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun requestShareLink(record: Record, requestType: RequestType, listener: IFileRepository.IOnShareUrlListener) {
+        networkClient.requestShareLink(prefsHelper.getCsrf(), record, requestType)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getShareVO())
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun deleteShareLink(
+        shareVO: Shareby_urlVO,
+        listener: IFileRepository.IOnResponseListener
+    ) {
+        networkClient.deleteShareLink(prefsHelper.getCsrf(), shareVO)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getMessages()?.get(0))
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }
