@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -18,10 +20,12 @@ import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentShareLinkBinding
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.ShareLinkViewModel
 
+const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
 
 class ShareLinkFragment : PermanentBaseFragment() {
 
@@ -76,6 +80,11 @@ class ShareLinkFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
+    private val onManageLinkRequest = Observer<ShareByUrl> {
+        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, PARCELABLE_SHARE_KEY to it)
+        findNavController().navigate(R.id.action_shareLinkFragment_to_manageLinkFragment, bundle)
+    }
+
     private val onRevokeLinkRequest = Observer<Void> {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
         val alert = AlertDialog.Builder(context)
@@ -96,12 +105,14 @@ class ShareLinkFragment : PermanentBaseFragment() {
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowSnackBar().observe(this, onShowSnackBar)
+        viewModel.getOnManageLinkRequest().observe(this, onManageLinkRequest)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowSnackBar().removeObserver(onShowSnackBar)
+        viewModel.getOnManageLinkRequest().removeObserver(onManageLinkRequest)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
     }
 

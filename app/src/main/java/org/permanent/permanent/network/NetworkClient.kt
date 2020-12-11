@@ -214,7 +214,7 @@ class NetworkClient(context: Context) {
 
     fun relocateRecord(
         csrf: String?, recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType)
-    : Call<ResponseVO> {
+            : Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(recordToRelocate).addFolderDest(destFolderLinkId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (recordToRelocate.type == RecordType.FOLDER) {
@@ -232,20 +232,24 @@ class NetworkClient(context: Context) {
         }
     }
 
-    fun requestShareLink(csrf: String?, record: Record, requestType: RequestType): Call<ResponseVO> {
+    fun requestShareLink(csrf: String?, record: Record, shareRequestType: ShareRequestType): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(record))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return if (requestType == RequestType.GET) {
+        return if (shareRequestType == ShareRequestType.GET) {
             fileService.getShareLink(requestBody)
         } else {
             fileService.generateShareLink(requestBody)
         }
     }
 
-    fun deleteShareLink(csrf: String?, shareVO: Shareby_urlVO): Call<ResponseVO> {
+    fun modifyShareLink(csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addShare(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return fileService.deleteShareLink(requestBody)
+        return if (shareRequestType == ShareRequestType.DELETE) {
+            fileService.deleteShareLink(requestBody)
+        } else {
+            fileService.updateShareLink(requestBody)
+        }
     }
 
     private fun toJson(container: RequestContainer): String {

@@ -2,7 +2,6 @@ package org.permanent.permanent.ui.activities
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -15,12 +14,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
-import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
@@ -28,13 +28,12 @@ import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
-    private lateinit var sharedPrefs: SharedPreferences
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
-    private lateinit var headerBinding: NavMainHeaderBinding
-    private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
-    private lateinit var navigationController: NavController
+    private lateinit var headerAccountBinding: NavMainHeaderBinding
+//    private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
+    private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private val onNavigateToLogin = Observer<Void> {
         val intent = Intent(this, LoginActivity::class.java)
@@ -53,35 +52,53 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        headerBinding = NavMainHeaderBinding.bind(binding.accountNavigationView.getHeaderView(0))
-        headerBinding.viewModel = viewModel
+        // Drawer left and right headers binding
+        headerAccountBinding = NavMainHeaderBinding.bind(binding.accountNavigationView.getHeaderView(0))
+        headerAccountBinding.viewModel = viewModel
 //        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
 //        headerSettingsBinding.viewModel = viewModel
 
         val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.mainActivityNavHostFragment) as NavHostFragment
-        navigationController = navHostFragment.navController
+            supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
+        navController = navHostFragment.navController
 
-        val topLevelDestination = setOf(R.id.myFilesFragment, R.id.sharesFragment)
-        appBarConfiguration =
-            AppBarConfiguration(topLevelDestination, binding.mainActivityDrawerLayout)
+        val topLevelDestinations = setOf(R.id.myFilesFragment, R.id.sharesFragment)
+        appBarConfiguration = AppBarConfiguration(topLevelDestinations, binding.mainDrawerLayout)
 
-        binding.accountNavigationView.setupWithNavController(navigationController)
+        binding.accountNavigationView.setupWithNavController(navController)
         binding.accountNavigationView.setNavigationItemSelectedListener { item ->
             if (item.itemId == R.id.logout) viewModel.logout()
             true
         }
+
+        setSupportActionBar(binding.mainToolbar)
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if(destination.id == R.id.myFilesFragment || destination.id == R.id.sharesFragment) {
+                binding.mainToolbar.setNavigationIcon(R.drawable.ic_account_circle_white)
+            } else {
+                binding.mainToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white)
+            }
+        }
 //        binding.settingsNavigationView.setupWithNavController(navigationController)
-        binding.mainToolbar.setupWithNavController(navigationController, appBarConfiguration)
-        setUpListeners()
 //        binding.mainToolbar.inflateMenu(R.menu.menu_toolbar_settings)
 //        binding.mainToolbar.setOnMenuItemClickListener(this)
 
-        sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefsHelper = PreferencesHelper(sharedPrefs)
-
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         if (!prefsHelper.isWelcomeDialogSeen()) {
             showWelcomeDialog()
+        }
+    }
+
+    // Toolbar back press
+    override fun onSupportNavigateUp(): Boolean {
+        return when(navController.currentDestination?.id) {
+            R.id.manageLinkFragment -> {
+                navController.popBackStack(R.id.shareLinkFragment, true)
+                true
+            }
+            else -> navController.navigateUp(binding.mainDrawerLayout)
         }
     }
 
@@ -107,12 +124,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
 //        binding.mainActivityDrawerLayout.openDrawer(GravityCompat.END)
         return true
-    }
-
-    private fun setUpListeners(){
-        navigationController.addOnDestinationChangedListener { _, _, _ ->
-            binding.mainToolbar.setNavigationIcon(R.drawable.ic_account_circle_white)
-        }
     }
 
     override fun connectViewModelEvents() {

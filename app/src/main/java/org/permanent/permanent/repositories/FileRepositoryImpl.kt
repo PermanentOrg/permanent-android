@@ -10,7 +10,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.NetworkClient
-import org.permanent.permanent.network.RequestType
+import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
@@ -311,8 +311,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun requestShareLink(record: Record, requestType: RequestType, listener: IFileRepository.IOnShareUrlListener) {
-        networkClient.requestShareLink(prefsHelper.getCsrf(), record, requestType)
+    override fun requestShareLink(record: Record, shareRequestType: ShareRequestType, listener: IFileRepository.IOnShareUrlListener) {
+        networkClient.requestShareLink(prefsHelper.getCsrf(), record, shareRequestType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -330,11 +330,12 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun deleteShareLink(
+    override fun modifyShareLink(
         shareVO: Shareby_urlVO,
+        shareRequestType: ShareRequestType,
         listener: IFileRepository.IOnResponseListener
     ) {
-        networkClient.deleteShareLink(prefsHelper.getCsrf(), shareVO)
+        networkClient.modifyShareLink(prefsHelper.getCsrf(), shareVO, shareRequestType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()

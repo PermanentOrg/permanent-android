@@ -107,13 +107,13 @@
                 app:layout_constraintTop_toBottomOf="@id/tvLink" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageLink"
+                android:id="@+id/btnAdvancedOptions"
                 style="@style/customButtonBottomSheetStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:onClick="@{() -> viewModel.onManageLinkBtnClick()}"
-                android:text="@string/share_link_manage_link_button"
+                android:onClick="@{() -> viewModel.onAdvancedOptionsBtnClick()}"
+                android:text="@string/share_link_advanced_options_button"
                 android:visibility="@{viewModel.existsLink ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +131,7 @@
                 android:visibility="@{viewModel.existsLink ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnManageLink" />
+                app:layout_constraintTop_toBottomOf="@id/btnAdvancedOptions" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGetShareLink"
@@ -171,7 +171,7 @@
             android:layout_marginTop="8dp"
             android:text="@string/share_link_item_not_shared"
             android:textColor="@color/middleGrey"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="normal"
             android:visibility="@{viewModel.existsArchives ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"

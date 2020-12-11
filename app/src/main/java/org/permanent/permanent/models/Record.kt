@@ -54,7 +54,7 @@ class Record private constructor() : Parcelable {
                 val archiveVO = shareVO.ArchiveVO
                 val share = Share()
                 val archive = Archive()
-                archive.fullName = archiveVO?.fullName
+                archive.fullName = "The " + archiveVO?.fullName + " Archive"
                 archive.thumbURL200 = archiveVO?.fullName
                 archive.thumbURL500 = archiveVO?.thumbURL500
                 archive.thumbURL1000 = archiveVO?.thumbURL1000
