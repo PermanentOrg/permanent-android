@@ -79,6 +79,7 @@
     <string name="menu_settings_drawer_logout">Log Out</string>
     <string name="main_navigation_my_files">MyFiles</string>
     <string name="main_navigation_shares">Shares</string>
+    <string name="main_navigation_members">Members</string>
     <string name="main_navigation_share_link">Share Link</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
@@ -151,4 +152,17 @@
     <string name="share_link_expiration_date">Expiration date (optional)</string>
     <string name="share_link_expiration_date_message">This link will disappear after the expiration date has been reached.</string>
     <string name="share_link_save_button">Save</string>
+    <string name="shares_no_items">You haven\'t shared any content with anyone. Choose an item from My Files and share it with someone!</string>
+    <string name="members_owners">Owners</string>
+    <string name="members_curators">Curators</string>
+    <string name="members_editors">Editors</string>
+    <string name="members_contributors">Contributors</string>
+    <string name="members_viewers">Viewers</string>
+    <string name="members_none">None</string>
+    <string name="members_edit_button">Edit</string>
+    <string name="members_info_owners">Curator plus permission to add new members and change owners</string>
+    <string name="members_info_curators">Editor plus permission to move, copy and delete records</string>
+    <string name="members_info_editors">Contributor plus permission to edit record metadata and to change folder views</string>
+    <string name="members_info_contributors">Viewer plus permission to create file and folder records (e.g. upload only)</string>
+    <string name="members_info_viewers">A member with permission to view records only</string>
 </resources>

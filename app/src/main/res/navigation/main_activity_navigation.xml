@@ -39,4 +39,9 @@
         android:id="@+id/sharesFragment"
         android:name="org.permanent.permanent.ui.shares.SharesFragment"
         android:label="@string/main_navigation_shares" />
+
+    <fragment
+        android:id="@+id/membersFragment"
+        android:name="org.permanent.permanent.ui.members.MembersFragment"
+        android:label="@string/main_navigation_members" />
 </navigation>

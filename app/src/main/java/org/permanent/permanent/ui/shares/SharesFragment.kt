@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharesBinding
-import org.permanent.permanent.Constants
+import org.permanent.permanent.ui.PermanentBaseFragment
 
-class SharesFragment : Fragment() {
+class SharesFragment : PermanentBaseFragment() {
 
     private lateinit var binding: FragmentSharesBinding
     private lateinit var viewAdapter: SharesViewPagerAdapter
@@ -32,12 +32,28 @@ class SharesFragment : Fragment() {
         val viewPager = binding.viewPager
         viewPager.adapter = viewAdapter
 
-        TabLayoutMediator(binding.tabs,viewPager){tab , position ->
+        TabLayoutMediator(binding.tabs,viewPager) { tab , position ->
             when(position){
                 Constants.POSITION_SHARED_BY_ME_FRAGMENT -> tab.text= getString(R.string.shared_by_me_tab_name_)
                 Constants.POSITION_SHARED_WITH_ME_FRAGMENT -> tab.text= getString(R.string.shared_with_me_tab_name)
                 else -> tab.text= getString(R.string.shared_by_me_tab_name_)
             }
         }.attach()
+    }
+
+    override fun connectViewModelEvents() {
+    }
+
+    override fun disconnectViewModelEvents() {
+    }
+
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
     }
 }

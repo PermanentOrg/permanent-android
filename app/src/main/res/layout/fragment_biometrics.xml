@@ -24,7 +24,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0"
-            app:srcCompat="@drawable/splash_logo" />
+            app:srcCompat="@drawable/img_splash_logo" />
 
         <TextView
             android:id="@+id/tvTitle"
