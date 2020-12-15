@@ -17,8 +17,22 @@ fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
 fun loadImage(view: ImageView, fileType: RecordType, url: String?) {
     when (fileType) {
         RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
-        else -> Picasso.get().load(url).placeholder(R.drawable.ic_stop_light_grey).fit().into(view)
+        else -> Picasso.get()
+            .load(url)
+            .placeholder(R.drawable.ic_stop_light_grey)
+            .fit()
+            .into(view)
     }
+}
+
+@BindingAdapter("imageUrl")
+fun loadRoundedImage(view: ImageView, url: String?) {
+    Picasso.get()
+        .load(url)
+        .placeholder(R.drawable.ic_stop_light_grey)
+        .fit()
+        .transform(CircleTransform())
+        .into(view)
 }
 
 @BindingAdapter("setError")

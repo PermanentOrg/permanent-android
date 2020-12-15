@@ -3,6 +3,8 @@ package org.permanent.permanent.repositories
 import okhttp3.MediaType
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.ShareRequestType
+import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import java.io.File
@@ -38,6 +40,8 @@ interface IFileRepository {
     fun deleteRecord(record: Record, listener: IOnResponseListener)
     fun relocateRecord(recordToRelocate: Record, destFolderLinkId: Int,
                        relocationType: RelocationType, listener: IOnResponseListener)
+    fun requestShareLink(record: Record, shareRequestType: ShareRequestType, listener: IOnShareUrlListener)
+    fun modifyShareLink(shareVO: Shareby_urlVO, shareRequestType: ShareRequestType, listener: IOnResponseListener)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: Record)
@@ -46,6 +50,11 @@ interface IFileRepository {
 
     interface IOnRecordsRetrievedListener {
         fun onSuccess(records: List<Record>?)
+        fun onFailed(error: String?)
+    }
+
+    interface IOnShareUrlListener {
+        fun onSuccess(shareVO: Shareby_urlVO?)
         fun onFailed(error: String?)
     }
 

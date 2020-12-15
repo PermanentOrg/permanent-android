@@ -147,6 +147,7 @@ class RequestContainer(csrf: String?) {
         } else {
             val recordVO = RecordVO()
             recordVO.folder_linkId = record.folderLinkId
+            recordVO.parentFolder_linkId = record.parentFolderLinkId
             RequestVO.data?.get(0)?.RecordVO = recordVO
             this
         }
@@ -156,6 +157,19 @@ class RequestContainer(csrf: String?) {
         val folderDestVO = FolderDestVO()
         folderDestVO.folder_linkId = folderLinkId
         RequestVO.data?.get(0)?.FolderDestVO = folderDestVO
+        return this
+    }
+
+    fun addShare(shareVO: Shareby_urlVO): RequestContainer {
+        val shareByUrlVO = Shareby_urlVO()
+        shareByUrlVO.shareby_urlId = shareVO.shareby_urlId
+        shareByUrlVO.autoApproveToggle = shareVO.autoApproveToggle
+        shareByUrlVO.previewToggle = shareVO.previewToggle
+        shareByUrlVO.expiresDT = shareVO.expiresDT
+        shareByUrlVO.maxUses = shareVO.maxUses
+        shareByUrlVO.byAccountId = shareVO.byAccountId
+        shareByUrlVO.byArchiveId = shareVO.byArchiveId
+        RequestVO.data?.get(0)?.Shareby_urlVO = shareByUrlVO
         return this
     }
 }

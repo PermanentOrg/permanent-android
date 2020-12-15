@@ -22,4 +22,5 @@ class RecordVO {
     var thumbURL1000: String? = null
     var thumbURL2000: String? = null
     var FileVOs: List<FileVO>? = null
+    var ShareVOs: List<ShareVO>? = null
 }

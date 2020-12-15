@@ -18,7 +18,7 @@ class SharesFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         binding = FragmentSharesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()

@@ -16,6 +16,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onRequestWritePermission = SingleLiveEvent<Void>()
     private val onFileDownloadRequest = MutableLiveData<Void>()
     private val onRecordDeleteRequest = MutableLiveData<Void>()
+    private val onRecordShareRequest = MutableLiveData<Void>()
     private val onRelocateRequest = MutableLiveData<RelocationType>()
 
     fun setRecord(record: Record?) {
@@ -56,6 +57,10 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         return onRecordDeleteRequest
     }
 
+    fun getOnRecordShareRequest(): MutableLiveData<Void> {
+        return onRecordShareRequest
+    }
+
     fun onWritePermissionGranted() {
         startFileDownload()
     }
@@ -87,5 +92,6 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onShareBtnClick() {
+        onRecordShareRequest.value = onRecordShareRequest.value
     }
 }

@@ -25,6 +25,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private var record: Record? = null
     private val onFileDownloadRequest = MutableLiveData<Record>()
     private val onRecordDeleteRequest = MutableLiveData<Record>()
+    private val onRecordShareRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
     private val onRefreshFolder = MutableLiveData<Void>()
 
@@ -63,9 +64,14 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         onRecordDeleteRequest.value = record
     }
 
+    private val onRecordShareRequestObserver = Observer<Void> {
+        dismiss()
+        onRecordShareRequest.value = record
+    }
+
     private val onRelocateRequestObserver = Observer<RelocationType> {
         dismiss()
-        record?.let { record ->  onRecordRelocateRequest.value = Pair(record, it) }
+        record?.let { record -> onRecordRelocateRequest.value = Pair(record, it) }
     }
 
     override fun onRequestPermissionsResult(
@@ -93,6 +99,10 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         return onRecordDeleteRequest
     }
 
+    fun getOnRecordShareRequest(): MutableLiveData<Record> {
+        return onRecordShareRequest
+    }
+
     fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, RelocationType>> {
         return onRecordRelocateRequest
     }
@@ -105,6 +115,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequestObserver)
+        viewModel.getOnRecordShareRequest().observe(this, onRecordShareRequestObserver)
         viewModel.getOnRelocateRequest().observe(this, onRelocateRequestObserver)
     }
 
@@ -112,6 +123,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequestObserver)
+        viewModel.getOnRecordShareRequest().removeObserver(onRecordShareRequestObserver)
         viewModel.getOnRelocateRequest().removeObserver(onRelocateRequestObserver)
     }
 

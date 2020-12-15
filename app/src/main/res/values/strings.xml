@@ -79,6 +79,7 @@
     <string name="menu_settings_drawer_logout">Log Out</string>
     <string name="main_navigation_my_files">MyFiles</string>
     <string name="main_navigation_shares">Shares</string>
+    <string name="main_navigation_share_link">Share Link</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
     <string name="my_files_sort_criteria_name">Name</string>
@@ -131,4 +132,23 @@
     <string name="relocation_success">%s %s successfully.</string>
     <string name="relocation_type_copied">copied</string>
     <string name="relocation_type_moved">moved</string>
+    <string name="share_link_get_share_link_button">Get share link</string>
+    <string name="share_link_copy_link_button">Copy Link</string>
+    <string name="share_link_advanced_options_button">Advanced Options</string>
+    <string name="share_link_revoke_link_button">Revoke Link</string>
+    <string name="share_link_share_link_title">Share Link</string>
+    <string name="share_link_share_link_message">Send this link via text, email, or other message service to invite people to share this content.</string>
+    <string name="share_link_sharing_with">Sharing With</string>
+    <string name="share_link_item_not_shared">This item is not shared with any archives</string>
+    <string name="share_link_link_copied">Link copied</string>
+    <string name="share_link_revoke_title">Revoke link?</string>
+    <string name="share_link_revoke_button">Revoke</string>
+    <string name="share_link_share_preview">Share preview</string>
+    <string name="share_link_auto_approve">Auto Approve</string>
+    <string name="share_link_auto_approve_message">Automatically approve requests for access to this share.</string>
+    <string name="share_link_max_uses">Max number of uses (optional)</string>
+    <string name="share_link_max_uses_message">This link will disappear after the max number of uses has been reached.</string>
+    <string name="share_link_expiration_date">Expiration date (optional)</string>
+    <string name="share_link_expiration_date_message">This link will disappear after the expiration date has been reached.</string>
+    <string name="share_link_save_button">Save</string>
 </resources>

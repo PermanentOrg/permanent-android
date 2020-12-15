@@ -4,6 +4,7 @@
 
     <data>
         <import type="android.view.View" />
+        <import type="org.permanent.permanent.ui.myFiles.RelocationType" />
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.MyFilesViewModel" />
@@ -297,8 +298,8 @@
                 android:layout_marginEnd="16dp"
                 android:onClick="@{() -> viewModel.onRelocateBtnClick()}"
                 android:text="@{viewModel.relocationType.name()}"
-                android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId ? @color/colorPrimary : @color/lightGrey}"
-                android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId}"
+                android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.getFolderIdentifier().folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/colorPrimary : @color/lightGrey}"
+                android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.getFolderIdentifier().folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"

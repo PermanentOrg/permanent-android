@@ -77,4 +77,8 @@ class ResponseVO {
         }
         return null
     }
+
+    fun getShareVO(): Shareby_urlVO? {
+        return Results?.get(0)?.data?.get(0)?.Shareby_urlVO
+    }
 }

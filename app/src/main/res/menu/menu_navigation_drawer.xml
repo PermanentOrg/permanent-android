@@ -23,20 +23,20 @@
 
     <group android:id="@+id/group2"
         android:checkableBehavior="single">
-        <item
-            android:id="@+id/relationshipsFragment"
-            android:icon="@drawable/ic_relationships_white"
-            android:title="@string/menu_drawer_relationships" />
+<!--        <item-->
+<!--            android:id="@+id/relationshipsFragment"-->
+<!--            android:icon="@drawable/ic_relationships_white"-->
+<!--            android:title="@string/menu_drawer_relationships" />-->
 
         <item
             android:id="@+id/membersFragment"
             android:icon="@drawable/ic_members_white"
             android:title="@string/menu_drawer_members" />
 
-        <item
-            android:id="@+id/AppsFragment"
-            android:icon="@drawable/ic_members_white"
-            android:title="@string/menu_drawer_apps" />
+<!--        <item-->
+<!--            android:id="@+id/AppsFragment"-->
+<!--            android:icon="@drawable/ic_members_white"-->
+<!--            android:title="@string/menu_drawer_apps" />-->
         <item
             android:id="@+id/logout"
             android:icon="@drawable/ic_logout_white"

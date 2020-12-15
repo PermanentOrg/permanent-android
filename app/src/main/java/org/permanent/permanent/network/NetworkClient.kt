@@ -18,6 +18,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
@@ -213,7 +214,7 @@ class NetworkClient(context: Context) {
 
     fun relocateRecord(
         csrf: String?, recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType)
-    : Call<ResponseVO> {
+            : Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(recordToRelocate).addFolderDest(destFolderLinkId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (recordToRelocate.type == RecordType.FOLDER) {
@@ -228,6 +229,26 @@ class NetworkClient(context: Context) {
             } else {
                 fileService.copyRecord(requestBody)
             }
+        }
+    }
+
+    fun requestShareLink(csrf: String?, record: Record, shareRequestType: ShareRequestType): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addRecord(record))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return if (shareRequestType == ShareRequestType.GET) {
+            fileService.getShareLink(requestBody)
+        } else {
+            fileService.generateShareLink(requestBody)
+        }
+    }
+
+    fun modifyShareLink(csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addShare(shareVO))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return if (shareRequestType == ShareRequestType.DELETE) {
+            fileService.deleteShareLink(requestBody)
+        } else {
+            fileService.updateShareLink(requestBody)
         }
     }
 

@@ -8,8 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -100,6 +102,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
+        recordOptionsFragment?.getOnRecordShareRequest()?.observe(this, onRecordShareRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
         recordOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
@@ -131,6 +134,11 @@ class MyFilesFragment : PermanentBaseFragment() {
             alert.dismiss()
         }
         alert.show()
+    }
+
+    private val onRecordShareRequest = Observer<Record> { record ->
+        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
+        findNavController().navigate(R.id.action_myFilesFragment_to_shareLinkFragment, bundle)
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
@@ -200,6 +208,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
+        recordOptionsFragment?.getOnRecordShareRequest()?.removeObserver(onRecordShareRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         recordOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)

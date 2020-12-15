@@ -39,7 +39,7 @@ class RecordsAdapter(
     }
 
     fun add(fakeFile: Record) {
-        records.add(fakeFile)
+        records.add(0, fakeFile)
         fakeFile.isRelocateMode = isRelocateMode
         filteredRecords = records
         notifyDataSetChanged()

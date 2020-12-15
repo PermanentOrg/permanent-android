@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.ShareVO
 
 class Record private constructor() : Parcelable {
     var archiveNr: String? = null
@@ -17,6 +18,7 @@ class Record private constructor() : Parcelable {
     var thumbURL500: String? = null
     var type: RecordType? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
+    var shares: MutableList<Share>? = null
 
     constructor(parcel: Parcel) : this() {
         archiveNr = parcel.readString()
@@ -29,6 +31,7 @@ class Record private constructor() : Parcelable {
         displayDate = parcel.readString()
         thumbURL500 = parcel.readString()
         type = parcel.readParcelable(RecordType::class.java.classLoader)
+        shares = parcel.createTypedArrayList(Share)
     }
 
     constructor(recordInfo: RecordVO) : this() {
@@ -41,6 +44,25 @@ class Record private constructor() : Parcelable {
         displayName = recordInfo.displayName
         displayDate = recordInfo.displayDT?.substringBefore("T")
         thumbURL500 = recordInfo.thumbURL500
+        initShares(recordInfo.ShareVOs)
+    }
+
+    private fun initShares(shareVOs: List<ShareVO>?) {
+        shares = ArrayList()
+        shareVOs?.let {
+            for (shareVO in it) {
+                val archiveVO = shareVO.ArchiveVO
+                val share = Share()
+                val archive = Archive()
+                archive.fullName = "The " + archiveVO?.fullName + " Archive"
+                archive.thumbURL200 = archiveVO?.fullName
+                archive.thumbURL500 = archiveVO?.thumbURL500
+                archive.thumbURL1000 = archiveVO?.thumbURL1000
+                archive.thumbURL2000 = archiveVO?.thumbURL2000
+                share.archive = archive
+                (shares as ArrayList<Share>).add(share)
+            }
+        }
     }
 
     fun getFolderIdentifier(): FolderIdentifier? {
@@ -60,6 +82,7 @@ class Record private constructor() : Parcelable {
         parcel.writeString(displayDate)
         parcel.writeString(thumbURL500)
         parcel.writeParcelable(type, flags)
+        parcel.writeTypedList(shares)
     }
 
     override fun describeContents(): Int {
