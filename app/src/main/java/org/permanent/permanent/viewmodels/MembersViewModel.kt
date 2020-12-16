@@ -17,6 +17,7 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<Int>()
+    private val onShowAddDialogRequest = MutableLiveData<Void>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
 
     fun getExistsOwners(): MutableLiveData<Boolean> {
@@ -47,6 +48,10 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
         return showMessage
     }
 
+    fun getShowAddDialogRequest(): LiveData<Void> {
+        return onShowAddDialogRequest
+    }
+
     fun getShowSnackbar(): LiveData<Int> {
         return showSnackbar
     }
@@ -56,5 +61,6 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun onAddFabClick() {
+        onShowAddDialogRequest.value = onShowAddDialogRequest.value
     }
 }

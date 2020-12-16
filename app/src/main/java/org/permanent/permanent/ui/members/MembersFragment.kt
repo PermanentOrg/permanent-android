@@ -5,15 +5,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogAddMemberBinding
 import org.permanent.permanent.databinding.FragmentMembersBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.viewmodels.AddMemberViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
+
 
 const val SNACKBAR_DURATION_MILLIS = 4000
 
@@ -21,6 +28,16 @@ class MembersFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: MembersViewModel
     private lateinit var binding: FragmentMembersBinding
+    private lateinit var dialogViewModel: AddMemberViewModel
+    private lateinit var dialogBinding: DialogAddMemberBinding
+    private var alertDialog: AlertDialog? = null
+    private val accessLevelArray = listOf(
+        MemberType.OWNER.toTitleCase(),
+        MemberType.CURATOR.toTitleCase(),
+        MemberType.EDITOR.toTitleCase(),
+        MemberType.CONTRIBUTOR.toTitleCase(),
+        MemberType.VIEWER.toTitleCase()
+    )
     private lateinit var ownersRecyclerView: RecyclerView
     private lateinit var curatorsRecyclerView: RecyclerView
     private lateinit var editorsRecyclerView: RecyclerView
@@ -42,6 +59,7 @@ class MembersFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        dialogViewModel = ViewModelProvider(this).get(AddMemberViewModel::class.java)
 
         initOwnersRecyclerView(binding.rvOwners)
         initCuratorsRecyclerView(binding.rvCurators)
@@ -107,18 +125,52 @@ class MembersFragment : PermanentBaseFragment() {
     }
 
     @SuppressLint("WrongConstant")
-    private val onShowSnackbar = Observer<Int> { messageInt ->
-        Snackbar.make(binding.root, messageInt, SNACKBAR_DURATION_MILLIS).show()
+    private val onShowSnackbar = Observer<Int> {
+        Snackbar.make(binding.root, it, SNACKBAR_DURATION_MILLIS).show()
+    }
+
+    private val onShowAddDialogRequest = Observer<Void> {
+        val accessLevelAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.menu_item_dropdown_add_member,
+            accessLevelArray
+        )
+        dialogBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context),
+            R.layout.dialog_add_member, null, false
+        )
+        dialogBinding.executePendingBindings()
+        dialogBinding.lifecycleOwner = this
+        dialogBinding.viewModel = dialogViewModel
+        dialogBinding.actvAccessLevel.setAdapter(accessLevelAdapter)
+        val thisContext = context
+
+        if (thisContext != null) {
+            alertDialog = AlertDialog.Builder(thisContext)
+                .setView(dialogBinding.root)
+                .create()
+            dialogBinding.btnSave.setOnClickListener {
+//                val currentFolderIdentifier =
+//                    arguments?.getParcelable<FolderIdentifier>(FOLDER_IDENTIFIER_KEY)
+//                dialogViewModel.createNewFolder(currentFolderIdentifier)
+            }
+            dialogBinding.btnCancel.setOnClickListener {
+                alertDialog?.dismiss()
+            }
+            alertDialog?.show()
+        }
     }
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowSnackbar().observe(this, onShowSnackbar)
+        viewModel.getShowAddDialogRequest().observe(this, onShowAddDialogRequest)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowSnackbar().removeObserver(onShowSnackbar)
+        viewModel.getShowAddDialogRequest().removeObserver(onShowAddDialogRequest)
     }
 
     override fun onResume() {
