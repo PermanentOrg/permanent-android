@@ -33,17 +33,20 @@ class MembersFragment : PermanentBaseFragment() {
     private var alertDialog: AlertDialog? = null
     private val accessLevelArray = listOf(
         MemberType.OWNER.toTitleCase(),
+        MemberType.MANAGER.toTitleCase(),
         MemberType.CURATOR.toTitleCase(),
         MemberType.EDITOR.toTitleCase(),
         MemberType.CONTRIBUTOR.toTitleCase(),
         MemberType.VIEWER.toTitleCase()
     )
     private lateinit var ownersRecyclerView: RecyclerView
+    private lateinit var managersRecyclerView: RecyclerView
     private lateinit var curatorsRecyclerView: RecyclerView
     private lateinit var editorsRecyclerView: RecyclerView
     private lateinit var contributorsRecyclerView: RecyclerView
     private lateinit var viewersRecyclerView: RecyclerView
     private lateinit var ownersAdapter: MembersAdapter
+    private lateinit var managersAdapter: MembersAdapter
     private lateinit var curatorsAdapter: MembersAdapter
     private lateinit var editorsAdapter: MembersAdapter
     private lateinit var contributorsAdapter: MembersAdapter
@@ -62,6 +65,7 @@ class MembersFragment : PermanentBaseFragment() {
         dialogViewModel = ViewModelProvider(this).get(AddMemberViewModel::class.java)
 
         initOwnersRecyclerView(binding.rvOwners)
+        initManagersRecyclerView(binding.rvManagers)
         initCuratorsRecyclerView(binding.rvCurators)
         initEditorsRecyclerView(binding.rvEditors)
         initContributorsRecyclerView(binding.rvContributors)
@@ -77,6 +81,16 @@ class MembersFragment : PermanentBaseFragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = ownersAdapter
+        }
+    }
+
+    private fun initManagersRecyclerView(rvManagers: RecyclerView) {
+        managersRecyclerView = rvManagers
+        managersAdapter = MembersAdapter()
+        managersRecyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = managersAdapter
         }
     }
 

@@ -40,6 +40,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
+                prefsHelper.saveUserArchiveId(responseVO?.getUserArchiveId())
                 val myFilesRecord = responseVO?.getMyFilesRecord()
 
                 if (myFilesRecord != null) {

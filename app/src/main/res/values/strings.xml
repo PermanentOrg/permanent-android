@@ -155,6 +155,7 @@
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
     <string name="members_owners">Owners</string>
+    <string name="members_managers">Managers</string>
     <string name="members_curators">Curators</string>
     <string name="members_editors">Editors</string>
     <string name="members_contributors">Contributors</string>
@@ -162,6 +163,7 @@
     <string name="members_none">None</string>
     <string name="members_edit_button">Edit</string>
     <string name="members_info_owners">Curator plus permission to add new members and change owners</string>
+    <string name="members_info_managers">A member with all file and folder permissions and the permission to modify membership</string>
     <string name="members_info_curators">Editor plus permission to move, copy and delete records</string>
     <string name="members_info_editors">Contributor plus permission to edit record metadata and to change folder views</string>
     <string name="members_info_contributors">Viewer plus permission to create file and folder records (e.g. upload only)</string>

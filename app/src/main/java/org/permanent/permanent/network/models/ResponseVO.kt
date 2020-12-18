@@ -31,7 +31,7 @@ class ResponseVO {
     }
 
     fun getUserArchiveId(): Int? {
-        return getData()?.get(0)?.ArchiveVO?.archiveId
+        return getData()?.get(0)?.FolderVO?.archiveId
     }
 
     fun getRecordVO(): RecordVO? {
@@ -64,12 +64,7 @@ class ResponseVO {
             for (result in Results!!) {
                 val datum = result.data?.get(0)
                 val fileVO: FileVO? = datum?.RecordVO?.FileVOs?.get(0)
-                val downloadDatum = DownloadData()
-                downloadDatum.displayName = datum?.RecordVO!!.displayName
-                downloadDatum.downloadURL = fileVO?.downloadURL
-                downloadDatum.contentType = fileVO?.contentType
-                downloadDatum.fileName = datum.RecordVO!!.uploadFileName
-                return downloadDatum
+                return DownloadData(datum, fileVO)
             }
         }
         return null

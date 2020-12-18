@@ -10,6 +10,7 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     private val appContext = application.applicationContext
     private val existsOwners = MutableLiveData(true)
+    private val existsManagers = MutableLiveData(false)
     private val existsCurators = MutableLiveData(false)
     private val existsEditors = MutableLiveData(false)
     private val existsContributors = MutableLiveData(false)
@@ -22,6 +23,10 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getExistsOwners(): MutableLiveData<Boolean> {
         return existsOwners
+    }
+
+    fun getExistsManagers(): MutableLiveData<Boolean> {
+        return existsManagers
     }
 
     fun getExistsCurators(): MutableLiveData<Boolean> {
