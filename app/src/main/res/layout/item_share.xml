@@ -80,18 +80,22 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="4dp"
             android:layout_marginBottom="8dp"
             app:imageUrl="@{shareItem.archiveThumbUrl500}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnOptions"
+            app:layout_constraintEnd_toStartOf="@id/btnDownload"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/btnOptions"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDownload"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="36dp"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_more_middle_grey"
+            android:visibility="gone"
+            android:enabled="@{shareItem.type == RecordType.FOLDER ? false : true}"
+            app:iconTint="@{shareItem.type == RecordType.FOLDER ? @color/superLightGrey : @color/middleGrey}"
+            app:icon="@drawable/ic_file_download"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
