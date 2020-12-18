@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemShareBinding
-import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.ShareItem
 
 class SharesAdapter : RecyclerView.Adapter<ShareViewHolder>() {
-    private var shares: MutableList<Record> = ArrayList()
+    private var shares: MutableList<ShareItem> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShareViewHolder {
         val binding = ItemShareBinding.inflate(
@@ -18,9 +18,14 @@ class SharesAdapter : RecyclerView.Adapter<ShareViewHolder>() {
         return ShareViewHolder(binding)
     }
 
+    fun set(items: MutableList<ShareItem>) {
+        shares = items
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount() = shares.size
 
     override fun onBindViewHolder(holder: ShareViewHolder, position: Int) {
-        shares[position]?.let { holder.bind(it) }
+        holder.bind(shares[position])
     }
 }

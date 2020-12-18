@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.2"
-            app:srcCompat="@drawable/img_sharing" />
+            app:srcCompat="@drawable/ic_group" />
 
         <TextView
             android:id="@+id/tvNoShares"
@@ -33,7 +33,7 @@
             android:layout_marginTop="32dp"
             android:layout_marginEnd="40dp"
             android:gravity="center"
-            android:text="@string/shares_no_items"
+            android:text="@string/shares_by_me_no_items"
             android:textSize="16sp"
             android:visibility="@{viewModel.existsShares ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"

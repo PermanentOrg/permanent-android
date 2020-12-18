@@ -2,7 +2,6 @@ package org.permanent.permanent.network.models
 
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordType
 
 class ResponseVO {
     var Results: List<ResultVO>? = null
@@ -10,7 +9,7 @@ class ResponseVO {
     var csrf: String? = null
 
     fun isUserLoggedIn(): Boolean? {
-        return Results?.get(0)?.data?.get(0)?.SimpleVO?.value
+        return getData()?.get(0)?.SimpleVO?.value
     }
 
     fun getMyFilesRecord(): Record? {
@@ -27,12 +26,20 @@ class ResponseVO {
         return null
     }
 
+    fun getData(): List<Datum>? {
+        return Results?.get(0)?.data
+    }
+
+    fun getUserArchiveId(): Int? {
+        return getData()?.get(0)?.ArchiveVO?.archiveId
+    }
+
     fun getRecordVO(): RecordVO? {
-        return Results?.get(0)?.data?.get(0)?.RecordVO
+        return getData()?.get(0)?.RecordVO
     }
 
     fun getChildItemVOs(): List<RecordVO>? {
-        return Results?.get(0)?.data?.get(0)?.FolderVO?.ChildItemVOs
+        return getData()?.get(0)?.FolderVO?.ChildItemVOs
     }
 
     fun getRecords(): List<Record> {
@@ -41,17 +48,7 @@ class ResponseVO {
 
         if (recordVOs != null) {
             for (recordVO in recordVOs) {
-                val newRecord: Record
-                if (recordVO.folderId != null) {
-                    recordVO.id = recordVO.folderId
-                    newRecord = Record(recordVO)
-                    newRecord.type = RecordType.FOLDER
-                } else {
-                    recordVO.id = recordVO.recordId
-                    newRecord = Record(recordVO)
-                    newRecord.type = RecordType.FILE
-                }
-                records.add(newRecord)
+                records.add(Record(recordVO))
             }
         }
 
@@ -79,6 +76,6 @@ class ResponseVO {
     }
 
     fun getShareVO(): Shareby_urlVO? {
-        return Results?.get(0)?.data?.get(0)?.Shareby_urlVO
+        return getData()?.get(0)?.Shareby_urlVO
     }
 }

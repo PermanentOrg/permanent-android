@@ -1,9 +1,7 @@
 package org.permanent.permanent.network.models
 
 class ArchiveVO {
-    var ChildFolderVOs: List<FolderVO>? = null
-    var FolderSizeVOs: List<FolderVO>? = null
-    var RecordVOs: List<FolderVO>? = null
+    var ItemVOs: List<ItemVO>? = null
     var accessRole: String? = null
     var fullName: String? = null
     var archiveId: Int? = null

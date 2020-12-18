@@ -16,8 +16,8 @@
 
         <ImageView
             android:id="@+id/ivPlaceHolder"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
@@ -71,6 +71,7 @@
             android:layout_marginEnd="10dp"
             android:visibility="@{upload.isUploading() ? View.VISIBLE : View.GONE}"
             android:max="100"
+            android:progressTint="@color/green"
             android:progress="@{upload.getProgress()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnCancel"

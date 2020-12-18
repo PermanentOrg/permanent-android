@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
+import org.permanent.permanent.models.ShareItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 
@@ -30,10 +31,26 @@ class SharedXMeFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
-        initSharesRecyclerView(binding.rvShares)
-
+        arguments?.takeIf { it.containsKey(PARCELABLE_SHARED_X_ME_NO_ITEMS_STRING_KEY) }?.apply {
+            getString(PARCELABLE_SHARED_X_ME_NO_ITEMS_STRING_KEY)
+                .also { binding.tvNoShares.text = it }
+        }
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initSharesRecyclerView(binding.rvShares)
+        arguments?.takeIf { it.containsKey(PARCELABLE_SHARED_WITH_ME_ITEMS_KEY) }?.apply {
+            val sharesWithMe = getParcelableArrayList<ShareItem>(PARCELABLE_SHARED_WITH_ME_ITEMS_KEY)
+
+            if (!sharesWithMe.isNullOrEmpty()) sharesAdapter.set(sharesWithMe)
+            viewModel.existsShares.value = !sharesWithMe.isNullOrEmpty()
+        }
+    }
+
+    fun set(sharesByMe: MutableList<ShareItem>) {
+        sharesAdapter.set(sharesByMe)
+        viewModel.existsShares.value = true
     }
 
     private fun initSharesRecyclerView(rvShares: RecyclerView) {

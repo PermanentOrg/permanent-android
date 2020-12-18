@@ -9,14 +9,10 @@ import org.permanent.permanent.repositories.IFileRepository
 class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
-    private val existsShares = MutableLiveData(false)
+    var existsShares = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
-
-    fun getExistsShares(): MutableLiveData<Boolean> {
-        return existsShares
-    }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy

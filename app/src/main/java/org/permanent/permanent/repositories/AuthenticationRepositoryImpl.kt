@@ -50,6 +50,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
                 prefsHelper.saveEmail(email)
+                prefsHelper.saveUserArchiveId(responseVO?.getUserArchiveId())
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     listener.onSuccess()

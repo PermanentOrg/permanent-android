@@ -4,6 +4,7 @@ import okhttp3.MediaType
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.ShareRequestType
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
@@ -12,7 +13,8 @@ import java.io.OutputStream
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IOnMyFilesArchiveNrListener)
-    fun getChildRecordsOf(myFilesArchiveNr: String, sort: String?, listener: IOnRecordsRetrievedListener)
+    fun getChildRecordsOf(myFilesArchiveNr: String, sort: String?,
+                          listener: IOnRecordsRetrievedListener)
     fun navigateMin(archiveNumber: String, sort: String?, listener: IOnRecordsRetrievedListener)
     fun getLeanItems(archiveNumber: String, sort: String?, childLinkIds: List<Int>,
                      listener: IOnRecordsRetrievedListener)
@@ -40,8 +42,11 @@ interface IFileRepository {
     fun deleteRecord(record: Record, listener: IOnResponseListener)
     fun relocateRecord(recordToRelocate: Record, destFolderLinkId: Int,
                        relocationType: RelocationType, listener: IOnResponseListener)
-    fun requestShareLink(record: Record, shareRequestType: ShareRequestType, listener: IOnShareUrlListener)
-    fun modifyShareLink(shareVO: Shareby_urlVO, shareRequestType: ShareRequestType, listener: IOnResponseListener)
+    fun requestShareLink(record: Record, shareRequestType: ShareRequestType,
+                         listener: IOnShareUrlListener)
+    fun modifyShareLink(shareVO: Shareby_urlVO, shareRequestType: ShareRequestType,
+                        listener: IOnResponseListener)
+    fun getShares(listener: IOnSharesListener)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: Record)
@@ -60,6 +65,11 @@ interface IFileRepository {
 
     interface IOnResponseListener {
         fun onSuccess(message: String?)
+        fun onFailed(error: String?)
+    }
+
+    interface IOnSharesListener {
+        fun onSuccess(shareArchives: List<Datum>?)
         fun onFailed(error: String?)
     }
 }

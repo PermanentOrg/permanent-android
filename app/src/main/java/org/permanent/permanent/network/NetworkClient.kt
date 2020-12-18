@@ -252,6 +252,12 @@ class NetworkClient(context: Context) {
         }
     }
 
+    fun getShares(csrf: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.getShares(requestBody)
+    }
+
     private fun toJson(container: RequestContainer): String {
         return jsonAdapter.toJson(container)
     }

@@ -68,4 +68,7 @@ interface IFileService {
 
     @POST("share/dropShareLink")
     fun deleteShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("share/getShares")
+    fun getShares(@Body requestBody: RequestBody): Call<ResponseVO>
 }
