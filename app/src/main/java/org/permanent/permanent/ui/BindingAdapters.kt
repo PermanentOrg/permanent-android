@@ -1,19 +1,12 @@
 package org.permanent.permanent.ui
 
-import android.content.res.ColorStateList
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import org.permanent.permanent.R
 import org.permanent.permanent.models.RecordType
 
-
-@BindingAdapter("iconTint")
-fun setIconTint(button: MaterialButton, colorResId: Int) {
-    button.iconTint = ColorStateList.valueOf(colorResId)
-}
 
 @BindingAdapter("imageResourceId")
 fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
