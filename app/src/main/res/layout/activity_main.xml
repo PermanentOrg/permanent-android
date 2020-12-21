@@ -15,7 +15,7 @@
         android:layout_height="match_parent">
 
         <androidx.drawerlayout.widget.DrawerLayout
-            android:id="@+id/mainDrawerLayout"
+            android:id="@+id/drawerLayout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -25,18 +25,16 @@
             tools:context=".permanent.ui.mainScreen.MainActivity">
 
             <LinearLayout
-                android:id="@+id/mainLinearLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/mainToolbar"
+                    android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
-                    app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
-                    app:titleTextColor="@color/white" />
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/mainNavHostFragment"
@@ -51,18 +49,18 @@
                     app:navGraph="@navigation/main_activity_navigation" />
             </LinearLayout>
 
-<!--            <com.google.android.material.navigation.NavigationView-->
-<!--                android:id="@+id/settingsNavigationView"-->
-<!--                android:layout_width="250dp"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_gravity="end"-->
-<!--                app:headerLayout="@layout/nav_settings_header"-->
-<!--                app:itemTextAppearance="@style/customDrawerTextStyle"-->
-<!--                app:itemTextColor="@color/colorPrimary"-->
-<!--                app:menu="@menu/menu_settings_drawer" />-->
+            <!--            <com.google.android.material.navigation.NavigationView-->
+            <!--                android:id="@+id/settingsNavigationView"-->
+            <!--                android:layout_width="250dp"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:layout_gravity="end"-->
+            <!--                app:headerLayout="@layout/nav_settings_header"-->
+            <!--                app:itemTextAppearance="@style/customDrawerTextStyle"-->
+            <!--                app:itemTextColor="@color/colorPrimary"-->
+            <!--                app:menu="@menu/menu_settings_drawer" />-->
 
             <com.google.android.material.navigation.NavigationView
-                android:id="@+id/accountNavigationView"
+                android:id="@+id/accountNavView"
                 android:layout_width="250dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"

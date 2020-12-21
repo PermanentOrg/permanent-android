@@ -44,6 +44,7 @@ class Record private constructor() : Parcelable {
         displayName = recordInfo.displayName
         displayDate = recordInfo.displayDT?.substringBefore("T")
         thumbURL500 = recordInfo.thumbURL500
+        type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
     }
 

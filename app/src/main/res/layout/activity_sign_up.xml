@@ -28,7 +28,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0"
-            app:srcCompat="@drawable/splash_logo" />
+            app:srcCompat="@drawable/img_splash_logo" />
 
         <TextView
             android:id="@+id/tvTitleSignUp"
@@ -106,7 +106,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
-                android:hint="@string/login_screen_email_hint"
+                android:hint="@string/email_hint"
                 android:inputType="textEmailAddress"
                 android:text="@{viewModel.getCurrentEmail()}"
                 android:textColor="@color/white"

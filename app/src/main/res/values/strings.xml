@@ -10,7 +10,7 @@
     <string name="onboarding_get_started_button">Get Started</string>
     <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
-    <string name="login_screen_email_hint">Email</string>
+    <string name="email_hint">Email</string>
     <string name="login_screen_password_hint">Password</string>
     <string name="login_screen_login">Log In</string>
     <string name="login_screen_forgot_password">Forgot Password?</string>
@@ -79,6 +79,7 @@
     <string name="menu_settings_drawer_logout">Log Out</string>
     <string name="main_navigation_my_files">MyFiles</string>
     <string name="main_navigation_shares">Shares</string>
+    <string name="main_navigation_members">Members</string>
     <string name="main_navigation_share_link">Share Link</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
@@ -150,5 +151,24 @@
     <string name="share_link_max_uses_message">This link will disappear after the max number of uses has been reached.</string>
     <string name="share_link_expiration_date">Expiration date (optional)</string>
     <string name="share_link_expiration_date_message">This link will disappear after the expiration date has been reached.</string>
-    <string name="share_link_save_button">Save</string>
+    <string name="save_button">Save</string>
+    <string name="shares_by_me_no_items">You haven\'t shared any items</string>
+    <string name="shares_with_me_no_items">You have no shared items</string>
+    <string name="members_owners">Owners</string>
+    <string name="members_managers">Managers</string>
+    <string name="members_curators">Curators</string>
+    <string name="members_editors">Editors</string>
+    <string name="members_contributors">Contributors</string>
+    <string name="members_viewers">Viewers</string>
+    <string name="members_none">None</string>
+    <string name="members_edit_button">Edit</string>
+    <string name="members_info_owners">Curator plus permission to add new members and change owners</string>
+    <string name="members_info_managers">A member with all file and folder permissions and the permission to modify membership</string>
+    <string name="members_info_curators">Editor plus permission to move, copy and delete records</string>
+    <string name="members_info_editors">Contributor plus permission to edit record metadata and to change folder views</string>
+    <string name="members_info_contributors">Viewer plus permission to create file and folder records (e.g. upload only)</string>
+    <string name="members_info_viewers">A member with permission to view records only</string>
+    <string name="members_add_member_title">Add Member</string>
+    <string name="members_access_level_title">Access Level</string>
+    <string name="members_member_email_hint">Member Email</string>
 </resources>

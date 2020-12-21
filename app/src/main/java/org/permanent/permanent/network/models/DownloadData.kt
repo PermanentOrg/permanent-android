@@ -1,8 +1,8 @@
 package org.permanent.permanent.network.models
 
-class DownloadData {
-    var displayName: String? = null
-    var downloadURL: String? = null
-    var contentType: String? = null
-    var fileName: String? = null
+class DownloadData(datum: Datum?, fileVO: FileVO?) {
+    var displayName: String? = datum?.RecordVO?.displayName
+    var downloadURL: String? = fileVO?.downloadURL
+    var contentType: String? = fileVO?.contentType
+    var fileName: String? = datum?.RecordVO?.uploadFileName
 }

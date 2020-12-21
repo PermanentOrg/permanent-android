@@ -332,7 +332,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.40"
             android:visibility="@{viewModel.getExistsFiles() || viewModel.getExistsUploads() ? View.GONE : View.VISIBLE}"
-            android:src="@{viewModel.getIsRoot() ? @drawable/my_files_cat_image : @drawable/ic_empty_folder}" />
+            android:src="@{viewModel.getIsRoot() ? @drawable/img_my_files_cat : @drawable/ic_empty_folder}" />
 
         <TextView
             android:id="@+id/tvNoFiles"

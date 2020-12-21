@@ -191,7 +191,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
             android:onClick="@{() -> viewModel.onSaveBtnClick()}"
-            android:text="@string/share_link_save_button"
+            android:text="@string/save_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"

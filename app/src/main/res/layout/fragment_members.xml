@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <import type="org.permanent.permanent.ui.members.MemberType" />
+        <import type="org.permanent.permanent.R" />
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.MembersViewModel" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvOwners"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@string/members_owners"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivInfoOwners"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onInfoBtnClick(R.string.members_info_owners)}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvOwners"
+            app:layout_constraintStart_toEndOf="@+id/tvOwners"
+            app:layout_constraintTop_toTopOf="@+id/tvOwners"
+            app:srcCompat="@drawable/ic_info_light_grey" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutOwners"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvOwners">
+
+            <TextView
+                android:id="@+id/tvNoneOwners"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:fontFamily="@font/open_sans"
+                android:text="@string/members_none"
+                android:textColor="@color/middleGrey"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:visibility="@{viewModel.existsOwners ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvOwners"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="@{viewModel.existsOwners ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/viewDividerOwners"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/lightGrey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutOwners" />
+
+        <TextView
+            android:id="@+id/tvManagers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@string/members_managers"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewDividerOwners" />
+
+        <ImageView
+            android:id="@+id/ivInfoManagers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onInfoBtnClick(R.string.members_info_managers)}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvManagers"
+            app:layout_constraintStart_toEndOf="@+id/tvManagers"
+            app:layout_constraintTop_toTopOf="@+id/tvManagers"
+            app:srcCompat="@drawable/ic_info_light_grey" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutManagers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvManagers">
+
+            <TextView
+                android:id="@+id/tvNoneManagers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:fontFamily="@font/open_sans"
+                android:text="@string/members_none"
+                android:textColor="@color/middleGrey"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:visibility="@{viewModel.existsManagers ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvManagers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="@{viewModel.existsManagers ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/viewDividerManagers"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/lightGrey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutManagers" />
+
+        <TextView
+            android:id="@+id/tvCurators"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@string/members_curators"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewDividerManagers" />
+
+        <ImageView
+            android:id="@+id/ivInfoCurators"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onInfoBtnClick(R.string.members_info_curators)}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvCurators"
+            app:layout_constraintStart_toEndOf="@+id/tvCurators"
+            app:layout_constraintTop_toTopOf="@+id/tvCurators"
+            app:srcCompat="@drawable/ic_info_light_grey" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutCurators"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvCurators">
+
+            <TextView
+                android:id="@+id/tvNoneCurators"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/members_none"
+                android:textColor="@color/middleGrey"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/open_sans"
+                android:visibility="@{viewModel.existsCurators ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCurators"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="@{viewModel.existsCurators ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/viewDividerCurators"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/lightGrey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutCurators" />
+
+        <TextView
+            android:id="@+id/tvEditors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@string/members_editors"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewDividerCurators" />
+
+        <ImageView
+            android:id="@+id/ivInfoEditors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onInfoBtnClick(R.string.members_info_editors)}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvEditors"
+            app:layout_constraintStart_toEndOf="@+id/tvEditors"
+            app:layout_constraintTop_toTopOf="@+id/tvEditors"
+            app:srcCompat="@drawable/ic_info_light_grey" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutEditors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvEditors">
+
+            <TextView
+                android:id="@+id/tvNoneEditors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/members_none"
+                android:textColor="@color/middleGrey"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/open_sans"
+                android:visibility="@{viewModel.existsEditors ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvEditors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="@{viewModel.existsEditors ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/viewDividerEditors"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/lightGrey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutEditors" />
+
+        <TextView
+            android:id="@+id/tvContributors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@string/members_contributors"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewDividerEditors" />
+
+        <ImageView
+            android:id="@+id/ivInfoContributors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onInfoBtnClick(R.string.members_info_contributors)}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvContributors"
+            app:layout_constraintStart_toEndOf="@+id/tvContributors"
+            app:layout_constraintTop_toTopOf="@+id/tvContributors"
+            app:srcCompat="@drawable/ic_info_light_grey" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutContributors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvContributors">
+
+            <TextView
+                android:id="@+id/tvNoneContributors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/members_none"
+                android:textColor="@color/middleGrey"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:fontFamily="@font/open_sans"
+                android:visibility="@{viewModel.existsContributors ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvContributors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="@{viewModel.existsContributors ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/viewDividerContributors"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/lightGrey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutContributors" />
+
+        <TextView
+            android:id="@+id/tvViewers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@string/members_viewers"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewDividerContributors" />
+
+        <ImageView
+            android:id="@+id/ivInfoViewers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onInfoBtnClick(R.string.members_info_viewers)}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvViewers"
+            app:layout_constraintStart_toEndOf="@+id/tvViewers"
+            app:layout_constraintTop_toTopOf="@+id/tvViewers"
+            app:srcCompat="@drawable/ic_info_light_grey" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutViewers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvViewers">
+
+            <TextView
+                android:id="@+id/tvNoneViewers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/members_none"
+                android:fontFamily="@font/open_sans"
+                android:textColor="@color/middleGrey"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:visibility="@{viewModel.existsViewers ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvViewers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="@{viewModel.existsViewers ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/viewDividerViewers"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/lightGrey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutViewers" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorAccent"
+            app:fabSize="auto"
+            android:onClick="@{()-> viewModel.onAddFabClick()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:maxImageSize="40dp"
+            app:srcCompat="@drawable/ic_plus_white"
+            app:tint="@null" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

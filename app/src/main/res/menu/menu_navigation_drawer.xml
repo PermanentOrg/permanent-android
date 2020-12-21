@@ -14,10 +14,10 @@
             android:id="@+id/sharesFragment"
             android:icon="@drawable/ic_share_white"
             android:title="@string/menu_drawer_shares" />
-        <item
-            android:id="@+id/publicFragment"
-            android:icon="@drawable/ic_public_white"
-            android:title="@string/menu_drawer_public" />
+<!--        <item-->
+<!--            android:id="@+id/publicFragment"-->
+<!--            android:icon="@drawable/ic_public_white"-->
+<!--            android:title="@string/menu_drawer_public" />-->
 
     </group>
 

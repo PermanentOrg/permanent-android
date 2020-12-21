@@ -12,15 +12,15 @@ class OnboardingPageAdapter : RecyclerView.Adapter<OnboardingPageViewHolder>() {
 
     private val onboardingPages: ArrayList<OnboardingPage> = arrayListOf(
         OnboardingPage(
-            R.drawable.onboarding_page_one_image,
+            R.drawable.img_onboarding_page_one,
             R.string.onboarding_page_one_title,
             R.string.onboarding_page_one_text),
         OnboardingPage(
-            R.drawable.onboarding_page_two_image,
+            R.drawable.img_onboarding_page_two,
             R.string.onboarding_page_two_title,
             R.string.onboarding_page_two_text),
         OnboardingPage(
-            R.drawable.onboarding_page_three_image,
+            R.drawable.img_onboarding_page_three,
             R.string.onboarding_page_three_title,
             R.string.onboarding_page_three_text))
 

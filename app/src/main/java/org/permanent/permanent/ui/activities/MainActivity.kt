@@ -32,9 +32,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var headerAccountBinding: NavMainHeaderBinding
-//    private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
+    //    private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var appBarConfig: AppBarConfiguration
     private val onNavigateToLogin = Observer<Void> {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
@@ -53,37 +53,37 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.viewModel = viewModel
 
         // Drawer left and right headers binding
-        headerAccountBinding = NavMainHeaderBinding.bind(binding.accountNavigationView.getHeaderView(0))
+        headerAccountBinding = NavMainHeaderBinding.bind(binding.accountNavView.getHeaderView(0))
         headerAccountBinding.viewModel = viewModel
 //        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
 //        headerSettingsBinding.viewModel = viewModel
 
+        // NavController setup
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        val topLevelDestinations = setOf(R.id.myFilesFragment, R.id.sharesFragment)
-        appBarConfiguration = AppBarConfiguration(topLevelDestinations, binding.mainDrawerLayout)
+        // ActionBar & appBarConfig setup
+        setSupportActionBar(binding.toolbar)
+        val topLevelDestinations = setOf(R.id.myFilesFragment, R.id.sharesFragment, R.id.membersFragment)
+        appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
+//        binding.toolbar.inflateMenu(R.menu.menu_toolbar_settings)
+//        binding.toolbar.setOnMenuItemClickListener(this)
 
-        binding.accountNavigationView.setupWithNavController(navController)
-        binding.accountNavigationView.setNavigationItemSelectedListener { item ->
-            if (item.itemId == R.id.logout) viewModel.logout()
+        // NavViews setup
+        binding.accountNavView.setupWithNavController(navController)
+        binding.accountNavView.setNavigationItemSelectedListener { menuItem ->
+            when(menuItem.itemId) {
+                R.id.logout -> viewModel.logout()
+                else -> {
+                    NavigationUI.onNavDestinationSelected(menuItem, navController)
+                    binding.drawerLayout.closeDrawers()
+                }
+            }
             true
         }
-
-        setSupportActionBar(binding.mainToolbar)
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if(destination.id == R.id.myFilesFragment || destination.id == R.id.sharesFragment) {
-                binding.mainToolbar.setNavigationIcon(R.drawable.ic_account_circle_white)
-            } else {
-                binding.mainToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white)
-            }
-        }
 //        binding.settingsNavigationView.setupWithNavController(navigationController)
-//        binding.mainToolbar.inflateMenu(R.menu.menu_toolbar_settings)
-//        binding.mainToolbar.setOnMenuItemClickListener(this)
 
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         if (!prefsHelper.isWelcomeDialogSeen()) {
@@ -98,7 +98,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 navController.popBackStack(R.id.shareLinkFragment, true)
                 true
             }
-            else -> navController.navigateUp(binding.mainDrawerLayout)
+            else -> navController.navigateUp(appBarConfig)
         }
     }
 

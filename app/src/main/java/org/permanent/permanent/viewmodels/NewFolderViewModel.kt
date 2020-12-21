@@ -10,7 +10,7 @@ import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
-class NewFolderViewModel (application: Application) : ObservableAndroidViewModel(application) {
+class NewFolderViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val currentFolderName = MutableLiveData<String>()
     private val nameError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
