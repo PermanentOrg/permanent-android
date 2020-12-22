@@ -34,6 +34,14 @@ class ResponseVO {
         return getData()?.get(0)?.FolderVO?.archiveId
     }
 
+    fun getArchiveNr(): String? {
+        return getData()?.get(0)?.FolderVO?.archiveNbr
+    }
+
+    fun getUserFullName(): String? {
+        return getData()?.get(0)?.AccountVO?.fullName
+    }
+
     fun getRecordVO(): RecordVO? {
         return getData()?.get(0)?.RecordVO
     }

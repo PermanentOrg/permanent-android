@@ -39,13 +39,11 @@ class MembersFragment : PermanentBaseFragment() {
         MemberType.CONTRIBUTOR.toTitleCase(),
         MemberType.VIEWER.toTitleCase()
     )
-    private lateinit var ownersRecyclerView: RecyclerView
     private lateinit var managersRecyclerView: RecyclerView
     private lateinit var curatorsRecyclerView: RecyclerView
     private lateinit var editorsRecyclerView: RecyclerView
     private lateinit var contributorsRecyclerView: RecyclerView
     private lateinit var viewersRecyclerView: RecyclerView
-    private lateinit var ownersAdapter: MembersAdapter
     private lateinit var managersAdapter: MembersAdapter
     private lateinit var curatorsAdapter: MembersAdapter
     private lateinit var editorsAdapter: MembersAdapter
@@ -64,7 +62,6 @@ class MembersFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         dialogViewModel = ViewModelProvider(this).get(AddMemberViewModel::class.java)
 
-        initOwnersRecyclerView(binding.rvOwners)
         initManagersRecyclerView(binding.rvManagers)
         initCuratorsRecyclerView(binding.rvCurators)
         initEditorsRecyclerView(binding.rvEditors)
@@ -72,16 +69,6 @@ class MembersFragment : PermanentBaseFragment() {
         initViewersRecyclerView(binding.rvViewers)
 
         return binding.root
-    }
-
-    private fun initOwnersRecyclerView(rvOwners: RecyclerView) {
-        ownersRecyclerView = rvOwners
-        ownersAdapter = MembersAdapter()
-        ownersRecyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = ownersAdapter
-        }
     }
 
     private fun initManagersRecyclerView(rvManagers: RecyclerView) {

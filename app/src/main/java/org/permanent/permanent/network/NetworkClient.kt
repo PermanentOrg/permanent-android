@@ -243,7 +243,7 @@ class NetworkClient(context: Context) {
     }
 
     fun modifyShareLink(csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addShare(shareVO))
+        val request = toJson(RequestContainer(csrf).addShareByUrl(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (shareRequestType == ShareRequestType.DELETE) {
             fileService.deleteShareLink(requestBody)
@@ -256,6 +256,12 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return fileService.getShares(requestBody)
+    }
+
+    fun getMembers(csrf: String?, archiveNr: String?, userArchiveId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr, userArchiveId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.getMembers(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

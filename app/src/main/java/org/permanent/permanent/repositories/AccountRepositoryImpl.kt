@@ -33,7 +33,7 @@ class AccountRepositoryImpl(application: Application) : IAccountRepository {
                     val accountId = responseVO.Results?.get(0)?.data?.get(0)?.AccountVO?.accountId
                     accountId?.let { prefsHelper.saveAccountId(it) }
                     // We save these here in order to use them for the background login call
-                    prefsHelper.saveEmail(email)
+                    prefsHelper.saveUserEmail(email)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(

@@ -11,7 +11,6 @@ class RequestContainer(csrf: String?) {
     private var RequestVO: RequestVO = RequestVO()
 
     init {
-        //TODO STORE IN PREFERENCES
         val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
         val PERM_API_KEY_MOBILE_PROD = "5aef7dd1f32e0d9ca57290e3c82b59db"
 
@@ -160,7 +159,7 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addShare(shareVO: Shareby_urlVO): RequestContainer {
+    fun addShareByUrl(shareVO: Shareby_urlVO): RequestContainer {
         val shareByUrlVO = Shareby_urlVO()
         shareByUrlVO.shareby_urlId = shareVO.shareby_urlId
         shareByUrlVO.autoApproveToggle = shareVO.autoApproveToggle
@@ -170,6 +169,14 @@ class RequestContainer(csrf: String?) {
         shareByUrlVO.byAccountId = shareVO.byAccountId
         shareByUrlVO.byArchiveId = shareVO.byArchiveId
         RequestVO.data?.get(0)?.Shareby_urlVO = shareByUrlVO
+        return this
+    }
+
+    fun addArchive(archiveNr: String?, userArchiveId: Int): RequestContainer {
+        val archiveVO = ArchiveVO()
+        archiveVO.archiveNbr = archiveNr
+        archiveVO.archiveId = userArchiveId
+        RequestVO.data?.get(0)?.ArchiveVO = archiveVO
         return this
     }
 }

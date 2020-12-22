@@ -10,6 +10,8 @@ const val PREFS_SAVED_ACCOUNT_ID = "preferences_saved_account_id"
 const val PREFS_SAVED_EMAIL = "preferences_saved_email"
 const val PREFS_SAVED_CSRF = "preferences_saved_csrf"
 const val PREFS_SAVED_ARCHIVE_ID = "preferences_saved_archive_id"
+const val PREFS_ROOT_ARCHIVE_NR = "preferences_root_archive_nr"
+const val PREFS_USER_FULL_NAME = "preferences_user_full_name"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -50,7 +52,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getString(PREFS_SAVED_ACCOUNT_ID, "")
     }
 
-    fun saveEmail(email: String) {
+    fun saveUserEmail(email: String) {
         with(sharedPreferences.edit()) {
             putString(PREFS_SAVED_EMAIL, email)
             apply()
@@ -85,5 +87,31 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getUserArchiveId(): Int {
         return sharedPreferences.getInt(PREFS_SAVED_ARCHIVE_ID, 0)
+    }
+
+    fun saveRootArchiveNr(archiveNr: String?) {
+        archiveNr?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_ROOT_ARCHIVE_NR, archiveNr)
+                apply()
+            }
+        }
+    }
+
+    fun getRootArchiveNr(): String? {
+        return sharedPreferences.getString(PREFS_ROOT_ARCHIVE_NR, "")
+    }
+
+    fun saveUserFullName(name: String?) {
+        name?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_USER_FULL_NAME, name)
+                apply()
+            }
+        }
+    }
+
+    fun getUserFullName(): String? {
+        return sharedPreferences.getString(PREFS_USER_FULL_NAME, "")
     }
 }

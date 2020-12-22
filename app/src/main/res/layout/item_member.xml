@@ -22,7 +22,7 @@
             app:layout_constraintGuide_percent="0.50" />
 
         <TextView
-            android:id="@+id/tvFileName"
+            android:id="@+id/tvName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -41,7 +41,7 @@
             app:layout_constraintVertical_bias="1.0" />
 
         <TextView
-            android:id="@+id/tvDate"
+            android:id="@+id/tvEmail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

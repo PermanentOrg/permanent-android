@@ -71,4 +71,7 @@ interface IFileService {
 
     @POST("share/getShares")
     fun getShares(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("archive/getShares")
+    fun getMembers(@Body requestBody: RequestBody): Call<ResponseVO>
 }
