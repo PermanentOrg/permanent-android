@@ -33,7 +33,7 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addAccount(accountId: String, email: String, phoneNumber: String?): RequestContainer {
+    fun addAccount(accountId: Int, email: String, phoneNumber: String?): RequestContainer {
         val account = AccountVO()
         account.accountId = accountId
         account.primaryEmail = email
@@ -172,10 +172,9 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addArchive(archiveNr: String?, userArchiveId: Int): RequestContainer {
+    fun addArchive(archiveNr: String?): RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveNbr = archiveNr
-        archiveVO.archiveId = userArchiveId
         RequestVO.data?.get(0)?.ArchiveVO = archiveVO
         return this
     }

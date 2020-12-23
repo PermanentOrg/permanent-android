@@ -40,9 +40,9 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
-                prefsHelper.saveUserArchiveId(responseVO?.getUserArchiveId())
-                val myFilesRecord = responseVO?.getMyFilesRecord()
+                prefsHelper.saveArchiveId(responseVO?.getArchiveId())
                 prefsHelper.saveRootArchiveNr(responseVO?.getArchiveNr())
+                val myFilesRecord = responseVO?.getMyFilesRecord()
 
                 if (myFilesRecord != null) {
                     listener.onSuccess(myFilesRecord)
@@ -355,7 +355,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun getShares(listener: IFileRepository.IOnSharesListener) {
+    override fun getShares(listener: IFileRepository.IOnDataListener) {
         networkClient.getShares(prefsHelper.getCsrf())
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -374,14 +374,14 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun getMembers(listener: IFileRepository.IOnMembersListener) {
-        networkClient.getMembers(prefsHelper.getCsrf(), prefsHelper.getRootArchiveNr(), prefsHelper.getUserArchiveId())
+    override fun getMembers(listener: IFileRepository.IOnDataListener) {
+        networkClient.getMembers(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr())
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(null)
+                        listener.onSuccess(responseVO.getData())
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }

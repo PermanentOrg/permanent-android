@@ -47,9 +47,8 @@ interface IFileRepository {
                          listener: IOnShareUrlListener)
     fun modifyShareLink(shareVO: Shareby_urlVO, shareRequestType: ShareRequestType,
                         listener: IOnResponseListener)
-    fun getShares(listener: IOnSharesListener)
-
-    fun getMembers(listener: IOnMembersListener)
+    fun getShares(listener: IOnDataListener)
+    fun getMembers(listener: IOnDataListener)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: Record)
@@ -71,13 +70,8 @@ interface IFileRepository {
         fun onFailed(error: String?)
     }
 
-    interface IOnSharesListener {
-        fun onSuccess(shareArchives: List<Datum>?)
-        fun onFailed(error: String?)
-    }
-
-    interface IOnMembersListener {
-        fun onSuccess(members: List<AccountVO>?)
+    interface IOnDataListener {
+        fun onSuccess(dataList: List<Datum>?)
         fun onFailed(error: String?)
     }
 }

@@ -96,7 +96,7 @@ class NetworkClient(context: Context) {
         return authService.forgotPassword(requestBody)
     }
 
-    fun sendSMSVerificationCode(csrf: String?, accountId: String, email: String
+    fun sendSMSVerificationCode(csrf: String?, accountId: Int, email: String
     ): Call<ResponseVO>  {
         val request = toJson(RequestContainer(csrf)
             .addAccount(accountId, email, null))
@@ -124,7 +124,8 @@ class NetworkClient(context: Context) {
         return accountService.signUp(requestBody)
     }
 
-    fun update(csrf: String?, accountId: String, email: String, phoneNumber: String
+    fun update(
+        csrf: String?, accountId: Int, email: String, phoneNumber: String
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAccount(accountId, email, phoneNumber))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -258,8 +259,8 @@ class NetworkClient(context: Context) {
         return fileService.getShares(requestBody)
     }
 
-    fun getMembers(csrf: String?, archiveNr: String?, userArchiveId: Int): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addArchive(archiveNr, userArchiveId))
+    fun getMembers(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return fileService.getMembers(requestBody)
     }

@@ -17,6 +17,8 @@ import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogAddMemberBinding
 import org.permanent.permanent.databinding.FragmentMembersBinding
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.AddMemberViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
@@ -31,13 +33,12 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var dialogViewModel: AddMemberViewModel
     private lateinit var dialogBinding: DialogAddMemberBinding
     private var alertDialog: AlertDialog? = null
-    private val accessLevelArray = listOf(
-        MemberType.OWNER.toTitleCase(),
-        MemberType.MANAGER.toTitleCase(),
-        MemberType.CURATOR.toTitleCase(),
-        MemberType.EDITOR.toTitleCase(),
-        MemberType.CONTRIBUTOR.toTitleCase(),
-        MemberType.VIEWER.toTitleCase()
+    private val accessRoleList = listOf(
+        AccessRole.MANAGER.toTitleCase(),
+        AccessRole.CURATOR.toTitleCase(),
+        AccessRole.EDITOR.toTitleCase(),
+        AccessRole.CONTRIBUTOR.toTitleCase(),
+        AccessRole.VIEWER.toTitleCase()
     )
     private lateinit var managersRecyclerView: RecyclerView
     private lateinit var curatorsRecyclerView: RecyclerView
@@ -121,6 +122,26 @@ class MembersFragment : PermanentBaseFragment() {
         }
     }
 
+    private val onManagersRetrieved = Observer<List<Account>> {
+        managersAdapter.set(it)
+    }
+
+    private val onCuratorsRetrieved = Observer<List<Account>> {
+        curatorsAdapter.set(it)
+    }
+
+    private val onEditorsRetrieved = Observer<List<Account>> {
+        editorsAdapter.set(it)
+    }
+
+    private val onContributorsRetrieved = Observer<List<Account>> {
+        contributorsAdapter.set(it)
+    }
+
+    private val onViewersRetrieved = Observer<List<Account>> {
+        viewersAdapter.set(it)
+    }
+
     private val onShowMessage = Observer<String> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
@@ -134,7 +155,7 @@ class MembersFragment : PermanentBaseFragment() {
         val accessLevelAdapter = ArrayAdapter(
             requireContext(),
             R.layout.menu_item_dropdown_add_member,
-            accessLevelArray
+            accessRoleList
         )
         dialogBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
@@ -163,12 +184,22 @@ class MembersFragment : PermanentBaseFragment() {
     }
 
     override fun connectViewModelEvents() {
+        viewModel.getOnManagersRetrieved().observe(this, onManagersRetrieved)
+        viewModel.getOnCuratorsRetrieved().observe(this, onCuratorsRetrieved)
+        viewModel.getOnEditorsRetrieved().observe(this, onEditorsRetrieved)
+        viewModel.getOnContributorsRetrieved().observe(this, onContributorsRetrieved)
+        viewModel.getOnViewersRetrieved().observe(this, onViewersRetrieved)
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowSnackbar().observe(this, onShowSnackbar)
         viewModel.getShowAddDialogRequest().observe(this, onShowAddDialogRequest)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnManagersRetrieved().removeObserver(onManagersRetrieved)
+        viewModel.getOnCuratorsRetrieved().removeObserver(onCuratorsRetrieved)
+        viewModel.getOnEditorsRetrieved().removeObserver(onEditorsRetrieved)
+        viewModel.getOnContributorsRetrieved().removeObserver(onContributorsRetrieved)
+        viewModel.getOnViewersRetrieved().removeObserver(onViewersRetrieved)
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowSnackbar().removeObserver(onShowSnackbar)
         viewModel.getShowAddDialogRequest().removeObserver(onShowAddDialogRequest)

@@ -118,10 +118,10 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     override fun sendSMSVerificationCode(
         listener: IAuthenticationRepository.IOnSMSCodeSentListener
     ) {
-        val accountId = prefsHelper.getAccountId()
+        val accountId = prefsHelper.getUserAccountId()
         val email = prefsHelper.getEmail()
 
-        if (accountId != null && email != null) {
+        if (accountId != 0 && email != null) {
             networkClient.sendSMSVerificationCode(
                 prefsHelper.getCsrf(),
                 accountId,
@@ -167,6 +167,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         // We use this in the members section
                         prefsHelper.saveUserFullName(responseVO.getUserFullName())
+                        prefsHelper.saveUserAccountId(responseVO.getUserAccountId())
                         listener.onSuccess()
                     } else {
                         listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0)

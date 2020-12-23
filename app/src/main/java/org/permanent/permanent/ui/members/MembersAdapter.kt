@@ -4,22 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemMemberBinding
-import org.permanent.permanent.models.Member
+import org.permanent.permanent.models.Account
 
 class MembersAdapter : RecyclerView.Adapter<MemberViewHolder>() {
-    private var members: MutableList<Member> = ArrayList()
-
-    init {
-        val member1 = Member()
-        member1.displayName = "Bryson Williams"
-        member1.email = "bryson@permanent.org"
-        members.add(member1)
-
-        val member2 = Member()
-        member2.displayName = "Flavia Handrea"
-        member2.email = "flavia.handrea@vspartners.us"
-        members.add(member2)
-    }
+    private var members: MutableList<Account> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = ItemMemberBinding.inflate(
@@ -30,9 +18,14 @@ class MembersAdapter : RecyclerView.Adapter<MemberViewHolder>() {
         return MemberViewHolder(binding)
     }
 
+    fun set(accounts: List<Account>) {
+        members = accounts.toMutableList()
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount() = members.size
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
-        members[position]?.let { holder.bind(it) }
+        holder.bind(members[position])
     }
 }

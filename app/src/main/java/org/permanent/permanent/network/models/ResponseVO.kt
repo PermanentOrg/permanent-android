@@ -30,7 +30,7 @@ class ResponseVO {
         return Results?.get(0)?.data
     }
 
-    fun getUserArchiveId(): Int? {
+    fun getArchiveId(): Int? {
         return getData()?.get(0)?.FolderVO?.archiveId
     }
 
@@ -40,6 +40,10 @@ class ResponseVO {
 
     fun getUserFullName(): String? {
         return getData()?.get(0)?.AccountVO?.fullName
+    }
+
+    fun getUserAccountId(): Int? {
+        return getData()?.get(0)?.AccountVO?.accountId
     }
 
     fun getRecordVO(): RecordVO? {

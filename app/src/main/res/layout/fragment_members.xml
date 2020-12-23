@@ -4,7 +4,7 @@
 
     <data>
         <import type="android.view.View" />
-        <import type="org.permanent.permanent.ui.members.MemberType" />
+        <import type="org.permanent.permanent.models.AccessRole" />
         <import type="org.permanent.permanent.R" />
         <variable
             name="viewModel"

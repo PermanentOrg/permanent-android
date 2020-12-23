@@ -25,10 +25,10 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
         }
 
         isBusy.value = true
-        fileRepository.getShares(object : IFileRepository.IOnSharesListener {
-            override fun onSuccess(shareArchives: List<Datum>?) {
+        fileRepository.getShares(object : IFileRepository.IOnDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
-                if (!shareArchives.isNullOrEmpty()) onSharedArchivesRetrieved.value = shareArchives
+                if (!dataList.isNullOrEmpty()) onSharedArchivesRetrieved.value = dataList
             }
 
             override fun onFailed(error: String?) {

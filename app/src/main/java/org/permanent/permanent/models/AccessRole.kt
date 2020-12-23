@@ -1,9 +1,13 @@
-package org.permanent.permanent.ui.members
+package org.permanent.permanent.models
 
-enum class MemberType {
+enum class AccessRole {
     OWNER, MANAGER, CURATOR, EDITOR, CONTRIBUTOR, VIEWER;
 
     fun toTitleCase(): String {
         return this.name.toLowerCase().capitalize()
+    }
+
+    fun toLowerCase(): String {
+        return this.name.toLowerCase()
     }
 }
