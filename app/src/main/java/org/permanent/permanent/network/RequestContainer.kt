@@ -2,6 +2,7 @@ package org.permanent.permanent.network
 
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.*
@@ -48,6 +49,14 @@ class RequestContainer(csrf: String?) {
         accountVO.primaryEmail = email
         accountVO.optIn = false
         accountVO.agreed = true
+        RequestVO.data?.get(0)?.AccountVO = accountVO
+        return this
+    }
+
+    fun addAccount(email: String, accessRole: AccessRole): RequestContainer {
+        val accountVO = AccountVO()
+        accountVO.primaryEmail = email
+        accountVO.accessRole = accessRole.toBackendString()
         RequestVO.data?.get(0)?.AccountVO = accountVO
         return this
     }

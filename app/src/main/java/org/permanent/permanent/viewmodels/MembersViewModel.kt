@@ -30,16 +30,16 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onContributorsRetrieved = MutableLiveData<List<Account>>()
     private val onViewersRetrieved = MutableLiveData<List<Account>>()
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
-    private val showSnackbar = MutableLiveData<Int>()
+    private val showSnackbar = MutableLiveData<String>()
+    private val showSnackbarLong = MutableLiveData<Int>()
     private val onShowAddDialogRequest = MutableLiveData<Void>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
 
     init {
-        getMembers()
+        refreshMembers()
     }
 
-    private fun getMembers() {
+    fun refreshMembers() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -54,7 +54,7 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showSnackbar.value = error
             }
         })
     }
@@ -155,20 +155,20 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
         return isBusy
     }
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
+    fun getShowSnackbar(): LiveData<String> {
+        return showSnackbar
     }
 
     fun getShowAddDialogRequest(): LiveData<Void> {
         return onShowAddDialogRequest
     }
 
-    fun getShowSnackbar(): LiveData<Int> {
-        return showSnackbar
+    fun getShowSnackbarLong(): LiveData<Int> {
+        return showSnackbarLong
     }
 
     fun onInfoBtnClick(stringInt: Int) {
-        showSnackbar.value = stringInt
+        showSnackbarLong.value = stringInt
     }
 
     fun onAddFabClick() {

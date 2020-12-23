@@ -12,7 +12,7 @@ class ForgotPasswordViewModel(application: Application) : ObservableAndroidViewM
     private val currentEmail = MutableLiveData<String>()
     private val emailError = MutableLiveData<Int>()
 
-    fun getCurrentEmail(): MutableLiveData<String>? {
+    fun getCurrentEmail(): MutableLiveData<String> {
         return currentEmail
     }
 

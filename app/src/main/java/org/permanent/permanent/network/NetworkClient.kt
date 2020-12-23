@@ -15,6 +15,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ResponseVO
@@ -263,6 +264,12 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return fileService.getMembers(requestBody)
+    }
+
+    fun addMember(csrf: String?, archiveNr: String?, email: String, accessRole: AccessRole): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr).addAccount(email, accessRole))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.addMember(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

@@ -73,10 +73,6 @@ class ShareLinkFragment : PermanentBaseFragment() {
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
-        val params = view.layoutParams as FrameLayout.LayoutParams
-        params.gravity = Gravity.TOP
-        params.topMargin = 232
-        view.layoutParams = params
         snackBar.show()
     }
 

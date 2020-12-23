@@ -2,88 +2,104 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.text.Editable
+import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.models.FolderIdentifier
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import java.util.regex.Pattern
 
 class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(application) {
-    private val currentFolderName = MutableLiveData<String>()
-    private val nameError = MutableLiveData<Int>()
+    private var accessRole: AccessRole? = null
+    private val currentEmail = MutableLiveData<String>()
+    private val emailError = MutableLiveData<Int>()
+    private val accessRoleError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onFolderCreated = SingleLiveEvent<Void>()
-    private val errorMessage = MutableLiveData<String>()
-    val errorStringId = MutableLiveData<Int>()
+    private val onMemberAdded = SingleLiveEvent<Void>()
+    private val showSnackbarSuccess = MutableLiveData<String>()
+    private val showSnackbar = MutableLiveData<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun getCurrentFolderName(): MutableLiveData<String>? {
-        return currentFolderName
+    fun getCurrentEmail(): MutableLiveData<String> {
+        return currentEmail
     }
 
-    fun getNameError(): LiveData<Int> {
-        return nameError
+    fun getEmailError(): LiveData<Int> {
+        return emailError
+    }
+
+    fun getAccessRoleError(): LiveData<Int> {
+        return accessRoleError
+    }
+
+    fun onEmailTextChanged(email: Editable) {
+        currentEmail.value = email.toString()
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy
     }
 
-    fun getOnFolderCreated(): MutableLiveData<Void> {
-        return onFolderCreated
+    fun getOnMemberAdded(): LiveData<Void> {
+        return onMemberAdded
     }
 
-    fun getErrorStringId(): LiveData<Int> {
-        return errorStringId
+    fun getShowSuccessSnackbar(): LiveData<String> {
+        return showSnackbarSuccess
     }
 
-    fun getErrorMessage(): LiveData<String> {
-        return errorMessage
+    fun getShowSnackbar(): LiveData<String> {
+        return showSnackbar
     }
 
-    fun onNameTextChanged(email: Editable) {
-        currentFolderName.value = email.toString()
+    fun setAccessRole(role: AccessRole) {
+        accessRole = role
     }
 
-    private fun getValidatedFolderName(): String? {
-        val name = currentFolderName.value?.trim()
-
-        if (name.isNullOrEmpty()) {
-            nameError.value = R.string.invalid_folder_name_error
-            return null
-        }
-        nameError.value = null
-        return name
-    }
-
-    fun createNewFolder(parentFolderIdentifier: FolderIdentifier?) {
+    fun addNewMember() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val folderName = getValidatedFolderName()
+        val email = getValidatedEmail()
+        val accessRole = getValidatedAccessRole()
 
-        if (parentFolderIdentifier != null && folderName != null) {
+        if (email != null && accessRole != null) {
             isBusy.value = true
-            fileRepository.createFolder(
-                parentFolderIdentifier,
-                folderName,
+            fileRepository.addMember(email, accessRole,
                 object : IFileRepository.IOnResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
-                        onFolderCreated.call()
+                        onMemberAdded.call()
+                        showSnackbarSuccess.value = message
                     }
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        when (error) {
-                            Constants.ERROR_SERVER_ERROR -> errorStringId.value =
-                                R.string.server_error
-                            else -> errorMessage.value = error
-                        }
+                        showSnackbar.value = error
                     }
                 })
         }
+    }
+
+    private fun getValidatedEmail(): String? {
+        val pattern: Pattern = Patterns.EMAIL_ADDRESS
+        val email = currentEmail.value
+        if (email.isNullOrEmpty() || !pattern.matcher(email).matches()) {
+            emailError.value = R.string.invalid_email_error
+            return null
+        }
+        emailError.value = null
+        return email
+    }
+
+    private fun getValidatedAccessRole(): AccessRole? {
+        if (accessRole == null) {
+            accessRoleError.value = R.string.invalid_access_level_error
+            return null
+        }
+        accessRoleError.value = null
+        return accessRole
     }
 }
