@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="member"
-            type="org.permanent.permanent.models.Member" />
+            type="org.permanent.permanent.models.Account" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +22,7 @@
             app:layout_constraintGuide_percent="0.50" />
 
         <TextView
-            android:id="@+id/tvFileName"
+            android:id="@+id/tvName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -30,7 +30,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/open_sans_bold"
             android:maxLines="1"
-            android:text="@{member.displayName}"
+            android:text="@{member.fullName}"
             android:textColor="@color/colorPrimary"
             android:textSize="15sp"
             android:textStyle="bold"
@@ -41,13 +41,13 @@
             app:layout_constraintVertical_bias="1.0" />
 
         <TextView
-            android:id="@+id/tvDate"
+            android:id="@+id/tvEmail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             android:fontFamily="@font/open_sans"
-            android:text="@{member.email}"
+            android:text="@{member.primaryEmail}"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnEdit"

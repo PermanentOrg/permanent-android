@@ -4,7 +4,7 @@
 
     <data>
         <import type="android.view.View" />
-        <import type="org.permanent.permanent.ui.members.MemberType" />
+        <import type="org.permanent.permanent.models.AccessRole" />
         <import type="org.permanent.permanent.R" />
         <variable
             name="viewModel"
@@ -15,13 +15,13 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/tvOwners"
+            android:id="@+id/tvOwner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
             android:fontFamily="@font/open_sans"
-            android:text="@string/members_owners"
+            android:text="@string/members_owner"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -36,47 +36,41 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:onClick="@{() -> viewModel.onInfoBtnClick(R.string.members_info_owners)}"
-            app:layout_constraintBottom_toBottomOf="@+id/tvOwners"
-            app:layout_constraintStart_toEndOf="@+id/tvOwners"
-            app:layout_constraintTop_toTopOf="@+id/tvOwners"
+            app:layout_constraintBottom_toBottomOf="@+id/tvOwner"
+            app:layout_constraintStart_toEndOf="@+id/tvOwner"
+            app:layout_constraintTop_toTopOf="@+id/tvOwner"
             app:srcCompat="@drawable/ic_info_light_grey" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutOwners"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/tvOwners">
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/open_sans_bold"
+            android:maxLines="1"
+            android:text="@{viewModel.ownerDisplayName}"
+            android:textColor="@color/colorPrimary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvOwner" />
 
-            <TextView
-                android:id="@+id/tvNoneOwners"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:fontFamily="@font/open_sans"
-                android:text="@string/members_none"
-                android:textColor="@color/middleGrey"
-                android:textSize="15sp"
-                android:textStyle="normal"
-                android:visibility="@{viewModel.existsOwners ? View.GONE : View.VISIBLE}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvOwners"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:visibility="@{viewModel.existsOwners ? View.VISIBLE : View.GONE}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@{viewModel.ownerEmail}"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvName" />
 
         <View
             android:id="@+id/viewDividerOwners"
@@ -86,7 +80,7 @@
             android:background="@color/lightGrey"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutOwners" />
+            app:layout_constraintTop_toBottomOf="@+id/tvEmail" />
 
         <TextView
             android:id="@+id/tvManagers"
@@ -457,6 +451,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutViewers" />
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAdd"

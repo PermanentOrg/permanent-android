@@ -30,10 +30,9 @@ class AccountRepositoryImpl(application: Application) : IAccountRepository {
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
                     // We save this for the Update Phone call
-                    val accountId = responseVO.Results?.get(0)?.data?.get(0)?.AccountVO?.accountId
-                    accountId?.let { prefsHelper.saveAccountId(it) }
+                    prefsHelper.saveUserAccountId(responseVO.getUserAccountId())
                     // We save these here in order to use them for the background login call
-                    prefsHelper.saveEmail(email)
+                    prefsHelper.saveUserEmail(email)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
@@ -53,10 +52,10 @@ class AccountRepositoryImpl(application: Application) : IAccountRepository {
         phoneNumber: String,
         listener: IAccountRepository.IOnPhoneUpdatedListener
     ) {
-        val accountId = prefsHelper.getAccountId()
+        val accountId = prefsHelper.getUserAccountId()
         val email = prefsHelper.getEmail()
 
-        if (accountId != null && email != null) {
+        if (accountId != 0 && email != null) {
             networkClient.update(
                 prefsHelper.getCsrf(),
                 accountId,

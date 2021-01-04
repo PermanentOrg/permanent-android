@@ -1,6 +1,7 @@
 package org.permanent.permanent.repositories
 
 import okhttp3.MediaType
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.ShareRequestType
@@ -46,7 +47,9 @@ interface IFileRepository {
                          listener: IOnShareUrlListener)
     fun modifyShareLink(shareVO: Shareby_urlVO, shareRequestType: ShareRequestType,
                         listener: IOnResponseListener)
-    fun getShares(listener: IOnSharesListener)
+    fun getShares(listener: IOnDataListener)
+    fun getMembers(listener: IOnDataListener)
+    fun addMember(email: String, accessRole: AccessRole, listener: IOnResponseListener)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: Record)
@@ -59,7 +62,7 @@ interface IFileRepository {
     }
 
     interface IOnShareUrlListener {
-        fun onSuccess(shareVO: Shareby_urlVO?)
+        fun onSuccess(shareByUrlVO: Shareby_urlVO?)
         fun onFailed(error: String?)
     }
 
@@ -68,8 +71,8 @@ interface IFileRepository {
         fun onFailed(error: String?)
     }
 
-    interface IOnSharesListener {
-        fun onSuccess(shareArchives: List<Datum>?)
+    interface IOnDataListener {
+        fun onSuccess(dataList: List<Datum>?)
         fun onFailed(error: String?)
     }
 }

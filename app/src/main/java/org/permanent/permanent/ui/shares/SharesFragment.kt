@@ -58,7 +58,7 @@ class SharesFragment : PermanentBaseFragment() {
 
     private val onSharedArchivesRetrieved = Observer<List<Datum>> {
         val userArchiveId = PreferencesHelper(requireContext()
-            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)).getUserArchiveId()
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)).getArchiveId()
 
         viewAdapter.setSharedArchives(it, userArchiveId)
     }

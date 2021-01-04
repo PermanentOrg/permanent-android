@@ -2,6 +2,7 @@ package org.permanent.permanent.network
 
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.*
@@ -11,7 +12,6 @@ class RequestContainer(csrf: String?) {
     private var RequestVO: RequestVO = RequestVO()
 
     init {
-        //TODO STORE IN PREFERENCES
         val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
         val PERM_API_KEY_MOBILE_PROD = "5aef7dd1f32e0d9ca57290e3c82b59db"
 
@@ -34,7 +34,7 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addAccount(accountId: String, email: String, phoneNumber: String?): RequestContainer {
+    fun addAccount(accountId: Int, email: String, phoneNumber: String?): RequestContainer {
         val account = AccountVO()
         account.accountId = accountId
         account.primaryEmail = email
@@ -49,6 +49,14 @@ class RequestContainer(csrf: String?) {
         accountVO.primaryEmail = email
         accountVO.optIn = false
         accountVO.agreed = true
+        RequestVO.data?.get(0)?.AccountVO = accountVO
+        return this
+    }
+
+    fun addAccount(email: String, accessRole: AccessRole): RequestContainer {
+        val accountVO = AccountVO()
+        accountVO.primaryEmail = email
+        accountVO.accessRole = accessRole.toBackendString()
         RequestVO.data?.get(0)?.AccountVO = accountVO
         return this
     }
@@ -160,7 +168,7 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addShare(shareVO: Shareby_urlVO): RequestContainer {
+    fun addShareByUrl(shareVO: Shareby_urlVO): RequestContainer {
         val shareByUrlVO = Shareby_urlVO()
         shareByUrlVO.shareby_urlId = shareVO.shareby_urlId
         shareByUrlVO.autoApproveToggle = shareVO.autoApproveToggle
@@ -170,6 +178,13 @@ class RequestContainer(csrf: String?) {
         shareByUrlVO.byAccountId = shareVO.byAccountId
         shareByUrlVO.byArchiveId = shareVO.byArchiveId
         RequestVO.data?.get(0)?.Shareby_urlVO = shareByUrlVO
+        return this
+    }
+
+    fun addArchive(archiveNr: String?): RequestContainer {
+        val archiveVO = ArchiveVO()
+        archiveVO.archiveNbr = archiveNr
+        RequestVO.data?.get(0)?.ArchiveVO = archiveVO
         return this
     }
 }

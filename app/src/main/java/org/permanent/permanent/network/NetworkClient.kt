@@ -15,6 +15,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ResponseVO
@@ -96,7 +97,7 @@ class NetworkClient(context: Context) {
         return authService.forgotPassword(requestBody)
     }
 
-    fun sendSMSVerificationCode(csrf: String?, accountId: String, email: String
+    fun sendSMSVerificationCode(csrf: String?, accountId: Int, email: String
     ): Call<ResponseVO>  {
         val request = toJson(RequestContainer(csrf)
             .addAccount(accountId, email, null))
@@ -124,7 +125,8 @@ class NetworkClient(context: Context) {
         return accountService.signUp(requestBody)
     }
 
-    fun update(csrf: String?, accountId: String, email: String, phoneNumber: String
+    fun update(
+        csrf: String?, accountId: Int, email: String, phoneNumber: String
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAccount(accountId, email, phoneNumber))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -243,7 +245,7 @@ class NetworkClient(context: Context) {
     }
 
     fun modifyShareLink(csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addShare(shareVO))
+        val request = toJson(RequestContainer(csrf).addShareByUrl(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (shareRequestType == ShareRequestType.DELETE) {
             fileService.deleteShareLink(requestBody)
@@ -256,6 +258,18 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return fileService.getShares(requestBody)
+    }
+
+    fun getMembers(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.getMembers(requestBody)
+    }
+
+    fun addMember(csrf: String?, archiveNr: String?, email: String, accessRole: AccessRole): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr).addAccount(email, accessRole))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.addMember(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

@@ -39,6 +39,7 @@
     <string name="password_empty_error">Password can not be empty</string>
     <string name="login_password_error">Please enter your password</string>
     <string name="invalid_email_error">Please enter a valid email address</string>
+    <string name="invalid_access_level_error">Please select an access level</string>
     <string name="invalid_folder_name_error">Please enter a valid folder name</string>
     <string name="two_step_verification_add_later_message">You can always add this later</string>
     <string name="two_step_verification_skip_button">Skip</string>
@@ -154,7 +155,7 @@
     <string name="save_button">Save</string>
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
-    <string name="members_owners">Owners</string>
+    <string name="members_owner">Owner</string>
     <string name="members_managers">Managers</string>
     <string name="members_curators">Curators</string>
     <string name="members_editors">Editors</string>
@@ -162,13 +163,14 @@
     <string name="members_viewers">Viewers</string>
     <string name="members_none">None</string>
     <string name="members_edit_button">Edit</string>
-    <string name="members_info_owners">Curator plus permission to add new members and change owners</string>
-    <string name="members_info_managers">A member with all file and folder permissions and the permission to modify membership</string>
-    <string name="members_info_curators">Editor plus permission to move, copy and delete records</string>
-    <string name="members_info_editors">Contributor plus permission to edit record metadata and to change folder views</string>
-    <string name="members_info_contributors">Viewer plus permission to create file and folder records (e.g. upload only)</string>
-    <string name="members_info_viewers">A member with permission to view records only</string>
+    <string name="members_info_owners">Owner: Curator plus permission to add new members and change owners</string>
+    <string name="members_info_managers">Manager: A member with all file and folder permissions and the permission to modify membership</string>
+    <string name="members_info_curators">Curator: Editor plus permission to move, copy and delete records</string>
+    <string name="members_info_editors">Editor: Contributor plus permission to edit record metadata and to change folder views</string>
+    <string name="members_info_contributors">Contributor: Viewer plus permission to create file and folder records (e.g. upload only)</string>
+    <string name="members_info_viewers">Viewer: A member with permission to view records only</string>
     <string name="members_add_member_title">Add Member</string>
     <string name="members_access_level_title">Access Level</string>
     <string name="members_member_email_hint">Member Email</string>
+    <string name="members_member_added_successfully">Member added successfully</string>
 </resources>

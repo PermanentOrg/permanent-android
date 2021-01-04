@@ -7,6 +7,7 @@ import android.util.Log
 import okhttp3.MediaType
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.FolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.NetworkClient
@@ -40,7 +41,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
-                prefsHelper.saveUserArchiveId(responseVO?.getUserArchiveId())
+                prefsHelper.saveArchiveId(responseVO?.getArchiveId())
+                prefsHelper.saveRootArchiveNr(responseVO?.getArchiveNr())
                 val myFilesRecord = responseVO?.getMyFilesRecord()
 
                 if (myFilesRecord != null) {
@@ -354,7 +356,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun getShares(listener: IFileRepository.IOnSharesListener) {
+    override fun getShares(listener: IFileRepository.IOnDataListener) {
         networkClient.getShares(prefsHelper.getCsrf())
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -362,6 +364,46 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun getMembers(listener: IFileRepository.IOnDataListener) {
+        networkClient.getMembers(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr())
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun addMember(email: String, accessRole: AccessRole,
+                           listener: IFileRepository.IOnResponseListener) {
+        networkClient.addMember(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr(), email, accessRole)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(
+                            context.getString(R.string.members_member_added_successfully))
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }

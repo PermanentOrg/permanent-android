@@ -53,15 +53,15 @@
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             app:layout_constraintVertical_bias="0.0"
             android:hint="@string/members_member_email_hint"
-            app:setError="@{viewModel.nameError}">
+            app:setError="@{viewModel.emailError}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
-                android:inputType="text"
-                android:text="@{viewModel.getCurrentFolderName()}"
+                android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
+                android:inputType="textEmailAddress"
+                android:text="@{viewModel.getCurrentEmail()}"
                 android:textColor="@color/black"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -83,7 +83,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            app:setError="@{viewModel.accessRoleError}">
 
             <AutoCompleteTextView
                 android:id="@+id/actvAccessLevel"
@@ -121,6 +122,7 @@
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="16dp"
             android:text="@string/save_button"
+            android:onClick="@{() -> viewModel.addNewMember()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline2"

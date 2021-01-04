@@ -1,13 +1,16 @@
 package org.permanent.permanent.ui.members
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -17,12 +20,14 @@ import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogAddMemberBinding
 import org.permanent.permanent.databinding.FragmentMembersBinding
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.AddMemberViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
 
 
-const val SNACKBAR_DURATION_MILLIS = 4000
+const val SNACKBAR_DURATION_MILLIS = 5000
 
 class MembersFragment : PermanentBaseFragment() {
 
@@ -31,21 +36,18 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var dialogViewModel: AddMemberViewModel
     private lateinit var dialogBinding: DialogAddMemberBinding
     private var alertDialog: AlertDialog? = null
-    private val accessLevelArray = listOf(
-        MemberType.OWNER.toTitleCase(),
-        MemberType.MANAGER.toTitleCase(),
-        MemberType.CURATOR.toTitleCase(),
-        MemberType.EDITOR.toTitleCase(),
-        MemberType.CONTRIBUTOR.toTitleCase(),
-        MemberType.VIEWER.toTitleCase()
+    private val accessRoleList = listOf(
+        AccessRole.MANAGER.toTitleCase(),
+        AccessRole.CURATOR.toTitleCase(),
+        AccessRole.EDITOR.toTitleCase(),
+        AccessRole.CONTRIBUTOR.toTitleCase(),
+        AccessRole.VIEWER.toTitleCase()
     )
-    private lateinit var ownersRecyclerView: RecyclerView
     private lateinit var managersRecyclerView: RecyclerView
     private lateinit var curatorsRecyclerView: RecyclerView
     private lateinit var editorsRecyclerView: RecyclerView
     private lateinit var contributorsRecyclerView: RecyclerView
     private lateinit var viewersRecyclerView: RecyclerView
-    private lateinit var ownersAdapter: MembersAdapter
     private lateinit var managersAdapter: MembersAdapter
     private lateinit var curatorsAdapter: MembersAdapter
     private lateinit var editorsAdapter: MembersAdapter
@@ -64,7 +66,6 @@ class MembersFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         dialogViewModel = ViewModelProvider(this).get(AddMemberViewModel::class.java)
 
-        initOwnersRecyclerView(binding.rvOwners)
         initManagersRecyclerView(binding.rvManagers)
         initCuratorsRecyclerView(binding.rvCurators)
         initEditorsRecyclerView(binding.rvEditors)
@@ -72,16 +73,6 @@ class MembersFragment : PermanentBaseFragment() {
         initViewersRecyclerView(binding.rvViewers)
 
         return binding.root
-    }
-
-    private fun initOwnersRecyclerView(rvOwners: RecyclerView) {
-        ownersRecyclerView = rvOwners
-        ownersAdapter = MembersAdapter()
-        ownersRecyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = ownersAdapter
-        }
     }
 
     private fun initManagersRecyclerView(rvManagers: RecyclerView) {
@@ -134,20 +125,49 @@ class MembersFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private val onManagersRetrieved = Observer<List<Account>> {
+        managersAdapter.set(it)
+    }
+
+    private val onCuratorsRetrieved = Observer<List<Account>> {
+        curatorsAdapter.set(it)
+    }
+
+    private val onEditorsRetrieved = Observer<List<Account>> {
+        editorsAdapter.set(it)
+    }
+
+    private val onContributorsRetrieved = Observer<List<Account>> {
+        contributorsAdapter.set(it)
+    }
+
+    private val onViewersRetrieved = Observer<List<Account>> {
+        viewersAdapter.set(it)
+    }
+
+    private val onShowSuccessSnackbar = Observer<String> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        snackBar.show()
     }
 
     @SuppressLint("WrongConstant")
-    private val onShowSnackbar = Observer<Int> {
+    private val onShowSnackbarLong = Observer<Int> {
         Snackbar.make(binding.root, it, SNACKBAR_DURATION_MILLIS).show()
+    }
+
+    private val onShowSnackbar = Observer<String> {
+        Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
     }
 
     private val onShowAddDialogRequest = Observer<Void> {
         val accessLevelAdapter = ArrayAdapter(
             requireContext(),
             R.layout.menu_item_dropdown_add_member,
-            accessLevelArray
+            accessRoleList
         )
         dialogBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
@@ -156,18 +176,19 @@ class MembersFragment : PermanentBaseFragment() {
         dialogBinding.executePendingBindings()
         dialogBinding.lifecycleOwner = this
         dialogBinding.viewModel = dialogViewModel
+        dialogBinding.actvAccessLevel.setOnClickListener { hideKeyboardFromDialogView() }
         dialogBinding.actvAccessLevel.setAdapter(accessLevelAdapter)
+        dialogBinding.actvAccessLevel.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ ->
+                val selectedRole = accessLevelAdapter.getItem(position) as String
+                dialogViewModel.setAccessRole(AccessRole.valueOf(selectedRole.toUpperCase()))
+            }
         val thisContext = context
 
         if (thisContext != null) {
             alertDialog = AlertDialog.Builder(thisContext)
                 .setView(dialogBinding.root)
                 .create()
-            dialogBinding.btnSave.setOnClickListener {
-//                val currentFolderIdentifier =
-//                    arguments?.getParcelable<FolderIdentifier>(FOLDER_IDENTIFIER_KEY)
-//                dialogViewModel.createNewFolder(currentFolderIdentifier)
-            }
             dialogBinding.btnCancel.setOnClickListener {
                 alertDialog?.dismiss()
             }
@@ -175,16 +196,43 @@ class MembersFragment : PermanentBaseFragment() {
         }
     }
 
+    private fun hideKeyboardFromDialogView() {
+        val inputMethodManager = context?.getSystemService(Activity.INPUT_METHOD_SERVICE)
+                as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(dialogBinding.root.windowToken, 0)
+    }
+
+    private val onMemberAdded = Observer<Void> {
+        viewModel.refreshMembers()
+        alertDialog?.dismiss()
+    }
+
     override fun connectViewModelEvents() {
-        viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnManagersRetrieved().observe(this, onManagersRetrieved)
+        viewModel.getOnCuratorsRetrieved().observe(this, onCuratorsRetrieved)
+        viewModel.getOnEditorsRetrieved().observe(this, onEditorsRetrieved)
+        viewModel.getOnContributorsRetrieved().observe(this, onContributorsRetrieved)
+        viewModel.getOnViewersRetrieved().observe(this, onViewersRetrieved)
         viewModel.getShowSnackbar().observe(this, onShowSnackbar)
+        viewModel.getShowSnackbarLong().observe(this, onShowSnackbarLong)
         viewModel.getShowAddDialogRequest().observe(this, onShowAddDialogRequest)
+        dialogViewModel.getOnMemberAdded().observe(this, onMemberAdded)
+        dialogViewModel.getShowSuccessSnackbar().observe(this, onShowSuccessSnackbar)
+        dialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnManagersRetrieved().removeObserver(onManagersRetrieved)
+        viewModel.getOnCuratorsRetrieved().removeObserver(onCuratorsRetrieved)
+        viewModel.getOnEditorsRetrieved().removeObserver(onEditorsRetrieved)
+        viewModel.getOnContributorsRetrieved().removeObserver(onContributorsRetrieved)
+        viewModel.getOnViewersRetrieved().removeObserver(onViewersRetrieved)
         viewModel.getShowSnackbar().removeObserver(onShowSnackbar)
+        viewModel.getShowSnackbarLong().removeObserver(onShowSnackbarLong)
         viewModel.getShowAddDialogRequest().removeObserver(onShowAddDialogRequest)
+        dialogViewModel.getOnMemberAdded().removeObserver(onMemberAdded)
+        dialogViewModel.getShowSuccessSnackbar().removeObserver(onShowSuccessSnackbar)
+        dialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
     }
 
     override fun onResume() {
