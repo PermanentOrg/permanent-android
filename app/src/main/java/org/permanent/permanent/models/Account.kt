@@ -8,18 +8,33 @@ class Account private constructor() {
     var fullName: String? = null
     var primaryEmail: String? = null
     var accessRole: AccessRole? = null
+    var status: Status? = null
 
     constructor(accountVO: AccountVO?) : this() {
         id = accountVO?.accountId
         fullName = accountVO?.fullName
         primaryEmail = accountVO?.primaryEmail
         val accountVORole = accountVO?.accessRole
-        accessRole = when {
-            accountVORole?.contains(AccessRole.MANAGER.toLowerCase()) == true -> AccessRole.MANAGER
-            accountVORole?.contains(AccessRole.CURATOR.toLowerCase()) == true -> AccessRole.CURATOR
-            accountVORole?.contains(AccessRole.EDITOR.toLowerCase()) == true -> AccessRole.EDITOR
-            accountVORole?.contains(AccessRole.CONTRIBUTOR.toLowerCase()) == true -> AccessRole.CONTRIBUTOR
+        val accountVOStatus = accountVO?.status
+        accessRole = when (accountVORole) {
+            AccessRole.MANAGER.toBackendString() -> AccessRole.MANAGER
+            AccessRole.CURATOR.toBackendString() -> AccessRole.CURATOR
+            AccessRole.EDITOR.toBackendString() -> AccessRole.EDITOR
+            AccessRole.CONTRIBUTOR.toBackendString() -> AccessRole.CONTRIBUTOR
             else -> AccessRole.VIEWER
+        }
+        status = when (accountVOStatus) {
+            Status.PENDING.toBackendString() -> Status.PENDING
+            else -> Status.OK
+        }
+    }
+
+    enum class Status(private val backendString: String) {
+        OK("status.generic.ok"),
+        PENDING("status.generic.pending");
+
+        fun toBackendString(): String {
+            return backendString
         }
     }
 }

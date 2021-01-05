@@ -35,6 +35,8 @@ class NetworkClient(context: Context) {
     private val authService: IAuthService
     private val accountService: IAccountService
     private val fileService: IFileService
+    private val shareService: IShareService
+    private val memberService: IMemberService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
     private val uploadUrl = if (Constants.BUILD_ENV === BuildEnvOption.STAGING)
@@ -65,6 +67,8 @@ class NetworkClient(context: Context) {
         authService = retrofit.create(IAuthService::class.java)
         accountService = retrofit.create(IAccountService::class.java)
         fileService = retrofit.create(IFileService::class.java)
+        shareService = retrofit.create(IShareService::class.java)
+        memberService = retrofit.create(IMemberService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
     }
 
@@ -238,9 +242,9 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(csrf).addRecord(record))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (shareRequestType == ShareRequestType.GET) {
-            fileService.getShareLink(requestBody)
+            shareService.getShareLink(requestBody)
         } else {
-            fileService.generateShareLink(requestBody)
+            shareService.generateShareLink(requestBody)
         }
     }
 
@@ -248,28 +252,46 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(csrf).addShareByUrl(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (shareRequestType == ShareRequestType.DELETE) {
-            fileService.deleteShareLink(requestBody)
+            shareService.deleteShareLink(requestBody)
         } else {
-            fileService.updateShareLink(requestBody)
+            shareService.updateShareLink(requestBody)
         }
     }
 
     fun getShares(csrf: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return fileService.getShares(requestBody)
+        return shareService.getShares(requestBody)
     }
 
     fun getMembers(csrf: String?, archiveNr: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return fileService.getMembers(requestBody)
+        return memberService.getMembers(requestBody)
     }
 
     fun addMember(csrf: String?, archiveNr: String?, email: String, accessRole: AccessRole): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addArchive(archiveNr).addAccount(email, accessRole))
+        val request = toJson(
+            RequestContainer(csrf)
+            .addArchive(archiveNr)
+            .addAccount(email, accessRole))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return fileService.addMember(requestBody)
+        return memberService.addMember(requestBody)
+    }
+
+    fun updateMember(csrf: String?, archiveNr: String?, id: Int, email: String, accessRole: AccessRole): Call<ResponseVO> {
+        val request = toJson(
+            RequestContainer(csrf)
+            .addArchive(archiveNr)
+            .addAccount(id, email, accessRole))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return memberService.updateMember(requestBody)
+    }
+
+    fun deleteMember(csrf: String?, archiveNr: String?, id: Int, email: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr).addAccount(id, email))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return memberService.deleteMember(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

@@ -3,6 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -25,7 +26,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
         }
 
         isBusy.value = true
-        fileRepository.getShares(object : IFileRepository.IOnDataListener {
+        fileRepository.getShares(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 if (!dataList.isNullOrEmpty()) onSharedArchivesRetrieved.value = dataList

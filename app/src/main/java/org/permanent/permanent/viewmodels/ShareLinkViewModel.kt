@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.ShareByUrl
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -143,7 +144,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
 
         shareByUrlVO?.let {
             isBusy.value = true
-            fileRepository.modifyShareLink(it, ShareRequestType.DELETE, object : IFileRepository.IOnResponseListener {
+            fileRepository.modifyShareLink(it, ShareRequestType.DELETE, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     existsLink.value = false

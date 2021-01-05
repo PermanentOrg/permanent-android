@@ -61,6 +61,20 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addAccount(id: Int, email: String, accessRole: AccessRole): RequestContainer {
+        addAccount(id, email)
+        RequestVO.data?.get(0)?.AccountVO?.accessRole = accessRole.toBackendString()
+        return this
+    }
+
+    fun addAccount(id: Int, email: String): RequestContainer {
+        val accountVO = AccountVO()
+        accountVO.accountId = id
+        accountVO.primaryEmail = email
+        RequestVO.data?.get(0)?.AccountVO = accountVO
+        return this
+    }
+
     fun addAccountPassword(password: String): RequestContainer {
         val accountPassword = AccountPasswordVO()
         accountPassword.password = password

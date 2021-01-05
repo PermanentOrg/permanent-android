@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.FolderIdentifier
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
@@ -69,7 +70,7 @@ class NewFolderViewModel(application: Application) : ObservableAndroidViewModel(
             fileRepository.createFolder(
                 parentFolderIdentifier,
                 folderName,
-                object : IFileRepository.IOnResponseListener {
+                object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
                         onFolderCreated.call()

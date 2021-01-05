@@ -9,4 +9,5 @@ class AccountVO {
     var fullName: String? = null
     var primaryPhone: String? = null
     var accessRole: String? = null
+    var status: String? = null
 }

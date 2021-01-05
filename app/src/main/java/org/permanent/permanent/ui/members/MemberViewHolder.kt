@@ -6,10 +6,12 @@ import org.permanent.permanent.models.Account
 
 class MemberViewHolder (
     private val binding: ItemMemberBinding,
+    private val memberListener: MemberListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(member: Account) {
         binding.member = member
         binding.executePendingBindings()
+        binding.btnEdit.setOnClickListener { memberListener.onMemberEdit(member) }
     }
 }

@@ -7,8 +7,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
-import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.repositories.IMemberRepository
+import org.permanent.permanent.repositories.MemberRepositoryImpl
 import java.util.regex.Pattern
 
 class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -20,7 +21,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
     private val onMemberAdded = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
-    private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+    private var memberRepository: IMemberRepository = MemberRepositoryImpl(application)
 
     fun getCurrentEmail(): MutableLiveData<String> {
         return currentEmail
@@ -67,19 +68,18 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
 
         if (email != null && accessRole != null) {
             isBusy.value = true
-            fileRepository.addMember(email, accessRole,
-                object : IFileRepository.IOnResponseListener {
-                    override fun onSuccess(message: String?) {
-                        isBusy.value = false
-                        onMemberAdded.call()
-                        showSnackbarSuccess.value = message
-                    }
+            memberRepository.addMember(email, accessRole, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    onMemberAdded.call()
+                    showSnackbarSuccess.value = message
+                }
 
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        showSnackbar.value = error
-                    }
-                })
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showSnackbar.value = error
+                }
+            })
         }
     }
 
