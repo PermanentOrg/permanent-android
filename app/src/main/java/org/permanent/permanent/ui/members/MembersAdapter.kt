@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemMemberBinding
 import org.permanent.permanent.models.Account
 
-class MembersAdapter : RecyclerView.Adapter<MemberViewHolder>() {
+class MembersAdapter(
+    private val memberListener: MemberListener
+) : RecyclerView.Adapter<MemberViewHolder>() {
     private var members: MutableList<Account> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -15,7 +17,7 @@ class MembersAdapter : RecyclerView.Adapter<MemberViewHolder>() {
             parent,
             false
         )
-        return MemberViewHolder(binding)
+        return MemberViewHolder(binding, memberListener)
     }
 
     fun set(accounts: List<Account>) {

@@ -6,13 +6,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IMemberRepository
+import org.permanent.permanent.repositories.MemberRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.members.MemberListener
 
-class MembersViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class MembersViewModel(
+    application: Application
+) : ObservableAndroidViewModel(application), MemberListener {
 
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
@@ -32,8 +36,9 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val isBusy = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarLong = MutableLiveData<Int>()
-    private val onShowAddDialogRequest = MutableLiveData<Void>()
-    private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
+    private val onShowAddMemberDialogRequest = MutableLiveData<Void>()
+    private val onShowEditMemberDialogRequest = MutableLiveData<Account>()
+    private var memberRepository: IMemberRepository = MemberRepositoryImpl(appContext)
 
     init {
         refreshMembers()
@@ -45,7 +50,7 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
         }
 
         isBusy.value = true
-        fileRepository.getMembers(object : IFileRepository.IOnDataListener {
+        memberRepository.getMembers(object : IDataListener {
 
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
@@ -81,26 +86,16 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
                 }
             }
         }
-        if (managers.isNotEmpty()) {
-            onManagersRetrieved.value = managers
-            existsManagers.value = true
-        }
-        if (curators.isNotEmpty()) {
-            onCuratorsRetrieved.value = curators
-            existsCurators.value = true
-        }
-        if (editors.isNotEmpty()) {
-            onEditorsRetrieved.value = editors
-            existsEditors.value = true
-        }
-        if (contributors.isNotEmpty()) {
-            onContributorsRetrieved.value = contributors
-            existsContributors.value = true
-        }
-        if (viewers.isNotEmpty()) {
-            onViewersRetrieved.value = viewers
-            existsViewers.value = true
-        }
+        onManagersRetrieved.value = managers
+        onCuratorsRetrieved.value = curators
+        onEditorsRetrieved.value = editors
+        onContributorsRetrieved.value = contributors
+        onViewersRetrieved.value = viewers
+        existsManagers.value = managers.isNotEmpty()
+        existsCurators.value = curators.isNotEmpty()
+        existsEditors.value = editors.isNotEmpty()
+        existsContributors.value = contributors.isNotEmpty()
+        existsViewers.value = viewers.isNotEmpty()
     }
 
     fun getOnManagersRetrieved(): LiveData<List<Account>> {
@@ -159,8 +154,12 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
         return showSnackbar
     }
 
-    fun getShowAddDialogRequest(): LiveData<Void> {
-        return onShowAddDialogRequest
+    fun getShowAddMemberDialogRequest(): LiveData<Void> {
+        return onShowAddMemberDialogRequest
+    }
+
+    fun getShowEditMemberDialogRequest(): LiveData<Account> {
+        return onShowEditMemberDialogRequest
     }
 
     fun getShowSnackbarLong(): LiveData<Int> {
@@ -172,6 +171,10 @@ class MembersViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun onAddFabClick() {
-        onShowAddDialogRequest.value = onShowAddDialogRequest.value
+        onShowAddMemberDialogRequest.value = onShowAddMemberDialogRequest.value
+    }
+
+    override fun onMemberEdit(member: Account) {
+        onShowEditMemberDialogRequest.value = member
     }
 }

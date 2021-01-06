@@ -162,6 +162,7 @@
     <string name="members_contributors">Contributors</string>
     <string name="members_viewers">Viewers</string>
     <string name="members_none">None</string>
+    <string name="members_pending">(Pending)</string>
     <string name="members_edit_button">Edit</string>
     <string name="members_info_owners">Owner: Curator plus permission to add new members and change owners</string>
     <string name="members_info_managers">Manager: A member with all file and folder permissions and the permission to modify membership</string>
@@ -173,4 +174,8 @@
     <string name="members_access_level_title">Access Level</string>
     <string name="members_member_email_hint">Member Email</string>
     <string name="members_member_added_successfully">Member added successfully</string>
+    <string name="members_member_updated_successfully">Member updated successfully</string>
+    <string name="members_member_removed_successfully">Member removed successfully</string>
+    <string name="members_edit_member_title">Edit Member</string>
+    <string name="members_remove_button">Remove</string>
 </resources>

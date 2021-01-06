@@ -16,6 +16,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -360,7 +361,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         val relocationTypeValue = relocationType.value
         if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
             fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
-                object : IFileRepository.IOnResponseListener {
+                object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         swipeRefreshLayout.isRefreshing = false
                         onShowMessage.value = message
@@ -382,7 +383,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun delete(record: Record) {
         swipeRefreshLayout.isRefreshing = true
-        fileRepository.deleteRecord(record, object : IFileRepository.IOnResponseListener {
+        fileRepository.deleteRecord(record, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 swipeRefreshLayout.isRefreshing = false
                 refreshCurrentFolder()
