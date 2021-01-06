@@ -46,7 +46,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:navGraph="@navigation/main_activity_navigation" />
+                    app:navGraph="@navigation/main_navigation" />
             </LinearLayout>
 
             <!--            <com.google.android.material.navigation.NavigationView-->

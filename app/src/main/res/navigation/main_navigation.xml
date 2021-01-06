@@ -21,7 +21,8 @@
     <fragment
         android:id="@+id/shareLinkFragment"
         android:name="org.permanent.permanent.ui.myFiles.linkshare.ShareLinkFragment"
-        android:label="@string/main_navigation_share_link" >
+        android:label="@string/main_navigation_share_link"
+        tools:layout="@layout/fragment_share_link">
         <action
             android:id="@+id/action_shareLinkFragment_to_manageLinkFragment"
             app:destination="@id/manageLinkFragment"
@@ -33,15 +34,27 @@
     <fragment
         android:id="@+id/manageLinkFragment"
         android:name="org.permanent.permanent.ui.myFiles.linkshare.ManageLinkFragment"
-        android:label="@string/share_link_advanced_options_button" >
+        android:label="@string/share_link_advanced_options_button"
+        tools:layout="@layout/fragment_manage_link">
+    </fragment>
+    <fragment
+        android:id="@+id/deepLinkFragment"
+        android:name="org.permanent.permanent.ui.DeepLinkFragment"
+        tools:layout="@layout/fragment_deep_link">
+        <deepLink
+            android:id="@+id/deepLink"
+            app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/share/{id}" />
     </fragment>
     <fragment
         android:id="@+id/sharesFragment"
         android:name="org.permanent.permanent.ui.shares.SharesFragment"
-        android:label="@string/main_navigation_shares" />
+        android:label="@string/main_navigation_shares"
+        tools:layout="@layout/fragment_shares" />
 
     <fragment
         android:id="@+id/membersFragment"
         android:name="org.permanent.permanent.ui.members.MembersFragment"
-        android:label="@string/main_navigation_members" />
+        android:label="@string/main_navigation_members"
+        tools:layout="@layout/fragment_members"/>
 </navigation>
