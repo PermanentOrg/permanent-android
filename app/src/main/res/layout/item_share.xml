@@ -47,7 +47,7 @@
             android:text="@{shareItem.displayName}"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintEnd_toStartOf="@+id/ivPlaceHolder"
+            app:layout_constraintEnd_toStartOf="@+id/ivArchiveImage"
             app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
@@ -76,7 +76,7 @@
             app:tint="@color/middleGrey" />
 
         <ImageView
-            android:id="@+id/ivPlaceHolder"
+            android:id="@+id/ivArchiveImage"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginTop="8dp"

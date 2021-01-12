@@ -1,29 +1,17 @@
 package org.permanent.permanent.models
 
-import android.content.Context
-import androidx.lifecycle.LifecycleOwner
-import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import org.permanent.permanent.ui.myFiles.upload.UploadQueue
+import org.permanent.permanent.network.models.FolderVO
 
-class Folder(val context: Context, private val folderInfo: Record) {
-    private var uploadQueue: UploadQueue? = null
+class Folder private constructor() {
+    var records: List<Record>? = null
 
-    fun newUploadQueue(lifecycleOwner: LifecycleOwner, listener: OnFinishedListener
-    ): UploadQueue? {
-        val archiveNr = folderInfo.archiveNr
-        val folderIdentifier = folderInfo.getFolderIdentifier()
-        if (archiveNr != null && folderIdentifier != null) {
-            uploadQueue =
-                UploadQueue(context, folderIdentifier, lifecycleOwner, archiveNr, listener)
+    constructor(folderVO: FolderVO) : this() {
+        records = ArrayList()
+        folderVO.ChildItemVOs?.let {
+            for (recordVO in it) {
+                val record = Record(recordVO)
+                (records as ArrayList<Record>).add(record)
+            }
         }
-        return uploadQueue
     }
-
-    fun getUploadQueue() = uploadQueue
-
-    fun getArchiveNr() = folderInfo.archiveNr
-
-    fun getDisplayName() = folderInfo.displayName
-
-    fun getFolderIdentifier() = folderInfo.getFolderIdentifier()
 }

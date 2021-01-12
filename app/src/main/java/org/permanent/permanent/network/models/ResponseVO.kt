@@ -82,7 +82,11 @@ class ResponseVO {
         return null
     }
 
-    fun getShareVO(): Shareby_urlVO? {
+    fun getShareByUrlVO(): Shareby_urlVO? {
         return getData()?.get(0)?.Shareby_urlVO
+    }
+
+    fun getShareVO(): ShareVO? {
+        return getData()?.get(0)?.ShareVO
     }
 }

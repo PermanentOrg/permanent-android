@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.models.FolderIdentifier
+import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -59,7 +59,7 @@ class NewFolderViewModel(application: Application) : ObservableAndroidViewModel(
         return name
     }
 
-    fun createNewFolder(parentFolderIdentifier: FolderIdentifier?) {
+    fun createNewFolder(parentFolderIdentifier: NavigationFolderIdentifier?) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }

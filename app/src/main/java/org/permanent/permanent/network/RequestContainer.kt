@@ -195,6 +195,13 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addShareByUrl(urlToken: String): RequestContainer {
+        val shareByUrlVO = Shareby_urlVO()
+        shareByUrlVO.urlToken = urlToken
+        RequestVO.data?.get(0)?.Shareby_urlVO = shareByUrlVO
+        return this
+    }
+
     fun addArchive(archiveNr: String?): RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveNbr = archiveNr

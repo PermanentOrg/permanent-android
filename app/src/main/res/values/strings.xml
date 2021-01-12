@@ -145,14 +145,13 @@
     <string name="share_link_link_copied">Link copied</string>
     <string name="share_link_revoke_title">Revoke link?</string>
     <string name="share_link_revoke_button">Revoke</string>
-    <string name="share_link_share_preview">Share preview</string>
+    <string name="share_link_share_preview">Share Preview</string>
     <string name="share_link_auto_approve">Auto Approve</string>
     <string name="share_link_auto_approve_message">Automatically approve requests for access to this share.</string>
     <string name="share_link_max_uses">Max number of uses (optional)</string>
     <string name="share_link_max_uses_message">This link will disappear after the max number of uses has been reached.</string>
     <string name="share_link_expiration_date">Expiration date (optional)</string>
     <string name="share_link_expiration_date_message">This link will disappear after the expiration date has been reached.</string>
-    <string name="deep_link_request_access_button">Request Access</string>
     <string name="save_button">Save</string>
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
@@ -179,4 +178,8 @@
     <string name="members_member_removed_successfully">Member removed successfully</string>
     <string name="members_edit_member_title">Edit Member</string>
     <string name="members_remove_button">Remove</string>
+    <string name="share_preview_request_access_button">Request Access</string>
+    <string name="share_preview_view_in_archive_button">View in Archive</string>
+    <string name="ok_button">OK</string>
+    <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>
 </resources>

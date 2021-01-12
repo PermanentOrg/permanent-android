@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
-import org.permanent.permanent.models.FolderIdentifier
+import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -32,8 +32,8 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var viewModel: MyFilesViewModel
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
-    private lateinit var filesRecyclerView: RecyclerView
-    private lateinit var recordsAdapter: RecordsAdapter
+    private lateinit var recordsRecyclerView: RecyclerView
+    private lateinit var recordsAdapter: RecordsListAdapter
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
@@ -89,7 +89,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordsAdapter.add(it)
     }
 
-    private val onShowAddOptionsFragment = Observer<FolderIdentifier> {
+    private val onShowAddOptionsFragment = Observer<NavigationFolderIdentifier> {
         addOptionsFragment = AddOptionsFragment()
         addOptionsFragment?.setBundleArguments(it)
         addOptionsFragment?.show(parentFragmentManager, addOptionsFragment?.tag)
@@ -165,9 +165,9 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
-        filesRecyclerView = rvFiles
-        recordsAdapter = RecordsAdapter(viewModel, this, viewModel.getIsRelocationMode())
-        filesRecyclerView.apply {
+        recordsRecyclerView = rvFiles
+        recordsAdapter = RecordsListAdapter(viewModel, this, viewModel.getIsRelocationMode())
+        recordsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = recordsAdapter

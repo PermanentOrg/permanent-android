@@ -2,12 +2,12 @@ package org.permanent.permanent.ui.myFiles
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_record.view.*
+import kotlinx.android.synthetic.main.item_list_record.view.*
 import kotlinx.android.synthetic.main.item_record_underlay.view.*
-import org.permanent.permanent.databinding.ItemRecordBinding
+import org.permanent.permanent.databinding.ItemListRecordBinding
 import org.permanent.permanent.models.Record
 
-class RecordViewHolder(val binding: ItemRecordBinding, private val recordListener: RecordListener)
+class RecordListViewHolder(val binding: ItemListRecordBinding, private val recordListener: RecordListener)
     : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(record: Record, lifecycleOwner: LifecycleOwner) {

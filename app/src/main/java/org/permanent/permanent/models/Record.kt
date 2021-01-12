@@ -53,22 +53,16 @@ class Record private constructor() : Parcelable {
         shareVOs?.let {
             for (shareVO in it) {
                 val archiveVO = shareVO.ArchiveVO
-                val share = Share()
-                val archive = Archive()
-                archive.fullName = "The " + archiveVO?.fullName + " Archive"
-                archive.thumbURL200 = archiveVO?.fullName
-                archive.thumbURL500 = archiveVO?.thumbURL500
-                archive.thumbURL1000 = archiveVO?.thumbURL1000
-                archive.thumbURL2000 = archiveVO?.thumbURL2000
-                share.archive = archive
+                val share = Share(shareVO)
+                share.archive?.fullName = "The " + archiveVO?.fullName + " Archive"
                 (shares as ArrayList<Share>).add(share)
             }
         }
     }
 
-    fun getFolderIdentifier(): FolderIdentifier? {
+    fun getFolderIdentifier(): NavigationFolderIdentifier? {
         if (folderId != null && folderLinkId != null)
-            return FolderIdentifier(folderId!!, folderLinkId!!)
+            return NavigationFolderIdentifier(folderId!!, folderLinkId!!)
         return null
     }
 

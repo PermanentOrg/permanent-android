@@ -37,7 +37,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val relocationType = MutableLiveData<RelocationType>()
     private val currentSortType: MutableLiveData<SortType> = MutableLiveData(SortType.NAME_ASCENDING)
     private val currentSearchQuery = MutableLiveData<String>()
-    private var currentFolder = MutableLiveData<Folder>()
+    private var currentFolder = MutableLiveData<NavigationFolder>()
     private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     private val recordToRelocate = MutableLiveData<Record>()
@@ -47,7 +47,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onFilesRetrieved = SingleLiveEvent<List<Record>>()
     private val onFilesFilterQuery = MutableLiveData<Editable>()
     private val onNewTemporaryFile = SingleLiveEvent<Record>()
-    private val onShowAddOptionsFragment = SingleLiveEvent<FolderIdentifier>()
+    private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
     private val onShowFileOptionsFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
@@ -126,7 +126,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return relocationType
     }
 
-    fun getCurrentFolder(): MutableLiveData<Folder> {
+    fun getCurrentFolder(): MutableLiveData<NavigationFolder> {
         return currentFolder
     }
 
@@ -167,7 +167,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
-    private fun loadFilesOf(folder: Folder?, sortType: SortType?) {
+    private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
         folder?.getArchiveNr()?.let {
             swipeRefreshLayout.isRefreshing = true
             fileRepository.getChildRecordsOf(it, sortType?.toBackendString(),
@@ -209,7 +209,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         })
     }
 
-    fun getOnShowAddOptionsFragment(): MutableLiveData<FolderIdentifier> {
+    fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> {
         return onShowAddOptionsFragment
     }
 
@@ -271,12 +271,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     private fun loadAllChildrenOf(folderInfo: Record) {
-        currentFolder.value = Folder(appContext, folderInfo)
+        currentFolder.value = NavigationFolder(appContext, folderInfo)
         loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
-    private fun loadEnqueuedUploads(folder: Folder?, lifecycleOwner: LifecycleOwner) {
+    private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {
         folder?.newUploadQueue(lifecycleOwner, this)
             ?.getEnqueuedUploadsLiveData()?.let { enqueuedUploadsLiveData ->
                 enqueuedUploadsLiveData.observe(lifecycleOwner, { enqueuedUploads ->

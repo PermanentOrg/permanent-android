@@ -12,8 +12,8 @@ import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.Shareby_urlVO
-import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IShareRepository
+import org.permanent.permanent.repositories.ShareRepositoryImpl
 
 
 class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -30,7 +30,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
     private val showSnackBar = MutableLiveData<String>()
     private val onRevokeLinkRequest = MutableLiveData<Void>()
     private val onManageLinkRequest = MutableLiveData<ShareByUrl>()
-    private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
+    private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     fun setRecord(record: Record) {
         this.record = record
@@ -45,21 +45,22 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         }
 
         isBusy.value = true
-        fileRepository.requestShareLink(record, ShareRequestType.GET, object : IFileRepository.IOnShareUrlListener {
-            override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-                isBusy.value = false
-                existsLink.value = shareByUrlVO?.shareUrl != null
-                this@ShareLinkViewModel.shareByUrlVO = shareByUrlVO
-                shareByUrlVO?.shareUrl?.let {
-                    sharableLink.value = it
+        shareRepository.requestShareLink(record, ShareRequestType.GET,
+            object : IShareRepository.IShareByUrlListener {
+                override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
+                    isBusy.value = false
+                    existsLink.value = shareByUrlVO?.shareUrl != null
+                    this@ShareLinkViewModel.shareByUrlVO = shareByUrlVO
+                    shareByUrlVO?.shareUrl?.let {
+                        sharableLink.value = it
+                    }
                 }
-            }
 
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                showMessage.value = error
-            }
-        })
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showMessage.value = error
+                }
+            })
     }
 
     fun getName(): MutableLiveData<String> {
@@ -104,21 +105,22 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         }
 
         isBusy.value = true
-        fileRepository.requestShareLink(record, ShareRequestType.GENERATE, object : IFileRepository.IOnShareUrlListener {
-            override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-                isBusy.value = false
-                existsLink.value = shareByUrlVO?.shareUrl != null
-                this@ShareLinkViewModel.shareByUrlVO = shareByUrlVO
-                shareByUrlVO?.shareUrl?.let {
-                    sharableLink.value = it
+        shareRepository.requestShareLink(record, ShareRequestType.GENERATE,
+            object : IShareRepository.IShareByUrlListener {
+                override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
+                    isBusy.value = false
+                    existsLink.value = shareByUrlVO?.shareUrl != null
+                    this@ShareLinkViewModel.shareByUrlVO = shareByUrlVO
+                    shareByUrlVO?.shareUrl?.let {
+                        sharableLink.value = it
+                    }
                 }
-            }
 
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                showMessage.value = error
-            }
-        })
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showMessage.value = error
+                }
+            })
     }
 
     fun onCopyLinkBtnClick() {
@@ -144,7 +146,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
 
         shareByUrlVO?.let {
             isBusy.value = true
-            fileRepository.modifyShareLink(it, ShareRequestType.DELETE, object : IResponseListener {
+            shareRepository.modifyShareLink(it, ShareRequestType.DELETE, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     existsLink.value = false

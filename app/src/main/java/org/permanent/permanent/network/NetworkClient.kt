@@ -258,6 +258,18 @@ class NetworkClient(context: Context) {
         }
     }
 
+    fun checkShareLink(csrf: String?, urlToken: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addShareByUrl(urlToken))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return shareService.checkShareLink(requestBody)
+    }
+
+    fun requestShareAccess(csrf: String?, urlToken: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addShareByUrl(urlToken))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return shareService.requestShareAccess(requestBody)
+    }
+
     fun getShares(csrf: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

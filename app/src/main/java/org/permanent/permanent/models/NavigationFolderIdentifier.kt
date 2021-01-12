@@ -3,7 +3,7 @@ package org.permanent.permanent.models
 import android.os.Parcel
 import android.os.Parcelable
 
-class FolderIdentifier(val folderId: Int, val folderLinkId: Int) : Parcelable {
+class NavigationFolderIdentifier(val folderId: Int, val folderLinkId: Int) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readInt()
@@ -18,12 +18,12 @@ class FolderIdentifier(val folderId: Int, val folderLinkId: Int) : Parcelable {
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<FolderIdentifier> {
-        override fun createFromParcel(parcel: Parcel): FolderIdentifier {
-            return FolderIdentifier(parcel)
+    companion object CREATOR : Parcelable.Creator<NavigationFolderIdentifier> {
+        override fun createFromParcel(parcel: Parcel): NavigationFolderIdentifier {
+            return NavigationFolderIdentifier(parcel)
         }
 
-        override fun newArray(size: Int): Array<FolderIdentifier?> {
+        override fun newArray(size: Int): Array<NavigationFolderIdentifier?> {
             return arrayOfNulls(size)
         }
     }

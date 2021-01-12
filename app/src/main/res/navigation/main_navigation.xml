@@ -38,13 +38,18 @@
         tools:layout="@layout/fragment_manage_link">
     </fragment>
     <fragment
-        android:id="@+id/deepLinkFragment"
-        android:name="org.permanent.permanent.ui.DeepLinkFragment"
-        tools:layout="@layout/fragment_deep_link">
+        android:id="@+id/sharePreviewFragment"
+        android:name="org.permanent.permanent.ui.shares.SharePreviewFragment"
+        android:label="@string/share_link_share_preview"
+        tools:layout="@layout/fragment_share_preview">
+        <argument
+            android:name="urlToken"
+            app:argType="string"
+            android:defaultValue="" />
         <deepLink
             android:id="@+id/deepLink"
             app:action="ACTION_VIEW"
-            app:uri="https://staging.permanent.org/share/{id}" />
+            app:uri="https://staging.permanent.org/share/{urlToken}" />
     </fragment>
     <fragment
         android:id="@+id/sharesFragment"
