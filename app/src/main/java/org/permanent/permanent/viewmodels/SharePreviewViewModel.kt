@@ -20,10 +20,12 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private var recordDisplayName = MutableLiveData<String>()
     private var accountDisplayName = MutableLiveData<String>()
     private var archiveDisplayName = MutableLiveData<String>()
-    private val previewCurrentState = MutableLiveData(PreviewState.NO_ACCESS)
+    private val currentState = MutableLiveData(PreviewState.NO_ACCESS)
     private val isBusy = MutableLiveData<Boolean>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
-    private val showMessage = MutableLiveData<String>()
+    private val onViewInArchive = SingleLiveEvent<Void>()
+    private val onNavigateUp = SingleLiveEvent<Void>()
+    private val errorMessage = MutableLiveData<String>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
 
     fun getArchiveImageURL(): MutableLiveData<String> {
@@ -42,8 +44,8 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         return archiveDisplayName
     }
 
-    fun getVisibleButton(): MutableLiveData<PreviewState> {
-        return previewCurrentState
+    fun getCurrentState(): MutableLiveData<PreviewState> {
+        return currentState
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
@@ -54,8 +56,16 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         return onRecordsRetrieved
     }
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
+    fun getOnViewInArchive(): MutableLiveData<Void> {
+        return onViewInArchive
+    }
+
+    fun getOnNavigateUp(): MutableLiveData<Void> {
+        return onNavigateUp
+    }
+
+    fun getErrorMessage(): LiveData<String> {
+        return errorMessage
     }
 
     // -- request approval button sa apara doar daca autoApprove e false
@@ -72,48 +82,42 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         shareRepository.checkShareLink(urlToken, object : IShareRepository.IShareByUrlListener {
             override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                 isBusy.value = false
-
-                val shareVO = shareByUrlVO?.ShareVO
-
-                if (shareByUrlVO != null) {
-                    archiveImageURL.value = shareByUrlVO.ArchiveVO?.thumbURL500
-                    accountDisplayName.value = "Shared by ${shareByUrlVO.AccountVO?.fullName}"
-                    archiveDisplayName.value = "From the ${shareByUrlVO.ArchiveVO?.fullName} Archive"
-
-                    if (shareVO != null) {
-                        val share = Share(shareVO)
-
-                        if (share.status == Status.PENDING) {
-                            previewCurrentState.value = PreviewState.AWAITING_ACCESS
-                        } else { // Status.OK
-                            previewCurrentState.value = PreviewState.ACCESS_GRANTED
-                        }
-                    } else {
-                        previewCurrentState.value = PreviewState.NO_ACCESS
+                // Loading data in the header
+                archiveImageURL.value = shareByUrlVO?.ArchiveVO?.thumbURL500
+                accountDisplayName.value = "Shared by ${shareByUrlVO?.AccountVO?.fullName}"
+                archiveDisplayName.value = "From the ${shareByUrlVO?.ArchiveVO?.fullName} Archive"
+                // Loading data in the list
+                when {
+                    shareByUrlVO?.RecordVO != null -> {
+                        recordDisplayName.value = shareByUrlVO.RecordVO?.displayName
+                        onRecordsRetrieved.value = listOf(Record(shareByUrlVO))
                     }
-                    when {
-                        shareByUrlVO.RecordVO != null -> {
-                            recordDisplayName.value = shareByUrlVO.RecordVO?.displayName
-                            onRecordsRetrieved.value = listOf(Record(shareByUrlVO.RecordVO!!))
-                        }
-                        shareByUrlVO.FolderVO != null -> {
-                            recordDisplayName.value = shareByUrlVO.FolderVO?.displayName
-                            onRecordsRetrieved.value = Folder(shareByUrlVO.FolderVO!!).records
-                        }
+                    shareByUrlVO?.FolderVO != null -> {
+                        recordDisplayName.value = shareByUrlVO.FolderVO?.displayName
+                        onRecordsRetrieved.value = Folder(shareByUrlVO).records
+                    }
+                }
+                // Loading data in the footer
+                val shareVO = shareByUrlVO?.ShareVO
+                if (shareVO != null) {
+                    val share = Share(shareVO)
+
+                    if (share.status == Status.PENDING) {
+                        // Showing Awaiting for Approval text
+                        currentState.value = PreviewState.AWAITING_ACCESS
+                    } else { // Showing View in Archive button
+                        currentState.value = PreviewState.ACCESS_GRANTED
                     }
                 } else {
-                    //  The share link you've tried to use is expired or deleted.
-                    //
-                    //Please check the URL and try again.
-                    previewCurrentState.value = PreviewState.ERROR
-                    // TODO: treat case
+                    // Showing Request Access button
+                    currentState.value = PreviewState.NO_ACCESS
                 }
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
-                // TODO: treat case
+                currentState.value = PreviewState.ERROR
+                errorMessage.value = error
             }
         })
     }
@@ -126,25 +130,27 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         isBusy.value = true
         shareRepository.requestShareAccess(urlToken, object : IShareRepository.IShareListener {
             override fun onSuccess(shareVO: ShareVO?) {
+                isBusy.value = false
                 if (shareVO != null && Share(shareVO).status == Status.OK) {
-                    previewCurrentState.value = PreviewState.ACCESS_GRANTED
+                    currentState.value = PreviewState.ACCESS_GRANTED
                 } else {
-                    previewCurrentState.value = PreviewState.AWAITING_ACCESS
+                    currentState.value = PreviewState.AWAITING_ACCESS
                 }
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                currentState.value = PreviewState.ERROR
+                errorMessage.value = error
             }
         })
     }
 
     fun onViewInArchiveBtnClick() {
-        // TODO: treat case
+        onViewInArchive.call()
     }
 
     fun onOkBtnClick() {
-        // TODO: treat case
+        onNavigateUp.call()
     }
 }

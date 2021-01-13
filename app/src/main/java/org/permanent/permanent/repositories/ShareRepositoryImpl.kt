@@ -75,7 +75,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(responseVO.getShareByUrlVO())
                     } else {
-                        listener.onFailed(context.getString(R.string.generic_error))
+                        listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0))
                     }
                 }
 
@@ -94,7 +94,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(responseVO.getShareVO())
                     } else {
-                        listener.onFailed(context.getString(R.string.generic_error))
+                        listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0))
                     }
                 }
 

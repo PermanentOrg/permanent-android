@@ -1,15 +1,17 @@
 package org.permanent.permanent.models
 
-import org.permanent.permanent.network.models.FolderVO
+import org.permanent.permanent.network.models.Shareby_urlVO
 
 class Folder private constructor() {
     var records: List<Record>? = null
 
-    constructor(folderVO: FolderVO) : this() {
+    constructor(shareByUrlVO: Shareby_urlVO) : this() {
         records = ArrayList()
-        folderVO.ChildItemVOs?.let {
+        shareByUrlVO.FolderVO?.ChildItemVOs?.let {
             for (recordVO in it) {
                 val record = Record(recordVO)
+                record.isThumbBlurred =
+                    shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
                 (records as ArrayList<Record>).add(record)
             }
         }

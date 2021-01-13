@@ -4,18 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import org.permanent.permanent.Constants
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharePreviewBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
-const val URL_TOKEN_KEY = "urlToken"
+const val URL_TOKEN_KEY = "url_token"
+const val RECORD_TO_NAVIGATE_TO_KEY = "record_to_navigate_to"
+const val SELECTED_FRAGMENT_POSITION_KEY = "selected_fragment"
 
 class SharePreviewFragment : PermanentBaseFragment() {
 
@@ -48,8 +53,14 @@ class SharePreviewFragment : PermanentBaseFragment() {
         recordsAdapter.set(it)
     }
 
-    private val onShowMessage = Observer<String> {
-        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    private val onViewInArchive = Observer<Void> {
+        val bundle = bundleOf(SELECTED_FRAGMENT_POSITION_KEY
+                to Constants.POSITION_SHARED_WITH_ME_FRAGMENT)
+        findNavController().navigate(R.id.action_sharePreviewFragment_to_sharesFragment, bundle)
+    }
+
+    private val onNavigateUp = Observer<Void> {
+        findNavController().navigateUp()
     }
 
     private fun initRecordsRecyclerView(rvRecords: RecyclerView) {
@@ -64,12 +75,14 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
-        viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnViewInArchive().observe(this, onViewInArchive)
+        viewModel.getOnNavigateUp().observe(this, onNavigateUp)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
-        viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnViewInArchive().removeObserver(onViewInArchive)
+        viewModel.getOnNavigateUp().removeObserver(onNavigateUp)
     }
 
     override fun onResume() {

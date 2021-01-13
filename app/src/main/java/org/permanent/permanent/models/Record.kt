@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ShareVO
+import org.permanent.permanent.network.models.Shareby_urlVO
 
 class Record private constructor() : Parcelable {
     var archiveNr: String? = null
@@ -16,6 +17,7 @@ class Record private constructor() : Parcelable {
     var displayName: String? = null
     var displayDate: String? = null
     var thumbURL500: String? = null
+    var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
@@ -30,6 +32,7 @@ class Record private constructor() : Parcelable {
         displayName = parcel.readString()
         displayDate = parcel.readString()
         thumbURL500 = parcel.readString()
+        isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
     }
@@ -46,6 +49,22 @@ class Record private constructor() : Parcelable {
         thumbURL500 = recordInfo.thumbURL500
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
+    }
+
+    constructor(shareByUrlVO: Shareby_urlVO) : this() {
+        val recordInfo = shareByUrlVO.RecordVO
+        archiveNr = recordInfo?.archiveNbr
+        archiveId = recordInfo?.archiveId
+        recordId = recordInfo?.recordId
+        folderId = recordInfo?.folderId
+        folderLinkId = recordInfo?.folder_linkId
+        parentFolderLinkId = recordInfo?.parentFolder_linkId
+        displayName = recordInfo?.displayName
+        displayDate = recordInfo?.displayDT?.substringBefore("T")
+        thumbURL500 = recordInfo?.thumbURL500
+        isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
+        type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
+        initShares(recordInfo?.ShareVOs)
     }
 
     private fun initShares(shareVOs: List<ShareVO>?) {
@@ -76,6 +95,7 @@ class Record private constructor() : Parcelable {
         parcel.writeString(displayName)
         parcel.writeString(displayDate)
         parcel.writeString(thumbURL500)
+        parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
         parcel.writeTypedList(shares)
     }

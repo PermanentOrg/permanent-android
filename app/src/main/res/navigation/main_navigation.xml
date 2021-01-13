@@ -43,13 +43,20 @@
         android:label="@string/share_link_share_preview"
         tools:layout="@layout/fragment_share_preview">
         <argument
-            android:name="urlToken"
+            android:name="url_token"
             app:argType="string"
             android:defaultValue="" />
         <deepLink
             android:id="@+id/deepLink"
             app:action="ACTION_VIEW"
-            app:uri="https://staging.permanent.org/share/{urlToken}" />
+            app:uri="https://staging.permanent.org/share/{url_token}" />
+        <action
+            android:id="@+id/action_sharePreviewFragment_to_sharesFragment"
+            app:destination="@id/sharesFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/sharesFragment"

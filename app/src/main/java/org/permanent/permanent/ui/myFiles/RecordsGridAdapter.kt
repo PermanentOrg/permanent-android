@@ -10,7 +10,7 @@ import org.permanent.permanent.models.Record
 class RecordsGridAdapter(
     private val lifecycleOwner: LifecycleOwner,
 ) : RecyclerView.Adapter<RecordGridViewHolder>() {
-    private var records: MutableList<Record> = ArrayList()
+    var records: MutableList<Record> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordGridViewHolder {
         val binding = ItemGridRecordBinding.inflate(
@@ -18,7 +18,7 @@ class RecordsGridAdapter(
             parent,
             false
         )
-        return RecordGridViewHolder(binding)
+        return RecordGridViewHolder(parent.context, binding)
     }
 
     fun set(recordList: List<Record>) {

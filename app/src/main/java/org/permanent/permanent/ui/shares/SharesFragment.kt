@@ -43,13 +43,20 @@ class SharesFragment : PermanentBaseFragment() {
         val viewPager = binding.viewPager
         viewPager.adapter = viewAdapter
 
-        TabLayoutMediator(binding.tabs,viewPager) { tab , position ->
-            when(position){
-                Constants.POSITION_SHARED_BY_ME_FRAGMENT -> tab.text= getString(R.string.shared_by_me_tab_name_)
-                Constants.POSITION_SHARED_WITH_ME_FRAGMENT -> tab.text= getString(R.string.shared_with_me_tab_name)
+        TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
+            when(position) {
+                Constants.POSITION_SHARED_BY_ME_FRAGMENT -> tab.text =
+                    getString(R.string.shared_by_me_tab_name_)
+                Constants.POSITION_SHARED_WITH_ME_FRAGMENT -> tab.text =
+                    getString(R.string.shared_with_me_tab_name)
                 else -> tab.text= getString(R.string.shared_by_me_tab_name_)
             }
         }.attach()
+
+        arguments?.takeIf { it.containsKey(SELECTED_FRAGMENT_POSITION_KEY) }?.apply {
+            val fragmentPosition = getInt(SELECTED_FRAGMENT_POSITION_KEY)
+            viewPager.post { viewPager.currentItem = fragmentPosition }
+        }
     }
 
     private val onShowMessage = Observer<String> { message ->
