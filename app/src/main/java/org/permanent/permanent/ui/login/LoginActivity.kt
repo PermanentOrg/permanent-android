@@ -34,7 +34,8 @@ class LoginActivity : PermanentBaseActivity() {
         connectViewModelEvents()
         val isUserLoggedIn = intent.extras?.getBoolean(IS_USER_LOGGED_IN)
         val navController = binding.loginNavHostFragment.findNavController()
-        if (isUserLoggedIn !== null && isUserLoggedIn
+        if (isUserLoggedIn != null
+            && isUserLoggedIn
             && navController.currentDestination?.id == R.id.loginFragment)
             navController.navigate(R.id.action_loginFragment_to_biometricsFragment)
     }

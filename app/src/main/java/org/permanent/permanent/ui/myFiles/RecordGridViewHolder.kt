@@ -22,7 +22,7 @@ class RecordGridViewHolder(
                 .load(record.thumbURL500)
                 .placeholder(R.drawable.ic_stop_light_grey)
                 .fit()
-                .transform(BlurTransformation(context, 25, 1))
+                .transform(BlurTransformation(context, 25, 5))
                 .into(binding.ivThumbnail)
         }
     }

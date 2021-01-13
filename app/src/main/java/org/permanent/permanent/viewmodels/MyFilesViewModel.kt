@@ -79,7 +79,23 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun initSwipeRefreshLayout(refreshLayout: SwipeRefreshLayout) {
         this.swipeRefreshLayout = refreshLayout
         swipeRefreshLayout.setOnRefreshListener { refreshCurrentFolder() }
-        populateMyFiles()
+    }
+
+    fun populateMyFiles() {
+        swipeRefreshLayout.isRefreshing = true
+        fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
+            override fun onSuccess(myFilesRecord: Record) {
+                swipeRefreshLayout.isRefreshing = false
+                folderPathStack.push(myFilesRecord)
+                loadAllChildrenOf(myFilesRecord)
+                loadEnqueuedDownloads(lifecycleOwner)
+            }
+
+            override fun onFailed(error: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                onShowMessage.value = error
+            }
+        })
     }
 
     fun getFolderName(): MutableLiveData<String> {
@@ -190,23 +206,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                     }
                 })
         }
-    }
-
-    private fun populateMyFiles() {
-        swipeRefreshLayout.isRefreshing = true
-        fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
-            override fun onSuccess(myFilesRecord: Record) {
-                swipeRefreshLayout.isRefreshing = false
-                folderPathStack.push(myFilesRecord)
-                loadAllChildrenOf(myFilesRecord)
-                loadEnqueuedDownloads(lifecycleOwner)
-            }
-
-            override fun onFailed(error: String?) {
-                swipeRefreshLayout.isRefreshing = false
-                onShowMessage.value = error
-            }
-        })
     }
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> {

@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.login
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +16,10 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogForgotPasswordBinding
 import org.permanent.permanent.databinding.FragmentLoginBinding
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.viewmodels.ForgotPasswordViewModel
 import org.permanent.permanent.viewmodels.LoginFragmentViewModel
@@ -55,11 +59,16 @@ class LoginFragment  : PermanentBaseFragment() {
     }
 
     private val onLoggedIn = Observer<Void> {
-        startMainActivity()
+        val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
+            PREFS_NAME, Context.MODE_PRIVATE))
+        prefsHelper.saveUserLoggedIn(true)
+        startActivity(Intent(context, MainActivity::class.java))
+        activity?.finish()
     }
 
-    private val onSignUp = Observer<Void> {
-        navigateSignUp()
+    private val onStartSignUp = Observer<Void> {
+        startActivity(Intent(context, SignUpActivity::class.java))
+        activity?.finish()
     }
 
     private val onPasswordReset = Observer<Void> {
@@ -107,19 +116,10 @@ class LoginFragment  : PermanentBaseFragment() {
         }
     }
 
-    private fun startMainActivity() {
-        findNavController().navigate(R.id.action_loginFragment_to_mainActivity)
-        activity?.finish()
-    }
-
-    private fun navigateSignUp() {
-        startActivity(Intent(context, SignUpActivity::class.java))
-    }
-
     override fun connectViewModelEvents() {
         fragmentViewModel.getErrorStringId().observe(this, onErrorStringId)
         fragmentViewModel.getOnLoggedIn().observe(this, onLoggedIn)
-        fragmentViewModel.getOnSignUp().observe(this, onSignUp)
+        fragmentViewModel.getOnSignUp().observe(this, onStartSignUp)
         fragmentViewModel.getOnPasswordReset().observe(this, onPasswordReset)
         fragmentViewModel.getOnReadyToShowForgotPassDialog().observe(this,
             onReadyToShowForgotPassDialog)
@@ -129,7 +129,7 @@ class LoginFragment  : PermanentBaseFragment() {
     override fun disconnectViewModelEvents() {
         fragmentViewModel.getErrorStringId().removeObserver(onErrorStringId)
         fragmentViewModel.getOnLoggedIn().removeObserver(onLoggedIn)
-        fragmentViewModel.getOnSignUp().removeObserver(onSignUp)
+        fragmentViewModel.getOnSignUp().removeObserver(onStartSignUp)
         fragmentViewModel.getOnPasswordReset().removeObserver(onPasswordReset)
         fragmentViewModel.getOnReadyToShowForgotPassDialog().removeObserver(
             onReadyToShowForgotPassDialog)

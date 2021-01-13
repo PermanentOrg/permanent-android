@@ -1,5 +1,7 @@
 package org.permanent.permanent.ui.shares
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +16,10 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharePreviewBinding
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
@@ -39,13 +44,24 @@ class SharePreviewFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        initRecordsRecyclerView(binding.rvRecords)
 
         arguments?.takeIf { it.containsKey(URL_TOKEN_KEY) }?.apply {
             val urlToken = getString(URL_TOKEN_KEY)
 
-            if (!urlToken.isNullOrEmpty()) viewModel.checkShareLink(urlToken)
+            if (!urlToken.isNullOrEmpty()) {
+                val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
+                    PREFS_NAME, Context.MODE_PRIVATE))
+
+                if (prefsHelper.isUserLoggedIn()) {
+                    viewModel.checkShareLink(urlToken)
+                } else {
+                    prefsHelper.saveShareLinkUrlToken(urlToken)
+                    startActivity(Intent(context, LoginActivity::class.java))
+                    activity?.finish()
+                }
+            }
         }
-        initRecordsRecyclerView(binding.rvRecords)
         return binding.root
     }
 

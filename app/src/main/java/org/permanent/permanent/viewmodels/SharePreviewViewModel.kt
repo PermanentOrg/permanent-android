@@ -68,10 +68,6 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         return errorMessage
     }
 
-    // -- request approval button sa apara doar daca autoApprove e false
-    // si daca requestu e denied sau pending o sa apara doar textul, nu buton (edited)
-    // si la ios, daca se poate cu blur-ul in functie de sharePreview true sau false
-    // si cazul cand linku e expirat sau peste nr of uses
     fun checkShareLink(urlToken: String) {
         this.urlToken = urlToken
         if (isBusy.value != null && isBusy.value!!) {
@@ -103,13 +99,13 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                     val share = Share(shareVO)
 
                     if (share.status == Status.PENDING) {
-                        // Showing Awaiting for Approval text
+                        // Showing 'Awaiting for Access' text
                         currentState.value = PreviewState.AWAITING_ACCESS
-                    } else { // Showing View in Archive button
+                    } else { // Showing 'View in Archive' button
                         currentState.value = PreviewState.ACCESS_GRANTED
                     }
                 } else {
-                    // Showing Request Access button
+                    // Showing 'Request Access' button
                     currentState.value = PreviewState.NO_ACCESS
                 }
             }

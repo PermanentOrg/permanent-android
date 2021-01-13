@@ -35,7 +35,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     //    private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
-    private val onNavigateToLogin = Observer<Void> {
+
+    private val onLoggedOut = Observer<Void> {
+        prefsHelper.saveUserLoggedIn(false)
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
@@ -127,12 +129,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnNavigateToLoginFragment().observe(this, onNavigateToLogin)
+        viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnNavigateToLoginFragment().removeObserver(onNavigateToLogin)
+        viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 
