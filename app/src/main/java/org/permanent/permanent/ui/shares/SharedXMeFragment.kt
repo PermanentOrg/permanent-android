@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
-import org.permanent.permanent.models.ShareItem
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 
@@ -31,26 +31,21 @@ class SharedXMeFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        arguments?.takeIf { it.containsKey(PARCELABLE_SHARED_X_ME_NO_ITEMS_STRING_KEY) }?.apply {
-            getString(PARCELABLE_SHARED_X_ME_NO_ITEMS_STRING_KEY)
-                .also { binding.tvNoShares.text = it }
+        initSharesRecyclerView(binding.rvShares)
+        arguments?.takeIf { it.containsKey(SHARED_X_ME_NO_ITEMS_MESSAGE_KEY) }?.apply {
+            getString(SHARED_X_ME_NO_ITEMS_MESSAGE_KEY).also { binding.tvNoShares.text = it }
+        }
+        arguments?.takeIf { it.containsKey(SHARED_WITH_ME_ITEM_LIST_KEY) }?.apply {
+            getParcelableArrayList<Record>(SHARED_WITH_ME_ITEM_LIST_KEY).also {
+                if (!it.isNullOrEmpty()) sharesAdapter.set(it)
+                viewModel.existsShares.value = !it.isNullOrEmpty()
+            }
         }
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        initSharesRecyclerView(binding.rvShares)
-        arguments?.takeIf { it.containsKey(PARCELABLE_SHARED_WITH_ME_ITEMS_KEY) }?.apply {
-            val sharesWithMe = getParcelableArrayList<ShareItem>(PARCELABLE_SHARED_WITH_ME_ITEMS_KEY)
-
-            if (!sharesWithMe.isNullOrEmpty()) sharesAdapter.set(sharesWithMe)
-            viewModel.existsShares.value = !sharesWithMe.isNullOrEmpty()
-        }
-    }
-
-    fun set(sharesByMe: MutableList<ShareItem>) {
-        sharesAdapter.set(sharesByMe)
-        viewModel.existsShares.value = true
+    private val onShowMessage = Observer<String> { message ->
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun initSharesRecyclerView(rvShares: RecyclerView) {
@@ -63,8 +58,16 @@ class SharedXMeFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    fun set(records: MutableList<Record>) {
+        sharesAdapter.set(records)
+        viewModel.existsShares.value = true
+    }
+
+    fun navigateToRecord(recordIdToNavigateTo: Int?) {
+        recordIdToNavigateTo?.let {
+            sharesAdapter.getItemPosition(it)?.let { position ->
+                sharesRecyclerView.layoutManager?.scrollToPosition(position) }
+        }
     }
 
     override fun connectViewModelEvents() {

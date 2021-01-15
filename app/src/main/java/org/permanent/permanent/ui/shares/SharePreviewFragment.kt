@@ -69,9 +69,11 @@ class SharePreviewFragment : PermanentBaseFragment() {
         recordsAdapter.set(it)
     }
 
-    private val onViewInArchive = Observer<Void> {
-        val bundle = bundleOf(SELECTED_FRAGMENT_POSITION_KEY
-                to Constants.POSITION_SHARED_WITH_ME_FRAGMENT)
+    private val onViewInArchive = Observer<Int?> { recordId ->
+        val bundle = bundleOf(
+            SELECTED_FRAGMENT_POSITION_KEY to Constants.POSITION_SHARED_WITH_ME_FRAGMENT,
+            RECORD_TO_NAVIGATE_TO_KEY to recordId
+        )
         findNavController().navigate(R.id.action_sharePreviewFragment_to_sharesFragment, bundle)
     }
 

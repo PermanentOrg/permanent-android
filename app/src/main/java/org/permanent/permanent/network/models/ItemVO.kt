@@ -2,6 +2,7 @@ package org.permanent.permanent.network.models
 
 class ItemVO {
     var folderId: Int? = null
+    var recordId: Int? = null
     var displayName: String? = null
     var displayDT: String? = null
     var type: String? = null

@@ -3,11 +3,10 @@ package org.permanent.permanent.models
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.network.models.ShareVO
-import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.network.models.*
 
 class Record private constructor() : Parcelable {
+    var id: Int? = null
     var archiveNr: String? = null
     var archiveId: Int? = null
     var recordId: Int? = null
@@ -16,6 +15,7 @@ class Record private constructor() : Parcelable {
     var parentFolderLinkId: Int? = null
     var displayName: String? = null
     var displayDate: String? = null
+    var archiveThumbURL500: String? = null
     var thumbURL500: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
@@ -23,6 +23,7 @@ class Record private constructor() : Parcelable {
     var shares: MutableList<Share>? = null
 
     constructor(parcel: Parcel) : this() {
+        id = parcel.readValue(Int::class.java.classLoader) as? Int
         archiveNr = parcel.readString()
         archiveId = parcel.readValue(Int::class.java.classLoader) as? Int
         recordId = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -31,6 +32,7 @@ class Record private constructor() : Parcelable {
         parentFolderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
         displayName = parcel.readString()
         displayDate = parcel.readString()
+        archiveThumbURL500 = parcel.readString()
         thumbURL500 = parcel.readString()
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
@@ -38,6 +40,7 @@ class Record private constructor() : Parcelable {
     }
 
     constructor(recordInfo: RecordVO) : this() {
+        id = if(recordInfo.folderId != null) recordInfo.folderId else recordInfo.recordId
         archiveNr = recordInfo.archiveNbr
         archiveId = recordInfo.archiveId
         recordId = recordInfo.recordId
@@ -51,8 +54,18 @@ class Record private constructor() : Parcelable {
         initShares(recordInfo.ShareVOs)
     }
 
+    constructor(item: ItemVO, archive: ArchiveVO) : this() {
+        id = if(item.folderId != null) item.folderId else item.recordId
+        type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
+        archiveThumbURL500 = archive.thumbURL500
+        thumbURL500 = item.thumbURL500
+        displayName = item.displayName
+        displayDate = item.displayDT?.substringBefore("T")
+    }
+
     constructor(shareByUrlVO: Shareby_urlVO) : this() {
         val recordInfo = shareByUrlVO.RecordVO
+        id = if(recordInfo?.folderId != null) recordInfo.folderId else recordInfo?.recordId
         archiveNr = recordInfo?.archiveNbr
         archiveId = recordInfo?.archiveId
         recordId = recordInfo?.recordId
@@ -86,6 +99,7 @@ class Record private constructor() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeValue(id)
         parcel.writeString(archiveNr)
         parcel.writeValue(archiveId)
         parcel.writeValue(recordId)
@@ -94,6 +108,7 @@ class Record private constructor() : Parcelable {
         parcel.writeValue(parentFolderLinkId)
         parcel.writeString(displayName)
         parcel.writeString(displayDate)
+        parcel.writeString(archiveThumbURL500)
         parcel.writeString(thumbURL500)
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)

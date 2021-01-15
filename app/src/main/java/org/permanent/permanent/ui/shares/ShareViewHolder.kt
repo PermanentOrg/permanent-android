@@ -2,13 +2,13 @@ package org.permanent.permanent.ui.shares
 
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemShareBinding
-import org.permanent.permanent.models.ShareItem
+import org.permanent.permanent.models.Record
 
 class ShareViewHolder (
     private val binding: ItemShareBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(shareItem: ShareItem) {
+    fun bind(shareItem: Record) {
         binding.shareItem = shareItem
         binding.executePendingBindings()
     }

@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="shareItem"
-            type="org.permanent.permanent.models.ShareItem" />
+            type="org.permanent.permanent.models.Record" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +23,7 @@
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
             app:fileType="@{shareItem.type}"
-            app:imageUrl="@{shareItem.itemThumbUrl500}"
+            app:imageUrl="@{shareItem.thumbURL500}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -82,7 +82,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="8dp"
-            app:imageUrl="@{shareItem.archiveThumbUrl500}"
+            app:imageUrl="@{shareItem.archiveThumbURL500}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btnDownload"
             app:layout_constraintTop_toTopOf="parent" />

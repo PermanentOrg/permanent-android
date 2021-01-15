@@ -16,6 +16,7 @@ import org.permanent.permanent.ui.shares.PreviewState
 class SharePreviewViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private lateinit var urlToken: String
+    private var recordIdToScrollTo: Int? = null
     private var archiveImageURL = MutableLiveData<String>()
     private var recordDisplayName = MutableLiveData<String>()
     private var accountDisplayName = MutableLiveData<String>()
@@ -23,7 +24,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val currentState = MutableLiveData(PreviewState.NO_ACCESS)
     private val isBusy = MutableLiveData<Boolean>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
-    private val onViewInArchive = SingleLiveEvent<Void>()
+    private val onViewInArchive = SingleLiveEvent<Int?>()
     private val onNavigateUp = SingleLiveEvent<Void>()
     private val errorMessage = MutableLiveData<String>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
@@ -56,7 +57,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         return onRecordsRetrieved
     }
 
-    fun getOnViewInArchive(): MutableLiveData<Void> {
+    fun getOnViewInArchive(): MutableLiveData<Int?> {
         return onViewInArchive
     }
 
@@ -85,10 +86,12 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                 // Loading data in the list
                 when {
                     shareByUrlVO?.RecordVO != null -> {
+                        recordIdToScrollTo = shareByUrlVO.RecordVO?.recordId
                         recordDisplayName.value = shareByUrlVO.RecordVO?.displayName
                         onRecordsRetrieved.value = listOf(Record(shareByUrlVO))
                     }
                     shareByUrlVO?.FolderVO != null -> {
+                        recordIdToScrollTo = shareByUrlVO.FolderVO?.folderId
                         recordDisplayName.value = shareByUrlVO.FolderVO?.displayName
                         onRecordsRetrieved.value = Folder(shareByUrlVO).records
                     }
@@ -143,7 +146,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun onViewInArchiveBtnClick() {
-        onViewInArchive.call()
+        onViewInArchive.value = recordIdToScrollTo
     }
 
     fun onOkBtnClick() {
