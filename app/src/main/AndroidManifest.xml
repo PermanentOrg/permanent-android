@@ -31,7 +31,9 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activities.MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" >
+            <nav-graph android:value="@navigation/main_navigation" />
+        </activity>
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="orientation|keyboardHidden"

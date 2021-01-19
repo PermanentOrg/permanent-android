@@ -11,6 +11,12 @@ class Shareby_urlVO {
     var maxUses: Int? = null // can be 0 for unlimited uses
     var byAccountId: Int? = null
     var byArchiveId: Int? = null
+    var urlToken: String? = null
+    var FolderVO: FolderVO? = null
+    var RecordVO: RecordVO? = null
+    var ArchiveVO: ArchiveVO? = null
+    var AccountVO: AccountVO? = null
+    var ShareVO: ShareVO? = null
 
     fun getShareByUrl(): ShareByUrl {
         val shareByUrl = ShareByUrl()

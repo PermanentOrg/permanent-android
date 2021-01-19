@@ -12,6 +12,7 @@ const val PREFS_CSRF = "preferences_csrf"
 const val PREFS_ARCHIVE_ID = "preferences_archive_id"
 const val PREFS_ROOT_ARCHIVE_NR = "preferences_root_archive_nr"
 const val PREFS_USER_FULL_NAME = "preferences_user_full_name"
+const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -116,5 +117,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getUserFullName(): String? {
         return sharedPreferences.getString(PREFS_USER_FULL_NAME, "")
+    }
+
+    fun saveShareLinkUrlToken(urlToken: String) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_SHARE_LINK_URL_TOKEN, urlToken)
+            apply()
+        }
+    }
+
+    fun getShareLinkUrlToken(): String? {
+        return sharedPreferences.getString(PREFS_SHARE_LINK_URL_TOKEN, "")
     }
 }

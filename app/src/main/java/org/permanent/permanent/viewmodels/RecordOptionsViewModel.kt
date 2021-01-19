@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordOption
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.myFiles.RelocationType
 
@@ -13,6 +14,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val isBusy = MutableLiveData<Boolean>()
     private val isFolder = MutableLiveData(false)
     private val recordName = MutableLiveData<String>()
+    private val hiddenOptions = MutableLiveData(mutableListOf(RecordOption.PUBLISH, RecordOption.EDIT))
     private val onRequestWritePermission = SingleLiveEvent<Void>()
     private val onFileDownloadRequest = MutableLiveData<Void>()
     private val onRecordDeleteRequest = MutableLiveData<Void>()
@@ -22,6 +24,10 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun setRecord(record: Record?) {
         isFolder.value = record?.type == RecordType.FOLDER
         recordName.value = record?.displayName
+    }
+
+    fun addHiddenOptions(hiddenOptionList: List<RecordOption>) {
+        hiddenOptions.value?.addAll(hiddenOptionList)
     }
 
     fun onDownloadBtnClick() {
@@ -43,6 +49,10 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getName(): MutableLiveData<String> {
         return recordName
+    }
+
+    fun getHiddenOptions(): MutableLiveData<MutableList<RecordOption>> {
+        return hiddenOptions
     }
 
     fun getOnRequestWritePermission(): MutableLiveData<Void> {

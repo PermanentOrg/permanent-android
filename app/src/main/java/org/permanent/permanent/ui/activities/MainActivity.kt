@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.activities
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -13,11 +14,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupWithNavController
+import androidx.navigation.ui.*
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
@@ -35,7 +34,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     //    private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
-    private val onNavigateToLogin = Observer<Void> {
+
+    private val onLoggedOut = Observer<Void> {
+        prefsHelper.saveUserLoggedIn(false)
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
@@ -53,8 +54,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.viewModel = viewModel
 
         // Drawer left and right headers binding
-        headerAccountBinding = NavMainHeaderBinding.bind(binding.accountNavView.getHeaderView(0))
-        headerAccountBinding.viewModel = viewModel
+//        headerAccountBinding = NavMainHeaderBinding.bind(binding.accountNavView.getHeaderView(0))
+//        headerAccountBinding.viewModel = viewModel
 //        headerSettingsBinding = NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
 //        headerSettingsBinding.viewModel = viewModel
 
@@ -65,7 +66,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         // ActionBar & appBarConfig setup
         setSupportActionBar(binding.toolbar)
-        val topLevelDestinations = setOf(R.id.myFilesFragment, R.id.sharesFragment, R.id.membersFragment)
+        val topLevelDestinations = setOf(
+            R.id.myFilesFragment,
+            R.id.sharesFragment,
+            R.id.membersFragment
+        )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 //        binding.toolbar.inflateMenu(R.menu.menu_toolbar_settings)
@@ -76,8 +81,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.accountNavView.setNavigationItemSelectedListener { menuItem ->
             when(menuItem.itemId) {
                 R.id.logout -> viewModel.logout()
+                R.id.storage -> {
+                    binding.drawerLayout.closeDrawers()
+                    navigateToAddStorage()
+                }
                 else -> {
-                    NavigationUI.onNavDestinationSelected(menuItem, navController)
+                    menuItem.onNavDestinationSelected(navController)
                     binding.drawerLayout.closeDrawers()
                 }
             }
@@ -91,6 +100,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         }
     }
 
+    private fun navigateToAddStorage() {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(Constants.URL_ADD_STORAGE)
+        startActivity(intent)
+    }
+
     // Toolbar back press
     override fun onSupportNavigateUp(): Boolean {
         return when(navController.currentDestination?.id) {
@@ -98,7 +113,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 navController.popBackStack(R.id.shareLinkFragment, true)
                 true
             }
-            else -> navController.navigateUp(appBarConfig)
+            else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
     }
 
@@ -127,12 +142,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnNavigateToLoginFragment().observe(this, onNavigateToLogin)
+        viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnNavigateToLoginFragment().removeObserver(onNavigateToLogin)
+        viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 

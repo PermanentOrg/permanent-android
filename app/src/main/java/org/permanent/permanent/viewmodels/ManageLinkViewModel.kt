@@ -10,8 +10,8 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
-import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IShareRepository
+import org.permanent.permanent.repositories.ShareRepositoryImpl
 
 class ManageLinkViewModel (application: Application) : ObservableAndroidViewModel(application),
     DatePickerDialog.OnDateSetListener  {
@@ -26,7 +26,7 @@ class ManageLinkViewModel (application: Application) : ObservableAndroidViewMode
     private val onShowDatePickerRequest = MutableLiveData<Void>()
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
-    private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
+    private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     fun setRecord(record: Record) {
         this.record = record
@@ -98,7 +98,7 @@ class ManageLinkViewModel (application: Application) : ObservableAndroidViewMode
         shareByUrl.expiresDT = expirationDate.value
 
         isBusy.value = true
-        fileRepository.modifyShareLink(shareByUrl.getShareByUrlVO(), ShareRequestType.UPDATE,
+        shareRepository.modifyShareLink(shareByUrl.getShareByUrlVO(), ShareRequestType.UPDATE,
             object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false

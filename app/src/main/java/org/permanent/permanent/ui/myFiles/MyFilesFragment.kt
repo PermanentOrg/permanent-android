@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui.myFiles
 
 import android.app.AlertDialog
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -19,11 +20,14 @@ import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
-import org.permanent.permanent.models.FolderIdentifier
+import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
 
@@ -32,8 +36,8 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var viewModel: MyFilesViewModel
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
-    private lateinit var filesRecyclerView: RecyclerView
-    private lateinit var recordsAdapter: RecordsAdapter
+    private lateinit var recordsRecyclerView: RecyclerView
+    private lateinit var recordsAdapter: RecordsListAdapter
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
@@ -48,11 +52,23 @@ class MyFilesFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
         binding.viewModel = viewModel
-        viewModel.set(parentFragmentManager)
-        viewModel.initUploadsRecyclerView(binding.rvUploads, this)
-        viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
-        initDownloadsRecyclerView(binding.rvDownloads)
-        initFilesRecyclerView(binding.rvFiles)
+
+        val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
+            PREFS_NAME, Context.MODE_PRIVATE))
+        val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
+
+        if (!shareLinkUrlToken.isNullOrEmpty()) {
+            prefsHelper.saveShareLinkUrlToken("")
+            val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
+            findNavController().navigate(R.id.action_myFilesFragment_to_sharePreviewFragment, bundle)
+        } else {
+            viewModel.set(parentFragmentManager)
+            viewModel.initUploadsRecyclerView(binding.rvUploads, this)
+            viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
+            viewModel.populateMyFiles()
+            initDownloadsRecyclerView(binding.rvDownloads)
+            initFilesRecyclerView(binding.rvFiles)
+        }
         return binding.root
     }
 
@@ -89,7 +105,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordsAdapter.add(it)
     }
 
-    private val onShowAddOptionsFragment = Observer<FolderIdentifier> {
+    private val onShowAddOptionsFragment = Observer<NavigationFolderIdentifier> {
         addOptionsFragment = AddOptionsFragment()
         addOptionsFragment?.setBundleArguments(it)
         addOptionsFragment?.show(parentFragmentManager, addOptionsFragment?.tag)
@@ -165,9 +181,9 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
-        filesRecyclerView = rvFiles
-        recordsAdapter = RecordsAdapter(viewModel, this, viewModel.getIsRelocationMode())
-        filesRecyclerView.apply {
+        recordsRecyclerView = rvFiles
+        recordsAdapter = RecordsListAdapter(viewModel, this, viewModel.getIsRelocationMode())
+        recordsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = recordsAdapter

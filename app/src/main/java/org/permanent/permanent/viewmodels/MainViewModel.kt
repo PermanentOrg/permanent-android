@@ -11,7 +11,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val currentSpaceUsed = MutableLiveData<Int>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onNavigateToLoginFragment = SingleLiveEvent<Void>()
+    private val onLoggedOut = SingleLiveEvent<Void>()
     private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
     fun getCurrentAccount(): MutableLiveData<String> {
@@ -30,8 +30,8 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         return isBusy
     }
 
-    fun getOnNavigateToLoginFragment(): LiveData<Void> {
-        return onNavigateToLoginFragment
+    fun getOnLoggedOut(): LiveData<Void> {
+        return onLoggedOut
     }
 
     fun logout() {
@@ -43,7 +43,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         authRepository.logout(object : IAuthenticationRepository.IOnLogoutListener {
             override fun onSuccess() {
                 isBusy.value = false
-                onNavigateToLoginFragment.call()
+                onLoggedOut.call()
             }
 
             override fun onFailed(error: String?) {

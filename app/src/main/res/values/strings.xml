@@ -63,14 +63,14 @@
     <string name="welcome_start_preserving_button">Start Preserving</string>
     <string name="nav_header_subtitle_text">Tap here to manage archive</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
-    <string name="menu_drawer_myfiles">MyFiles</string>
+    <string name="menu_drawer_myfiles">My Files</string>
     <string name="menu_drawer_shares">Shares</string>
     <string name="menu_drawer_public">Public</string>
     <string name="menu_drawer_relationships">Relationships</string>
     <string name="menu_drawer_members">Members</string>
     <string name="menu_drawer_apps">Apps</string>
     <string name="menu_toolbar_settings_text">ProfileMenu</string>
-    <string name="menu_settings_drawer_storage">Storage</string>
+    <string name="menu_settings_drawer_storage">Add Storage</string>
     <string name="menu_settings_drawer_account">Account Info</string>
     <string name="menu_settings_drawer_activity">Activity Feed</string>
     <string name="menu_settings_drawer_notifications">Notification Settings</string>
@@ -78,7 +78,7 @@
     <string name="menu_settings_drawer_security">Security</string>
     <string name="menu_settings_drawer_support">Contact Support</string>
     <string name="menu_settings_drawer_logout">Log Out</string>
-    <string name="main_navigation_my_files">MyFiles</string>
+    <string name="main_navigation_my_files">My Files</string>
     <string name="main_navigation_shares">Shares</string>
     <string name="main_navigation_members">Members</string>
     <string name="main_navigation_share_link">Share Link</string>
@@ -145,7 +145,7 @@
     <string name="share_link_link_copied">Link copied</string>
     <string name="share_link_revoke_title">Revoke link?</string>
     <string name="share_link_revoke_button">Revoke</string>
-    <string name="share_link_share_preview">Share preview</string>
+    <string name="share_link_share_preview">Share Preview</string>
     <string name="share_link_auto_approve">Auto Approve</string>
     <string name="share_link_auto_approve_message">Automatically approve requests for access to this share.</string>
     <string name="share_link_max_uses">Max number of uses (optional)</string>
@@ -178,4 +178,8 @@
     <string name="members_member_removed_successfully">Member removed successfully</string>
     <string name="members_edit_member_title">Edit Member</string>
     <string name="members_remove_button">Remove</string>
+    <string name="share_preview_request_access_button">Request Access</string>
+    <string name="share_preview_view_in_archive_button">View in Archive</string>
+    <string name="ok_button">OK</string>
+    <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>
 </resources>

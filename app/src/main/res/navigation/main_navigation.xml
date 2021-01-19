@@ -17,11 +17,19 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_sharePreviewFragment"
+            app:destination="@id/sharePreviewFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/shareLinkFragment"
         android:name="org.permanent.permanent.ui.myFiles.linkshare.ShareLinkFragment"
-        android:label="@string/main_navigation_share_link" >
+        android:label="@string/main_navigation_share_link"
+        tools:layout="@layout/fragment_share_link">
         <action
             android:id="@+id/action_shareLinkFragment_to_manageLinkFragment"
             app:destination="@id/manageLinkFragment"
@@ -33,15 +41,39 @@
     <fragment
         android:id="@+id/manageLinkFragment"
         android:name="org.permanent.permanent.ui.myFiles.linkshare.ManageLinkFragment"
-        android:label="@string/share_link_advanced_options_button" >
+        android:label="@string/share_link_advanced_options_button"
+        tools:layout="@layout/fragment_manage_link">
+    </fragment>
+    <fragment
+        android:id="@+id/sharePreviewFragment"
+        android:name="org.permanent.permanent.ui.shares.SharePreviewFragment"
+        android:label="@string/share_link_share_preview"
+        tools:layout="@layout/fragment_share_preview">
+        <argument
+            android:name="url_token"
+            app:argType="string"
+            android:defaultValue="" />
+        <deepLink
+            android:id="@+id/deepLink"
+            app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/share/{url_token}" />
+        <action
+            android:id="@+id/action_sharePreviewFragment_to_sharesFragment"
+            app:destination="@id/sharesFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/sharesFragment"
         android:name="org.permanent.permanent.ui.shares.SharesFragment"
-        android:label="@string/main_navigation_shares" />
+        android:label="@string/main_navigation_shares"
+        tools:layout="@layout/fragment_shares" />
 
     <fragment
         android:id="@+id/membersFragment"
         android:name="org.permanent.permanent.ui.members.MembersFragment"
-        android:label="@string/main_navigation_members" />
+        android:label="@string/main_navigation_members"
+        tools:layout="@layout/fragment_members"/>
 </navigation>

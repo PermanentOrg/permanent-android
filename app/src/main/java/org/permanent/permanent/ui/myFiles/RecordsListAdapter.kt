@@ -8,27 +8,27 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.chauthai.swipereveallayout.ViewBinderHelper
-import org.permanent.permanent.databinding.ItemRecordBinding
+import org.permanent.permanent.databinding.ItemListRecordBinding
 import org.permanent.permanent.models.Record
 import java.util.*
 import kotlin.collections.ArrayList
 
-class RecordsAdapter(
+class RecordsListAdapter(
     private val recordListener: RecordListener,
     private val lifecycleOwner: LifecycleOwner,
     private val isRelocateMode: MutableLiveData<Boolean>
-) : RecyclerView.Adapter<RecordViewHolder>(), Filterable {
+) : RecyclerView.Adapter<RecordListViewHolder>(), Filterable {
     private var records: MutableList<Record> = ArrayList()
     private var filteredRecords: MutableList<Record> = ArrayList()
     private val viewBinderHelper = ViewBinderHelper()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordViewHolder {
-        val binding = ItemRecordBinding.inflate(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordListViewHolder {
+        val binding = ItemListRecordBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
-        return RecordViewHolder(binding, recordListener)
+        return RecordListViewHolder(binding, recordListener)
     }
 
     fun set(recordList: List<Record>) {
@@ -47,7 +47,7 @@ class RecordsAdapter(
 
     override fun getItemCount() = filteredRecords.size
 
-    override fun onBindViewHolder(holder: RecordViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecordListViewHolder, position: Int) {
         val record = filteredRecords[position]
         viewBinderHelper.bind(holder.binding.layoutSwipeReveal, record.folderLinkId.toString())
         holder.bind(record, lifecycleOwner)

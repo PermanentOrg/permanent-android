@@ -17,6 +17,7 @@ class Constants {
         const val URL_UPLOAD_STAGING = "https://staging.permanent.org:9000"
         const val URL_UPLOAD_PROD = "https://www.permanent.org:9000"
         const val URL_PRIVACY_POLICY = "https://www.permanent.org/privacy-policy/"
+        const val URL_ADD_STORAGE = "https://www.permanent.org/add-storage/"
         const val MEDIA_TYPE_JSON = "application/json;charset=UTF-8"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
         const val AUTH_TYPE_PHONE = "type.auth.phone"

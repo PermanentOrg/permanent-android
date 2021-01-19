@@ -2,6 +2,7 @@ package org.permanent.permanent.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import org.permanent.permanent.network.models.ArchiveVO
 
 class Archive() : Parcelable {
     var fullName: String? = null
@@ -16,6 +17,14 @@ class Archive() : Parcelable {
         thumbURL500 = parcel.readString()
         thumbURL1000 = parcel.readString()
         thumbURL2000 = parcel.readString()
+    }
+
+    constructor(archiveVO: ArchiveVO?) : this() {
+        fullName = archiveVO?.fullName
+        thumbURL200 = archiveVO?.thumbURL200
+        thumbURL500 = archiveVO?.thumbURL500
+        thumbURL1000 = archiveVO?.thumbURL1000
+        thumbURL2000 = archiveVO?.thumbURL2000
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

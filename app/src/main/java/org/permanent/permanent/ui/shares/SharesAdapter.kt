@@ -2,12 +2,16 @@ package org.permanent.permanent.ui.shares
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemShareBinding
-import org.permanent.permanent.models.ShareItem
+import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 
-class SharesAdapter : RecyclerView.Adapter<ShareViewHolder>() {
-    private var shares: MutableList<ShareItem> = ArrayList()
+class SharesAdapter(
+    private val listener: DownloadableRecordListener,
+    private val lifecycleOwner: LifecycleOwner
+) : RecyclerView.Adapter<ShareViewHolder>() {
+    private var shares: MutableList<DownloadableRecord> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShareViewHolder {
         val binding = ItemShareBinding.inflate(
@@ -15,17 +19,24 @@ class SharesAdapter : RecyclerView.Adapter<ShareViewHolder>() {
             parent,
             false
         )
-        return ShareViewHolder(binding)
+        return ShareViewHolder(binding, listener)
     }
 
-    fun set(items: MutableList<ShareItem>) {
-        shares = items
+    fun set(records: MutableList<DownloadableRecord>) {
+        shares = records
         notifyDataSetChanged()
     }
 
     override fun getItemCount() = shares.size
 
     override fun onBindViewHolder(holder: ShareViewHolder, position: Int) {
-        holder.bind(shares[position])
+        holder.bind(shares[position], lifecycleOwner)
+    }
+
+    fun getItemPosition(recordId: Int): Int? {
+        for (share in shares) {
+            if (share.id == recordId) return shares.indexOf(share)
+        }
+        return null
     }
 }

@@ -8,13 +8,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkContinuation
 import androidx.work.WorkManager
-import org.permanent.permanent.models.FolderIdentifier
+import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 
 class UploadQueue(
     val context: Context,
-    private val folderIdentifier: FolderIdentifier,
+    private val folderIdentifier: NavigationFolderIdentifier,
     val lifecycleOwner: LifecycleOwner,
     val id: String,
     private val onFinishedListener: OnFinishedListener

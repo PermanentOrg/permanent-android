@@ -5,19 +5,20 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.models.ShareItem
 import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 
 const val NUMBER_OF_FRAGMENTS = 2
-const val PARCELABLE_SHARED_WITH_ME_ITEMS_KEY = "parcelable_share_with_me_items_key"
-const val PARCELABLE_SHARED_X_ME_NO_ITEMS_STRING_KEY = "parcelable_share_x_me_no_items_string_key"
+const val SHARED_WITH_ME_ITEM_LIST_KEY = "share_with_me_item_list_key"
+const val SHARED_X_ME_NO_ITEMS_MESSAGE_KEY = "share_x_me_no_items_message_key"
 
 class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(fragment) {
 
+    private var recordIdToNavigateTo: Int? = null
     private lateinit var sharedByMeFragment: SharedXMeFragment
     private var sharedWithMeFragment: SharedXMeFragment? = null
-    private var sharesByMe: MutableList<ShareItem> = ArrayList()
-    private var sharesWithMe: MutableList<ShareItem> = ArrayList()
+    private var sharesByMe: MutableList<DownloadableRecord> = ArrayList()
+    private var sharesWithMe: MutableList<DownloadableRecord> = ArrayList()
 
     override fun getItemCount(): Int = NUMBER_OF_FRAGMENTS
 
@@ -25,9 +26,8 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
         return when(position) {
             Constants.POSITION_SHARED_WITH_ME_FRAGMENT -> {
                 val bundle = bundleOf(
-                    PARCELABLE_SHARED_WITH_ME_ITEMS_KEY to sharesWithMe,
-                    PARCELABLE_SHARED_X_ME_NO_ITEMS_STRING_KEY
-                            to fragment.context?.getString(R.string.shares_with_me_no_items)
+                    SHARED_WITH_ME_ITEM_LIST_KEY to sharesWithMe,
+                    SHARED_X_ME_NO_ITEMS_MESSAGE_KEY to fragment.context?.getString(R.string.shares_with_me_no_items)
                 )
                 sharedWithMeFragment = SharedXMeFragment()
                 sharedWithMeFragment?.arguments = bundle
@@ -35,8 +35,7 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
             }
             else -> {
                 val bundle = bundleOf(
-                    PARCELABLE_SHARED_X_ME_NO_ITEMS_STRING_KEY
-                            to fragment.context?.getString(R.string.shares_by_me_no_items)
+                    SHARED_X_ME_NO_ITEMS_MESSAGE_KEY to fragment.context?.getString(R.string.shares_by_me_no_items)
                 )
                 sharedByMeFragment = SharedXMeFragment()
                 sharedByMeFragment.arguments = bundle
@@ -52,10 +51,12 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
 
             items?.let {
                 for (item in it) {
-                    val shareItem = ShareItem(item, archive)
+                    val shareItem: DownloadableRecord
                     if (userArchiveId == archive.archiveId) {
+                        shareItem = DownloadableRecord(item, archive, false)
                         sharesByMe.add(shareItem)
                     } else {
+                        shareItem = DownloadableRecord(item, archive, true)
                         sharesWithMe.add(shareItem)
                     }
                 }
@@ -64,6 +65,11 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
         if (sharesByMe.isNotEmpty()) sharedByMeFragment.set(sharesByMe)
         if (sharedWithMeFragment != null && sharesWithMe.isNotEmpty()) {
             sharedWithMeFragment!!.set(sharesWithMe)
+            sharedWithMeFragment?.navigateToRecord(recordIdToNavigateTo)
         }
+    }
+
+    fun setRecordToNavigateTo(recordId: Int) {
+        recordIdToNavigateTo = recordId
     }
 }

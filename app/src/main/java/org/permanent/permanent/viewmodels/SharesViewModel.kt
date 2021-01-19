@@ -5,16 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IShareRepository
+import org.permanent.permanent.repositories.ShareRepositoryImpl
 
 class SharesViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
-    private val onSharedArchivesRetrieved = MutableLiveData<List<Datum>>()
-    private var fileRepository: IFileRepository = FileRepositoryImpl(appContext)
+    private val onSharedArchivesRetrieved = SingleLiveEvent<List<Datum>>()
+    private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     init {
         getShares()
@@ -26,7 +26,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
         }
 
         isBusy.value = true
-        fileRepository.getShares(object : IDataListener {
+        shareRepository.getShares(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 if (!dataList.isNullOrEmpty()) onSharedArchivesRetrieved.value = dataList

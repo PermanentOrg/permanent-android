@@ -9,5 +9,6 @@ class Datum {
     var ArchiveVO: ArchiveVO? = null
     var RecordVO: RecordVO? = null
     var SimpleVO: SimpleVO? = null
+    var ShareVO: ShareVO? = null
     var Shareby_urlVO: Shareby_urlVO? = null
 }

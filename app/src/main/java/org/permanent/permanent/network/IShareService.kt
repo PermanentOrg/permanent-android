@@ -20,6 +20,12 @@ interface IShareService {
     @POST("share/dropShareLink")
     fun deleteShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("share/checkShareLink")
+    fun checkShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("share/requestShareAccess")
+    fun requestShareAccess(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("share/getShares")
     fun getShares(@Body requestBody: RequestBody): Call<ResponseVO>
 }

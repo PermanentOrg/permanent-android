@@ -36,8 +36,15 @@ class SplashActivity : PermanentBaseActivity() {
 
         prefsHelper.saveUserLoggedIn(isLoggedIn)
 
-        if (!isLoggedIn && !prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
-         else startLoginActivity(isLoggedIn)
+        if (!isLoggedIn && !prefsHelper.isOnboardingCompleted()) {
+            startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
+            finish()
+        } else {
+            val intent = Intent(this@SplashActivity, LoginActivity::class.java)
+            intent.putExtra(IS_USER_LOGGED_IN, isLoggedIn)
+            startActivity(intent)
+            finish()
+        }
     }
 
     override fun connectViewModelEvents() {
@@ -56,17 +63,5 @@ class SplashActivity : PermanentBaseActivity() {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-    }
-
-    private fun startOnboardingActivity() {
-        startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
-        finish()
-    }
-
-    private fun startLoginActivity(isLoggedIn: Boolean) {
-        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
-        intent.putExtra(IS_USER_LOGGED_IN, isLoggedIn)
-        startActivity(intent)
-        finish()
     }
 }

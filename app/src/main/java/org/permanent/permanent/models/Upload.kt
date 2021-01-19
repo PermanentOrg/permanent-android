@@ -26,7 +26,7 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
 
     constructor(
         context: Context,
-        folderIdentifier: FolderIdentifier,
+        folderIdentifier: NavigationFolderIdentifier,
         uri: Uri,
         listener: OnFinishedListener
     ) : this(context, listener) {

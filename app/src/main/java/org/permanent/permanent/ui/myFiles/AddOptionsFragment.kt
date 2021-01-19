@@ -28,7 +28,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogNewFolderBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
-import org.permanent.permanent.models.FolderIdentifier
+import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.AddOptionsViewModel
 import org.permanent.permanent.viewmodels.NewFolderViewModel
@@ -65,7 +65,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         dismiss()
     }
 
-    fun setBundleArguments(folderIdentifier: FolderIdentifier?) {
+    fun setBundleArguments(folderIdentifier: NavigationFolderIdentifier?) {
         val bundle = Bundle()
         bundle.putParcelable(FOLDER_IDENTIFIER_KEY, folderIdentifier)
         this.arguments = bundle
@@ -122,7 +122,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
                 .create()
             dialogBinding.btnCreate.setOnClickListener {
                 val currentFolderIdentifier =
-                    arguments?.getParcelable<FolderIdentifier>(FOLDER_IDENTIFIER_KEY)
+                    arguments?.getParcelable<NavigationFolderIdentifier>(FOLDER_IDENTIFIER_KEY)
                 dialogViewModel.createNewFolder(currentFolderIdentifier)
             }
             dialogBinding.btnCancel.setOnClickListener {

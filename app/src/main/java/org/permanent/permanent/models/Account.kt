@@ -28,13 +28,4 @@ class Account private constructor() {
             else -> Status.OK
         }
     }
-
-    enum class Status(private val backendString: String) {
-        OK("status.generic.ok"),
-        PENDING("status.generic.pending");
-
-        fun toBackendString(): String {
-            return backendString
-        }
-    }
 }
