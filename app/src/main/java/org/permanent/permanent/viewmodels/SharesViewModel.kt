@@ -13,7 +13,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
-    private val onSharedArchivesRetrieved = MutableLiveData<List<Datum>>()
+    private val onSharedArchivesRetrieved = SingleLiveEvent<List<Datum>>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     init {

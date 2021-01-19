@@ -5,8 +5,8 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 
 const val NUMBER_OF_FRAGMENTS = 2
 const val SHARED_WITH_ME_ITEM_LIST_KEY = "share_with_me_item_list_key"
@@ -17,8 +17,8 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
     private var recordIdToNavigateTo: Int? = null
     private lateinit var sharedByMeFragment: SharedXMeFragment
     private var sharedWithMeFragment: SharedXMeFragment? = null
-    private var sharesByMe: MutableList<Record> = ArrayList()
-    private var sharesWithMe: MutableList<Record> = ArrayList()
+    private var sharesByMe: MutableList<DownloadableRecord> = ArrayList()
+    private var sharesWithMe: MutableList<DownloadableRecord> = ArrayList()
 
     override fun getItemCount(): Int = NUMBER_OF_FRAGMENTS
 
@@ -51,10 +51,12 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
 
             items?.let {
                 for (item in it) {
-                    val shareItem = Record(item, archive)
+                    val shareItem: DownloadableRecord
                     if (userArchiveId == archive.archiveId) {
+                        shareItem = DownloadableRecord(item, archive, false)
                         sharesByMe.add(shareItem)
                     } else {
+                        shareItem = DownloadableRecord(item, archive, true)
                         sharesWithMe.add(shareItem)
                     }
                 }

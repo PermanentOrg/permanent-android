@@ -34,12 +34,14 @@ class DownloadQueue(
         enqueuedDownloads.value = enqueuedDownloads.value
     }
 
-    fun enqueueNewDownloadFor(file: Record) {
+    fun enqueueNewDownloadFor(file: Record): Download {
         val download = Download(context, file, onFinishedListener)
         download.getWorkRequest()?.let { workManager.enqueue(it) }
         download.observeWorkInfoOn(lifecycleOwner)
         enqueuedDownloads.value?.add(download)
         notifyObserversOnEnqueuedDownloadsChanged()
+
+        return download
     }
 
     fun getEnqueuedDownloadsLiveData(): MutableLiveData<MutableList<Download>> {

@@ -5,7 +5,7 @@ import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.*
 
-class Record private constructor() : Parcelable {
+open class Record private constructor() : Parcelable {
     var id: Int? = null
     var archiveNr: String? = null
     var archiveId: Int? = null
@@ -16,6 +16,7 @@ class Record private constructor() : Parcelable {
     var displayName: String? = null
     var displayDate: String? = null
     var archiveThumbURL500: String? = null
+    var showArchiveThumb: Boolean? = null
     var thumbURL500: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
@@ -33,6 +34,7 @@ class Record private constructor() : Parcelable {
         displayName = parcel.readString()
         displayDate = parcel.readString()
         archiveThumbURL500 = parcel.readString()
+        showArchiveThumb = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         thumbURL500 = parcel.readString()
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
@@ -54,13 +56,21 @@ class Record private constructor() : Parcelable {
         initShares(recordInfo.ShareVOs)
     }
 
-    constructor(item: ItemVO, archive: ArchiveVO) : this() {
+    constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) : this() {
         id = if(item.folderId != null) item.folderId else item.recordId
-        type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
-        archiveThumbURL500 = archive.thumbURL500
-        thumbURL500 = item.thumbURL500
+        archiveNr = item.archiveNbr
+        archiveId = item.archiveId
+        recordId = item.recordId
+        folderId = item.folderId
+        folderLinkId = item.folder_linkId
+        parentFolderLinkId = item.parentFolder_linkId
         displayName = item.displayName
         displayDate = item.displayDT?.substringBefore("T")
+        archiveThumbURL500 = archive.thumbURL500
+        showArchiveThumb = showArchiveThumbnail
+        thumbURL500 = item.thumbURL500
+        isThumbBlurred = true
+        type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
     }
 
     constructor(shareByUrlVO: Shareby_urlVO) : this() {
@@ -109,6 +119,7 @@ class Record private constructor() : Parcelable {
         parcel.writeString(displayName)
         parcel.writeString(displayDate)
         parcel.writeString(archiveThumbURL500)
+        parcel.writeValue(showArchiveThumb)
         parcel.writeString(thumbURL500)
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)

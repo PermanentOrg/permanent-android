@@ -330,7 +330,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onFinished(download: Download) {
-        download.removeWorkInfoObserver()
         onDownloadFinished.value = download
     }
 

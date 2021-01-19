@@ -20,6 +20,7 @@ class Download private constructor(val context: Context, val listener: OnFinishe
     private lateinit var uuid: UUID
     private lateinit var displayName: String
     private var workRequest: OneTimeWorkRequest? = null
+    val isEnqueued = MutableLiveData(false)
     val isDownloading = MutableLiveData(false)
     val progress = MutableLiveData(0)
 
@@ -69,18 +70,21 @@ class Download private constructor(val context: Context, val listener: OnFinishe
         workInfoLiveData.observe(lifecycleOwner, workInfoObserver)
     }
 
-    fun removeWorkInfoObserver() {
+    private fun removeWorkInfoObserver() {
         workInfoLiveData.removeObserver(workInfoObserver)
     }
 
     private val workInfoObserver = Observer<WorkInfo> { workInfo ->
-        val state = workInfo.state
-        if (state.isFinished) {
-            listener.onFinished(this)
-            return@Observer
-        }
-        if(isDownloading.value == false) isDownloading.value = state == WorkInfo.State.RUNNING
         val progressValue = workInfo.progress.getInt(DOWNLOAD_PROGRESS, 0)
+        val state = workInfo.state
         progress.value = progressValue
+        val isEnqueuedValue = state == WorkInfo.State.ENQUEUED || state == WorkInfo.State.RUNNING && progressValue == 0
+        if(isEnqueued.value != isEnqueuedValue) isEnqueued.value = isEnqueuedValue
+        val isDownloadingValue = state == WorkInfo.State.RUNNING && progressValue != 0
+        if(isDownloading.value != isDownloadingValue) isDownloading.value = isDownloadingValue
+        if (state.isFinished) {
+            removeWorkInfoObserver()
+            listener.onFinished(this)
+        }
     }
 }
