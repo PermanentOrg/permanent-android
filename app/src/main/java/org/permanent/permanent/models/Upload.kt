@@ -3,6 +3,7 @@ package org.permanent.permanent.models
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -74,6 +75,18 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
 
     fun getWorkRequest() = workRequest
 
+    private val workInfoObserver = Observer<WorkInfo> { workInfo ->
+        val progressValue = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
+        progress.value = progressValue
+        val state = workInfo.state
+        val isUploadingValue = state == WorkInfo.State.RUNNING && progressValue != 0
+        if (isUploading.value != isUploadingValue) isUploading.value = isUploadingValue
+        if (state.isFinished) {
+            listener.onFinished(this)
+            removeWorkInfoObserver()
+        }
+    }
+
     fun observeWorkInfoOn(lifecycleOwner: LifecycleOwner) {
         workInfoLiveData.observe(lifecycleOwner, workInfoObserver)
     }
@@ -82,14 +95,7 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
         workInfoLiveData.removeObserver(workInfoObserver)
     }
 
-    private val workInfoObserver = Observer<WorkInfo> { workInfo ->
-        val state = workInfo.state
-        if (state.isFinished) {
-            listener.onFinished(this)
-            return@Observer
-        }
-        if (isUploading.value == false) isUploading.value = state == WorkInfo.State.RUNNING
-        val progressValue = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
-        progress.value = progressValue
+    fun cancel() {
+        WorkManager.getInstance(context).cancelWorkById(uuid)
     }
 }

@@ -293,7 +293,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         }
     }
 
-    fun enqueueFilesForUpload(uris: List<Uri>) {
+    fun upload(uris: List<Uri>) {
         val uploadQueue = currentFolder.value?.getUploadQueue()
         for (uri in uris) {
             uploadQueue?.addNewUploadFor(uri)
@@ -302,7 +302,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onFinished(upload: Upload) {
-        upload.removeWorkInfoObserver()
         uploadsAdapter.remove(upload)
         if (uploadsAdapter.itemCount == 0) {
             refreshCurrentFolder()
@@ -323,6 +322,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onCancelClick(upload: Upload) {
+        upload.cancel()
     }
 
     fun download(record: Record) {

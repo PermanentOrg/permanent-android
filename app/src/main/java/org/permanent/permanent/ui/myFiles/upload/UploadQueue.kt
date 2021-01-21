@@ -14,9 +14,9 @@ import org.permanent.permanent.ui.myFiles.OnFinishedListener
 
 class UploadQueue(
     val context: Context,
-    private val folderIdentifier: NavigationFolderIdentifier,
     val lifecycleOwner: LifecycleOwner,
-    val id: String,
+    private val queueId: String,
+    private val folderIdentifier: NavigationFolderIdentifier,
     private val onFinishedListener: OnFinishedListener
 ) {
     private val pendingUploads: MutableList<Upload> = ArrayList()
@@ -25,7 +25,7 @@ class UploadQueue(
 
     init {
         enqueuedUploads.value = ArrayList()
-        val workInfoList = WorkManager.getInstance(context).getWorkInfosForUniqueWork(id).get()
+        val workInfoList = WorkManager.getInstance(context).getWorkInfosForUniqueWork(queueId).get()
         for (workInfo in workInfoList) {
             if (!workInfo.state.isFinished) {
                 val restoredUpload = Upload(context, workInfo, onFinishedListener)
@@ -40,21 +40,22 @@ class UploadQueue(
         enqueuedUploads.value = enqueuedUploads.value
     }
 
-    fun addNewUploadFor(uri: Uri) {
-        add(Upload(context, folderIdentifier, uri, onFinishedListener))
+    fun getEnqueuedUploadsLiveData(): MutableLiveData<MutableList<Upload>> {
+        return enqueuedUploads
     }
 
     @SuppressLint("EnqueueWork")
-    fun add(upload: Upload): UploadQueue {
+    fun addNewUploadFor(uri: Uri) {
+        val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
+
         workContinuation = if (workContinuation == null) {
             upload.getWorkRequest()?.let {
                 WorkManager.getInstance(context)
-                    .beginUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, it) }
+                    .beginUniqueWork(queueId, ExistingWorkPolicy.APPEND_OR_REPLACE, it) }
         } else {
             upload.getWorkRequest()?.let { workContinuation?.then(it) }
         }
         pendingUploads.add(upload)
-        return this
     }
 
     fun enqueuePendingUploads() {
@@ -66,10 +67,6 @@ class UploadQueue(
         }
         notifyObserversOnEnqueuedUploadsChanged()
         pendingUploads.clear()
-    }
-
-    fun getEnqueuedUploadsLiveData(): MutableLiveData<MutableList<Upload>> {
-        return enqueuedUploads
     }
 
     fun removeListeners() {

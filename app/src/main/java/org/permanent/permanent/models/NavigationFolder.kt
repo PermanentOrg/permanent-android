@@ -14,7 +14,7 @@ class NavigationFolder(val context: Context, private val folderInfo: Record) {
         val folderIdentifier = folderInfo.getFolderIdentifier()
         if (archiveNr != null && folderIdentifier != null) {
             uploadQueue =
-                UploadQueue(context, folderIdentifier, lifecycleOwner, archiveNr, listener)
+                UploadQueue(context, lifecycleOwner, archiveNr, folderIdentifier, listener)
         }
         return uploadQueue
     }

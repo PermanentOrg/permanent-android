@@ -1,11 +1,13 @@
 package org.permanent.permanent.repositories
 
 import okhttp3.MediaType
+import okhttp3.ResponseBody
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
+import retrofit2.Call
 import java.io.File
 import java.io.OutputStream
 
@@ -19,15 +21,8 @@ interface IFileRepository {
     fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier, name: String, listener: IResponseListener)
     fun startUploading(folderId: Int, folderLinkId: Int, file: File, displayName: String?,
-                       mediaType: MediaType, listener: CountingRequestListener): String
-    fun uploadFile(
-        file: File,
-        displayName: String?,
-        mediaType: MediaType,
-        recordId: Int,
-        messages: MutableList<String?>,
-        listener: CountingRequestListener
-    )
+                       mediaType: MediaType, listener: CountingRequestListener,
+                       finishedListener: IResponseListener): Call<ResponseBody>?
     fun startDownloading(
         folderLinkId: Int,
         archiveNr: String,

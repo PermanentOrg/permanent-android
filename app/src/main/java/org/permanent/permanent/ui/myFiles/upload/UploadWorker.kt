@@ -7,8 +7,11 @@ import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.ResponseBody
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import retrofit2.Call
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -24,14 +27,18 @@ const val WORKER_INPUT_FOLDER_ID_KEY = "worker_input_folder_id_key"
 const val WORKER_INPUT_FOLDER_LINK_ID_KEY = "worker_input_folder_link_id_key"
 const val WORKER_INPUT_URI_KEY = "worker_input_uri_key"
 const val WORKER_INPUT_FILE_DISPLAY_NAME_KEY = "worker_input_file_name_key"
-private const val STATUS_OUT_OF_SPACE = "warning.financial.account.no_space_left"
 const val STATUS_OK = "OK"
 const val UPLOAD_PROGRESS = "upload_progress"
 
 class UploadWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
 
+    private var call: Call<ResponseBody>? = null
     private var fileRepository: IFileRepository = FileRepositoryImpl(context)
+
+    override fun onStopped() {
+        call?.cancel()
+    }
 
     override fun doWork(): Result {
         val folderId = inputData.getInt(WORKER_INPUT_FOLDER_ID_KEY, 0)
@@ -46,25 +53,32 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
             val file = getFileToUpload(uri, displayName)
 
             if (mediaType != null && file != null) {
-                result = fileRepository.startUploading(folderId, folderLinkId, file, displayName,
+                call = fileRepository.startUploading(folderId, folderLinkId, file, displayName,
                     mediaType, object : CountingRequestListener {
                         override fun onProgressUpdate(progress: Long) {
                             setProgressAsync(
-                                Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build()
-                            )
+                                Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build())
+                        }
+                    }, object : IResponseListener {
+                        override fun onSuccess(message: String?) {
+                        }
+
+                        override fun onFailed(error: String?) {
+                            error?.let { result = it }
                         }
                     })
-            }
+                val responseBody = call?.execute()?.body()
+                responseBody?.string()?.let { result = it }
+                file.delete()
 
-            if (result == STATUS_OK) {
-                Log.d(UploadWorker::class.java.simpleName, "status_ok")
-                Result.success()
-            } else {
-                if (result == STATUS_OUT_OF_SPACE) {
-                    Log.d(UploadWorker::class.java.simpleName, "no_space_left")
+                if (result == STATUS_OK) {
+                    Result.success()
                 } else {
-                    Log.d(UploadWorker::class.java.simpleName, "visit_website")
+                    Log.d(UploadWorker::class.java.simpleName, result)
+                    Result.failure()
                 }
+            } else {
+                Log.d(UploadWorker::class.java.simpleName, "file or media type is null")
                 Result.failure()
             }
         } else {
