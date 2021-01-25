@@ -8,9 +8,12 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
-import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.R
+import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import retrofit2.Call
 import java.io.File
 import java.io.FileOutputStream
@@ -33,11 +36,15 @@ const val UPLOAD_PROGRESS = "upload_progress"
 class UploadWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
 
-    private var call: Call<ResponseBody>? = null
+    private var callCreateMetaData: Call<ResponseVO>? = null
+    private var callUpload: Call<ResponseBody>? = null
+    private val prefsHelper = PreferencesHelper(
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
     private var fileRepository: IFileRepository = FileRepositoryImpl(context)
 
     override fun onStopped() {
-        call?.cancel()
+        callCreateMetaData?.cancel()
+        callUpload?.cancel()
     }
 
     override fun doWork(): Result {
@@ -53,21 +60,31 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
             val file = getFileToUpload(uri, displayName)
 
             if (mediaType != null && file != null) {
-                call = fileRepository.startUploading(folderId, folderLinkId, file, displayName,
-                    mediaType, object : CountingRequestListener {
+                callCreateMetaData = fileRepository.createUploadMetaData(
+                    folderId, folderLinkId, file, displayName)
+
+                val responseVO = callCreateMetaData?.execute()?.body()
+                prefsHelper.saveCsrf(responseVO?.csrf)
+                val messages: MutableList<String?>? = responseVO?.getMessages()?.toMutableList()
+                val recordId = responseVO?.getRecordVO()?.recordId
+
+                if (messages == null || messages.isEmpty()) {
+                    result = context.getString(R.string.upload_record_not_created_error)
+                    Result.failure()
+                } else if (recordId == null) {
+                    messages[0]?.let { result = it}
+                    Result.failure()
+                }
+
+                callUpload = fileRepository.uploadFile(file, mediaType, recordId!!,
+                    object : CountingRequestListener {
                         override fun onProgressUpdate(progress: Long) {
                             setProgressAsync(
                                 Data.Builder().putInt(UPLOAD_PROGRESS, progress.toInt()).build())
                         }
-                    }, object : IResponseListener {
-                        override fun onSuccess(message: String?) {
-                        }
-
-                        override fun onFailed(error: String?) {
-                            error?.let { result = it }
-                        }
                     })
-                val responseBody = call?.execute()?.body()
+
+                val responseBody = callUpload?.execute()?.body()
                 responseBody?.string()?.let { result = it }
                 file.delete()
 

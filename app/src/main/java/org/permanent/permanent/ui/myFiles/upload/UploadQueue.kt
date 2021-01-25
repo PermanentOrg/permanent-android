@@ -33,10 +33,10 @@ class UploadQueue(
                 enqueuedUploads.value?.add(restoredUpload)
             }
         }
-        notifyObserversOnEnqueuedUploadsChanged()
+        notifyEnqueuedUploadsChanged()
     }
 
-    private fun notifyObserversOnEnqueuedUploadsChanged() {
+    private fun notifyEnqueuedUploadsChanged() {
         enqueuedUploads.value = enqueuedUploads.value
     }
 
@@ -44,37 +44,71 @@ class UploadQueue(
         return enqueuedUploads
     }
 
-    @SuppressLint("EnqueueWork")
-    fun addNewUploadFor(uri: Uri) {
-        val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
-
-        workContinuation = if (workContinuation == null) {
-            upload.getWorkRequest()?.let {
-                WorkManager.getInstance(context)
-                    .beginUniqueWork(queueId, ExistingWorkPolicy.APPEND_OR_REPLACE, it) }
-        } else {
-            upload.getWorkRequest()?.let { workContinuation?.then(it) }
+    fun upload(uris: List<Uri>) {
+        for (uri in uris) {
+            val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
+            pendingUploads.add(upload)
         }
-        pendingUploads.add(upload)
+        enqueuePendingUploads()
     }
 
-    fun enqueuePendingUploads() {
-        workContinuation?.enqueue()
-        workContinuation = null
+    @SuppressLint("EnqueueWork")
+    fun enqueuePendingUploads(
+        existingWorkPolicy: ExistingWorkPolicy = ExistingWorkPolicy.APPEND_OR_REPLACE
+    ) {
+        if (pendingUploads.size != 0) {
+            for (upload in pendingUploads) {
+                workContinuation = if (workContinuation == null) {
+                    upload.getWorkRequest()?.let {
+                        WorkManager.getInstance(context)
+                            .beginUniqueWork(queueId, existingWorkPolicy, it)
+                    }
+                } else {
+                    upload.getWorkRequest()?.let { workContinuation?.then(it) }
+                }
+            }
+            workContinuation?.enqueue()
+            workContinuation = null
+            observePendingUploads()
+        }
+    }
+
+    private fun observePendingUploads() {
         for (upload in pendingUploads) {
             upload.observeWorkInfoOn(lifecycleOwner)
             enqueuedUploads.value?.add(upload)
         }
-        notifyObserversOnEnqueuedUploadsChanged()
         pendingUploads.clear()
+        notifyEnqueuedUploadsChanged()
     }
 
-    fun removeListeners() {
+    fun clearEnqueuedUploadsAndRemoveTheirObservers() {
         if (!enqueuedUploads.value.isNullOrEmpty()) {
             for (upload in enqueuedUploads.value!!) {
                 upload.removeWorkInfoObserver()
             }
             enqueuedUploads.value!!.clear()
+        }
+    }
+
+    fun prepareToRequeueUploadsExcept(cancelledUpload: Upload) {
+        val enqueuedUploadsValue = enqueuedUploads.value
+
+        if (!enqueuedUploadsValue.isNullOrEmpty()) {
+            for (upload in enqueuedUploadsValue) {
+                if(upload != cancelledUpload) {
+                    val newUpload =
+                        Upload(context, folderIdentifier, upload.getUri(), onFinishedListener)
+                    pendingUploads.add(newUpload)
+                }
+            }
+        }
+    }
+
+    fun removeFinishedUpload(upload: Upload) {
+        val enqueuedUploadsValue = enqueuedUploads.value
+        if (!enqueuedUploadsValue.isNullOrEmpty()) {
+            enqueuedUploadsValue.remove(upload)
         }
     }
 }

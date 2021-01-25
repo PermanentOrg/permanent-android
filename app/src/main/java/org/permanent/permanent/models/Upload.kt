@@ -3,7 +3,6 @@ package org.permanent.permanent.models
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +19,7 @@ import java.util.*
 class Upload private constructor(val context: Context, val listener: OnFinishedListener) {
     private lateinit var workInfoLiveData: LiveData<WorkInfo>
     private lateinit var uuid: UUID
+    private lateinit var uri: Uri
     private lateinit var displayName: String
     private var workRequest: OneTimeWorkRequest? = null
     val isUploading = MutableLiveData(false)
@@ -31,7 +31,8 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
         uri: Uri,
         listener: OnFinishedListener
     ) : this(context, listener) {
-        displayName = getName(uri)
+        this.uri = uri
+        displayName = getDisplayNameFrom(uri)
         val builder = Data.Builder().apply {
             putInt(WORKER_INPUT_FOLDER_ID_KEY, folderIdentifier.folderId)
             putInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, folderIdentifier.folderLinkId)
@@ -55,7 +56,7 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
         workInfoLiveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(uuid)
     }
 
-    private fun getName(uri: Uri): String {
+    private fun getDisplayNameFrom(uri: Uri): String {
         var displayName = ""
         val cursor = context.contentResolver.query(uri, null, null,
             null, null)
@@ -71,19 +72,27 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
         return displayName
     }
 
+    fun getUri() = uri
+
     fun getDisplayName() = displayName
 
     fun getWorkRequest() = workRequest
 
     private val workInfoObserver = Observer<WorkInfo> { workInfo ->
-        val progressValue = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
-        progress.value = progressValue
-        val state = workInfo.state
-        val isUploadingValue = state == WorkInfo.State.RUNNING && progressValue != 0
-        if (isUploading.value != isUploadingValue) isUploading.value = isUploadingValue
-        if (state.isFinished) {
-            listener.onFinished(this)
-            removeWorkInfoObserver()
+        if(workInfo != null) {
+            val progressValue = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
+            progress.value = progressValue
+
+            val state = workInfo.state
+            val isUploadingValue = state == WorkInfo.State.RUNNING && progressValue != 0
+            if (isUploading.value != isUploadingValue) isUploading.value = isUploadingValue
+
+            if (state.isFinished) {
+                listener.onFinished(this, state == WorkInfo.State.SUCCEEDED)
+                removeWorkInfoObserver()
+            }
+        } else {
+            listener.onFinished(this, false)
         }
     }
 

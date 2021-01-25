@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
@@ -13,16 +14,23 @@ import java.io.OutputStream
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IOnMyFilesArchiveNrListener)
+
     fun getChildRecordsOf(myFilesArchiveNr: String, sort: String?,
                           listener: IOnRecordsRetrievedListener)
+
     fun navigateMin(archiveNumber: String, sort: String?, listener: IOnRecordsRetrievedListener)
+
     fun getLeanItems(archiveNumber: String, sort: String?, childLinkIds: List<Int>,
                      listener: IOnRecordsRetrievedListener)
     fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier, name: String, listener: IResponseListener)
-    fun startUploading(folderId: Int, folderLinkId: Int, file: File, displayName: String?,
-                       mediaType: MediaType, listener: CountingRequestListener,
-                       finishedListener: IResponseListener): Call<ResponseBody>?
+
+    fun createUploadMetaData(folderId: Int, folderLinkId: Int, file: File, displayName: String?
+    ): Call<ResponseVO>
+
+    fun uploadFile(file: File, mediaType: MediaType, recordId: Int, listener: CountingRequestListener
+    ): Call<ResponseBody>
+
     fun startDownloading(
         folderLinkId: Int,
         archiveNr: String,
@@ -30,9 +38,12 @@ interface IFileRepository {
         recordId: Int,
         listener: CountingRequestListener
     )
+
     fun downloadFile(
         downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener)
+
     fun deleteRecord(record: Record, listener: IResponseListener)
+
     fun relocateRecord(recordToRelocate: Record, destFolderLinkId: Int,
                        relocationType: RelocationType, listener: IResponseListener)
 

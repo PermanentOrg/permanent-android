@@ -285,8 +285,8 @@ class NetworkClient(context: Context) {
     fun addMember(csrf: String?, archiveNr: String?, email: String, accessRole: AccessRole): Call<ResponseVO> {
         val request = toJson(
             RequestContainer(csrf)
-            .addArchive(archiveNr)
-            .addAccount(email, accessRole))
+                .addArchive(archiveNr)
+                .addAccount(email, accessRole))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return memberService.addMember(requestBody)
     }
@@ -294,8 +294,8 @@ class NetworkClient(context: Context) {
     fun updateMember(csrf: String?, archiveNr: String?, id: Int, email: String, accessRole: AccessRole): Call<ResponseVO> {
         val request = toJson(
             RequestContainer(csrf)
-            .addArchive(archiveNr)
-            .addAccount(id, email, accessRole))
+                .addArchive(archiveNr)
+                .addAccount(id, email, accessRole))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return memberService.updateMember(requestBody)
     }

@@ -141,28 +141,17 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         })
     }
 
-    override fun startUploading(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String?,
-        mediaType: MediaType, listener: CountingRequestListener, finishedListener: IResponseListener
-    ): Call<ResponseBody>? {
-        val metaDataResponse = networkClient.createUploadMetaData(
-            prefsHelper.getCsrf(), file.name,
-            displayName, folderId, folderLinkId
-        ).execute()
+    override fun createUploadMetaData(
+        folderId: Int, folderLinkId: Int, file: File, displayName: String?
+    ): Call<ResponseVO> {
+        return networkClient.createUploadMetaData(prefsHelper.getCsrf(), file.name, displayName,
+            folderId, folderLinkId)
+    }
 
-        val responseVO = metaDataResponse.body()
-        prefsHelper.saveCsrf(responseVO?.csrf)
-        val messages: MutableList<String?>? = responseVO?.getMessages()?.toMutableList()
-        val recordId = responseVO?.getRecordVO()?.recordId
-
-        if (messages == null || messages.isEmpty()) {
-            finishedListener.onFailed(context.getString(R.string.upload_record_not_created_error))
-            return null
-        } else if (recordId == null) {
-            finishedListener.onFailed(messages[0])
-            return null
-        }
-         return networkClient.uploadFile(file, mediaType, recordId, listener)
+    override fun uploadFile(
+        file: File, mediaType: MediaType, recordId: Int, listener: CountingRequestListener
+    ): Call<ResponseBody> {
+        return networkClient.uploadFile(file, mediaType, recordId, listener)
     }
 
     override fun startDownloading(
