@@ -14,9 +14,9 @@ import org.permanent.permanent.ui.myFiles.OnFinishedListener
 
 class UploadQueue(
     val context: Context,
-    private val folderIdentifier: NavigationFolderIdentifier,
     val lifecycleOwner: LifecycleOwner,
-    val id: String,
+    private val queueId: String,
+    private val folderIdentifier: NavigationFolderIdentifier,
     private val onFinishedListener: OnFinishedListener
 ) {
     private val pendingUploads: MutableList<Upload> = ArrayList()
@@ -25,7 +25,7 @@ class UploadQueue(
 
     init {
         enqueuedUploads.value = ArrayList()
-        val workInfoList = WorkManager.getInstance(context).getWorkInfosForUniqueWork(id).get()
+        val workInfoList = WorkManager.getInstance(context).getWorkInfosForUniqueWork(queueId).get()
         for (workInfo in workInfoList) {
             if (!workInfo.state.isFinished) {
                 val restoredUpload = Upload(context, workInfo, onFinishedListener)
@@ -33,51 +33,82 @@ class UploadQueue(
                 enqueuedUploads.value?.add(restoredUpload)
             }
         }
-        notifyObserversOnEnqueuedUploadsChanged()
+        notifyEnqueuedUploadsChanged()
     }
 
-    private fun notifyObserversOnEnqueuedUploadsChanged() {
+    private fun notifyEnqueuedUploadsChanged() {
         enqueuedUploads.value = enqueuedUploads.value
-    }
-
-    fun addNewUploadFor(uri: Uri) {
-        add(Upload(context, folderIdentifier, uri, onFinishedListener))
-    }
-
-    @SuppressLint("EnqueueWork")
-    fun add(upload: Upload): UploadQueue {
-        workContinuation = if (workContinuation == null) {
-            upload.getWorkRequest()?.let {
-                WorkManager.getInstance(context)
-                    .beginUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, it) }
-        } else {
-            upload.getWorkRequest()?.let { workContinuation?.then(it) }
-        }
-        pendingUploads.add(upload)
-        return this
-    }
-
-    fun enqueuePendingUploads() {
-        workContinuation?.enqueue()
-        workContinuation = null
-        for (upload in pendingUploads) {
-            upload.observeWorkInfoOn(lifecycleOwner)
-            enqueuedUploads.value?.add(upload)
-        }
-        notifyObserversOnEnqueuedUploadsChanged()
-        pendingUploads.clear()
     }
 
     fun getEnqueuedUploadsLiveData(): MutableLiveData<MutableList<Upload>> {
         return enqueuedUploads
     }
 
-    fun removeListeners() {
+    fun upload(uris: List<Uri>) {
+        for (uri in uris) {
+            val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
+            pendingUploads.add(upload)
+        }
+        enqueuePendingUploads()
+    }
+
+    @SuppressLint("EnqueueWork")
+    fun enqueuePendingUploads(
+        existingWorkPolicy: ExistingWorkPolicy = ExistingWorkPolicy.APPEND_OR_REPLACE
+    ) {
+        if (pendingUploads.size != 0) {
+            for (upload in pendingUploads) {
+                workContinuation = if (workContinuation == null) {
+                    upload.getWorkRequest()?.let {
+                        WorkManager.getInstance(context)
+                            .beginUniqueWork(queueId, existingWorkPolicy, it)
+                    }
+                } else {
+                    upload.getWorkRequest()?.let { workContinuation?.then(it) }
+                }
+            }
+            workContinuation?.enqueue()
+            workContinuation = null
+            observePendingUploads()
+        }
+    }
+
+    private fun observePendingUploads() {
+        for (upload in pendingUploads) {
+            upload.observeWorkInfoOn(lifecycleOwner)
+            enqueuedUploads.value?.add(upload)
+        }
+        pendingUploads.clear()
+        notifyEnqueuedUploadsChanged()
+    }
+
+    fun clearEnqueuedUploadsAndRemoveTheirObservers() {
         if (!enqueuedUploads.value.isNullOrEmpty()) {
             for (upload in enqueuedUploads.value!!) {
                 upload.removeWorkInfoObserver()
             }
             enqueuedUploads.value!!.clear()
+        }
+    }
+
+    fun prepareToRequeueUploadsExcept(cancelledUpload: Upload) {
+        val enqueuedUploadsValue = enqueuedUploads.value
+
+        if (!enqueuedUploadsValue.isNullOrEmpty()) {
+            for (upload in enqueuedUploadsValue) {
+                if(upload != cancelledUpload) {
+                    val newUpload =
+                        Upload(context, folderIdentifier, upload.getUri(), onFinishedListener)
+                    pendingUploads.add(newUpload)
+                }
+            }
+        }
+    }
+
+    fun removeFinishedUpload(upload: Upload) {
+        val enqueuedUploadsValue = enqueuedUploads.value
+        if (!enqueuedUploadsValue.isNullOrEmpty()) {
+            enqueuedUploadsValue.remove(upload)
         }
     }
 }

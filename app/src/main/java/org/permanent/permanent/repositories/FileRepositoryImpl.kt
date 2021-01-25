@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Environment
 import android.util.Log
 import okhttp3.MediaType
+import okhttp3.ResponseBody
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -17,7 +18,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
-import org.permanent.permanent.ui.myFiles.upload.STATUS_OK
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -141,45 +141,17 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         })
     }
 
-    override fun startUploading(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String?,
-        mediaType: MediaType, listener: CountingRequestListener
-    ): String {
-        val response = networkClient.createUploadMetaData(
-            prefsHelper.getCsrf(), file.name,
-            displayName, folderId, folderLinkId
-        ).execute()
-
-        val responseVO = response.body()
-        prefsHelper.saveCsrf(responseVO?.csrf)
-        val messages: MutableList<String?>? = responseVO?.getMessages()?.toMutableList()
-        val recordId = responseVO?.getRecordVO()?.recordId
-
-        if (messages == null || messages.isEmpty()) {
-            return context.getString(R.string.upload_record_not_created_error)
-        } else if (recordId == null) {
-            return messages[0]!!
-        }
-        uploadFile(file, displayName, mediaType, recordId, messages, listener)
-
-        return STATUS_OK
+    override fun createUploadMetaData(
+        folderId: Int, folderLinkId: Int, file: File, displayName: String?
+    ): Call<ResponseVO> {
+        return networkClient.createUploadMetaData(prefsHelper.getCsrf(), file.name, displayName,
+            folderId, folderLinkId)
     }
 
     override fun uploadFile(
-        file: File,
-        displayName: String?,
-        mediaType: MediaType,
-        recordId: Int,
-        messages: MutableList<String?>,
-        listener: CountingRequestListener
-    ) {
-        val response = networkClient.uploadFile(file, mediaType, recordId, listener).execute()
-        val responseBody = response.body()
-
-        if (responseBody?.string() == STATUS_OK) {
-            file.delete()
-            messages.add(STATUS_OK)
-        }
+        file: File, mediaType: MediaType, recordId: Int, listener: CountingRequestListener
+    ): Call<ResponseBody> {
+        return networkClient.uploadFile(file, mediaType, recordId, listener)
     }
 
     override fun startDownloading(

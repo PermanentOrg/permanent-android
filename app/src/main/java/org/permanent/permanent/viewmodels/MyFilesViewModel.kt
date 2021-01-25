@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.work.ExistingWorkPolicy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
@@ -41,7 +42,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     private val recordToRelocate = MutableLiveData<Record>()
-    private val onShowMessage = MutableLiveData<String>()
+    private val onShowMessage = SingleLiveEvent<String>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onFilesRetrieved = SingleLiveEvent<List<Record>>()
@@ -254,14 +255,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     override fun onRecordClick(record: Record) {
         if (record.type == RecordType.FOLDER) {
-            currentFolder.value?.getUploadQueue()?.removeListeners()
+            currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
             loadAllChildrenOf(record)
         }
     }
 
     fun onBackBtnClick() {
-        currentFolder.value?.getUploadQueue()?.removeListeners()
+        currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
         // This is the record of the current folder but we need his parent
         folderPathStack.pop()
         val previousFolder = folderPathStack.pop()
@@ -293,21 +294,36 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         }
     }
 
-    fun enqueueFilesForUpload(uris: List<Uri>) {
-        val uploadQueue = currentFolder.value?.getUploadQueue()
-        for (uri in uris) {
-            uploadQueue?.addNewUploadFor(uri)
-        }
-        uploadQueue?.enqueuePendingUploads()
+    fun upload(uris: List<Uri>) {
+        currentFolder.value?.getUploadQueue()?.upload(uris)
     }
 
-    override fun onFinished(upload: Upload) {
-        upload.removeWorkInfoObserver()
+    fun download(record: Record) {
+        downloadQueue.enqueueNewDownloadFor(record)
+    }
+
+    override fun onCancelClick(upload: Upload) {
+        val uploadQueue = currentFolder.value?.getUploadQueue()
+        uploadQueue?.prepareToRequeueUploadsExcept(upload)
+        upload.cancel()
+        uploadQueue?.enqueuePendingUploads(ExistingWorkPolicy.REPLACE)
+    }
+
+    override fun onCancelClick(download: Download) {
+    }
+
+    override fun onFinished(upload: Upload, succeeded: Boolean) {
+        currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
+
+        if (succeeded) addFakeItemToFilesList(upload)
         if (uploadsAdapter.itemCount == 0) {
             refreshCurrentFolder()
         }
-        addFakeItemToFilesList(upload)
+    }
+
+    override fun onFinished(download: Download) {
+        onDownloadFinished.value = download
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -320,20 +336,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         val fakeRecord = Record(fakeRecordInfo)
         fakeRecord.type = RecordType.FILE
         onNewTemporaryFile.value = fakeRecord
-    }
-
-    override fun onCancelClick(upload: Upload) {
-    }
-
-    fun download(record: Record) {
-        downloadQueue.enqueueNewDownloadFor(record)
-    }
-
-    override fun onFinished(download: Download) {
-        onDownloadFinished.value = download
-    }
-
-    override fun onCancelClick(download: Download) {
     }
 
     fun setSortType(sortType: SortType) {

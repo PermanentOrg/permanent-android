@@ -78,7 +78,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onFilesSelectedToUpload = Observer<MutableList<Uri>> { fileUriList ->
         if (fileUriList.isNotEmpty()) {
-            viewModel.enqueueFilesForUpload(fileUriList)
+            viewModel.upload(fileUriList)
             fileUriList.clear()
         }
     }
