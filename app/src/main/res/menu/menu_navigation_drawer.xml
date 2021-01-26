@@ -34,6 +34,16 @@
             android:icon="@drawable/ic_members_white"
             android:title="@string/menu_drawer_members" />
 
+        <item
+            android:id="@+id/securitySettingsFragment"
+            android:icon="@drawable/ic_settings_white"
+            android:title="@string/menu_settings_drawer_security" />
+
+        <item
+            android:id="@+id/accountSettingsFragment"
+            android:icon="@drawable/ic_settings_white"
+            android:title="@string/main_navigation_account_settings" />
+
 <!--        <item-->
 <!--            android:id="@+id/AppsFragment"-->
 <!--            android:icon="@drawable/ic_members_white"-->

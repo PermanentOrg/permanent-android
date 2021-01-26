@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.SecuritySettingsViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <LinearLayout
+                    android:id="@+id/llPasswordFormsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/security_screen_current_password_hint"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+
+                    <EditText
+                        android:id="@+id/etNewPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onNewPasswordTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="textPassword"
+                        android:padding="8dp"
+                        android:text="@{viewModel.getNewPassword()}" />
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/security_screen_new_password_hint"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+
+                    <EditText
+                        android:id="@+id/etRetypePassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onRetypePasswordTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="textPassword"
+                        android:padding="8dp"
+                        android:text="@{viewModel.getRetypePassword()}" />
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/security_screen_retype_password_hint"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold">
+
+                    </TextView>
+
+                    <EditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="48dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onCurrentPasswordTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="textPassword"
+                        android:padding="8dp"
+                        android:text="@{viewModel.getCurrentPassword()}" />
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Update Password"
+                        android:textAllCaps="false"
+                        android:textSize="16sp">
+
+                    </Button>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/llPasswordFormsContainer"
+                    android:layout_marginTop="24dp"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/middleGrey">
+
+                    </View>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/swBiometrics"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="12dp"
+                        android:text="Log in with Biometrics?"
+                        android:textSize="18sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/middleGrey" />
+                </LinearLayout>
+            </RelativeLayout>
+        </ScrollView>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}" />
+
+    </RelativeLayout>
+</layout>

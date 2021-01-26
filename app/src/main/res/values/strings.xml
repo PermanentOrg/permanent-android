@@ -81,6 +81,8 @@
     <string name="main_navigation_my_files">My Files</string>
     <string name="main_navigation_shares">Shares</string>
     <string name="main_navigation_members">Members</string>
+    <string name="main_navigation_security_settings">Security Settings</string>
+    <string name="main_navigation_account_settings">Account Settings</string>
     <string name="main_navigation_share_link">Share Link</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
@@ -182,4 +184,19 @@
     <string name="share_preview_view_in_archive_button">View in Archive</string>
     <string name="ok_button">OK</string>
     <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>
+    <string name="security_screen_current_password_hint">Current Password</string>
+    <string name="security_screen_new_password_hint">New Password</string>
+    <string name="security_screen_retype_password_hint">Re-type Password</string>
+    <string name="security_screen_update_password">Update Password</string>
+    <string name="security_screen_log_in_with_biometrics">Log in with biometrics?</string>
+
+
+    <string name="account_screen_account_name">Account Name</string>
+    <string name="account_screen_primary_email">Primary Email</string>
+    <string name="account_screen_mobile_phone">Mobile Phone</string>
+    <string name="account_screen_address">Address</string>
+    <string name="account_screen_city">City</string>
+    <string name="account_screen_state">State or region</string>
+    <string name="account_screen_oostal_code">Postal code</string>
+    <string name="account_screen_country">Country</string>
 </resources>

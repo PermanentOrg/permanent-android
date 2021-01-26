@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.AccountSettingsViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/llPasswordFormsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/account_screen_account_name"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+
+                    <EditText
+                        android:id="@+id/etAccountName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onAccountNameTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="text"
+                        android:padding="8dp"
+                        android:text="@{viewModel.getAccountName()}" />
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/account_screen_primary_email"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+
+                    <EditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="textEmailAddress"
+                        android:padding="8dp"
+                        android:text="@{viewModel.getEmail()}" />
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/account_screen_mobile_phone"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold">
+
+                    </TextView>
+
+                    <EditText
+                        android:id="@+id/etPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onPhoneTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="phone"
+                        android:padding="8dp"
+                        android:text="@{viewModel.getPhone()}" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/account_screen_address"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold">
+
+                    </TextView>
+
+                    <EditText
+                        android:id="@+id/etAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onAddressTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="text"
+                        android:padding="8dp"
+                        android:text="@{viewModel.getAddress()}" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24sp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="@string/account_screen_city"
+                                android:textColor="@color/colorPrimary"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+
+                            </TextView>
+
+
+                            <EditText
+                                android:id="@+id/etCity"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:afterTextChanged="@{(editable)->viewModel.onCityTextChanged(editable)}"
+                                android:background="@drawable/rounded_border_edit_text"
+                                android:inputType="text"
+                                android:padding="8dp"
+                                android:text="@{viewModel.getCity()}" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="@string/account_screen_state"
+                                android:textColor="@color/colorPrimary"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+
+                            </TextView>
+
+                            <EditText
+                                android:id="@+id/etState"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:afterTextChanged="@{(editable)->viewModel.onStateTextChanged(editable)}"
+                                android:background="@drawable/rounded_border_edit_text"
+                                android:inputType="text"
+                                android:padding="8dp"
+                                android:text="@{viewModel.getState()}" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginBottom="24sp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="12dp"
+                            android:layout_weight="1"
+
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="@string/account_screen_oostal_code"
+                                android:textColor="@color/colorPrimary"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+
+                            </TextView>
+
+                            <EditText
+                                android:id="@+id/etPostalCode"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:afterTextChanged="@{(editable)->viewModel.onPostalCodeTextChanged(editable)}"
+                                android:background="@drawable/rounded_border_edit_text"
+                                android:inputType="text"
+                                android:padding="8dp"
+                                android:text="@{viewModel.getPostalCode()}" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="@string/account_screen_country"
+                                android:textColor="@color/colorPrimary"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+
+                            </TextView>
+
+                            <EditText
+                                android:id="@+id/etCountry"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:afterTextChanged="@{(editable)->viewModel.onCountryTextChanged(editable)}"
+                                android:background="@drawable/rounded_border_edit_text"
+                                android:inputType="text"
+                                android:padding="8dp"
+                                android:text="@{viewModel.getCountry()}" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/save_button"
+                        android:textAllCaps="false"
+                        android:textSize="16sp">
+
+                    </Button>
+                </LinearLayout>
+            </RelativeLayout>
+        </ScrollView>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}" />
+
+    </RelativeLayout>
+</layout>
