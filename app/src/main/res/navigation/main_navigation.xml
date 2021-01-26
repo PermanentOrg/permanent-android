@@ -76,4 +76,10 @@
         android:name="org.permanent.permanent.ui.members.MembersFragment"
         android:label="@string/main_navigation_members"
         tools:layout="@layout/fragment_members"/>
+
+    <fragment
+        android:id="@+id/activityFeedFragment"
+        android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
+        android:label="@string/menu_drawer_activity_feed"
+        tools:layout="@layout/fragment_activity_feed"/>
 </navigation>

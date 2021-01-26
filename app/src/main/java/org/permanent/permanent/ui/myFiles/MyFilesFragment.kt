@@ -187,11 +187,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = recordsAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL)
-            )
+            addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         }
     }
 
