@@ -69,7 +69,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         val topLevelDestinations = setOf(
             R.id.myFilesFragment,
             R.id.sharesFragment,
-            R.id.membersFragment
+            R.id.membersFragment,
+            R.id.activityFeedFragment
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)

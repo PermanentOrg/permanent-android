@@ -68,6 +68,7 @@
     <string name="menu_drawer_public">Public</string>
     <string name="menu_drawer_relationships">Relationships</string>
     <string name="menu_drawer_members">Members</string>
+    <string name="menu_drawer_activity_feed">Activity Feed</string>
     <string name="menu_drawer_apps">Apps</string>
     <string name="menu_toolbar_settings_text">ProfileMenu</string>
     <string name="menu_settings_drawer_storage">Add Storage</string>

@@ -37,6 +37,7 @@ class NetworkClient(context: Context) {
     private val fileService: IFileService
     private val shareService: IShareService
     private val memberService: IMemberService
+    private val notificationService: INotificationService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
     private val uploadUrl = if (Constants.BUILD_ENV === BuildEnvOption.STAGING)
@@ -69,6 +70,7 @@ class NetworkClient(context: Context) {
         fileService = retrofit.create(IFileService::class.java)
         shareService = retrofit.create(IShareService::class.java)
         memberService = retrofit.create(IMemberService::class.java)
+        notificationService = retrofit.create(INotificationService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
     }
 
@@ -304,6 +306,12 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr).addAccount(id, email))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return memberService.deleteMember(requestBody)
+    }
+
+    fun getNotifications(): Call<ResponseVO> {
+        val request = toJson(RequestContainer(""))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return notificationService.getNotifications(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

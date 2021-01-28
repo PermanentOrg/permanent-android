@@ -11,4 +11,5 @@ class Datum {
     var SimpleVO: SimpleVO? = null
     var ShareVO: ShareVO? = null
     var Shareby_urlVO: Shareby_urlVO? = null
+    var NotificationVO: NotificationVO? = null
 }

@@ -7,14 +7,14 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.*
 
+const val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
+const val PERM_API_KEY_MOBILE_PROD = "5aef7dd1f32e0d9ca57290e3c82b59db"
+
 class RequestContainer(csrf: String?) {
     // Don't rename this property, is used in the api call
     private var RequestVO: RequestVO = RequestVO()
 
     init {
-        val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
-        val PERM_API_KEY_MOBILE_PROD = "5aef7dd1f32e0d9ca57290e3c82b59db"
-
         if (Constants.BUILD_ENV === BuildEnvOption.STAGING) {
             RequestVO.apiKey = PERM_API_KEY_MOBILE_STAGING
         } else {
