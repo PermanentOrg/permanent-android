@@ -79,7 +79,7 @@
             android:orientation="horizontal"
             android:padding="4dp"
             android:visibility="@{isPending ? View.VISIBLE : View.GONE}"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvRelationship"
             tools:visibility="visible">
 
@@ -89,10 +89,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorPrimary"
-                android:text="@string/item_archive_accept"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:text="@string/item_archive_accept" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeny"
@@ -100,10 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/deepRed"
-                android:text="@string/item_archive_deny"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:text="@string/item_archive_deny" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
