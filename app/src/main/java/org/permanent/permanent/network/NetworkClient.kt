@@ -20,6 +20,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.ui.invitations.UpdateType
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
@@ -38,6 +39,7 @@ class NetworkClient(context: Context) {
     private val shareService: IShareService
     private val memberService: IMemberService
     private val notificationService: INotificationService
+    private val invitationService: IInvitationService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
     private val uploadUrl = if (Constants.BUILD_ENV === BuildEnvOption.STAGING)
@@ -71,6 +73,7 @@ class NetworkClient(context: Context) {
         shareService = retrofit.create(IShareService::class.java)
         memberService = retrofit.create(IMemberService::class.java)
         notificationService = retrofit.create(INotificationService::class.java)
+        invitationService = retrofit.create(IInvitationService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
     }
 
@@ -312,6 +315,28 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(""))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return notificationService.getNotifications(requestBody)
+    }
+
+    fun getInvitations(): Call<ResponseVO> {
+        val request = toJson(RequestContainer(""))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return invitationService.getInvitations(requestBody)
+    }
+
+    fun sendInvitation(csrf: String?, fullName: String, email: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addInvite(fullName, email))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return invitationService.sendInvitation(requestBody)
+    }
+
+    fun updateInvitation(csrf: String?, inviteId: Int, updateType: UpdateType): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addInvite(inviteId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return if (updateType == UpdateType.REVOKE) {
+            invitationService.revokeInvitation(requestBody)
+        } else {
+            invitationService.resendInvitation(requestBody)
+        }
     }
 
     private fun toJson(container: RequestContainer): String {

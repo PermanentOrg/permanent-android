@@ -82,4 +82,10 @@
         android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
         android:label="@string/menu_drawer_activity_feed"
         tools:layout="@layout/fragment_activity_feed"/>
+
+    <fragment
+        android:id="@+id/invitationsFragment"
+        android:name="org.permanent.permanent.ui.invitations.InvitationsFragment"
+        android:label="@string/menu_drawer_invitations"
+        tools:layout="@layout/fragment_invitations"/>
 </navigation>

@@ -41,7 +41,7 @@ class ActivityFeedFragment : PermanentBaseFragment(), NotificationListener {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    private val onSharedArchivesRetrieved = Observer<MutableList<Notification>> {
+    private val onNotificationsRetrieved = Observer<MutableList<Notification>> {
         notificationsAdapter.set(it)
     }
 
@@ -61,12 +61,12 @@ class ActivityFeedFragment : PermanentBaseFragment(), NotificationListener {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
-        viewModel.getOnNotificationsRetrieved().observe(this, onSharedArchivesRetrieved)
+        viewModel.getOnNotificationsRetrieved().observe(this, onNotificationsRetrieved)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
-        viewModel.getOnNotificationsRetrieved().removeObserver(onSharedArchivesRetrieved)
+        viewModel.getOnNotificationsRetrieved().removeObserver(onNotificationsRetrieved)
     }
 
     override fun onResume() {
