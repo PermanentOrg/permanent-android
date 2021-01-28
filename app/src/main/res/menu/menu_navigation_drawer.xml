@@ -39,6 +39,11 @@
             android:icon="@drawable/ic_notification_bell_white"
             android:title="@string/menu_drawer_activity_feed" />
 
+        <item
+            android:id="@+id/invitationsFragment"
+            android:icon="@drawable/ic_mail_invitations_white"
+            android:title="@string/menu_drawer_invitations" />
+
 <!--        <item-->
 <!--            android:id="@+id/AppsFragment"-->
 <!--            android:icon="@drawable/ic_members_white"-->

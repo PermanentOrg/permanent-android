@@ -208,4 +208,19 @@ class RequestContainer(csrf: String?) {
         RequestVO.data?.get(0)?.ArchiveVO = archiveVO
         return this
     }
+
+    fun addInvite(fullName: String, email: String): RequestContainer {
+        val inviteVO = InviteVO()
+        inviteVO.fullName = fullName
+        inviteVO.email = email
+        RequestVO.data?.get(0)?.InviteVO = inviteVO
+        return this
+    }
+
+    fun addInvite(inviteId: Int): RequestContainer {
+        val inviteVO = InviteVO()
+        inviteVO.inviteId = inviteId
+        RequestVO.data?.get(0)?.InviteVO = inviteVO
+        return this
+    }
 }
