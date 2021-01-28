@@ -39,6 +39,7 @@
     <string name="password_empty_error">Password can not be empty</string>
     <string name="login_password_error">Please enter your password</string>
     <string name="invalid_email_error">Please enter a valid email address</string>
+    <string name="invalid_name_error">Please enter a valid recipient name</string>
     <string name="invalid_access_level_error">Please select an access level</string>
     <string name="invalid_folder_name_error">Please enter a valid folder name</string>
     <string name="two_step_verification_add_later_message">You can always add this later</string>
@@ -68,6 +69,8 @@
     <string name="menu_drawer_public">Public</string>
     <string name="menu_drawer_relationships">Relationships</string>
     <string name="menu_drawer_members">Members</string>
+    <string name="menu_drawer_activity_feed">Activity Feed</string>
+    <string name="menu_drawer_invitations">Invitations</string>
     <string name="menu_drawer_apps">Apps</string>
     <string name="menu_toolbar_settings_text">ProfileMenu</string>
     <string name="menu_settings_drawer_storage">Add Storage</string>
@@ -136,6 +139,7 @@
     <string name="relocation_success">%s %s successfully.</string>
     <string name="relocation_type_copied">copied</string>
     <string name="relocation_type_moved">moved</string>
+
     <string name="share_link_get_share_link_button">Get share link</string>
     <string name="share_link_copy_link_button">Copy Link</string>
     <string name="share_link_advanced_options_button">Advanced Options</string>
@@ -157,6 +161,7 @@
     <string name="save_button">Save</string>
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
+
     <string name="members_owner">Owner</string>
     <string name="members_managers">Managers</string>
     <string name="members_curators">Curators</string>
@@ -180,16 +185,31 @@
     <string name="members_member_removed_successfully">Member removed successfully</string>
     <string name="members_edit_member_title">Edit Member</string>
     <string name="members_remove_button">Remove</string>
+
     <string name="share_preview_request_access_button">Request Access</string>
     <string name="share_preview_view_in_archive_button">View in Archive</string>
     <string name="ok_button">OK</string>
     <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>
+
+    <string name="invitations_title">Give a gig, get a gig</string>
+    <string name="invitations_description">Invite your friends and family and both of your accounts will be credited with one free gigabyte of storage when they sign up.</string>
+    <string name="invitations_send_new_invite_button">Send New Invite</string>
+    <string name="invitations_your_invitations">Your Invitations</string>
+    <string name="invitations_resend_button">Resend</string>
+    <string name="invitations_revoke_button">Revoke</string>
+    <string name="invitations_update_type_sent">sent</string>
+    <string name="invitations_update_type_resent">resent</string>
+    <string name="invitations_update_type_revoked">revoked</string>
+    <string name="invitations_update_success">Invitation was %s successfully.</string>
+    <string name="invitation_send_invitation_title">Send Invitation</string>
+    <string name="send_button">Send</string>
+    <string name="invitations_name_hint">Recipient name</string>
+    <string name="invitations_email_hint">Recipient email</string>
     <string name="security_screen_current_password_hint">Current Password</string>
     <string name="security_screen_new_password_hint">New Password</string>
     <string name="security_screen_retype_password_hint">Re-type Password</string>
     <string name="security_screen_update_password">Update Password</string>
     <string name="security_screen_log_in_with_biometrics">Log in with biometrics?</string>
-
 
     <string name="account_screen_account_name">Account Name</string>
     <string name="account_screen_primary_email">Primary Email</string>

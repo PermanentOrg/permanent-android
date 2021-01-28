@@ -5,12 +5,22 @@ import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Notification
 import org.permanent.permanent.models.RecordType
 
 
 @BindingAdapter("imageResourceId")
 fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
     view.setImageResource(imageDrawableId)
+}
+
+@BindingAdapter("notificationTypeIcon")
+fun setIconDrawable(view: ImageView, notificationType: Notification.Type) {
+    when (notificationType) {
+        Notification.Type.SHARE -> view.setImageResource(R.drawable.ic_notification_folder_shared_tangerine)
+        Notification.Type.RELATIONSHIP -> view.setImageResource(R.drawable.ic_notification_group_deep_red)
+        else -> view.setImageResource(R.drawable.ic_notification_account_blue)
+    }
 }
 
 @BindingAdapter("fileType", "imageUrl")

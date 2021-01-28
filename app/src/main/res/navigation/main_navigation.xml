@@ -78,6 +78,18 @@
         tools:layout="@layout/fragment_members"/>
 
     <fragment
+        android:id="@+id/activityFeedFragment"
+        android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
+        android:label="@string/menu_drawer_activity_feed"
+        tools:layout="@layout/fragment_activity_feed"/>
+
+    <fragment
+        android:id="@+id/invitationsFragment"
+        android:name="org.permanent.permanent.ui.invitations.InvitationsFragment"
+        android:label="@string/menu_drawer_invitations"
+        tools:layout="@layout/fragment_invitations"/>
+
+    <fragment
         android:id="@+id/securitySettingsFragment"
         android:name="org.permanent.permanent.ui.settings.SecuritySettingsFragment"
         android:label="@string/main_navigation_security_settings"
@@ -88,5 +100,4 @@
         android:name="org.permanent.permanent.ui.settings.AccountSettingsFragment"
         android:label="@string/main_navigation_account_settings"
         tools:layout="@layout/fragment_account_settings"/>
-
 </navigation>
