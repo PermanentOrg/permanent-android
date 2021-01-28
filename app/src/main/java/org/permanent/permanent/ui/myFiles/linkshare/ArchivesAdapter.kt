@@ -7,7 +7,8 @@ import org.permanent.permanent.databinding.ItemArchiveBinding
 import org.permanent.permanent.models.Share
 
 class ArchivesAdapter(shares: List<Share>?) : RecyclerView.Adapter<ArchiveViewHolder>() {
-    private var archives: MutableList<Share> = shares?.let { ArrayList(it.toMutableList()) } ?: ArrayList()
+    private var archives: MutableList<Share> =
+        shares?.let { ArrayList(it.toMutableList()) } ?: ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArchiveViewHolder {
         val binding = ItemArchiveBinding.inflate(
@@ -21,6 +22,7 @@ class ArchivesAdapter(shares: List<Share>?) : RecyclerView.Adapter<ArchiveViewHo
     override fun getItemCount() = archives.size
 
     override fun onBindViewHolder(holder: ArchiveViewHolder, position: Int) {
-        archives[position].archive?.let { holder.bind(it) }
+       val status = archives[position].status
+        archives[position].archive?.let { holder.bind(it, status) }
     }
 }

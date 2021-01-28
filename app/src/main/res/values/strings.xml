@@ -199,4 +199,7 @@
     <string name="account_screen_state">State or region</string>
     <string name="account_screen_oostal_code">Postal code</string>
     <string name="account_screen_country">Country</string>
+
+    <string name="item_archive_accept">Accept</string>
+    <string name="item_archive_deny">Deny</string>
 </resources>
