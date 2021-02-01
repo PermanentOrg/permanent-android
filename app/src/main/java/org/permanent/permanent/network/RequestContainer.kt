@@ -2,9 +2,7 @@ package org.permanent.permanent.network
 
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
-import org.permanent.permanent.models.AccessRole
-import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
 
 const val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
@@ -182,15 +180,7 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addShareByUrl(shareVO: Shareby_urlVO): RequestContainer {
-        val shareByUrlVO = Shareby_urlVO()
-        shareByUrlVO.shareby_urlId = shareVO.shareby_urlId
-        shareByUrlVO.autoApproveToggle = shareVO.autoApproveToggle
-        shareByUrlVO.previewToggle = shareVO.previewToggle
-        shareByUrlVO.expiresDT = shareVO.expiresDT
-        shareByUrlVO.maxUses = shareVO.maxUses
-        shareByUrlVO.byAccountId = shareVO.byAccountId
-        shareByUrlVO.byArchiveId = shareVO.byArchiveId
+    fun addShareByUrl(shareByUrlVO: Shareby_urlVO): RequestContainer {
         RequestVO.data?.get(0)?.Shareby_urlVO = shareByUrlVO
         return this
     }
@@ -199,6 +189,13 @@ class RequestContainer(csrf: String?) {
         val shareByUrlVO = Shareby_urlVO()
         shareByUrlVO.urlToken = urlToken
         RequestVO.data?.get(0)?.Shareby_urlVO = shareByUrlVO
+        return this
+    }
+
+    fun addShare(share: Share): RequestContainer {
+        val shareVO = ShareVO(share)
+        shareVO.status = Status.OK.toBackendString()
+        RequestVO.data?.get(0)?.ShareVO = shareVO
         return this
     }
 

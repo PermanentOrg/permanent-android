@@ -7,22 +7,22 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.permanent.databinding.FragmentSecuritySettingsBinding
+import org.permanent.permanent.databinding.FragmentAccountInfoBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.viewmodels.SecuritySettingsViewModel
+import org.permanent.permanent.viewmodels.AccountSettingsViewModel
 
 
-class SecuritySettingsFragment : PermanentBaseFragment() {
+class AccountInfoFragment : PermanentBaseFragment() {
 
-    private lateinit var viewModel: SecuritySettingsViewModel
+    private lateinit var viewModel: AccountSettingsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(SecuritySettingsViewModel::class.java)
-        val binding = FragmentSecuritySettingsBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(AccountSettingsViewModel::class.java)
+        val binding = FragmentAccountInfoBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

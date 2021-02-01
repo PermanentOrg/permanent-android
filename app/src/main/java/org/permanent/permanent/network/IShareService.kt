@@ -8,6 +8,7 @@ import retrofit2.http.POST
 
 interface IShareService {
 
+    // RECORD SHARE LINK
     @POST("share/getLink")
     fun getShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
 
@@ -20,12 +21,20 @@ interface IShareService {
     @POST("share/dropShareLink")
     fun deleteShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("share/upsert")
+    fun approveShare(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("share/delete")
+    fun denyShare(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    // SHARE PREVIEW
     @POST("share/checkShareLink")
     fun checkShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @POST("share/requestShareAccess")
     fun requestShareAccess(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    // SHARES
     @POST("share/getShares")
     fun getShares(@Body requestBody: RequestBody): Call<ResponseVO>
 }

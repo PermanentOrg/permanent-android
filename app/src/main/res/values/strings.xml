@@ -84,8 +84,8 @@
     <string name="main_navigation_my_files">My Files</string>
     <string name="main_navigation_shares">Shares</string>
     <string name="main_navigation_members">Members</string>
-    <string name="main_navigation_security_settings">Security Settings</string>
-    <string name="main_navigation_account_settings">Account Settings</string>
+    <string name="main_navigation_account_info">Account Info</string>
+    <string name="main_navigation_security">Security</string>
     <string name="main_navigation_share_link">Share Link</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
@@ -158,6 +158,9 @@
     <string name="share_link_max_uses_message">This link will disappear after the max number of uses has been reached.</string>
     <string name="share_link_expiration_date">Expiration date (optional)</string>
     <string name="share_link_expiration_date_message">This link will disappear after the expiration date has been reached.</string>
+    <string name="share_link_share_update_success">Share was %s successfully</string>
+    <string name="share_link_share_update_type_approved">approved</string>
+    <string name="share_link_share_update_type_denied">denied</string>
     <string name="save_button">Save</string>
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
@@ -200,7 +203,7 @@
     <string name="invitations_update_type_sent">sent</string>
     <string name="invitations_update_type_resent">resent</string>
     <string name="invitations_update_type_revoked">revoked</string>
-    <string name="invitations_update_success">Invitation was %s successfully.</string>
+    <string name="invitations_update_success">Invitation was %s successfully</string>
     <string name="invitation_send_invitation_title">Send Invitation</string>
     <string name="send_button">Send</string>
     <string name="invitations_name_hint">Recipient name</string>
@@ -220,6 +223,6 @@
     <string name="account_screen_oostal_code">Postal code</string>
     <string name="account_screen_country">Country</string>
 
-    <string name="item_archive_accept">Accept</string>
+    <string name="item_archive_approve">Approve</string>
     <string name="item_archive_deny">Deny</string>
 </resources>

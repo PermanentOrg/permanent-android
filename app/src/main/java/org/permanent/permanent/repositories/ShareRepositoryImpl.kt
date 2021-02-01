@@ -3,6 +3,7 @@ package org.permanent.permanent.repositories
 import android.content.Context
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
@@ -55,6 +56,48 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(responseVO.getMessages()?.get(0))
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun approveShare(share: Share, listener: IResponseListener) {
+        networkClient.approveShare(prefsHelper.getCsrf(), share)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(
+                            R.string.share_link_share_update_success,
+                            context.getString(R.string.share_link_share_update_type_approved)))
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun denyShare(share: Share, listener: IResponseListener) {
+        networkClient.denyShare(prefsHelper.getCsrf(), share)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(
+                            R.string.share_link_share_update_success,
+                            context.getString(R.string.share_link_share_update_type_denied)))
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }

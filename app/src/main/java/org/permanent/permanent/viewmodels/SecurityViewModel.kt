@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 
-class SecuritySettingsViewModel(application: Application) :
+class SecurityViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
     private val isBusy = MutableLiveData<Boolean>()
     private val errorMessage = MutableLiveData<String>()

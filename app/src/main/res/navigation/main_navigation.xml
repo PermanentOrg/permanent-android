@@ -89,15 +89,15 @@
         android:label="@string/menu_drawer_invitations"
         tools:layout="@layout/fragment_invitations"/>
 
-    <fragment
-        android:id="@+id/securitySettingsFragment"
-        android:name="org.permanent.permanent.ui.settings.SecuritySettingsFragment"
-        android:label="@string/main_navigation_security_settings"
-        tools:layout="@layout/fragment_security_settings"/>
+<!--    <fragment-->
+<!--        android:id="@+id/accountInfoFragment"-->
+<!--        android:name="org.permanent.permanent.ui.settings.AccountInfoFragment"-->
+<!--        android:label="@string/main_navigation_account_info"-->
+<!--        tools:layout="@layout/fragment_account_info"/>-->
 
-    <fragment
-        android:id="@+id/accountSettingsFragment"
-        android:name="org.permanent.permanent.ui.settings.AccountSettingsFragment"
-        android:label="@string/main_navigation_account_settings"
-        tools:layout="@layout/fragment_account_settings"/>
+<!--    <fragment-->
+<!--        android:id="@+id/securityFragment"-->
+<!--        android:name="org.permanent.permanent.ui.settings.SecurityFragment"-->
+<!--        android:label="@string/main_navigation_security"-->
+<!--        tools:layout="@layout/fragment_security"/>-->
 </navigation>

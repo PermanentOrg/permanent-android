@@ -1,6 +1,7 @@
 package org.permanent.permanent.repositories
 
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
@@ -9,6 +10,7 @@ import org.permanent.permanent.network.models.Shareby_urlVO
 
 interface IShareRepository {
 
+    // RECORD SHARE LINK
     fun requestShareLink(
         record: Record,
         shareRequestType: ShareRequestType,
@@ -21,10 +23,16 @@ interface IShareRepository {
         listener: IResponseListener
     )
 
+    fun approveShare(share: Share, listener: IResponseListener)
+
+    fun denyShare(share: Share, listener: IResponseListener)
+
+    // SHARE PREVIEW
     fun checkShareLink(urlToken: String, listener: IShareByUrlListener)
 
     fun requestShareAccess(urlToken: String, listener: IShareListener)
 
+    // SHARES
     fun getShares(listener: IDataListener)
 
     interface IShareByUrlListener {
