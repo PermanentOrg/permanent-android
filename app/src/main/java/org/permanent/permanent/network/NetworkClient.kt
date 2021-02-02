@@ -18,6 +18,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.invitations.UpdateType
@@ -261,6 +262,18 @@ class NetworkClient(context: Context) {
         } else {
             shareService.updateShareLink(requestBody)
         }
+    }
+
+    fun approveShare(csrf: String?, share: Share): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addShare(share))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return shareService.approveShare(requestBody)
+    }
+
+    fun denyShare(csrf: String?, share: Share): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addShare(share))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return shareService.denyShare(requestBody)
     }
 
     fun checkShareLink(csrf: String?, urlToken: String): Call<ResponseVO> {

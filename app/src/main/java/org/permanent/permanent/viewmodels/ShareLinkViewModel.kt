@@ -8,15 +8,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.ShareByUrl
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
+import org.permanent.permanent.ui.myFiles.linkshare.ShareListener
 
 
-class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class ShareLinkViewModel(application: Application
+) : ObservableAndroidViewModel(application), ShareListener {
 
     private val appContext = application.applicationContext
     private lateinit var record: Record
@@ -24,19 +28,20 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
     private val existsLink = MutableLiveData(false)
     private var shareByUrlVO: Shareby_urlVO? = null
     private val sharableLink = MutableLiveData<String>()
-    private val existsArchives = MutableLiveData(false)
+    private val existsShares = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private val showSnackBar = MutableLiveData<String>()
-    private val onRevokeLinkRequest = MutableLiveData<Void>()
     private val onManageLinkRequest = MutableLiveData<ShareByUrl>()
+    private val onRevokeLinkRequest = MutableLiveData<Void>()
+    private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     fun setRecord(record: Record) {
         this.record = record
         recordName.value = record.displayName
         checkForExistingLink(record)
-        existsArchives.value = !record.shares.isNullOrEmpty()
+        existsShares.value = !record.shares.isNullOrEmpty()
     }
 
     private fun checkForExistingLink(record: Record) {
@@ -76,7 +81,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
     }
 
     fun getExistsArchives(): MutableLiveData<Boolean> {
-        return existsArchives
+        return existsShares
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
@@ -97,6 +102,10 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun getOnRevokeLinkRequest(): LiveData<Void> {
         return onRevokeLinkRequest
+    }
+
+    fun getOnShareDenied(): MutableLiveData<Share> {
+        return onShareDenied
     }
 
     fun onGetLinkBtnClick() {
@@ -160,5 +169,47 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
                 }
             })
         }
+    }
+
+    override fun onApproveClick(share: Share) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        shareRepository.approveShare(share, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                showMessage.value = message
+                share.status.value = Status.OK // This hides the Approve and Deny buttons
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    override fun onDenyClick(share: Share) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        shareRepository.denyShare(share, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                showMessage.value = message
+                onShareDenied.value = share // Removes share from adapter
+                record.shares?.remove(share)
+                existsShares.value = !record.shares.isNullOrEmpty()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 }

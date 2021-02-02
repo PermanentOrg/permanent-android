@@ -72,6 +72,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.membersFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment
+//            R.id.accountInfoFragment,
+//            R.id.securityFragment
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)

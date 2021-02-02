@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group
         android:id="@+id/group1"
@@ -48,10 +47,21 @@
 <!--            android:id="@+id/AppsFragment"-->
 <!--            android:icon="@drawable/ic_members_white"-->
 <!--            android:title="@string/menu_drawer_apps" />-->
+
         <item
             android:id="@+id/storage"
             android:icon="@drawable/ic_storage_white"
             android:title="@string/menu_settings_drawer_storage" />
+
+<!--        <item-->
+<!--            android:id="@+id/accountInfoFragment"-->
+<!--            android:icon="@drawable/ic_person_white"-->
+<!--            android:title="@string/main_navigation_account_info" />-->
+
+<!--        <item-->
+<!--            android:id="@+id/securityFragment"-->
+<!--            android:icon="@drawable/ic_security_white"-->
+<!--            android:title="@string/menu_settings_drawer_security" />-->
 
         <item
             android:id="@+id/logout"

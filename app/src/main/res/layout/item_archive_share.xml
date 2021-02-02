@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="org.permanent.permanent.models.Status" />
+
+        <variable
+            name="share"
+            type="org.permanent.permanent.models.Share" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <ImageView
+            android:id="@+id/ivArchiveImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            app:imageUrl="@{share.archive.thumbURL500}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvFullName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="16dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{share.archive.fullName}"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivArchiveImage"
+            app:layout_constraintTop_toTopOf="@+id/ivArchiveImage" />
+
+        <TextView
+            android:id="@+id/tvRelationship"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="16dp"
+            android:text="Friend"
+            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivArchiveImage" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApprove"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="112dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/open_sans_bold"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/item_archive_approve"
+            android:textSize="18sp"
+            android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivArchiveImage" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDeny"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="112dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/deepRed"
+            android:fontFamily="@font/open_sans_bold"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/item_archive_deny"
+            android:textSize="18sp"
+            android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/btnApprove"
+            app:layout_constraintTop_toBottomOf="@+id/ivArchiveImage" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

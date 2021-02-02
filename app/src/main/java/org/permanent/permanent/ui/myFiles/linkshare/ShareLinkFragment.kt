@@ -2,17 +2,16 @@ package org.permanent.permanent.ui.myFiles.linkshare
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -20,6 +19,7 @@ import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentShareLinkBinding
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
@@ -31,8 +31,8 @@ class ShareLinkFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: ShareLinkViewModel
     private lateinit var binding: FragmentShareLinkBinding
-    private lateinit var archivesRecyclerView: RecyclerView
-    private lateinit var archivesAdapter: ArchivesAdapter
+    private lateinit var sharesRecyclerView: RecyclerView
+    private lateinit var sharesAdapter: SharesAdapter
     private var record: Record? = null
 
     override fun onCreateView(
@@ -54,12 +54,13 @@ class ShareLinkFragment : PermanentBaseFragment() {
     }
 
     private fun initArchivesRecyclerView(rvArchives: RecyclerView, record: Record) {
-        archivesRecyclerView = rvArchives
-        archivesAdapter = ArchivesAdapter(record.shares)
-        archivesRecyclerView.apply {
+        sharesRecyclerView = rvArchives
+        sharesAdapter = SharesAdapter(this, record.shares, viewModel)
+        sharesRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
-            adapter = archivesAdapter
+            adapter = sharesAdapter
+            addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         }
     }
 
@@ -98,11 +99,16 @@ class ShareLinkFragment : PermanentBaseFragment() {
         alert.show()
     }
 
+    private val onShareDenied = Observer<Share> {
+        sharesAdapter.remove(it)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowSnackBar().observe(this, onShowSnackBar)
         viewModel.getOnManageLinkRequest().observe(this, onManageLinkRequest)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
+        viewModel.getOnShareDenied().observe(this, onShareDenied)
     }
 
     override fun disconnectViewModelEvents() {
@@ -110,6 +116,7 @@ class ShareLinkFragment : PermanentBaseFragment() {
         viewModel.getShowSnackBar().removeObserver(onShowSnackBar)
         viewModel.getOnManageLinkRequest().removeObserver(onManageLinkRequest)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
+        viewModel.getOnShareDenied().removeObserver(onShareDenied)
     }
 
     override fun onResume() {

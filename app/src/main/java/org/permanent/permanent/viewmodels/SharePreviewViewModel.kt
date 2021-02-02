@@ -101,7 +101,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                 if (shareVO != null) {
                     val share = Share(shareVO)
 
-                    if (share.status == Status.PENDING) {
+                    if (share.status.value == Status.PENDING) {
                         // Showing 'Awaiting for Access' text
                         currentState.value = PreviewState.AWAITING_ACCESS
                     } else { // Showing 'View in Archive' button
@@ -130,7 +130,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         shareRepository.requestShareAccess(urlToken, object : IShareRepository.IShareListener {
             override fun onSuccess(shareVO: ShareVO?) {
                 isBusy.value = false
-                if (shareVO != null && Share(shareVO).status == Status.OK) {
+                if (shareVO != null && Share(shareVO).status.value == Status.OK) {
                     currentState.value = PreviewState.ACCESS_GRANTED
                 } else {
                     currentState.value = PreviewState.AWAITING_ACCESS
