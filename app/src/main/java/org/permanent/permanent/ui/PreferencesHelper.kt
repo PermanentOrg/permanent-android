@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 const val PREFS_NAME = "permanent_preferences"
 const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
+const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val PREFS_USER_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_USER_EMAIL = "preferences_user_email"
@@ -40,6 +41,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isUserLoggedIn(): Boolean {
         return sharedPreferences.getBoolean(IS_USER_LOGGED_IN, false)
+    }
+
+    fun saveBiometricsLogIn(isBiometricsLogIn: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_BIOMETRICS_LOG_IN, isBiometricsLogIn)
+            apply()
+        }
+    }
+
+    fun isBiometricsLogIn(): Boolean {
+        return sharedPreferences.getBoolean(IS_BIOMETRICS_LOG_IN, true)
     }
 
     fun saveUserAccountId(id: Int?) {

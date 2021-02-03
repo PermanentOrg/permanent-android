@@ -1,15 +1,11 @@
 package org.permanent.permanent.ui
 
+import android.app.Activity
 import android.content.Context
-import java.io.IOException
+import android.os.IBinder
+import android.view.inputmethod.InputMethodManager
 
-@Throws(IOException::class)
-fun Context.readJsonAsset(fileName: String): String {
-    val inputStream = assets.open(fileName)
-    val size = inputStream.available()
-    val buffer = ByteArray(size)
-    inputStream.read(buffer)
-    inputStream.close()
-
-    return String(buffer, Charsets.UTF_8)
+fun Context.hideKeyboardFrom(windowToken: IBinder) {
+    val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
 }

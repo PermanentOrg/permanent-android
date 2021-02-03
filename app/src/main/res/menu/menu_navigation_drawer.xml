@@ -7,7 +7,7 @@
         <item
             android:id="@+id/myFilesFragment"
             android:icon="@drawable/ic_folder_white"
-            android:title="@string/menu_drawer_myfiles" />
+            android:title="@string/menu_drawer_my_files" />
 
         <item
             android:id="@+id/sharesFragment"
@@ -58,10 +58,10 @@
 <!--            android:icon="@drawable/ic_person_white"-->
 <!--            android:title="@string/main_navigation_account_info" />-->
 
-<!--        <item-->
-<!--            android:id="@+id/securityFragment"-->
-<!--            android:icon="@drawable/ic_security_white"-->
-<!--            android:title="@string/menu_settings_drawer_security" />-->
+        <item
+            android:id="@+id/securityFragment"
+            android:icon="@drawable/ic_security_white"
+            android:title="@string/menu_settings_drawer_security" />
 
         <item
             android:id="@+id/logout"

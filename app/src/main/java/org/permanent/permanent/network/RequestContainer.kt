@@ -73,6 +73,13 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addAccount(id: Int): RequestContainer {
+        val accountVO = AccountVO()
+        accountVO.accountId = id
+        RequestVO.data?.get(0)?.AccountVO = accountVO
+        return this
+    }
+
     fun addAccountPassword(password: String): RequestContainer {
         val accountPassword = AccountPasswordVO()
         accountPassword.password = password
@@ -83,6 +90,13 @@ class RequestContainer(csrf: String?) {
     fun addAccountPassword(password: String, passwordVerify: String): RequestContainer {
         addAccountPassword(password)
         RequestVO.data?.get(0)?.AccountPasswordVO?.passwordVerify = passwordVerify
+        return this
+    }
+
+    fun addAccountPassword(currentPassword: String, newPassword: String, retypedPassword: String
+    ): RequestContainer {
+        addAccountPassword(newPassword, retypedPassword)
+        RequestVO.data?.get(0)?.AccountPasswordVO?.passwordOld = currentPassword
         return this
     }
 

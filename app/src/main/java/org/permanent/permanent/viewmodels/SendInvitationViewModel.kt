@@ -67,6 +67,7 @@ class SendInvitationViewModel(application: Application) : ObservableAndroidViewM
         if (email != null && name != null) {
             isBusy.value = true
             invitationRepository.sendInvitation(name, email, object : IResponseListener {
+
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     showSnackbar.value = message

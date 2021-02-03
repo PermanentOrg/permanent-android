@@ -37,8 +37,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private val onLoggedOut = Observer<Void> {
         prefsHelper.saveUserLoggedIn(false)
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
+        prefsHelper.saveBiometricsLogIn(true) // Setting back to default
+        startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
     private val onErrorMessage = Observer<String> { errorMessage ->
@@ -71,9 +71,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.sharesFragment,
             R.id.membersFragment,
             R.id.activityFeedFragment,
-            R.id.invitationsFragment
+            R.id.invitationsFragment,
 //            R.id.accountInfoFragment,
-//            R.id.securityFragment
+            R.id.securityFragment
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)

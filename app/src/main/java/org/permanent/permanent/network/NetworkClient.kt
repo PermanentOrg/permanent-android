@@ -144,6 +144,19 @@ class NetworkClient(context: Context) {
         return accountService.updatePhone(requestBody)
     }
 
+    fun changePassword(
+        csrf: String?, accountId: Int, currentPassword: String, newPassword: String,
+        retypedPassword: String
+    ): Call<ResponseVO> {
+        val request = toJson(
+            RequestContainer(csrf)
+                .addAccount(accountId)
+                .addAccountPassword(currentPassword, newPassword, retypedPassword))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return accountService.changePassword(requestBody)
+    }
+
     fun getRoot(csrf: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

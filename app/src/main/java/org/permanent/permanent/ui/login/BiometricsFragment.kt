@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui.login
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -13,7 +14,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentBiometricsBinding
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.viewmodels.BiometricsViewModel
 
 class BiometricsFragment : PermanentBaseFragment() {
@@ -22,8 +25,7 @@ class BiometricsFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentBiometricsBinding
 
     private val onNavigateToMainActivity = Observer<Void> {
-        findNavController().navigate(R.id.action_biometricsFragment_to_mainActivity)
-        activity?.finish()
+        navigateToMainActivity()
     }
     private val onNavigateToLoginFragment = Observer<Void> {
         findNavController().navigate(R.id.action_biometricsFragment_to_loginFragment)
@@ -38,9 +40,14 @@ class BiometricsFragment : PermanentBaseFragment() {
         val errorMessage = this.resources.getString(errorId)
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+
+        if (!prefsHelper.isBiometricsLogIn()) navigateToMainActivity()
+
         viewModel = ViewModelProvider(this).get(BiometricsViewModel::class.java)
         viewModel.buildPromptParams(this)
         viewModel.authenticateUser()
@@ -50,13 +57,18 @@ class BiometricsFragment : PermanentBaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentBiometricsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
         return binding.root
+    }
+
+    private fun navigateToMainActivity() {
+        findNavController().navigate(R.id.action_biometricsFragment_to_mainActivity)
+        activity?.finish()
     }
 
     private fun showOpenSettingsQuestionDialog() {
