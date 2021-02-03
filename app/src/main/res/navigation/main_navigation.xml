@@ -95,9 +95,9 @@
 <!--        android:label="@string/main_navigation_account_info"-->
 <!--        tools:layout="@layout/fragment_account_info"/>-->
 
-<!--    <fragment-->
-<!--        android:id="@+id/securityFragment"-->
-<!--        android:name="org.permanent.permanent.ui.settings.SecurityFragment"-->
-<!--        android:label="@string/main_navigation_security"-->
-<!--        tools:layout="@layout/fragment_security"/>-->
+    <fragment
+        android:id="@+id/securityFragment"
+        android:name="org.permanent.permanent.ui.settings.SecurityFragment"
+        android:label="@string/main_navigation_security"
+        tools:layout="@layout/fragment_security"/>
 </navigation>

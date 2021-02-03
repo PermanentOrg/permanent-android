@@ -1,40 +1,57 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.text.Editable
-import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
-class SecurityViewModel(application: Application) :
-    ObservableAndroidViewModel(application) {
+class SecurityViewModel(application: Application) : ObservableAndroidViewModel(application) {
+    private var appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+
     private val isBusy = MutableLiveData<Boolean>()
-    private val errorMessage = MutableLiveData<String>()
-
+    private val showMessage = MutableLiveData<String>()
+    private val onPasswordChanged = SingleLiveEvent<Void>()
     private val currentPassword = MutableLiveData<String>()
     private val newPassword = MutableLiveData<String>()
-    private val retypePassword = MutableLiveData<String>()
-
+    private val retypeNewPassword = MutableLiveData<String>()
+    private val biometricsLogin = MutableLiveData(prefsHelper.isBiometricsLogIn())
+    private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy
     }
 
-    fun getErrorMessage(): LiveData<String> {
-        return errorMessage
+    fun getShowMessage(): LiveData<String> {
+        return showMessage
     }
 
-    fun getCurrentPassword(): MutableLiveData<String>? {
+    fun getOnPasswordChanged(): LiveData<Void> {
+        return onPasswordChanged
+    }
+
+    fun getCurrentPassword(): MutableLiveData<String> {
         return currentPassword
     }
 
-    fun getNewPassword(): MutableLiveData<String>? {
+    fun getNewPassword(): MutableLiveData<String> {
         return newPassword
     }
 
-    fun getRetypePassword(): MutableLiveData<String>? {
-        return retypePassword
+    fun getRetypeNewPassword(): MutableLiveData<String> {
+        return retypeNewPassword
+    }
+
+    fun getBiometricsLogin(): MutableLiveData<Boolean> {
+        return biometricsLogin
     }
 
     fun onCurrentPasswordTextChanged(password: Editable) {
@@ -45,32 +62,55 @@ class SecurityViewModel(application: Application) :
         newPassword.value = password.toString().trim { it <= ' ' }
     }
 
-    fun onRetypePasswordTextChanged(password: Editable) {
-        retypePassword.value = password.toString().trim { it <= ' ' }
+    fun onRetypeNewPasswordTextChanged(password: Editable) {
+        retypeNewPassword.value = password.toString().trim { it <= ' ' }
     }
 
-    fun updatePassword() {
+    fun onBiometricsLoginChanged(checked: Boolean) {
+        biometricsLogin.value = checked
+        prefsHelper.saveBiometricsLogIn(checked)
+    }
+
+    fun onUpdatePasswordClick() {
+        val oldPass = currentPassword.value
+        val newPass = newPassword.value
+        val retypedPass = retypeNewPassword.value
+
+        if (oldPass.isNullOrEmpty()) {
+            showMessage.value = appContext.getString(R.string.invalid_current_password_error)
+            return
+        }
+
+        if (newPass.isNullOrEmpty()) {
+            showMessage.value = appContext.getString(R.string.invalid_new_password_error)
+            return
+        }
+
+        if (retypedPass.isNullOrEmpty()) {
+            showMessage.value = appContext.getString(R.string.invalid_retype_new_password_error)
+            return
+        }
+
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val currentPassword = currentPassword.value
-        val newPassword = newPassword.value
-        val retypedPassword = retypePassword.value
 
-        if (TextUtils.isEmpty(currentPassword)) {
-            errorMessage.value = "Please enter your current password"
-            return
-        }
+        isBusy.value = true
+        accountRepository.changePassword(oldPass, newPass, retypedPass,
+            object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    showMessage.value = message
+                    onPasswordChanged.call()
+                    currentPassword.value = ""
+                    newPassword.value = ""
+                    retypeNewPassword.value = ""
+                }
 
-        if (TextUtils.isEmpty(newPassword)) {
-            errorMessage.value = "Please enter your new password"
-            return
-        }
-
-        if (TextUtils.isEmpty(retypedPassword)) {
-            errorMessage.value = "Please retype your new password"
-            return
-        }
-        //TODO update password
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showMessage.value = error
+                }
+            })
     }
 }

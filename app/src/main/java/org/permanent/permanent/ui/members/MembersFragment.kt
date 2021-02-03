@@ -25,6 +25,7 @@ import org.permanent.permanent.databinding.FragmentMembersBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.viewmodels.AddMemberViewModel
 import org.permanent.permanent.viewmodels.EditMemberViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
@@ -183,7 +184,7 @@ class MembersFragment : PermanentBaseFragment() {
         addDialogBinding.lifecycleOwner = this
         addDialogBinding.viewModel = addDialogViewModel
         addDialogBinding.actvAccessLevel.setOnClickListener {
-            hideKeyboardFrom(addDialogBinding.root.windowToken)
+            context?.hideKeyboardFrom(addDialogBinding.root.windowToken)
         }
         addDialogBinding.actvAccessLevel.setAdapter(accessLevelAdapter)
         addDialogBinding.actvAccessLevel.onItemClickListener =
@@ -217,7 +218,7 @@ class MembersFragment : PermanentBaseFragment() {
         // setAdapter after setText in order to work properly
         editDialogBinding.actvAccessLevel.setAdapter(accessLevelAdapter)
         editDialogBinding.actvAccessLevel.setOnClickListener {
-            hideKeyboardFrom(editDialogBinding.root.windowToken)
+            context?.hideKeyboardFrom(editDialogBinding.root.windowToken)
         }
         editDialogBinding.actvAccessLevel.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
@@ -235,12 +236,6 @@ class MembersFragment : PermanentBaseFragment() {
             }
             alertDialog?.show()
         }
-    }
-
-    private fun hideKeyboardFrom(windowToken: IBinder) {
-        val inputMethodManager = context?.getSystemService(Activity.INPUT_METHOD_SERVICE)
-                as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
     }
 
     private val onMembersUpdated = Observer<Void> {

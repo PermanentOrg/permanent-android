@@ -5,6 +5,7 @@ import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
@@ -76,8 +77,9 @@ class PhoneVerificationViewModel(application: Application) :
             return
         }
         isBusy.value = true
-        accountRepository.update(phone, object : IAccountRepository.IOnPhoneUpdatedListener {
-            override fun onSuccess() {
+        accountRepository.update(phone, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
                 isBusy.value = false
                 sendSMSVerificationCode()
             }

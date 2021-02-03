@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
@@ -111,21 +112,18 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
         if (name != null && email != null && password != null) {
             isBusy.value = true
-            accountRepository.signUp(
-                name,
-                email,
-                password,
-                object : IAccountRepository.IOnSignUpListener {
-                    override fun onSuccess() {
-                        isBusy.value = false
-                        login(email, password)
-                    }
+            accountRepository.signUp(name, email, password, object : IResponseListener {
 
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        onErrorMessage.value = error
-                    }
-                })
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    login(email, password)
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    onErrorMessage.value = error
+                }
+            })
         }
     }
 

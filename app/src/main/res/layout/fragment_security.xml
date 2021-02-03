@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -28,13 +29,38 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:text="@string/security_current_password_hint"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+
+                    <EditText
+                        android:id="@+id/etCurrentPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onCurrentPasswordTextChanged(editable)}"
+                        android:background="@drawable/rounded_border_edit_text"
+                        android:inputType="textPassword"
+                        android:padding="8dp"
+                        android:text="@{viewModel.currentPassword}" />
+
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/security_screen_current_password_hint"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:text="@string/security_new_password_hint"
                         android:textColor="@color/colorPrimary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -49,36 +75,15 @@
                         android:background="@drawable/rounded_border_edit_text"
                         android:inputType="textPassword"
                         android:padding="8dp"
-                        android:text="@{viewModel.getNewPassword()}" />
+                        android:text="@{viewModel.newPassword}" />
 
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/security_screen_new_password_hint"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-
-                    <EditText
-                        android:id="@+id/etRetypePassword"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
-                        android:afterTextChanged="@{(editable)->viewModel.onRetypePasswordTextChanged(editable)}"
-                        android:background="@drawable/rounded_border_edit_text"
-                        android:inputType="textPassword"
-                        android:padding="8dp"
-                        android:text="@{viewModel.getRetypePassword()}" />
-
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/security_screen_retype_password_hint"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:text="@string/security_retype_new_password_hint"
                         android:textColor="@color/colorPrimary"
                         android:textSize="18sp"
                         android:textStyle="bold">
@@ -86,22 +91,25 @@
                     </TextView>
 
                     <EditText
-                        android:id="@+id/etPassword"
+                        android:id="@+id/etRetypeNewPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="48dp"
-                        android:afterTextChanged="@{(editable)->viewModel.onCurrentPasswordTextChanged(editable)}"
+                        android:layout_marginBottom="40dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onRetypeNewPasswordTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
                         android:inputType="textPassword"
                         android:padding="8dp"
-                        android:text="@{viewModel.getCurrentPassword()}" />
+                        android:text="@{viewModel.retypeNewPassword}" />
 
                     <Button
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/open_sans_bold"
+                        android:insetBottom="0dp"
                         android:text="Update Password"
+                        android:onClick="@{() -> viewModel.onUpdatePasswordClick()}"
                         android:textAllCaps="false"
-                        android:textSize="16sp">
+                        android:textSize="18sp">
 
                     </Button>
                 </LinearLayout>
@@ -117,16 +125,20 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="@color/middleGrey">
-
                     </View>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/swBiometrics"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="12dp"
+                        android:layout_margin="16dp"
+                        android:fontFamily="@font/open_sans"
+                        android:checked="@{viewModel.biometricsLogin}"
+                        android:onCheckedChanged="@{(switch, checked) -> viewModel.onBiometricsLoginChanged(checked)}"
                         android:text="Log in with Biometrics?"
-                        android:textSize="18sp" />
+                        android:textColor="@color/middleGrey"
+                        android:textSize="18sp"
+                        app:theme="@style/colorSwitchStyle"/>
 
                     <View
                         android:layout_width="match_parent"
@@ -143,7 +155,6 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:indeterminate="true"
-            android:indeterminateTint="@color/colorPrimary"
             android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}" />
 
     </RelativeLayout>

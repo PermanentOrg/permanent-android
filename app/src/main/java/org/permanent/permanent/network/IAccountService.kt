@@ -13,4 +13,7 @@ interface IAccountService {
 
     @POST("account/update")
     fun updatePhone(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("account/changePassword")
+    fun changePassword(@Body requestBody: RequestBody): Call<ResponseVO>
 }
