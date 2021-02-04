@@ -24,19 +24,16 @@ class RequestContainer(csrf: String?) {
         RequestVO.data = dataList
     }
 
+    fun addAccount(account: Account): RequestContainer {
+        val accountVO = AccountVO(account)
+        RequestVO.data?.get(0)?.AccountVO = accountVO
+        return this
+    }
+
     fun addAccount(email: String): RequestContainer {
         val account = AccountVO()
         account.primaryEmail = email
         account.rememberMe = false
-        RequestVO.data?.get(0)?.AccountVO = account
-        return this
-    }
-
-    fun addAccount(accountId: Int, email: String, phoneNumber: String?): RequestContainer {
-        val account = AccountVO()
-        account.accountId = accountId
-        account.primaryEmail = email
-        account.primaryPhone = phoneNumber
         RequestVO.data?.get(0)?.AccountVO = account
         return this
     }

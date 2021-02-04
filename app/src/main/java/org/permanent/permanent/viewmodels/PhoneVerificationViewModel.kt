@@ -1,20 +1,26 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import java.util.regex.Pattern
 
 
-class PhoneVerificationViewModel(application: Application) :
-    ObservableAndroidViewModel(application) {
+class PhoneVerificationViewModel(application: Application) : ObservableAndroidViewModel(application) {
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+
     private val currentPhoneNumber = MutableLiveData<String>()
     private val onVerificationSkipped = SingleLiveEvent<Void>()
     private val onSMSCodeSent = SingleLiveEvent<Void>()
@@ -64,7 +70,7 @@ class PhoneVerificationViewModel(application: Application) :
 
     private fun checkPhoneNumber(number: String?): Boolean {
         return if (number.isNullOrEmpty() || !Pattern.matches("^[+]?[0-9]{8,13}\$", number)) {
-            phoneError.value = R.string.two_step_verification_phone_error_message
+            phoneError.value = R.string.invalid_phone_error
             false
         } else {
             phoneError.value = null
@@ -73,11 +79,16 @@ class PhoneVerificationViewModel(application: Application) :
     }
 
     private fun updateAccount(phone: String) {
+        val accountId = prefsHelper.getUserAccountId()
+        val email = prefsHelper.getEmail()
+        val account = Account(accountId, email)
+        account.phone = phone
+
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
-        accountRepository.update(phone, object : IResponseListener {
+        accountRepository.update(account, object : IResponseListener {
 
             override fun onSuccess(message: String?) {
                 isBusy.value = false

@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.AccountSettingsViewModel" />
+            type="org.permanent.permanent.viewmodels.AccountInfoViewModel" />
     </data>
 
     <RelativeLayout
@@ -27,15 +27,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="16dp">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:text="@string/account_screen_account_name"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
 
@@ -44,11 +45,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
-                        android:afterTextChanged="@{(editable)->viewModel.onAccountNameTextChanged(editable)}"
+                        android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
+                        android:fontFamily="@font/open_sans"
                         android:inputType="text"
                         android:padding="8dp"
-                        android:text="@{viewModel.getAccountName()}" />
+                        android:text="@{viewModel.name}"
+                        android:textSize="16sp" />
 
 
                     <TextView
@@ -57,7 +60,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/account_screen_primary_email"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
 
@@ -68,9 +71,11 @@
                         android:layout_marginBottom="24dp"
                         android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
+                        android:fontFamily="@font/open_sans"
                         android:inputType="textEmailAddress"
                         android:padding="8dp"
-                        android:text="@{viewModel.getEmail()}" />
+                        android:text="@{viewModel.getEmail()}"
+                        android:textSize="16sp" />
 
 
                     <TextView
@@ -79,7 +84,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/account_screen_mobile_phone"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold">
 
                     </TextView>
@@ -91,9 +96,11 @@
                         android:layout_marginBottom="24dp"
                         android:afterTextChanged="@{(editable)->viewModel.onPhoneTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
+                        android:fontFamily="@font/open_sans"
                         android:inputType="phone"
                         android:padding="8dp"
-                        android:text="@{viewModel.getPhone()}" />
+                        android:text="@{viewModel.getPhone()}"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -101,7 +108,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/account_screen_address"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold">
 
                     </TextView>
@@ -113,9 +120,11 @@
                         android:layout_marginBottom="24dp"
                         android:afterTextChanged="@{(editable)->viewModel.onAddressTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
+                        android:fontFamily="@font/open_sans"
                         android:inputType="text"
                         android:padding="8dp"
-                        android:text="@{viewModel.getAddress()}" />
+                        android:text="@{viewModel.getAddress()}"
+                        android:textSize="16sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -136,7 +145,7 @@
                                 android:layout_marginBottom="8dp"
                                 android:text="@string/account_screen_city"
                                 android:textColor="@color/colorPrimary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold">
 
                             </TextView>
@@ -148,9 +157,11 @@
                                 android:layout_height="wrap_content"
                                 android:afterTextChanged="@{(editable)->viewModel.onCityTextChanged(editable)}"
                                 android:background="@drawable/rounded_border_edit_text"
+                                android:fontFamily="@font/open_sans"
                                 android:inputType="text"
                                 android:padding="8dp"
-                                android:text="@{viewModel.getCity()}" />
+                                android:text="@{viewModel.getCity()}"
+                                android:textSize="16sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -165,7 +176,7 @@
                                 android:layout_marginBottom="8dp"
                                 android:text="@string/account_screen_state"
                                 android:textColor="@color/colorPrimary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold">
 
                             </TextView>
@@ -176,17 +187,19 @@
                                 android:layout_height="wrap_content"
                                 android:afterTextChanged="@{(editable)->viewModel.onStateTextChanged(editable)}"
                                 android:background="@drawable/rounded_border_edit_text"
+                                android:fontFamily="@font/open_sans"
                                 android:inputType="text"
                                 android:padding="8dp"
-                                android:text="@{viewModel.getState()}" />
+                                android:text="@{viewModel.getState()}"
+                                android:textSize="16sp" />
                         </LinearLayout>
 
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_marginBottom="24sp"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="32sp"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -203,7 +216,7 @@
                                 android:layout_marginBottom="8dp"
                                 android:text="@string/account_screen_postal_code"
                                 android:textColor="@color/colorPrimary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold">
 
                             </TextView>
@@ -214,9 +227,11 @@
                                 android:layout_height="wrap_content"
                                 android:afterTextChanged="@{(editable)->viewModel.onPostalCodeTextChanged(editable)}"
                                 android:background="@drawable/rounded_border_edit_text"
+                                android:fontFamily="@font/open_sans"
                                 android:inputType="text"
                                 android:padding="8dp"
-                                android:text="@{viewModel.getPostalCode()}" />
+                                android:text="@{viewModel.getPostalCode()}"
+                                android:textSize="16sp" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -231,7 +246,7 @@
                                 android:layout_marginBottom="8dp"
                                 android:text="@string/account_screen_country"
                                 android:textColor="@color/colorPrimary"
-                                android:textSize="18sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold">
 
                             </TextView>
@@ -240,20 +255,26 @@
                                 android:id="@+id/etCountry"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:afterTextChanged="@{(editable)->viewModel.onCountryTextChanged(editable)}"
+                                android:afterTextChanged="@{(editable) -> viewModel.onCountryTextChanged(editable)}"
                                 android:background="@drawable/rounded_border_edit_text"
+                                android:fontFamily="@font/open_sans"
                                 android:inputType="text"
                                 android:padding="8dp"
-                                android:text="@{viewModel.getCountry()}" />
+                                android:text="@{viewModel.getCountry()}"
+                                android:textSize="16sp" />
                         </LinearLayout>
                     </LinearLayout>
 
                     <Button
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/open_sans_bold"
+                        android:insetBottom="0dp"
                         android:text="@string/save_button"
                         android:textAllCaps="false"
-                        android:textSize="16sp">
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:onClick="@{() -> viewModel.onSaveInfoBtnClick()}">
 
                     </Button>
                 </LinearLayout>
@@ -267,7 +288,6 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:indeterminate="true"
-            android:indeterminateTint="@color/colorPrimary"
             android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}" />
 
     </RelativeLayout>

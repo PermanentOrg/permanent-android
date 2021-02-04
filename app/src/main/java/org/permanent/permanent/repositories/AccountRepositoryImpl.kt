@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
@@ -24,19 +25,19 @@ class AccountRepositoryImpl(application: Application) : IAccountRepository {
         fullName: String, email: String, password: String, listener: IResponseListener
     ) {
         networkClient.signUp(fullName, email, password).enqueue(object : Callback<ResponseVO> {
+
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
                     // We save this for the Update Phone call
-                    prefsHelper.saveUserAccountId(responseVO.getUserAccountId())
+                    prefsHelper.saveUserAccountId(responseVO.getAccount()?.accountId)
                     // We save these here in order to use them for the background login call
                     prefsHelper.saveUserEmail(email)
                     listener.onSuccess("")
                 } else {
-                    listener.onFailed(
-                        responseVO?.Results?.get(0)?.message?.get(0)
-                            ?: response.errorBody()?.toString()
+                    listener.onFailed(responseVO?.getMessages()?.get(0)
+                        ?: response.errorBody()?.toString()
                     )
                 }
             }
@@ -47,27 +48,46 @@ class AccountRepositoryImpl(application: Application) : IAccountRepository {
         })
     }
 
-    override fun update(phoneNumber: String, listener: IResponseListener) {
+    override fun getAccount(listener: IAccountRepository.IAccountListener) {
         val accountId = prefsHelper.getUserAccountId()
-        val email = prefsHelper.getEmail()
 
-        if (accountId != 0 && email != null) {
-            networkClient.update(
-                prefsHelper.getCsrf(),
-                accountId,
-                email,
-                phoneNumber
-            ).enqueue(object : Callback<ResponseVO> {
+        if (accountId != 0) {
+            networkClient.getAccount(prefsHelper.getCsrf(), accountId)
+                .enqueue(object : Callback<ResponseVO> {
+
+                    override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                        val responseVO = response.body()
+                        prefsHelper.saveCsrf(responseVO?.csrf)
+                        if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                            listener.onSuccess(Account(responseVO.getAccount()))
+                        } else {
+                            listener.onFailed(responseVO?.getMessages()?.get(0)
+                                ?: response.errorBody()?.toString())
+                        }
+                    }
+
+                    override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                        listener.onFailed(t.message)
+                    }
+                })
+        }
+    }
+
+    override fun update(account: Account, listener: IResponseListener) {
+        networkClient.updateAccount(prefsHelper.getCsrf(), account)
+            .enqueue(object : Callback<ResponseVO> {
+
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                        listener.onSuccess("")
+                        listener.onSuccess(appContext.getString(R.string.account_update_success))
                     } else {
-                        listener.onFailed(
-                            responseVO?.Results?.get(0)?.message?.get(0)
-                                ?: response.errorBody()?.toString()
-                        )
+                        val errorMessage: String? = when (val responseMessage = responseVO?.getMessages()?.get(0)) {
+                            Constants.ERROR_PHONE_INVALID -> appContext.getString(R.string.invalid_phone_error)
+                            else -> responseMessage
+                        }
+                        listener.onFailed(errorMessage)
                     }
                 }
 
@@ -75,7 +95,6 @@ class AccountRepositoryImpl(application: Application) : IAccountRepository {
                     listener.onFailed(t.message)
                 }
             })
-        }
     }
 
     override fun changePassword(
@@ -88,6 +107,7 @@ class AccountRepositoryImpl(application: Application) : IAccountRepository {
             networkClient.changePassword(
                 prefsHelper.getCsrf(), accountId, currentPassword, newPassword, retypedPassword,
             ).enqueue(object : Callback<ResponseVO> {
+
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)

@@ -72,6 +72,10 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     fun onUpdatePasswordClick() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
         val oldPass = currentPassword.value
         val newPass = newPassword.value
         val retypedPass = retypeNewPassword.value
@@ -91,10 +95,6 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
             return
         }
 
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-
         isBusy.value = true
         accountRepository.changePassword(oldPass, newPass, retypedPass,
             object : IResponseListener {
@@ -111,6 +111,7 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
                     isBusy.value = false
                     showMessage.value = error
                 }
-            })
+            }
+        )
     }
 }

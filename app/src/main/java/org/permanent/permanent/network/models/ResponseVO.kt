@@ -8,10 +8,6 @@ class ResponseVO {
     var isSuccessful: Boolean? = false
     var csrf: String? = null
 
-    fun isUserLoggedIn(): Boolean? {
-        return getData()?.get(0)?.SimpleVO?.value
-    }
-
     fun getMyFilesRecord(): Record? {
         val recordVOs: List<RecordVO>? = getChildItemVOs()
 
@@ -30,6 +26,10 @@ class ResponseVO {
         return Results?.get(0)?.data
     }
 
+    fun isUserLoggedIn(): Boolean? {
+        return getData()?.get(0)?.SimpleVO?.value
+    }
+
     fun getArchiveId(): Int? {
         return getData()?.get(0)?.FolderVO?.archiveId
     }
@@ -38,16 +38,20 @@ class ResponseVO {
         return getData()?.get(0)?.FolderVO?.archiveNbr
     }
 
-    fun getUserFullName(): String? {
-        return getData()?.get(0)?.AccountVO?.fullName
-    }
-
-    fun getUserAccountId(): Int? {
-        return getData()?.get(0)?.AccountVO?.accountId
+    fun getAccount(): AccountVO? {
+        return getData()?.get(0)?.AccountVO
     }
 
     fun getRecordVO(): RecordVO? {
         return getData()?.get(0)?.RecordVO
+    }
+
+    fun getShareByUrlVO(): Shareby_urlVO? {
+        return getData()?.get(0)?.Shareby_urlVO
+    }
+
+    fun getShareVO(): ShareVO? {
+        return getData()?.get(0)?.ShareVO
     }
 
     fun getChildItemVOs(): List<RecordVO>? {
@@ -80,13 +84,5 @@ class ResponseVO {
             }
         }
         return null
-    }
-
-    fun getShareByUrlVO(): Shareby_urlVO? {
-        return getData()?.get(0)?.Shareby_urlVO
-    }
-
-    fun getShareVO(): ShareVO? {
-        return getData()?.get(0)?.ShareVO
     }
 }

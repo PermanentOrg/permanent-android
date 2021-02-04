@@ -36,7 +36,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
-                        android:fontFamily="@font/open_sans_semibold"
                         android:text="@string/security_current_password_hint"
                         android:textColor="@color/colorPrimary"
                         android:textSize="18sp"
@@ -50,6 +49,7 @@
                         android:layout_marginBottom="24dp"
                         android:afterTextChanged="@{(editable)->viewModel.onCurrentPasswordTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
+                        android:fontFamily="@font/open_sans"
                         android:inputType="textPassword"
                         android:padding="8dp"
                         android:text="@{viewModel.currentPassword}" />
@@ -59,7 +59,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:fontFamily="@font/open_sans_semibold"
                         android:text="@string/security_new_password_hint"
                         android:textColor="@color/colorPrimary"
                         android:textSize="18sp"
@@ -73,6 +72,7 @@
                         android:layout_marginBottom="24dp"
                         android:afterTextChanged="@{(editable)->viewModel.onNewPasswordTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
+                        android:fontFamily="@font/open_sans"
                         android:inputType="textPassword"
                         android:padding="8dp"
                         android:text="@{viewModel.newPassword}" />
@@ -82,7 +82,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:fontFamily="@font/open_sans_semibold"
                         android:text="@string/security_retype_new_password_hint"
                         android:textColor="@color/colorPrimary"
                         android:textSize="18sp"
@@ -97,6 +96,7 @@
                         android:layout_marginBottom="40dp"
                         android:afterTextChanged="@{(editable)->viewModel.onRetypeNewPasswordTextChanged(editable)}"
                         android:background="@drawable/rounded_border_edit_text"
+                        android:fontFamily="@font/open_sans"
                         android:inputType="textPassword"
                         android:padding="8dp"
                         android:text="@{viewModel.retypeNewPassword}" />

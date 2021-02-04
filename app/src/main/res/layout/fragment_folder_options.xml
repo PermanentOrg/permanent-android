@@ -33,8 +33,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/file_options_menu_item_edit"
+            android:fontFamily="@font/open_sans_bold"
             android:onClick="@{() -> viewModel.onEditBtnClick()}"
+            android:text="@string/file_options_menu_item_edit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFolderName" />
@@ -44,8 +45,9 @@
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/file_options_menu_item_share"
+            android:fontFamily="@font/open_sans_bold"
             android:onClick="@{() -> viewModel.onShareBtnClick()}"
+            android:text="@string/file_options_menu_item_share"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnEdit" />
@@ -55,8 +57,9 @@
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/file_options_menu_item_publish"
+            android:fontFamily="@font/open_sans_bold"
             android:onClick="@{() -> viewModel.onPublishBtnClick()}"
+            android:text="@string/file_options_menu_item_publish"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnShare" />

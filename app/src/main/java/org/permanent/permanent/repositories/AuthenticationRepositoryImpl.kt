@@ -53,7 +53,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     // We use this in the members section
-                    prefsHelper.saveUserFullName(responseVO.getUserFullName())
+                    prefsHelper.saveUserFullName(responseVO.getAccount()?.fullName)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
@@ -166,8 +166,8 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
 
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         // We use this in the members section
-                        prefsHelper.saveUserFullName(responseVO.getUserFullName())
-                        prefsHelper.saveUserAccountId(responseVO.getUserAccountId())
+                        prefsHelper.saveUserFullName(responseVO.getAccount()?.fullName)
+                        prefsHelper.saveUserAccountId(responseVO.getAccount()?.accountId)
                         listener.onSuccess()
                     } else {
                         listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0)

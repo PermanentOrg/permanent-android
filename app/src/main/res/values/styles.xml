@@ -8,6 +8,7 @@
         <item name="android:actionMenuTextAppearance">@style/customMenuTextAppearance</item>
         <item name="textInputStyle">@style/customTextField</item>
         <item name="listPreferredItemHeightSmall">54dp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
     </style>
 
     <!-- Theme without ActionBar -->
@@ -19,6 +20,7 @@
         <item name="android:actionMenuTextAppearance">@style/customMenuTextAppearance</item>
         <item name="textInputStyle">@style/customTextField</item>
         <item name="listPreferredItemHeightSmall">54dp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
     </style>
 
     <style name="customMenuTextAppearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">

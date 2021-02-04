@@ -64,9 +64,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:ellipsize="end"
+                    android:fontFamily="@font/open_sans_bold"
                     android:maxLines="1"
                     android:text="@{record.displayName}"
-                    android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@+id/guideline"
                     app:layout_constraintEnd_toStartOf="@+id/btnOptions"
                     app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
@@ -103,6 +103,7 @@
                     android:layout_width="36dp"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/ic_more_middle_grey"
+                    app:iconTint="@color/middleGrey"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

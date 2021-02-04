@@ -89,11 +89,11 @@
         android:label="@string/menu_drawer_invitations"
         tools:layout="@layout/fragment_invitations"/>
 
-<!--    <fragment-->
-<!--        android:id="@+id/accountInfoFragment"-->
-<!--        android:name="org.permanent.permanent.ui.settings.AccountInfoFragment"-->
-<!--        android:label="@string/main_navigation_account_info"-->
-<!--        tools:layout="@layout/fragment_account_info"/>-->
+    <fragment
+        android:id="@+id/accountInfoFragment"
+        android:name="org.permanent.permanent.ui.settings.AccountInfoFragment"
+        android:label="@string/main_navigation_account_info"
+        tools:layout="@layout/fragment_account_info"/>
 
     <fragment
         android:id="@+id/securityFragment"
