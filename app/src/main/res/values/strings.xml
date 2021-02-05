@@ -31,15 +31,13 @@
     <string name="verification_code_button_done">Done</string>
     <string name="verification_code_length_error">Code must be 4 characters long</string>
     <string name="verification_code_empty_error">Verification code can not be empty</string>
-    <string name="two_step_verification_phone_error_message">Please enter a valid phone number</string>
-    <string name="sign_up_empty_name_error">Name can not be empty</string>
     <string name="sign_up_password_too_small_error">Password must be minimum 8 characters long</string>
     <string name="sign_up_email_in_use_error">This email is already in use</string>
-    <string name="sign_up_phone_invalid_error">This phone number is invalid</string>
+    <string name="invalid_phone_error">Please enter a valid phone number</string>
     <string name="password_empty_error">Password can not be empty</string>
     <string name="login_password_error">Please enter your password</string>
     <string name="invalid_email_error">Please enter a valid email address</string>
-    <string name="invalid_name_error">Please enter a valid recipient name</string>
+    <string name="invalid_name_error">Please enter a valid name</string>
     <string name="invalid_access_level_error">Please select an access level</string>
     <string name="invalid_folder_name_error">Please enter a valid folder name</string>
     <string name="invalid_current_password_error">Please enter your current password</string>
@@ -49,7 +47,7 @@
     <string name="two_step_verification_skip_button">Skip</string>
     <string name="two_step_verification_submit_button">Submit</string>
     <string name="two_step_verification_phone_hint">Your phone number</string>
-    <string name="two_step_verification_message">Add an extra layer of security by entering a verification code we send to your phone</string>
+    <string name="two_step_verification_message">Add an extra layer of security by entering a verification code we send to your phone.</string>
     <string name="two_step_verification_title">Protect your account with 2-Step Verification</string>
     <string name="login_biometric_error_no_biometric_hardware">No biometric features available on this device.</string>
     <string name="login_biometric_error_unavailable">Biometric features are currently unavailable.</string>
@@ -233,4 +231,5 @@
     <string name="account_screen_state">State or region</string>
     <string name="account_screen_postal_code">Postal code</string>
     <string name="account_screen_country">Country</string>
+    <string name="account_update_success">Account info updated successfully.</string>
 </resources>

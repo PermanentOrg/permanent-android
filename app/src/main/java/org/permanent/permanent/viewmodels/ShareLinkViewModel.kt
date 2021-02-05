@@ -39,8 +39,8 @@ class ShareLinkViewModel(application: Application
 
     fun setRecord(record: Record) {
         this.record = record
-        recordName.value = record.displayName
         checkForExistingLink(record)
+        recordName.value = record.displayName
         existsShares.value = !record.shares.isNullOrEmpty()
     }
 

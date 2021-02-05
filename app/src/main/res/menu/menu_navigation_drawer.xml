@@ -53,10 +53,10 @@
             android:icon="@drawable/ic_storage_white"
             android:title="@string/menu_settings_drawer_storage" />
 
-<!--        <item-->
-<!--            android:id="@+id/accountInfoFragment"-->
-<!--            android:icon="@drawable/ic_person_white"-->
-<!--            android:title="@string/main_navigation_account_info" />-->
+        <item
+            android:id="@+id/accountInfoFragment"
+            android:icon="@drawable/ic_person_white"
+            android:title="@string/main_navigation_account_info" />
 
         <item
             android:id="@+id/securityFragment"

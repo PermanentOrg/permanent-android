@@ -150,7 +150,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         val name = currentName.value
 
         return if (name.isNullOrEmpty()) {
-            nameError.value = R.string.sign_up_empty_name_error
+            nameError.value = R.string.invalid_name_error
             false
         } else {
             nameError.value = null

@@ -54,7 +54,7 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
             //Phone update error
             Constants.ERROR_PHONE_INVALID -> Toast.makeText(
                 context,
-                R.string.sign_up_phone_invalid_error,
+                R.string.invalid_phone_error,
                 Toast.LENGTH_LONG
             ).show()
             Constants.ERROR_SERVER_ERROR -> Toast.makeText(
