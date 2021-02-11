@@ -16,8 +16,7 @@ import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.*
-import org.permanent.permanent.network.models.ResponseVO
-import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.network.models.*
 import org.permanent.permanent.ui.invitations.UpdateType
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
@@ -39,9 +38,8 @@ class NetworkClient(context: Context) {
     private val notificationService: INotificationService
     private val invitationService: IInvitationService
     private val jsonAdapter: JsonAdapter<RequestContainer>
+    private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
-    private val uploadUrl = if (Constants.BUILD_ENV === BuildEnvOption.STAGING)
-        Constants.URL_UPLOAD_STAGING else Constants.URL_UPLOAD_PROD
 
     init {
         val cookieJar: ClearableCookieJar = PersistentCookieJar(
@@ -73,6 +71,7 @@ class NetworkClient(context: Context) {
         notificationService = retrofit.create(INotificationService::class.java)
         invitationService = retrofit.create(IInvitationService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
+        simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
     }
 
     fun verifyLoggedIn(): Call<ResponseVO> {
@@ -187,26 +186,49 @@ class NetworkClient(context: Context) {
         return fileService.createFolder(requestBody)
     }
 
-    fun createUploadMetaData(
-        csrf: String?, fileName: String, displayName: String?, folderId: Int,
-        folderLinkId: Int
-    ): Call<ResponseVO> {
-        val request =
-            toJson(RequestContainer(csrf).addRecord(displayName, fileName, folderId, folderLinkId))
+    fun getPresignedUrlForUpload(
+        csrf: String?,
+        file: File,
+        displayName: String,
+        folderId: Int,
+        folderLinkId: Int,
+        mediaType: MediaType
+    ): Call<GetPresignedUrlResponse> {
+        val request = toJson(RequestContainer(csrf)
+            .addRecord(displayName, file, folderId, folderLinkId)
+            .addSimple(mediaType))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
-        return fileService.postMeta(requestBody)
+        return fileService.getPresignedUrl(requestBody)
     }
 
     fun uploadFile(
-        file: File, mediaType: MediaType, recordId: Int, listener: CountingRequestListener
+        file: File, mediaType: MediaType, uploadDestination: UploadDestination, listener: CountingRequestListener
     ): Call<ResponseBody> {
-        val recordIdRequestBody = recordId.toString().toRequestBody(MultipartBody.FORM)
+        val url = uploadDestination.presignedPost?.url
+        val fields: Map<String, RequestBody>? = uploadDestination.presignedPost?.getFieldsMapForCall()
+        val contentType = (mediaType.type + "/" + mediaType.subtype).toRequestBody(MultipartBody.FORM)
         val fileRequestBody = CountingRequestBody(file.asRequestBody(mediaType), listener)
         val body: MultipartBody.Part = MultipartBody.Part.createFormData(
-            Constants.FORM_DATA_NAME_THE_FILE, file.name, fileRequestBody)
+            "file", file.name, fileRequestBody)
 
-        return fileService.upload(uploadUrl, recordIdRequestBody, body)
+        return fileService.upload(url!!, fields!!, contentType, body)
+    }
+
+    fun registerRecord(
+        csrf: String?,
+        file: File,
+        displayName: String,
+        folderId: Int,
+        folderLinkId: Int,
+        s3Url: String
+    ): Call<ResponseVO> {
+        val request = toJson(SimpleRequestContainer(csrf)
+            .addRecord(displayName, file, folderId, folderLinkId)
+            .addSimple(s3Url))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return fileService.registerRecord(requestBody)
     }
 
     fun getFile(
@@ -367,5 +389,8 @@ class NetworkClient(context: Context) {
 
     private fun toJson(container: RequestContainer): String {
         return jsonAdapter.toJson(container)
+    }
+    private fun toJson(container: SimpleRequestContainer): String {
+        return simpleJsonAdapter.toJson(container)
     }
 }

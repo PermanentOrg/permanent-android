@@ -6,10 +6,8 @@ class RecordVO {
     var displayDT: String? = null
     var uploadFileName: String? = null
     var type: String? = null
-    var isFolder: Boolean? = null
+    var size: Long? = null
     var dataStatus: Int? = null
-    var isRecord: Boolean? = null
-    var isFetching: Boolean? = null
     var parentFolderId: Int? = null
     var parentFolder_linkId: Int? = null
     var folder_linkId: Int? = null
@@ -17,10 +15,7 @@ class RecordVO {
     var folderId: Int? = null
     var archiveId: Int? = null
     var archiveNbr: String? = null
-    var thumbURL200: String? = null
     var thumbURL500: String? = null
-    var thumbURL1000: String? = null
-    var thumbURL2000: String? = null
     var FileVOs: List<FileVO>? = null
     var ShareVOs: List<ShareVO>? = null
 }

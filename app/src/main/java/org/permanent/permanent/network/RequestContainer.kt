@@ -1,9 +1,12 @@
 package org.permanent.permanent.network
 
+import okhttp3.MediaType
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
+import java.io.File
+import kotlin.collections.ArrayList
 
 const val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
 const val PERM_API_KEY_MOBILE_PROD = "5aef7dd1f32e0d9ca57290e3c82b59db"
@@ -136,18 +139,15 @@ class RequestContainer(csrf: String?) {
 
     fun addRecord(
         displayName: String?,
-        uploadName: String,
+        file: File,
         parentFolderId: Int,
         parentFolderLinkId: Int
     ): RequestContainer {
         val recordVO = RecordVO()
         recordVO.displayName = displayName
-        recordVO.uploadFileName = uploadName
-        recordVO.isRecord = true
-        recordVO.isFolder = false
-        recordVO.isFetching = false
+        recordVO.uploadFileName = file.name
+        recordVO.size = file.length()
         recordVO.parentFolderId = parentFolderId
-        recordVO.dataStatus = 0
         recordVO.parentFolder_linkId = parentFolderLinkId
         RequestVO.data?.get(0)?.RecordVO = recordVO
         return this
@@ -229,6 +229,14 @@ class RequestContainer(csrf: String?) {
         val inviteVO = InviteVO()
         inviteVO.inviteId = inviteId
         RequestVO.data?.get(0)?.InviteVO = inviteVO
+        return this
+    }
+
+    fun addSimple(mediaType: MediaType): RequestContainer {
+        val simpleVO = SimpleVO()
+        simpleVO.key = "type"
+        simpleVO.value = mediaType.type + "/" + mediaType.subtype
+        RequestVO.data?.get(0)?.SimpleVO = simpleVO
         return this
     }
 }

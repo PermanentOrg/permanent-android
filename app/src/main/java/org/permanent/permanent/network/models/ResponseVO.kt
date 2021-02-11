@@ -27,7 +27,7 @@ class ResponseVO {
     }
 
     fun isUserLoggedIn(): Boolean? {
-        return getData()?.get(0)?.SimpleVO?.value
+        return getData()?.get(0)?.SimpleVO?.value as Boolean?
     }
 
     fun getArchiveId(): Int? {
@@ -40,10 +40,6 @@ class ResponseVO {
 
     fun getAccount(): AccountVO? {
         return getData()?.get(0)?.AccountVO
-    }
-
-    fun getRecordVO(): RecordVO? {
-        return getData()?.get(0)?.RecordVO
     }
 
     fun getShareByUrlVO(): Shareby_urlVO? {

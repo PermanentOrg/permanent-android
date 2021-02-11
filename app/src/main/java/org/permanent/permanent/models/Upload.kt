@@ -2,7 +2,6 @@ package org.permanent.permanent.models
 
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,9 +10,9 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import org.permanent.permanent.ui.getDisplayName
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.upload.*
-import java.io.IOException
 import java.util.*
 
 class Upload private constructor(val context: Context, val listener: OnFinishedListener) {
@@ -32,12 +31,11 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
         listener: OnFinishedListener
     ) : this(context, listener) {
         this.uri = uri
-        displayName = getDisplayNameFrom(uri)
+        displayName = uri.getDisplayName(context)
         val builder = Data.Builder().apply {
             putInt(WORKER_INPUT_FOLDER_ID_KEY, folderIdentifier.folderId)
             putInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, folderIdentifier.folderLinkId)
             putString(WORKER_INPUT_URI_KEY, uri.toString())
-            putString(WORKER_INPUT_FILE_DISPLAY_NAME_KEY, displayName)
         }
         workRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java)
             .addTag(displayName) // sync with the other secondary constructor
@@ -54,22 +52,6 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
         }
         uuid = workInfo.id
         workInfoLiveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(uuid)
-    }
-
-    private fun getDisplayNameFrom(uri: Uri): String {
-        var displayName = ""
-        val cursor = context.contentResolver.query(uri, null, null,
-            null, null)
-        try {
-            val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            cursor?.moveToFirst()
-            nameIndex?.let {  displayName = cursor.getString(it) }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            cursor?.close()
-        }
-        return displayName
     }
 
     fun getUri() = uri

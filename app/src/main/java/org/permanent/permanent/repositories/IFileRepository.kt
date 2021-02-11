@@ -6,6 +6,8 @@ import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.UploadDestination
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
@@ -25,11 +27,17 @@ interface IFileRepository {
     fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier, name: String, listener: IResponseListener)
 
-    fun createUploadMetaData(folderId: Int, folderLinkId: Int, file: File, displayName: String?
-    ): Call<ResponseVO>
+    fun getPresignedUrlForUpload(
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
+    ): Call<GetPresignedUrlResponse>
 
-    fun uploadFile(file: File, mediaType: MediaType, recordId: Int, listener: CountingRequestListener
-    ): Call<ResponseBody>
+    fun uploadFile(file: File, mediaType: MediaType, uploadDestination: UploadDestination,
+                   listener: CountingRequestListener
+    ): Call<ResponseBody>?
+
+    fun registerRecord(
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
+    ): Call<ResponseVO>
 
     fun startDownloading(
         folderLinkId: Int,

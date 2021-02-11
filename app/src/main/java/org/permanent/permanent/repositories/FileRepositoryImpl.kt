@@ -14,6 +14,8 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.UploadDestination
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RelocationType
@@ -130,7 +132,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                 prefsHelper.saveCsrf(responseVO?.csrf)
                 val firstMessage = responseVO?.getMessages()?.get(0)
 
-                if (firstMessage != null && firstMessage.startsWith(Constants.FOLDER_CREATED_PREFIX))
+                if (firstMessage != null && firstMessage.startsWith("New folder"))
                     listener.onSuccess(null)
                 else listener.onFailed(firstMessage)
             }
@@ -141,17 +143,24 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         })
     }
 
-    override fun createUploadMetaData(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String?
-    ): Call<ResponseVO> {
-        return networkClient.createUploadMetaData(prefsHelper.getCsrf(), file.name, displayName,
-            folderId, folderLinkId)
+    override fun getPresignedUrlForUpload(
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
+    ): Call<GetPresignedUrlResponse> {
+        return networkClient.getPresignedUrlForUpload(prefsHelper.getCsrf(), file, displayName,
+            folderId, folderLinkId, mediaType)
     }
 
     override fun uploadFile(
-        file: File, mediaType: MediaType, recordId: Int, listener: CountingRequestListener
+        file: File, mediaType: MediaType, uploadDestination: UploadDestination, listener: CountingRequestListener
     ): Call<ResponseBody> {
-        return networkClient.uploadFile(file, mediaType, recordId, listener)
+        return networkClient.uploadFile(file, mediaType, uploadDestination, listener)
+    }
+
+    override fun registerRecord(
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
+    ): Call<ResponseVO> {
+        return networkClient.registerRecord(prefsHelper.getCsrf(), file, displayName,
+            folderId, folderLinkId, s3Url)
     }
 
     override fun startDownloading(
