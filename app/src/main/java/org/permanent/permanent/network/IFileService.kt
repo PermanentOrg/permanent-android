@@ -3,6 +3,7 @@ package org.permanent.permanent.network
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.ResponseVO
 import retrofit2.Call
 import retrofit2.http.*
@@ -30,16 +31,20 @@ interface IFileService {
     @POST("folder/move")
     fun moveFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 
-    @POST("record/postMetaBatch")
-    fun postMeta(@Body requestBody: RequestBody): Call<ResponseVO>
+    @POST("record/getPresignedUrl")
+    fun getPresignedUrl(@Body requestBody: RequestBody): Call<GetPresignedUrlResponse>
 
     @Multipart
     @POST
     fun upload(
         @Url url: String,
-        @Part("recordid") requestBody: RequestBody,
+        @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part("Content-Type") contentType: RequestBody,
         @Part file: MultipartBody.Part
     ): Call<ResponseBody>
+
+    @POST("record/registerRecord")
+    fun registerRecord(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @POST("record/get")
     fun getRecord(@Body requestBody: RequestBody): Call<ResponseVO>
