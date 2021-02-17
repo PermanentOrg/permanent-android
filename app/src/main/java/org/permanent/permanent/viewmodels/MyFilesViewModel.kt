@@ -88,7 +88,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             override fun onSuccess(myFilesRecord: Record) {
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(myFilesRecord)
-                loadAllChildrenOf(myFilesRecord)
+                loadFilesAndUploadsOf(myFilesRecord)
                 loadEnqueuedDownloads(lifecycleOwner)
             }
 
@@ -257,7 +257,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         if (record.type == RecordType.FOLDER) {
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
-            loadAllChildrenOf(record)
+            loadFilesAndUploadsOf(record)
         }
     }
 
@@ -267,10 +267,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         folderPathStack.pop()
         val previousFolder = folderPathStack.pop()
         folderPathStack.push(previousFolder)
-        loadAllChildrenOf(previousFolder)
+        loadFilesAndUploadsOf(previousFolder)
     }
 
-    private fun loadAllChildrenOf(folderInfo: Record) {
+    private fun loadFilesAndUploadsOf(folderInfo: Record) {
         currentFolder.value = NavigationFolder(appContext, folderInfo)
         loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
         loadFilesOf(currentFolder.value, currentSortType.value)

@@ -13,6 +13,7 @@ class ShareViewHolder (
         binding.record = record
         binding.executePendingBindings()
         binding.lifecycleOwner = lifecycleOwner
+        binding.root.setOnClickListener { listener.onRecordClick(record) }
         binding.btnOptions.setOnClickListener { listener.onRecordOptionsClick(record) }
     }
 }

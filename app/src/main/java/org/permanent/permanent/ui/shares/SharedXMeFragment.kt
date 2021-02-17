@@ -80,6 +80,10 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
         }
     }
 
+    override fun onRecordClick(record: DownloadableRecord) {
+        viewModel.onRecordClick(record)
+    }
+
     override fun onRecordOptionsClick(record: DownloadableRecord) {
         downloadableRecord = record
         recordOptionsFragment = RecordOptionsFragment()
