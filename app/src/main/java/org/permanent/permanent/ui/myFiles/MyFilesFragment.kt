@@ -23,6 +23,7 @@ import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
@@ -152,6 +153,11 @@ class MyFilesFragment : PermanentBaseFragment() {
         alert.show()
     }
 
+    private val onFileViewRequest = Observer<FileData> {
+        val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to it)
+        findNavController().navigate(R.id.action_myFilesFragment_to_viewFileFragment, bundle)
+    }
+
     private val onRecordShareRequest = Observer<Record> { record ->
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
         findNavController().navigate(R.id.action_myFilesFragment_to_shareLinkFragment, bundle)
@@ -202,6 +208,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnShowFileOptionsFragment().observe(this, onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
+        viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
@@ -216,6 +223,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnShowFileOptionsFragment().removeObserver(onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
+        viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)

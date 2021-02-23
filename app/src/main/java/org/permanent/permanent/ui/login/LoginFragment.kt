@@ -76,7 +76,7 @@ class LoginFragment  : PermanentBaseFragment() {
             context,
             getString(
                 R.string.login_screen_password_reset_message,
-                dialogViewModel.getCurrentEmail()?.value
+                dialogViewModel.getCurrentEmail().value
             ),
             Toast.LENGTH_LONG
         ).show()

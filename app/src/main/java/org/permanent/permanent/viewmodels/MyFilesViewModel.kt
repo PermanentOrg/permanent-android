@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.text.Editable
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -13,17 +15,24 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.ExistingWorkPolicy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.rajat.pdfviewer.PdfViewerActivity
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,7 +51,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     private val recordToRelocate = MutableLiveData<Record>()
-    private val onShowMessage = SingleLiveEvent<String>()
+    private val showMessage = SingleLiveEvent<String>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onFilesRetrieved = SingleLiveEvent<List<Record>>()
@@ -52,6 +61,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onShowFileOptionsFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
+    private val onFileViewRequest = SingleLiveEvent<FileData>()
 
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<Record> = Stack()
@@ -94,7 +104,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                onShowMessage.value = error
+                showMessage.value = error
             }
         })
     }
@@ -157,7 +167,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun getOnShowMessage(): MutableLiveData<String> {
-        return onShowMessage
+        return showMessage
     }
 
     fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> {
@@ -203,7 +213,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
                     override fun onFailed(error: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        onShowMessage.value = error
+                        showMessage.value = error
                     }
                 })
         }
@@ -233,6 +243,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return onRecordDeleteRequest
     }
 
+    fun getOnFileViewRequest(): MutableLiveData<FileData> {
+        return onFileViewRequest
+    }
+
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> {
         return onShowSortOptionsFragment
     }
@@ -258,6 +272,63 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
             loadAllChildrenOf(record)
+        } else {
+            getFileData(record)
+        }
+    }
+
+    private fun getFileData(record: Record) {
+        val folderLinkId = record.folderLinkId
+        val archiveNr = record.archiveNr
+        val archiveId = record.archiveId
+        val recordId = record.recordId
+
+        if (folderLinkId != null && archiveNr != null && archiveId != null && recordId != null) {
+            fileRepository.getRecord(
+                folderLinkId, archiveNr, archiveId, recordId
+            ).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val fileData = response.body()?.getFileData()
+                    if (fileData != null) {
+                        val file = File(
+                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                            fileData.fileName
+                        )
+
+                        if (fileData.contentType?.contains("pdf") == true) {
+                            if (file.exists()) {
+                                ContextCompat.startActivity(
+                                    appContext,
+                                    PdfViewerActivity.launchPdfFromPath(
+                                        appContext,
+                                        file.path,
+                                        fileData.displayName,
+                                        "",
+                                        enableDownload = false
+                                    ), null
+                                )
+                            } else {
+                                ContextCompat.startActivity(
+                                    appContext,
+                                    PdfViewerActivity.launchPdfFromUrl(
+                                        appContext,
+                                        fileData.downloadURL,
+                                        fileData.displayName,
+                                        ""
+                                    ), null
+                                )
+                            }
+                        } else {
+                            onFileViewRequest.value = fileData
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    showMessage.value = appContext.getString(R.string.generic_error)
+                }
+            })
         }
     }
 
@@ -364,14 +435,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        onShowMessage.value = message
+                        showMessage.value = message
                         onNewTemporaryFile.value = recordToRelocate.value
                         existsFiles.value = true
                     }
 
                     override fun onFailed(error: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        onShowMessage.value = error
+                        showMessage.value = error
                     }
                 })
         }
@@ -388,13 +459,13 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 swipeRefreshLayout.isRefreshing = false
                 refreshCurrentFolder()
                 if (record.type == RecordType.FOLDER)
-                    onShowMessage.value = appContext.getString(R.string.my_files_folder_deleted)
-                else onShowMessage.value = appContext.getString(R.string.my_files_file_deleted)
+                    showMessage.value = appContext.getString(R.string.my_files_folder_deleted)
+                else showMessage.value = appContext.getString(R.string.my_files_file_deleted)
             }
 
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                onShowMessage.value = error
+                showMessage.value = error
             }
         })
     }
