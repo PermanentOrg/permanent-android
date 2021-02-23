@@ -62,6 +62,8 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
 @BindingAdapter("webViewUrl")
 fun WebView.updateUrl(url: String?) {
     settings.javaScriptEnabled = true
+    settings.loadWithOverviewMode = true
+    settings.useWideViewPort = true
     url?.let {
         loadUrl(url)
     }

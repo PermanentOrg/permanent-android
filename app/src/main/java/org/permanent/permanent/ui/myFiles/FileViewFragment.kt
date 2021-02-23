@@ -1,12 +1,17 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileViewBinding
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -17,6 +22,7 @@ class FileViewFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: FileViewViewModel
     private lateinit var binding: FragmentFileViewBinding
+    private lateinit var supportActionBar: ActionBar
     private var fileData: FileData? = null
 
     override fun onCreateView(
@@ -33,7 +39,10 @@ class FileViewFragment : PermanentBaseFragment() {
         fileData?.let {
             viewModel.setFileData(it)
         }
-
+        supportActionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
+        supportActionBar.title = fileData?.displayName
+        supportActionBar.setBackgroundDrawable(
+            ColorDrawable(ContextCompat.getColor(requireContext(), R.color.black)))
         return binding.root
     }
 
@@ -57,5 +66,7 @@ class FileViewFragment : PermanentBaseFragment() {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+        supportActionBar.setBackgroundDrawable(
+            ColorDrawable(ContextCompat.getColor(requireContext(), R.color.colorPrimary)))
     }
 }
