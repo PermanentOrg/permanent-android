@@ -2,11 +2,11 @@ package org.permanent.permanent.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.text.Editable
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -295,30 +295,23 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                             fileData.fileName
                         )
-
                         if (fileData.contentType?.contains("pdf") == true) {
-                            if (file.exists()) {
-                                ContextCompat.startActivity(
+                            val intent = if (file.exists()) {
+                                PdfViewerActivity.launchPdfFromPath(
                                     appContext,
-                                    PdfViewerActivity.launchPdfFromPath(
-                                        appContext,
-                                        file.path,
-                                        fileData.displayName,
-                                        "",
-                                        enableDownload = false
-                                    ), null
-                                )
+                                    file.path,
+                                    fileData.displayName,
+                                    "",
+                                    enableDownload = false)
                             } else {
-                                ContextCompat.startActivity(
+                                PdfViewerActivity.launchPdfFromUrl(
                                     appContext,
-                                    PdfViewerActivity.launchPdfFromUrl(
-                                        appContext,
-                                        fileData.downloadURL,
-                                        fileData.displayName,
-                                        ""
-                                    ), null
-                                )
+                                    fileData.downloadURL,
+                                    fileData.displayName,
+                                    "")
                             }
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            appContext.startActivity(intent)
                         } else {
                             onFileViewRequest.value = fileData
                         }

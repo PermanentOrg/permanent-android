@@ -1,10 +1,11 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.MediaController
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -32,18 +33,29 @@ class FileViewFragment : PermanentBaseFragment() {
     ): View {
         viewModel = ViewModelProvider(this).get(FileViewViewModel::class.java)
         binding = FragmentFileViewBinding.inflate(inflater, container, false)
-        binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
         fileData?.let {
-            viewModel.setFileData(it)
+            viewModel.init(it, MediaController(context))
         }
-        supportActionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
-        supportActionBar.title = fileData?.displayName
-        supportActionBar.setBackgroundDrawable(
-            ColorDrawable(ContextCompat.getColor(requireContext(), R.color.black)))
+        binding.executePendingBindings()
+        updateActionBarAndStatusBar(Color.BLACK)
+
         return binding.root
+    }
+
+    private fun updateActionBarAndStatusBar(color: Int) {
+        val window: Window? = activity?.window
+        if (color == Color.BLACK) {
+            supportActionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
+            supportActionBar.title = fileData?.displayName
+            supportActionBar.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+            window?.statusBarColor = Color.BLACK
+        } else {
+            supportActionBar.setBackgroundDrawable(ColorDrawable(color))
+            window?.statusBarColor = color
+        }
     }
 
     private val onShowMessage = Observer<String> { message ->
@@ -66,7 +78,14 @@ class FileViewFragment : PermanentBaseFragment() {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-        supportActionBar.setBackgroundDrawable(
-            ColorDrawable(ContextCompat.getColor(requireContext(), R.color.colorPrimary)))
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            binding.videoView.pause()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+        binding.videoView.stopPlayback()
     }
 }

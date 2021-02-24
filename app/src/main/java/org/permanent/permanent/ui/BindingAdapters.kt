@@ -2,6 +2,8 @@ package org.permanent.permanent.ui
 
 import android.webkit.WebView
 import android.widget.ImageView
+import android.widget.MediaController
+import android.widget.VideoView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
@@ -59,12 +61,22 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
     }
 }
 
-@BindingAdapter("webViewUrl")
-fun WebView.updateUrl(url: String?) {
+@BindingAdapter("webViewPath")
+fun WebView.updatePath(path: String?) {
     settings.javaScriptEnabled = true
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
-    url?.let {
-        loadUrl(url)
+    path?.let {
+        loadUrl(path)
+    }
+}
+
+@BindingAdapter("mediaController", "videoViewPath")
+fun VideoView.updatePath(controller: MediaController?, path: String?) {
+    if(controller != null) {
+        controller.setMediaPlayer(this)
+        setMediaController(controller)
+        setVideoPath(path)
+        start()
     }
 }

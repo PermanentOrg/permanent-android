@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <import type="android.view.View" />
@@ -19,7 +18,21 @@
             android:id="@+id/wvFile"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:webViewUrl="@{viewModel.filePath}"
+            android:visibility="@{viewModel.showingVideo ? View.GONE : View.VISIBLE}"
+            app:webViewPath="@{viewModel.filePath}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" >
+        </WebView>
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="@{viewModel.showingVideo ? View.VISIBLE : View.GONE}"
+            app:videoViewPath="@{viewModel.filePath}"
+            app:mediaController="@{viewModel.controller}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
