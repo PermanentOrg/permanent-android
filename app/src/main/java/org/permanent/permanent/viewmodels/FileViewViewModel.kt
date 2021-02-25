@@ -1,6 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.MediaController
@@ -13,6 +14,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
 
     private val controller = MutableLiveData<MediaController>()
     private val filePath = MutableLiveData<String>()
+    private val fileUri = MutableLiveData<Uri>()
     private val showingVideo = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
@@ -27,15 +29,14 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
         if (file.exists()) {
             if (fileData.contentType?.contains("video") == true) {
                 showingVideo.value = true
-                filePath.value = file.path
+                fileUri.value = Uri.fromFile(file)
                 controller.value = mediaController
             } else {
-                filePath.value = "file://" + file.path
+                filePath.value = Uri.fromFile(file).toString()
             }
         } else {
             filePath.value = fileData.downloadURL
-            Log.e(FileViewViewModel::class.java.simpleName, "filePath.value: " + filePath.value)
-            Log.e(FileViewViewModel::class.java.simpleName, "fileData.downloadURL: " + fileData.downloadURL)
+            fileUri.value = Uri.parse(fileData.downloadURL)
         }
     }
 
@@ -45,6 +46,10 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getFilePath(): MutableLiveData<String> {
         return filePath
+    }
+
+    fun getFileUri(): MutableLiveData<Uri> {
+        return fileUri
     }
 
     fun getController(): MutableLiveData<MediaController> {

@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="@{viewModel.showingVideo ? View.VISIBLE : View.GONE}"
-            app:videoViewPath="@{viewModel.filePath}"
+            app:videoViewUri="@{viewModel.fileUri}"
             app:mediaController="@{viewModel.controller}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

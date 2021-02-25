@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui
 
+import android.net.Uri
 import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.MediaController
@@ -71,12 +72,14 @@ fun WebView.updatePath(path: String?) {
     }
 }
 
-@BindingAdapter("mediaController", "videoViewPath")
-fun VideoView.updatePath(controller: MediaController?, path: String?) {
+@BindingAdapter("mediaController", "videoViewUri")
+fun VideoView.updateUri(controller: MediaController?, uri: Uri?) {
     if(controller != null) {
         controller.setMediaPlayer(this)
         setMediaController(controller)
-        setVideoPath(path)
-        start()
+        setVideoURI(uri)
+        setOnPreparedListener {
+            start()
+        }
     }
 }

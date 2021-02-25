@@ -4,7 +4,10 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.widget.MediaController
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
