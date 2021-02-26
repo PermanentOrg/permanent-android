@@ -1,10 +1,7 @@
 package org.permanent.permanent.ui
 
-import android.net.Uri
 import android.webkit.WebView
 import android.widget.ImageView
-import android.widget.MediaController
-import android.widget.VideoView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
@@ -69,17 +66,5 @@ fun WebView.updatePath(path: String?) {
     settings.useWideViewPort = true
     path?.let {
         loadUrl(path)
-    }
-}
-
-@BindingAdapter("mediaController", "videoViewUri")
-fun VideoView.updateUri(controller: MediaController?, uri: Uri?) {
-    if(controller != null) {
-        controller.setMediaPlayer(this)
-        setMediaController(controller)
-        setVideoURI(uri)
-        setOnPreparedListener {
-            start()
-        }
     }
 }

@@ -5,5 +5,6 @@ class FileVO {
     var contentType: String? = null // Can be: image/jpeg, video/mp4, application/pdf etc.
     var width: Int? = null
     var height: Int? = null
+    var fileURL: String? = null
     var downloadURL: String? = null
 }

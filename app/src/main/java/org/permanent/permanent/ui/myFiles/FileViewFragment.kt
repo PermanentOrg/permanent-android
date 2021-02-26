@@ -40,11 +40,17 @@ class FileViewFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
         fileData?.let {
-            viewModel.init(it, MediaController(context))
+            viewModel.setFileData(it)
         }
         binding.executePendingBindings()
         updateActionBarAndStatusBar(Color.BLACK)
 
+        if (fileData?.contentType?.contains("video") == true) {
+            // Set up the media controller widget and attach it to the video view.
+            val controller = MediaController(context)
+            controller.setMediaPlayer(binding.videoView)
+            binding.videoView.setMediaController(controller)
+        }
         return binding.root
     }
 
@@ -71,6 +77,19 @@ class FileViewFragment : PermanentBaseFragment() {
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (viewModel.showingVideo.value == true) {
+            viewModel.isBusy.value = true
+            binding.videoView.setVideoURI(viewModel.getVideoUri())
+            binding.videoView.setOnPreparedListener {
+                viewModel.isBusy.value = false
+                binding.videoView.start()
+            }
+            binding.videoView.setOnInfoListener(viewModel)
+        }
     }
 
     override fun onResume() {

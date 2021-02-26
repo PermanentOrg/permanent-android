@@ -1,63 +1,59 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
-import android.widget.MediaController
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.FileData
 import java.io.File
 
-class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class FileViewViewModel(application: Application)
+    : ObservableAndroidViewModel(application), MediaPlayer.OnInfoListener {
 
-    private val controller = MutableLiveData<MediaController>()
     private val filePath = MutableLiveData<String>()
-    private val fileUri = MutableLiveData<Uri>()
-    private val showingVideo = MutableLiveData(false)
-    private val isBusy = MutableLiveData(false)
+    private lateinit var videoUri: Uri
+    val showingVideo = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    val isBusy = MutableLiveData(false)
 
-    fun init(fileData: FileData, mediaController: MediaController) {
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            fileData.fileName
-        )
+    fun setFileData(fileData: FileData) {
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            fileData.fileName)
 
-        Log.e(FileViewViewModel::class.java.simpleName, "file exists: " + file.exists())
-        if (file.exists()) {
-            if (fileData.contentType?.contains("video") == true) {
-                showingVideo.value = true
-                fileUri.value = Uri.fromFile(file)
-                controller.value = mediaController
-            } else {
-                filePath.value = Uri.fromFile(file).toString()
-            }
+        if (fileData.contentType?.contains("video") == false) {
+            filePath.value = if (file.exists()) Uri.fromFile(file).toString() else fileData.fileURL
         } else {
-            filePath.value = fileData.downloadURL
-            fileUri.value = Uri.parse(fileData.downloadURL)
+            showingVideo.value = true
+            videoUri = if (file.exists()) Uri.fromFile(file) else Uri.parse(fileData.fileURL)
         }
     }
 
-    fun getShowingVideo(): MutableLiveData<Boolean> {
-        return showingVideo
+    override fun onInfo(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        when (what) {
+            MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> {
+                isBusy.value = false
+                return true
+            }
+            MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+                isBusy.value = true
+                return true
+            }
+            MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+                isBusy.value = false
+                return true
+            }
+        }
+        return false
     }
 
     fun getFilePath(): MutableLiveData<String> {
         return filePath
     }
 
-    fun getFileUri(): MutableLiveData<Uri> {
-        return fileUri
-    }
-
-    fun getController(): MutableLiveData<MediaController> {
-        return controller
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
+    fun getVideoUri(): Uri {
+        return videoUri
     }
 
     fun getShowMessage(): LiveData<String> {

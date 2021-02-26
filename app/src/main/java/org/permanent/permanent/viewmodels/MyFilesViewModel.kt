@@ -308,7 +308,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                                     appContext,
                                     fileData.downloadURL,
                                     fileData.displayName,
-                                    "")
+                                    "",
+                                    enableDownload = false)
                             }
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             appContext.startActivity(intent)
