@@ -4,14 +4,18 @@ import android.app.Application
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Environment
+import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.Constants
 import org.permanent.permanent.network.models.FileData
 import java.io.File
 
 class FileViewViewModel(application: Application)
     : ObservableAndroidViewModel(application), MediaPlayer.OnInfoListener {
 
+    private val appContext = application.applicationContext
+    private lateinit var file: File
     private val filePath = MutableLiveData<String>()
     private lateinit var videoUri: Uri
     val showingVideo = MutableLiveData(false)
@@ -19,7 +23,7 @@ class FileViewViewModel(application: Application)
     val isBusy = MutableLiveData(false)
 
     fun setFileData(fileData: FileData) {
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             fileData.fileName)
 
         if (fileData.contentType?.contains("video") == false) {
@@ -54,6 +58,10 @@ class FileViewViewModel(application: Application)
 
     fun getVideoUri(): Uri {
         return videoUri
+    }
+
+    fun getUriForSharing(): Uri {
+        return FileProvider.getUriForFile(appContext, Constants.FILE_PROVIDER_NAME, file)
     }
 
     fun getShowMessage(): LiveData<String> {

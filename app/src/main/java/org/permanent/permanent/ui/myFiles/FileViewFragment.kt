@@ -1,13 +1,11 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.Window
+import android.view.*
 import android.widget.MediaController
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -43,15 +41,20 @@ class FileViewFragment : PermanentBaseFragment() {
             viewModel.setFileData(it)
         }
         binding.executePendingBindings()
-        updateActionBarAndStatusBar(Color.BLACK)
-
         if (fileData?.contentType?.contains("video") == true) {
             // Set up the media controller widget and attach it to the video view.
             val controller = MediaController(context)
             controller.setMediaPlayer(binding.videoView)
             binding.videoView.setMediaController(controller)
         }
+        updateActionBarAndStatusBar(Color.BLACK)
+        setHasOptionsMenu(true)
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_toolbar_share, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun updateActionBarAndStatusBar(color: Int) {
@@ -77,6 +80,20 @@ class FileViewFragment : PermanentBaseFragment() {
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.shareItem -> {
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.putExtra(Intent.EXTRA_STREAM, viewModel.getUriForSharing())
+                intent.type = fileData?.contentType
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                startActivity(Intent.createChooser(intent, "Share file"))
+                super.onOptionsItemSelected(item)
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onStart() {
