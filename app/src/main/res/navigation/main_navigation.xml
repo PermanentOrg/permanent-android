@@ -24,6 +24,13 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_viewFileFragment"
+            app:destination="@id/fileViewFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/shareLinkFragment"
@@ -100,4 +107,10 @@
         android:name="org.permanent.permanent.ui.settings.SecurityFragment"
         android:label="@string/main_navigation_security"
         tools:layout="@layout/fragment_security"/>
+
+    <fragment
+        android:id="@+id/fileViewFragment"
+        android:name="org.permanent.permanent.ui.myFiles.FileViewFragment"
+        android:label="@string/main_navigation_file_view"
+        tools:layout="@layout/fragment_file_view"/>
 </navigation>

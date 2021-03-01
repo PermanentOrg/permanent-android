@@ -87,6 +87,7 @@
     <string name="main_navigation_members">Members</string>
     <string name="main_navigation_account_info">Account Info</string>
     <string name="main_navigation_security">Security</string>
+    <string name="main_navigation_file_view">File View</string>
     <string name="main_navigation_share_link">Share Link</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>

@@ -231,7 +231,7 @@ class NetworkClient(context: Context) {
         return fileService.registerRecord(requestBody)
     }
 
-    fun getFile(
+    fun getRecord(
         csrf: String?,
         folderLinkId: Int,
         archiveNr: String,
