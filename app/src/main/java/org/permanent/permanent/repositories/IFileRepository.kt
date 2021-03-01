@@ -39,13 +39,12 @@ interface IFileRepository {
         folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
     ): Call<ResponseVO>
 
-    fun startDownloading(
+    fun getRecord(
         folderLinkId: Int,
         archiveNr: String,
         archiveId: Int,
         recordId: Int,
-        listener: CountingRequestListener
-    )
+    ): Call<ResponseVO>
 
     fun downloadFile(
         downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener)

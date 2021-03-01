@@ -13,7 +13,7 @@ android {
         applicationId "org.permanent.permanent"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 11
+        versionCode 12
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -100,11 +100,15 @@ dependencies {
     implementation 'jp.wasabeef:picasso-transformations:2.2.1' // For blur
     //==============================================================================================
 
-    //========================================= NETWORK ===========================================
+    //========================================= NETWORK ============================================
     implementation 'com.squareup.retrofit2:retrofit:2.8.1'
     implementation 'com.squareup.retrofit2:converter-moshi:2.8.1'
     implementation 'com.squareup.moshi:moshi:1.6.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
+    //==============================================================================================
+
+    //========================================= PDF VIEWER =========================================
+    implementation 'com.github.afreakyelf:Pdf-Viewer:v1.0.7'
     //==============================================================================================
 }

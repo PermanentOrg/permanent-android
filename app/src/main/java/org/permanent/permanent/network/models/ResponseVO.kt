@@ -71,14 +71,9 @@ class ResponseVO {
         return Results?.get(0)?.message
     }
 
-    fun getDownloadData(): DownloadData? {
-        if (!Results.isNullOrEmpty()) {
-            for (result in Results!!) {
-                val datum = result.data?.get(0)
-                val fileVO: FileVO? = datum?.RecordVO?.FileVOs?.get(0)
-                return DownloadData(datum, fileVO)
-            }
-        }
+    fun getFileData(): FileData? {
+        val recordVO = getData()?.get(0)?.RecordVO
+        if (recordVO != null) return FileData(recordVO)
         return null
     }
 }

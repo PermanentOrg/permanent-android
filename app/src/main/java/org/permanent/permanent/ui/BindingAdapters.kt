@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui
 
+import android.webkit.WebView
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
@@ -55,5 +56,15 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
         view.requestFocus()
     } else {
         view.isErrorEnabled = false
+    }
+}
+
+@BindingAdapter("webViewPath")
+fun WebView.updatePath(path: String?) {
+    settings.javaScriptEnabled = true
+    settings.loadWithOverviewMode = true
+    settings.useWideViewPort = true
+    path?.let {
+        loadUrl(path)
     }
 }

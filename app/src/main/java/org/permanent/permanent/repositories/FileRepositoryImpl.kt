@@ -2,7 +2,6 @@ package org.permanent.permanent.repositories
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Environment
 import android.util.Log
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -12,10 +11,10 @@ import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.UploadDestination
-import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RelocationType
@@ -24,7 +23,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.util.*
@@ -163,21 +161,14 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             folderId, folderLinkId, s3Url)
     }
 
-    override fun startDownloading(
+    override fun getRecord(
         folderLinkId: Int,
         archiveNr: String,
         archiveId: Int,
-        recordId: Int,
-        listener: CountingRequestListener
-    ) {
-        val response = networkClient.getFile(
-            prefsHelper.getCsrf(), folderLinkId, archiveNr, archiveId, recordId).execute()
-        val downloadData = response.body()?.getDownloadData()
-        val downloadURL = downloadData?.downloadURL
-        val fileName = downloadData?.fileName
-        if (downloadURL != null && fileName != null) {
-            downloadFile(downloadURL, getFileOutputStream(fileName), listener)
-        }
+        recordId: Int
+    ): Call<ResponseVO> {
+        return networkClient.getRecord(
+            prefsHelper.getCsrf(), folderLinkId, archiveNr, archiveId, recordId)
     }
 
     override fun downloadFile(
@@ -218,27 +209,6 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         } finally {
             fileOutputStream.close()
         }
-    }
-
-    private fun getFileOutputStream(fileName : String) : FileOutputStream {
-        var file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            fileName)
-
-        if(file.exists()) {
-            var i = 1
-            val parts = fileName.split(".")
-            val name = parts[0]
-            val exts = parts[1]
-            while (file.exists()) {
-                file = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    "$name ($i).$exts"
-                )
-                i++
-            }
-        }
-        return FileOutputStream(file)
     }
 
     override fun deleteRecord(
