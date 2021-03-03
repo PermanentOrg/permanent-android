@@ -9,7 +9,7 @@ class ResponseVO {
     var csrf: String? = null
 
     fun getMyFilesRecord(): Record? {
-        val recordVOs: List<RecordVO>? = getChildItemVOs()
+        val recordVOs: List<RecordVO>? = getRecordVOs()
 
         if (recordVOs != null) {
             for (recordVO in recordVOs) {
@@ -50,21 +50,8 @@ class ResponseVO {
         return getData()?.get(0)?.ShareVO
     }
 
-    fun getChildItemVOs(): List<RecordVO>? {
+    fun getRecordVOs(): List<RecordVO>? {
         return getData()?.get(0)?.FolderVO?.ChildItemVOs
-    }
-
-    fun getRecords(): List<Record> {
-        val records = ArrayList<Record>()
-        val recordVOs: List<RecordVO>? = getChildItemVOs()
-
-        if (recordVOs != null) {
-            for (recordVO in recordVOs) {
-                records.add(Record(recordVO))
-            }
-        }
-
-        return records
     }
 
     fun getMessages(): List<String?>? {

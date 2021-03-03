@@ -54,7 +54,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val showMessage = SingleLiveEvent<String>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
-    private val onFilesRetrieved = SingleLiveEvent<List<Record>>()
+    private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
     private val onFilesFilterQuery = MutableLiveData<Editable>()
     private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
@@ -178,8 +178,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return onDownloadFinished
     }
 
-    fun getOnFilesRetrieved(): MutableLiveData<List<Record>> {
-        return onFilesRetrieved
+    fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> {
+        return onRecordsRetrieved
     }
 
     fun getOnFilesFilterQuery(): MutableLiveData<Editable> {
@@ -195,20 +195,19 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
-        folder?.getArchiveNr()?.let {
+        val archiveNr = folder?.getArchiveNr()
+        val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
+        if(archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
-            fileRepository.getChildRecordsOf(it, sortType?.toBackendString(),
+            fileRepository.getChildRecordsOf(archiveNr, folderLinkId, sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(records: List<Record>?) {
+                    override fun onSuccess(recordVOs: List<RecordVO>?) {
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
                         folderName.value = parentName
                         isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER)
-
-                        if (records != null) {
-                            existsFiles.value = records.isNotEmpty()
-                            onFilesRetrieved.value = records
-                        }
+                        existsFiles.value = !recordVOs.isNullOrEmpty()
+                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
                     override fun onFailed(error: String?) {
@@ -217,6 +216,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                     }
                 })
         }
+    }
+
+    private fun getRecords(recordVOs: List<RecordVO>): List<Record> {
+        val records = ArrayList<Record>()
+        for (recordVO in recordVOs) {
+            records.add(Record(recordVO))
+        }
+        return records
     }
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> {
@@ -335,8 +342,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         loadFilesAndUploadsOf(previousFolder)
     }
 
-    private fun loadFilesAndUploadsOf(folderInfo: Record) {
-        currentFolder.value = NavigationFolder(appContext, folderInfo)
+    private fun loadFilesAndUploadsOf(record: Record) {
+        currentFolder.value = NavigationFolder(appContext, record)
         loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
         loadFilesOf(currentFolder.value, currentSortType.value)
     }

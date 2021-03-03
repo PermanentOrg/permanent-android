@@ -4,10 +4,11 @@ import android.app.Application
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Download
-import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
+import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
@@ -21,15 +22,27 @@ class SharedXMeViewModel(application: Application
 
     private lateinit var lifecycleOwner: LifecycleOwner
     private lateinit var downloadQueue: DownloadQueue
+    val isRoot = MutableLiveData(true)
+    private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     var existsShares = MutableLiveData(false)
-    private var folderPathStack: Stack<Record> = Stack()
+    private var folderPathStack: Stack<DownloadableRecord> = Stack()
+    private val onRecordsRetrieved = SingleLiveEvent<MutableList<DownloadableRecord>>()
+    private val onRootSharesNeeded = SingleLiveEvent<Void>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setLifecycleOwner(lifecycleOwner: LifecycleOwner) {
         this.lifecycleOwner = lifecycleOwner
         downloadQueue = DownloadQueue(getApplication(), lifecycleOwner, this)
+    }
+
+    fun getIsRoot(): MutableLiveData<Boolean> {
+        return isRoot
+    }
+
+    fun getFolderName(): MutableLiveData<String> {
+        return folderName
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
@@ -38,6 +51,14 @@ class SharedXMeViewModel(application: Application
 
     fun getShowMessage(): LiveData<String> {
         return showMessage
+    }
+
+    fun getOnRecordsRetrieved(): LiveData<MutableList<DownloadableRecord>> {
+        return onRecordsRetrieved
+    }
+
+    fun getOnRootSharesNeeded(): LiveData<Void> {
+        return onRootSharesNeeded
     }
 
     fun download(record: DownloadableRecord) {
@@ -56,20 +77,19 @@ class SharedXMeViewModel(application: Application
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        record.archiveNr?.let {
+        val archiveNr = record.archiveNr
+        val folderLinkId = record.folderLinkId
+        if (archiveNr != null && folderLinkId != null) {
             isBusy.value = true
-            fileRepository.getChildRecordsOf(it, SortType.NAME_ASCENDING.toBackendString(),
+            fileRepository.getChildRecordsOf(archiveNr, folderLinkId,
+                SortType.NAME_ASCENDING.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(records: List<Record>?) {
+                    override fun onSuccess(recordVOs: List<RecordVO>?) {
                         isBusy.value = false
-//                        val parentName = folder.getDisplayName()
-//                        folderName.value = parentName
-//                        isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER)
-//
-//                        if (records != null) {
-//                            existsFiles.value = records.isNotEmpty()
-//                            onFilesRetrieved.value = records
-//                        }
+                        isRoot.value = false
+                        folderName.value = record.displayName
+                        existsShares.value = !recordVOs.isNullOrEmpty()
+                        recordVOs?.let { onRecordsRetrieved.value = getDownloadableRecords(recordVOs) }
                     }
 
                     override fun onFailed(error: String?) {
@@ -77,6 +97,26 @@ class SharedXMeViewModel(application: Application
                         showMessage.value = error
                     }
                 })
+        }
+    }
+
+    private fun getDownloadableRecords(recordVOs: List<RecordVO>): MutableList<DownloadableRecord> {
+        val downloadableRecords = ArrayList<DownloadableRecord>()
+        for (recordVO in recordVOs) {
+            downloadableRecords.add(DownloadableRecord(recordVO))
+        }
+        return downloadableRecords
+    }
+
+    fun onBackBtnClick() {
+        // This is the record of the current folder but we need his parent
+        folderPathStack.pop()
+        if (folderPathStack.isEmpty()) {
+            onRootSharesNeeded.call()
+        } else {
+            val previousFolder = folderPathStack.pop()
+            folderPathStack.push(previousFolder)
+            loadFilesOf(previousFolder)
         }
     }
 

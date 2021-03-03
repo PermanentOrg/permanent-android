@@ -6,12 +6,17 @@ import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.ArchiveVO
 import org.permanent.permanent.network.models.ItemVO
+import org.permanent.permanent.network.models.RecordVO
 
-class DownloadableRecord(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean
-): Record(item, archive, showArchiveThumbnail) {
+class DownloadableRecord : Record {
     var isEnqueued = MutableLiveData(false)
     var isDownloading = MutableLiveData(false)
     var progress = MutableLiveData(0)
+
+    constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean)
+            : super(item, archive, showArchiveThumbnail)
+
+    constructor(recordInfo: RecordVO) : super(recordInfo)
 
     fun observe(lifecycleOwner: LifecycleOwner, download: Download) {
         download.isEnqueued.observe(lifecycleOwner, {

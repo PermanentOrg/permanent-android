@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
+import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
 
@@ -24,6 +26,7 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
     private lateinit var sharesRecyclerView: RecyclerView
     private lateinit var sharesAdapter: SharesAdapter
     private lateinit var downloadableRecord: DownloadableRecord
+    private val getRootShares = SingleLiveEvent<Void>()
     private var recordOptionsFragment: RecordOptionsFragment? = null
 
     override fun onCreateView(
@@ -54,9 +57,13 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    private val onFileDownloadRequest = Observer<Record> {
-        viewModel.download(downloadableRecord)
+    private val onRecordsRetrieved = Observer<MutableList<DownloadableRecord>> {
+        sharesAdapter.set(it)
     }
+
+    private val onRootSharesNeeded = Observer<Void> { getRootShares.call() }
+
+    private val onFileDownloadRequest = Observer<Record> { viewModel.download(downloadableRecord) }
 
     private fun initSharesRecyclerView(rvShares: RecyclerView) {
         sharesRecyclerView = rvShares
@@ -68,8 +75,9 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
         }
     }
 
-    fun set(records: MutableList<DownloadableRecord>) {
+    fun setShares(records: MutableList<DownloadableRecord>) {
         sharesAdapter.set(records)
+        viewModel.isRoot.value = true
         viewModel.existsShares.value = true
     }
 
@@ -78,6 +86,10 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
             sharesAdapter.getItemPosition(it)?.let { position ->
                 sharesRecyclerView.layoutManager?.scrollToPosition(position) }
         }
+    }
+
+    fun getRootShares(): LiveData<Void> {
+        return getRootShares
     }
 
     override fun onRecordClick(record: DownloadableRecord) {
@@ -95,10 +107,14 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
+        viewModel.getOnRootSharesNeeded().observe(this, onRootSharesNeeded)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
+        viewModel.getOnRootSharesNeeded().removeObserver(onRootSharesNeeded)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
     }
 

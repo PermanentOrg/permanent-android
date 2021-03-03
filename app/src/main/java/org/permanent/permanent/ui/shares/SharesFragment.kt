@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.shares
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,10 +11,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharesBinding
-import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 import org.permanent.permanent.viewmodels.SharesViewModel
 
 class SharesFragment : PermanentBaseFragment() {
@@ -56,7 +53,7 @@ class SharesFragment : PermanentBaseFragment() {
         arguments?.takeIf { it.containsKey(SELECTED_FRAGMENT_POSITION_KEY) }?.apply {
             viewPager.post {
                 viewPager.currentItem = getInt(SELECTED_FRAGMENT_POSITION_KEY)
-                getInt(RECORD_TO_NAVIGATE_TO_KEY)?.let { viewAdapter.setRecordToNavigateTo(it) }
+                viewAdapter.setRecordToNavigateTo(getInt(RECORD_TO_NAVIGATE_TO_KEY))
             }
         }
     }
@@ -65,21 +62,44 @@ class SharesFragment : PermanentBaseFragment() {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    private val onSharedArchivesRetrieved = Observer<List<Datum>> {
-        val userArchiveId = PreferencesHelper(requireContext()
-            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)).getArchiveId()
+    private val onSharesByMeRetrieved = Observer<MutableList<DownloadableRecord>> {
+        viewAdapter.setSharesByMe(it)
+    }
 
-        viewAdapter.setSharedArchives(it, userArchiveId)
+    private val onSharesWithMeRetrieved = Observer<MutableList<DownloadableRecord>> {
+        viewAdapter.setSharesWithMe(it)
+    }
+
+    private val onShareByMeFragmentReady = Observer<Void> {
+        viewAdapter.sharedByMeFragment?.getRootShares()?.observe(this, onGetRootShares)
+    }
+
+    private val onShareWithMeFragmentReady = Observer<Void> {
+        viewAdapter.sharedWithMeFragment?.getRootShares()?.observe(this, onGetRootShares)
+    }
+
+    private val onGetRootShares = Observer<Void> {
+        viewModel.getShares()
     }
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
-        viewModel.getOnSharedArchivesRetrieved().observe(this, onSharedArchivesRetrieved)
+        viewModel.getOnSharesByMeRetrieved().observe(this, onSharesByMeRetrieved)
+        viewModel.getOnSharesWithMeRetrieved().observe(this, onSharesWithMeRetrieved)
+        viewAdapter.getOnShareByMeFragmentReady().observe(this, onShareByMeFragmentReady)
+        viewAdapter.getOnShareWithMeFragmentReady().observe(this, onShareWithMeFragmentReady)
+        viewAdapter.sharedByMeFragment?.getRootShares()?.observe(this, onGetRootShares)
+        viewAdapter.sharedWithMeFragment?.getRootShares()?.observe(this, onGetRootShares)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
-        viewModel.getOnSharedArchivesRetrieved().removeObserver(onSharedArchivesRetrieved)
+        viewModel.getOnSharesByMeRetrieved().removeObserver(onSharesByMeRetrieved)
+        viewModel.getOnSharesWithMeRetrieved().removeObserver(onSharesWithMeRetrieved)
+        viewAdapter.getOnShareByMeFragmentReady().removeObserver(onShareByMeFragmentReady)
+        viewAdapter.getOnShareWithMeFragmentReady().removeObserver(onShareWithMeFragmentReady)
+        viewAdapter.sharedByMeFragment?.getRootShares()?.removeObserver(onGetRootShares)
+        viewAdapter.sharedWithMeFragment?.getRootShares()?.removeObserver(onGetRootShares)
     }
 
     override fun onResume() {

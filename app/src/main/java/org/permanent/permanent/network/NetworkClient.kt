@@ -163,16 +163,22 @@ class NetworkClient(context: Context) {
         return fileService.getRoot(requestBody)
     }
 
-    fun navigateMin(csrf: String?, archiveNumber: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber, null))
+    fun navigateMin(csrf: String?, archiveNr: String, folderLinkId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addFolder(archiveNr, folderLinkId, null))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.navigateMin(requestBody)
     }
 
-    fun getLeanItems(csrf: String?, archiveNumber: String, sort: String?, childItems: List<Int>
+    fun getLeanItems(
+        csrf: String?,
+        archiveNumber: String,
+        folderLinkId: Int,
+        sort: String?,
+        childItems: List<Int>
     ): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addFolder(archiveNumber, sort, childItems))
+        val request = toJson(RequestContainer(csrf)
+            .addFolder(archiveNumber, folderLinkId, sort, childItems))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.getLeanItems(requestBody)
