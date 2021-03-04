@@ -5,9 +5,10 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.UploadDestination
-import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
@@ -17,15 +18,24 @@ import java.io.OutputStream
 interface IFileRepository {
     fun getMyFilesRecord(listener: IOnMyFilesArchiveNrListener)
 
-    fun getChildRecordsOf(myFilesArchiveNr: String, sort: String?,
+    fun getChildRecordsOf(folderArchiveNr: String, folderLinkId: Int, sort: String?,
                           listener: IOnRecordsRetrievedListener)
 
-    fun navigateMin(archiveNumber: String, sort: String?, listener: IOnRecordsRetrievedListener)
+    fun navigateMin(
+        archiveNr: String,
+        folderLinkId: Int,
+        sort: String?,
+        listener: IOnRecordsRetrievedListener
+    )
 
-    fun getLeanItems(archiveNumber: String, sort: String?, childLinkIds: List<Int>,
+    fun getLeanItems(archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
                      listener: IOnRecordsRetrievedListener)
+
     fun createFolder(
-        parentFolderIdentifier: NavigationFolderIdentifier, name: String, listener: IResponseListener)
+        parentFolderIdentifier: NavigationFolderIdentifier,
+        name: String,
+        listener: IResponseListener
+    )
 
     fun getPresignedUrlForUpload(
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
@@ -60,7 +70,7 @@ interface IFileRepository {
     }
 
     interface IOnRecordsRetrievedListener {
-        fun onSuccess(records: List<Record>?)
+        fun onSuccess(recordVOs: List<RecordVO>?)
         fun onFailed(error: String?)
     }
 }

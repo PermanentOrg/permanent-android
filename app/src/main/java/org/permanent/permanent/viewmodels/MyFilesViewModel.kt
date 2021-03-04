@@ -54,7 +54,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val showMessage = SingleLiveEvent<String>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
-    private val onFilesRetrieved = SingleLiveEvent<List<Record>>()
+    private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
     private val onFilesFilterQuery = MutableLiveData<Editable>()
     private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
@@ -98,7 +98,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             override fun onSuccess(myFilesRecord: Record) {
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(myFilesRecord)
-                loadAllChildrenOf(myFilesRecord)
+                loadFilesAndUploadsOf(myFilesRecord)
                 loadEnqueuedDownloads(lifecycleOwner)
             }
 
@@ -178,8 +178,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return onDownloadFinished
     }
 
-    fun getOnFilesRetrieved(): MutableLiveData<List<Record>> {
-        return onFilesRetrieved
+    fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> {
+        return onRecordsRetrieved
     }
 
     fun getOnFilesFilterQuery(): MutableLiveData<Editable> {
@@ -195,20 +195,19 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
-        folder?.getArchiveNr()?.let {
+        val archiveNr = folder?.getArchiveNr()
+        val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
+        if(archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
-            fileRepository.getChildRecordsOf(it, sortType?.toBackendString(),
+            fileRepository.getChildRecordsOf(archiveNr, folderLinkId, sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(records: List<Record>?) {
+                    override fun onSuccess(recordVOs: List<RecordVO>?) {
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
                         folderName.value = parentName
                         isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER)
-
-                        if (records != null) {
-                            existsFiles.value = records.isNotEmpty()
-                            onFilesRetrieved.value = records
-                        }
+                        existsFiles.value = !recordVOs.isNullOrEmpty()
+                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
                     override fun onFailed(error: String?) {
@@ -217,6 +216,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                     }
                 })
         }
+    }
+
+    private fun getRecords(recordVOs: List<RecordVO>): List<Record> {
+        val records = ArrayList<Record>()
+        for (recordVO in recordVOs) {
+            records.add(Record(recordVO))
+        }
+        return records
     }
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> {
@@ -271,7 +278,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         if (record.type == RecordType.FOLDER) {
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
-            loadAllChildrenOf(record)
+            loadFilesAndUploadsOf(record)
         } else {
             getFileData(record)
         }
@@ -284,11 +291,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         val recordId = record.recordId
 
         if (folderLinkId != null && archiveNr != null && archiveId != null && recordId != null) {
-            fileRepository.getRecord(
-                folderLinkId, archiveNr, archiveId, recordId
+            swipeRefreshLayout.isRefreshing = true
+            fileRepository.getRecord(folderLinkId, archiveNr, archiveId, recordId
             ).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    swipeRefreshLayout.isRefreshing = false
                     val fileData = response.body()?.getFileData()
                     if (fileData != null) {
                         val file = File(
@@ -320,6 +328,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    swipeRefreshLayout.isRefreshing = false
                     showMessage.value = appContext.getString(R.string.generic_error)
                 }
             })
@@ -332,11 +341,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         folderPathStack.pop()
         val previousFolder = folderPathStack.pop()
         folderPathStack.push(previousFolder)
-        loadAllChildrenOf(previousFolder)
+        loadFilesAndUploadsOf(previousFolder)
     }
 
-    private fun loadAllChildrenOf(folderInfo: Record) {
-        currentFolder.value = NavigationFolder(appContext, folderInfo)
+    private fun loadFilesAndUploadsOf(record: Record) {
+        currentFolder.value = NavigationFolder(appContext, record)
         loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
@@ -420,11 +429,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onRelocateBtnClick() {
         isRelocationMode.value = false
-        swipeRefreshLayout.isRefreshing = true
         val recordValue = recordToRelocate.value
         val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
         val relocationTypeValue = relocationType.value
         if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
+            swipeRefreshLayout.isRefreshing = true
             fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {

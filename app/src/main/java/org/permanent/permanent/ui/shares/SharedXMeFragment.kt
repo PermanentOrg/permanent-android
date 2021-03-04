@@ -5,17 +5,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordOption
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.myFiles.PARCELABLE_FILE_DATA_KEY
 import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
+import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
 
@@ -24,6 +31,7 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
     private lateinit var sharesRecyclerView: RecyclerView
     private lateinit var sharesAdapter: SharesAdapter
     private lateinit var downloadableRecord: DownloadableRecord
+    private val getRootShares = SingleLiveEvent<Void>()
     private var recordOptionsFragment: RecordOptionsFragment? = null
 
     override fun onCreateView(
@@ -54,8 +62,19 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    private val onFileDownloadRequest = Observer<Record> {
-        viewModel.download(downloadableRecord)
+    private val onRecordsRetrieved = Observer<MutableList<DownloadableRecord>> {
+        sharesAdapter.set(it)
+    }
+
+    private val onRootSharesNeeded = Observer<Void> { getRootShares.call() }
+
+    private val onFileDownloadRequest = Observer<Record> { viewModel.download(downloadableRecord) }
+
+    private val onFileViewRequest = Observer<FileData> {
+        requireParentFragment()
+            .findNavController()
+            .navigate(R.id.action_sharesFragment_to_viewFileFragment,
+                bundleOf(PARCELABLE_FILE_DATA_KEY to it))
     }
 
     private fun initSharesRecyclerView(rvShares: RecyclerView) {
@@ -68,8 +87,9 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
         }
     }
 
-    fun set(records: MutableList<DownloadableRecord>) {
+    fun setShares(records: MutableList<DownloadableRecord>) {
         sharesAdapter.set(records)
+        viewModel.isRoot.value = true
         viewModel.existsShares.value = true
     }
 
@@ -78,6 +98,14 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
             sharesAdapter.getItemPosition(it)?.let { position ->
                 sharesRecyclerView.layoutManager?.scrollToPosition(position) }
         }
+    }
+
+    fun getRootShares(): LiveData<Void> {
+        return getRootShares
+    }
+
+    override fun onRecordClick(record: DownloadableRecord) {
+        viewModel.onRecordClick(record)
     }
 
     override fun onRecordOptionsClick(record: DownloadableRecord) {
@@ -91,10 +119,16 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
+        viewModel.getOnRootSharesNeeded().observe(this, onRootSharesNeeded)
+        viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
+        viewModel.getOnRootSharesNeeded().removeObserver(onRootSharesNeeded)
+        viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
     }
 

@@ -60,19 +60,21 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     }
 
     override fun getChildRecordsOf(
-        myFilesArchiveNr: String,
+        folderArchiveNr: String,
+        folderLinkId: Int,
         sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        navigateMin(myFilesArchiveNr, sort, listener)
+        navigateMin(folderArchiveNr, folderLinkId, sort, listener)
     }
 
     override fun navigateMin(
-        archiveNumber: String,
+        archiveNr: String,
+        folderLinkId: Int,
         sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        networkClient.navigateMin(prefsHelper.getCsrf(), archiveNumber)
+        networkClient.navigateMin(prefsHelper.getCsrf(), archiveNr, folderLinkId)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(
                     call: Call<ResponseVO>,
@@ -81,13 +83,13 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     val folderLinkIds: MutableList<Int> = ArrayList()
-                    val childItemVOs: List<RecordVO?>? = response.body()?.getChildItemVOs()
+                    val recordVOs: List<RecordVO?>? = response.body()?.getRecordVOs()
 
-                    if (childItemVOs != null) {
-                        for (recordVO in childItemVOs) {
+                    if (recordVOs != null) {
+                        for (recordVO in recordVOs) {
                             recordVO?.folder_linkId?.let { folderLinkIds.add(it) }
                         }
-                        getLeanItems(archiveNumber, sort, folderLinkIds, listener)
+                        getLeanItems(archiveNr, folderLinkId, sort, folderLinkIds, listener)
                     }
                 }
 
@@ -97,16 +99,16 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun getLeanItems(archiveNumber: String, sort: String?, childLinkIds: List<Int>,
+    override fun getLeanItems(archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
                               listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        networkClient.getLeanItems(prefsHelper.getCsrf(), archiveNumber, sort, childLinkIds)
+        networkClient.getLeanItems(prefsHelper.getCsrf(), archiveNr, folderLinkId, sort, childLinkIds)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
-                    listener.onSuccess(responseVO?.getRecords())
+                    listener.onSuccess(responseVO?.getRecordVOs())
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {

@@ -7,8 +7,9 @@ import kotlinx.android.synthetic.main.item_record_underlay.view.*
 import org.permanent.permanent.databinding.ItemListRecordBinding
 import org.permanent.permanent.models.Record
 
-class RecordListViewHolder(val binding: ItemListRecordBinding, private val recordListener: RecordListener)
-    : RecyclerView.ViewHolder(binding.root) {
+class RecordListViewHolder(
+    val binding: ItemListRecordBinding, private val recordListener: RecordListener
+): RecyclerView.ViewHolder(binding.root) {
 
     fun bind(record: Record, lifecycleOwner: LifecycleOwner) {
         binding.record = record
