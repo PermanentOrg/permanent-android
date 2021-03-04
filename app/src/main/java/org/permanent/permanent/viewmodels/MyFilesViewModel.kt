@@ -291,11 +291,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         val recordId = record.recordId
 
         if (folderLinkId != null && archiveNr != null && archiveId != null && recordId != null) {
-            fileRepository.getRecord(
-                folderLinkId, archiveNr, archiveId, recordId
+            swipeRefreshLayout.isRefreshing = true
+            fileRepository.getRecord(folderLinkId, archiveNr, archiveId, recordId
             ).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    swipeRefreshLayout.isRefreshing = false
                     val fileData = response.body()?.getFileData()
                     if (fileData != null) {
                         val file = File(
@@ -327,6 +328,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    swipeRefreshLayout.isRefreshing = false
                     showMessage.value = appContext.getString(R.string.generic_error)
                 }
             })
@@ -427,11 +429,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onRelocateBtnClick() {
         isRelocationMode.value = false
-        swipeRefreshLayout.isRefreshing = true
         val recordValue = recordToRelocate.value
         val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
         val relocationTypeValue = relocationType.value
         if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
+            swipeRefreshLayout.isRefreshing = true
             fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {

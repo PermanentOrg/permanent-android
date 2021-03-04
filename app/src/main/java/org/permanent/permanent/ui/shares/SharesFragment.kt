@@ -31,16 +31,17 @@ class SharesFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewModel.requestShares()
         viewAdapter = SharesViewPagerAdapter(this)
-        val viewPager = binding.viewPager
-        viewPager.adapter = viewAdapter
+        val viewPager2 = binding.viewPager
+        viewPager2.adapter = viewAdapter
+        viewPager2.isSaveEnabled = false
 
-        TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
+        TabLayoutMediator(binding.tabs, viewPager2) { tab, position ->
             when (position) {
                 Constants.POSITION_SHARED_BY_ME_FRAGMENT -> tab.text =
                     getString(R.string.shared_by_me_tab_name_)
@@ -51,8 +52,8 @@ class SharesFragment : PermanentBaseFragment() {
         }.attach()
 
         arguments?.takeIf { it.containsKey(SELECTED_FRAGMENT_POSITION_KEY) }?.apply {
-            viewPager.post {
-                viewPager.currentItem = getInt(SELECTED_FRAGMENT_POSITION_KEY)
+            viewPager2.post {
+                viewPager2.currentItem = getInt(SELECTED_FRAGMENT_POSITION_KEY)
                 viewAdapter.setRecordToNavigateTo(getInt(RECORD_TO_NAVIGATE_TO_KEY))
             }
         }
@@ -79,7 +80,7 @@ class SharesFragment : PermanentBaseFragment() {
     }
 
     private val onGetRootShares = Observer<Void> {
-        viewModel.getShares()
+        viewModel.requestShares()
     }
 
     override fun connectViewModelEvents() {

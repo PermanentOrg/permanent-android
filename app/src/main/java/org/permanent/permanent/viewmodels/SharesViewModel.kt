@@ -21,11 +21,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
     private val onSharesWithMeRetrieved = SingleLiveEvent<MutableList<DownloadableRecord>>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
-    init {
-        getShares()
-    }
-
-    fun getShares() {
+    fun requestShares() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
