@@ -22,7 +22,6 @@ class FileViewFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: FileViewViewModel
     private lateinit var binding: FragmentFileViewBinding
-    private lateinit var supportActionBar: ActionBar
     private var fileData: FileData? = null
 
     override fun onCreateView(
@@ -44,7 +43,7 @@ class FileViewFragment : PermanentBaseFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_toolbar_share, menu)
+        inflater.inflate(R.menu.menu_toolbar_file_view, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -76,13 +75,13 @@ class FileViewFragment : PermanentBaseFragment() {
 
     private fun updateActionBarAndStatusBar(color: Int) {
         val window: Window? = activity?.window
+        val supportActionBar: ActionBar? = (activity as AppCompatActivity?)?.supportActionBar
         if (color == Color.BLACK) {
-            supportActionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
-            supportActionBar.title = fileData?.displayName
-            supportActionBar.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+            supportActionBar?.title = fileData?.displayName
+            supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.BLACK))
             window?.statusBarColor = Color.BLACK
         } else {
-            supportActionBar.setBackgroundDrawable(ColorDrawable(color))
+            supportActionBar?.setBackgroundDrawable(ColorDrawable(color))
             window?.statusBarColor = color
         }
     }
@@ -97,5 +96,10 @@ class FileViewFragment : PermanentBaseFragment() {
         super.onPause()
         disconnectViewModelEvents()
         updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.wvFile.destroy()
     }
 }

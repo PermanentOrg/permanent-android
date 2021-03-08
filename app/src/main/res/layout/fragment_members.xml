@@ -39,7 +39,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvOwner"
             app:layout_constraintStart_toEndOf="@+id/tvOwner"
             app:layout_constraintTop_toTopOf="@+id/tvOwner"
-            app:srcCompat="@drawable/ic_info_light_grey" />
+            app:srcCompat="@drawable/ic_info_white"
+            app:tint="@color/lightGrey"/>
 
         <TextView
             android:id="@+id/tvName"
@@ -107,7 +108,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvManagers"
             app:layout_constraintStart_toEndOf="@+id/tvManagers"
             app:layout_constraintTop_toTopOf="@+id/tvManagers"
-            app:srcCompat="@drawable/ic_info_light_grey" />
+            app:srcCompat="@drawable/ic_info_white"
+            app:tint="@color/lightGrey"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutManagers"
@@ -181,7 +183,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvCurators"
             app:layout_constraintStart_toEndOf="@+id/tvCurators"
             app:layout_constraintTop_toTopOf="@+id/tvCurators"
-            app:srcCompat="@drawable/ic_info_light_grey" />
+            app:srcCompat="@drawable/ic_info_white"
+            app:tint="@color/lightGrey"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutCurators"
@@ -255,7 +258,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvEditors"
             app:layout_constraintStart_toEndOf="@+id/tvEditors"
             app:layout_constraintTop_toTopOf="@+id/tvEditors"
-            app:srcCompat="@drawable/ic_info_light_grey" />
+            app:srcCompat="@drawable/ic_info_white"
+            app:tint="@color/lightGrey"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutEditors"
@@ -329,7 +333,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvContributors"
             app:layout_constraintStart_toEndOf="@+id/tvContributors"
             app:layout_constraintTop_toTopOf="@+id/tvContributors"
-            app:srcCompat="@drawable/ic_info_light_grey" />
+            app:srcCompat="@drawable/ic_info_white"
+            app:tint="@color/lightGrey"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutContributors"
@@ -403,7 +408,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvViewers"
             app:layout_constraintStart_toEndOf="@+id/tvViewers"
             app:layout_constraintTop_toTopOf="@+id/tvViewers"
-            app:srcCompat="@drawable/ic_info_light_grey" />
+            app:srcCompat="@drawable/ic_info_white"
+            app:tint="@color/lightGrey"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutViewers"

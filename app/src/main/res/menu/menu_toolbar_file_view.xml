@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!--    <item-->
+<!--        android:id="@+id/infoAndDetailsItem"-->
+<!--        android:icon="@drawable/ic_info_white"-->
+<!--        android:title="@string/menu_toolbar_file_view_info_and_details"-->
+<!--        app:showAsAction="always"-->
+<!--        tools:ignore="AlwaysShowAction" />-->
+
+    <item
+        android:id="@+id/shareItem"
+        android:icon="@drawable/ic_share_white"
+        android:title="@string/file_options_menu_item_share"
+        app:showAsAction="always" />
+</menu>

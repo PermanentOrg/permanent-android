@@ -69,10 +69,9 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
     if (isVideo == true) {
         loadDataWithBaseURL(
             path,
-            "“<html><body style=\\“width:1125.0;height:2106.0;background-color:#000000;margin:0;padding:0;\\“>\n" +
-                    "<video style=\\“display:block;max-width:100%;max-height:100%;margin:50% auto;padding:0;\\” controls autoplay>\n" +
+            "“<html><body>\n" +
+                    "<video controls autoplay>\n" +
                     "<source src=\\“$path\\” type=\\“video/mp4\\“>\n" +
-                    "Your browser does not support the video tag.\n" +
                     "</video>\n" +
                     "</body></html>”",
             "video/mp4",

@@ -25,7 +25,7 @@ class FileViewViewModel(application: Application
         isVideo.value = fileData.contentType?.contains(FileType.VIDEO.toString())
         fileData.fileName?.let {
             file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), it)
-            filePath.value = if (file!!.exists()) Uri.fromFile(file).toString() else fileData.fileURL
+            filePath.value = if (file?.exists() == true) Uri.fromFile(file).toString() else fileData.fileURL
         }
     }
 
