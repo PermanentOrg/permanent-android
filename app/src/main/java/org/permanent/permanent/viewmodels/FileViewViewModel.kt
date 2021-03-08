@@ -1,67 +1,44 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
+import org.permanent.permanent.models.FileType
 import org.permanent.permanent.network.models.FileData
 import java.io.File
 
-class FileViewViewModel(application: Application)
-    : ObservableAndroidViewModel(application), MediaPlayer.OnInfoListener {
+class FileViewViewModel(application: Application
+) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
-    private lateinit var file: File
+    private var file: File? = null
     private val filePath = MutableLiveData<String>()
-    private lateinit var videoUri: Uri
-    val showingVideo = MutableLiveData(false)
+    private val isVideo = MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
 
     fun setFileData(fileData: FileData) {
-        file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            fileData.fileName)
-
-        if (fileData.contentType?.contains("video") == false) {
-            filePath.value = if (file.exists()) Uri.fromFile(file).toString() else fileData.fileURL
-        } else {
-            showingVideo.value = true
-            videoUri = if (file.exists()) Uri.fromFile(file) else Uri.parse(fileData.fileURL)
+        isVideo.value = fileData.contentType?.contains(FileType.VIDEO.toString())
+        fileData.fileName?.let {
+            file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), it)
+            filePath.value = if (file!!.exists()) Uri.fromFile(file).toString() else fileData.fileURL
         }
-    }
-
-    override fun onInfo(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        when (what) {
-            MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START -> {
-                isBusy.value = false
-                return true
-            }
-            MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
-                isBusy.value = true
-                return true
-            }
-            MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
-                isBusy.value = false
-                return true
-            }
-        }
-        return false
     }
 
     fun getFilePath(): MutableLiveData<String> {
         return filePath
     }
 
-    fun getVideoUri(): Uri {
-        return videoUri
+    fun getIsVideo(): MutableLiveData<Boolean> {
+        return isVideo
     }
 
-    fun getUriForSharing(): Uri {
-        return FileProvider.getUriForFile(appContext, Constants.FILE_PROVIDER_NAME, file)
+    fun getUriForSharing(): Uri? {
+        return file?.let { FileProvider.getUriForFile(appContext, Constants.FILE_PROVIDER_NAME, it) }
     }
 
     fun getShowMessage(): LiveData<String> {

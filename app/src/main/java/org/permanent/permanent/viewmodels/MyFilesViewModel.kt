@@ -303,7 +303,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                             fileData.fileName
                         )
-                        if (fileData.contentType?.contains("pdf") == true) {
+                        if (fileData.contentType?.contains(FileType.PDF.toString()) == true) {
                             val intent = if (file.exists()) {
                                 PdfViewerActivity.launchPdfFromPath(
                                     appContext,
@@ -314,7 +314,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                             } else {
                                 PdfViewerActivity.launchPdfFromUrl(
                                     appContext,
-                                    fileData.downloadURL,
+                                    fileData.fileURL,
                                     fileData.displayName,
                                     "",
                                     enableDownload = false)

@@ -2,6 +2,7 @@ package org.permanent.permanent.network.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import org.permanent.permanent.models.FileType
 
 class FileData private constructor() : Parcelable {
     var displayName: String? = null
@@ -11,12 +12,19 @@ class FileData private constructor() : Parcelable {
     var fileName: String? = null
 
     constructor(recordVO: RecordVO) : this() {
-        val fileVO: FileVO? = recordVO.FileVOs?.get(0)
+        // First we check for the converted video to mp4
+        val fileVO: FileVO? = if (recordVO.type?.contains(FileType.VIDEO.toString()) == true
+            && recordVO.FileVOs?.size!! > 1) {
+            fileName = recordVO.displayName + ".mp4"
+            recordVO.FileVOs?.get(1)
+        } else {
+            fileName = recordVO.uploadFileName
+            recordVO.FileVOs?.get(0)
+        }
         displayName = recordVO.displayName
         fileURL = fileVO?.fileURL
         downloadURL = fileVO?.downloadURL
         contentType = fileVO?.contentType
-        fileName = recordVO.uploadFileName
     }
 
     constructor(parcel: Parcel) : this() {

@@ -213,7 +213,7 @@ class NetworkClient(context: Context) {
     ): Call<ResponseBody> {
         val url = uploadDestination.presignedPost?.url
         val fields: Map<String, RequestBody>? = uploadDestination.presignedPost?.getFieldsMapForCall()
-        val contentType = (mediaType.type + "/" + mediaType.subtype).toRequestBody(MultipartBody.FORM)
+        val contentType = (mediaType.toString()).toRequestBody(MultipartBody.FORM)
         val fileRequestBody = CountingRequestBody(file.asRequestBody(mediaType), listener)
         val body: MultipartBody.Part = MultipartBody.Part.createFormData(
             "file", file.name, fileRequestBody)

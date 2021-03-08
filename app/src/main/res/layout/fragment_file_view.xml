@@ -13,28 +13,17 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black"
-        android:foregroundGravity="center">
-
-        <VideoView
-            android:id="@+id/videoView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="@{viewModel.showingVideo ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:background="@color/black">
 
         <WebView
             android:id="@+id/wvFile"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="@{viewModel.showingVideo ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:isVideo="@{viewModel.isVideo}"
             app:webViewPath="@{viewModel.filePath}" />
 
         <androidx.core.widget.ContentLoadingProgressBar
