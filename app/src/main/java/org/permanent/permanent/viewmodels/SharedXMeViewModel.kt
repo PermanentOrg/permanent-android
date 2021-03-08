@@ -10,6 +10,7 @@ import com.rajat.pdfviewer.PdfViewerActivity
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.FileData
@@ -36,7 +37,7 @@ class SharedXMeViewModel(application: Application
     val isRoot = MutableLiveData(true)
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
+    private val showMessage = SingleLiveEvent<String>()
     var existsShares = MutableLiveData(false)
     private var folderPathStack: Stack<DownloadableRecord> = Stack()
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<DownloadableRecord>>()
@@ -140,7 +141,7 @@ class SharedXMeViewModel(application: Application
                             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                             fileData.fileName
                         )
-                        if (fileData.contentType?.contains("pdf") == true) {
+                        if (fileData.contentType?.contains(FileType.PDF.toString()) == true) {
                             val intent = if (file.exists()) {
                                 PdfViewerActivity.launchPdfFromPath(
                                     appContext,
@@ -151,7 +152,7 @@ class SharedXMeViewModel(application: Application
                             } else {
                                 PdfViewerActivity.launchPdfFromUrl(
                                     appContext,
-                                    fileData.downloadURL,
+                                    fileData.fileURL,
                                     fileData.displayName,
                                     "",
                                     enableDownload = false)

@@ -3,10 +3,8 @@ package org.permanent.permanent.ui.myFiles
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.widget.MediaController
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -41,13 +39,6 @@ class FileViewFragment : PermanentBaseFragment() {
             viewModel.setFileData(it)
         }
         binding.executePendingBindings()
-        if (fileData?.contentType?.contains("video") == true) {
-            // Set up the media controller widget and attach it to the video view.
-            val controller = MediaController(context)
-            controller.setMediaPlayer(binding.videoView)
-            binding.videoView.setMediaController(controller)
-        }
-        updateActionBarAndStatusBar(Color.BLACK)
         setHasOptionsMenu(true)
         return binding.root
     }
@@ -55,19 +46,6 @@ class FileViewFragment : PermanentBaseFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_toolbar_share, menu)
         super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    private fun updateActionBarAndStatusBar(color: Int) {
-        val window: Window? = activity?.window
-        if (color == Color.BLACK) {
-            supportActionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
-            supportActionBar.title = fileData?.displayName
-            supportActionBar.setBackgroundDrawable(ColorDrawable(Color.BLACK))
-            window?.statusBarColor = Color.BLACK
-        } else {
-            supportActionBar.setBackgroundDrawable(ColorDrawable(color))
-            window?.statusBarColor = color
-        }
     }
 
     private val onShowMessage = Observer<String> { message ->
@@ -96,35 +74,28 @@ class FileViewFragment : PermanentBaseFragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (viewModel.showingVideo.value == true) {
-            viewModel.isBusy.value = true
-            binding.videoView.setVideoURI(viewModel.getVideoUri())
-            binding.videoView.setOnPreparedListener {
-                viewModel.isBusy.value = false
-                binding.videoView.start()
-            }
-            binding.videoView.setOnInfoListener(viewModel)
+    private fun updateActionBarAndStatusBar(color: Int) {
+        val window: Window? = activity?.window
+        if (color == Color.BLACK) {
+            supportActionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
+            supportActionBar.title = fileData?.displayName
+            supportActionBar.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+            window?.statusBarColor = Color.BLACK
+        } else {
+            supportActionBar.setBackgroundDrawable(ColorDrawable(color))
+            window?.statusBarColor = color
         }
     }
 
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        updateActionBarAndStatusBar(Color.BLACK)
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            binding.videoView.pause()
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
         updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
-        binding.videoView.stopPlayback()
     }
 }
