@@ -23,7 +23,7 @@ class ManageLinkViewModel (application: Application) : ObservableAndroidViewMode
     private val autoApprove = MutableLiveData(false)
     private val maxUses = MutableLiveData("0")
     private val expirationDate = MutableLiveData<String>()
-    private val onShowDatePickerRequest = MutableLiveData<Void>()
+    private val showDatePicker = SingleLiveEvent<Void>()
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
@@ -68,8 +68,8 @@ class ManageLinkViewModel (application: Application) : ObservableAndroidViewMode
         return expirationDate
     }
 
-    fun getOnShowDatePickerRequest(): LiveData<Void> {
-        return onShowDatePickerRequest
+    fun getShowDatePicker(): LiveData<Void> {
+        return showDatePicker
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> {
@@ -81,7 +81,7 @@ class ManageLinkViewModel (application: Application) : ObservableAndroidViewMode
     }
 
     fun onExpirationDateClick() {
-        onShowDatePickerRequest.value = onShowDatePickerRequest.value
+        showDatePicker.call()
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {

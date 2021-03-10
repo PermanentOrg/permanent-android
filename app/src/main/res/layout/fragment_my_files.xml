@@ -33,7 +33,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/rounded_border_edit_text"
+                android:background="@drawable/rounded_border_white_edit_text"
                 android:ems="10"
                 android:hint="@string/my_files_search_hint"
                 android:afterTextChanged="@{(editable)->viewModel.onSearchQueryTextChanged(editable)}"

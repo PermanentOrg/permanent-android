@@ -1,27 +1,31 @@
-package org.permanent.permanent.ui.myFiles
+package org.permanent.permanent.ui.fileView
 
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayoutMediator
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentFileViewBinding
+import org.permanent.permanent.databinding.FragmentFileMetadataBinding
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.viewmodels.FileViewViewModel
+import org.permanent.permanent.viewmodels.FileMetadataViewModel
 
-const val PARCELABLE_FILE_DATA_KEY = "parcelable_file_data_key"
-class FileViewFragment : PermanentBaseFragment() {
+class FileMetadataFragment: PermanentBaseFragment() {
 
-    private lateinit var viewModel: FileViewViewModel
-    private lateinit var binding: FragmentFileViewBinding
+    private lateinit var viewModel: FileMetadataViewModel
+    private lateinit var viewAdapter: FileMetadataViewPagerAdapter
+    private lateinit var binding: FragmentFileMetadataBinding
     private var fileData: FileData? = null
 
     override fun onCreateView(
@@ -29,8 +33,8 @@ class FileViewFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(FileViewViewModel::class.java)
-        binding = FragmentFileViewBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(FileMetadataViewModel::class.java)
+        binding = FragmentFileMetadataBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
@@ -38,13 +42,23 @@ class FileViewFragment : PermanentBaseFragment() {
             viewModel.setFileData(it)
         }
         binding.executePendingBindings()
-        setHasOptionsMenu(true)
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_toolbar_file_view, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewAdapter = FileMetadataViewPagerAdapter(this)
+        fileData?.let { viewAdapter.setFileData(it) }
+        val viewPager2 = binding.vpFileDetails
+        viewPager2.adapter = viewAdapter
+        viewPager2.isSaveEnabled = false
+
+        TabLayoutMediator(binding.tlFileDetails, viewPager2) { tab, position ->
+            when (position) {
+                Constants.POSITION_DETAILS_FRAGMENT -> tab.text =
+                    getString(R.string.metadata_details_tab_name)
+                else -> tab.text = getString(R.string.metadata_info_tab_name)
+            }
+        }.attach()
     }
 
     private val onShowMessage = Observer<String> { message ->
@@ -57,20 +71,6 @@ class FileViewFragment : PermanentBaseFragment() {
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.shareItem -> {
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.putExtra(Intent.EXTRA_STREAM, viewModel.getUriForSharing())
-                intent.type = fileData?.contentType
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                startActivity(Intent.createChooser(intent, "Share file"))
-                super.onOptionsItemSelected(item)
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun updateActionBarAndStatusBar(color: Int) {
@@ -96,10 +96,5 @@ class FileViewFragment : PermanentBaseFragment() {
         super.onPause()
         disconnectViewModelEvents()
         updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding.wvFile.destroy()
     }
 }
