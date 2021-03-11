@@ -33,16 +33,10 @@ class FileDetailsFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-    }
-
     override fun connectViewModelEvents() {
-        viewModel.getShowMessage().observe(this, onShowMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getShowMessage().removeObserver(onShowMessage)
     }
 
     override fun onResume() {

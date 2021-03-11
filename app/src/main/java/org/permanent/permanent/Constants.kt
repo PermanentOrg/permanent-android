@@ -5,8 +5,8 @@ class Constants {
         val BUILD_ENV = BuildEnvOption.STAGING
         const val POSITION_SHARED_BY_ME_FRAGMENT = 0
         const val POSITION_SHARED_WITH_ME_FRAGMENT = 1
-        const val POSITION_INFO_FRAGMENT = 0
-        const val POSITION_DETAILS_FRAGMENT = 1
+        const val POSITION_INFO_FRAGMENT = 1
+        const val POSITION_DETAILS_FRAGMENT = 0
         const val MIN_PASSWORD_LENGTH = 8
         const val VERIFICATION_CODE_LENGTH = 4
         const val REQUEST_CODE_FILE_SELECT = 200

@@ -6,14 +6,23 @@ import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Tag
 
 class FileData private constructor() : Parcelable {
+    var fileName: String? = null
     var displayName: String? = null
     var description: String? = null
     var displayDate: String? = null
+    var createdDate: String? = null
+    var updatedDate: String? = null
+    var derivedDate: String? = null
+    var derivedCreatedDate: String? = null
+    var size: Long? = null
+    var originalFileName: String? = null
+    var originalFileType: String? = null
     var fileURL: String? = null
     var downloadURL: String? = null
     var thumbURL2000: String? = null
     var contentType: String? = null
-    var fileName: String? = null
+    var width: Int? = null
+    var height: Int? = null
     var tags: List<Tag>? = null
 
     constructor(recordVO: RecordVO) : this() {
@@ -29,10 +38,19 @@ class FileData private constructor() : Parcelable {
         displayName = recordVO.displayName
         description = recordVO.description
         displayDate = recordVO.displayDT?.substringBefore("T")
+        createdDate = recordVO.createdDT?.replace("T", " ")
+        updatedDate = recordVO.updatedDT?.replace("T", " ")
+        derivedDate = recordVO.derivedDT?.replace("T", " ")
+        derivedCreatedDate = recordVO.derivedCreatedDT?.replace("T", " ")
+        size = recordVO.size
+        originalFileName = recordVO.uploadFileName?.substringBefore(".")
+        originalFileType = recordVO.uploadFileName?.substringAfter(".")
         fileURL = fileVO?.fileURL
         downloadURL = fileVO?.downloadURL
         thumbURL2000 = recordVO.thumbURL2000
         contentType = fileVO?.contentType
+        width = fileVO?.width
+        height = fileVO?.height
         initTags(recordVO.TagVOs)
     }
 
@@ -46,26 +64,44 @@ class FileData private constructor() : Parcelable {
     }
 
     constructor(parcel: Parcel) : this() {
+        fileName = parcel.readString()
         displayName = parcel.readString()
         description = parcel.readString()
         displayDate = parcel.readString()
+        createdDate = parcel.readString()
+        updatedDate = parcel.readString()
+        derivedDate = parcel.readString()
+        derivedCreatedDate = parcel.readString()
+        size = parcel.readLong()
+        originalFileName = parcel.readString()
+        originalFileType = parcel.readString()
         fileURL = parcel.readString()
         downloadURL = parcel.readString()
         thumbURL2000 = parcel.readString()
         contentType = parcel.readString()
-        fileName = parcel.readString()
+        width = parcel.readInt()
+        height = parcel.readInt()
         tags = parcel.createTypedArrayList(Tag)
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(fileName)
         parcel.writeString(displayName)
         parcel.writeString(description)
         parcel.writeString(displayDate)
+        parcel.writeString(createdDate)
+        parcel.writeString(updatedDate)
+        parcel.writeString(derivedDate)
+        parcel.writeString(derivedCreatedDate)
+        size?.let { parcel.writeLong(it) }
+        parcel.writeString(originalFileName)
+        parcel.writeString(originalFileType)
         parcel.writeString(fileURL)
         parcel.writeString(downloadURL)
         parcel.writeString(thumbURL2000)
         parcel.writeString(contentType)
-        parcel.writeString(fileName)
+        width?.let { parcel.writeInt(it) }
+        height?.let { parcel.writeInt(it) }
         parcel.writeTypedList(tags)
     }
 

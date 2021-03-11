@@ -5,6 +5,10 @@ class RecordVO {
     var displayName: String? = null
     var description: String? = null
     var displayDT: String? = null
+    var createdDT: String? = null
+    var updatedDT: String? = null
+    var derivedDT: String? = null
+    var derivedCreatedDT: String? = null
     var uploadFileName: String? = null
     var type: String? = null
     var size: Long? = null
