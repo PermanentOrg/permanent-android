@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.databinding.FragmentFileDetailsBinding
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileDetailsViewModel
 
@@ -26,6 +27,9 @@ class FileDetailsFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        arguments?.takeIf { it.containsKey(PARCELABLE_FILE_DATA_KEY) }?.apply {
+            getParcelable<FileData>(PARCELABLE_FILE_DATA_KEY)?.also { viewModel.setFileData(it) }
+        }
         return binding.root
     }
 

@@ -245,4 +245,16 @@
     <string name="file_info_location">Location</string>
     <string name="file_info_tags">Tags</string>
     <string name="file_info_none">None</string>
+
+    <string name="file_details_uploaded">Uploaded:</string>
+    <string name="file_details_uploaded_by">Uploaded By:</string>
+    <string name="file_details_last_modified">Last Modified:</string>
+    <string name="file_details_created">Created:</string>
+    <string name="file_details_file_created">File Created:</string>
+    <string name="file_details_size">Size:</string>
+    <string name="file_details_file_type">File Type:</string>
+    <string name="file_details_original_file_name">Original File Name:</string>
+    <string name="file_details_original_file_type">Original File Type:</string>
+    <string name="file_details_original_width">Width:</string>
+    <string name="file_details_original_height">Height:</string>
 </resources>
