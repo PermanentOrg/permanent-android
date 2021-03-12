@@ -96,13 +96,13 @@ class FileViewFragment : PermanentBaseFragment() {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
-        updateActionBarAndStatusBar(Color.BLACK)
+//        updateActionBarAndStatusBar(Color.BLACK)
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-        updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+//        updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
     }
 
     override fun onDestroyView() {
