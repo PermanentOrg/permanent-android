@@ -1,15 +1,13 @@
-package org.permanent.permanent.ui.myFiles
+package org.permanent.permanent.ui.fileView
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileViewBinding
@@ -22,7 +20,6 @@ class FileViewFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: FileViewViewModel
     private lateinit var binding: FragmentFileViewBinding
-    private lateinit var supportActionBar: ActionBar
     private var fileData: FileData? = null
 
     override fun onCreateView(
@@ -40,11 +37,12 @@ class FileViewFragment : PermanentBaseFragment() {
         }
         binding.executePendingBindings()
         setHasOptionsMenu(true)
+        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_toolbar_share, menu)
+        inflater.inflate(R.menu.menu_toolbar_file_view, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -62,6 +60,11 @@ class FileViewFragment : PermanentBaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.metadataItem -> {
+                val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
+                findNavController().navigate(R.id.action_fileViewFragment_to_fileMetadataFragment, bundle)
+                super.onOptionsItemSelected(item)
+            }
             R.id.shareItem -> {
                 val intent = Intent(Intent.ACTION_SEND)
                 intent.putExtra(Intent.EXTRA_STREAM, viewModel.getUriForSharing())
@@ -74,28 +77,18 @@ class FileViewFragment : PermanentBaseFragment() {
         }
     }
 
-    private fun updateActionBarAndStatusBar(color: Int) {
-        val window: Window? = activity?.window
-        if (color == Color.BLACK) {
-            supportActionBar = (activity as AppCompatActivity?)!!.supportActionBar!!
-            supportActionBar.title = fileData?.displayName
-            supportActionBar.setBackgroundDrawable(ColorDrawable(Color.BLACK))
-            window?.statusBarColor = Color.BLACK
-        } else {
-            supportActionBar.setBackgroundDrawable(ColorDrawable(color))
-            window?.statusBarColor = color
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
-        updateActionBarAndStatusBar(Color.BLACK)
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-        updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.wvFile.destroy()
     }
 }

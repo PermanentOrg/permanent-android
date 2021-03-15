@@ -85,7 +85,7 @@
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="8dp"
             android:visibility="@{record.showArchiveThumb &amp;&amp; record.isDownloading == false ?  View.VISIBLE : View.GONE}"
-            app:imageUrl="@{record.archiveThumbURL500}"
+            app:roundedImageUrl="@{record.archiveThumbURL500}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btnOptions"
             app:layout_constraintTop_toTopOf="parent" />

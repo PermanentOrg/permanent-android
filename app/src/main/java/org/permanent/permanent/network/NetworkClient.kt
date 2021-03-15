@@ -1,6 +1,7 @@
 package org.permanent.permanent.network
 
 import android.content.Context
+import android.webkit.WebView
 import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -48,9 +49,10 @@ class NetworkClient(context: Context) {
         )
 
         val interceptor = HttpLoggingInterceptor()
-        interceptor.level =
-            if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
-            else HttpLoggingInterceptor.Level.NONE
+        interceptor.level = if (BuildConfig.DEBUG) {
+                WebView.setWebContentsDebuggingEnabled(true)
+                HttpLoggingInterceptor.Level.BODY
+            } else HttpLoggingInterceptor.Level.NONE
 
         val okHttpClient = OkHttpClient.Builder()
             .cookieJar(cookieJar)

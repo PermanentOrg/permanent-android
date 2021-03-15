@@ -33,6 +33,6 @@ class CircleTransform : Transformation {
     }
 
     override fun key(): String {
-        return "circle";
+        return "circle"
     }
 }

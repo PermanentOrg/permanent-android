@@ -73,7 +73,8 @@
     <string name="menu_drawer_activity_feed">Activity Feed</string>
     <string name="menu_drawer_invitations">Invitations</string>
     <string name="menu_drawer_apps">Apps</string>
-    <string name="menu_toolbar_settings_text">ProfileMenu</string>
+    <string name="menu_toolbar_settings">Settings</string>
+    <string name="menu_toolbar_file_metadata">File Metadata</string>
     <string name="menu_settings_drawer_storage">Add Storage</string>
     <string name="menu_settings_drawer_account">Account Info</string>
     <string name="menu_settings_drawer_activity">Activity Feed</string>
@@ -88,6 +89,8 @@
     <string name="main_navigation_account_info">Account Info</string>
     <string name="main_navigation_security">Security</string>
     <string name="main_navigation_file_view">File View</string>
+    <string name="main_navigation_file">File</string>
+    <string name="main_navigation_file_metadata">File Metadata</string>
     <string name="main_navigation_share_link">Share Link</string>
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
@@ -233,4 +236,26 @@
     <string name="account_screen_postal_code">Postal code</string>
     <string name="account_screen_country">Country</string>
     <string name="account_update_success">Account info updated successfully.</string>
+
+    <string name="metadata_info_tab_name">Info</string>
+    <string name="metadata_details_tab_name">Details</string>
+
+    <string name="file_info_name">Name</string>
+    <string name="file_info_description">Description</string>
+    <string name="file_info_date">Date</string>
+    <string name="file_info_location">Location</string>
+    <string name="file_info_tags">Tags</string>
+    <string name="file_info_none">None</string>
+
+    <string name="file_details_uploaded">Uploaded:</string>
+    <string name="file_details_uploaded_by">Uploaded By:</string>
+    <string name="file_details_last_modified">Last Modified:</string>
+    <string name="file_details_created">Created:</string>
+    <string name="file_details_file_created">File Created:</string>
+    <string name="file_details_size">Size:</string>
+    <string name="file_details_file_type">File Type:</string>
+    <string name="file_details_original_file_name">Original File Name:</string>
+    <string name="file_details_original_file_type">Original File Type:</string>
+    <string name="file_details_original_width">Width:</string>
+    <string name="file_details_original_height">Height:</string>
 </resources>

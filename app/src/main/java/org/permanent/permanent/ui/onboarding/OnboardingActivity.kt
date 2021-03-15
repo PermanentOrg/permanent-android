@@ -61,7 +61,7 @@ class OnboardingActivity : PermanentBaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_onboarding, menu)
+        menuInflater.inflate(R.menu.menu_toolbar_onboarding, menu)
         return true
     }
 

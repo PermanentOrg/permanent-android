@@ -37,11 +37,11 @@ class SharesFragment : PermanentBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel.requestShares()
         viewAdapter = SharesViewPagerAdapter(this)
-        val viewPager2 = binding.viewPager
+        val viewPager2 = binding.vpShares
         viewPager2.adapter = viewAdapter
         viewPager2.isSaveEnabled = false
 
-        TabLayoutMediator(binding.tabs, viewPager2) { tab, position ->
+        TabLayoutMediator(binding.tlShares, viewPager2) { tab, position ->
             when (position) {
                 Constants.POSITION_SHARED_BY_ME_FRAGMENT -> tab.text =
                     getString(R.string.shared_by_me_tab_name_)
