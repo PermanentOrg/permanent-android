@@ -93,15 +93,15 @@ class FileData private constructor() : Parcelable {
         parcel.writeString(updatedDate)
         parcel.writeString(derivedDate)
         parcel.writeString(derivedCreatedDate)
-        size?.let { parcel.writeLong(it) }
+        parcel.writeLong(size ?: -1L)
         parcel.writeString(originalFileName)
         parcel.writeString(originalFileType)
         parcel.writeString(fileURL)
         parcel.writeString(downloadURL)
         parcel.writeString(thumbURL2000)
         parcel.writeString(contentType)
-        width?.let { parcel.writeInt(it) }
-        height?.let { parcel.writeInt(it) }
+        parcel.writeInt(width ?: -1)
+        parcel.writeInt(height ?: -1)
         parcel.writeTypedList(tags)
     }
 

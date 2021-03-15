@@ -25,12 +25,8 @@
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
-            android:id="@+id/action_myFilesFragment_to_fileViewFragment"
-            app:destination="@id/fileViewFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            android:id="@+id/action_myFilesFragment_to_fileActivity"
+            app:destination="@id/fileActivity" />
     </fragment>
 
     <fragment
@@ -120,22 +116,13 @@
         android:label="@string/main_navigation_security"
         tools:layout="@layout/fragment_security"/>
 
-    <fragment
-        android:id="@+id/fileViewFragment"
-        android:name="org.permanent.permanent.ui.fileView.FileViewFragment"
-        android:label="@string/main_navigation_file_view"
-        tools:layout="@layout/fragment_file_view">
-        <action
-            android:id="@+id/action_fileViewFragment_to_fileMetadataFragment"
-            app:destination="@id/fileMetadataFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
-    </fragment>
-    <fragment
-        android:id="@+id/fileMetadataFragment"
-        android:name="org.permanent.permanent.ui.fileView.FileMetadataFragment"
-        android:label="@string/main_navigation_file_metadata"
-        tools:layout="@layout/fragment_file_view"/>
+    <activity
+        android:id="@+id/fileActivity"
+        android:name="org.permanent.permanent.ui.fileView.FileActivity"
+        android:label="@string/main_navigation_file"
+        tools:layout="@layout/activity_file">
+        <argument
+            android:name="parcelable_file_data_key"
+            app:argType="org.permanent.permanent.network.models.FileData" />
+    </activity>
 </navigation>

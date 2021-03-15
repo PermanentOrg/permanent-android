@@ -1,17 +1,13 @@
 package org.permanent.permanent.ui.fileView
 
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import org.permanent.permanent.Constants
@@ -21,7 +17,7 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileMetadataViewModel
 
-class FileMetadataFragment: PermanentBaseFragment() {
+class FileMetadataFragment: PermanentBaseFragment(), View.OnClickListener {
 
     private lateinit var viewModel: FileMetadataViewModel
     private lateinit var viewAdapter: FileMetadataViewPagerAdapter
@@ -40,8 +36,10 @@ class FileMetadataFragment: PermanentBaseFragment() {
         fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
         fileData?.let {
             viewModel.setFileData(it)
+            (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
         }
         binding.executePendingBindings()
+        binding.ivThumbnail.setOnClickListener(this)
         return binding.root
     }
 
@@ -65,6 +63,10 @@ class FileMetadataFragment: PermanentBaseFragment() {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
+    override fun onClick(v: View?) { // On Thumbnail click
+        findNavController().popBackStack(R.id.fileViewFragment, false)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
     }
@@ -73,28 +75,13 @@ class FileMetadataFragment: PermanentBaseFragment() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
     }
 
-    private fun updateActionBarAndStatusBar(color: Int) {
-        val window: Window? = activity?.window
-        val supportActionBar: ActionBar? = (activity as AppCompatActivity?)?.supportActionBar
-        if (color == Color.BLACK) {
-            supportActionBar?.title = fileData?.displayName
-            supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.BLACK))
-            window?.statusBarColor = Color.BLACK
-        } else {
-            supportActionBar?.setBackgroundDrawable(ColorDrawable(color))
-            window?.statusBarColor = color
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
-        updateActionBarAndStatusBar(Color.BLACK)
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-        updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
     }
 }

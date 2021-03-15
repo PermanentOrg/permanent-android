@@ -1,13 +1,9 @@
 package org.permanent.permanent.ui.fileView
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -41,6 +37,7 @@ class FileViewFragment : PermanentBaseFragment() {
         }
         binding.executePendingBindings()
         setHasOptionsMenu(true)
+        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         return binding.root
     }
 
@@ -80,29 +77,14 @@ class FileViewFragment : PermanentBaseFragment() {
         }
     }
 
-    private fun updateActionBarAndStatusBar(color: Int) {
-        val window: Window? = activity?.window
-        val supportActionBar: ActionBar? = (activity as AppCompatActivity?)?.supportActionBar
-        if (color == Color.BLACK) {
-            supportActionBar?.title = fileData?.displayName
-            supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.BLACK))
-            window?.statusBarColor = Color.BLACK
-        } else {
-            supportActionBar?.setBackgroundDrawable(ColorDrawable(color))
-            window?.statusBarColor = color
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
-//        updateActionBarAndStatusBar(Color.BLACK)
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-//        updateActionBarAndStatusBar(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
     }
 
     override fun onDestroyView() {

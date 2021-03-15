@@ -156,7 +156,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onFileViewRequest = Observer<FileData> {
         val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to it)
-        findNavController().navigate(R.id.action_myFilesFragment_to_fileViewFragment, bundle)
+        findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity, bundle)
     }
 
     private val onRecordShareRequest = Observer<Record> { record ->

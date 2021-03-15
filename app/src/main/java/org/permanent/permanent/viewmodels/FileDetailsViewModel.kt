@@ -23,12 +23,12 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
         lastModified.value = fileData.updatedDate?.let { it } ?: "-"
         created.value = fileData.derivedDate?.let { it } ?: "-"
         fileCreated.value = fileData.derivedCreatedDate?.let { it } ?: "-"
-        size.value = fileData.size?.let { it.toString() } ?: "-"
+        size.value = if (fileData.size != -1L) fileData.size.toString() else "-"
         fileType.value = fileData.contentType?.substringBefore("/")?.let { it } ?: "-"
         originalFileName.value = fileData.originalFileName?.let { it } ?: "-"
         originalFileType.value = fileData.originalFileType?.let { it } ?: "-"
-        width.value = fileData.width?.let { it.toString() } ?: "-"
-        height.value = fileData.height?.let { it.toString() } ?: "-"
+        width.value = if (fileData.width != -1) fileData.width.toString() else "-"
+        height.value = if (fileData.height != -1) fileData.height.toString() else "-"
     }
 
     fun getUploaded(): LiveData<String> {

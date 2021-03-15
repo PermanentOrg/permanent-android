@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity_navigation"
+    app:startDestination="@id/fileViewFragment">
+
+    <fragment
+        android:id="@+id/fileViewFragment"
+        android:name="org.permanent.permanent.ui.fileView.FileViewFragment"
+        android:label="@string/main_navigation_file_view"
+        tools:layout="@layout/fragment_file_view">
+        <argument
+            android:name="parcelable_file_data_key"
+            app:argType="org.permanent.permanent.network.models.FileData" />
+        <action
+            android:id="@+id/action_fileViewFragment_to_fileMetadataFragment"
+            app:destination="@id/fileMetadataFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/fileMetadataFragment"
+        android:name="org.permanent.permanent.ui.fileView.FileMetadataFragment"
+        android:label="@string/main_navigation_file_metadata"
+        tools:layout="@layout/fragment_file_view"/>
+</navigation>
