@@ -29,7 +29,6 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val onRecordShareRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
-    private val onRefreshFolder = MutableLiveData<Void>()
 
     fun setBundleArguments(record: Record) {
         val bundle = Bundle()
@@ -116,10 +115,6 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, RelocationType>> {
         return onRecordRelocateRequest
-    }
-
-    fun getOnRefreshFolder(): MutableLiveData<Void> {
-        return onRefreshFolder
     }
 
     override fun connectViewModelEvents() {

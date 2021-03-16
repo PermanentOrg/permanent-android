@@ -6,7 +6,6 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
 import java.io.File
-import kotlin.collections.ArrayList
 
 const val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
 const val PERM_API_KEY_MOBILE_PROD = "5aef7dd1f32e0d9ca57290e3c82b59db"
@@ -166,6 +165,18 @@ class RequestContainer(csrf: String?) {
         recordVO.archiveId = archiveId
         recordVO.recordId = recordId
         recordVO.dataStatus = 1
+        RequestVO.data?.get(0)?.RecordVO = recordVO
+        return this
+    }
+
+    fun addRecord(fileData: FileData): RequestContainer {
+        val recordVO = RecordVO()
+        recordVO.folder_linkId = fileData.folderLinkId
+        recordVO.archiveNbr = fileData.archiveNr
+        recordVO.recordId = fileData.recordId
+        recordVO.displayName = fileData.displayName
+        recordVO.description = fileData.description
+        recordVO.displayDT = fileData.displayDate
         RequestVO.data?.get(0)?.RecordVO = recordVO
         return this
     }

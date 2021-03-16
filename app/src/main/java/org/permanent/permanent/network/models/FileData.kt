@@ -6,6 +6,9 @@ import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Tag
 
 class FileData private constructor() : Parcelable {
+    var recordId: Int? = null
+    var folderLinkId: Int? = null
+    var archiveNr: String? = null
     var fileName: String? = null
     var displayName: String? = null
     var description: String? = null
@@ -26,6 +29,9 @@ class FileData private constructor() : Parcelable {
     var tags: List<Tag>? = null
 
     constructor(recordVO: RecordVO) : this() {
+        recordId = recordVO.recordId
+        folderLinkId = recordVO.folder_linkId
+        archiveNr = recordVO.archiveNbr
         // First we check for the converted video to mp4
         val fileVO: FileVO? = if (recordVO.type?.contains(FileType.VIDEO.toString()) == true
             && recordVO.FileVOs?.size!! > 1) {
@@ -64,6 +70,9 @@ class FileData private constructor() : Parcelable {
     }
 
     constructor(parcel: Parcel) : this() {
+        recordId = parcel.readInt()
+        folderLinkId = parcel.readInt()
+        archiveNr = parcel.readString()
         fileName = parcel.readString()
         displayName = parcel.readString()
         description = parcel.readString()
@@ -85,6 +94,9 @@ class FileData private constructor() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(recordId ?: -1)
+        parcel.writeInt(folderLinkId ?: -1)
+        parcel.writeString(archiveNr)
         parcel.writeString(fileName)
         parcel.writeString(displayName)
         parcel.writeString(description)

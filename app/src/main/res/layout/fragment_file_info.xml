@@ -165,6 +165,7 @@
             app:layout_constraintTop_toBottomOf="@+id/tvTags" />
 
         <Button
+            android:id="@+id/btnSave"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -174,6 +175,7 @@
             android:backgroundTint="@color/barneyPurple"
             android:fontFamily="@font/open_sans_bold"
             android:insetBottom="0dp"
+            android:onClick="@{() -> viewModel.onSaveClick()}"
             android:text="@string/save_button"
             android:textAllCaps="false"
             android:textSize="18sp"
@@ -183,6 +185,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etTags"
             app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@+id/btnSave"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvName" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

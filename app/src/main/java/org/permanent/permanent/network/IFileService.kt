@@ -61,4 +61,7 @@ interface IFileService {
 
     @POST("record/move")
     fun moveRecord(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("record/update")
+    fun updateRecord(@Body requestBody: RequestBody): Call<ResponseVO>
 }

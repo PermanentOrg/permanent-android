@@ -5,10 +5,7 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.network.models.GetPresignedUrlResponse
-import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.network.models.ResponseVO
-import org.permanent.permanent.network.models.UploadDestination
+import org.permanent.permanent.network.models.*
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
@@ -63,6 +60,8 @@ interface IFileRepository {
 
     fun relocateRecord(recordToRelocate: Record, destFolderLinkId: Int,
                        relocationType: RelocationType, listener: IResponseListener)
+
+    fun updateRecord(fileData: FileData, listener: IResponseListener)
 
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: Record)
