@@ -11,10 +11,7 @@ import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
-import org.permanent.permanent.network.models.GetPresignedUrlResponse
-import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.network.models.ResponseVO
-import org.permanent.permanent.network.models.UploadDestination
+import org.permanent.permanent.network.models.*
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RelocationType
@@ -254,6 +251,26 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                         else context.getString(R.string.relocation_type_copied)
                         listener.onSuccess(context.getString(R.string.relocation_success,
                             recordToRelocate.type?.name?.toLowerCase()?.capitalize(), relocationVerb))
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun updateRecord(fileData: FileData, listener: IResponseListener) {
+        networkClient.updateRecord(prefsHelper.getCsrf(), fileData)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(R.string.file_info_update_success))
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }

@@ -246,6 +246,7 @@
     <string name="file_info_location">Location</string>
     <string name="file_info_tags">Tags</string>
     <string name="file_info_none">None</string>
+    <string name="file_info_update_success">File info updated successfully.</string>
 
     <string name="file_details_uploaded">Uploaded:</string>
     <string name="file_details_uploaded_by">Uploaded By:</string>

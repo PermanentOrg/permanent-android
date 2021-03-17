@@ -50,9 +50,9 @@ class NetworkClient(context: Context) {
 
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = if (BuildConfig.DEBUG) {
-                WebView.setWebContentsDebuggingEnabled(true)
-                HttpLoggingInterceptor.Level.BODY
-            } else HttpLoggingInterceptor.Level.NONE
+            WebView.setWebContentsDebuggingEnabled(true)
+            HttpLoggingInterceptor.Level.BODY
+        } else HttpLoggingInterceptor.Level.NONE
 
         val okHttpClient = OkHttpClient.Builder()
             .cookieJar(cookieJar)
@@ -287,7 +287,14 @@ class NetworkClient(context: Context) {
         }
     }
 
-    fun requestShareLink(csrf: String?, record: Record, shareRequestType: ShareRequestType): Call<ResponseVO> {
+    fun updateRecord(csrf: String?, fileData: FileData): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addRecord(fileData))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.updateRecord(requestBody)
+    }
+
+    fun requestShareLink(csrf: String?, record: Record, shareRequestType: ShareRequestType
+    ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(record))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (shareRequestType == ShareRequestType.GET) {
@@ -297,7 +304,8 @@ class NetworkClient(context: Context) {
         }
     }
 
-    fun modifyShareLink(csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType): Call<ResponseVO> {
+    fun modifyShareLink(csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType
+    ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addShareByUrl(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (shareRequestType == ShareRequestType.DELETE) {

@@ -40,6 +40,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var downloadsAdapter: DownloadsAdapter
     private lateinit var recordsRecyclerView: RecyclerView
     private lateinit var recordsAdapter: RecordsListAdapter
+    private var shouldRefreshCurrentFolder: Boolean = false
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
@@ -122,7 +123,6 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordShareRequest()?.observe(this, onRecordShareRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
-        recordOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
@@ -231,13 +231,14 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordShareRequest()?.removeObserver(onRecordShareRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
-        recordOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }
 
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        if (shouldRefreshCurrentFolder) viewModel.refreshCurrentFolder()
+        shouldRefreshCurrentFolder = true
     }
 
     override fun onPause() {
