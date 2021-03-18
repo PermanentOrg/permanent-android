@@ -20,6 +20,13 @@ class FileData private constructor() : Parcelable {
     var size: Long? = null
     var originalFileName: String? = null
     var originalFileType: String? = null
+    var streetNumber: String? = null
+    var streetName: String? = null
+    var locality: String? = null
+    var adminOneName: String? = null
+    var countryCode: String? = null
+    var latitude: Double? = null
+    var longitude: Double? = null
     var fileURL: String? = null
     var downloadURL: String? = null
     var thumbURL2000: String? = null
@@ -51,6 +58,13 @@ class FileData private constructor() : Parcelable {
         size = recordVO.size
         originalFileName = recordVO.uploadFileName?.substringBefore(".")
         originalFileType = recordVO.uploadFileName?.substringAfter(".")
+        streetNumber = recordVO.LocnVO?.streetNumber
+        streetName = recordVO.LocnVO?.streetName
+        locality = recordVO.LocnVO?.locality
+        adminOneName = recordVO.LocnVO?.adminOneName
+        countryCode = recordVO.LocnVO?.countryCode
+        latitude = recordVO.LocnVO?.latitude
+        longitude = recordVO.LocnVO?.longitude
         fileURL = fileVO?.fileURL
         downloadURL = fileVO?.downloadURL
         thumbURL2000 = recordVO.thumbURL2000
@@ -84,6 +98,13 @@ class FileData private constructor() : Parcelable {
         size = parcel.readLong()
         originalFileName = parcel.readString()
         originalFileType = parcel.readString()
+        streetNumber = parcel.readString()
+        streetName = parcel.readString()
+        locality = parcel.readString()
+        adminOneName = parcel.readString()
+        countryCode = parcel.readString()
+        latitude = parcel.readDouble()
+        longitude = parcel.readDouble()
         fileURL = parcel.readString()
         downloadURL = parcel.readString()
         thumbURL2000 = parcel.readString()
@@ -108,6 +129,13 @@ class FileData private constructor() : Parcelable {
         parcel.writeLong(size ?: -1L)
         parcel.writeString(originalFileName)
         parcel.writeString(originalFileType)
+        parcel.writeString(streetNumber)
+        parcel.writeString(streetName)
+        parcel.writeString(locality)
+        parcel.writeString(adminOneName)
+        parcel.writeString(countryCode)
+        parcel.writeDouble(latitude ?: -1.0)
+        parcel.writeDouble(longitude ?: -1.0)
         parcel.writeString(fileURL)
         parcel.writeString(downloadURL)
         parcel.writeString(thumbURL2000)
