@@ -22,6 +22,7 @@ class RecordVO {
     var archiveNbr: String? = null
     var thumbURL500: String? = null
     var thumbURL2000: String? = null
+    var LocnVO: LocnVO? = null
     var FileVOs: List<FileVO>? = null
     var TagVOs: List<TagVO>? = null
     var ShareVOs: List<ShareVO>? = null

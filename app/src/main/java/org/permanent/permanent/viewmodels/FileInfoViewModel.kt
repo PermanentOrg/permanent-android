@@ -20,6 +20,7 @@ class FileInfoViewModel(application: Application
     private val name = MutableLiveData<String>()
     private val description = MutableLiveData<String>()
     private val date = MutableLiveData<String>()
+    private val address = MutableLiveData<String>()
     private val tags = MutableLiveData("")
     private val onShowDatePickerRequest = MutableLiveData<Void>()
     private val showMessage = MutableLiveData<String>()
@@ -31,6 +32,10 @@ class FileInfoViewModel(application: Application
         name.value = fileData.displayName
         description.value = fileData.description
         date.value = fileData.displayDate
+        val streetName = if (fileData.streetName == null) "" else fileData.streetName + ", "
+        val addressValue = (fileData.streetNumber ?: "") + " " + streetName + fileData.locality +
+                ", " + fileData.adminOneName + ", " + fileData.countryCode
+        if (!addressValue.contains("null")) address.value = addressValue
         val tags = fileData.tags
         if(!tags.isNullOrEmpty()) {
             for (tag in tags) {
@@ -54,6 +59,10 @@ class FileInfoViewModel(application: Application
 
     fun onDateClick() {
         onShowDatePickerRequest.value = onShowDatePickerRequest.value
+    }
+
+    fun onLocationClick() {
+//        onShowMapRequest.value = onShowMapRequest.value
     }
 
     fun onSaveClick() {
@@ -98,6 +107,10 @@ class FileInfoViewModel(application: Application
 
     fun getDate(): LiveData<String> {
         return date
+    }
+
+    fun getAddress(): LiveData<String> {
+        return address
     }
 
     fun getTags(): LiveData<String> {
