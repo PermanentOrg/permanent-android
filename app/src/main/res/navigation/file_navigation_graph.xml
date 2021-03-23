@@ -25,5 +25,17 @@
         android:id="@+id/fileMetadataFragment"
         android:name="org.permanent.permanent.ui.fileView.FileMetadataFragment"
         android:label="@string/main_navigation_file_metadata"
-        tools:layout="@layout/fragment_file_view"/>
+        tools:layout="@layout/fragment_file_view">
+        <action
+            android:id="@+id/action_fileMetadataFragment_to_locationSearchFragment"
+            app:destination="@id/locationSearchFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/locationSearchFragment"
+        android:name="org.permanent.permanent.ui.fileView.LocationSearchFragment"
+        tools:layout="@layout/fragment_location_search"/>
 </navigation>

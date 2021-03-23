@@ -23,6 +23,7 @@ class FileInfoViewModel(application: Application
     private val address = MutableLiveData<String>()
     private val tags = MutableLiveData("")
     private val onShowDatePickerRequest = MutableLiveData<Void>()
+    private val onShowLocationSearchRequest = MutableLiveData<Void>()
     private val showMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -62,7 +63,7 @@ class FileInfoViewModel(application: Application
     }
 
     fun onLocationClick() {
-//        onShowMapRequest.value = onShowMapRequest.value
+        onShowLocationSearchRequest.value = onShowLocationSearchRequest.value
     }
 
     fun onSaveClick() {
@@ -119,6 +120,10 @@ class FileInfoViewModel(application: Application
 
     fun getShowDatePicker(): LiveData<Void> {
         return onShowDatePickerRequest
+    }
+
+    fun getShowLocationSearch(): LiveData<Void> {
+        return onShowLocationSearchRequest
     }
 
     fun getShowMessage(): LiveData<String> {
