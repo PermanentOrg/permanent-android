@@ -19,6 +19,7 @@ import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLocationSearchBinding
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.LocationSearchViewModel
 
@@ -26,6 +27,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
 
     private lateinit var viewModel: LocationSearchViewModel
     private lateinit var binding: FragmentLocationSearchBinding
+    private var fileData: FileData? = null
     private var coordinates: LatLng? = null
     private var googleMap: GoogleMap? = null
 
@@ -39,7 +41,9 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        coordinates = arguments?.getParcelable(PARCELABLE_COORDINATES_KEY)
+        fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
+        fileData?.let { if (it.latitude != -1.0) coordinates = LatLng(it.latitude, it.longitude) }
+        setHasOptionsMenu(true)
         initMapFragment()
         initAutocompleteFragment()
         return binding.root
@@ -79,12 +83,29 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
 
     override fun onPlaceSelected(place: Place) {
         googleMap?.apply {
-            place.latLng?.let {
+            place.latLng?.let { latLng ->
                 clear()
-                addMarker(MarkerOptions().position(it))
-                moveCamera(CameraUpdateFactory.newLatLng(it))
-                animateCamera(CameraUpdateFactory.newLatLngZoom(it, 16.0f))
+                addMarker(MarkerOptions().position(latLng))
+                moveCamera(CameraUpdateFactory.newLatLng(latLng))
+                animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f))
+                viewModel.requestLocation(latLng)
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_toolbar_location_search, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.doneItem -> {
+                fileData?.let { viewModel.updateRecordLocation(it) }
+                // TODO: close this fragment
+                super.onOptionsItemSelected(item)
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

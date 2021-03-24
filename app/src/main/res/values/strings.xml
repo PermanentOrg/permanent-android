@@ -65,6 +65,7 @@
     <string name="welcome_start_preserving_button">Start Preserving</string>
     <string name="nav_header_subtitle_text">Tap here to manage archive</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
+
     <string name="menu_drawer_my_files">My Files</string>
     <string name="menu_drawer_shares">Shares</string>
     <string name="menu_drawer_public">Public</string>
@@ -73,8 +74,11 @@
     <string name="menu_drawer_activity_feed">Activity Feed</string>
     <string name="menu_drawer_invitations">Invitations</string>
     <string name="menu_drawer_apps">Apps</string>
+
     <string name="menu_toolbar_settings">Settings</string>
     <string name="menu_toolbar_file_metadata">File Metadata</string>
+    <string name="menu_toolbar_done">Done</string>
+
     <string name="menu_settings_drawer_storage">Add Storage</string>
     <string name="menu_settings_drawer_account">Account Info</string>
     <string name="menu_settings_drawer_activity">Activity Feed</string>
@@ -83,6 +87,7 @@
     <string name="menu_settings_drawer_security">Security</string>
     <string name="menu_settings_drawer_support">Contact Support</string>
     <string name="menu_settings_drawer_logout">Log Out</string>
+
     <string name="main_navigation_my_files">My Files</string>
     <string name="main_navigation_shares">Shares</string>
     <string name="main_navigation_members">Members</string>
@@ -92,6 +97,7 @@
     <string name="main_navigation_file">File</string>
     <string name="main_navigation_file_metadata">File Metadata</string>
     <string name="main_navigation_share_link">Share Link</string>
+
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
     <string name="my_files_sort_criteria_name">Name</string>
@@ -248,6 +254,7 @@
     <string name="file_info_none">None</string>
     <string name="file_info_tap_to_set_location">Tap to set location</string>
     <string name="file_info_update_success">File info updated successfully.</string>
+    <string name="file_location_update_success">File location updated successfully.</string>
 
     <string name="file_details_uploaded">Uploaded:</string>
     <string name="file_details_uploaded_by">Uploaded By:</string>

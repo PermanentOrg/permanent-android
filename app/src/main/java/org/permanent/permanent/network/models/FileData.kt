@@ -6,8 +6,8 @@ import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Tag
 
 class FileData private constructor() : Parcelable {
-    var recordId: Int? = null
-    var folderLinkId: Int? = null
+    var recordId: Int = -1
+    var folderLinkId: Int = -1
     var archiveNr: String? = null
     var fileName: String? = null
     var displayName: String? = null
@@ -17,7 +17,7 @@ class FileData private constructor() : Parcelable {
     var updatedDate: String? = null
     var derivedDate: String? = null
     var derivedCreatedDate: String? = null
-    var size: Long? = null
+    var size: Long = -1L
     var originalFileName: String? = null
     var originalFileType: String? = null
     var streetNumber: String? = null
@@ -25,19 +25,19 @@ class FileData private constructor() : Parcelable {
     var locality: String? = null
     var adminOneName: String? = null
     var countryCode: String? = null
-    var latitude: Double? = null
-    var longitude: Double? = null
+    var latitude: Double = -1.0
+    var longitude: Double = -1.0
     var fileURL: String? = null
     var downloadURL: String? = null
     var thumbURL2000: String? = null
     var contentType: String? = null
-    var width: Int? = null
-    var height: Int? = null
+    var width: Int = -1
+    var height: Int = -1
     var tags: List<Tag>? = null
 
     constructor(recordVO: RecordVO) : this() {
-        recordId = recordVO.recordId
-        folderLinkId = recordVO.folder_linkId
+        recordId = recordVO.recordId ?: -1
+        folderLinkId = recordVO.folder_linkId ?: -1
         archiveNr = recordVO.archiveNbr
         // First we check for the converted video to mp4
         val fileVO: FileVO? = if (recordVO.type?.contains(FileType.VIDEO.toString()) == true
@@ -55,7 +55,7 @@ class FileData private constructor() : Parcelable {
         updatedDate = recordVO.updatedDT?.replace("T", " ")
         derivedDate = recordVO.derivedDT?.replace("T", " ")
         derivedCreatedDate = recordVO.derivedCreatedDT?.replace("T", " ")
-        size = recordVO.size
+        size = recordVO.size ?: -1L
         originalFileName = recordVO.uploadFileName?.substringBefore(".")
         originalFileType = recordVO.uploadFileName?.substringAfter(".")
         streetNumber = recordVO.LocnVO?.streetNumber
@@ -63,14 +63,14 @@ class FileData private constructor() : Parcelable {
         locality = recordVO.LocnVO?.locality
         adminOneName = recordVO.LocnVO?.adminOneName
         countryCode = recordVO.LocnVO?.countryCode
-        latitude = recordVO.LocnVO?.latitude
-        longitude = recordVO.LocnVO?.longitude
+        latitude = recordVO.LocnVO?.latitude ?: -1.0
+        longitude = recordVO.LocnVO?.longitude ?: -1.0
         fileURL = fileVO?.fileURL
         downloadURL = fileVO?.downloadURL
         thumbURL2000 = recordVO.thumbURL2000
         contentType = fileVO?.contentType
-        width = fileVO?.width
-        height = fileVO?.height
+        width = fileVO?.width ?: -1
+        height = fileVO?.height ?: -1
         initTags(recordVO.TagVOs)
     }
 
@@ -115,8 +115,8 @@ class FileData private constructor() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(recordId ?: -1)
-        parcel.writeInt(folderLinkId ?: -1)
+        parcel.writeInt(recordId)
+        parcel.writeInt(folderLinkId)
         parcel.writeString(archiveNr)
         parcel.writeString(fileName)
         parcel.writeString(displayName)
@@ -126,7 +126,7 @@ class FileData private constructor() : Parcelable {
         parcel.writeString(updatedDate)
         parcel.writeString(derivedDate)
         parcel.writeString(derivedCreatedDate)
-        parcel.writeLong(size ?: -1L)
+        parcel.writeLong(size)
         parcel.writeString(originalFileName)
         parcel.writeString(originalFileType)
         parcel.writeString(streetNumber)
@@ -134,14 +134,14 @@ class FileData private constructor() : Parcelable {
         parcel.writeString(locality)
         parcel.writeString(adminOneName)
         parcel.writeString(countryCode)
-        parcel.writeDouble(latitude ?: -1.0)
-        parcel.writeDouble(longitude ?: -1.0)
+        parcel.writeDouble(latitude)
+        parcel.writeDouble(longitude)
         parcel.writeString(fileURL)
         parcel.writeString(downloadURL)
         parcel.writeString(thumbURL2000)
         parcel.writeString(contentType)
-        parcel.writeInt(width ?: -1)
-        parcel.writeInt(height ?: -1)
+        parcel.writeInt(width)
+        parcel.writeInt(height)
         parcel.writeTypedList(tags)
     }
 

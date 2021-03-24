@@ -63,6 +63,8 @@ interface IFileRepository {
 
     fun updateRecord(fileData: FileData, listener: IResponseListener)
 
+    fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener)
+
     interface IOnMyFilesArchiveNrListener {
         fun onSuccess(myFilesRecord: Record)
         fun onFailed(error: String?)

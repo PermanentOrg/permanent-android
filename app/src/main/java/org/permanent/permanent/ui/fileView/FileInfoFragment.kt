@@ -23,8 +23,6 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileInfoViewModel
 import java.util.*
 
-const val PARCELABLE_COORDINATES_KEY = "parcelable_coordinates_key"
-
 class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
 
     private lateinit var viewModel: FileInfoViewModel
@@ -67,7 +65,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
     }
 
     private val onShowLocationSearch = Observer<Void> {
-        val bundle = bundleOf(PARCELABLE_COORDINATES_KEY to coordinates)
+        val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
         parentFragment?.findNavController()
             ?.navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)
     }

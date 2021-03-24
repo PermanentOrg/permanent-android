@@ -13,4 +13,5 @@ class Datum {
     var Shareby_urlVO: Shareby_urlVO? = null
     var NotificationVO: NotificationVO? = null
     var InviteVO: InviteVO? = null
+    var LocnVO: LocnVO? = null
 }
