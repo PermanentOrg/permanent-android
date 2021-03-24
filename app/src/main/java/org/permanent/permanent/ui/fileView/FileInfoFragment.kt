@@ -66,8 +66,8 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
 
     private val onShowLocationSearch = Observer<Void> {
         val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
-        parentFragment?.findNavController()
-            ?.navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)
+        findNavController()
+            .navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)
     }
 
     private val onShowMessage = Observer<String> { message ->

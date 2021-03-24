@@ -37,5 +37,13 @@
     <fragment
         android:id="@+id/locationSearchFragment"
         android:name="org.permanent.permanent.ui.fileView.LocationSearchFragment"
-        tools:layout="@layout/fragment_location_search"/>
+        tools:layout="@layout/fragment_location_search">
+        <action
+            android:id="@+id/action_locationSearchFragment_to_fileMetadataFragment"
+            app:destination="@id/fileMetadataFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
 </navigation>

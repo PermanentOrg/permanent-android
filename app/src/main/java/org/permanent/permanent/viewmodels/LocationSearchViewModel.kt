@@ -1,9 +1,11 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
+import org.permanent.permanent.R
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.LocnVO
@@ -14,15 +16,20 @@ import org.permanent.permanent.repositories.LocationRepositoryImpl
 
 class LocationSearchViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private var appContext: Context? = application.applicationContext
     private var locationVO: LocnVO? = null
-    val showMessage = MutableLiveData<String>()
+    private var fileData: FileData? = null
+    val showMessage = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData(false)
+    private val onLocationUpdate = MutableLiveData<FileData>()
     private var locationRepository: ILocationRepository = LocationRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun getIsBusy(): LiveData<Boolean> {
-        return isBusy
-    }
+    fun getCurrentFileData(): FileData? = fileData
+
+    fun getIsBusy(): LiveData<Boolean> = isBusy
+
+    fun getOnLocationUpdate(): LiveData<FileData> = onLocationUpdate
 
     fun requestLocation(latLng: LatLng) {
         if (isBusy.value != null && isBusy.value!!) {
@@ -39,7 +46,6 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
             }
         })
     }
@@ -49,12 +55,15 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
             return
         }
 
-        locationVO?.let {
+        if (locationVO != null) {
             isBusy.value = true
-            fileRepository.updateRecord(it, fileData, object : IResponseListener {
+            fileRepository.updateRecord(locationVO!!, fileData, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     showMessage.value = message
+                    fileData.update(locationVO!!)
+                    this@LocationSearchViewModel.fileData = fileData
+                    onLocationUpdate.value = fileData
                 }
 
                 override fun onFailed(error: String?) {
@@ -62,6 +71,8 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
                     showMessage.value = error
                 }
             })
+        } else {
+            showMessage.value = appContext?.getString(R.string.file_location_update_error)
         }
     }
 }

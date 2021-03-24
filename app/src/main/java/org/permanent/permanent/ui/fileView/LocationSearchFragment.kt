@@ -2,8 +2,11 @@ package org.permanent.permanent.ui.fileView
 
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -23,10 +26,13 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.LocationSearchViewModel
 
+const val BOOLEAN_SHOULD_SCROLL_KEY = "boolean_should_scroll_key"
 class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, PlaceSelectionListener {
 
+    private lateinit var menu: Menu
     private lateinit var viewModel: LocationSearchViewModel
     private lateinit var binding: FragmentLocationSearchBinding
+    private lateinit var autocompleteFragment: AutocompleteSupportFragment
     private var fileData: FileData? = null
     private var coordinates: LatLng? = null
     private var googleMap: GoogleMap? = null
@@ -46,13 +52,19 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         setHasOptionsMenu(true)
         initMapFragment()
         initAutocompleteFragment()
+        requireActivity().onBackPressedDispatcher
+            .addCallback(object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    navigateUp(viewModel.getCurrentFileData() ?: fileData)
+                }
+            })
         return binding.root
     }
 
     private fun initAutocompleteFragment() {
         Places.initialize(requireContext(), Constants.API_KEY_MAPS)
 
-        val autocompleteFragment = AutocompleteSupportFragment()
+        autocompleteFragment = AutocompleteSupportFragment()
         val transaction = childFragmentManager.beginTransaction()
         transaction.add(R.id.cvSearch, autocompleteFragment, "autocompleteFragment")
         transaction.commit()
@@ -89,21 +101,35 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
                 moveCamera(CameraUpdateFactory.newLatLng(latLng))
                 animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f))
                 viewModel.requestLocation(latLng)
+                menu.findItem(R.id.doneItem).isVisible = true
             }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_toolbar_location_search, menu)
+        this.menu = menu
+        menu.findItem(R.id.doneItem).isVisible = false
+        autocompleteFragment.requireView().findViewById<View>(R.id.places_autocomplete_clear_button)
+            .setOnClickListener {
+                autocompleteFragment.setText("")
+                it.visibility = View.GONE
+                menu.findItem(R.id.doneItem).isVisible = false
+            }
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            android.R.id.home -> {
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+                true
+            }
             R.id.doneItem -> {
-                fileData?.let { viewModel.updateRecordLocation(it) }
-                // TODO: close this fragment
-                super.onOptionsItemSelected(item)
+                fileData?.let { fileData ->
+                    viewModel.updateRecordLocation(fileData)
+                }
+                true
             }
             else -> super.onOptionsItemSelected(item)
         }
@@ -113,16 +139,29 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         if (!status.isCanceled) viewModel.showMessage.value = getString(R.string.generic_error)
     }
 
+    private val onLocationUpdated = Observer<FileData> { navigateUp(it) }
+
+    private fun navigateUp(it: FileData?) {
+        val bundle = bundleOf(
+            PARCELABLE_FILE_DATA_KEY to it, BOOLEAN_SHOULD_SCROLL_KEY to true
+        )
+        findNavController().navigate(
+            R.id.action_locationSearchFragment_to_fileMetadataFragment, bundle
+        )
+    }
+
     private val onShowMessage = Observer<String> { message ->
         view?.let { Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() }
     }
 
     override fun connectViewModelEvents() {
         viewModel.showMessage.observe(this, onShowMessage)
+        viewModel.getOnLocationUpdate().observe(this, onLocationUpdated)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.showMessage.removeObserver(onShowMessage)
+        viewModel.getOnLocationUpdate().removeObserver(onLocationUpdated)
     }
 
     override fun onResume() {

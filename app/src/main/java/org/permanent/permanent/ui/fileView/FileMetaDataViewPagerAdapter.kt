@@ -9,7 +9,7 @@ import org.permanent.permanent.network.models.FileData
 const val NUMBER_OF_FRAGMENTS = 2
 class FileMetadataViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(fragment) {
 
-    private lateinit var fileData: FileData
+    private var fileData: FileData? = null
     var fileInfoFragment: FileInfoFragment? = null
     var fileDetailsFragment: FileDetailsFragment? = null
 

@@ -114,6 +114,16 @@ class FileData private constructor() : Parcelable {
         tags = parcel.createTypedArrayList(Tag)
     }
 
+    fun update(locationVO: LocnVO) {
+        streetNumber = locationVO.streetNumber
+        streetName = locationVO.streetName
+        locality = locationVO.locality
+        adminOneName = locationVO.adminOneName
+        countryCode = locationVO.countryCode
+        latitude = locationVO.latitude ?: -1.0
+        longitude = locationVO.longitude ?: -1.0
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(recordId)
         parcel.writeInt(folderLinkId)

@@ -168,7 +168,7 @@
             android:background="@drawable/rounded_border_grey_edit_text"
             android:focusable="false"
             android:fontFamily="@font/open_sans"
-            android:hint="@string/file_info_tap_to_set_location"
+            android:hint="@string/file_info_tap_to_set"
             android:onClick="@{() -> viewModel.onLocationClick()}"
             android:padding="8dp"
             android:text="@{viewModel.address}"

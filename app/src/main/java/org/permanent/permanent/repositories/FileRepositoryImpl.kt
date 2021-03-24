@@ -292,7 +292,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(context.getString(R.string.file_location_update_success))
                     } else {
-                        listener.onFailed(context.getString(R.string.generic_error))
+                        listener.onFailed(context.getString(R.string.file_location_update_error))
                     }
                 }
 
