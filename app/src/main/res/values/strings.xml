@@ -95,8 +95,8 @@
     <string name="main_navigation_security">Security</string>
     <string name="main_navigation_file_view">File View</string>
     <string name="main_navigation_file">File</string>
-    <string name="main_navigation_file_metadata">File Metadata</string>
     <string name="main_navigation_share_link">Share Link</string>
+    <string name="main_navigation_location_search">Enter Location</string>
 
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>

@@ -23,7 +23,7 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileInfoViewModel
 import java.util.*
 
-class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
+class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private lateinit var viewModel: FileInfoViewModel
     private lateinit var binding: FragmentFileInfoBinding
@@ -54,6 +54,23 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
         return binding.root
     }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        val lat = fileData?.latitude
+        val lng = fileData?.longitude
+        if (lat != null && lng != null) {
+            coordinates = LatLng(lat, lng)
+            googleMap.apply {
+                addMarker(MarkerOptions().position(coordinates!!))
+                animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 9.9f))
+                setOnMapClickListener(this@FileInfoFragment)
+            }
+        }
+    }
+
+    override fun onMapClick(latLng: LatLng) {
+        navigateToLocationSearch()
+    }
+
     private val onShowDatePicker = Observer<Void> {
         context?.let { context ->
             val c = Calendar.getInstance()
@@ -65,6 +82,10 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
     }
 
     private val onShowLocationSearch = Observer<Void> {
+        navigateToLocationSearch()
+    }
+
+    private fun navigateToLocationSearch() {
         val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
         findNavController()
             .navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)
@@ -109,18 +130,6 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
     override fun onLowMemory() {
         super.onLowMemory()
         mapView?.onLowMemory()
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        val lat = fileData?.latitude
-        val lng = fileData?.longitude
-        if (lat != null && lng != null) {
-            googleMap.apply {
-                coordinates = LatLng(lat, lng)
-                addMarker(MarkerOptions().position(coordinates!!))
-                animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 9.9f))
-            }
-        }
     }
 
     override fun onResume() {
