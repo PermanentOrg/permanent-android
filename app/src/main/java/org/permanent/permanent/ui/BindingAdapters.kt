@@ -86,6 +86,7 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
             null,
             null)
     } else {
+        settings.builtInZoomControls = true
         path?.let {
             loadUrl(path)
         }
