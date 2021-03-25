@@ -2,24 +2,21 @@ package org.permanent.permanent.ui.fileView
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLocationSearchBinding
@@ -36,9 +33,6 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     private lateinit var binding: FragmentLocationSearchBinding
     private lateinit var autocompleteFragment: AutocompleteSupportFragment
     private var fileData: FileData? = null
-    private var coordinates: LatLng? = null
-    private var googleMap: GoogleMap? = null
-    private var marker: Marker? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,17 +47,11 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
         fileData?.let {
             viewModel.setFileData(it)
-            if (it.latitude != -1.0) coordinates = LatLng(it.latitude, it.longitude)
         }
         setHasOptionsMenu(true)
         initMapFragment()
         initAutocompleteFragment()
-        requireActivity().onBackPressedDispatcher
-            .addCallback(object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    navigateUp(viewModel.getCurrentFileData())
-                }
-            })
+        initDeviceBackPressCallback()
         return binding.root
     }
 
@@ -80,6 +68,13 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         autocompleteFragment.setOnPlaceSelectedListener(this@LocationSearchFragment)
     }
 
+    override fun onPlaceSelected(place: Place) {
+        place.latLng?.let {
+            viewModel.onLatLngSelected(it)
+            menu.findItem(R.id.doneItem).isVisible = true
+        }
+    }
+
     private fun initMapFragment() {
         val mapFragment = SupportMapFragment()
         val fragmentTransaction = childFragmentManager.beginTransaction()
@@ -90,35 +85,27 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     }
 
     override fun onMapReady(gMap: GoogleMap) {
-        googleMap = gMap
-        if (coordinates != null) {
-            googleMap?.apply {
-                setOnMapLongClickListener(this@LocationSearchFragment)
-                marker = addMarker(MarkerOptions().position(coordinates!!))
-                animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 16.0f))
-            }
-            autocompleteFragment.setText(fileData?.completeAddress)
+        viewModel.setMap(gMap)
+        gMap.setOnMapLongClickListener(this@LocationSearchFragment)
+        fileData?.let {
+            if (it.latitude != -1.0) viewModel.updateMarker(LatLng(it.latitude, it.longitude))
+            autocompleteFragment.setText(it.completeAddress)
         }
-    }
-
-    override fun onPlaceSelected(place: Place) {
-        place.latLng?.let { onLatLngSelected(it) }
     }
 
     override fun onMapLongClick(latLng: LatLng) {
-        onLatLngSelected(latLng)
+        viewModel.onLatLngSelected(latLng)
         autocompleteFragment.setText("${latLng.latitude}, ${latLng.longitude}")
+        menu.findItem(R.id.doneItem).isVisible = true
     }
 
-    private fun onLatLngSelected(latLng: LatLng) {
-        googleMap?.apply {
-            if (marker != null) marker?.position = latLng
-            else addMarker(MarkerOptions().position(latLng))
-            moveCamera(CameraUpdateFactory.newLatLng(latLng))
-            animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f))
-            viewModel.requestLocation(latLng)
-            menu.findItem(R.id.doneItem).isVisible = true
-        }
+    private fun initDeviceBackPressCallback() {
+        requireActivity().onBackPressedDispatcher
+            .addCallback(object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    navigateUp(viewModel.getCurrentFileData())
+                }
+            })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -163,8 +150,8 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         )
     }
 
-    private val onShowMessage = Observer<String> { message ->
-        view?.let { Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() }
+    private val onShowMessage = Observer<String> {
+        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
     override fun connectViewModelEvents() {

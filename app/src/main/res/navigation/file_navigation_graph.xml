@@ -8,7 +8,6 @@
     <fragment
         android:id="@+id/fileViewFragment"
         android:name="org.permanent.permanent.ui.fileView.FileViewFragment"
-        android:label="@string/main_navigation_file_view"
         tools:layout="@layout/fragment_file_view">
         <argument
             android:name="parcelable_file_data_key"

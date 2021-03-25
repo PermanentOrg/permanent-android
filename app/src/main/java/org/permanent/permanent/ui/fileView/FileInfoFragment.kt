@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -91,6 +92,10 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
             .navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)
     }
 
+    private val onFileInfoUpdated = Observer<String> { fileName ->
+        (activity as AppCompatActivity?)?.supportActionBar?.title = fileName
+    }
+
     private val onShowMessage = Observer<String> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
@@ -98,12 +103,14 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     override fun connectViewModelEvents() {
         viewModel.getShowDatePicker().observe(this, onShowDatePicker)
         viewModel.getShowLocationSearch().observe(this, onShowLocationSearch)
+        viewModel.getOnFileInfoUpdated().observe(this, onFileInfoUpdated)
         viewModel.getShowMessage().observe(this, onShowMessage)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowDatePicker().removeObserver(onShowDatePicker)
         viewModel.getShowLocationSearch().removeObserver(onShowLocationSearch)
+        viewModel.getOnFileInfoUpdated().removeObserver(onFileInfoUpdated)
         viewModel.getShowMessage().removeObserver(onShowMessage)
     }
 

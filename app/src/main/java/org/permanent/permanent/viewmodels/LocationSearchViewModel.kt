@@ -4,7 +4,11 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import org.permanent.permanent.R
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
@@ -19,6 +23,8 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
     private var appContext: Context? = application.applicationContext
     private var locationVO: LocnVO? = null
     private lateinit var fileData: FileData
+    private lateinit var googleMap: GoogleMap
+    private var marker: Marker? = null
     val showMessage = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData(false)
     private val onLocationUpdate = MutableLiveData<FileData>()
@@ -29,13 +35,31 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
         this.fileData = fileData
     }
 
+    fun setMap(googleMap: GoogleMap) {
+        this.googleMap = googleMap
+    }
+
     fun getCurrentFileData(): FileData = fileData
 
     fun getIsBusy(): LiveData<Boolean> = isBusy
 
     fun getOnLocationUpdate(): LiveData<FileData> = onLocationUpdate
 
-    fun requestLocation(latLng: LatLng) {
+    fun onLatLngSelected(latLng: LatLng) {
+        updateMarker(latLng)
+        requestLocation(latLng)
+    }
+
+    fun updateMarker(latLng: LatLng) {
+        googleMap.apply {
+            if (marker != null) marker?.position = latLng
+            else marker = addMarker(MarkerOptions().position(latLng))
+            moveCamera(CameraUpdateFactory.newLatLng(latLng))
+            animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f))
+        }
+    }
+
+    private fun requestLocation(latLng: LatLng) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }

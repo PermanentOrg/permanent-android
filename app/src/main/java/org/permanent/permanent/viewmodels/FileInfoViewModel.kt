@@ -22,9 +22,10 @@ class FileInfoViewModel(application: Application
     private val date = MutableLiveData<String>()
     private val address = MutableLiveData<String>()
     private val tags = MutableLiveData("")
-    private val onShowDatePickerRequest = MutableLiveData<Void>()
-    private val onShowLocationSearchRequest = MutableLiveData<Void>()
-    private val showMessage = MutableLiveData<String>()
+    private val onShowDatePickerRequest = SingleLiveEvent<Void>()
+    private val onShowLocationSearchRequest = SingleLiveEvent<Void>()
+    private val onFileInfoUpdated = SingleLiveEvent<String>()
+    private val showMessage = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
@@ -86,6 +87,7 @@ class FileInfoViewModel(application: Application
             override fun onSuccess(message: String?) {
                 isBusy.value = false
                 showMessage.value = message
+                onFileInfoUpdated.value = name
             }
 
             override fun onFailed(error: String?) {
@@ -95,39 +97,23 @@ class FileInfoViewModel(application: Application
         })
     }
 
-    fun getName(): LiveData<String> {
-        return name
-    }
+    fun getName(): LiveData<String> = name
 
-    fun getDescription(): LiveData<String> {
-        return description
-    }
+    fun getDescription(): LiveData<String> = description
 
-    fun getDate(): LiveData<String> {
-        return date
-    }
+    fun getDate(): LiveData<String> = date
 
-    fun getAddress(): LiveData<String> {
-        return address
-    }
+    fun getAddress(): LiveData<String> = address
 
-    fun getTags(): LiveData<String> {
-        return tags
-    }
+    fun getTags(): LiveData<String> = tags
 
-    fun getShowDatePicker(): LiveData<Void> {
-        return onShowDatePickerRequest
-    }
+    fun getShowDatePicker(): LiveData<Void> = onShowDatePickerRequest
 
-    fun getShowLocationSearch(): LiveData<Void> {
-        return onShowLocationSearchRequest
-    }
+    fun getShowLocationSearch(): LiveData<Void> = onShowLocationSearchRequest
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getOnFileInfoUpdated(): LiveData<String> = onFileInfoUpdated
 
-    fun getIsBusy(): LiveData<Boolean> {
-        return isBusy
-    }
+    fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getIsBusy(): LiveData<Boolean> = isBusy
 }
