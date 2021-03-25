@@ -13,6 +13,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -27,7 +28,8 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.LocationSearchViewModel
 
 const val BOOLEAN_SHOULD_SCROLL_KEY = "boolean_should_scroll_key"
-class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, PlaceSelectionListener {
+class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, PlaceSelectionListener,
+    GoogleMap.OnMapLongClickListener {
 
     private lateinit var menu: Menu
     private lateinit var viewModel: LocationSearchViewModel
@@ -36,6 +38,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     private var fileData: FileData? = null
     private var coordinates: LatLng? = null
     private var googleMap: GoogleMap? = null
+    private var marker: Marker? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,14 +51,17 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
-        fileData?.let { if (it.latitude != -1.0) coordinates = LatLng(it.latitude, it.longitude) }
+        fileData?.let {
+            viewModel.setFileData(it)
+            if (it.latitude != -1.0) coordinates = LatLng(it.latitude, it.longitude)
+        }
         setHasOptionsMenu(true)
         initMapFragment()
         initAutocompleteFragment()
         requireActivity().onBackPressedDispatcher
             .addCallback(object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    navigateUp(viewModel.getCurrentFileData() ?: fileData)
+                    navigateUp(viewModel.getCurrentFileData())
                 }
             })
         return binding.root
@@ -86,23 +92,32 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     override fun onMapReady(gMap: GoogleMap) {
         googleMap = gMap
         if (coordinates != null) {
-            gMap.apply {
-                addMarker(MarkerOptions().position(coordinates!!))
+            googleMap?.apply {
+                setOnMapLongClickListener(this@LocationSearchFragment)
+                marker = addMarker(MarkerOptions().position(coordinates!!))
                 animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 16.0f))
             }
+            autocompleteFragment.setText(fileData?.completeAddress)
         }
     }
 
     override fun onPlaceSelected(place: Place) {
+        place.latLng?.let { onLatLngSelected(it) }
+    }
+
+    override fun onMapLongClick(latLng: LatLng) {
+        onLatLngSelected(latLng)
+        autocompleteFragment.setText("${latLng.latitude}, ${latLng.longitude}")
+    }
+
+    private fun onLatLngSelected(latLng: LatLng) {
         googleMap?.apply {
-            place.latLng?.let { latLng ->
-                clear()
-                addMarker(MarkerOptions().position(latLng))
-                moveCamera(CameraUpdateFactory.newLatLng(latLng))
-                animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f))
-                viewModel.requestLocation(latLng)
-                menu.findItem(R.id.doneItem).isVisible = true
-            }
+            if (marker != null) marker?.position = latLng
+            else addMarker(MarkerOptions().position(latLng))
+            moveCamera(CameraUpdateFactory.newLatLng(latLng))
+            animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f))
+            viewModel.requestLocation(latLng)
+            menu.findItem(R.id.doneItem).isVisible = true
         }
     }
 
@@ -126,9 +141,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
                 true
             }
             R.id.doneItem -> {
-                fileData?.let { fileData ->
-                    viewModel.updateRecordLocation(fileData)
-                }
+                viewModel.updateRecordLocation()
                 true
             }
             else -> super.onOptionsItemSelected(item)

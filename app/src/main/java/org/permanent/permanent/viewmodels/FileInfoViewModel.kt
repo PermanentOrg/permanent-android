@@ -33,10 +33,7 @@ class FileInfoViewModel(application: Application
         name.value = fileData.displayName
         description.value = fileData.description
         date.value = fileData.displayDate
-        val streetName = if (fileData.streetName == null) "" else fileData.streetName + ", "
-        val addressValue = (fileData.streetNumber ?: "") + " " + streetName + fileData.locality +
-                ", " + fileData.adminOneName + ", " + fileData.countryCode
-        if (!addressValue.contains("null")) address.value = addressValue
+        address.value = fileData.completeAddress
         val tags = fileData.tags
         if(!tags.isNullOrEmpty()) {
             for (tag in tags) {

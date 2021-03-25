@@ -18,14 +18,18 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
 
     private var appContext: Context? = application.applicationContext
     private var locationVO: LocnVO? = null
-    private var fileData: FileData? = null
+    private lateinit var fileData: FileData
     val showMessage = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData(false)
     private val onLocationUpdate = MutableLiveData<FileData>()
     private var locationRepository: ILocationRepository = LocationRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun getCurrentFileData(): FileData? = fileData
+    fun setFileData(fileData: FileData) {
+        this.fileData = fileData
+    }
+
+    fun getCurrentFileData(): FileData = fileData
 
     fun getIsBusy(): LiveData<Boolean> = isBusy
 
@@ -35,22 +39,18 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-
-        isBusy.value = true
         locationRepository.getLocation(latLng, object : ILocationRepository.LocationListener {
 
             override fun onSuccess(locnVO: LocnVO) {
-                isBusy.value = false
                 locationVO = locnVO
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
             }
         })
     }
 
-    fun updateRecordLocation(fileData: FileData) {
+    fun updateRecordLocation() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -62,7 +62,6 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
                     isBusy.value = false
                     showMessage.value = message
                     fileData.update(locationVO!!)
-                    this@LocationSearchViewModel.fileData = fileData
                     onLocationUpdate.value = fileData
                 }
 

@@ -20,11 +20,7 @@ class FileData private constructor() : Parcelable {
     var size: Long = -1L
     var originalFileName: String? = null
     var originalFileType: String? = null
-    var streetNumber: String? = null
-    var streetName: String? = null
-    var locality: String? = null
-    var adminOneName: String? = null
-    var countryCode: String? = null
+    var completeAddress: String? = null
     var latitude: Double = -1.0
     var longitude: Double = -1.0
     var fileURL: String? = null
@@ -58,13 +54,17 @@ class FileData private constructor() : Parcelable {
         size = recordVO.size ?: -1L
         originalFileName = recordVO.uploadFileName?.substringBefore(".")
         originalFileType = recordVO.uploadFileName?.substringAfter(".")
-        streetNumber = recordVO.LocnVO?.streetNumber
-        streetName = recordVO.LocnVO?.streetName
-        locality = recordVO.LocnVO?.locality
-        adminOneName = recordVO.LocnVO?.adminOneName
-        countryCode = recordVO.LocnVO?.countryCode
+
+        completeAddress = recordVO.LocnVO?.let {
+            val streetName = if (it.streetName == null) "" else it.streetName + ", "
+            val addressValue =
+                (it.streetNumber ?: "") + " " + streetName + it.locality +
+                        ", " + it.adminOneName + ", " + it.countryCode
+            if (!addressValue.contains("null")) addressValue else ""
+        }
         latitude = recordVO.LocnVO?.latitude ?: -1.0
         longitude = recordVO.LocnVO?.longitude ?: -1.0
+
         fileURL = fileVO?.fileURL
         downloadURL = fileVO?.downloadURL
         thumbURL2000 = recordVO.thumbURL2000
@@ -98,11 +98,7 @@ class FileData private constructor() : Parcelable {
         size = parcel.readLong()
         originalFileName = parcel.readString()
         originalFileType = parcel.readString()
-        streetNumber = parcel.readString()
-        streetName = parcel.readString()
-        locality = parcel.readString()
-        adminOneName = parcel.readString()
-        countryCode = parcel.readString()
+        completeAddress = parcel.readString()
         latitude = parcel.readDouble()
         longitude = parcel.readDouble()
         fileURL = parcel.readString()
@@ -115,11 +111,10 @@ class FileData private constructor() : Parcelable {
     }
 
     fun update(locationVO: LocnVO) {
-        streetNumber = locationVO.streetNumber
-        streetName = locationVO.streetName
-        locality = locationVO.locality
-        adminOneName = locationVO.adminOneName
-        countryCode = locationVO.countryCode
+        val streetName = if (locationVO.streetName == null) "" else locationVO.streetName + ", "
+        val addressValue = (locationVO.streetNumber ?: "") + " " + streetName +
+                locationVO.locality + ", " + locationVO.adminOneName + ", " + locationVO.countryCode
+        completeAddress = if (!addressValue.contains("null")) addressValue else ""
         latitude = locationVO.latitude ?: -1.0
         longitude = locationVO.longitude ?: -1.0
     }
@@ -139,11 +134,7 @@ class FileData private constructor() : Parcelable {
         parcel.writeLong(size)
         parcel.writeString(originalFileName)
         parcel.writeString(originalFileType)
-        parcel.writeString(streetNumber)
-        parcel.writeString(streetName)
-        parcel.writeString(locality)
-        parcel.writeString(adminOneName)
-        parcel.writeString(countryCode)
+        parcel.writeString(completeAddress)
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
         parcel.writeString(fileURL)
