@@ -63,4 +63,8 @@ class ResponseVO {
         if (recordVO != null) return FileData(recordVO)
         return null
     }
+
+    fun getLocationVO(): LocnVO? {
+        return getData()?.get(0)?.LocnVO
+    }
 }

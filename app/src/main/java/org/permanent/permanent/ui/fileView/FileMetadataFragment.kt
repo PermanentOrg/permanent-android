@@ -40,17 +40,19 @@ class FileMetadataFragment: PermanentBaseFragment(), View.OnClickListener {
         }
         binding.executePendingBindings()
         binding.ivThumbnail.setOnClickListener(this)
+        val shouldScroll = arguments?.getBoolean(BOOLEAN_SHOULD_SCROLL_KEY)
+        shouldScroll?.let { if (it) binding.vpFileMetadata.requestFocus() }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewAdapter = FileMetadataViewPagerAdapter(this)
         fileData?.let { viewAdapter.setFileData(it) }
-        val viewPager2 = binding.vpFileDetails
+        val viewPager2 = binding.vpFileMetadata
         viewPager2.adapter = viewAdapter
         viewPager2.isSaveEnabled = false
 
-        TabLayoutMediator(binding.tlFileDetails, viewPager2) { tab, position ->
+        TabLayoutMediator(binding.tlFileMetadata, viewPager2) { tab, position ->
             when (position) {
                 Constants.POSITION_DETAILS_FRAGMENT -> tab.text =
                     getString(R.string.metadata_details_tab_name)

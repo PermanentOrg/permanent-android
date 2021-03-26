@@ -22,8 +22,10 @@ class FileInfoViewModel(application: Application
     private val date = MutableLiveData<String>()
     private val address = MutableLiveData<String>()
     private val tags = MutableLiveData("")
-    private val onShowDatePickerRequest = MutableLiveData<Void>()
-    private val showMessage = MutableLiveData<String>()
+    private val onShowDatePickerRequest = SingleLiveEvent<Void>()
+    private val onShowLocationSearchRequest = SingleLiveEvent<Void>()
+    private val onFileInfoUpdated = SingleLiveEvent<String>()
+    private val showMessage = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
@@ -32,10 +34,7 @@ class FileInfoViewModel(application: Application
         name.value = fileData.displayName
         description.value = fileData.description
         date.value = fileData.displayDate
-        val streetName = if (fileData.streetName == null) "" else fileData.streetName + ", "
-        val addressValue = (fileData.streetNumber ?: "") + " " + streetName + fileData.locality +
-                ", " + fileData.adminOneName + ", " + fileData.countryCode
-        if (!addressValue.contains("null")) address.value = addressValue
+        address.value = fileData.completeAddress
         val tags = fileData.tags
         if(!tags.isNullOrEmpty()) {
             for (tag in tags) {
@@ -62,7 +61,7 @@ class FileInfoViewModel(application: Application
     }
 
     fun onLocationClick() {
-//        onShowMapRequest.value = onShowMapRequest.value
+        onShowLocationSearchRequest.value = onShowLocationSearchRequest.value
     }
 
     fun onSaveClick() {
@@ -88,6 +87,7 @@ class FileInfoViewModel(application: Application
             override fun onSuccess(message: String?) {
                 isBusy.value = false
                 showMessage.value = message
+                onFileInfoUpdated.value = name
             }
 
             override fun onFailed(error: String?) {
@@ -97,35 +97,23 @@ class FileInfoViewModel(application: Application
         })
     }
 
-    fun getName(): LiveData<String> {
-        return name
-    }
+    fun getName(): LiveData<String> = name
 
-    fun getDescription(): LiveData<String> {
-        return description
-    }
+    fun getDescription(): LiveData<String> = description
 
-    fun getDate(): LiveData<String> {
-        return date
-    }
+    fun getDate(): LiveData<String> = date
 
-    fun getAddress(): LiveData<String> {
-        return address
-    }
+    fun getAddress(): LiveData<String> = address
 
-    fun getTags(): LiveData<String> {
-        return tags
-    }
+    fun getTags(): LiveData<String> = tags
 
-    fun getShowDatePicker(): LiveData<Void> {
-        return onShowDatePickerRequest
-    }
+    fun getShowDatePicker(): LiveData<Void> = onShowDatePickerRequest
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getShowLocationSearch(): LiveData<Void> = onShowLocationSearchRequest
 
-    fun getIsBusy(): LiveData<Boolean> {
-        return isBusy
-    }
+    fun getOnFileInfoUpdated(): LiveData<String> = onFileInfoUpdated
+
+    fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getIsBusy(): LiveData<Boolean> = isBusy
 }

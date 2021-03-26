@@ -9,6 +9,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
 import org.permanent.permanent.network.models.FileData
@@ -50,8 +51,13 @@ class FileActivity : PermanentBaseActivity() {
 
     // Toolbar back press
     override fun onSupportNavigateUp(): Boolean {
-        this@FileActivity.finish()
-        return true
+        return when(navController.currentDestination?.id) {
+            R.id.fileViewFragment, R.id.fileMetadataFragment -> {
+                this@FileActivity.finish()
+                true
+            }
+            else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
+        }
     }
 
     override fun connectViewModelEvents() {

@@ -6,6 +6,7 @@ import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
+import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import okhttp3.*
@@ -38,6 +39,7 @@ class NetworkClient(context: Context) {
     private val memberService: IMemberService
     private val notificationService: INotificationService
     private val invitationService: IInvitationService
+    private val locationService: ILocationService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
@@ -72,6 +74,7 @@ class NetworkClient(context: Context) {
         memberService = retrofit.create(IMemberService::class.java)
         notificationService = retrofit.create(INotificationService::class.java)
         invitationService = retrofit.create(IInvitationService::class.java)
+        locationService = retrofit.create(ILocationService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
     }
@@ -293,6 +296,12 @@ class NetworkClient(context: Context) {
         return fileService.updateRecord(requestBody)
     }
 
+    fun updateRecord(csrf: String?, locnVO: LocnVO, fileData: FileData): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addRecord(locnVO, fileData))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.updateRecord(requestBody)
+    }
+
     fun requestShareLink(csrf: String?, record: Record, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(record))
@@ -401,6 +410,12 @@ class NetworkClient(context: Context) {
         } else {
             invitationService.resendInvitation(requestBody)
         }
+    }
+
+    fun getLocation(csrf: String?, latLng: LatLng): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addLocation(latLng))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return locationService.getLocation(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

@@ -6,26 +6,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileInfoBinding
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileInfoViewModel
 import java.util.*
 
-class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
+class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private lateinit var viewModel: FileInfoViewModel
     private lateinit var binding: FragmentFileInfoBinding
-    private var fileData: FileData? = null
     private var mapView: MapView? = null
+    private var fileData: FileData? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,16 +41,32 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        mapView = binding.mapView
+        mapView?.onCreate(savedInstanceState)
         arguments?.takeIf { it.containsKey(PARCELABLE_FILE_DATA_KEY) }?.apply {
             getParcelable<FileData>(PARCELABLE_FILE_DATA_KEY)?.also {
                 fileData = it
                 viewModel.setFileData(it)
+                if (it.latitude != -1.0 && it.longitude != -1.0)
+                    mapView?.getMapAsync(this@FileInfoFragment)
             }
         }
-        mapView = binding.mapView
-        mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync(this)
         return binding.root
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        fileData?.let {
+            val latLng = LatLng(it.latitude, it.longitude)
+            googleMap.apply {
+                addMarker(MarkerOptions().position(latLng))
+                animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 9.9f))
+                setOnMapClickListener(this@FileInfoFragment)
+            }
+        }
+    }
+
+    override fun onMapClick(latLng: LatLng) {
+        navigateToLocationSearch()
     }
 
     private val onShowDatePicker = Observer<Void> {
@@ -59,17 +79,35 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
         }
     }
 
+    private val onShowLocationSearch = Observer<Void> {
+        navigateToLocationSearch()
+    }
+
+    private fun navigateToLocationSearch() {
+        val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
+        findNavController()
+            .navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)
+    }
+
+    private val onFileInfoUpdated = Observer<String> { fileName ->
+        (activity as AppCompatActivity?)?.supportActionBar?.title = fileName
+    }
+
     private val onShowMessage = Observer<String> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     override fun connectViewModelEvents() {
         viewModel.getShowDatePicker().observe(this, onShowDatePicker)
+        viewModel.getShowLocationSearch().observe(this, onShowLocationSearch)
+        viewModel.getOnFileInfoUpdated().observe(this, onFileInfoUpdated)
         viewModel.getShowMessage().observe(this, onShowMessage)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowDatePicker().removeObserver(onShowDatePicker)
+        viewModel.getShowLocationSearch().removeObserver(onShowLocationSearch)
+        viewModel.getOnFileInfoUpdated().removeObserver(onFileInfoUpdated)
         viewModel.getShowMessage().removeObserver(onShowMessage)
     }
 
@@ -96,18 +134,6 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback {
     override fun onLowMemory() {
         super.onLowMemory()
         mapView?.onLowMemory()
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        googleMap.apply {
-            val lat = fileData?.latitude
-            val lng = fileData?.longitude
-            if (lat != null && lng != null) {
-                val coordinates = LatLng(lat, lng)
-                addMarker(MarkerOptions().position(coordinates))
-                animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 9.9f))
-            }
-        }
     }
 
     override fun onResume() {

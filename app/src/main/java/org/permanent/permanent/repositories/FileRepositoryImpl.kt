@@ -281,4 +281,24 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                 }
             })
     }
+
+    override fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener) {
+        networkClient.updateRecord(prefsHelper.getCsrf(), locnVO, fileData)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(R.string.file_location_update_success))
+                    } else {
+                        listener.onFailed(context.getString(R.string.file_location_update_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
 }

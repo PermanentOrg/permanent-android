@@ -1,5 +1,6 @@
 package org.permanent.permanent.network
 
+import com.google.android.gms.maps.model.LatLng
 import okhttp3.MediaType
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
@@ -181,6 +182,16 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addRecord(locnVO: LocnVO, fileData: FileData): RequestContainer {
+        val recordVO = RecordVO()
+        recordVO.folder_linkId = fileData.folderLinkId
+        recordVO.archiveNbr = fileData.archiveNr
+        recordVO.recordId = fileData.recordId
+        recordVO.LocnVO = locnVO
+        RequestVO.data?.get(0)?.RecordVO = recordVO
+        return this
+    }
+
     fun addRecord(record: Record): RequestContainer {
         return if (record.type == RecordType.FOLDER) {
             val folderVO = FolderVO()
@@ -249,6 +260,14 @@ class RequestContainer(csrf: String?) {
         simpleVO.key = "type"
         simpleVO.value = mediaType.type + "/" + mediaType.subtype
         RequestVO.data?.get(0)?.SimpleVO = simpleVO
+        return this
+    }
+
+    fun addLocation(latLng: LatLng): RequestContainer {
+        val locnVO = LocnVO()
+        locnVO.latitude = latLng.latitude
+        locnVO.longitude = latLng.longitude
+        RequestVO.data?.get(0)?.LocnVO = locnVO
         return this
     }
 }
