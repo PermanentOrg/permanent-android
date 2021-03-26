@@ -104,8 +104,10 @@
     <string name="my_files_sort_criteria_file_type">File Type</string>
     <string name="my_files_no_files_root">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
     <string name="my_files_no_files">This folder is empty</string>
+
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
+
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>
     <string name="file_options_menu_item_move">Move</string>
@@ -113,18 +115,21 @@
     <string name="file_options_menu_item_delete">Delete</string>
     <string name="file_options_menu_item_edit">Edit</string>
     <string name="file_options_menu_item_share">Share</string>
+
     <string name="file_sort_menu_item_name_asc">Name (Ascending)</string>
     <string name="file_sort_menu_item_name_desc">Name (Descending)</string>
     <string name="file_sort_menu_item_date_asc">Date (Ascending)</string>
     <string name="file_sort_menu_item_date_desc">Date (Descending)</string>
     <string name="file_sort_menu_item_type_asc">File Type (Ascending)</string>
     <string name="file_sort_menu_item_type_desc">File Type (Descending)</string>
+
     <string name="login_bad_credentials">Incorrect username or password</string>
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
     <string name="reset_button">Reset</string>
     <string name="cancel_button">Cancel</string>
     <string name="yes_button">Yes</string>
+
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
     <string name="add_options_menu_item_take_video">Take Video</string>
