@@ -30,7 +30,6 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     private lateinit var binding: FragmentFileInfoBinding
     private var mapView: MapView? = null
     private var fileData: FileData? = null
-    private var coordinates: LatLng? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,13 +55,11 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        val lat = fileData?.latitude
-        val lng = fileData?.longitude
-        if (lat != null && lng != null) {
-            coordinates = LatLng(lat, lng)
+        fileData?.let {
+            val latLng = LatLng(it.latitude, it.longitude)
             googleMap.apply {
-                addMarker(MarkerOptions().position(coordinates!!))
-                animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 9.9f))
+                addMarker(MarkerOptions().position(latLng))
+                animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 9.9f))
                 setOnMapClickListener(this@FileInfoFragment)
             }
         }
