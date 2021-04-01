@@ -40,15 +40,14 @@ class NetworkClient(context: Context) {
     private val notificationService: INotificationService
     private val invitationService: IInvitationService
     private val locationService: ILocationService
+    private val tagService: ITagService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
 
     init {
-        val cookieJar: ClearableCookieJar = PersistentCookieJar(
-            SetCookieCache(),
-            SharedPrefsCookiePersistor(context.applicationContext)
-        )
+        val cookieJar: ClearableCookieJar = PersistentCookieJar(SetCookieCache(),
+            SharedPrefsCookiePersistor(context.applicationContext))
 
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = if (BuildConfig.DEBUG) {
@@ -75,6 +74,7 @@ class NetworkClient(context: Context) {
         notificationService = retrofit.create(INotificationService::class.java)
         invitationService = retrofit.create(IInvitationService::class.java)
         locationService = retrofit.create(ILocationService::class.java)
+        tagService = retrofit.create(ITagService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
     }
@@ -416,6 +416,12 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(csrf).addLocation(latLng))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return locationService.getLocation(requestBody)
+    }
+
+    fun getTagsByArchive(csrf: String?, archiveId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return tagService.getTagsByArchive(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

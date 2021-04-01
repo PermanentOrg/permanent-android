@@ -194,25 +194,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etLocation" />
 
-
-        <EditText
-            android:id="@+id/etTags"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupFileTags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/rounded_border_grey_edit_text"
-            android:fontFamily="@font/open_sans"
-            android:hint="@string/file_info_none"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{() -> viewModel.onEditTagsClick()}"
             android:padding="8dp"
-            android:text="@{viewModel.tags}"
-            android:textColor="@color/white"
-            android:textColorHint="@color/lightGrey"
-            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTags" />
+            app:layout_constraintTop_toBottomOf="@+id/tvTags"></com.google.android.material.chip.ChipGroup>
 
         <Button
             android:id="@+id/btnSave"
@@ -233,7 +226,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etTags"
+            app:layout_constraintTop_toBottomOf="@+id/chipGroupFileTags"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.core.widget.ContentLoadingProgressBar

@@ -4,9 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import org.permanent.permanent.network.models.TagVO
 
-class Tag private constructor() : Parcelable {
-    var tagId: String? = null
-    var name: String? = null
+data class Tag constructor(var tagId: String? = null,  var name: String? = null
+) : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         tagId = parcel.readString()

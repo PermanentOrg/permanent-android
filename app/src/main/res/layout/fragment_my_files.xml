@@ -113,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="8dp"
-                android:visibility="@{viewModel.getIsRoot() ? View.GONE : View.VISIBLE}"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/tvFolderName"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tvFolderName"

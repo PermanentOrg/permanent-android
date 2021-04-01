@@ -240,6 +240,13 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addArchive(archiveId: Int): RequestContainer {
+        val archiveVO = ArchiveVO()
+        archiveVO.archiveId = archiveId
+        RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
     fun addInvite(fullName: String, email: String): RequestContainer {
         val inviteVO = InviteVO()
         inviteVO.fullName = fullName

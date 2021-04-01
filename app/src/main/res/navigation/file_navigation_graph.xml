@@ -31,14 +31,35 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fileMetadataFragment_to_tagsEditFragment"
+            app:destination="@id/tagsEditFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/locationSearchFragment"
         android:name="org.permanent.permanent.ui.fileView.LocationSearchFragment"
-        android:label="@string/main_navigation_location_search"
+        android:label="@string/file_navigation_title_enter_location"
         tools:layout="@layout/fragment_location_search">
         <action
             android:id="@+id/action_locationSearchFragment_to_fileMetadataFragment"
+            app:destination="@id/fileMetadataFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tagsEditFragment"
+        android:name="org.permanent.permanent.ui.fileView.TagsEditFragment"
+        android:label="@string/file_navigation_title_edit_tags"
+        tools:layout="@layout/fragment_tags_edit">
+        <action
+            android:id="@+id/action_tagsEditFragment_to_fileMetadataFragment"
             app:destination="@id/fileMetadataFragment"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit"

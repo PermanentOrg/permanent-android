@@ -88,14 +88,15 @@
     <string name="menu_settings_drawer_support">Contact Support</string>
     <string name="menu_settings_drawer_logout">Log Out</string>
 
-    <string name="main_navigation_my_files">My Files</string>
-    <string name="main_navigation_shares">Shares</string>
-    <string name="main_navigation_members">Members</string>
-    <string name="main_navigation_account_info">Account Info</string>
-    <string name="main_navigation_security">Security</string>
-    <string name="main_navigation_file">File</string>
-    <string name="main_navigation_share_link">Share Link</string>
-    <string name="main_navigation_location_search">Enter Location</string>
+    <string name="main_navigation_title_my_files">My Files</string>
+    <string name="main_navigation_title_shares">Shares</string>
+    <string name="main_navigation_title_members">Members</string>
+    <string name="main_navigation_title_account_info">Account Info</string>
+    <string name="main_navigation_title_security">Security</string>
+    <string name="main_navigation_title_share_link">Share Link</string>
+
+    <string name="file_navigation_title_enter_location">Enter Location</string>
+    <string name="file_navigation_title_edit_tags">Edit Tags</string>
 
     <string name="my_files_search_hint"><font size="14">Search Files</font></string>
     <string name="my_files_title">My Files</string>
@@ -258,6 +259,8 @@
     <string name="file_info_none">None</string>
     <string name="file_info_tap_to_set">Tap to set</string>
     <string name="file_info_update_success">File info updated successfully.</string>
+    <string name="file_info_button_add">Add</string>
+    <string name="file_info_add_new_tag">Add new tag</string>
 
     <string name="file_details_uploaded">Uploaded:</string>
     <string name="file_details_uploaded_by">Uploaded By:</string>

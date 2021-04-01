@@ -17,8 +17,10 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.chip.Chip
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileInfoBinding
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileInfoViewModel
@@ -47,11 +49,23 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
             getParcelable<FileData>(PARCELABLE_FILE_DATA_KEY)?.also {
                 fileData = it
                 viewModel.setFileData(it)
+                it.tags?.let { tags -> createChipsFor(tags) }
                 if (it.latitude != -1.0 && it.longitude != -1.0)
                     mapView?.getMapAsync(this@FileInfoFragment)
             }
         }
         return binding.root
+    }
+
+    private fun createChipsFor(tags: List<Tag>) {
+        val chipGroup = binding.chipGroupFileTags
+        for (tag in tags) {
+            val chip = layoutInflater.inflate(
+                R.layout.item_chip_action, chipGroup, false) as Chip
+            chip.text = (tag.name)
+            chip.setOnClickListener { viewModel.onShowTagsEdit.call() }
+            chipGroup.addView(chip)
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -93,6 +107,12 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         (activity as AppCompatActivity?)?.supportActionBar?.title = fileName
     }
 
+    private val onShowTagsEdit = Observer<Void> {
+        val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
+        findNavController()
+            .navigate(R.id.action_fileMetadataFragment_to_tagsEditFragment, bundle)
+    }
+
     private val onShowMessage = Observer<String> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
@@ -101,6 +121,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         viewModel.getShowDatePicker().observe(this, onShowDatePicker)
         viewModel.getShowLocationSearch().observe(this, onShowLocationSearch)
         viewModel.getOnFileInfoUpdated().observe(this, onFileInfoUpdated)
+        viewModel.getShowTagsEdit().observe(this, onShowTagsEdit)
         viewModel.getShowMessage().observe(this, onShowMessage)
     }
 
@@ -108,6 +129,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         viewModel.getShowDatePicker().removeObserver(onShowDatePicker)
         viewModel.getShowLocationSearch().removeObserver(onShowLocationSearch)
         viewModel.getOnFileInfoUpdated().removeObserver(onFileInfoUpdated)
+        viewModel.getShowTagsEdit().removeObserver(onShowTagsEdit)
         viewModel.getShowMessage().removeObserver(onShowMessage)
     }
 
