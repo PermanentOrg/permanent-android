@@ -25,6 +25,7 @@
             android:fontFamily="@font/open_sans"
             android:hint="@string/file_info_add_new_tag"
             android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
+            android:text="@{viewModel.newTagName}"
             android:padding="8dp"
             android:textColor="@color/white"
             android:textColorHint="@color/lightGrey"

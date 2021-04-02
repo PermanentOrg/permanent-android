@@ -48,7 +48,11 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
                 isBusy.value = false
                 dataList?.let {
                     for (data in it) {
-                        data.TagVO?.let { tagVO -> allTags.add(Tag(tagVO)) }
+                        data.TagVO?.let { tagVO ->
+                            val archiveTag = Tag(tagVO)
+                            archiveTag.isChecked = fileData.tags?.contains(archiveTag) == true
+                            allTags.add(archiveTag)
+                        }
                     }
                     onTagsUpdate.value = allTags
                 }
@@ -68,36 +72,11 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     fun onAddClick() {
-//        if (isBusy.value != null && isBusy.value!!) {
-//            return
-//        }
-//
-//        val name = name.value?.trim()
-//        val description = description.value?.trim()
-//        val date = date.value
-//
-//        if (name.isNullOrEmpty()) {
-//            showMessage.value = appContext.getString(R.string.invalid_name_error)
-//            return
-//        }
-//
-//        fileData.displayName = name
-//        fileData.description = description
-//        fileData.displayDate = date
-//
-//        isBusy.value = true
-//        fileRepository.updateRecord(fileData, object : IResponseListener {
-//            override fun onSuccess(message: String?) {
-//                isBusy.value = false
-//                showMessage.value = message
-//                onFileInfoUpdated.value = name
-//            }
-//
-//            override fun onFailed(error: String?) {
-//                isBusy.value = false
-//                showMessage.value = error
-//            }
-//        })
+        val newTagNameValue = newTagName.value
+
+        newTagNameValue?.let { allTags.add(Tag(null, it)) }
+        onTagsUpdate.value = allTags
+        newTagName.value = ""
     }
 
     override fun getFilter(): Filter {
@@ -110,9 +89,8 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
                 filterResults.values = if (charSearch.isEmpty()) allTags else {
                     val resultList = ArrayList<Tag>()
                     for (tag in allTags) {
-                        if (tag.name != null && tag.name?.toLowerCase(Locale.ROOT)
-                                ?.contains(charSearch.toLowerCase(Locale.ROOT)) == true
-                        ) {
+                        if (tag.name.toLowerCase(Locale.ROOT)
+                                .contains(charSearch.toLowerCase(Locale.ROOT))) {
                             resultList.add(tag)
                         }
                     }
@@ -129,6 +107,8 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     fun getCurrentFileData(): FileData = fileData
+
+    fun getNewTagName(): LiveData<String> = newTagName
 
     fun getShowMessage(): LiveData<String> = showMessage
 

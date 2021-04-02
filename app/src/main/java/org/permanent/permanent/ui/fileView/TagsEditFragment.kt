@@ -76,7 +76,7 @@ class TagsEditFragment : PermanentBaseFragment() {
             val chip = layoutInflater.inflate(
                 R.layout.item_chip_filter, chipGroup, false) as Chip
             chip.text = (archiveTag.name)
-            chip.isChecked = fileData?.tags?.contains(archiveTag) == true
+            chip.isChecked = archiveTag.isChecked
             chipGroup.addView(chip)
         }
     }
