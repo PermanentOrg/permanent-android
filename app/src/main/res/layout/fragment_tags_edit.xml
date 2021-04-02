@@ -15,22 +15,6 @@
         android:layout_height="match_parent"
         android:background="@color/black">
 
-        <TextView
-            android:id="@+id/tvAddNewTag"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/file_info_add_new_tag"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <EditText
             android:id="@+id/etNewTag"
             android:layout_width="0dp"
@@ -39,15 +23,15 @@
             android:layout_marginTop="4dp"
             android:background="@drawable/rounded_border_grey_edit_text"
             android:fontFamily="@font/open_sans"
-            android:hint="@string/file_info_none"
+            android:hint="@string/file_info_add_new_tag"
+            android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
             android:padding="8dp"
-            android:text="{viewModel.}"
             android:textColor="@color/white"
             android:textColorHint="@color/lightGrey"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/btnAdd"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvAddNewTag" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/btnAdd"
@@ -58,6 +42,7 @@
             android:fontFamily="@font/open_sans_bold"
             android:insetTop="0dp"
             android:insetBottom="0dp"
+            android:onClick="@{() -> viewModel.onAddClick()}"
             android:text="@string/file_info_button_add"
             android:textAllCaps="false"
             android:textSize="18sp"

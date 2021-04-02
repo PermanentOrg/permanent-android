@@ -69,8 +69,9 @@ class TagsEditFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onTagsRetrieved = Observer<List<Tag>> { archiveTags ->
+    private val onTagsUpdate = Observer<List<Tag>> { archiveTags ->
         val chipGroup = binding.chipGroupAllTags
+        chipGroup.removeAllViews()
         for (archiveTag in archiveTags) {
             val chip = layoutInflater.inflate(
                 R.layout.item_chip_filter, chipGroup, false) as Chip
@@ -95,12 +96,12 @@ class TagsEditFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
-        viewModel.getOnTagsRetrieved().observe(this, onTagsRetrieved)
+        viewModel.getOnTagsUpdate().observe(this, onTagsUpdate)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
-        viewModel.getOnTagsRetrieved().removeObserver(onTagsRetrieved)
+        viewModel.getOnTagsUpdate().removeObserver(onTagsUpdate)
     }
 
     override fun onResume() {
