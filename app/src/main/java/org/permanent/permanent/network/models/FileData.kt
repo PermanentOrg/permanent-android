@@ -150,6 +150,16 @@ class FileData private constructor() : Parcelable {
         parcel.writeTypedList(tags)
     }
 
+    fun getTagIds(): ArrayList<String> {
+        val resultList = ArrayList<String>()
+        tags?.let {
+            for (tag in it) {
+                tag.tagId?.let { tagId -> resultList.add(tagId) }
+            }
+        }
+        return resultList
+    }
+
     override fun describeContents(): Int {
         return 0
     }

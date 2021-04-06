@@ -10,4 +10,10 @@ interface ITagService {
 
     @POST("tag/getTagsByArchive")
     fun getTagsByArchive(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("tag/post")
+    fun createOrLinkTags(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("tag/delete")
+    fun unlinkTags(@Body requestBody: RequestBody): Call<ResponseVO>
 }

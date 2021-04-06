@@ -14,6 +14,7 @@ import org.permanent.permanent.databinding.FragmentTagsEditBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.viewmodels.TagsEditViewModel
 
 class TagsEditFragment : PermanentBaseFragment() {
@@ -45,7 +46,7 @@ class TagsEditFragment : PermanentBaseFragment() {
         requireActivity().onBackPressedDispatcher
             .addCallback(object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    navigateUp(viewModel.getCurrentFileData())
+                    navigateUp(fileData)
                 }
             })
     }
@@ -62,23 +63,31 @@ class TagsEditFragment : PermanentBaseFragment() {
                 true
             }
             R.id.doneItem -> {
-                // TODO
+                viewModel.updateTagsOnServer()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private val onTagsUpdate = Observer<List<Tag>> { archiveTags ->
+    private val onTagsFiltered = Observer<List<Tag>> { archiveTags ->
         val chipGroup = binding.chipGroupAllTags
         chipGroup.removeAllViews()
         for (archiveTag in archiveTags) {
             val chip = layoutInflater.inflate(
                 R.layout.item_chip_filter, chipGroup, false) as Chip
             chip.text = (archiveTag.name)
-            chip.isChecked = archiveTag.isChecked
+            chip.isChecked = archiveTag.isCheckedOnLocal
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                archiveTag.isCheckedOnLocal = isChecked
+            }
             chipGroup.addView(chip)
         }
+    }
+
+    private val onTagsUpdated = Observer<FileData> {
+        context?.hideKeyboardFrom(binding.root.windowToken)
+        navigateUp(it)
     }
 
     private fun navigateUp(it: FileData?) {
@@ -96,12 +105,14 @@ class TagsEditFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
-        viewModel.getOnTagsUpdate().observe(this, onTagsUpdate)
+        viewModel.getOnTagsFiltered().observe(this, onTagsFiltered)
+        viewModel.getOnTagsUpdated().observe(this, onTagsUpdated)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
-        viewModel.getOnTagsUpdate().removeObserver(onTagsUpdate)
+        viewModel.getOnTagsFiltered().removeObserver(onTagsFiltered)
+        viewModel.getOnTagsUpdated().removeObserver(onTagsUpdated)
     }
 
     override fun onResume() {

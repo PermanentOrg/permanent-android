@@ -1,7 +1,9 @@
 package org.permanent.permanent.repositories
 
 import android.content.Context
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
@@ -17,7 +19,6 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
     private val networkClient: NetworkClient = NetworkClient(context)
 
     override fun getTagsByArchive(archiveId: Int, listener: IDataListener) {
-
         networkClient.getTagsByArchive(prefsHelper.getCsrf(), archiveId)
             .enqueue(object : Callback<ResponseVO> {
 
@@ -26,6 +27,46 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener) {
+        networkClient.createOrLinkTag(prefsHelper.getCsrf(), tags, recordId)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess("")
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun unlinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener) {
+        networkClient.unlinkTags(prefsHelper.getCsrf(), tags, recordId)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess("")
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }

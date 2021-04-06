@@ -7,13 +7,15 @@ import org.permanent.permanent.network.models.TagVO
 data class Tag constructor(
     var tagId: String? = null,
     var name: String = "",
-    var isChecked: Boolean = true
+    var isCheckedOnServer: Boolean = false,
+    var isCheckedOnLocal: Boolean = true
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         tagId = parcel.readString()
         name = parcel.readString() ?: ""
-        isChecked = parcel.readValue(Boolean::class.java.classLoader) as Boolean
+        isCheckedOnServer = parcel.readValue(Boolean::class.java.classLoader) as Boolean
+        isCheckedOnLocal = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
     constructor(tagVO: TagVO) : this() {
@@ -24,7 +26,8 @@ data class Tag constructor(
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(tagId)
         parcel.writeString(name)
-        parcel.writeValue(isChecked)
+        parcel.writeValue(isCheckedOnServer)
+        parcel.writeValue(isCheckedOnLocal)
     }
 
     override fun describeContents(): Int {

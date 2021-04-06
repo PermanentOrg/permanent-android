@@ -1,7 +1,6 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import android.text.Editable
 import android.widget.Filter
 import android.widget.Filterable
@@ -9,24 +8,29 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 import kotlin.collections.ArrayList
 
 class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(application),
     Filterable {
 
-    private var appContext: Context? = application.applicationContext
     private lateinit var fileData: FileData
     private val newTagName = MutableLiveData<String>()
     private val showMessage = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData(false)
-    private val onTagsUpdate = MutableLiveData<List<Tag>>()
+    private val onTagsFiltered = MutableLiveData<List<Tag>>()
+    private val onTagsUpdated = MutableLiveData<FileData>()
     private val allTags = ArrayList<Tag>()
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -50,11 +54,12 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
                     for (data in it) {
                         data.TagVO?.let { tagVO ->
                             val archiveTag = Tag(tagVO)
-                            archiveTag.isChecked = fileData.tags?.contains(archiveTag) == true
+                            archiveTag.isCheckedOnServer = fileData.getTagIds().contains(archiveTag.tagId)
+                            archiveTag.isCheckedOnLocal = archiveTag.isCheckedOnServer
                             allTags.add(archiveTag)
                         }
                     }
-                    onTagsUpdate.value = allTags
+                    onTagsFiltered.value = allTags
                 }
             }
 
@@ -65,6 +70,101 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
         })
     }
 
+    fun updateTagsOnServer() {
+        val newCheckedTags = ArrayList<Tag>()
+        val newUncheckedTags = ArrayList<Tag>()
+        for (tag in allTags) {
+            val checkedOnLocal = tag.isCheckedOnLocal
+            if (checkedOnLocal != tag.isCheckedOnServer) {
+                if (checkedOnLocal) newCheckedTags.add(tag) else newUncheckedTags.add(tag)
+            }
+        }
+        when {
+            newCheckedTags.isNotEmpty() ->
+                saveNewCheckedTags(newCheckedTags, newUncheckedTags, fileData.recordId)
+            newUncheckedTags.isNotEmpty() ->
+                saveNewUncheckedTags(newUncheckedTags, fileData.recordId)
+            else -> onTagsUpdated.value = fileData
+        }
+    }
+
+    private fun saveNewCheckedTags(
+        newCheckedTags: ArrayList<Tag>,
+        newUncheckedTags: ArrayList<Tag>,
+        recordId: Int
+    ) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        tagRepository.createOrLinkTags(newCheckedTags, recordId, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                if (newUncheckedTags.isNotEmpty())
+                    saveNewUncheckedTags(newUncheckedTags, fileData.recordId)
+                else requestUpdatedFileData()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                if (newUncheckedTags.isNotEmpty())
+                    saveNewUncheckedTags(newUncheckedTags, fileData.recordId)
+                showMessage.value = error
+            }
+        })
+    }
+
+    private fun saveNewUncheckedTags(uncheckedTags: ArrayList<Tag>, recordId: Int) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        tagRepository.unlinkTags(uncheckedTags, recordId, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                requestUpdatedFileData()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    private fun requestUpdatedFileData() {
+        val folderLinkId = fileData.folderLinkId
+        val archiveNr = fileData.archiveNr
+        val archiveId = fileData.archiveId
+        val recordId = fileData.recordId
+
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        archiveNr?.let {
+            fileRepository.getRecord(folderLinkId, it, archiveId, recordId
+            ).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    isBusy.value = false
+                    response.body()?.getFileData()?.let { newFileData -> fileData = newFileData }
+                    onTagsUpdated.value = fileData
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    isBusy.value = false
+                    showMessage.value = t.message
+                }
+            })
+        }
+    }
+
     fun onNewTagNameTextChanged(textEditable: Editable) {
         val text = textEditable.toString()
         newTagName.value = text
@@ -73,10 +173,11 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun onAddClick() {
         val newTagNameValue = newTagName.value
-
-        newTagNameValue?.let { allTags.add(Tag(null, it)) }
-        onTagsUpdate.value = allTags
-        newTagName.value = ""
+        if (!newTagNameValue.isNullOrEmpty()) {
+            allTags.add(0, Tag(null, newTagNameValue))
+            onTagsFiltered.value = allTags
+            newTagName.value = ""
+        }
     }
 
     override fun getFilter(): Filter {
@@ -101,12 +202,10 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
 
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                onTagsUpdate.value = results?.values as ArrayList<Tag>
+                onTagsFiltered.value = results?.values as ArrayList<Tag>
             }
         }
     }
-
-    fun getCurrentFileData(): FileData = fileData
 
     fun getNewTagName(): LiveData<String> = newTagName
 
@@ -114,5 +213,7 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getIsBusy(): LiveData<Boolean> = isBusy
 
-    fun getOnTagsUpdate(): LiveData<List<Tag>> = onTagsUpdate
+    fun getOnTagsFiltered(): LiveData<List<Tag>> = onTagsFiltered
+
+    fun getOnTagsUpdated(): LiveData<FileData> = onTagsUpdated
 }

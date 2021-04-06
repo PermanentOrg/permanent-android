@@ -277,4 +277,45 @@ class RequestContainer(csrf: String?) {
         RequestVO.data?.get(0)?.LocnVO = locnVO
         return this
     }
+
+    fun addTagNames(tags: List<Tag>): RequestContainer {
+        for ((index, tag) in tags.withIndex()) {
+            val tagVO = TagVO()
+            tagVO.name = tag.name
+            if (index == 0) RequestVO.data?.get(0)?.TagVO = tagVO
+            else {
+                val newData = Datum()
+                newData.TagVO = tagVO
+                (RequestVO.data as ArrayList).add(newData)
+            }
+        }
+        return this
+    }
+
+    fun addTagIds(tags: List<Tag>): RequestContainer {
+        for ((index, tag) in tags.withIndex()) {
+            val tagVO = TagVO()
+            tagVO.tagId = tag.tagId
+            if (index == 0) RequestVO.data?.get(0)?.TagVO = tagVO
+            else {
+                val newData = Datum()
+                newData.TagVO = tagVO
+                (RequestVO.data as ArrayList).add(newData)
+            }
+        }
+        return this
+    }
+
+    fun addTagLink(recordId: Int): RequestContainer {
+        val dataList = RequestVO.data
+        val tagLinkVO = TagLinkVO()
+        tagLinkVO.refId = recordId
+
+        if (dataList != null) {
+            for (data in dataList) {
+                data.TagLinkVO = tagLinkVO
+            }
+        }
+        return this
+    }
 }

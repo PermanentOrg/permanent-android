@@ -424,6 +424,18 @@ class NetworkClient(context: Context) {
         return tagService.getTagsByArchive(requestBody)
     }
 
+    fun createOrLinkTag(csrf: String?, tags: List<Tag>, recordId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addTagNames(tags).addTagLink(recordId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return tagService.createOrLinkTags(requestBody)
+    }
+
+    fun unlinkTags(csrf: String?, tags: List<Tag>, recordId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addTagIds(tags).addTagLink(recordId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return tagService.unlinkTags(requestBody)
+    }
+
     private fun toJson(container: RequestContainer): String {
         return jsonAdapter.toJson(container)
     }

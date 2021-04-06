@@ -15,4 +15,5 @@ class Datum {
     var InviteVO: InviteVO? = null
     var LocnVO: LocnVO? = null
     var TagVO: TagVO? = null
+    var TagLinkVO: TagLinkVO? = null
 }
