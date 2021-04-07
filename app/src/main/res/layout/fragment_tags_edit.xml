@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.TagsEditViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+
+        <EditText
+            android:id="@+id/etNewTag"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/rounded_border_grey_edit_text"
+            android:fontFamily="@font/open_sans"
+            android:hint="@string/file_info_add_new_tag"
+            android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
+            android:text="@{viewModel.newTagName}"
+            android:padding="8dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lightGrey"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/btnAdd"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="80dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="16dp"
+            android:backgroundTint="@color/barneyPurple"
+            android:fontFamily="@font/open_sans_bold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:onClick="@{() -> viewModel.onAddClick()}"
+            android:text="@string/file_info_button_add"
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/etNewTag"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/etNewTag" />
+
+        <TextView
+            android:id="@+id/tvTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/file_info_tags"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etNewTag" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nsvAllTags"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="4dp"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTags">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupAllTags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </androidx.core.widget.NestedScrollView>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="2dp"
+            android:indeterminate="true"
+            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

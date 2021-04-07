@@ -8,6 +8,7 @@ import org.permanent.permanent.models.Tag
 class FileData private constructor() : Parcelable {
     var recordId: Int = -1
     var folderLinkId: Int = -1
+    var archiveId: Int = -1
     var archiveNr: String? = null
     var fileName: String? = null
     var displayName: String? = null
@@ -34,6 +35,7 @@ class FileData private constructor() : Parcelable {
     constructor(recordVO: RecordVO) : this() {
         recordId = recordVO.recordId ?: -1
         folderLinkId = recordVO.folder_linkId ?: -1
+        archiveId = recordVO.archiveId ?: -1
         archiveNr = recordVO.archiveNbr
         // First we check for the converted video to mp4
         val fileVO: FileVO? = if (recordVO.type?.contains(FileType.VIDEO.toString()) == true
@@ -86,6 +88,7 @@ class FileData private constructor() : Parcelable {
     constructor(parcel: Parcel) : this() {
         recordId = parcel.readInt()
         folderLinkId = parcel.readInt()
+        archiveId = parcel.readInt()
         archiveNr = parcel.readString()
         fileName = parcel.readString()
         displayName = parcel.readString()
@@ -122,6 +125,7 @@ class FileData private constructor() : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(recordId)
         parcel.writeInt(folderLinkId)
+        parcel.writeInt(archiveId)
         parcel.writeString(archiveNr)
         parcel.writeString(fileName)
         parcel.writeString(displayName)
@@ -144,6 +148,16 @@ class FileData private constructor() : Parcelable {
         parcel.writeInt(width)
         parcel.writeInt(height)
         parcel.writeTypedList(tags)
+    }
+
+    fun getTagIds(): ArrayList<String> {
+        val resultList = ArrayList<String>()
+        tags?.let {
+            for (tag in it) {
+                tag.tagId?.let { tagId -> resultList.add(tagId) }
+            }
+        }
+        return resultList
     }
 
     override fun describeContents(): Int {

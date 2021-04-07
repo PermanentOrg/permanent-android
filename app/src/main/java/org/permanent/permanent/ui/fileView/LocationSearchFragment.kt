@@ -109,7 +109,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_toolbar_location_search, menu)
+        inflater.inflate(R.menu.menu_toolbar_done_item, menu)
         this.menu = menu
         menu.findItem(R.id.doneItem).isVisible = false
         autocompleteFragment.requireView().findViewById<View>(R.id.places_autocomplete_clear_button)

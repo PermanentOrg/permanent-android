@@ -263,11 +263,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun onFolderOptionsClick() {
-        val fragment = FolderOptionsFragment()
-        val bundle = Bundle()
-        bundle.putString(Constants.FOLDER_NAME, Constants.MY_FILES_FOLDER)
-        fragment.arguments = bundle
-        showBottomSheetFragment(fragment)
+//        val fragment = FolderOptionsFragment()
+//        val bundle = Bundle()
+//        bundle.putString(Constants.FOLDER_NAME, Constants.MY_FILES_FOLDER)
+//        fragment.arguments = bundle
+//        showBottomSheetFragment(fragment)
     }
 
     private fun showBottomSheetFragment(fragment: BottomSheetDialogFragment) {

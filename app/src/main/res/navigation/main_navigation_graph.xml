@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/myFilesFragment"
         android:name="org.permanent.permanent.ui.myFiles.MyFilesFragment"
-        android:label="@string/main_navigation_my_files"
+        android:label="@string/main_navigation_title_my_files"
         tools:layout="@layout/fragment_my_files">
         <action
             android:id="@+id/action_myFilesFragment_to_shareLinkFragment"
@@ -32,7 +32,7 @@
     <fragment
         android:id="@+id/shareLinkFragment"
         android:name="org.permanent.permanent.ui.myFiles.linkshare.ShareLinkFragment"
-        android:label="@string/main_navigation_share_link"
+        android:label="@string/main_navigation_title_share_link"
         tools:layout="@layout/fragment_share_link">
         <action
             android:id="@+id/action_shareLinkFragment_to_manageLinkFragment"
@@ -75,7 +75,7 @@
     <fragment
         android:id="@+id/sharesFragment"
         android:name="org.permanent.permanent.ui.shares.SharesFragment"
-        android:label="@string/main_navigation_shares"
+        android:label="@string/main_navigation_title_shares"
         tools:layout="@layout/fragment_shares">
         <action
             android:id="@+id/action_sharesFragment_to_fileViewFragment"
@@ -89,7 +89,7 @@
     <fragment
         android:id="@+id/membersFragment"
         android:name="org.permanent.permanent.ui.members.MembersFragment"
-        android:label="@string/main_navigation_members"
+        android:label="@string/main_navigation_title_members"
         tools:layout="@layout/fragment_members"/>
 
     <fragment
@@ -107,19 +107,18 @@
     <fragment
         android:id="@+id/accountInfoFragment"
         android:name="org.permanent.permanent.ui.settings.AccountInfoFragment"
-        android:label="@string/main_navigation_account_info"
+        android:label="@string/main_navigation_title_account_info"
         tools:layout="@layout/fragment_account_info"/>
 
     <fragment
         android:id="@+id/securityFragment"
         android:name="org.permanent.permanent.ui.settings.SecurityFragment"
-        android:label="@string/main_navigation_security"
+        android:label="@string/main_navigation_title_security"
         tools:layout="@layout/fragment_security"/>
 
     <activity
         android:id="@+id/fileActivity"
         android:name="org.permanent.permanent.ui.fileView.FileActivity"
-        android:label="@string/main_navigation_file"
         tools:layout="@layout/activity_file">
         <argument
             android:name="parcelable_file_data_key"

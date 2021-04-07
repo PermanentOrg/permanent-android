@@ -21,10 +21,10 @@ class FileInfoViewModel(application: Application
     private val description = MutableLiveData<String>()
     private val date = MutableLiveData<String>()
     private val address = MutableLiveData<String>()
-    private val tags = MutableLiveData("")
     private val onShowDatePickerRequest = SingleLiveEvent<Void>()
     private val onShowLocationSearchRequest = SingleLiveEvent<Void>()
     private val onFileInfoUpdated = SingleLiveEvent<String>()
+    val onShowTagsEdit = SingleLiveEvent<Void>()
     private val showMessage = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -35,13 +35,6 @@ class FileInfoViewModel(application: Application
         description.value = fileData.description
         date.value = fileData.displayDate
         address.value = fileData.completeAddress
-        val tags = fileData.tags
-        if(!tags.isNullOrEmpty()) {
-            for (tag in tags) {
-                this.tags.value = this.tags.value +
-                        if(this.tags.value?.isNotEmpty() == true) ", " + tag.name else tag.name
-            }
-        }
     }
 
     fun onNameTextChanged(text: Editable) {
@@ -62,6 +55,10 @@ class FileInfoViewModel(application: Application
 
     fun onLocationClick() {
         onShowLocationSearchRequest.value = onShowLocationSearchRequest.value
+    }
+
+    fun onEditTagsClick() {
+        onShowTagsEdit.call()
     }
 
     fun onSaveClick() {
@@ -105,13 +102,13 @@ class FileInfoViewModel(application: Application
 
     fun getAddress(): LiveData<String> = address
 
-    fun getTags(): LiveData<String> = tags
-
     fun getShowDatePicker(): LiveData<Void> = onShowDatePickerRequest
 
     fun getShowLocationSearch(): LiveData<Void> = onShowLocationSearchRequest
 
     fun getOnFileInfoUpdated(): LiveData<String> = onFileInfoUpdated
+
+    fun getShowTagsEdit(): LiveData<Void> = onShowTagsEdit
 
     fun getShowMessage(): LiveData<String> = showMessage
 
