@@ -62,7 +62,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //====================================== ARCHITECTURE COMPONENTS ===============================
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.work:work-runtime-ktx:2.5.0'
     //==============================================================================================
@@ -87,8 +87,10 @@ dependencies {
     //==============================================================================================
 
     //========================================= FIREBASE ===========================================
-    implementation 'com.google.firebase:firebase-analytics-ktx:18.0.2'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:17.4.0'
+    implementation platform('com.google.firebase:firebase-bom:26.8.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
     //==============================================================================================
 
     //========================================= MAPS ===============================================
