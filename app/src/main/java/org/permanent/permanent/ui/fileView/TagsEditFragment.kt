@@ -78,6 +78,7 @@ class TagsEditFragment : PermanentBaseFragment() {
                 R.layout.item_chip_filter, chipGroup, false) as Chip
             chip.text = (archiveTag.name)
             chip.isChecked = archiveTag.isCheckedOnLocal
+            chip.setEnsureMinTouchTargetSize(false)
             chip.setOnCheckedChangeListener { _, isChecked ->
                 archiveTag.isCheckedOnLocal = isChecked
             }
@@ -86,11 +87,11 @@ class TagsEditFragment : PermanentBaseFragment() {
     }
 
     private val onTagsUpdated = Observer<FileData> {
-        context?.hideKeyboardFrom(binding.root.windowToken)
         navigateUp(it)
     }
 
     private fun navigateUp(it: FileData?) {
+        context?.hideKeyboardFrom(binding.root.windowToken)
         val bundle = bundleOf(
             PARCELABLE_FILE_DATA_KEY to it, BOOLEAN_SHOULD_SCROLL_KEY to true
         )

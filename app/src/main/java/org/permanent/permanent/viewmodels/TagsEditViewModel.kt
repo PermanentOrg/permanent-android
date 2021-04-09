@@ -6,6 +6,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
@@ -25,6 +26,7 @@ import kotlin.collections.ArrayList
 class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(application),
     Filterable {
 
+    private val appContext = application.applicationContext
     private lateinit var fileData: FileData
     private val newTagName = MutableLiveData<String>()
     private val showMessage = SingleLiveEvent<String>()
@@ -154,6 +156,7 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     isBusy.value = false
                     response.body()?.getFileData()?.let { newFileData -> fileData = newFileData }
+                    showMessage.value = appContext.getString(R.string.file_tags_update_success)
                     onTagsUpdated.value = fileData
                 }
 

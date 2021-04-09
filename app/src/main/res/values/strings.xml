@@ -277,6 +277,11 @@
     <string name="file_location_update_success">File location updated successfully.</string>
     <string name="file_location_update_error">There was a problem saving the location.</string>
 
+    <string name="file_tags_update_success">Tags updated successfully.</string>
+
     <string name="notification_channel_name">"General"</string>
     <string name="default_notification_channel_id">permanent_general_notification_channel</string>
+    <string name="notification_title_upload_reminder">Upload Reminder</string>
+    <string name="notification_body_upload_reminder">Click here to upload some files in your archive.</string>
+    <string name="notification_body_share_notification">%s has shared %s with %s</string>
 </resources>
