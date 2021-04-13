@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.activities
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -15,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
@@ -102,6 +105,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         if (!prefsHelper.isWelcomeDialogSeen()) {
             showWelcomeDialog()
         }
+
+        if (!isGooglePlayServicesAvailable(this))
+            GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
     }
 
     private fun navigateToAddStorage() {
@@ -119,6 +125,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
+    }
+
+    // On settings icon click
+    override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
+//        binding.mainActivityDrawerLayout.openDrawer(GravityCompat.END)
+        return true
     }
 
     private fun showWelcomeDialog() {
@@ -139,9 +151,15 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         alert.show()
     }
 
-    // On settings icon click
-    override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
-//        binding.mainActivityDrawerLayout.openDrawer(GravityCompat.END)
+    private fun isGooglePlayServicesAvailable(activity: Activity): Boolean {
+        val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
+        val status = googleApiAvailability.isGooglePlayServicesAvailable(activity)
+        if(status != ConnectionResult.SUCCESS) {
+            if(googleApiAvailability.isUserResolvableError(status)) {
+                googleApiAvailability.getErrorDialog(activity, status, 2404).show()
+            }
+            return false
+        }
         return true
     }
 
@@ -158,6 +176,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        if (!isGooglePlayServicesAvailable(this))
+            GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
     }
 
     override fun onPause() {

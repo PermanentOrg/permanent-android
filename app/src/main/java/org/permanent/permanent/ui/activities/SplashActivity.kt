@@ -1,7 +1,10 @@
 package org.permanent.permanent.ui.activities
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -28,6 +31,7 @@ class SplashActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
+        createNotificationChannel()
         viewModel.verifyIsUserLoggedIn()
     }
 
@@ -44,6 +48,18 @@ class SplashActivity : PermanentBaseActivity() {
             intent.putExtra(IS_USER_LOGGED_IN, isLoggedIn)
             startActivity(intent)
             finish()
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                getString(R.string.default_notification_channel_id),
+                getString(R.string.notification_channel_name),
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(channel)
         }
     }
 

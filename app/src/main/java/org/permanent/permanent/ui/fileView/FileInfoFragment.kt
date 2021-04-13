@@ -63,6 +63,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
             val chip = layoutInflater.inflate(
                 R.layout.item_chip_action, chipGroup, false) as Chip
             chip.text = (tag.name)
+            chip.setEnsureMinTouchTargetSize(false)
             chip.setOnClickListener { viewModel.onShowTagsEdit.call() }
             chipGroup.addView(chip)
         }
