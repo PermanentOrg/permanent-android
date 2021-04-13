@@ -7,41 +7,76 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
+import org.permanent.permanent.R
 import org.permanent.permanent.models.FileType
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.repositories.FileRepositoryImpl
+import org.permanent.permanent.repositories.IFileRepository
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
-class FileViewViewModel(application: Application
-) : ObservableAndroidViewModel(application) {
+class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
     private var file: File? = null
+    private var fileData = MutableLiveData<FileData>()
     private val filePath = MutableLiveData<String>()
     private val isVideo = MutableLiveData<Boolean>()
+    private val isPDF =  MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
+    private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun setFileData(fileData: FileData) {
-        isVideo.value = fileData.contentType?.contains(FileType.VIDEO.toString())
-        fileData.fileName?.let {
-            file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), it)
-            filePath.value = if (file?.exists() == true) Uri.fromFile(file).toString() else fileData.fileURL
+    fun setRecord(record: Record) {
+        requestFileData(record)
+    }
+
+    private fun requestFileData(record: Record) {
+        val folderLinkId = record.folderLinkId
+        val archiveNr = record.archiveNr
+        val archiveId = record.archiveId
+        val recordId = record.recordId
+
+        if (folderLinkId != null && archiveNr != null && archiveId != null && recordId != null) {
+            isBusy.value = true
+            fileRepository.getRecord(folderLinkId, archiveNr, archiveId, recordId
+            ).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    isBusy.value = false
+                    fileData.value = response.body()?.getFileData()
+                    fileData.value?.let {
+                        isPDF.value = it.contentType?.contains(FileType.PDF.toString())
+                        isVideo.value = it.contentType?.contains(FileType.VIDEO.toString())
+                        file = File(Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS), it.fileName)
+                        filePath.value = if (file?.exists() == true)
+                            Uri.fromFile(file).toString() else it.fileURL
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    isBusy.value = false
+                    showMessage.value = appContext.getString(R.string.generic_error)
+                }
+            })
         }
     }
 
-    fun getFilePath(): MutableLiveData<String> {
-        return filePath
-    }
+    fun getUriForSharing(): Uri? =
+        file?.let { FileProvider.getUriForFile(appContext, Constants.FILE_PROVIDER_NAME, it) }
 
-    fun getIsVideo(): MutableLiveData<Boolean> {
-        return isVideo
-    }
+    fun getFileData(): MutableLiveData<FileData> = fileData
 
-    fun getUriForSharing(): Uri? {
-        return file?.let { FileProvider.getUriForFile(appContext, Constants.FILE_PROVIDER_NAME, it) }
-    }
+    fun getFilePath(): MutableLiveData<String> = filePath
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getIsVideo(): MutableLiveData<Boolean> = isVideo
+
+    fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getIsPDFViewVisible(): MutableLiveData<Boolean> = isPDF
 }

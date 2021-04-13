@@ -10,8 +10,8 @@
         android:name="org.permanent.permanent.ui.fileView.FileViewFragment"
         tools:layout="@layout/fragment_file_view">
         <argument
-            android:name="parcelable_file_data_key"
-            app:argType="org.permanent.permanent.network.models.FileData" />
+            android:name="parcelable_record_key"
+            app:argType="org.permanent.permanent.models.Record" />
         <action
             android:id="@+id/action_fileViewFragment_to_fileMetadataFragment"
             app:destination="@id/fileMetadataFragment"
@@ -20,6 +20,7 @@
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
+
     <fragment
         android:id="@+id/fileMetadataFragment"
         android:name="org.permanent.permanent.ui.fileView.FileMetadataFragment"
@@ -39,6 +40,7 @@
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
+
     <fragment
         android:id="@+id/locationSearchFragment"
         android:name="org.permanent.permanent.ui.fileView.LocationSearchFragment"

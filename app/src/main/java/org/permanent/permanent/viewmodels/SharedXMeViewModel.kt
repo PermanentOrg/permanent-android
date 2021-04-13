@@ -1,16 +1,13 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Intent
 import android.os.Environment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.rajat.pdfviewer.PdfViewerActivity
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Download
-import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.FileData
@@ -141,27 +138,27 @@ class SharedXMeViewModel(application: Application
                             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                             fileData.fileName
                         )
-                        if (fileData.contentType?.contains(FileType.PDF.toString()) == true) {
-                            val intent = if (file.exists()) {
-                                PdfViewerActivity.launchPdfFromPath(
-                                    appContext,
-                                    file.path,
-                                    fileData.displayName,
-                                    "",
-                                    enableDownload = false)
-                            } else {
-                                PdfViewerActivity.launchPdfFromUrl(
-                                    appContext,
-                                    fileData.fileURL,
-                                    fileData.displayName,
-                                    "",
-                                    enableDownload = false)
-                            }
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            appContext.startActivity(intent)
-                        } else {
-                            onFileViewRequest.value = fileData
-                        }
+//                        if (fileData.contentType?.contains(FileType.PDF.toString()) == true) {
+//                            val intent = if (file.exists()) {
+//                                PdfViewerActivity.launchPdfFromPath(
+//                                    appContext,
+//                                    file.path,
+//                                    fileData.displayName,
+//                                    "",
+//                                    enableDownload = false)
+//                            } else {
+//                                PdfViewerActivity.launchPdfFromUrl(
+//                                    appContext,
+//                                    fileData.fileURL,
+//                                    fileData.displayName,
+//                                    "",
+//                                    enableDownload = false)
+//                            }
+//                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                            appContext.startActivity(intent)
+//                        } else {
+//                            onFileViewRequest.value = fileData
+//                        }
                     }
                 }
 

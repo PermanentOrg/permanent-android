@@ -16,7 +16,7 @@
         android:background="@color/black">
 
         <WebView
-            android:id="@+id/wvFile"
+            android:id="@+id/webView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -24,7 +24,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:isVideo="@{viewModel.isVideo}"
-            app:webViewPath="@{viewModel.filePath}" />
+            app:webViewPath="@{viewModel.filePath}"
+            android:visibility="@{viewModel.isPDFViewVisible ? View.GONE : View.VISIBLE}"/>
+
+
+        <com.github.barteksc.pdfviewer.PDFView
+            android:id="@+id/pdfView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@android:color/black"
+            android:visibility="@{viewModel.isPDFViewVisible ? View.VISIBLE : View.GONE}" />
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar"
