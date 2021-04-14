@@ -18,7 +18,19 @@ class PermanentFCMService : FirebaseMessagingService() {
     private val TAG = PermanentFCMService::class.java.simpleName
 
     override fun onNewToken(token: String) {
-        // TODO: sendRegistrationToServer(token)
+        Log.e(TAG, "New token: $token")
+
+//        val notificationsRepository: INotificationRepository =
+//            NotificationRepositoryImpl(applicationContext)
+//
+//        notificationsRepository.registerDevice(token, object : IResponseListener {
+//
+//            override fun onSuccess(message: String?) {
+//            }
+//
+//            override fun onFailed(error: String?) {
+//            }
+//        })
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -54,6 +66,10 @@ class PermanentFCMService : FirebaseMessagingService() {
         }
     }
 
+    override fun onDeletedMessages() {
+        // TODO:
+    }
+
     private fun showNotification(title: String, body: String, contentIntent: PendingIntent?) {
         val builder = NotificationCompat.Builder(applicationContext,
             getString(R.string.default_notification_channel_id))
@@ -77,9 +93,5 @@ class PermanentFCMService : FirebaseMessagingService() {
             // Get the PendingIntent containing the entire back stack
             getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         }
-    }
-
-    override fun onDeletedMessages() {
-        // TODO:
     }
 }

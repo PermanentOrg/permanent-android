@@ -270,6 +270,14 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addSimple(token: String): RequestContainer {
+        val simpleVO = SimpleVO()
+        simpleVO.key = "deviceToken"
+        simpleVO.value = token
+        RequestVO.data?.get(0)?.SimpleVO = simpleVO
+        return this
+    }
+
     fun addLocation(latLng: LatLng): RequestContainer {
         val locnVO = LocnVO()
         locnVO.latitude = latLng.latitude

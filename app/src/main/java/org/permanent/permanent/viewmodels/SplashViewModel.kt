@@ -16,6 +16,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun verifyIsUserLoggedIn() {
         authRepository.verifyLoggedIn(object : IAuthenticationRepository.IOnLoggedInListener {
+
             override fun onResponse(isLoggedIn: Boolean) {
                 onLoggedInResponse.value = isLoggedIn
             }

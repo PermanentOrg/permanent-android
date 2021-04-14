@@ -390,6 +390,12 @@ class NetworkClient(context: Context) {
         return notificationService.getNotifications(requestBody)
     }
 
+    fun registerDevice(csrf: String?, token: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addSimple(token))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return notificationService.registerDevice(requestBody)
+    }
+
     fun getInvitations(): Call<ResponseVO> {
         val request = toJson(RequestContainer(""))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
