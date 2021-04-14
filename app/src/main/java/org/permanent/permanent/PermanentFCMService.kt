@@ -86,6 +86,22 @@ class PermanentFCMService : FirebaseMessagingService() {
         }
     }
 
+//    private fun getContentIntent(): PendingIntent? {
+//        val folderLinkId = record.folderLinkId
+//        val archiveNr = record.archiveNr
+//        val recordId = record.recordId
+//
+//        val intent = Intent(applicationContext, FileActivity::class.java)
+//        intent.putExtra(PARCELABLE_RECORD_KEY, record as Record)
+//
+//        return TaskStackBuilder.create(this).run {
+//            // Add the intent, which inflates the back stack
+//            addNextIntentWithParentStack(intent)
+//            // Get the PendingIntent containing the entire back stack
+//            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+//        }
+//    }
+
     private fun getDefaultContentIntent(): PendingIntent? {
         return TaskStackBuilder.create(this).run {
             // Add the intent, which inflates the back stack

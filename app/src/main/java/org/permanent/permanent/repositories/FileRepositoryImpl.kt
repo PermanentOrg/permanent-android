@@ -160,14 +160,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             folderId, folderLinkId, s3Url)
     }
 
-    override fun getRecord(
-        folderLinkId: Int,
-        archiveNr: String,
-        archiveId: Int,
-        recordId: Int
-    ): Call<ResponseVO> {
-        return networkClient.getRecord(
-            prefsHelper.getCsrf(), folderLinkId, archiveNr, archiveId, recordId)
+    override fun getRecord(folderLinkId: Int, archiveNr: String, recordId: Int): Call<ResponseVO> {
+        return networkClient.getRecord(prefsHelper.getCsrf(), folderLinkId, archiveNr, recordId)
     }
 
     override fun downloadFile(

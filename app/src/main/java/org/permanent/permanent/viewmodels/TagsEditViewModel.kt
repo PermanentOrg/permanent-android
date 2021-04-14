@@ -141,7 +141,6 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
     private fun requestUpdatedFileData() {
         val folderLinkId = fileData.folderLinkId
         val archiveNr = fileData.archiveNr
-        val archiveId = fileData.archiveId
         val recordId = fileData.recordId
 
         if (isBusy.value != null && isBusy.value!!) {
@@ -150,7 +149,7 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
 
         isBusy.value = true
         archiveNr?.let {
-            fileRepository.getRecord(folderLinkId, it, archiveId, recordId
+            fileRepository.getRecord(folderLinkId, it, recordId
             ).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
