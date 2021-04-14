@@ -2,10 +2,7 @@ package org.permanent.permanent.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
 import android.text.Editable
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
@@ -15,24 +12,17 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.ExistingWorkPolicy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.rajat.pdfviewer.PdfViewerActivity
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -61,7 +51,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onShowFileOptionsFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
-    private val onFileViewRequest = SingleLiveEvent<FileData>()
+    private val onFileViewRequest = SingleLiveEvent<Record>()
 
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<Record> = Stack()
@@ -109,85 +99,13 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         })
     }
 
-    fun getFolderName(): MutableLiveData<String> {
-        return folderName
-    }
-
     fun setExistsDownloads(existsDownloads: MutableLiveData<Boolean>) {
         this.existsDownloads = existsDownloads
-    }
-
-    fun getExistsDownloads(): MutableLiveData<Boolean> {
-        return existsDownloads
-    }
-
-    fun getExistsUploads(): MutableLiveData<Boolean> {
-        return uploadsAdapter.getExistsUploads()
-    }
-
-    fun getExistsFiles(): MutableLiveData<Boolean> {
-        return existsFiles
-    }
-
-    fun getIsRoot(): MutableLiveData<Boolean> {
-        return isRoot
-    }
-
-    fun getIsSortedAsc(): MutableLiveData<Boolean> {
-        return isSortedAsc
-    }
-
-    fun getSortName(): MutableLiveData<String> {
-        return sortName
-    }
-
-    fun getRecordToRelocate(): MutableLiveData<Record> {
-        return recordToRelocate
-    }
-
-    fun getIsRelocationMode(): MutableLiveData<Boolean> {
-        return isRelocationMode
-    }
-
-    fun getRelocationType(): MutableLiveData<RelocationType> {
-        return relocationType
-    }
-
-    fun getCurrentFolder(): MutableLiveData<NavigationFolder> {
-        return currentFolder
-    }
-
-    fun getCurrentSearchQuery(): MutableLiveData<String> {
-        return currentSearchQuery
     }
 
     fun onSearchQueryTextChanged(query: Editable) {
         currentSearchQuery.value = query.toString()
         onFilesFilterQuery.value = query
-    }
-
-    fun getOnShowMessage(): MutableLiveData<String> {
-        return showMessage
-    }
-
-    fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> {
-        return onDownloadsRetrieved
-    }
-
-    fun getOnDownloadFinished(): MutableLiveData<Download> {
-        return onDownloadFinished
-    }
-
-    fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> {
-        return onRecordsRetrieved
-    }
-
-    fun getOnFilesFilterQuery(): MutableLiveData<Editable> {
-        return onFilesFilterQuery
-    }
-
-    fun getOnNewTemporaryFile(): MutableLiveData<Record> {
-        return onNewTemporaryFile
     }
 
     fun refreshCurrentFolder() {
@@ -226,16 +144,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return records
     }
 
-    fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> {
-        return onShowAddOptionsFragment
-    }
-
     fun onAddFabClick() {
         onShowAddOptionsFragment.value = currentFolder.value?.getFolderIdentifier()
-    }
-
-    fun getOnShowFileOptionsFragment(): MutableLiveData<Record> {
-        return onShowFileOptionsFragment
     }
 
     override fun onRecordOptionsClick(record: Record) {
@@ -244,18 +154,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     override fun onRecordDeleteFromSwipeClick(record: Record) {
         onRecordDeleteRequest.value = record
-    }
-
-    fun getOnRecordDeleteRequest(): MutableLiveData<Record> {
-        return onRecordDeleteRequest
-    }
-
-    fun getOnFileViewRequest(): MutableLiveData<FileData> {
-        return onFileViewRequest
-    }
-
-    fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> {
-        return onShowSortOptionsFragment
     }
 
     fun onSortOptionsClick() {
@@ -280,58 +178,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             folderPathStack.push(record)
             loadFilesAndUploadsOf(record)
         } else {
-            getFileData(record)
-        }
-    }
-
-    private fun getFileData(record: Record) {
-        val folderLinkId = record.folderLinkId
-        val archiveNr = record.archiveNr
-        val archiveId = record.archiveId
-        val recordId = record.recordId
-
-        if (folderLinkId != null && archiveNr != null && archiveId != null && recordId != null) {
-            swipeRefreshLayout.isRefreshing = true
-            fileRepository.getRecord(folderLinkId, archiveNr, archiveId, recordId
-            ).enqueue(object : Callback<ResponseVO> {
-
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    swipeRefreshLayout.isRefreshing = false
-                    val fileData = response.body()?.getFileData()
-                    if (fileData != null) {
-                        val file = File(
-                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                            fileData.fileName
-                        )
-                        if (fileData.contentType?.contains(FileType.PDF.toString()) == true) {
-                            val intent = if (file.exists()) {
-                                PdfViewerActivity.launchPdfFromPath(
-                                    appContext,
-                                    file.path,
-                                    fileData.displayName,
-                                    "",
-                                    enableDownload = false)
-                            } else {
-                                PdfViewerActivity.launchPdfFromUrl(
-                                    appContext,
-                                    fileData.fileURL,
-                                    fileData.displayName,
-                                    "",
-                                    enableDownload = false)
-                            }
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            appContext.startActivity(intent)
-                        } else {
-                            onFileViewRequest.value = fileData
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    swipeRefreshLayout.isRefreshing = false
-                    showMessage.value = appContext.getString(R.string.generic_error)
-                }
-            })
+            onFileViewRequest.value = record
         }
     }
 
@@ -472,4 +319,51 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             }
         })
     }
+
+    fun getFolderName(): MutableLiveData<String> = folderName
+
+    fun getExistsDownloads(): MutableLiveData<Boolean> = existsDownloads
+
+    fun getExistsUploads(): MutableLiveData<Boolean> = uploadsAdapter.getExistsUploads()
+
+    fun getExistsFiles(): MutableLiveData<Boolean> = existsFiles
+
+    fun getIsRoot(): MutableLiveData<Boolean> = isRoot
+
+    fun getIsSortedAsc(): MutableLiveData<Boolean> = isSortedAsc
+
+    fun getSortName(): MutableLiveData<String> = sortName
+
+    fun getRecordToRelocate(): MutableLiveData<Record> = recordToRelocate
+
+    fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
+
+    fun getRelocationType(): MutableLiveData<RelocationType> = relocationType
+
+    fun getCurrentFolder(): MutableLiveData<NavigationFolder> = currentFolder
+
+    fun getCurrentSearchQuery(): MutableLiveData<String> = currentSearchQuery
+
+    fun getOnShowMessage(): MutableLiveData<String> = showMessage
+
+    fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> = onDownloadsRetrieved
+
+    fun getOnDownloadFinished(): MutableLiveData<Download> = onDownloadFinished
+
+    fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
+
+    fun getOnFilesFilterQuery(): MutableLiveData<Editable> = onFilesFilterQuery
+
+    fun getOnNewTemporaryFile(): MutableLiveData<Record> = onNewTemporaryFile
+
+    fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
+
+    fun getOnFileViewRequest(): MutableLiveData<Record> = onFileViewRequest
+
+    fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
+
+    fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
+        onShowAddOptionsFragment
+
+    fun getOnShowFileOptionsFragment(): MutableLiveData<Record> = onShowFileOptionsFragment
 }

@@ -12,8 +12,9 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
-import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
+import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.FileViewModel
 
 class FileActivity : PermanentBaseActivity() {
@@ -46,7 +47,7 @@ class FileActivity : PermanentBaseActivity() {
 
         window.statusBarColor = Color.BLACK
         supportActionBar?.title = intentExtras
-            ?.getParcelable<FileData>(PARCELABLE_FILE_DATA_KEY)?.displayName
+            ?.getParcelable<Record>(PARCELABLE_RECORD_KEY)?.displayName
     }
 
     // Toolbar back press

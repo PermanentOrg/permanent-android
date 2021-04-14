@@ -2,6 +2,8 @@ package org.permanent.permanent.ui.fileView
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -11,9 +13,16 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileViewBinding
+import org.permanent.permanent.models.FileType
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.FileViewViewModel
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.net.URL
 
 const val PARCELABLE_FILE_DATA_KEY = "parcelable_file_data_key"
 class FileViewFragment : PermanentBaseFragment() {
@@ -31,9 +40,8 @@ class FileViewFragment : PermanentBaseFragment() {
         binding = FragmentFileViewBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
-        fileData?.let {
-            viewModel.setFileData(it)
+        arguments?.getParcelable<Record>(PARCELABLE_RECORD_KEY)?.let {
+            viewModel.setRecord(it)
         }
         binding.executePendingBindings()
         setHasOptionsMenu(true)
@@ -50,11 +58,55 @@ class FileViewFragment : PermanentBaseFragment() {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
+    private val onFileData = Observer<FileData> {
+        fileData = it
+        if (it != null && it.contentType?.contains(FileType.PDF.toString()) == true) {
+            val file = File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), it.fileName)
+
+            if (file.exists()) {
+                binding.pdfView.fromFile(file)
+                    .enableSwipe(false)
+                    .onError { error ->
+                        error.message?.let { errorMsg ->
+                            Log.e(FileViewFragment::class.java.simpleName, errorMsg) }
+                    }
+                    .enableAnnotationRendering(false)
+                    .password(null)
+                    .load()
+            } else {
+                Thread {
+                    try {
+                        val inputStream: InputStream = URL(it.fileURL).openStream()
+                        activity?.runOnUiThread {
+                            binding.pdfView.recycle()
+                            binding.pdfView.fromStream(inputStream)
+                                .enableSwipe(false)
+                                .onError { error ->
+                                    error.message?.let { errorMsg ->
+                                        Log.e(FileViewFragment::class.java.simpleName, errorMsg) }
+                                }
+                                .enableAnnotationRendering(false)
+                                .password(null)
+                                .load()
+                        }
+                    } catch (e: IOException) {
+                        e.message?.let { errorMsg ->
+                            Log.e(FileViewFragment::class.java.simpleName, errorMsg)
+                        }
+                    }
+                }.start()
+            }
+        }
+    }
+
     override fun connectViewModelEvents() {
+        viewModel.getFileData().observe(this, onFileData)
         viewModel.getShowMessage().observe(this, onShowMessage)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getFileData().removeObserver(onFileData)
         viewModel.getShowMessage().removeObserver(onShowMessage)
     }
 
@@ -89,6 +141,6 @@ class FileViewFragment : PermanentBaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding.wvFile.destroy()
+        binding.webView.destroy()
     }
 }
