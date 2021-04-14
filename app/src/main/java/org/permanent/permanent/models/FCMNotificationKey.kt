@@ -1,6 +1,6 @@
 package org.permanent.permanent.models
 
-class FCMNotificationKeys {
+class FCMNotificationKey {
     companion object {
         const val NOTIFICATION_TYPE = "notificationType"
         const val ACCOUNT_ID = "toUserId"

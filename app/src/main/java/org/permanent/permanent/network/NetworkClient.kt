@@ -1,7 +1,6 @@
 package org.permanent.permanent.network
 
 import android.content.Context
-import android.webkit.WebView
 import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache

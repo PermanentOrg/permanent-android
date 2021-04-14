@@ -5,7 +5,7 @@ import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.*
 
-open class Record private constructor() : Parcelable {
+open class Record : Parcelable {
     var id: Int? = null
     var archiveNr: String? = null
     var recordId: Int? = null
@@ -22,7 +22,7 @@ open class Record private constructor() : Parcelable {
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
 
-    constructor(parcel: Parcel) : this() {
+    constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
         archiveNr = parcel.readString()
         recordId = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -39,7 +39,7 @@ open class Record private constructor() : Parcelable {
         shares = parcel.createTypedArrayList(Share)
     }
 
-    constructor(recordInfo: RecordVO) : this() {
+    constructor(recordInfo: RecordVO) {
         id = if(recordInfo.folderId != null) recordInfo.folderId else recordInfo.recordId
         archiveNr = recordInfo.archiveNbr
         recordId = recordInfo.recordId
@@ -55,7 +55,7 @@ open class Record private constructor() : Parcelable {
         initShares(recordInfo.ShareVOs)
     }
 
-    constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) : this() {
+    constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) {
         id = if(item.folderId != null) item.folderId else item.recordId
         archiveNr = item.archiveNbr
         recordId = item.recordId
@@ -71,7 +71,16 @@ open class Record private constructor() : Parcelable {
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
     }
 
-    constructor(shareByUrlVO: Shareby_urlVO) : this() {
+    constructor(recordId: Int, archiveNr: String, folderLinkId: Int) {
+        id = recordId
+        this.archiveNr = archiveNr
+        this.recordId = recordId
+        this.folderLinkId = folderLinkId
+        isThumbBlurred = true
+        type = RecordType.FILE
+    }
+
+    constructor(shareByUrlVO: Shareby_urlVO) {
         val recordInfo = shareByUrlVO.RecordVO
         id = if(recordInfo?.folderId != null) recordInfo.folderId else recordInfo?.recordId
         archiveNr = recordInfo?.archiveNbr

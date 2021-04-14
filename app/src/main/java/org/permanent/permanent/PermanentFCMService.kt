@@ -9,9 +9,12 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import org.permanent.permanent.models.FCMNotificationKeys
+import org.permanent.permanent.models.FCMNotificationKey
 import org.permanent.permanent.models.FCMNotificationType
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.activities.SplashActivity
+import org.permanent.permanent.ui.fileView.FileActivity
+import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import kotlin.random.Random
 
 class PermanentFCMService : FirebaseMessagingService() {
@@ -37,23 +40,26 @@ class PermanentFCMService : FirebaseMessagingService() {
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
 
-            if(remoteMessage.data[FCMNotificationKeys.NOTIFICATION_TYPE]
-                == FCMNotificationType.UPLOAD_REMINDER.toBackendString()) {
+            val notificationType = remoteMessage.data[FCMNotificationKey.NOTIFICATION_TYPE]
 
+            if(notificationType == FCMNotificationType.UPLOAD_REMINDER.toBackendString()) {
+                // TODO: Remove this one
                 showNotification(getString(R.string.notification_title_upload_reminder),
                     getString(R.string.notification_body_upload_reminder),
                     getDefaultContentIntent()
                 )
-            } else if (remoteMessage.data[FCMNotificationKeys.NOTIFICATION_TYPE]
-                == FCMNotificationType.SHARE_NOTIFICATION.toBackendString()) {
-
-                remoteMessage.data[FCMNotificationKeys.SOURCE_ARCHIVE_NAME]?.let {
-                    showNotification(it,
+            } else if (notificationType == FCMNotificationType.SHARE_NOTIFICATION.toBackendString()) {
+                remoteMessage.data[FCMNotificationKey.SOURCE_ARCHIVE_NAME]?.let { sourceArchiveName ->
+                    showNotification(sourceArchiveName,
                         getString(R.string.notification_body_share_notification,
-                            it,
-                            remoteMessage.data[FCMNotificationKeys.SHARED_ITEM_NAME],
-                            remoteMessage.data[FCMNotificationKeys.TARGET_ARCHIVE_NAME],
-                        ), getDefaultContentIntent())
+                            sourceArchiveName,
+                            remoteMessage.data[FCMNotificationKey.SHARED_ITEM_NAME],
+                            remoteMessage.data[FCMNotificationKey.TARGET_ARCHIVE_NAME],
+                        ), getFileViewIntent(
+                            remoteMessage.data[FCMNotificationKey.RECORD_ID]?.toInt(),
+                            remoteMessage.data[FCMNotificationKey.ARCHIVE_NR],
+                            remoteMessage.data[FCMNotificationKey.FOLDER_LINK_ID]?.toInt()
+                        ))
                 }
             }
         }
@@ -86,21 +92,22 @@ class PermanentFCMService : FirebaseMessagingService() {
         }
     }
 
-//    private fun getContentIntent(): PendingIntent? {
-//        val folderLinkId = record.folderLinkId
-//        val archiveNr = record.archiveNr
-//        val recordId = record.recordId
-//
-//        val intent = Intent(applicationContext, FileActivity::class.java)
-//        intent.putExtra(PARCELABLE_RECORD_KEY, record as Record)
-//
-//        return TaskStackBuilder.create(this).run {
-//            // Add the intent, which inflates the back stack
-//            addNextIntentWithParentStack(intent)
-//            // Get the PendingIntent containing the entire back stack
-//            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-//        }
-//    }
+    private fun getFileViewIntent(recordId: Int?, archiveNr: String?, folderLinkId: Int?
+    ): PendingIntent? {
+        return if (recordId != null && archiveNr != null && folderLinkId != null) {
+            val record = Record(recordId, archiveNr, folderLinkId)
+            val intent = Intent(applicationContext, FileActivity::class.java)
+            intent.putExtra(PARCELABLE_RECORD_KEY, record)
+            TaskStackBuilder.create(this).run {
+                // Add the intent, which inflates the back stack
+                addNextIntentWithParentStack(intent)
+                // Get the PendingIntent containing the entire back stack
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            }
+        } else {
+            getDefaultContentIntent()
+        }
+    }
 
     private fun getDefaultContentIntent(): PendingIntent? {
         return TaskStackBuilder.create(this).run {
