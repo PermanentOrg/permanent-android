@@ -39,16 +39,9 @@ class PermanentFCMService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
-
             val notificationType = remoteMessage.data[FCMNotificationKey.NOTIFICATION_TYPE]
 
-            if(notificationType == FCMNotificationType.UPLOAD_REMINDER.toBackendString()) {
-                // TODO: Remove this one
-                showNotification(getString(R.string.notification_title_upload_reminder),
-                    getString(R.string.notification_body_upload_reminder),
-                    getDefaultContentIntent()
-                )
-            } else if (notificationType == FCMNotificationType.SHARE_NOTIFICATION.toBackendString()) {
+            if (notificationType == FCMNotificationType.SHARE_NOTIFICATION.toBackendString()) {
                 remoteMessage.data[FCMNotificationKey.SOURCE_ARCHIVE_NAME]?.let { sourceArchiveName ->
                     showNotification(sourceArchiveName,
                         getString(R.string.notification_body_share_notification,
