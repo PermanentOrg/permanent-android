@@ -13,4 +13,7 @@ interface INotificationService {
 
     @POST("notification/update")
     fun updateNotification(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("device/new")
+    fun registerDevice(@Body requestBody: RequestBody): Call<ResponseVO>
 }

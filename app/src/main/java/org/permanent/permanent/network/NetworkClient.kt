@@ -1,7 +1,6 @@
 package org.permanent.permanent.network
 
 import android.content.Context
-import android.webkit.WebView
 import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -246,11 +245,9 @@ class NetworkClient(context: Context) {
         csrf: String?,
         folderLinkId: Int,
         archiveNr: String,
-        archiveId: Int,
         recordId: Int
     ): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf)
-            .addRecord(folderLinkId, archiveNr, archiveId, recordId))
+        val request = toJson(RequestContainer(csrf).addRecord(folderLinkId, archiveNr, recordId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.getRecord(requestBody)
@@ -388,6 +385,12 @@ class NetworkClient(context: Context) {
         val request = toJson(RequestContainer(""))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return notificationService.getNotifications(requestBody)
+    }
+
+    fun registerDevice(csrf: String?, token: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addSimple(token))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return notificationService.registerDevice(requestBody)
     }
 
     fun getInvitations(): Call<ResponseVO> {

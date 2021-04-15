@@ -122,12 +122,11 @@ class SharedXMeViewModel(application: Application
         }
         val folderLinkId = record.folderLinkId
         val archiveNr = record.archiveNr
-        val archiveId = record.archiveId
         val recordId = record.recordId
 
-        if (folderLinkId != null && archiveNr != null && archiveId != null && recordId != null) {
+        if (folderLinkId != null && archiveNr != null && recordId != null) {
             isBusy.value = true
-            fileRepository.getRecord(folderLinkId, archiveNr, archiveId, recordId
+            fileRepository.getRecord(folderLinkId, archiveNr, recordId
             ).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

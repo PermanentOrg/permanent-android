@@ -5,10 +5,9 @@ import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.*
 
-open class Record private constructor() : Parcelable {
+open class Record : Parcelable {
     var id: Int? = null
     var archiveNr: String? = null
-    var archiveId: Int? = null
     var recordId: Int? = null
     var folderId: Int? = null
     var folderLinkId: Int? = null
@@ -23,10 +22,9 @@ open class Record private constructor() : Parcelable {
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
 
-    constructor(parcel: Parcel) : this() {
+    constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
         archiveNr = parcel.readString()
-        archiveId = parcel.readValue(Int::class.java.classLoader) as? Int
         recordId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -41,10 +39,9 @@ open class Record private constructor() : Parcelable {
         shares = parcel.createTypedArrayList(Share)
     }
 
-    constructor(recordInfo: RecordVO) : this() {
+    constructor(recordInfo: RecordVO) {
         id = if(recordInfo.folderId != null) recordInfo.folderId else recordInfo.recordId
         archiveNr = recordInfo.archiveNbr
-        archiveId = recordInfo.archiveId
         recordId = recordInfo.recordId
         folderId = recordInfo.folderId
         folderLinkId = recordInfo.folder_linkId
@@ -58,10 +55,9 @@ open class Record private constructor() : Parcelable {
         initShares(recordInfo.ShareVOs)
     }
 
-    constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) : this() {
+    constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) {
         id = if(item.folderId != null) item.folderId else item.recordId
         archiveNr = item.archiveNbr
-        archiveId = item.archiveId
         recordId = item.recordId
         folderId = item.folderId
         folderLinkId = item.folder_linkId
@@ -75,11 +71,19 @@ open class Record private constructor() : Parcelable {
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
     }
 
-    constructor(shareByUrlVO: Shareby_urlVO) : this() {
+    constructor(recordId: Int, archiveNr: String, folderLinkId: Int) {
+        id = recordId
+        this.archiveNr = archiveNr
+        this.recordId = recordId
+        this.folderLinkId = folderLinkId
+        isThumbBlurred = true
+        type = RecordType.FILE
+    }
+
+    constructor(shareByUrlVO: Shareby_urlVO) {
         val recordInfo = shareByUrlVO.RecordVO
         id = if(recordInfo?.folderId != null) recordInfo.folderId else recordInfo?.recordId
         archiveNr = recordInfo?.archiveNbr
-        archiveId = recordInfo?.archiveId
         recordId = recordInfo?.recordId
         folderId = recordInfo?.folderId
         folderLinkId = recordInfo?.folder_linkId
@@ -113,7 +117,6 @@ open class Record private constructor() : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)
         parcel.writeString(archiveNr)
-        parcel.writeValue(archiveId)
         parcel.writeValue(recordId)
         parcel.writeValue(folderId)
         parcel.writeValue(folderLinkId)
