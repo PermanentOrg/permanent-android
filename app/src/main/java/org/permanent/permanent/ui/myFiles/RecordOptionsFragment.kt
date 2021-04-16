@@ -18,7 +18,6 @@ import org.permanent.permanent.models.RecordOption
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.RecordOptionsViewModel
 
-const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
 const val HIDDEN_OPTIONS_KEY = "parcelable_hidden_options_key"
 
 class RecordOptionsFragment : PermanentBottomSheetFragment() {

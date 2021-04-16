@@ -51,10 +51,11 @@ class SharesFragment : PermanentBaseFragment() {
             }
         }.attach()
 
-        arguments?.takeIf { it.containsKey(SELECTED_FRAGMENT_POSITION_KEY) }?.apply {
+        arguments?.takeIf { it.containsKey(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY) }?.apply {
             viewPager2.post {
-                viewPager2.currentItem = getInt(SELECTED_FRAGMENT_POSITION_KEY)
-                viewAdapter.setRecordToNavigateTo(getInt(RECORD_TO_NAVIGATE_TO_KEY))
+                viewPager2.currentItem = getInt(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY)
+                viewAdapter.setRecordToNavigateTo(getInt(RECORD_ID_TO_NAVIGATE_TO_KEY))
+                arguments?.clear()
             }
         }
     }

@@ -30,6 +30,8 @@ import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
+const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
+
 class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentMyFilesBinding
     private lateinit var viewModel: MyFilesViewModel

@@ -93,10 +93,9 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
         viewModel.existsShares.value = true
     }
 
-    fun navigateToRecord(recordIdToNavigateTo: Int?) {
-        recordIdToNavigateTo?.let {
-            sharesAdapter.getItemPosition(it)?.let { position ->
-                sharesRecyclerView.layoutManager?.scrollToPosition(position) }
+    fun navigateToRecord(recordIdToNavigateTo: Int) {
+        sharesAdapter.getItemById(recordIdToNavigateTo)?.let { record ->
+            viewModel.onRecordClick(record)
         }
     }
 

@@ -24,8 +24,8 @@ import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
 const val URL_TOKEN_KEY = "url_token"
-const val RECORD_TO_NAVIGATE_TO_KEY = "record_to_navigate_to"
-const val SELECTED_FRAGMENT_POSITION_KEY = "selected_fragment"
+const val RECORD_ID_TO_NAVIGATE_TO_KEY = "record_id_to_navigate_to"
+const val CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY = "child_fragment_to_navigate_to"
 
 class SharePreviewFragment : PermanentBaseFragment() {
 
@@ -71,8 +71,8 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     private val onViewInArchive = Observer<Int?> { recordId ->
         val bundle = bundleOf(
-            SELECTED_FRAGMENT_POSITION_KEY to Constants.POSITION_SHARED_WITH_ME_FRAGMENT,
-            RECORD_TO_NAVIGATE_TO_KEY to recordId
+            CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY to Constants.POSITION_SHARED_WITH_ME_FRAGMENT,
+            RECORD_ID_TO_NAVIGATE_TO_KEY to recordId
         )
         findNavController().navigate(R.id.action_sharePreviewFragment_to_sharesFragment, bundle)
     }

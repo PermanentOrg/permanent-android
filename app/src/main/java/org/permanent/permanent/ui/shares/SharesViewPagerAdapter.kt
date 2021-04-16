@@ -56,7 +56,10 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
         sharesWithMe = list
         if (sharedWithMeFragment != null) {
             sharedWithMeFragment!!.setShares(sharesWithMe)
-            sharedWithMeFragment?.navigateToRecord(recordIdToNavigateTo)
+            recordIdToNavigateTo?.let {
+                sharedWithMeFragment?.navigateToRecord(it)
+                recordIdToNavigateTo = null
+            }
         }
     }
 
