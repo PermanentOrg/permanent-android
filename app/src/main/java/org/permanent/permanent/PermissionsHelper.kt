@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 const val REQUEST_CODE_SMS_PERMISSION = 123
 const val REQUEST_CODE_READ_STORAGE_PERMISSION = 124
 const val REQUEST_CODE_WRITE_STORAGE_PERMISSION = 125
+const val REQUEST_CODE_CAMERA_PERMISSION = 126
 
 class PermissionsHelper {
 
@@ -43,5 +44,15 @@ class PermissionsHelper {
     fun requestWriteStoragePermission(fragment: Fragment) {
         fragment.requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
             REQUEST_CODE_WRITE_STORAGE_PERMISSION)
+    }
+
+    fun hasCameraPermission(ctx: Context): Boolean {
+        return (ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED)
+    }
+
+    fun requestCameraPermission(fragment: Fragment) {
+        fragment.requestPermissions(arrayOf(Manifest.permission.CAMERA),
+            REQUEST_CODE_CAMERA_PERMISSION)
     }
 }

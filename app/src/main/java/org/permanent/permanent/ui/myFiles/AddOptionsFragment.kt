@@ -39,7 +39,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 const val FOLDER_IDENTIFIER_KEY = "folder_identifier"
-class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
+
+class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var binding: FragmentAddOptionsBinding
     private lateinit var viewModel: AddOptionsViewModel
     private lateinit var dialogViewModel: NewFolderViewModel
@@ -91,12 +92,24 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
     }
 
     override fun onClick(view: View) {
+        val permissionHelper = PermissionsHelper()
         when (view.id) {
             R.id.btnNewFolder -> showNewFolderDialog()
-            R.id.btnTakePhoto -> dispatchTakePictureIntent()
-            R.id.btnTakeVideo -> dispatchTakeVideoIntent()
+            R.id.btnTakePhoto -> context?.let {
+                if (!permissionHelper.hasCameraPermission(it)) {
+                    permissionHelper.requestCameraPermission(this)
+                } else {
+                    dispatchTakePictureIntent()
+                }
+            }
+            R.id.btnTakeVideo -> context?.let {
+                if (!permissionHelper.hasCameraPermission(it)) {
+                    permissionHelper.requestCameraPermission(this)
+                } else {
+                    dispatchTakeVideoIntent()
+                }
+            }
             R.id.btnUpload -> context?.let {
-                val permissionHelper = PermissionsHelper()
                 if (!permissionHelper.hasReadStoragePermission(it)) {
                     permissionHelper.requestReadStoragePermission(this)
                 } else {
@@ -136,7 +149,7 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             // Ensure that there's a camera activity to handle the intent
             context?.packageManager?.let {
-                takePictureIntent.resolveActivity(it)?.also {
+
                     // Create the File where the photo should go
                     val photoFile: File? = try {
                         createImageFile()
@@ -144,20 +157,24 @@ class AddOptionsFragment: PermanentBottomSheetFragment(), View.OnClickListener {
                         Toast.makeText(context, ex.message, Toast.LENGTH_LONG).show()
                         null
                     }
-                    photoFile?.let { file -> context?.let { ctx ->
-                        photoURI = FileProvider.getUriForFile(ctx, FILE_PROVIDER_NAME, file) }
+                    photoFile?.let { file ->
+                        context?.let { ctx ->
+                            photoURI = FileProvider.getUriForFile(ctx, FILE_PROVIDER_NAME, file)
+                        }
                         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                         startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE)
                     }
                 }
-            }
+
         }
     }
 
     private fun dispatchTakeVideoIntent() {
         Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
-            context?.packageManager?.let { takeVideoIntent.resolveActivity(it)?.also {
-                startActivityForResult(takeVideoIntent, REQUEST_CODE_VIDEO_CAPTURE) }
+            context?.packageManager?.let {
+                takeVideoIntent.resolveActivity(it)?.also {
+                    startActivityForResult(takeVideoIntent, REQUEST_CODE_VIDEO_CAPTURE)
+                }
             }
         }
     }
