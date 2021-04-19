@@ -21,6 +21,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
@@ -82,6 +83,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 //        binding.toolbar.inflateMenu(R.menu.menu_toolbar_settings)
 //        binding.toolbar.setOnMenuItemClickListener(this)
+
+        val intentExtras = intent.extras
+        val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
+        if (startDestFragmentId != null && startDestFragmentId != 0) {
+            val navGraph = navController.graph
+            navGraph.startDestination = startDestFragmentId
+            navController.setGraph(navGraph, intentExtras)
+        }
 
         // NavViews setup
         binding.accountNavView.setupWithNavController(navController)

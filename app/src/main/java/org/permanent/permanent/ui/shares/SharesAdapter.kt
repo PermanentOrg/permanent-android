@@ -33,9 +33,9 @@ class SharesAdapter(
         holder.bind(shares[position], lifecycleOwner)
     }
 
-    fun getItemPosition(recordId: Int): Int? {
+    fun getItemById(recordId: Int): DownloadableRecord? {
         for (share in shares) {
-            if (share.id == recordId) return shares.indexOf(share)
+            if (share.id == recordId) return share
         }
         return null
     }

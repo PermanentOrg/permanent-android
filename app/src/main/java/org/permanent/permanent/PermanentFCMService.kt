@@ -12,10 +12,15 @@ import com.google.firebase.messaging.RemoteMessage
 import org.permanent.permanent.models.FCMNotificationKey
 import org.permanent.permanent.models.FCMNotificationType
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.activities.SplashActivity
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
+import org.permanent.permanent.ui.shares.CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY
 import kotlin.random.Random
+
+const val START_DESTINATION_FRAGMENT_ID_KEY = "start_destination_fragment_id_key"
 
 class PermanentFCMService : FirebaseMessagingService() {
     private val TAG = PermanentFCMService::class.java.simpleName
@@ -41,7 +46,7 @@ class PermanentFCMService : FirebaseMessagingService() {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
             val notificationType = remoteMessage.data[FCMNotificationKey.NOTIFICATION_TYPE]
 
-            if (notificationType == FCMNotificationType.SHARE_NOTIFICATION.toBackendString()) {
+            if (notificationType == FCMNotificationType.SHARED_ITEM.toBackendString()) {
                 remoteMessage.data[FCMNotificationKey.SOURCE_ARCHIVE_NAME]?.let { sourceArchiveName ->
                     showNotification(sourceArchiveName,
                         getString(R.string.notification_body_share_notification,
@@ -52,6 +57,17 @@ class PermanentFCMService : FirebaseMessagingService() {
                             remoteMessage.data[FCMNotificationKey.RECORD_ID]?.toInt(),
                             remoteMessage.data[FCMNotificationKey.ARCHIVE_NR],
                             remoteMessage.data[FCMNotificationKey.FOLDER_LINK_ID]?.toInt()
+                        ))
+                }
+            } else if (notificationType == FCMNotificationType.SHARED_FOLDER.toBackendString()) {
+                remoteMessage.data[FCMNotificationKey.SOURCE_ARCHIVE_NAME]?.let { sourceArchiveName ->
+                    showNotification(sourceArchiveName,
+                        getString(R.string.notification_body_share_notification,
+                            sourceArchiveName,
+                            remoteMessage.data[FCMNotificationKey.SHARED_ITEM_NAME],
+                            remoteMessage.data[FCMNotificationKey.TARGET_ARCHIVE_NAME],
+                        ), getFolderViewIntent(
+                            remoteMessage.data[FCMNotificationKey.FOLDER_ID]?.toInt(),
                         ))
                 }
             }
@@ -85,29 +101,40 @@ class PermanentFCMService : FirebaseMessagingService() {
         }
     }
 
+    private fun getFolderViewIntent(folderId: Int?): PendingIntent? {
+        return if (folderId != null) {
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.sharesFragment)
+            intent.putExtra(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY, Constants.POSITION_SHARED_WITH_ME_FRAGMENT)
+            intent.putExtra(RECORD_ID_TO_NAVIGATE_TO_KEY, folderId)
+            getPendingIntent(intent)
+        } else {
+            getDefaultContentIntent()
+        }
+    }
+
     private fun getFileViewIntent(recordId: Int?, archiveNr: String?, folderLinkId: Int?
     ): PendingIntent? {
         return if (recordId != null && archiveNr != null && folderLinkId != null) {
             val record = Record(recordId, archiveNr, folderLinkId)
             val intent = Intent(applicationContext, FileActivity::class.java)
             intent.putExtra(PARCELABLE_RECORD_KEY, record)
-            TaskStackBuilder.create(this).run {
-                // Add the intent, which inflates the back stack
-                addNextIntentWithParentStack(intent)
-                // Get the PendingIntent containing the entire back stack
-                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-            }
+            getPendingIntent(intent)
         } else {
             getDefaultContentIntent()
         }
     }
 
     private fun getDefaultContentIntent(): PendingIntent? {
-        return TaskStackBuilder.create(this).run {
+        return getPendingIntent(Intent(applicationContext, SplashActivity::class.java))
+    }
+
+    private fun getPendingIntent(intent: Intent): PendingIntent? {
+        TaskStackBuilder.create(this).run {
             // Add the intent, which inflates the back stack
-            addNextIntentWithParentStack(Intent(applicationContext, SplashActivity::class.java))
+            addNextIntentWithParentStack(intent)
             // Get the PendingIntent containing the entire back stack
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            return getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 }

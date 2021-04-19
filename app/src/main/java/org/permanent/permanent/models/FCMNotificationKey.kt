@@ -9,6 +9,7 @@ class FCMNotificationKey {
         const val SOURCE_ARCHIVE_NAME = "sourceArchiveName"
         const val SHARED_ITEM_NAME = "sharedItemName"
         const val RECORD_ID = "recordId"
+        const val FOLDER_ID = "folderId"
         const val FOLDER_LINK_ID = "folder_linkId"
         const val ARCHIVE_NR = "archiveNbr"
         const val THUMB_URL = "thumbUrl"
