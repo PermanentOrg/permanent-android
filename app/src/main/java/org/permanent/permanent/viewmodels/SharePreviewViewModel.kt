@@ -16,7 +16,7 @@ import org.permanent.permanent.ui.shares.PreviewState
 class SharePreviewViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private lateinit var urlToken: String
-    private var recordIdToScrollTo: Int? = null
+    private var recordIdToView: Int? = null
     private var archiveImageURL = MutableLiveData<String>()
     private var recordDisplayName = MutableLiveData<String>()
     private var accountDisplayName = MutableLiveData<String>()
@@ -86,12 +86,12 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                 // Loading data in the list
                 when {
                     shareByUrlVO?.RecordVO != null -> {
-                        recordIdToScrollTo = shareByUrlVO.RecordVO?.recordId
+                        recordIdToView = shareByUrlVO.RecordVO?.recordId
                         recordDisplayName.value = shareByUrlVO.RecordVO?.displayName
                         onRecordsRetrieved.value = listOf(Record(shareByUrlVO))
                     }
                     shareByUrlVO?.FolderVO != null -> {
-                        recordIdToScrollTo = shareByUrlVO.FolderVO?.folderId
+                        recordIdToView = shareByUrlVO.FolderVO?.folderId
                         recordDisplayName.value = shareByUrlVO.FolderVO?.displayName
                         onRecordsRetrieved.value = Folder(shareByUrlVO).records
                     }
@@ -146,7 +146,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun onViewInArchiveBtnClick() {
-        onViewInArchive.value = recordIdToScrollTo
+        onViewInArchive.value = recordIdToView
     }
 
     fun onOkBtnClick() {

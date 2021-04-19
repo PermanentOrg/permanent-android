@@ -78,12 +78,8 @@
         android:label="@string/main_navigation_title_shares"
         tools:layout="@layout/fragment_shares">
         <action
-            android:id="@+id/action_sharesFragment_to_fileViewFragment"
-            app:destination="@id/fileViewFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            android:id="@+id/action_sharesFragment_to_fileActivity"
+            app:destination="@id/fileActivity" />
     </fragment>
 
     <fragment
