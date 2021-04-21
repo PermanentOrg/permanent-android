@@ -66,7 +66,7 @@ class FileMetadataFragment: PermanentBaseFragment(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) { // On Thumbnail click
-        findNavController().popBackStack(R.id.fileViewFragment, false)
+        findNavController().popBackStack(R.id.filesContainerFragment, false)
     }
 
     override fun connectViewModelEvents() {

@@ -25,6 +25,7 @@ import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener, RecordOptionsClickListener, CancelListener, OnFinishedListener {
@@ -51,7 +52,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onShowFileOptionsFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
-    private val onFileViewRequest = SingleLiveEvent<Record>()
+    private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
 
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<Record> = Stack()
@@ -178,8 +179,19 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             folderPathStack.push(record)
             loadFilesAndUploadsOf(record)
         } else {
-            onFileViewRequest.value = record
+            record.viewFirst = true
+            onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
         }
+    }
+
+    private fun getFilesForViewing(allRecords: List<Record>?): ArrayList<Record> {
+        val files = ArrayList<Record>()
+        allRecords?.let {
+            for (record in it) {
+                if (record.type == RecordType.FILE) files.add(record)
+            }
+        }
+        return files
     }
 
     fun onBackBtnClick() {
@@ -358,7 +370,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
 
-    fun getOnFileViewRequest(): MutableLiveData<Record> = onFileViewRequest
+    fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 

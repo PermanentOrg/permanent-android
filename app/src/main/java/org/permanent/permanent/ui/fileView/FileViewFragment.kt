@@ -49,17 +49,14 @@ class FileViewFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_toolbar_file_view, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
     private val onShowMessage = Observer<String> { message ->
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private val onFileData = Observer<FileData> {
         fileData = it
+        (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
+
         if (it != null && it.contentType?.contains(FileType.PDF.toString()) == true) {
             val file = File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS), it.fileName)
@@ -100,21 +97,13 @@ class FileViewFragment : PermanentBaseFragment() {
         }
     }
 
-    override fun connectViewModelEvents() {
-        viewModel.getFileData().observe(this, onFileData)
-        viewModel.getShowMessage().observe(this, onShowMessage)
-    }
-
-    override fun disconnectViewModelEvents() {
-        viewModel.getFileData().removeObserver(onFileData)
-        viewModel.getShowMessage().removeObserver(onShowMessage)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.metadataItem -> {
                 val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
-                findNavController().navigate(R.id.action_fileViewFragment_to_fileMetadataFragment, bundle)
+                requireParentFragment().
+                findNavController()
+                    .navigate(R.id.action_filesContainerFragment_to_fileMetadataFragment, bundle)
                 super.onOptionsItemSelected(item)
             }
             R.id.shareItem -> {
@@ -127,6 +116,21 @@ class FileViewFragment : PermanentBaseFragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun connectViewModelEvents() {
+        viewModel.getFileData().observe(this, onFileData)
+        viewModel.getShowMessage().observe(this, onShowMessage)
+    }
+
+    override fun disconnectViewModelEvents() {
+        viewModel.getFileData().removeObserver(onFileData)
+        viewModel.getShowMessage().removeObserver(onShowMessage)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        (activity as AppCompatActivity?)?.supportActionBar?.title = ""
     }
 
     override fun onResume() {
