@@ -78,7 +78,7 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
         loadDataWithBaseURL(
             path,
             "“<html><body>\n" +
-                    "<video controls autoplay>\n" +
+                    "<video controls>\n" +
                     "<source src=\\“$path\\” type=\\“video/mp4\\“>\n" +
                     "</video>\n" +
                     "</body></html>”",

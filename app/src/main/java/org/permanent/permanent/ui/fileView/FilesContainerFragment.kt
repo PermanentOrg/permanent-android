@@ -39,9 +39,9 @@ class FilesContainerFragment : PermanentBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         arguments?.getParcelableArrayList<Record>(PARCELABLE_FILES_KEY)?.let {
             viewAdapter = FilesContainerPagerAdapter(this, it)
-            val viewPager2 = binding.vpFileView
-            viewPager2.adapter = viewAdapter
-            viewPager2.currentItem = getFileIndexToStartWith(it)
+            val viewPager = binding.vpFileView
+            viewPager.adapter = viewAdapter
+            viewPager.currentItem = getFileIndexToStartWith(it)
         }
     }
 

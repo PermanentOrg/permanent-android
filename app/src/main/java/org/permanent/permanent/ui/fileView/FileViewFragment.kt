@@ -101,8 +101,7 @@ class FileViewFragment : PermanentBaseFragment() {
         return when (item.itemId) {
             R.id.metadataItem -> {
                 val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
-                requireParentFragment().
-                findNavController()
+                requireParentFragment().findNavController()
                     .navigate(R.id.action_filesContainerFragment_to_fileMetadataFragment, bundle)
                 super.onOptionsItemSelected(item)
             }
@@ -135,12 +134,19 @@ class FileViewFragment : PermanentBaseFragment() {
 
     override fun onResume() {
         super.onResume()
+        binding.webView.onResume()
         connectViewModelEvents()
     }
 
     override fun onPause() {
         super.onPause()
+        binding.webView.onPause()
         disconnectViewModelEvents()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.webView.saveState(outState)
     }
 
     override fun onDestroyView() {

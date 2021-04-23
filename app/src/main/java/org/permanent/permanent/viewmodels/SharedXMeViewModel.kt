@@ -63,9 +63,7 @@ class SharedXMeViewModel(application: Application
         return onRootSharesNeeded
     }
 
-    fun getOnFileViewRequest(): LiveData<Record> {
-        return onFileViewRequest
-    }
+    fun getOnFileViewRequest(): LiveData<Record> = onFileViewRequest
 
     fun download(record: DownloadableRecord) {
         val download = downloadQueue.enqueueNewDownloadFor(record)
