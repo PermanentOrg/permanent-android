@@ -1,9 +1,7 @@
 package org.permanent.permanent.ui.fileView
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -42,7 +40,14 @@ class FileMetadataFragment: PermanentBaseFragment(), View.OnClickListener {
         binding.ivThumbnail.setOnClickListener(this)
         val shouldScroll = arguments?.getBoolean(BOOLEAN_SHOULD_SCROLL_KEY)
         shouldScroll?.let { if (it) binding.vpFileMetadata.requestFocus() }
+        setHasOptionsMenu(true)
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_toolbar_file_view, menu)
+        menu.findItem(R.id.metadataItem).isVisible = false
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -15,11 +15,7 @@ class FileMetadataViewModel(application: Application) : ObservableAndroidViewMod
         fileData.thumbURL2000?.let { thumbURL2000.value = it }
     }
 
-    fun getThumbURL2000(): MutableLiveData<String> {
-        return thumbURL2000
-    }
+    fun getThumbURL2000(): MutableLiveData<String> = thumbURL2000
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getShowMessage(): LiveData<String> = showMessage
 }

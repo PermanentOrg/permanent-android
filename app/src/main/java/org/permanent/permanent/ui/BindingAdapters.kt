@@ -74,6 +74,8 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
     settings.javaScriptEnabled = true
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
+    settings.allowContentAccess = true
+    settings.allowFileAccess = true
     if (isVideo == true) {
         loadDataWithBaseURL(
             path,
