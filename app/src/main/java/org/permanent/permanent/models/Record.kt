@@ -21,6 +21,7 @@ open class Record : Parcelable {
     var type: RecordType? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
+    var viewFirst = false
 
     constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -37,6 +38,7 @@ open class Record : Parcelable {
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
+        viewFirst = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
     constructor(recordInfo: RecordVO) {
@@ -53,6 +55,7 @@ open class Record : Parcelable {
         isThumbBlurred = true
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
+        viewFirst = false
     }
 
     constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) {
@@ -69,6 +72,7 @@ open class Record : Parcelable {
         thumbURL500 = item.thumbURL500
         isThumbBlurred = true
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
+        viewFirst = false
     }
 
     constructor(recordId: Int, archiveNr: String, folderLinkId: Int) {
@@ -78,6 +82,7 @@ open class Record : Parcelable {
         this.folderLinkId = folderLinkId
         isThumbBlurred = true
         type = RecordType.FILE
+        viewFirst = false
     }
 
     constructor(shareByUrlVO: Shareby_urlVO) {
@@ -94,6 +99,7 @@ open class Record : Parcelable {
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
         type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo?.ShareVOs)
+        viewFirst = false
     }
 
     private fun initShares(shareVOs: List<ShareVO>?) {
@@ -129,6 +135,7 @@ open class Record : Parcelable {
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
         parcel.writeTypedList(shares)
+        parcel.writeValue(viewFirst)
     }
 
     override fun describeContents(): Int {

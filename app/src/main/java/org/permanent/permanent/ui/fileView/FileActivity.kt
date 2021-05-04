@@ -12,9 +12,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
-import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
-import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.FileViewModel
 
 class FileActivity : PermanentBaseActivity() {
@@ -39,21 +37,18 @@ class FileActivity : PermanentBaseActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fileNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
-        val intentExtras = intent.extras
-        navController.setGraph(R.navigation.file_navigation_graph, intentExtras)
+        navController.setGraph(R.navigation.file_navigation_graph, intent.extras)
 
         appBarConfig = AppBarConfiguration(navController.graph)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 
         window.statusBarColor = Color.BLACK
-        supportActionBar?.title = intentExtras
-            ?.getParcelable<Record>(PARCELABLE_RECORD_KEY)?.displayName
     }
 
     // Toolbar back press
     override fun onSupportNavigateUp(): Boolean {
         return when(navController.currentDestination?.id) {
-            R.id.fileViewFragment, R.id.fileMetadataFragment -> {
+            R.id.filesContainerFragment, R.id.fileMetadataFragment -> {
                 this@FileActivity.finish()
                 true
             }

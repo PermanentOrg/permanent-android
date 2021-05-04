@@ -17,7 +17,7 @@ import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordOption
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
@@ -70,7 +70,9 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
     private val onFileDownloadRequest = Observer<Record> { viewModel.download(downloadableRecord) }
 
     private val onFileViewRequest = Observer<Record> {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to it)
+        val files = ArrayList<Record>()
+        files.add(it)
+        val bundle = bundleOf(PARCELABLE_FILES_KEY to files)
         requireParentFragment().findNavController()
             .navigate(R.id.action_sharesFragment_to_fileActivity, bundle)
     }

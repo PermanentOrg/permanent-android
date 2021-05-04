@@ -31,6 +31,7 @@ import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
 const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
+const val PARCELABLE_FILES_KEY = "parcelable_files_key"
 
 class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentMyFilesBinding
@@ -153,8 +154,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         alert.show()
     }
 
-    private val onFileViewRequest = Observer<Record> {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to it)
+    private val onFileViewRequest = Observer<ArrayList<Record>> {
+        val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
         findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity, bundle)
     }
 

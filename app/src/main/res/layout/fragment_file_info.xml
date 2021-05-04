@@ -197,7 +197,7 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nsvFileTags"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="120dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
@@ -209,7 +209,7 @@
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupFileTags"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="120dp"
                 android:onClick="@{() -> viewModel.onEditTagsClick()}"
                 app:chipSpacingVertical="8dp" />
         </androidx.core.widget.NestedScrollView>

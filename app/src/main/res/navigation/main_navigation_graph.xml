@@ -117,7 +117,7 @@
         android:name="org.permanent.permanent.ui.fileView.FileActivity"
         tools:layout="@layout/activity_file">
         <argument
-            android:name="parcelable_record_key"
+            android:name="parcelable_files_key"
             app:argType="org.permanent.permanent.models.Record" />
     </activity>
 </navigation>
