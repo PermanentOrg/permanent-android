@@ -2,6 +2,7 @@ package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
@@ -87,8 +88,12 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
             "video/mp4",
             null,
             null)
+        webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
+            }
+        }
     } else {
-        settings.builtInZoomControls = true
         path?.let {
             loadUrl(path)
         }
