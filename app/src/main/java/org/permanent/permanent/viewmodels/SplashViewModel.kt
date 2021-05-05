@@ -34,7 +34,8 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
                     FirebaseMessaging.getInstance().token
                         .addOnCompleteListener(OnCompleteListener { task ->
                             if (!task.isSuccessful) {
-                                Log.e("SplashVM", "Fetching FCM token failed: ${task.exception}")
+                                Log.e(SplashViewModel::class.java.simpleName,
+                                    "Fetching FCM token failed: ${task.exception}")
                                 return@OnCompleteListener
                             }
                             notificationsRepository.registerDevice(task.result,

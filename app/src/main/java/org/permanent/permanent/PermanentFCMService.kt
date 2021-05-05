@@ -45,6 +45,7 @@ class PermanentFCMService : FirebaseMessagingService() {
                 }
 
                 override fun onFailed(error: String?) {
+                    Log.d(TAG, "Failed registering the new device token: $error")
                 }
             })
         }
