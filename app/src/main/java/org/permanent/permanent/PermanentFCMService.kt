@@ -1,6 +1,7 @@
 package org.permanent.permanent
 
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -12,12 +13,17 @@ import com.google.firebase.messaging.RemoteMessage
 import org.permanent.permanent.models.FCMNotificationKey
 import org.permanent.permanent.models.FCMNotificationType
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.repositories.INotificationRepository
+import org.permanent.permanent.repositories.NotificationRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.activities.SplashActivity
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
-import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.ui.shares.CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY
+import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import kotlin.random.Random
 
 const val START_DESTINATION_FRAGMENT_ID_KEY = "start_destination_fragment_id_key"
@@ -26,19 +32,23 @@ class PermanentFCMService : FirebaseMessagingService() {
     private val TAG = PermanentFCMService::class.java.simpleName
 
     override fun onNewToken(token: String) {
-        Log.e(TAG, "New token: $token")
+        val prefsHelper = PreferencesHelper(
+            applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
-//        val notificationsRepository: INotificationRepository =
-//            NotificationRepositoryImpl(applicationContext)
-//
-//        notificationsRepository.registerDevice(token, object : IResponseListener {
-//
-//            override fun onSuccess(message: String?) {
-//            }
-//
-//            override fun onFailed(error: String?) {
-//            }
-//        })
+        if(prefsHelper.isUserLoggedIn()) {
+            val notificationsRepository: INotificationRepository =
+                NotificationRepositoryImpl(applicationContext)
+
+            notificationsRepository.registerDevice(token, object : IResponseListener {
+
+                override fun onSuccess(message: String?) {
+                }
+
+                override fun onFailed(error: String?) {
+                    Log.d(TAG, "Failed registering the new device token: $error")
+                }
+            })
+        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

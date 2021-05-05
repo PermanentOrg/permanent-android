@@ -84,22 +84,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun populateMyFiles() {
-//        val notificationsRepository: INotificationRepository =
-//            NotificationRepositoryImpl(appContext)
-//        val prefsHelper = PreferencesHelper(
-//            appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-//
-//        prefsHelper.getFCMToken()?.let {
-//            notificationsRepository.registerDevice(it, object : IResponseListener {
-//
-//                override fun onSuccess(message: String?) {
-//                }
-//
-//                override fun onFailed(error: String?) {
-//                }
-//            })
-//        }
-
         swipeRefreshLayout.isRefreshing = true
         fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
             override fun onSuccess(myFilesRecord: Record) {

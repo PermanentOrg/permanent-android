@@ -270,7 +270,7 @@ class RequestContainer(csrf: String?) {
 
     fun addSimple(token: String): RequestContainer {
         val simpleVO = SimpleVO()
-        simpleVO.key = "deviceToken"
+        simpleVO.key = "token"
         simpleVO.value = token
         RequestVO.data?.get(0)?.SimpleVO = simpleVO
         return this
