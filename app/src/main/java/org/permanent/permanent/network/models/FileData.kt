@@ -2,6 +2,7 @@ package org.permanent.permanent.network.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Tag
 
@@ -10,6 +11,7 @@ class FileData private constructor() : Parcelable {
     var folderLinkId: Int = -1
     var archiveId: Int = -1
     var archiveNr: String? = null
+    var accessRole: AccessRole? = null
     var fileName: String? = null
     var displayName: String? = null
     var description: String? = null
@@ -37,6 +39,7 @@ class FileData private constructor() : Parcelable {
         folderLinkId = recordVO.folder_linkId ?: -1
         archiveId = recordVO.archiveId ?: -1
         archiveNr = recordVO.archiveNbr
+        accessRole = getAccessRole(recordVO.accessRole)
         // First we check for the converted video to mp4
         val fileVO: FileVO? = if (recordVO.type?.contains(FileType.VIDEO.toString()) == true
             && recordVO.FileVOs?.size!! > 1) {
@@ -76,6 +79,17 @@ class FileData private constructor() : Parcelable {
         initTags(recordVO.TagVOs)
     }
 
+    private fun getAccessRole(accessRole: String?): AccessRole {
+        return when (accessRole) {
+            AccessRole.OWNER.backendString -> AccessRole.OWNER
+            AccessRole.MANAGER.backendString -> AccessRole.MANAGER
+            AccessRole.CURATOR.backendString -> AccessRole.CURATOR
+            AccessRole.EDITOR.backendString -> AccessRole.EDITOR
+            AccessRole.CONTRIBUTOR.backendString -> AccessRole.CONTRIBUTOR
+            else -> AccessRole.VIEWER
+        }
+    }
+
     private fun initTags(tagVOs: List<TagVO>?) {
         tags = ArrayList()
         tagVOs?.let {
@@ -90,6 +104,7 @@ class FileData private constructor() : Parcelable {
         folderLinkId = parcel.readInt()
         archiveId = parcel.readInt()
         archiveNr = parcel.readString()
+        accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         fileName = parcel.readString()
         displayName = parcel.readString()
         description = parcel.readString()
@@ -127,6 +142,7 @@ class FileData private constructor() : Parcelable {
         parcel.writeInt(folderLinkId)
         parcel.writeInt(archiveId)
         parcel.writeString(archiveNr)
+        parcel.writeParcelable(accessRole, flags)
         parcel.writeString(fileName)
         parcel.writeString(displayName)
         parcel.writeString(description)

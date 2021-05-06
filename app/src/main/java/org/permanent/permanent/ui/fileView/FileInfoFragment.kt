@@ -75,13 +75,14 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
             googleMap.apply {
                 addMarker(MarkerOptions().position(latLng))
                 animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 9.9f))
-                setOnMapClickListener(this@FileInfoFragment)
+                if (viewModel.getIsEditable().value == true)
+                    setOnMapClickListener(this@FileInfoFragment)
             }
         }
     }
 
     override fun onMapClick(latLng: LatLng) {
-        navigateToLocationSearch()
+        viewModel.onShowLocationSearchRequest.call()
     }
 
     private val onShowDatePicker = Observer<Void> {
@@ -95,10 +96,6 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     }
 
     private val onShowLocationSearch = Observer<Void> {
-        navigateToLocationSearch()
-    }
-
-    private fun navigateToLocationSearch() {
         val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
         findNavController()
             .navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)

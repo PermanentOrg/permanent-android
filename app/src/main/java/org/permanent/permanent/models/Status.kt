@@ -7,17 +7,13 @@ enum class Status(private val backendString: String) : Parcelable {
     OK("status.generic.ok"),
     PENDING("status.generic.pending");
 
-    fun toBackendString(): String {
-        return backendString
-    }
+    fun toBackendString(): String = backendString
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(ordinal)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    override fun describeContents(): Int = 0
 
     companion object CREATOR : Parcelable.Creator<Status> {
         override fun createFromParcel(parcel: Parcel): Status {

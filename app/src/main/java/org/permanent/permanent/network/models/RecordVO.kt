@@ -20,6 +20,7 @@ class RecordVO {
     var folderId: Int? = null
     var archiveId: Int? = null
     var archiveNbr: String? = null
+    var accessRole: String? = null
     var thumbURL500: String? = null
     var thumbURL2000: String? = null
     var LocnVO: LocnVO? = null

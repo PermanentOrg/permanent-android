@@ -54,14 +54,14 @@ class RequestContainer(csrf: String?) {
     fun addAccount(email: String, accessRole: AccessRole): RequestContainer {
         val accountVO = AccountVO()
         accountVO.primaryEmail = email
-        accountVO.accessRole = accessRole.toBackendString()
+        accountVO.accessRole = accessRole.backendString
         RequestVO.data?.get(0)?.AccountVO = accountVO
         return this
     }
 
     fun addAccount(id: Int, email: String, accessRole: AccessRole): RequestContainer {
         addAccount(id, email)
-        RequestVO.data?.get(0)?.AccountVO?.accessRole = accessRole.toBackendString()
+        RequestVO.data?.get(0)?.AccountVO?.accessRole = accessRole.backendString
         return this
     }
 

@@ -13,6 +13,7 @@ import org.permanent.permanent.repositories.NotificationRepositoryImpl
 
 class SplashViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private val TAG = SplashViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val onLoggedInResponse = SingleLiveEvent<Boolean>()
     private val authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
@@ -34,8 +35,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
                     FirebaseMessaging.getInstance().token
                         .addOnCompleteListener(OnCompleteListener { task ->
                             if (!task.isSuccessful) {
-                                Log.e(SplashViewModel::class.java.simpleName,
-                                    "Fetching FCM token failed: ${task.exception}")
+                                Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
                                 return@OnCompleteListener
                             }
                             notificationsRepository.registerDevice(task.result,
@@ -45,6 +45,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
                                     }
 
                                     override fun onFailed(error: String?) {
+                                        Log.e(TAG, "Registering Device FCM token failed: $error")
                                     }
                                 })
                         })
