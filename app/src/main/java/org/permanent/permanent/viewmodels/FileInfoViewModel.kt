@@ -27,6 +27,7 @@ class FileInfoViewModel(application: Application
     val onShowTagsEdit = SingleLiveEvent<Void>()
     private val onFileInfoUpdated = SingleLiveEvent<String>()
     private val showMessage = SingleLiveEvent<String>()
+    private val existsTags = MutableLiveData(false)
     private val isEditable = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -38,6 +39,7 @@ class FileInfoViewModel(application: Application
         description.value = fileData.description
         date.value = fileData.displayDate
         address.value = fileData.completeAddress
+        existsTags.value = !fileData.tags.isNullOrEmpty()
     }
 
     fun onNameTextChanged(text: Editable) {
@@ -117,6 +119,8 @@ class FileInfoViewModel(application: Application
     fun getShowTagsEdit(): LiveData<Void> = onShowTagsEdit
 
     fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getExistsTags(): LiveData<Boolean> = existsTags
 
     fun getIsEditable(): LiveData<Boolean> = isEditable
 

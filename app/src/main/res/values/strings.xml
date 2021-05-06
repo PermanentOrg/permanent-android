@@ -258,6 +258,7 @@
     <string name="file_info_tags">Tags</string>
     <string name="file_info_none">None</string>
     <string name="file_info_tap_to_set">Tap to set</string>
+    <string name="file_info_tap_to_add">Tap to add</string>
     <string name="file_info_update_success">File info updated successfully.</string>
     <string name="file_info_button_add">Add</string>
     <string name="file_info_add_new_tag">Add new tag / Search</string>
