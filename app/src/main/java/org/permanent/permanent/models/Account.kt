@@ -24,10 +24,10 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
         state = accountVO?.state
         zipCode = accountVO?.zip
         accessRole = when (accountVO?.accessRole) {
-            AccessRole.MANAGER.toBackendString() -> AccessRole.MANAGER
-            AccessRole.CURATOR.toBackendString() -> AccessRole.CURATOR
-            AccessRole.EDITOR.toBackendString() -> AccessRole.EDITOR
-            AccessRole.CONTRIBUTOR.toBackendString() -> AccessRole.CONTRIBUTOR
+            AccessRole.MANAGER.backendString -> AccessRole.MANAGER
+            AccessRole.CURATOR.backendString -> AccessRole.CURATOR
+            AccessRole.EDITOR.backendString -> AccessRole.EDITOR
+            AccessRole.CONTRIBUTOR.backendString -> AccessRole.CONTRIBUTOR
             else -> AccessRole.VIEWER
         }
         status = when (accountVO?.status) {

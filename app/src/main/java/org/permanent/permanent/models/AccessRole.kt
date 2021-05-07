@@ -1,6 +1,10 @@
 package org.permanent.permanent.models
 
-enum class AccessRole(private val backendString: String) {
+import android.os.Parcel
+import android.os.Parcelable
+import java.util.*
+
+enum class AccessRole(val backendString: String) : Parcelable {
     OWNER("access.role.owner"),
     MANAGER("access.role.manager"),
     CURATOR("access.role.curator"),
@@ -8,15 +12,26 @@ enum class AccessRole(private val backendString: String) {
     CONTRIBUTOR("access.role.contributor"),
     VIEWER("access.role.viewer");
 
-    fun toTitleCase(): String {
-        return this.name.toLowerCase().capitalize()
+    fun toTitleCase(): String = this.name.lowercase(Locale.getDefault())
+        .replaceFirstChar { it.titlecase(Locale.getDefault()) }
+
+    fun toLowerCase(): String = this.name.lowercase(Locale.getDefault())
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(ordinal)
     }
 
-    fun toLowerCase(): String {
-        return this.name.toLowerCase()
+    override fun describeContents(): Int {
+        return 0
     }
 
-    fun toBackendString(): String {
-        return backendString
+    companion object CREATOR : Parcelable.Creator<AccessRole> {
+        override fun createFromParcel(parcel: Parcel): AccessRole {
+            return values()[parcel.readInt()]
+        }
+
+        override fun newArray(size: Int): Array<AccessRole?> {
+            return arrayOfNulls(size)
+        }
     }
 }

@@ -28,7 +28,7 @@ class AccountVO() {
         city = account.city
         state = account.state
         zip = account.zipCode
-        accessRole = account.accessRole?.toBackendString()
+        accessRole = account.accessRole?.backendString
         status = account.status?.toBackendString()
     }
 }

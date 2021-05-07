@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageView
@@ -77,6 +78,7 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
     settings.useWideViewPort = true
     settings.allowContentAccess = true
     settings.allowFileAccess = true
+    setBackgroundColor(Color.BLACK)
     if (isVideo == true) {
         loadDataWithBaseURL(
             path,

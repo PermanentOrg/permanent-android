@@ -7,6 +7,7 @@ import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -22,19 +23,23 @@ class FileInfoViewModel(application: Application
     private val date = MutableLiveData<String>()
     private val address = MutableLiveData<String>()
     private val onShowDatePickerRequest = SingleLiveEvent<Void>()
-    private val onShowLocationSearchRequest = SingleLiveEvent<Void>()
-    private val onFileInfoUpdated = SingleLiveEvent<String>()
+    val onShowLocationSearchRequest = SingleLiveEvent<Void>()
     val onShowTagsEdit = SingleLiveEvent<Void>()
+    private val onFileInfoUpdated = SingleLiveEvent<String>()
     private val showMessage = SingleLiveEvent<String>()
+    private val existsTags = MutableLiveData(false)
+    private val isEditable = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setFileData(fileData: FileData) {
         this.fileData = fileData
+        isEditable.value = fileData.accessRole != AccessRole.VIEWER
         name.value = fileData.displayName
         description.value = fileData.description
         date.value = fileData.displayDate
         address.value = fileData.completeAddress
+        existsTags.value = !fileData.tags.isNullOrEmpty()
     }
 
     fun onNameTextChanged(text: Editable) {
@@ -50,15 +55,18 @@ class FileInfoViewModel(application: Application
     }
 
     fun onDateClick() {
-        onShowDatePickerRequest.value = onShowDatePickerRequest.value
+        if (isEditable.value == true)
+            onShowDatePickerRequest.value = onShowDatePickerRequest.value
     }
 
     fun onLocationClick() {
-        onShowLocationSearchRequest.value = onShowLocationSearchRequest.value
+        if (isEditable.value == true)
+            onShowLocationSearchRequest.value = onShowLocationSearchRequest.value
     }
 
     fun onEditTagsClick() {
-        onShowTagsEdit.call()
+        if (isEditable.value == true)
+            onShowTagsEdit.call()
     }
 
     fun onSaveClick() {
@@ -111,6 +119,10 @@ class FileInfoViewModel(application: Application
     fun getShowTagsEdit(): LiveData<Void> = onShowTagsEdit
 
     fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getExistsTags(): LiveData<Boolean> = existsTags
+
+    fun getIsEditable(): LiveData<Boolean> = isEditable
 
     fun getIsBusy(): LiveData<Boolean> = isBusy
 }

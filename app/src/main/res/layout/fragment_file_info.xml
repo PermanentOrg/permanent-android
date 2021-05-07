@@ -32,7 +32,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <EditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
@@ -40,10 +39,11 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
+            android:focusableInTouchMode="@{viewModel.isEditable? true : false}"
             android:afterTextChanged="@{(editable) -> viewModel.onNameTextChanged(editable)}"
             android:background="@drawable/rounded_border_grey_edit_text"
             android:fontFamily="@font/open_sans"
-            android:hint="@string/file_info_none"
+            android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_set : @string/file_info_none}"
             android:padding="8dp"
             android:text="@{viewModel.name}"
             android:textColor="@color/white"
@@ -69,7 +69,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etName" />
 
-
         <EditText
             android:id="@+id/etDescription"
             android:layout_width="match_parent"
@@ -77,11 +76,12 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
+            android:focusableInTouchMode="@{viewModel.isEditable? true : false}"
             android:afterTextChanged="@{(editable) -> viewModel.onDescriptionTextChanged(editable)}"
             android:background="@drawable/rounded_border_grey_edit_text"
             android:fontFamily="@font/open_sans"
             android:gravity="start"
-            android:hint="@string/file_info_none"
+            android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_add : @string/file_info_none}"
             android:padding="8dp"
             android:text="@{viewModel.description}"
             android:textColor="@color/white"
@@ -118,7 +118,7 @@
             android:background="@drawable/rounded_border_grey_edit_text"
             android:focusable="false"
             android:fontFamily="@font/open_sans"
-            android:hint="@string/file_info_none"
+            android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_set : @string/file_info_none}"
             android:onClick="@{() -> viewModel.onDateClick()}"
             android:padding="8dp"
             android:text="@{viewModel.date}"
@@ -167,7 +167,7 @@
             android:background="@drawable/rounded_border_grey_edit_text"
             android:focusable="false"
             android:fontFamily="@font/open_sans"
-            android:hint="@string/file_info_tap_to_set"
+            android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_set : @string/file_info_none}"
             android:onClick="@{() -> viewModel.onLocationClick()}"
             android:padding="8dp"
             android:text="@{viewModel.address}"
@@ -204,15 +204,36 @@
             android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTags">
+            app:layout_constraintTop_toBottomOf="@+id/tvTags" >
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupFileTags"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="wrap_content"
                 android:onClick="@{() -> viewModel.onEditTagsClick()}"
                 app:chipSpacingVertical="8dp" />
         </androidx.core.widget.NestedScrollView>
+
+        <EditText
+            android:id="@+id/etTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/rounded_border_grey_edit_text"
+            android:focusable="false"
+            android:fontFamily="@font/open_sans"
+            android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_add : @string/file_info_none}"
+            android:onClick="@{() -> viewModel.onEditTagsClick()}"
+            android:visibility="@{viewModel.existsTags ? View.GONE : View.VISIBLE}"
+            android:padding="8dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lightGrey"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTags" />
 
         <Button
             android:id="@+id/btnSave"
@@ -225,6 +246,7 @@
             android:backgroundTint="@color/barneyPurple"
             android:fontFamily="@font/open_sans_bold"
             android:insetBottom="0dp"
+            android:visibility="@{viewModel.isEditable ? View.VISIBLE : View.GONE}"
             android:onClick="@{() -> viewModel.onSaveClick()}"
             android:text="@string/save_button"
             android:textAllCaps="false"
