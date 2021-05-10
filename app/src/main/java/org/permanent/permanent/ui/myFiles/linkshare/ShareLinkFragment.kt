@@ -1,10 +1,12 @@
 package org.permanent.permanent.ui.myFiles.linkshare
 
 import android.app.AlertDialog
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -74,6 +76,8 @@ class ShareLinkFragment : PermanentBaseFragment() {
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
         snackBar.show()
     }
 
