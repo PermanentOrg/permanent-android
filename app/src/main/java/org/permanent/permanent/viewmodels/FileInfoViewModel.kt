@@ -27,6 +27,7 @@ class FileInfoViewModel(application: Application
     val onShowTagsEdit = SingleLiveEvent<Void>()
     private val onFileInfoUpdated = SingleLiveEvent<String>()
     private val showMessage = SingleLiveEvent<String>()
+    private val showError = SingleLiveEvent<String>()
     private val existsTags = MutableLiveData(false)
     private val isEditable = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
@@ -52,6 +53,7 @@ class FileInfoViewModel(application: Application
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
         date.value = "$year-${month + 1}-$day"
+        saveChanges()
     }
 
     fun onDateClick() {
@@ -69,37 +71,43 @@ class FileInfoViewModel(application: Application
             onShowTagsEdit.call()
     }
 
-    fun onSaveClick() {
+    fun saveChanges() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
 
-        val name = name.value?.trim()
+        val nameValue = name.value?.trim()
         val description = description.value?.trim()
         val date = date.value
 
-        if (name.isNullOrEmpty()) {
-            showMessage.value = appContext.getString(R.string.invalid_name_error)
+        if (nameValue.isNullOrEmpty()) {
+            showError.value = appContext.getString(R.string.invalid_name_error)
+            name.value = fileData.displayName
             return
         }
 
-        fileData.displayName = name
-        fileData.description = description
-        fileData.displayDate = date
+        if (fileData.displayName != nameValue
+            || fileData.description != description
+            || fileData.displayDate != date) {
 
-        isBusy.value = true
-        fileRepository.updateRecord(fileData, object : IResponseListener {
-            override fun onSuccess(message: String?) {
-                isBusy.value = false
-                showMessage.value = message
-                onFileInfoUpdated.value = name
-            }
+            fileData.displayName = nameValue
+            fileData.description = description
+            fileData.displayDate = date
 
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                showMessage.value = error
-            }
-        })
+            isBusy.value = true
+            fileRepository.updateRecord(fileData, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    showMessage.value = message
+                    onFileInfoUpdated.value = nameValue
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showError.value = error
+                }
+            })
+        }
     }
 
     fun getName(): LiveData<String> = name
@@ -117,6 +125,8 @@ class FileInfoViewModel(application: Application
     fun getOnFileInfoUpdated(): LiveData<String> = onFileInfoUpdated
 
     fun getShowTagsEdit(): LiveData<Void> = onShowTagsEdit
+
+    fun getShowError(): LiveData<String> = showError
 
     fun getShowMessage(): LiveData<String> = showMessage
 

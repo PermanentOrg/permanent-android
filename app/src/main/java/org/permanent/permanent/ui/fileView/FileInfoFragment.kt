@@ -1,12 +1,15 @@
 package org.permanent.permanent.ui.fileView
 
 import android.app.DatePickerDialog
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +21,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileInfoBinding
 import org.permanent.permanent.models.Tag
@@ -49,6 +53,16 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
             getParcelable<FileData>(PARCELABLE_FILE_DATA_KEY)?.also {
                 fileData = it
                 viewModel.setFileData(it)
+                binding.etName.setOnFocusChangeListener { _, hasFocus ->
+                    if (!hasFocus) viewModel.saveChanges()
+                }
+                binding.etDescription.setRawInputType(InputType.TYPE_CLASS_TEXT)
+                binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
+                    if (!hasFocus) viewModel.saveChanges()
+                }
+                binding.etDescription.setOnEditorActionListener { _, _, _ -> viewModel.saveChanges()
+                    false
+                }
                 it.tags?.let { tags -> createChipsFor(tags) }
                 if (it.latitude != -1.0 && it.longitude != -1.0)
                     mapView?.getMapAsync(this@FileInfoFragment)
@@ -86,6 +100,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     }
 
     private val onShowDatePicker = Observer<Void> {
+        viewModel.saveChanges()
         context?.let { context ->
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)
@@ -112,7 +127,23 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     }
 
     private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
+        snackBar.show()
+    }
+
+    private val onShowError = Observer<String> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
+        }
+        snackBar.show()
     }
 
     override fun connectViewModelEvents() {
@@ -121,6 +152,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         viewModel.getOnFileInfoUpdated().observe(this, onFileInfoUpdated)
         viewModel.getShowTagsEdit().observe(this, onShowTagsEdit)
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getShowError().observe(this, onShowError)
     }
 
     override fun disconnectViewModelEvents() {
@@ -129,6 +161,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         viewModel.getOnFileInfoUpdated().removeObserver(onFileInfoUpdated)
         viewModel.getShowTagsEdit().removeObserver(onShowTagsEdit)
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getShowError().removeObserver(onShowError)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

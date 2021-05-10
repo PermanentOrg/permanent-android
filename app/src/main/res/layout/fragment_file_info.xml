@@ -35,13 +35,13 @@
         <EditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            android:focusableInTouchMode="@{viewModel.isEditable? true : false}"
             android:afterTextChanged="@{(editable) -> viewModel.onNameTextChanged(editable)}"
             android:background="@drawable/rounded_border_grey_edit_text"
+            android:focusableInTouchMode="@{viewModel.isEditable? true : false}"
             android:fontFamily="@font/open_sans"
             android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_set : @string/file_info_none}"
             android:padding="8dp"
@@ -49,6 +49,7 @@
             android:textColor="@color/white"
             android:textColorHint="@color/lightGrey"
             android:textSize="16sp"
+            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvName" />
@@ -87,6 +88,8 @@
             android:textColor="@color/white"
             android:textColorHint="@color/lightGrey"
             android:textSize="16sp"
+            android:inputType="textMultiLine"
+            android:imeOptions="actionDone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
@@ -235,29 +238,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTags" />
 
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/barneyPurple"
-            android:fontFamily="@font/open_sans_bold"
-            android:insetBottom="0dp"
-            android:visibility="@{viewModel.isEditable ? View.VISIBLE : View.GONE}"
-            android:onClick="@{() -> viewModel.onSaveClick()}"
-            android:text="@string/save_button"
-            android:textAllCaps="false"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nsvFileTags"
-            app:layout_constraintVertical_bias="0.0" />
-
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar"
             style="@style/Widget.AppCompat.ProgressBar"
@@ -265,7 +245,7 @@
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="@+id/btnSave"
+            app:layout_constraintBottom_toBottomOf="@+id/tvTags"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvName" />
