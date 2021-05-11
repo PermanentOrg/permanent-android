@@ -1,15 +1,14 @@
 package org.permanent.permanent.ui.members
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.graphics.Typeface
 import android.os.Bundle
-import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -163,6 +162,8 @@ class MembersFragment : PermanentBaseFragment() {
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
         snackBar.show()
     }
 

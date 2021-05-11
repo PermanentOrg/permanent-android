@@ -6,10 +6,10 @@
     <color name="barneyPurple">#800080</color>
     <color name="deepRed">#A10000</color>
     <color name="colorAccent">#FF9933</color>
-    <color name="dotGreen">#1BC917</color>
     <color name="green">#167D14</color>
-    <color name="paleGreen">#CAE5C9</color>
+    <color name="dotGreen">#1BC917</color>
     <color name="dullGreen">#82B15F</color>
+    <color name="paleGreen">#CAE5C9</color>
     <color name="white">#FFFFFF</color>
     <color name="whiteTransparent">#80FFFFFF</color>
     <color name="superLightGrey">#EBEBEB</color>
