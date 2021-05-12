@@ -53,15 +53,18 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 dataList?.let {
+                    val checkedTags = ArrayList<Tag>()
+                    val uncheckedTags = ArrayList<Tag>()
                     for (data in it) {
                         data.TagVO?.let { tagVO ->
                             val archiveTag = Tag(tagVO)
                             archiveTag.isCheckedOnServer = fileData.getTagIds().contains(archiveTag.tagId)
                             archiveTag.isCheckedOnLocal = archiveTag.isCheckedOnServer
-                            allTags.add(archiveTag)
+                            if (archiveTag.isCheckedOnServer) checkedTags.add(archiveTag)
+                            else uncheckedTags.add(archiveTag)
                         }
                     }
-                    onTagsFiltered.value = allTags
+                    onTagsFiltered.value = getAllTagsSorted(checkedTags, uncheckedTags)
                 }
             }
 
@@ -70,6 +73,15 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
                 showMessage.value = error
             }
         })
+    }
+
+    private fun getAllTagsSorted(checkedTags: ArrayList<Tag>, uncheckedTags: ArrayList<Tag>
+    ): ArrayList<Tag> {
+        checkedTags.sortBy { it.name.lowercase() }
+        allTags.addAll(checkedTags)
+        uncheckedTags.sortBy { it.name.lowercase() }
+        allTags.addAll(uncheckedTags)
+        return allTags
     }
 
     fun updateTagsOnServer() {
@@ -192,8 +204,8 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
                 filterResults.values = if (charSearch.isEmpty()) allTags else {
                     val resultList = ArrayList<Tag>()
                     for (tag in allTags) {
-                        if (tag.name.toLowerCase(Locale.ROOT)
-                                .contains(charSearch.toLowerCase(Locale.ROOT))) {
+                        if (tag.name.lowercase(Locale.ROOT)
+                                .contains(charSearch.lowercase(Locale.ROOT))) {
                             resultList.add(tag)
                         }
                     }

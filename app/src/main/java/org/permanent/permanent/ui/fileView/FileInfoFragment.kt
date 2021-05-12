@@ -63,7 +63,10 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
                 binding.etDescription.setOnEditorActionListener { _, _, _ -> viewModel.saveChanges()
                     false
                 }
-                it.tags?.let { tags -> createChipsFor(tags) }
+                it.tags?.let { tags -> val mutableTags = tags.toMutableList()
+                    mutableTags.sortBy { tag -> tag.name.lowercase() }
+                    createChipsFor(mutableTags)
+                }
                 if (it.latitude != -1.0 && it.longitude != -1.0)
                     mapView?.getMapAsync(this@FileInfoFragment)
             }
