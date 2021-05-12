@@ -20,19 +20,34 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
+            android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
             android:background="@drawable/rounded_border_grey_edit_text"
             android:fontFamily="@font/open_sans"
             android:hint="@string/file_info_add_new_tag"
-            android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
-            android:text="@{viewModel.newTagName}"
+            android:maxLength="16"
             android:padding="8dp"
+            android:text="@{viewModel.newTagName}"
             android:textColor="@color/white"
             android:textColorHint="@color/lightGrey"
             android:textSize="16sp"
+            android:singleLine="true"
             app:layout_constraintEnd_toStartOf="@+id/btnAdd"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="36dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="2dp"
+            android:visibility="@{viewModel.newTagName.length() == 0 ? View.GONE : View.VISIBLE}"
+            android:onClick="@{() -> viewModel.onCancelClick()}"
+            app:icon="@drawable/ic_close_middle_grey"
+            app:iconTint="@color/lightGrey"
+            app:layout_constraintBottom_toBottomOf="@+id/etNewTag"
+            app:layout_constraintEnd_toEndOf="@+id/etNewTag"
+            app:layout_constraintTop_toTopOf="@+id/etNewTag" />
 
         <Button
             android:id="@+id/btnAdd"
