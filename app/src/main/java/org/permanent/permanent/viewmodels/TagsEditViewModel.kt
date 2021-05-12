@@ -194,6 +194,10 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
         }
     }
 
+    fun onCancelClick() {
+        newTagName.value = ""
+    }
+
     override fun getFilter(): Filter {
         return object : Filter() {
 
