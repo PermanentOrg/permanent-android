@@ -27,6 +27,7 @@
             android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
             android:text="@{viewModel.newTagName}"
             android:padding="8dp"
+            android:maxLength="16"
             android:textColor="@color/white"
             android:textColorHint="@color/lightGrey"
             android:textSize="16sp"
