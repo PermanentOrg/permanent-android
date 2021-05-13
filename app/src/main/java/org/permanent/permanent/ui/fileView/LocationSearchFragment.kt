@@ -17,7 +17,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import org.permanent.permanent.Constants
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLocationSearchBinding
 import org.permanent.permanent.network.models.FileData
@@ -56,7 +56,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     }
 
     private fun initAutocompleteFragment() {
-        Places.initialize(requireContext(), Constants.API_KEY_MAPS)
+        Places.initialize(requireContext(), BuildConfig.GMP_KEY)
 
         autocompleteFragment = AutocompleteSupportFragment()
         val transaction = childFragmentManager.beginTransaction()

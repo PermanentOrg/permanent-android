@@ -36,6 +36,5 @@ class Constants {
         const val FOLDER_DELETED_SUCCESSFULLY = "Folder has been deleted."
         // This is also used in manifest
         const val FILE_PROVIDER_NAME = "org.permanent.permanent.fileprovider"
-        const val API_KEY_MAPS = "AIzaSyA0kT_5IC68LtC3l8v9wohCT3mywCysRNk"
     }
 }
