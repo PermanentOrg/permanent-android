@@ -1,10 +1,12 @@
 package org.permanent.permanent.ui.fileView
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
@@ -25,12 +27,14 @@ import java.io.InputStream
 import java.net.URL
 
 const val PARCELABLE_FILE_DATA_KEY = "parcelable_file_data_key"
-class FileViewFragment : PermanentBaseFragment() {
+class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnClickListener {
 
+    private var supportActionBar: ActionBar? = null
     private lateinit var viewModel: FileViewViewModel
     private lateinit var binding: FragmentFileViewBinding
     private var fileData: FileData? = null
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,8 +49,25 @@ class FileViewFragment : PermanentBaseFragment() {
         }
         binding.executePendingBindings()
         setHasOptionsMenu(true)
-        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar = (activity as AppCompatActivity?)?.supportActionBar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.webView.setOnTouchListener(this)
+        binding.pdfView.setOnClickListener(this)
         return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_UP) {
+            if (supportActionBar?.isShowing == true) supportActionBar?.hide()
+            else supportActionBar?.show()
+        }
+        return false
+    }
+
+    override fun onClick(v: View) {
+        if (supportActionBar?.isShowing == true) supportActionBar?.hide()
+        else supportActionBar?.show()
     }
 
     private val onShowMessage = Observer<String> { message ->
