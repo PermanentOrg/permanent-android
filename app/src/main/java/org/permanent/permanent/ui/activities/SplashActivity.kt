@@ -35,6 +35,18 @@ class SplashActivity : PermanentBaseActivity() {
         binding.viewModel = viewModel
 
 //        getFCMDeviceToken()
+//        val keys = intent.extras?.keySet()
+//        if (!keys.isNullOrEmpty()) {
+//            keys.forEach { key ->
+//                when (intent.extras!![key]) {
+//                    is Long -> Log.e("SplashActivity","$key = ${intent.getLongExtra(key, 0L)}")
+//                    is Int -> Log.e("SplashActivity","$key = ${intent.getIntExtra(key, 0)}")
+//                    is String -> Log.e("SplashActivity","$key = ${intent.getStringExtra(key)}")
+//                    is Boolean -> Log.e("SplashActivity","$key = ${intent.getBooleanExtra(key, false)}")
+//                    else -> println("unknown Type")
+//                }
+//            }
+//        }
         createNotificationChannel()
         viewModel.verifyIsUserLoggedIn()
     }

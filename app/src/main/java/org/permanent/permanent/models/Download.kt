@@ -31,12 +31,10 @@ class Download private constructor(val context: Context, val listener: OnFinishe
     ) : this(context, listener) {
         displayName = record.displayName ?: ""
         val folderLinkId = record.folderLinkId
-        val archiveNr = record.archiveNr
         val recordId = record.recordId
-        if (folderLinkId != null && archiveNr != null && recordId != null) {
+        if (folderLinkId != null && recordId != null) {
             val builder = Data.Builder().apply {
                 putInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, folderLinkId)
-                putString(WORKER_INPUT_ARCHIVE_NR_KEY, archiveNr)
                 putInt(WORKER_INPUT_RECORD_ID_KEY, recordId)
             }
             workRequest = OneTimeWorkRequest.Builder(DownloadWorker::class.java)

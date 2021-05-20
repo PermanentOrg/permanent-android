@@ -156,11 +156,9 @@ class RequestContainer(csrf: String?) {
 
     fun addRecord(
         folderLinkId: Int,
-        archiveNr: String,
         recordId: Int
     ): RequestContainer {
         val recordVO = RecordVO()
-        recordVO.archiveNbr = archiveNr
         recordVO.folder_linkId = folderLinkId
         recordVO.recordId = recordId
         recordVO.dataStatus = 1

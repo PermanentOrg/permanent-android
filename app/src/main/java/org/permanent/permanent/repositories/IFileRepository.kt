@@ -48,7 +48,6 @@ interface IFileRepository {
 
     fun getRecord(
         folderLinkId: Int,
-        archiveNr: String,
         recordId: Int,
     ): Call<ResponseVO>
 
