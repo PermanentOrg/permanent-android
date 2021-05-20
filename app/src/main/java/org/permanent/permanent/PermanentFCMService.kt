@@ -12,7 +12,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.permanent.permanent.models.FCMNotificationKey
 import org.permanent.permanent.models.FCMNotificationType
-import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.INotificationRepository
 import org.permanent.permanent.repositories.NotificationRepositoryImpl
@@ -20,8 +19,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.activities.SplashActivity
-import org.permanent.permanent.ui.fileView.FileActivity
-import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.shares.CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import kotlin.random.Random
@@ -58,31 +55,22 @@ class PermanentFCMService : FirebaseMessagingService() {
             val notificationType = remoteMessage.data[FCMNotificationKey.NOTIFICATION_TYPE]
 
             if (notificationType == FCMNotificationType.SHARE.toBackendString()) {
-                if (remoteMessage.data[FCMNotificationKey.RECORD_ID] != null) {
-                    showNotification(getString(
-                        R.string.notification_body_share_notification,
-                        remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME],
-                        remoteMessage.data[FCMNotificationKey.RECORD_NAME],
-                    ), getFileViewIntent(
-                        remoteMessage.data[FCMNotificationKey.RECORD_ID]?.toInt(),
-                        remoteMessage.data[FCMNotificationKey.FOLDER_LINK_ID]?.toInt()
-                    ))
-                } else {
-                    showNotification(getString(
-                        R.string.notification_body_share_notification,
-                        remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME],
-                        remoteMessage.data[FCMNotificationKey.FOLDER_NAME],
-                    ), getFolderViewIntent(
-                        remoteMessage.data[FCMNotificationKey.FOLDER_ID]?.toInt(),
-                    ))
-                }
+                val recordId = if (remoteMessage.data[FCMNotificationKey.RECORD_ID] != null)
+                    remoteMessage.data[FCMNotificationKey.RECORD_ID]
+                else remoteMessage.data[FCMNotificationKey.FOLDER_ID]
+
+                val recordName = if (remoteMessage.data[FCMNotificationKey.RECORD_NAME] != null)
+                    remoteMessage.data[FCMNotificationKey.RECORD_NAME]
+                else remoteMessage.data[FCMNotificationKey.FOLDER_NAME]
+
+                showNotification(getString(R.string.notification_body_share_notification,
+                    remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME], recordName,
+                ), getRecordViewIntent(recordId?.toInt()))
             }
         }
     }
 
-    override fun onDeletedMessages() {
-        // TODO:
-    }
+    override fun onDeletedMessages() {}
 
     private fun showNotification(body: String, contentIntent: PendingIntent?) {
         val builder = NotificationCompat.Builder(applicationContext,
@@ -99,24 +87,12 @@ class PermanentFCMService : FirebaseMessagingService() {
         }
     }
 
-    private fun getFolderViewIntent(folderId: Int?): PendingIntent? {
-        return if (folderId != null) {
+    private fun getRecordViewIntent(recordId: Int?): PendingIntent? {
+        return if (recordId != null) {
             val intent = Intent(applicationContext, MainActivity::class.java)
             intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.sharesFragment)
             intent.putExtra(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY, Constants.POSITION_SHARED_WITH_ME_FRAGMENT)
-            intent.putExtra(RECORD_ID_TO_NAVIGATE_TO_KEY, folderId)
-            getPendingIntent(intent)
-        } else {
-            getDefaultContentIntent()
-        }
-    }
-
-    private fun getFileViewIntent(recordId: Int?, folderLinkId: Int?): PendingIntent? {
-        return if (recordId != null && folderLinkId != null) {
-            val files = ArrayList<Record>()
-            files.add(Record(recordId, folderLinkId))
-            val intent = Intent(applicationContext, FileActivity::class.java)
-            intent.putExtra(PARCELABLE_FILES_KEY, files)
+            intent.putExtra(RECORD_ID_TO_NAVIGATE_TO_KEY, recordId)
             getPendingIntent(intent)
         } else {
             getDefaultContentIntent()
