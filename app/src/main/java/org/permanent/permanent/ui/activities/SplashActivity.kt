@@ -6,12 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySplashBinding
 import org.permanent.permanent.ui.IS_USER_LOGGED_IN
@@ -33,8 +30,6 @@ class SplashActivity : PermanentBaseActivity() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
-//        getFCMDeviceToken()
         createNotificationChannel()
         viewModel.verifyIsUserLoggedIn()
     }
@@ -53,17 +48,6 @@ class SplashActivity : PermanentBaseActivity() {
             startActivity(intent)
             finish()
         }
-    }
-
-    private fun getFCMDeviceToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.e("SplashActivity", "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-            val token = task.result
-            Log.d("SplashActivity", "FCM device token: $token")
-        })
     }
 
     private fun createNotificationChannel() {

@@ -152,7 +152,6 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
 
     private fun requestUpdatedFileData() {
         val folderLinkId = fileData.folderLinkId
-        val archiveNr = fileData.archiveNr
         val recordId = fileData.recordId
 
         if (isBusy.value != null && isBusy.value!!) {
@@ -160,23 +159,20 @@ class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(a
         }
 
         isBusy.value = true
-        archiveNr?.let {
-            fileRepository.getRecord(folderLinkId, it, recordId
-            ).enqueue(object : Callback<ResponseVO> {
+        fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
 
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    isBusy.value = false
-                    response.body()?.getFileData()?.let { newFileData -> fileData = newFileData }
-                    showMessage.value = appContext.getString(R.string.file_tags_update_success)
-                    onTagsUpdated.value = fileData
-                }
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                isBusy.value = false
+                response.body()?.getFileData()?.let { newFileData -> fileData = newFileData }
+                showMessage.value = appContext.getString(R.string.file_tags_update_success)
+                onTagsUpdated.value = fileData
+            }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    isBusy.value = false
-                    showMessage.value = t.message
-                }
-            })
-        }
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                isBusy.value = false
+                showMessage.value = t.message
+            }
+        })
     }
 
     fun onNewTagNameTextChanged(textEditable: Editable) {

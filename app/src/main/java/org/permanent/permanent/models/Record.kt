@@ -75,9 +75,8 @@ open class Record : Parcelable {
         viewFirst = false
     }
 
-    constructor(recordId: Int, archiveNr: String, folderLinkId: Int) {
+    constructor(recordId: Int, folderLinkId: Int) {
         id = recordId
-        this.archiveNr = archiveNr
         this.recordId = recordId
         this.folderLinkId = folderLinkId
         isThumbBlurred = true
