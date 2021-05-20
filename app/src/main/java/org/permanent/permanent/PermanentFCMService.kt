@@ -63,20 +63,23 @@ class PermanentFCMService : FirebaseMessagingService() {
                     remoteMessage.data[FCMNotificationKey.RECORD_NAME]
                 else remoteMessage.data[FCMNotificationKey.FOLDER_NAME]
 
-                showNotification(getString(R.string.notification_body_share_notification,
-                    remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME], recordName,
-                ), getRecordViewIntent(recordId?.toInt()))
+                remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
+                    showNotification(it,
+                        getString(R.string.notification_body_share_notification, it, recordName),
+                        getRecordViewIntent(recordId?.toInt()))
+                }
             }
         }
     }
 
     override fun onDeletedMessages() {}
 
-    private fun showNotification(body: String, contentIntent: PendingIntent?) {
+    private fun showNotification(title: String, body: String, contentIntent: PendingIntent?) {
         val builder = NotificationCompat.Builder(applicationContext,
             getString(R.string.default_notification_channel_id))
             .setSmallIcon(R.drawable.img_notification_logo)
             .setColor(ContextCompat.getColor(applicationContext, R.color.colorAccent))
+            .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle())
             .setContentIntent(contentIntent)
