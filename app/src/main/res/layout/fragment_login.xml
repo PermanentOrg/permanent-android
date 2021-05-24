@@ -175,6 +175,21 @@
             app:rippleColor="@null" />
 
         <TextView
+            android:id="@+id/tvVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnForgotPassword"
+            android:layout_centerHorizontal="true"
+            android:padding="8dp"
+            android:text="@{viewModel.versionName}"
+            android:textColor="@color/lightGrey"
+            app:layout_constraintBottom_toTopOf="@+id/tvCopyright"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnForgotPassword"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <TextView
             android:id="@+id/tvCopyright"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
