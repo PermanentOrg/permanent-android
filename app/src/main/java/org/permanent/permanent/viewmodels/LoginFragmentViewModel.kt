@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
@@ -24,59 +25,9 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     private val onReadyToShowForgotPassDialog = SingleLiveEvent<Void>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
+    val versionName = MutableLiveData(application.getString(
+        R.string.version_text, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE.toString()))
     private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
-
-    fun getCurrentEmail(): MutableLiveData<String>? {
-        return currentEmail
-    }
-
-    fun getCurrentPassword(): MutableLiveData<String>? {
-        return currentPassword
-    }
-
-    fun getEmailError(): LiveData<Int> {
-        return emailError
-    }
-
-    fun getPasswordError(): LiveData<Int> {
-        return passwordError
-    }
-
-    fun onEmailTextChanged(email: Editable) {
-        currentEmail.value = email.toString().trim { it <= ' ' }
-    }
-
-    fun onPasswordTextChanged(password: Editable) {
-        currentPassword.value = password.toString().trim { it <= ' ' }
-    }
-
-    fun getErrorStringId(): LiveData<Int> {
-        return errorStringId
-    }
-
-    fun getErrorMessage(): LiveData<String> {
-        return errorMessage
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getOnLoggedIn(): MutableLiveData<Void> {
-        return onLoggedIn
-    }
-
-    fun getOnSignUp(): MutableLiveData<Void> {
-        return onSignUp
-    }
-
-    fun getOnPasswordReset(): MutableLiveData<Void> {
-        return onPasswordReset
-    }
-
-    fun getOnReadyToShowForgotPassDialog(): MutableLiveData<Void> {
-        return onReadyToShowForgotPassDialog
-    }
 
     private fun checkEmail(email: String?): Boolean {
         val pattern: Pattern = Patterns.EMAIL_ADDRESS
@@ -160,4 +111,34 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
             }
         })
     }
+
+    fun getCurrentEmail(): MutableLiveData<String> = currentEmail
+
+    fun getCurrentPassword(): MutableLiveData<String> = currentPassword
+
+    fun getEmailError(): LiveData<Int> = emailError
+
+    fun getPasswordError(): LiveData<Int> = passwordError
+
+    fun onEmailTextChanged(email: Editable) {
+        currentEmail.value = email.toString().trim { it <= ' ' }
+    }
+
+    fun onPasswordTextChanged(password: Editable) {
+        currentPassword.value = password.toString().trim { it <= ' ' }
+    }
+
+    fun getErrorStringId(): LiveData<Int> = errorStringId
+
+    fun getErrorMessage(): LiveData<String> = errorMessage
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnLoggedIn(): MutableLiveData<Void> = onLoggedIn
+
+    fun getOnSignUp(): MutableLiveData<Void> = onSignUp
+
+    fun getOnPasswordReset(): MutableLiveData<Void> = onPasswordReset
+
+    fun getOnReadyToShowForgotPassDialog(): MutableLiveData<Void> = onReadyToShowForgotPassDialog
 }

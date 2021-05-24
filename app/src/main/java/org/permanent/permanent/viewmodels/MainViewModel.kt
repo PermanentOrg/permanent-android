@@ -3,6 +3,8 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.R
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAuthenticationRepository
 
@@ -12,6 +14,8 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedOut = SingleLiveEvent<Void>()
+    val versionName = MutableLiveData(application.getString(
+        R.string.version_text, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE.toString()))
     private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
     fun getCurrentAccount(): MutableLiveData<String> {
