@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.net.Uri
 import android.text.Editable
+import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -11,7 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.ExistingWorkPolicy
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
@@ -20,6 +23,8 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.INotificationRepository
+import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -29,6 +34,8 @@ import kotlin.collections.ArrayList
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener, RecordOptionsClickListener, CancelListener, OnFinishedListener {
+
+    private val TAG = MyFilesViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isRoot = MutableLiveData(true)
@@ -330,6 +337,29 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                 showMessage.value = error
             }
         })
+    }
+
+    fun registerDeviceForFCM() {
+        val notificationsRepository: INotificationRepository =
+            NotificationRepositoryImpl(appContext)
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
+                    return@OnCompleteListener
+                }
+                notificationsRepository.registerDevice(task.result,
+                    object : IResponseListener {
+
+                        override fun onSuccess(message: String?) {
+                        }
+
+                        override fun onFailed(error: String?) {
+                            Log.e(TAG, "Registering Device FCM token failed: $error")
+                        }
+                    })
+            })
     }
 
     fun getFolderName(): MutableLiveData<String> = folderName
