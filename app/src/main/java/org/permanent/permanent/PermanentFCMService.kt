@@ -68,6 +68,15 @@ class PermanentFCMService : FirebaseMessagingService() {
                         getString(R.string.notification_body_share_notification, it, recordName),
                         getRecordViewIntent(recordId?.toInt()))
                 }
+            } else if(notificationType == FCMNotificationType.PA_RESPONSE.toBackendString()) {
+                remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
+                    val splits = remoteMessage.data[FCMNotificationKey.ACCESS_ROLE]?.split(".")
+                    showNotification(it,
+                        getString(R.string.notification_body_pa_response_notification, it,
+                            remoteMessage.data[FCMNotificationKey.FROM_ARCHIVE_NAME],
+                            splits?.get(splits.lastIndex)),
+                        getMembersViewIntent())
+                }
             }
         }
     }
@@ -100,6 +109,12 @@ class PermanentFCMService : FirebaseMessagingService() {
         } else {
             getDefaultContentIntent()
         }
+    }
+
+    private fun getMembersViewIntent(): PendingIntent? {
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.membersFragment)
+        return getPendingIntent(intent)
     }
 
     private fun getDefaultContentIntent(): PendingIntent? {
