@@ -88,14 +88,19 @@ class PermanentFCMService : FirebaseMessagingService() {
                 }
                 FCMNotificationType.SHARE_LINK_REQUEST.toBackendString() -> {
                     remoteMessage.data[FCMNotificationKey.SHARE_FOLDER_LINK_ID]?.let {
-                        requestRecord(it.toInt(), remoteMessage)
+                        requestRecordBy(it.toInt(), remoteMessage)
+                    }
+                }
+                FCMNotificationType.SHARE_INVITATION_ACCEPTANCE.toBackendString() -> {
+                    remoteMessage.data[FCMNotificationKey.RECORD_ID]?.let {
+                        requestRecordBy(it, remoteMessage)
                     }
                 }
             }
         }
     }
 
-    private fun requestRecord(folderLinkId: Int, remoteMessage: RemoteMessage) {
+    private fun requestRecordBy(folderLinkId: Int, remoteMessage: RemoteMessage) {
         val fileRepository: IFileRepository = FileRepositoryImpl(application)
 
         fileRepository.getRecord(folderLinkId, null).enqueue(object : Callback<ResponseVO> {
@@ -107,6 +112,31 @@ class PermanentFCMService : FirebaseMessagingService() {
                             it,
                             getString(R.string.notification_body_share_link_request, it,
                                 remoteMessage.data[FCMNotificationKey.SHARE_NAME]),
+                            getShareLinkViewIntent(record)
+                        )
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                Log.d(TAG, "Failed getRecord for notification: ${t.message}")
+            }
+        })
+    }
+
+    private fun requestRecordBy(recordId: String, remoteMessage: RemoteMessage) {
+        val fileRepository: IFileRepository = FileRepositoryImpl(application)
+
+        fileRepository.getRecord(null, recordId.toInt())
+            .enqueue(object : Callback<ResponseVO> {
+
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                response.body()?.getRecord()?.let { record ->
+                    remoteMessage.data[FCMNotificationKey.INVITED_ARCHIVE_NAME]?.let {
+                        showNotification(
+                            it,
+                            getString(R.string.notification_body_share_invitation_acceptance, it,
+                                remoteMessage.data[FCMNotificationKey.RECORD_NAME]),
                             getShareLinkViewIntent(record)
                         )
                     }
@@ -167,7 +197,7 @@ class PermanentFCMService : FirebaseMessagingService() {
     }
 
     private fun getPendingIntent(intent: Intent): PendingIntent? {
-        TaskStackBuilder.create(this).run {
+        TaskStackBuilder.create(applicationContext).run {
             // Add the intent, which inflates the back stack
             addNextIntentWithParentStack(intent)
             // Get the PendingIntent containing the entire back stack
