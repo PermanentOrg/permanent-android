@@ -285,6 +285,7 @@
     <string name="notification_body_share">%s has shared %s with you</string>
     <string name="notification_body_pa_response">%s accepted your invitation to join the %s archive as a %s</string>
     <string name="notification_body_share_link_request">%s has requested access to %s</string>
+    <string name="notification_body_share_invitation_acceptance">%s has joined permanent to access %s</string>
 
     <string name="version_text">Version %s (%s)</string>
 </resources>

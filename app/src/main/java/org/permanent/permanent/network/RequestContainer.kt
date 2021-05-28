@@ -155,7 +155,7 @@ class RequestContainer(csrf: String?) {
     }
 
     fun addRecord(
-        folderLinkId: Int,
+        folderLinkId: Int?,
         recordId: Int?
     ): RequestContainer {
         val recordVO = RecordVO()
