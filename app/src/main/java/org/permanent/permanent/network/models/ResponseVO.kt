@@ -54,6 +54,12 @@ class ResponseVO {
         return getData()?.get(0)?.FolderVO?.ChildItemVOs
     }
 
+    fun getRecord(): Record? {
+        val recordVO = getData()?.get(0)?.RecordVO
+        if (recordVO != null) return Record(recordVO)
+        return null
+    }
+
     fun getMessages(): List<String?>? {
         return Results?.get(0)?.message
     }
