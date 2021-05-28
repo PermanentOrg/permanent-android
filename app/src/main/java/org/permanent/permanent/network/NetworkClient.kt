@@ -244,7 +244,7 @@ class NetworkClient(context: Context) {
     fun getRecord(
         csrf: String?,
         folderLinkId: Int,
-        recordId: Int
+        recordId: Int?
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(folderLinkId, recordId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

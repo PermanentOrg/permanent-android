@@ -56,6 +56,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
         binding.viewModel = viewModel
 
+        viewModel.registerDeviceForFCM()
+
         val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
             PREFS_NAME, Context.MODE_PRIVATE))
         val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
