@@ -49,10 +49,7 @@ class NetworkClient(context: Context) {
             SharedPrefsCookiePersistor(context.applicationContext))
 
         val interceptor = HttpLoggingInterceptor()
-        interceptor.level = if (BuildConfig.DEBUG) {
-//            WebView.setWebContentsDebuggingEnabled(true)
-            HttpLoggingInterceptor.Level.BODY
-        } else HttpLoggingInterceptor.Level.NONE
+        interceptor.level = HttpLoggingInterceptor.Level.NONE
 
         val okHttpClient = OkHttpClient.Builder()
             .cookieJar(cookieJar)
