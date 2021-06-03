@@ -32,10 +32,10 @@ fun setIconDrawable(view: ImageView, notificationType: Notification.Type) {
 }
 
 @BindingAdapter("record")
-fun loadImage(view: ImageView, record: Record) {
-    if (true) {
+fun loadImage(view: ImageView, record: Record?) {
+    if (record?.status == null || record.isProcessing) {
         view.setImageResource(R.drawable.ic_processing)
-        val  rotate = RotateAnimation(
+        val rotate = RotateAnimation(
             0f,
             360f,
             Animation.RELATIVE_TO_SELF,

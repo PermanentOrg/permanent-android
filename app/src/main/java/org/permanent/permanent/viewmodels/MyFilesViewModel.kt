@@ -181,6 +181,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onRecordClick(record: Record) {
+        if(record.isProcessing){
+            return
+        }
+
         if (record.type == RecordType.FOLDER) {
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)

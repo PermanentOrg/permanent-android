@@ -27,4 +27,6 @@ class RecordVO {
     var FileVOs: List<FileVO>? = null
     var TagVOs: List<TagVO>? = null
     var ShareVOs: List<ShareVO>? = null
+    var status: String? = null
+
 }

@@ -21,7 +21,9 @@ open class Record : Parcelable {
     var type: RecordType? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
+    var status: String? = null
     var viewFirst = false
+    var isProcessing = false
 
     constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -38,11 +40,13 @@ open class Record : Parcelable {
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
+        status = parcel.readString()
         viewFirst = parcel.readValue(Boolean::class.java.classLoader) as Boolean
+        isProcessing = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
     constructor(recordInfo: RecordVO) {
-        id = if(recordInfo.folderId != null) recordInfo.folderId else recordInfo.recordId
+        id = if (recordInfo.folderId != null) recordInfo.folderId else recordInfo.recordId
         archiveNr = recordInfo.archiveNbr
         recordId = recordInfo.recordId
         folderId = recordInfo.folderId
@@ -55,11 +59,13 @@ open class Record : Parcelable {
         isThumbBlurred = true
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
+        status = recordInfo.status
         viewFirst = false
+        isProcessing = recordInfo.thumbURL500.isNullOrEmpty()
     }
 
     constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) {
-        id = if(item.folderId != null) item.folderId else item.recordId
+        id = if (item.folderId != null) item.folderId else item.recordId
         archiveNr = item.archiveNbr
         recordId = item.recordId
         folderId = item.folderId
@@ -72,7 +78,9 @@ open class Record : Parcelable {
         thumbURL500 = item.thumbURL500
         isThumbBlurred = true
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
+        status = item.status
         viewFirst = false
+        isProcessing = item.thumbURL500.isNullOrEmpty()
     }
 
     constructor(recordId: Int, folderLinkId: Int) {
@@ -82,11 +90,12 @@ open class Record : Parcelable {
         isThumbBlurred = true
         type = RecordType.FILE
         viewFirst = false
+        isProcessing = false
     }
 
     constructor(shareByUrlVO: Shareby_urlVO) {
         val recordInfo = shareByUrlVO.RecordVO
-        id = if(recordInfo?.folderId != null) recordInfo.folderId else recordInfo?.recordId
+        id = if (recordInfo?.folderId != null) recordInfo.folderId else recordInfo?.recordId
         archiveNr = recordInfo?.archiveNbr
         recordId = recordInfo?.recordId
         folderId = recordInfo?.folderId
@@ -98,7 +107,9 @@ open class Record : Parcelable {
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
         type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo?.ShareVOs)
+        status = recordInfo?.status
         viewFirst = false
+        isProcessing = recordInfo?.thumbURL500.isNullOrEmpty()
     }
 
     private fun initShares(shareVOs: List<ShareVO>?) {
@@ -134,7 +145,9 @@ open class Record : Parcelable {
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
         parcel.writeTypedList(shares)
+        parcel.writeString(status)
         parcel.writeValue(viewFirst)
+        parcel.writeValue(isProcessing)
     }
 
     override fun describeContents(): Int {
