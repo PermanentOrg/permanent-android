@@ -2,14 +2,18 @@ package org.permanent.permanent.ui.myFiles.upload
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkContinuation
 import androidx.work.WorkManager
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Upload
+import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 
 class UploadQueue(
@@ -22,6 +26,7 @@ class UploadQueue(
     private val pendingUploads: MutableList<Upload> = ArrayList()
     private val enqueuedUploads: MutableLiveData<MutableList<Upload>> = MutableLiveData()
     private var workContinuation: WorkContinuation? = null
+    private var accountRepository: IAccountRepository? = AccountRepositoryImpl(context)
 
     init {
         enqueuedUploads.value = ArrayList()
@@ -45,11 +50,36 @@ class UploadQueue(
     }
 
     fun upload(uris: List<Uri>) {
-        for (uri in uris) {
-            val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
-            pendingUploads.add(upload)
+        val copiedUris: List<Uri> = ArrayList(uris)
+        accountRepository?.getAccount(object : IAccountRepository.IAccountListener {
+            override fun onSuccess(account: Account) {
+                for (uri in copiedUris) {
+                    if (context.assetSize(uri) < account.spaceLeft!!) {
+                        val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
+                        pendingUploads.add(upload)
+                    } else {
+                        onFinishedListener.onFailed("Quota exceeded")
+                        return
+                    }
+                }
+                enqueuePendingUploads()
+            }
+
+            override fun onFailed(error: String?) {
+                onFinishedListener.onFailed(error!!)
+            }
+        })
+    }
+
+    fun Context.assetSize(resourceUri: Uri): Long {
+        try {
+            val descriptor = contentResolver.openAssetFileDescriptor(resourceUri, "r")
+            val size = descriptor?.length ?: return 0
+            descriptor.close()
+            return size
+        } catch (e: Resources.NotFoundException) {
+            return 0
         }
-        enqueuePendingUploads()
     }
 
     @SuppressLint("EnqueueWork")
@@ -96,7 +126,7 @@ class UploadQueue(
 
         if (!enqueuedUploadsValue.isNullOrEmpty()) {
             for (upload in enqueuedUploadsValue) {
-                if(upload != cancelledUpload) {
+                if (upload != cancelledUpload) {
                     val newUpload =
                         Upload(context, folderIdentifier, upload.getUri(), onFinishedListener)
                     pendingUploads.add(newUpload)

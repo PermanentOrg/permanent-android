@@ -130,6 +130,10 @@ class SharedXMeViewModel(application: Application
         showMessage.value = "Downloaded ${download.getDisplayName()}"
     }
 
+    override fun onFailed(message: String) {
+        showMessage.value = message
+    }
+
     override fun onFinished(upload: Upload, succeeded: Boolean) { // Not needed
     }
 }

@@ -11,6 +11,7 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.Constants
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.repositories.FileRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -68,6 +69,7 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                     Result.failure()
                 }
                 // #2 CALL: uploadFile
+
                 callUpload = fileRepository.uploadFile(file, mediaType, uploadDestination!!,
                     object : CountingRequestListener {
                         override fun onProgressUpdate(progress: Long) {

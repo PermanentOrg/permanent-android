@@ -1,6 +1,7 @@
 package org.permanent.permanent.models
 
 import android.content.Context
+import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData

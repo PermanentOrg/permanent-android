@@ -17,6 +17,8 @@ class AccountVO() {
     var zip: String? = null
     var accessRole: String? = null
     var status: String? = null
+    var spaceTotal: Double? = null
+    var spaceLeft: Double? = null
 
     constructor(account: Account) : this() {
         accountId = account.id
@@ -30,5 +32,6 @@ class AccountVO() {
         zip = account.zipCode
         accessRole = account.accessRole?.backendString
         status = account.status?.toBackendString()
+        spaceTotal = account.spaceTotal
     }
 }

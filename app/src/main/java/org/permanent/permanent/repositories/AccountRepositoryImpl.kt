@@ -14,12 +14,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AccountRepositoryImpl(application: Application) : IAccountRepository {
+class AccountRepositoryImpl(context: Context) : IAccountRepository {
 
-    private val appContext = application.applicationContext
+    private val appContext = context.applicationContext
     private val prefsHelper =
-        PreferencesHelper(application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-    private val networkClient: NetworkClient = NetworkClient(application)
+        PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+    private val networkClient: NetworkClient = NetworkClient(context)
 
     override fun signUp(
         fullName: String, email: String, password: String, listener: IResponseListener

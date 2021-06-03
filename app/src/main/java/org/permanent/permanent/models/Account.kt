@@ -12,6 +12,8 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
     var zipCode: String? = null
     var accessRole: AccessRole? = null
     var status: Status? = null
+    var spaceTotal: Double? = null
+    var spaceLeft: Double? = null
 
     constructor(accountVO: AccountVO?) : this() {
         id = accountVO?.accountId
@@ -34,5 +36,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
             Status.PENDING.toBackendString() -> Status.PENDING
             else -> Status.OK
         }
+        spaceTotal = accountVO?.spaceTotal
+        spaceLeft = accountVO?.spaceLeft
     }
 }

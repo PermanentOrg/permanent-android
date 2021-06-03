@@ -40,10 +40,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isRoot = MutableLiveData(true)
     private val isSortedAsc = MutableLiveData(true)
-    private val sortName: MutableLiveData<String> = MutableLiveData(SortType.NAME_ASCENDING.toUIString())
+    private val sortName: MutableLiveData<String> =
+        MutableLiveData(SortType.NAME_ASCENDING.toUIString())
     private val isRelocationMode = MutableLiveData(false)
     private val relocationType = MutableLiveData<RelocationType>()
-    private val currentSortType: MutableLiveData<SortType> = MutableLiveData(SortType.NAME_ASCENDING)
+    private val currentSortType: MutableLiveData<SortType> =
+        MutableLiveData(SortType.NAME_ASCENDING)
     private val currentSearchQuery = MutableLiveData<String>()
     private var currentFolder = MutableLiveData<NavigationFolder>()
     private val existsFiles = MutableLiveData(false)
@@ -123,7 +125,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
         val archiveNr = folder?.getArchiveNr()
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
-        if(archiveNr != null && folderLinkId != null) {
+        if (archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
             fileRepository.getChildRecordsOf(archiveNr, folderLinkId, sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
@@ -181,7 +183,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onRecordClick(record: Record) {
-        if(record.isProcessing){
+        if (record.isProcessing) {
             return
         }
 
@@ -268,6 +270,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     override fun onFinished(download: Download) {
         onDownloadFinished.value = download
+    }
+
+    override fun onFailed(message: String) {
+        showMessage.value = message
     }
 
     @SuppressLint("SimpleDateFormat")
