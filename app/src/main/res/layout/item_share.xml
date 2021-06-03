@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -22,8 +23,7 @@
             android:layout_marginStart="12dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
-            app:fileType="@{record.type}"
-            app:imageUrl="@{record.thumbURL500}"
+            app:record="@{record}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -122,8 +122,8 @@
         <Button
             android:id="@+id/btnCancel"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="36dp"
-            android:layout_height="wrap_content"
+            android:layout_width="26dp"
+            android:layout_height="47dp"
             android:visibility="@{record.isEnqueued || record.isDownloading ? View.VISIBLE : View.GONE}"
             app:icon="@drawable/ic_close_middle_grey"
             app:iconTint="@color/middleGrey"

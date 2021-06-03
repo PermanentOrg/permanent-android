@@ -2,6 +2,9 @@ package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageView
@@ -10,6 +13,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Notification
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 
 
@@ -27,15 +31,33 @@ fun setIconDrawable(view: ImageView, notificationType: Notification.Type) {
     }
 }
 
-@BindingAdapter("fileType", "imageUrl")
-fun loadImage(view: ImageView, fileType: RecordType, url: String?) {
-    when (fileType) {
-        RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
-        else -> Picasso.get()
-            .load(url)
-            .placeholder(R.drawable.ic_stop_light_grey)
-            .fit()
-            .into(view)
+@BindingAdapter("record")
+fun loadImage(view: ImageView, record: Record) {
+    if (true) {
+        view.setImageResource(R.drawable.ic_processing)
+        val  rotate = RotateAnimation(
+            0f,
+            360f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+        rotate.duration = 1000
+        rotate.repeatCount = Animation.INFINITE
+        rotate.repeatMode = Animation.RESTART
+        rotate.fillAfter = true
+        rotate.interpolator = LinearInterpolator()
+        view.startAnimation(rotate)
+    } else {
+        when (record.type) {
+            RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
+            else -> Picasso.get()
+                .load(record.thumbURL500)
+                .placeholder(R.drawable.ic_stop_light_grey)
+                .fit()
+                .into(view)
+        }
     }
 }
 
@@ -89,7 +111,8 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
                     "</body></html>”",
             "video/mp4",
             null,
-            null)
+            null
+        )
         webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
                 loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
