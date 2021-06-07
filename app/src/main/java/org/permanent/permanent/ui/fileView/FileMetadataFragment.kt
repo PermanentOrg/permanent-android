@@ -1,5 +1,7 @@
 package org.permanent.permanent.ui.fileView
 
+import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -82,13 +84,16 @@ class FileMetadataFragment: PermanentBaseFragment(), View.OnClickListener {
         viewModel.getShowMessage().removeObserver(onShowMessage)
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
     }
 }
