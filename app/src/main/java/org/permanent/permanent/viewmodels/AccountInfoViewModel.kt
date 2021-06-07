@@ -117,23 +117,23 @@ class AccountInfoViewModel(application: Application) : ObservableAndroidViewMode
     }
 
     fun onAddressTextChanged(text: Editable) {
-        address.value = text.toString().trim { it <= ' ' }
+        address.value = text.toString()
     }
 
     fun onCityTextChanged(text: Editable) {
-        city.value = text.toString().trim { it <= ' ' }
+        city.value = text.toString()
     }
 
     fun onStateTextChanged(text: Editable) {
-        state.value = text.toString().trim { it <= ' ' }
+        state.value = text.toString()
     }
 
     fun onPostalCodeTextChanged(text: Editable) {
-        postalCode.value = text.toString().trim { it <= ' ' }
+        postalCode.value = text.toString()
     }
 
     fun onCountryTextChanged(text: Editable) {
-        country.value = text.toString().trim { it <= ' ' }
+        country.value = text.toString()
     }
 
 
@@ -142,13 +142,13 @@ class AccountInfoViewModel(application: Application) : ObservableAndroidViewMode
             return
         }
         val name = name.value?.trim()
-        val email = email.value
+        val email = email.value?.trim()
         val phone = phone.value
-        val address = address.value
-        val city = city.value
-        val state = state.value
+        val address = address.value?.trim()
+        val city = city.value?.trim()
+        val state = state.value?.trim()
         val postalCode = postalCode.value
-        val country = country.value
+        val country = country.value?.trim()
 
         if (name.isNullOrEmpty()) {
             showMessage.value = appContext.getString(R.string.invalid_name_error)

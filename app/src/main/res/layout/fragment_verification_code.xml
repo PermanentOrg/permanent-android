@@ -83,7 +83,8 @@
                 android:layout_height="match_parent"
                 android:afterTextChanged="@{(editable)->viewModel.onCurrentCodeChanged(editable)}"
                 android:hint="@string/verification_code_enter_code_hint"
-                android:inputType="phone"
+                android:inputType="number"
+                android:maxLength="4"
                 android:text="@{viewModel.verificationCode}"
                 android:textColor="@color/white"
                 android:textCursorDrawable="@null" />

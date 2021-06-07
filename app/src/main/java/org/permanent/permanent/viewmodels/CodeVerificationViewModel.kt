@@ -5,11 +5,13 @@ import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAuthenticationRepository
 
-class CodeVerificationViewModel(application: Application): ObservableAndroidViewModel(application) {
+class CodeVerificationViewModel(application: Application) :
+    ObservableAndroidViewModel(application) {
 
     var isSmsCodeFlow = false
     private val currentCode = MutableLiveData<String>()
@@ -17,13 +19,14 @@ class CodeVerificationViewModel(application: Application): ObservableAndroidView
     private val isBusy = MutableLiveData<Boolean>()
     private val onCodeVerified = SingleLiveEvent<Void>()
     private val errorMessage = MutableLiveData<String>()
-    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository =
+        AuthenticationRepositoryImpl(application)
 
-    fun getVerificationCode() : MutableLiveData<String>{
+    fun getVerificationCode(): MutableLiveData<String> {
         return currentCode
     }
 
-    fun onCurrentCodeChanged(code : Editable) {
+    fun onCurrentCodeChanged(code: Editable) {
         currentCode.value = code.toString()
     }
 
@@ -52,7 +55,8 @@ class CodeVerificationViewModel(application: Application): ObservableAndroidView
             return false
         } else {
             if (trimmedCode.length < Constants.VERIFICATION_CODE_LENGTH
-                || trimmedCode.length > Constants.VERIFICATION_CODE_LENGTH) {
+                || trimmedCode.length > Constants.VERIFICATION_CODE_LENGTH
+            ) {
                 codeError.value = R.string.verification_code_length_error
                 return false
             }
@@ -71,16 +75,21 @@ class CodeVerificationViewModel(application: Application): ObservableAndroidView
             isBusy.value = true
             authRepository.verifyCode(it, getAuthType(),
                 object : IAuthenticationRepository.IOnVerifyListener {
-                override fun onSuccess() {
-                    isBusy.value = false
-                    onCodeVerified.call()
-                }
+                    override fun onSuccess() {
+                        isBusy.value = false
+                        onCodeVerified.call()
+                    }
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    errorMessage.value = error
-                }
-            })
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        if (error.equals("warning.auth.token_does_not_match")) {
+                            errorMessage.value =
+                                PermanentApplication.instance.getString(R.string.verification_code_invalid_error)
+                        } else {
+                            errorMessage.value = error
+                        }
+                    }
+                })
         }
     }
 

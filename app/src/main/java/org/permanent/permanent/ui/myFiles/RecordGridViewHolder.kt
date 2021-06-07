@@ -8,6 +8,7 @@ import jp.wasabeef.picasso.transformations.BlurTransformation
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ItemGridRecordBinding
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Status
 
 class RecordGridViewHolder(
     val context: Context, val binding: ItemGridRecordBinding
@@ -17,7 +18,12 @@ class RecordGridViewHolder(
         binding.record = record
         binding.executePendingBindings()
         binding.lifecycleOwner = lifecycleOwner
-        if (record.isThumbBlurred != null && record.isThumbBlurred!!) {
+        if (record.isThumbBlurred != null && record.isThumbBlurred!! && record.status.equals("")) {
+            if (record.status == Status.OK.toBackendString()) {
+                //We no longer need to blur if share was accepted
+                return
+            }
+
             Picasso.get()
                 .load(record.thumbURL500)
                 .placeholder(R.drawable.ic_stop_light_grey)
