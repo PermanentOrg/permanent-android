@@ -7,5 +7,5 @@ interface OnFinishedListener {
     fun onFinished(upload: Upload, succeeded: Boolean)
     fun onFinished(download: Download)
     fun onFailed(message: String)
-
+    fun onQuotaExceeded()
 }

@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.myFiles
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_delete.view.*
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
@@ -58,14 +60,20 @@ class MyFilesFragment : PermanentBaseFragment() {
 
         viewModel.registerDeviceForFCM()
 
-        val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
-            PREFS_NAME, Context.MODE_PRIVATE))
+        val prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(
+                PREFS_NAME, Context.MODE_PRIVATE
+            )
+        )
         val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
 
         if (!shareLinkUrlToken.isNullOrEmpty()) {
             prefsHelper.saveShareLinkUrlToken("")
             val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
-            findNavController().navigate(R.id.action_myFilesFragment_to_sharePreviewFragment, bundle)
+            findNavController().navigate(
+                R.id.action_myFilesFragment_to_sharePreviewFragment,
+                bundle
+            )
         } else {
             viewModel.set(parentFragmentManager)
             viewModel.initUploadsRecyclerView(binding.rvUploads, this)
@@ -81,6 +89,25 @@ class MyFilesFragment : PermanentBaseFragment() {
         Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
+    private val onShowQuotaExceeded = Observer<Void> {
+        val alertDialog: AlertDialog.Builder = AlertDialog.Builder(activity)
+        alertDialog.setTitle(R.string.my_files_quota_exceeded_title)
+        alertDialog.setMessage(R.string.my_files_quota_exceeded_message)
+        alertDialog.setPositiveButton(
+            R.string.yes_button
+        ) { _, _ ->
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(Constants.URL_ADD_STORAGE)
+            startActivity(intent)
+        }
+        alertDialog.setNegativeButton(
+            R.string.no_button
+        ) { _, _ -> }
+        val alert: AlertDialog = alertDialog.create()
+        alert.setCanceledOnTouchOutside(false)
+        alert.show()
+    }
+
     private val onFilesSelectedToUpload = Observer<MutableList<Uri>> { fileUriList ->
         if (fileUriList.isNotEmpty()) {
             viewModel.upload(fileUriList)
@@ -89,8 +116,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onDownloadFinished = Observer<Download> { download ->
-        Toast.makeText(context, "Downloaded ${download.getDisplayName()}",
-            Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            context, "Downloaded ${download.getDisplayName()}",
+            Toast.LENGTH_LONG
+        ).show()
         downloadsAdapter.remove(download)
     }
 
@@ -202,6 +231,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
+        viewModel.getOnShowQuotaExceeded().observe(this, onShowQuotaExceeded)
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
@@ -217,6 +247,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnShowQuotaExceeded().removeObserver(onShowQuotaExceeded)
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)

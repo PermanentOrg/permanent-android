@@ -58,7 +58,7 @@ class UploadQueue(
                         val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
                         pendingUploads.add(upload)
                     } else {
-                        onFinishedListener.onFailed("Quota exceeded")
+                        onFinishedListener.onQuotaExceeded()
                         return
                     }
                 }

@@ -52,6 +52,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private var existsDownloads = MutableLiveData(false)
     private val recordToRelocate = MutableLiveData<Record>()
     private val showMessage = SingleLiveEvent<String>()
+    private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
@@ -276,6 +277,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         showMessage.value = message
     }
 
+    override fun onQuotaExceeded() {
+        showQuotaExceeded.call()
+    }
+
     @SuppressLint("SimpleDateFormat")
     private fun addFakeItemToFilesList(upload: Upload?) {
         val sdf = SimpleDateFormat("yyyy-M-dd")
@@ -397,6 +402,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getCurrentSearchQuery(): MutableLiveData<String> = currentSearchQuery
 
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
+
+    fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
 
     fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> = onDownloadsRetrieved
 

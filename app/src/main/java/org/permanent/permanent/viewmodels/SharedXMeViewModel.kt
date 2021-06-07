@@ -134,6 +134,10 @@ class SharedXMeViewModel(application: Application
         showMessage.value = message
     }
 
+    override fun onQuotaExceeded() {
+
+    }
+
     override fun onFinished(upload: Upload, succeeded: Boolean) { // Not needed
     }
 }

@@ -106,6 +106,8 @@
     <string name="my_files_sort_criteria_file_type">File Type</string>
     <string name="my_files_no_files_root">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
     <string name="my_files_no_files">This folder is empty</string>
+    <string name="my_files_quota_exceeded_title">Quota Exceeded</string>
+    <string name="my_files_quota_exceeded_message">Do you want to add more storage?</string>
 
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
@@ -129,6 +131,7 @@
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
     <string name="reset_button">Reset</string>
+    <string name="no_button">No</string>
     <string name="cancel_button">Cancel</string>
     <string name="yes_button">Yes</string>
 
