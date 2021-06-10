@@ -16,10 +16,9 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
     private val prefsHelper = PreferencesHelper(
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val networkClient: NetworkClient = NetworkClient(context)
 
     override fun getTagsByArchive(archiveId: Int, listener: IDataListener) {
-        networkClient.getTagsByArchive(prefsHelper.getCsrf(), archiveId)
+        NetworkClient.instance.getTagsByArchive(prefsHelper.getCsrf(), archiveId)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -39,7 +38,7 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
     }
 
     override fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener) {
-        networkClient.createOrLinkTag(prefsHelper.getCsrf(), tags, recordId)
+        NetworkClient.instance.createOrLinkTag(prefsHelper.getCsrf(), tags, recordId)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -59,7 +58,7 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
     }
 
     override fun unlinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener) {
-        networkClient.unlinkTags(prefsHelper.getCsrf(), tags, recordId)
+        NetworkClient.instance.unlinkTags(prefsHelper.getCsrf(), tags, recordId)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

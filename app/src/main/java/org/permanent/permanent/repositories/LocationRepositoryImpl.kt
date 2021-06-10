@@ -14,13 +14,12 @@ class LocationRepositoryImpl(val context: Context): ILocationRepository {
 
     private val prefsHelper = PreferencesHelper(
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-    private val networkClient: NetworkClient = NetworkClient(context)
 
     override fun getLocation(
         latLng: LatLng,
         listener: ILocationRepository.LocationListener
     ) {
-        networkClient.getLocation(prefsHelper.getCsrf(), latLng)
+        NetworkClient.instance.getLocation(prefsHelper.getCsrf(), latLng)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

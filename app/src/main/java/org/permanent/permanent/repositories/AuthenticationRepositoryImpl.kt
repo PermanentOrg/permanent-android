@@ -16,12 +16,11 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     private val sharedPreferences: SharedPreferences =
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val prefsHelper = PreferencesHelper(sharedPreferences)
-    private val networkClient: NetworkClient = NetworkClient(application)
 
     override fun verifyLoggedIn(
         listener: IAuthenticationRepository.IOnLoggedInListener
     ) {
-        networkClient.verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance.verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
                 val responseVO = retrofitResponse.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -45,7 +44,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         password: String,
         listener: IAuthenticationRepository.IOnLoginListener
     ) {
-        networkClient.login(email, password).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance.login(email, password).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -70,7 +69,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     }
 
     override fun logout(listener: IAuthenticationRepository.IOnLogoutListener) {
-        networkClient.logout(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance.logout(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -95,7 +94,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         email: String,
         listener: IAuthenticationRepository.IOnResetPasswordListener
     ) {
-        networkClient.forgotPassword(email).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance.forgotPassword(email).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -122,7 +121,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         val email = prefsHelper.getEmail()
 
         if (accountId != 0 && email != null) {
-            networkClient.sendSMSVerificationCode(
+            NetworkClient.instance.sendSMSVerificationCode(
                 prefsHelper.getCsrf(),
                 accountId,
                 email,
@@ -154,7 +153,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         listener: IAuthenticationRepository.IOnVerifyListener
     ) {
         prefsHelper.getEmail()?.let {
-            networkClient.verifyCode(
+            NetworkClient.instance.verifyCode(
                 code,
                 authType,
                 prefsHelper.getCsrf(),

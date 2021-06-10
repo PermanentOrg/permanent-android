@@ -1,6 +1,5 @@
 package org.permanent.permanent.network
 
-import android.content.Context
 import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -13,9 +12,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
-import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.BuildEnvOption
 import org.permanent.permanent.Constants
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
 import org.permanent.permanent.ui.invitations.UpdateType
@@ -27,7 +26,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 
-class NetworkClient(context: Context) {
+class NetworkClient {
     private val baseUrl: String = if (Constants.BUILD_ENV == BuildEnvOption.STAGING)
         Constants.URL_STAGING else Constants.URL_PROD
     private val retrofit: Retrofit
@@ -44,9 +43,13 @@ class NetworkClient(context: Context) {
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
 
+    companion object {
+        val instance = NetworkClient()
+    }
+
     init {
         val cookieJar: ClearableCookieJar = PersistentCookieJar(SetCookieCache(),
-            SharedPrefsCookiePersistor(context.applicationContext))
+            SharedPrefsCookiePersistor(PermanentApplication.instance.applicationContext))
 
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.NONE

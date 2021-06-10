@@ -19,12 +19,11 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     private val appContext = context.applicationContext
     private val prefsHelper =
         PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-    private val networkClient: NetworkClient = NetworkClient(context)
 
     override fun signUp(
         fullName: String, email: String, password: String, listener: IResponseListener
     ) {
-        networkClient.signUp(fullName, email, password).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance.signUp(fullName, email, password).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -52,7 +51,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         val accountId = prefsHelper.getUserAccountId()
 
         if (accountId != 0) {
-            networkClient.getAccount(prefsHelper.getCsrf(), accountId)
+            NetworkClient.instance.getAccount(prefsHelper.getCsrf(), accountId)
                 .enqueue(object : Callback<ResponseVO> {
 
                     override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -74,7 +73,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     }
 
     override fun update(account: Account, listener: IResponseListener) {
-        networkClient.updateAccount(prefsHelper.getCsrf(), account)
+        NetworkClient.instance.updateAccount(prefsHelper.getCsrf(), account)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -104,7 +103,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         val accountId = prefsHelper.getUserAccountId()
 
         if (accountId != 0) {
-            networkClient.changePassword(
+            NetworkClient.instance.changePassword(
                 prefsHelper.getCsrf(), accountId, currentPassword, newPassword, retypedPassword,
             ).enqueue(object : Callback<ResponseVO> {
 

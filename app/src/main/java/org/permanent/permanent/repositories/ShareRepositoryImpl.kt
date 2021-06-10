@@ -19,14 +19,13 @@ import retrofit2.Response
 class ShareRepositoryImpl(val context: Context): IShareRepository {
     private val prefsHelper = PreferencesHelper(
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-    private val networkClient: NetworkClient = NetworkClient(context)
 
     override fun requestShareLink(
         record: Record,
         shareRequestType: ShareRequestType,
         listener: IShareRepository.IShareByUrlListener
     ) {
-        networkClient.requestShareLink(prefsHelper.getCsrf(), record, shareRequestType)
+        NetworkClient.instance.requestShareLink(prefsHelper.getCsrf(), record, shareRequestType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -49,7 +48,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
         shareRequestType: ShareRequestType,
         listener: IResponseListener
     ) {
-        networkClient.modifyShareLink(prefsHelper.getCsrf(), shareByUrlVO, shareRequestType)
+        NetworkClient.instance.modifyShareLink(prefsHelper.getCsrf(), shareByUrlVO, shareRequestType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -68,7 +67,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun approveShare(share: Share, listener: IResponseListener) {
-        networkClient.approveShare(prefsHelper.getCsrf(), share)
+        NetworkClient.instance.approveShare(prefsHelper.getCsrf(), share)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -89,7 +88,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun denyShare(share: Share, listener: IResponseListener) {
-        networkClient.denyShare(prefsHelper.getCsrf(), share)
+        NetworkClient.instance.denyShare(prefsHelper.getCsrf(), share)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -110,7 +109,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun checkShareLink(urlToken: String, listener: IShareRepository.IShareByUrlListener) {
-        networkClient.checkShareLink(null, urlToken)
+        NetworkClient.instance.checkShareLink(null, urlToken)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -129,7 +128,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun requestShareAccess(urlToken: String, listener: IShareRepository.IShareListener) {
-        networkClient.requestShareAccess(prefsHelper.getCsrf(), urlToken)
+        NetworkClient.instance.requestShareAccess(prefsHelper.getCsrf(), urlToken)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -148,7 +147,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun getShares(listener: IDataListener) {
-        networkClient.getShares(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance.getShares(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
