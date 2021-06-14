@@ -9,6 +9,7 @@ import okhttp3.Request
 import okhttp3.Response
 import org.permanent.permanent.Constants.Companion.ERROR_MFA_TOKEN
 import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.R
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
@@ -41,7 +42,7 @@ class RequiresMFAInterceptor : Interceptor {
             currentActivity?.let {
                 Toast.makeText(
                     it,
-                    "Session expired. Please re-authenticate",
+                    it.getString(R.string.warning_auth_mfa_token_message),
                     Toast.LENGTH_SHORT
                 ).show()
             }
