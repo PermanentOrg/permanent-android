@@ -57,6 +57,7 @@ class NetworkClient {
         val okHttpClient = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .addInterceptor(interceptor)
+            .addInterceptor(RequiresMFAInterceptor())
             .build()
 
         retrofit = Retrofit.Builder()
