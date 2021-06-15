@@ -19,6 +19,7 @@ import androidx.navigation.ui.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
@@ -121,7 +122,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private fun navigateToAddStorage() {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse(Constants.URL_ADD_STORAGE)
+        intent.data = Uri.parse(BuildConfig.ADD_STORAGE_URL)
         startActivity(intent)
     }
 

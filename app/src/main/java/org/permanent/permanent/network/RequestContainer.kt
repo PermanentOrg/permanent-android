@@ -2,25 +2,19 @@ package org.permanent.permanent.network
 
 import com.google.android.gms.maps.model.LatLng
 import okhttp3.MediaType
-import org.permanent.permanent.BuildEnvOption
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
 import java.io.File
 
-const val PERM_API_KEY_MOBILE_STAGING = "0f6c8cf215a2a73a174ff45807a76be3"
-const val PERM_API_KEY_MOBILE_PROD = "5aef7dd1f32e0d9ca57290e3c82b59db"
 
 class RequestContainer(csrf: String?) {
     // Don't rename this property, is used in the api call
     private var RequestVO: RequestVO = RequestVO()
 
     init {
-        if (Constants.BUILD_ENV === BuildEnvOption.STAGING) {
-            RequestVO.apiKey = PERM_API_KEY_MOBILE_STAGING
-        } else {
-            RequestVO.apiKey = PERM_API_KEY_MOBILE_PROD
-        }
+        RequestVO.apiKey = BuildConfig.API_KEY
         RequestVO.csrf = csrf
         val dataList = (RequestVO.data as ArrayList)
         dataList.add(Datum())

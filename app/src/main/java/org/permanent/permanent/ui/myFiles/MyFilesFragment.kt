@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_delete.view.*
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
@@ -97,7 +98,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             R.string.yes_button
         ) { _, _ ->
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(Constants.URL_ADD_STORAGE)
+            intent.data = Uri.parse(BuildConfig.ADD_STORAGE_URL)
             startActivity(intent)
         }
         alertDialog.setNegativeButton(

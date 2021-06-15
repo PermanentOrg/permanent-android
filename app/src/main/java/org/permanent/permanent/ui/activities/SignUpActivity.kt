@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySignUpBinding
@@ -54,7 +55,7 @@ class SignUpActivity : PermanentBaseActivity() {
             .setView(viewDialog)
             .create()
 
-        viewDialog.webviewtermsOfService.loadUrl(Constants.URL_PRIVACY_POLICY)
+        viewDialog.webviewtermsOfService.loadUrl(BuildConfig.PRIVACY_POLICY_URL)
         viewDialog.btnAccept.setOnClickListener {
             viewModel.makeAccount()
             alert.dismiss()
