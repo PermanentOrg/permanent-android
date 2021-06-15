@@ -2,7 +2,6 @@ package org.permanent.permanent
 
 class Constants {
     companion object {
-        val BUILD_ENV = BuildEnvOption.STAGING
         const val POSITION_SHARED_BY_ME_FRAGMENT = 0
         const val POSITION_SHARED_WITH_ME_FRAGMENT = 1
         const val POSITION_INFO_FRAGMENT = 0
@@ -14,10 +13,6 @@ class Constants {
         const val REQUEST_CODE_VIDEO_CAPTURE = 203
         const val FOLDER_NAME = "folder_name"
         const val MY_FILES_FOLDER = "My Files"
-        const val URL_STAGING = "https://staging.permanent.org/api/"
-        const val URL_PROD = "https://www.permanent.org/api/"
-        const val URL_PRIVACY_POLICY = "https://www.permanent.org/privacy-policy/"
-        const val URL_ADD_STORAGE = "https://www.permanent.org/add-storage/"
         const val MEDIA_TYPE_JSON = "application/json;charset=UTF-8"
         const val MEDIA_TYPE_OCTET_STREAM = "application/octet-stream"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"

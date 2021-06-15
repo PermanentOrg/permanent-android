@@ -1,20 +1,13 @@
 package org.permanent.permanent.network.models
 
-import org.permanent.permanent.BuildEnvOption
-import org.permanent.permanent.Constants
-import org.permanent.permanent.network.PERM_API_KEY_MOBILE_PROD
-import org.permanent.permanent.network.PERM_API_KEY_MOBILE_STAGING
+import org.permanent.permanent.BuildConfig
 import java.io.File
 
 class SimpleRequestContainer(csrf: String?) {
     private var RequestVO: Request = Request()
 
     init {
-        if (Constants.BUILD_ENV === BuildEnvOption.STAGING) {
-            RequestVO.apiKey = PERM_API_KEY_MOBILE_STAGING
-        } else {
-            RequestVO.apiKey = PERM_API_KEY_MOBILE_PROD
-        }
+        RequestVO.apiKey = BuildConfig.API_KEY
         RequestVO.csrf = csrf
         RequestVO.data = Datum()
     }

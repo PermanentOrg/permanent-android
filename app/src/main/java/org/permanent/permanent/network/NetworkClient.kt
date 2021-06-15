@@ -12,7 +12,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
-import org.permanent.permanent.BuildEnvOption
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.*
@@ -27,8 +27,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 
 class NetworkClient {
-    private val baseUrl: String = if (Constants.BUILD_ENV == BuildEnvOption.STAGING)
-        Constants.URL_STAGING else Constants.URL_PROD
+    private val baseUrl: String = BuildConfig.BASE_API_URL
     private val retrofit: Retrofit
     private val authService: IAuthService
     private val accountService: IAccountService
