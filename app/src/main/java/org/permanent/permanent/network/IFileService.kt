@@ -22,6 +22,9 @@ interface IFileService {
     @POST("folder/post")
     fun createFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/get")
+    fun getFolder(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("folder/delete")
     fun deleteFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 

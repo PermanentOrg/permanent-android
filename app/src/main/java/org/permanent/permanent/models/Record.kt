@@ -64,6 +64,24 @@ open class Record : Parcelable {
         isProcessing = recordInfo.thumbURL500.isNullOrEmpty()
     }
 
+    constructor(recordInfo: FolderVO) {
+        id = recordInfo.folderId
+        archiveNr = recordInfo.archiveNbr
+        folderId = recordInfo.folderId
+        folderLinkId = recordInfo.folder_linkId
+        parentFolderLinkId = recordInfo.parentFolder_linkId
+        displayName = recordInfo.displayName
+        displayDate = recordInfo.displayDT?.substringBefore("T")
+        showArchiveThumb = false
+        thumbURL500 = recordInfo.thumbURL500
+        isThumbBlurred = true
+        type = RecordType.FOLDER
+        initShares(recordInfo.ShareVOs)
+        status = recordInfo.status
+        viewFirst = false
+        isProcessing = recordInfo.thumbURL500.isNullOrEmpty()
+    }
+
     constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) {
         id = if (item.folderId != null) item.folderId else item.recordId
         archiveNr = item.archiveNbr

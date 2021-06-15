@@ -19,6 +19,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -95,11 +96,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun populateMyFiles() {
         swipeRefreshLayout.isRefreshing = true
-        fileRepository.getMyFilesRecord(object : IFileRepository.IOnMyFilesArchiveNrListener {
-            override fun onSuccess(myFilesRecord: Record) {
+        fileRepository.getMyFilesRecord(object : IRecordListener {
+            override fun onSuccess(record: Record) {
                 swipeRefreshLayout.isRefreshing = false
-                folderPathStack.push(myFilesRecord)
-                loadFilesAndUploadsOf(myFilesRecord)
+                folderPathStack.push(record)
+                loadFilesAndUploadsOf(record)
                 loadEnqueuedDownloads(lifecycleOwner)
             }
 

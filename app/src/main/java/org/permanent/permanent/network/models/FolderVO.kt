@@ -11,8 +11,6 @@ class FolderVO {
     var type: String? = null
     var thumbURL200: String? = null
     var thumbURL500: String? = null
-    var thumbURL1000: String? = null
-    var thumbURL2000: String? = null
     var status: String? = null
     var parentFolderId: Int? = null
     var accessRole: String? = null
@@ -20,4 +18,5 @@ class FolderVO {
     var folder_linkId: Int? = null
     var parentFolder_linkId: Int? = null
     var ChildItemVOs: List<RecordVO>? = null
+    var ShareVOs: List<ShareVO>? = null
 }

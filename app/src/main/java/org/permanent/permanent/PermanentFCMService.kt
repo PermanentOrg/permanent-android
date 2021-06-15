@@ -13,6 +13,7 @@ import com.google.firebase.messaging.RemoteMessage
 import org.permanent.permanent.models.FCMNotificationKey
 import org.permanent.permanent.models.FCMNotificationType
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -106,7 +107,8 @@ class PermanentFCMService : FirebaseMessagingService() {
         fileRepository.getRecord(folderLinkId, null).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                response.body()?.getRecord()?.let { record ->
+                val record = response.body()?.getRecord()
+                if (record != null) {
                     remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
                         showNotification(
                             it,
@@ -115,11 +117,36 @@ class PermanentFCMService : FirebaseMessagingService() {
                             getShareLinkViewIntent(record)
                         )
                     }
+                } else {
+                    requestFolderBy(folderLinkId, fileRepository, remoteMessage)
                 }
             }
 
             override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
                 Log.d(TAG, "Failed getRecord for notification: ${t.message}")
+            }
+        })
+    }
+
+    private fun requestFolderBy(
+        folderLinkId: Int,
+        fileRepository: IFileRepository,
+        remoteMessage: RemoteMessage
+    ) {
+        fileRepository.getFolder(folderLinkId, object : IRecordListener {
+            override fun onSuccess(record: Record) {
+                remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
+                    showNotification(
+                        it,
+                        getString(R.string.notification_body_share_link_request, it,
+                            remoteMessage.data[FCMNotificationKey.SHARE_NAME]),
+                        getShareLinkViewIntent(record)
+                    )
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                Log.d(TAG, "Failed getFolder for notification: $error")
             }
         })
     }
@@ -130,23 +157,23 @@ class PermanentFCMService : FirebaseMessagingService() {
         fileRepository.getRecord(null, recordId.toInt())
             .enqueue(object : Callback<ResponseVO> {
 
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                response.body()?.getRecord()?.let { record ->
-                    remoteMessage.data[FCMNotificationKey.INVITED_ARCHIVE_NAME]?.let {
-                        showNotification(
-                            it,
-                            getString(R.string.notification_body_share_invitation_acceptance, it,
-                                remoteMessage.data[FCMNotificationKey.RECORD_NAME]),
-                            getShareLinkViewIntent(record)
-                        )
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    response.body()?.getRecord()?.let { record ->
+                        remoteMessage.data[FCMNotificationKey.INVITED_ARCHIVE_NAME]?.let {
+                            showNotification(
+                                it,
+                                getString(R.string.notification_body_share_invitation_acceptance, it,
+                                    remoteMessage.data[FCMNotificationKey.RECORD_NAME]),
+                                getShareLinkViewIntent(record)
+                            )
+                        }
                     }
                 }
-            }
 
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                Log.d(TAG, "Failed getRecord for notification: ${t.message}")
-            }
-        })
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    Log.d(TAG, "Failed getRecord for notification: ${t.message}")
+                }
+            })
     }
 
     override fun onDeletedMessages() {}

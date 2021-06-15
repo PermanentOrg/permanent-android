@@ -138,6 +138,13 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addFolder(folderLinkId: Int): RequestContainer {
+        val folderVO = FolderVO()
+        folderVO.folder_linkId = folderLinkId
+        RequestVO.data?.get(0)?.FolderVO = folderVO
+        return this
+    }
+
     fun addRecord(
         displayName: String?,
         file: File,

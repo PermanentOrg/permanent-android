@@ -4,6 +4,7 @@ import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.*
 import org.permanent.permanent.ui.myFiles.RelocationType
@@ -13,7 +14,7 @@ import java.io.File
 import java.io.OutputStream
 
 interface IFileRepository {
-    fun getMyFilesRecord(listener: IOnMyFilesArchiveNrListener)
+    fun getMyFilesRecord(listener: IRecordListener)
 
     fun getChildRecordsOf(folderArchiveNr: String, folderLinkId: Int, sort: String?,
                           listener: IOnRecordsRetrievedListener)
@@ -32,6 +33,11 @@ interface IFileRepository {
         parentFolderIdentifier: NavigationFolderIdentifier,
         name: String,
         listener: IResponseListener
+    )
+
+    fun getFolder(
+        folderLinkId: Int,
+        listener: IRecordListener
     )
 
     fun getPresignedUrlForUpload(
@@ -62,11 +68,6 @@ interface IFileRepository {
     fun updateRecord(fileData: FileData, listener: IResponseListener)
 
     fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener)
-
-    interface IOnMyFilesArchiveNrListener {
-        fun onSuccess(myFilesRecord: Record)
-        fun onFailed(error: String?)
-    }
 
     interface IOnRecordsRetrievedListener {
         fun onSuccess(recordVOs: List<RecordVO>?)
