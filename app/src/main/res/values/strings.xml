@@ -293,4 +293,7 @@
 
     <string name="version_text">Version %s (%s)</string>
     <string name="warning_auth_mfa_token_message">Session expired. Please re-authenticate</string>
+    <string name="delete_account_button">Delete Account</string>
+    <string name="dialog_delete_account_message">"Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.  The account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives.You must delete archives using the delete archive action in the Profile section of each archive you own.  Any archives you own that are not deleted prior to deleting your account will become orphaned archives.  When you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.  "</string>
+    <string name="dialog_delete_account_placeholder">type DELETE</string>
 </resources>

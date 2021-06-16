@@ -11,6 +11,8 @@ interface IAccountRepository {
 
     fun update(account: Account, listener: IResponseListener)
 
+    fun delete(listener: IResponseListener)
+
     fun changePassword(
         currentPassword: String, newPassword: String, retypedPassword: String,
         listener: IResponseListener

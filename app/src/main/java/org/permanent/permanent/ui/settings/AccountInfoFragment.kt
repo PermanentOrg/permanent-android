@@ -1,22 +1,33 @@
 package org.permanent.permanent.ui.settings
 
+import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.view.Window
+import android.widget.RelativeLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.databinding.DialogDeleteAccountBinding
 import org.permanent.permanent.databinding.FragmentAccountInfoBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.viewmodels.AccountInfoViewModel
+import org.permanent.permanent.viewmodels.DeleteAccountViewModel
 
 
 class AccountInfoFragment : PermanentBaseFragment() {
 
+    private lateinit var dialog: Dialog
     private lateinit var binding: FragmentAccountInfoBinding
+    private lateinit var dialogBinding: DialogDeleteAccountBinding
+
     private lateinit var viewModel: AccountInfoViewModel
+    private lateinit var dialogViewModel: DeleteAccountViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,6 +39,12 @@ class AccountInfoFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
+        dialog = Dialog(requireActivity())
+        dialogViewModel = ViewModelProvider(this).get(DeleteAccountViewModel::class.java)
+        dialogBinding = DialogDeleteAccountBinding.inflate(inflater, container, false)
+        dialogBinding.viewModel = dialogViewModel
+        dialog.setContentView(dialogBinding.root)
         return binding.root
     }
 
@@ -35,12 +52,36 @@ class AccountInfoFragment : PermanentBaseFragment() {
         Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
     }
 
+    private val onShowDeleteAccountDialog = Observer<Void> {
+        dialog.show()
+        val window: Window = dialog.window!!
+        window.setLayout(
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    private val onNavigateToLoginScreen = Observer<Void> {
+        dialog.dismiss()
+        val currentActivity = PermanentApplication.instance.currentActivity
+        currentActivity?.startActivity(
+            Intent(
+                currentActivity,
+                LoginActivity::class.java
+            )
+        )
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onError)
+        viewModel.getOnShowDeleteAccountDialog().observe(this, onShowDeleteAccountDialog)
+        dialogViewModel.getOnNavigateToLoginScreen().observe(this, onNavigateToLoginScreen)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onError)
+        viewModel.getOnShowDeleteAccountDialog().removeObserver(onShowDeleteAccountDialog)
+        dialogViewModel.getOnNavigateToLoginScreen().removeObserver(onNavigateToLoginScreen)
     }
 
     override fun onResume() {
