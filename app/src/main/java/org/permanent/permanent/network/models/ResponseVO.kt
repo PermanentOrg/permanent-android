@@ -60,6 +60,12 @@ class ResponseVO {
         return null
     }
 
+    fun getFolderRecord(): Record? {
+        val folderVO = getData()?.get(0)?.FolderVO
+        if (folderVO != null) return Record(folderVO)
+        return null
+    }
+
     fun getMessages(): List<String?>? {
         return Results?.get(0)?.message
     }

@@ -9,6 +9,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.*
@@ -30,7 +31,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val prefsHelper = PreferencesHelper(sharedPreferences)
 
-    override fun getMyFilesRecord(listener: IFileRepository.IOnMyFilesArchiveNrListener) {
+    override fun getMyFilesRecord(listener: IRecordListener) {
         NetworkClient.instance.getRoot(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -131,6 +132,24 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                 if (firstMessage != null && firstMessage.startsWith("New folder"))
                     listener.onSuccess(null)
                 else listener.onFailed(firstMessage)
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun getFolder(folderLinkId: Int, listener: IRecordListener) {
+        NetworkClient.instance.getFolder(prefsHelper.getCsrf(), folderLinkId,
+        ).enqueue(object : Callback<ResponseVO> {
+
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                prefsHelper.saveCsrf(responseVO?.csrf)
+                val record = responseVO?.getFolderRecord()
+                if (record != null) listener.onSuccess(record)
+                else listener.onFailed(responseVO?.getMessages()?.get(0))
             }
 
             override fun onFailure(call: Call<ResponseVO>, t: Throwable) {

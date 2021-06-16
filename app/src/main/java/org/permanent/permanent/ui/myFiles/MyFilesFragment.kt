@@ -58,30 +58,34 @@ class MyFilesFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
         binding.viewModel = viewModel
-
-        viewModel.registerDeviceForFCM()
-
-        val prefsHelper = PreferencesHelper(
-            requireContext().getSharedPreferences(
-                PREFS_NAME, Context.MODE_PRIVATE
-            )
-        )
-        val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
-
-        if (!shareLinkUrlToken.isNullOrEmpty()) {
-            prefsHelper.saveShareLinkUrlToken("")
-            val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
-            findNavController().navigate(
-                R.id.action_myFilesFragment_to_sharePreviewFragment,
-                bundle
-            )
+        val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
+        if(record != null) {
+            navigateToShareLinkFragment(record)
+            arguments?.clear()
         } else {
-            viewModel.set(parentFragmentManager)
-            viewModel.initUploadsRecyclerView(binding.rvUploads, this)
-            viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
-            viewModel.populateMyFiles()
-            initDownloadsRecyclerView(binding.rvDownloads)
-            initFilesRecyclerView(binding.rvFiles)
+            viewModel.registerDeviceForFCM()
+
+            val prefsHelper = PreferencesHelper(
+                requireContext().getSharedPreferences(
+                    PREFS_NAME, Context.MODE_PRIVATE
+                )
+            )
+            val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
+            if (!shareLinkUrlToken.isNullOrEmpty()) {
+                prefsHelper.saveShareLinkUrlToken("")
+                val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
+                findNavController().navigate(
+                    R.id.action_myFilesFragment_to_sharePreviewFragment,
+                    bundle
+                )
+            } else {
+                viewModel.set(parentFragmentManager)
+                viewModel.initUploadsRecyclerView(binding.rvUploads, this)
+                viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
+                viewModel.populateMyFiles()
+                initDownloadsRecyclerView(binding.rvDownloads)
+                initFilesRecyclerView(binding.rvFiles)
+            }
         }
         return binding.root
     }
@@ -192,6 +196,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordShareRequest = Observer<Record> { record ->
+        navigateToShareLinkFragment(record)
+    }
+
+    private fun navigateToShareLinkFragment(record: Record?) {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
         findNavController().navigate(R.id.action_myFilesFragment_to_shareLinkFragment, bundle)
     }

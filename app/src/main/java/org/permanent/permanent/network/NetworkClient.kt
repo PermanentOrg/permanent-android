@@ -196,6 +196,13 @@ class NetworkClient {
         return fileService.createFolder(requestBody)
     }
 
+    fun getFolder(csrf: String?, folderLinkId: Int): Call<ResponseVO> {
+        val json = toJson(RequestContainer(csrf).addFolder(folderLinkId))
+        val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
+
+        return fileService.getFolder(requestBody)
+    }
+
     fun getPresignedUrlForUpload(
         csrf: String?,
         file: File,
