@@ -215,7 +215,7 @@ class PermanentFCMService : FirebaseMessagingService() {
     private fun getShareLinkViewIntent(record: Record): PendingIntent? {
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.putExtra(PARCELABLE_RECORD_KEY, record)
-        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.shareLinkFragment)
+        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.myFilesFragment)
         return getPendingIntent(intent)
     }
 
