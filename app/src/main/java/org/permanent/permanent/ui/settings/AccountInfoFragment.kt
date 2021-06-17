@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
@@ -52,6 +53,11 @@ class AccountInfoFragment : PermanentBaseFragment() {
         Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
     }
 
+    private val onToastError = Observer<String> {
+        Toast.makeText(requireActivity(), it, Toast.LENGTH_SHORT).show()
+    }
+
+
     private val onShowDeleteAccountDialog = Observer<Void> {
         dialog.show()
         val window: Window = dialog.window!!
@@ -74,12 +80,14 @@ class AccountInfoFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onError)
+        dialogViewModel.getShowMessage().observe(this, onToastError)
         viewModel.getOnShowDeleteAccountDialog().observe(this, onShowDeleteAccountDialog)
         dialogViewModel.getOnNavigateToLoginScreen().observe(this, onNavigateToLoginScreen)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onError)
+        dialogViewModel.getShowMessage().removeObserver(onToastError)
         viewModel.getOnShowDeleteAccountDialog().removeObserver(onShowDeleteAccountDialog)
         dialogViewModel.getOnNavigateToLoginScreen().removeObserver(onNavigateToLoginScreen)
     }

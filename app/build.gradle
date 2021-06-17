@@ -47,7 +47,7 @@ android {
             applicationId "org.permanent.permanent.staging"
             buildConfigField "String", "BASE_API_URL", "\"https://staging.permanent.org/api/\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
-            buildConfigField "String", "PRIVACY_POLICY_URL", "\"https://staging.permanent.org/privacy-policy/\""
+            buildConfigField "String", "PRIVACY_POLICY_URL", "\"https://www.permanent.org/privacy-policy/\""
             buildConfigField "String", "API_KEY", "\"0f6c8cf215a2a73a174ff45807a76be3\""
         }
 
