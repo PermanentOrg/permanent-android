@@ -53,7 +53,7 @@ interface IFileRepository {
     ): Call<ResponseVO>
 
     fun getRecord(
-        folderLinkId: Int?,
+        folderLinkId: Int,
         recordId: Int?,
     ): Call<ResponseVO>
 

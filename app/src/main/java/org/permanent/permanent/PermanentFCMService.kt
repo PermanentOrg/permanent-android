@@ -13,6 +13,7 @@ import com.google.firebase.messaging.RemoteMessage
 import org.permanent.permanent.models.FCMNotificationKey
 import org.permanent.permanent.models.FCMNotificationType
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.ResponseVO
@@ -89,19 +90,23 @@ class PermanentFCMService : FirebaseMessagingService() {
                 }
                 FCMNotificationType.SHARE_LINK_REQUEST.toBackendString() -> {
                     remoteMessage.data[FCMNotificationKey.SHARE_FOLDER_LINK_ID]?.let {
-                        requestRecordBy(it.toInt(), remoteMessage)
+                        requestRecordBy(it.toInt(), remoteMessage, FCMNotificationType.SHARE_LINK_REQUEST)
                     }
                 }
                 FCMNotificationType.SHARE_INVITATION_ACCEPTANCE.toBackendString() -> {
-                    remoteMessage.data[FCMNotificationKey.RECORD_ID]?.let {
-                        requestRecordBy(it, remoteMessage)
+                    remoteMessage.data[FCMNotificationKey.FOLDER_LINK_ID]?.let {
+                        requestRecordBy(it.toInt(), remoteMessage, FCMNotificationType.SHARE_INVITATION_ACCEPTANCE)
                     }
                 }
             }
         }
     }
 
-    private fun requestRecordBy(folderLinkId: Int, remoteMessage: RemoteMessage) {
+    private fun requestRecordBy(
+        folderLinkId: Int,
+        remoteMessage: RemoteMessage,
+        notificationType: FCMNotificationType
+    ) {
         val fileRepository: IFileRepository = FileRepositoryImpl(application)
 
         fileRepository.getRecord(folderLinkId, null).enqueue(object : Callback<ResponseVO> {
@@ -109,16 +114,9 @@ class PermanentFCMService : FirebaseMessagingService() {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val record = response.body()?.getRecord()
                 if (record != null) {
-                    remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
-                        showNotification(
-                            it,
-                            getString(R.string.notification_body_share_link_request, it,
-                                remoteMessage.data[FCMNotificationKey.SHARE_NAME]),
-                            getShareLinkViewIntent(record)
-                        )
-                    }
+                    prepareNotification(remoteMessage, record, notificationType)
                 } else {
-                    requestFolderBy(folderLinkId, fileRepository, remoteMessage)
+                    requestFolderBy(folderLinkId, fileRepository, remoteMessage, notificationType)
                 }
             }
 
@@ -128,52 +126,51 @@ class PermanentFCMService : FirebaseMessagingService() {
         })
     }
 
+    private fun prepareNotification(
+        remoteMessage: RemoteMessage,
+        record: Record,
+        notificationType: FCMNotificationType
+    ) {
+        if (notificationType == FCMNotificationType.SHARE_LINK_REQUEST) {
+            remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
+                showNotification(
+                    it,
+                    getString(
+                        R.string.notification_body_share_link_request, it,
+                        remoteMessage.data[FCMNotificationKey.SHARE_NAME]
+                    ),
+                    getShareLinkViewIntent(record)
+                )
+            }
+        } else {
+            remoteMessage.data[FCMNotificationKey.INVITED_ARCHIVE_NAME]?.let {
+                val recordName = if (record.type == RecordType.FILE)
+                    remoteMessage.data[FCMNotificationKey.RECORD_NAME]
+                else remoteMessage.data[FCMNotificationKey.FOLDER_NAME]
+                showNotification(
+                    it,
+                    getString(R.string.notification_body_share_invitation_acceptance, it, recordName),
+                    getShareLinkViewIntent(record)
+                )
+            }
+        }
+    }
+
     private fun requestFolderBy(
         folderLinkId: Int,
         fileRepository: IFileRepository,
-        remoteMessage: RemoteMessage
+        remoteMessage: RemoteMessage,
+        notificationType: FCMNotificationType
     ) {
         fileRepository.getFolder(folderLinkId, object : IRecordListener {
             override fun onSuccess(record: Record) {
-                remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
-                    showNotification(
-                        it,
-                        getString(R.string.notification_body_share_link_request, it,
-                            remoteMessage.data[FCMNotificationKey.SHARE_NAME]),
-                        getShareLinkViewIntent(record)
-                    )
-                }
+                prepareNotification(remoteMessage, record, notificationType)
             }
 
             override fun onFailed(error: String?) {
                 Log.d(TAG, "Failed getFolder for notification: $error")
             }
         })
-    }
-
-    private fun requestRecordBy(recordId: String, remoteMessage: RemoteMessage) {
-        val fileRepository: IFileRepository = FileRepositoryImpl(application)
-
-        fileRepository.getRecord(null, recordId.toInt())
-            .enqueue(object : Callback<ResponseVO> {
-
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    response.body()?.getRecord()?.let { record ->
-                        remoteMessage.data[FCMNotificationKey.INVITED_ARCHIVE_NAME]?.let {
-                            showNotification(
-                                it,
-                                getString(R.string.notification_body_share_invitation_acceptance, it,
-                                    remoteMessage.data[FCMNotificationKey.RECORD_NAME]),
-                                getShareLinkViewIntent(record)
-                            )
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    Log.d(TAG, "Failed getRecord for notification: ${t.message}")
-                }
-            })
     }
 
     override fun onDeletedMessages() {}
