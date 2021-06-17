@@ -96,6 +96,29 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
             })
     }
 
+    override fun delete(listener: IResponseListener) {
+        val accountId = prefsHelper.getUserAccountId()
+        if (accountId != 0) {
+            NetworkClient.instance.deleteAccount(prefsHelper.getCsrf(), accountId).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                        listener.onSuccess(appContext.getString(R.string.security_password_update_success))
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0)
+                            ?: response.errorBody()?.toString())
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+        }
+    }
+
     override fun changePassword(
         currentPassword: String, newPassword: String, retypedPassword: String,
         listener: IResponseListener

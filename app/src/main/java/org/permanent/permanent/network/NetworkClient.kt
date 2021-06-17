@@ -47,8 +47,10 @@ class NetworkClient {
     }
 
     init {
-        val cookieJar: ClearableCookieJar = PersistentCookieJar(SetCookieCache(),
-            SharedPrefsCookiePersistor(PermanentApplication.instance.applicationContext))
+        val cookieJar: ClearableCookieJar = PersistentCookieJar(
+            SetCookieCache(),
+            SharedPrefsCookiePersistor(PermanentApplication.instance.applicationContext)
+        )
 
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.NONE
@@ -107,15 +109,16 @@ class NetworkClient {
         return authService.forgotPassword(requestBody)
     }
 
-    fun sendSMSVerificationCode(csrf: String?, accountId: Int, email: String): Call<ResponseVO>  {
+    fun sendSMSVerificationCode(csrf: String?, accountId: Int, email: String): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAccount(accountId, email))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return authService.sendSMSVerificationCode(requestBody)
     }
 
-    fun verifyCode(code: String, authType: String, csrf: String?, email: String
-    ): Call<ResponseVO>  {
+    fun verifyCode(
+        code: String, authType: String, csrf: String?, email: String
+    ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAuth(code, authType).addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
@@ -147,6 +150,13 @@ class NetworkClient {
         return accountService.updateAccount(requestBody)
     }
 
+    fun deleteAccount(csrf: String?, accountId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addAccount(accountId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return accountService.deleteAccount(requestBody)
+    }
+
     fun changePassword(
         csrf: String?, accountId: Int, currentPassword: String, newPassword: String,
         retypedPassword: String
@@ -154,7 +164,8 @@ class NetworkClient {
         val request = toJson(
             RequestContainer(csrf)
                 .addAccount(accountId)
-                .addAccountPassword(currentPassword, newPassword, retypedPassword))
+                .addAccountPassword(currentPassword, newPassword, retypedPassword)
+        )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return accountService.changePassword(requestBody)
@@ -181,14 +192,17 @@ class NetworkClient {
         sort: String?,
         childItems: List<Int>
     ): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf)
-            .addFolder(archiveNumber, folderLinkId, sort, childItems))
+        val request = toJson(
+            RequestContainer(csrf)
+                .addFolder(archiveNumber, folderLinkId, sort, childItems)
+        )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.getLeanItems(requestBody)
     }
 
-    fun createFolder(csrf: String?, name: String, folderId: Int, folderLinkId: Int
+    fun createFolder(
+        csrf: String?, name: String, folderId: Int, folderLinkId: Int
     ): Call<ResponseVO> {
         val json = toJson(RequestContainer(csrf).addFolder(name, folderId, folderLinkId))
         val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
@@ -211,23 +225,30 @@ class NetworkClient {
         folderLinkId: Int,
         mediaType: MediaType
     ): Call<GetPresignedUrlResponse> {
-        val request = toJson(RequestContainer(csrf)
-            .addRecord(displayName, file, folderId, folderLinkId)
-            .addSimple(mediaType))
+        val request = toJson(
+            RequestContainer(csrf)
+                .addRecord(displayName, file, folderId, folderLinkId)
+                .addSimple(mediaType)
+        )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.getPresignedUrl(requestBody)
     }
 
     fun uploadFile(
-        file: File, mediaType: MediaType, uploadDestination: UploadDestination, listener: CountingRequestListener
+        file: File,
+        mediaType: MediaType,
+        uploadDestination: UploadDestination,
+        listener: CountingRequestListener
     ): Call<ResponseBody> {
         val url = uploadDestination.presignedPost?.url
-        val fields: Map<String, RequestBody>? = uploadDestination.presignedPost?.getFieldsMapForCall()
+        val fields: Map<String, RequestBody>? =
+            uploadDestination.presignedPost?.getFieldsMapForCall()
         val contentType = (mediaType.toString()).toRequestBody(MultipartBody.FORM)
         val fileRequestBody = CountingRequestBody(file.asRequestBody(mediaType), listener)
         val body: MultipartBody.Part = MultipartBody.Part.createFormData(
-            "file", file.name, fileRequestBody)
+            "file", file.name, fileRequestBody
+        )
 
         return fileService.upload(url!!, fields!!, contentType, body)
     }
@@ -240,9 +261,11 @@ class NetworkClient {
         folderLinkId: Int,
         s3Url: String
     ): Call<ResponseVO> {
-        val request = toJson(SimpleRequestContainer(csrf)
-            .addRecord(displayName, file, folderId, folderLinkId)
-            .addSimple(s3Url))
+        val request = toJson(
+            SimpleRequestContainer(csrf)
+                .addRecord(displayName, file, folderId, folderLinkId)
+                .addSimple(s3Url)
+        )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.registerRecord(requestBody)
@@ -274,9 +297,15 @@ class NetworkClient {
     }
 
     fun relocateRecord(
-        csrf: String?, recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType)
+        csrf: String?,
+        recordToRelocate: Record,
+        destFolderLinkId: Int,
+        relocationType: RelocationType
+    )
             : Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addRecord(recordToRelocate).addFolderDest(destFolderLinkId))
+        val request = toJson(
+            RequestContainer(csrf).addRecord(recordToRelocate).addFolderDest(destFolderLinkId)
+        )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (recordToRelocate.type == RecordType.FOLDER) {
             if (relocationType == RelocationType.MOVE) {
@@ -305,7 +334,8 @@ class NetworkClient {
         return fileService.updateRecord(requestBody)
     }
 
-    fun requestShareLink(csrf: String?, record: Record, shareRequestType: ShareRequestType
+    fun requestShareLink(
+        csrf: String?, record: Record, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addRecord(record))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -316,7 +346,8 @@ class NetworkClient {
         }
     }
 
-    fun modifyShareLink(csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType
+    fun modifyShareLink(
+        csrf: String?, shareVO: Shareby_urlVO, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addShareByUrl(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -363,20 +394,33 @@ class NetworkClient {
         return memberService.getMembers(requestBody)
     }
 
-    fun addMember(csrf: String?, archiveNr: String?, email: String, accessRole: AccessRole): Call<ResponseVO> {
+    fun addMember(
+        csrf: String?,
+        archiveNr: String?,
+        email: String,
+        accessRole: AccessRole
+    ): Call<ResponseVO> {
         val request = toJson(
             RequestContainer(csrf)
                 .addArchive(archiveNr)
-                .addAccount(email, accessRole))
+                .addAccount(email, accessRole)
+        )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return memberService.addMember(requestBody)
     }
 
-    fun updateMember(csrf: String?, archiveNr: String?, id: Int, email: String, accessRole: AccessRole): Call<ResponseVO> {
+    fun updateMember(
+        csrf: String?,
+        archiveNr: String?,
+        id: Int,
+        email: String,
+        accessRole: AccessRole
+    ): Call<ResponseVO> {
         val request = toJson(
             RequestContainer(csrf)
                 .addArchive(archiveNr)
-                .addAccount(id, email, accessRole))
+                .addAccount(id, email, accessRole)
+        )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return memberService.updateMember(requestBody)
     }
@@ -448,6 +492,7 @@ class NetworkClient {
     private fun toJson(container: RequestContainer): String {
         return jsonAdapter.toJson(container)
     }
+
     private fun toJson(container: SimpleRequestContainer): String {
         return simpleJsonAdapter.toJson(container)
     }

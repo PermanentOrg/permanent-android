@@ -17,6 +17,9 @@ interface IAccountService {
     @POST("account/update")
     fun updateAccount(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("account/delete")
+    fun deleteAccount(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("account/changePassword")
     fun changePassword(@Body requestBody: RequestBody): Call<ResponseVO>
 }
