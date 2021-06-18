@@ -19,15 +19,17 @@ class TwoStepVerificationActivity : PermanentBaseActivity() {
         viewModel = ViewModelProvider(this).get(TwoStepVerificationViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_two_step_verification)
         binding.executePendingBindings()
-        binding.lifecycleOwner=this
+        binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
+    }
+    override fun onStart() {
+        super.onStart()
         val skip: Boolean? = intent.extras?.getBoolean(SKIP_CODE_VERIFICATION)
         if (skip != null && skip) startPhoneVerificationFragment()
     }
 
     private fun startPhoneVerificationFragment() {
-        findNavController(R.id.two_step_verification_navigation)
+        binding.twoStepVerificationNavHostFragment.findNavController()
             .navigate(R.id.action_codeVerificationFragment_to_phoneVerificationFragment)
     }
 
