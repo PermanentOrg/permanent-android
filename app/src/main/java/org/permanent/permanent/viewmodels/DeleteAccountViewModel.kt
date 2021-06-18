@@ -25,21 +25,13 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
     private val text = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
-    fun getIsDeleteAccountEnabled(): MutableLiveData<Boolean> {
-        return isDeleteAccountEnabled
-    }
+    fun getIsDeleteAccountEnabled(): MutableLiveData<Boolean> = isDeleteAccountEnabled
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnNavigateToLoginScreen(): SingleLiveEvent<Void> {
-        return onNavigateToLoginScreen
-    }
+    fun getOnNavigateToLoginScreen(): SingleLiveEvent<Void> = onNavigateToLoginScreen
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getShowMessage(): LiveData<String> = showMessage
 
     fun onTextChanged(inputText: Editable) {
         text.value = inputText.toString()
@@ -51,7 +43,7 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
             return
         }
         
-        if(isDeleteAccountEnabled.value == false){
+        if(isDeleteAccountEnabled.value == false) {
             showMessage.value = PermanentApplication.instance.getString(R.string.delete_account_error)
             return
         }

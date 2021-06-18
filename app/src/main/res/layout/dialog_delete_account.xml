@@ -53,6 +53,18 @@
                 android:autoLink="web"
                 android:textStyle="bold" />
 
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/progressBar"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:elevation="2dp"
+                android:gravity="center"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/colorPrimary"
+                android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layoutEmail"
                 android:layout_width="match_parent"
