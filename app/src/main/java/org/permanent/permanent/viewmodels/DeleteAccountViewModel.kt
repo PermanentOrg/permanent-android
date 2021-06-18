@@ -60,6 +60,7 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
         accountRepository.delete(object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
+                showMessage.value = message
                 prefsHelper.saveUserLoggedIn(false)
                 prefsHelper.saveBiometricsLogIn(true) // Setting back to default
                 onNavigateToLoginScreen.call()

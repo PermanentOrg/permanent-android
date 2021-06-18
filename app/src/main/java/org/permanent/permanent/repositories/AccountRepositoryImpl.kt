@@ -99,13 +99,14 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     override fun delete(listener: IResponseListener) {
         val accountId = prefsHelper.getUserAccountId()
         if (accountId != 0) {
-            NetworkClient.instance.deleteAccount(prefsHelper.getCsrf(), accountId).enqueue(object : Callback<ResponseVO> {
+            NetworkClient.instance.deleteAccount(prefsHelper.getCsrf(), accountId)
+                .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                        listener.onSuccess(appContext.getString(R.string.security_password_update_success))
+                        listener.onSuccess(appContext.getString(R.string.account_delete_success))
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0)
                             ?: response.errorBody()?.toString())
