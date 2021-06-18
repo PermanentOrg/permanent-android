@@ -6,6 +6,7 @@ import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.R
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
@@ -49,6 +50,12 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
+        
+        if(isDeleteAccountEnabled.value == false){
+            showMessage.value = PermanentApplication.instance.getString(R.string.delete_account_error)
+            return
+        }
+
         isBusy.value = true
         accountRepository.delete(object : IResponseListener {
             override fun onSuccess(message: String?) {
