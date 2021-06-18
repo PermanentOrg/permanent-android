@@ -50,6 +50,7 @@
                 android:text="@string/dialog_delete_account_message"
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp"
+                android:autoLink="web"
                 android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -79,7 +80,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteAccount"
                 style="@style/customButtonBottomSheetStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_below="@+id/layoutEmail"
                 android:layout_alignParentEnd="true"
