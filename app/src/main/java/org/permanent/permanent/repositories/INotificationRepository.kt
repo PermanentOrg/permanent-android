@@ -8,4 +8,6 @@ interface INotificationRepository {
     fun getNotifications(listener: IDataListener)
 
     fun registerDevice(token: String, listener: IResponseListener)
+
+    fun deleteDevice(token: String, listener: IResponseListener)
 }

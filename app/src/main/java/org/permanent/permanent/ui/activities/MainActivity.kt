@@ -97,7 +97,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.accountNavView.setupWithNavController(navController)
         binding.accountNavView.setNavigationItemSelectedListener { menuItem ->
             when(menuItem.itemId) {
-                R.id.logout -> viewModel.logout()
+                R.id.logout -> viewModel.deleteDeviceToken()
                 R.id.storage -> {
                     binding.drawerLayout.closeDrawers()
                     navigateToAddStorage()

@@ -27,7 +27,10 @@ class BiometricsFragment : PermanentBaseFragment() {
     private val onNavigateToMainActivity = Observer<Void> {
         navigateToMainActivity()
     }
-    private val onNavigateToLoginFragment = Observer<Void> {
+    private val onLoggedOut = Observer<Void> {
+        val prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+        prefsHelper.saveUserLoggedIn(false)
         findNavController().navigate(R.id.action_biometricsFragment_to_loginFragment)
     }
     private val onShowOpenSettingsQuestionDialog = Observer<Void> {
@@ -85,7 +88,7 @@ class BiometricsFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnNavigateToMainActivity().observe(this, onNavigateToMainActivity)
-        viewModel.getOnNavigateToLoginFragment().observe(this, onNavigateToLoginFragment)
+        viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getOnShowOpenSettingsQuestionDialog().observe(this, onShowOpenSettingsQuestionDialog)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
         viewModel.getErrorStringId().observe(this, onErrorStringId)
@@ -93,7 +96,7 @@ class BiometricsFragment : PermanentBaseFragment() {
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnNavigateToMainActivity().removeObserver(onNavigateToMainActivity)
-        viewModel.getOnNavigateToLoginFragment().removeObserver(onNavigateToLoginFragment)
+        viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getOnShowOpenSettingsQuestionDialog().removeObserver(onShowOpenSettingsQuestionDialog)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
         viewModel.getErrorStringId().removeObserver(onErrorStringId)

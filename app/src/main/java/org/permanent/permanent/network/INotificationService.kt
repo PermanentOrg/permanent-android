@@ -16,4 +16,7 @@ interface INotificationService {
 
     @POST("device/registerDevice")
     fun registerDevice(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("device/deleteToken")
+    fun deleteToken(@Body requestBody: RequestBody): Call<ResponseVO>
 }
