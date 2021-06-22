@@ -30,6 +30,6 @@ class Constants {
         const val FILE_DELETED_SUCCESSFULLY = "Record(s) have been deleted."
         const val FOLDER_DELETED_SUCCESSFULLY = "Folder has been deleted."
         // This is also used in manifest
-        const val FILE_PROVIDER_NAME = "org.permanent.permanent.fileprovider"
+        const val FILE_PROVIDER_NAME = ".fileprovider"
     }
 }

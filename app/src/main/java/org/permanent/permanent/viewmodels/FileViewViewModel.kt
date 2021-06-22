@@ -7,6 +7,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
@@ -26,7 +27,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     private var fileData = MutableLiveData<FileData>()
     private val filePath = MutableLiveData<String>()
     private val isVideo = MutableLiveData<Boolean>()
-    private val isPDF =  MutableLiveData<Boolean>()
+    private val isPDF = MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -49,8 +50,11 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                     fileData.value?.let {
                         isPDF.value = it.contentType?.contains(FileType.PDF.toString())
                         isVideo.value = it.contentType?.contains(FileType.VIDEO.toString())
-                        file = File(Environment.getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_DOWNLOADS), it.fileName)
+                        file = File(
+                            Environment.getExternalStoragePublicDirectory(
+                                Environment.DIRECTORY_DOWNLOADS
+                            ), it.fileName
+                        )
                         filePath.value = if (file?.exists() == true)
                             Uri.fromFile(file).toString() else it.fileURL
                     }
@@ -65,7 +69,13 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     fun getUriForSharing(): Uri? =
-        file?.let { FileProvider.getUriForFile(appContext, Constants.FILE_PROVIDER_NAME, it) }
+        file?.let {
+            FileProvider.getUriForFile(
+                appContext,
+                PermanentApplication.instance.packageName + Constants.FILE_PROVIDER_NAME,
+                it
+            )
+        }
 
     fun getFileData(): MutableLiveData<FileData> = fileData
 
