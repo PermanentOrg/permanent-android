@@ -251,6 +251,7 @@
     <string name="account_screen_postal_code">Postal code</string>
     <string name="account_screen_country">Country</string>
     <string name="account_update_success">Account info updated successfully.</string>
+    <string name="account_delete_success">Your account was deleted successfully.</string>
 
     <string name="metadata_info_tab_name">Info</string>
     <string name="metadata_details_tab_name">Details</string>
@@ -286,15 +287,16 @@
 
     <string name="notification_channel_name">"General"</string>
     <string name="default_notification_channel_id">permanent_general_notification_channel</string>
-    <string name="notification_body_share">%s has shared %s with you</string>
-    <string name="notification_body_pa_response">%s accepted your invitation to join the %s archive as a %s</string>
+    <string name="notification_body_share_file">%s has shared %s with you</string>
+    <string name="notification_body_share_folder">%s has shared %s folder with you</string>
+    <string name="notification_body_pa_response">%s accepted your invitation to join the %s as a %s</string>
     <string name="notification_body_share_link_request">%s has requested access to %s</string>
-    <string name="notification_body_share_invitation_acceptance">%s has joined permanent to access %s</string>
+    <string name="notification_body_share_invitation_acceptance">%s has joined Permanent to access %s</string>
 
     <string name="version_text">Version %s (%s)</string>
     <string name="warning_auth_mfa_token_message">Session expired. Please re-authenticate</string>
     <string name="delete_account_button">Delete Account</string>
-    <string name="dialog_delete_account_message">"Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.  The account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives.You must delete archives using the delete archive action in the Profile section of each archive you own.  Any archives you own that are not deleted prior to deleting your account will become orphaned archives.  When you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.  "</string>
+    <string name="dialog_delete_account_message">Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.\n\nThe account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives. Any archives you own that are not deleted prior to deleting your account will become orphaned archives. Archives can only be deleted by logging in to your account on Permanent.org.\n\n(Learn more here.)[https://desk.zoho.com/portal/permanent/en/kb/articles/how-to-delete-an-archive]\n\nWhen you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.</string>
     <string name="dialog_delete_account_placeholder">type DELETE</string>
     <string name="delete_account_error">Type DELETE with all caps in order to delete your account.</string>
 </resources>

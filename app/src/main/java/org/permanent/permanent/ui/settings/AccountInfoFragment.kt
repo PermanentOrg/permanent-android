@@ -53,10 +53,9 @@ class AccountInfoFragment : PermanentBaseFragment() {
         Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
     }
 
-    private val onToastError = Observer<String> {
-        Toast.makeText(requireActivity(), it, Toast.LENGTH_SHORT).show()
+    private val onToast = Observer<String> {
+        Toast.makeText(requireActivity(), it, Toast.LENGTH_LONG).show()
     }
-
 
     private val onShowDeleteAccountDialog = Observer<Void> {
         dialog.show()
@@ -80,14 +79,14 @@ class AccountInfoFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onError)
-        dialogViewModel.getShowMessage().observe(this, onToastError)
+        dialogViewModel.getShowMessage().observe(this, onToast)
         viewModel.getOnShowDeleteAccountDialog().observe(this, onShowDeleteAccountDialog)
         dialogViewModel.getOnNavigateToLoginScreen().observe(this, onNavigateToLoginScreen)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onError)
-        dialogViewModel.getShowMessage().removeObserver(onToastError)
+        dialogViewModel.getShowMessage().removeObserver(onToast)
         viewModel.getOnShowDeleteAccountDialog().removeObserver(onShowDeleteAccountDialog)
         dialogViewModel.getOnNavigateToLoginScreen().removeObserver(onNavigateToLoginScreen)
     }

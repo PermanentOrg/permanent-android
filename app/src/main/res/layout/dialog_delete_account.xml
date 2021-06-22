@@ -50,7 +50,20 @@
                 android:text="@string/dialog_delete_account_message"
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp"
+                android:autoLink="web"
                 android:textStyle="bold" />
+
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/progressBar"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:elevation="2dp"
+                android:gravity="center"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/colorPrimary"
+                android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layoutEmail"
@@ -79,7 +92,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteAccount"
                 style="@style/customButtonBottomSheetStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_below="@+id/layoutEmail"
                 android:layout_alignParentEnd="true"

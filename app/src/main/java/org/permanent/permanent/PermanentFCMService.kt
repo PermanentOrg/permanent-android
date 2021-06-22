@@ -73,9 +73,11 @@ class PermanentFCMService : FirebaseMessagingService() {
                     else remoteMessage.data[FCMNotificationKey.FOLDER_NAME]
 
                     remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
-                        showNotification(it,
-                            getString(R.string.notification_body_share, it, recordName),
-                            getRecordViewIntent(recordId?.toInt()))
+                        val string = if (remoteMessage.data[FCMNotificationKey.RECORD_NAME] != null)
+                            getString(R.string.notification_body_share_file, it, recordName)
+                        else getString(R.string.notification_body_share_folder, it, recordName)
+
+                        showNotification(it, string, getRecordViewIntent(recordId?.toInt()))
                     }
                 }
                 FCMNotificationType.PA_RESPONSE.toBackendString() -> {
@@ -143,7 +145,7 @@ class PermanentFCMService : FirebaseMessagingService() {
                 )
             }
         } else {
-            remoteMessage.data[FCMNotificationKey.INVITED_ARCHIVE_NAME]?.let {
+            remoteMessage.data[FCMNotificationKey.INVITED_EMAIL]?.let {
                 val recordName = if (record.type == RecordType.FILE)
                     remoteMessage.data[FCMNotificationKey.RECORD_NAME]
                 else remoteMessage.data[FCMNotificationKey.FOLDER_NAME]

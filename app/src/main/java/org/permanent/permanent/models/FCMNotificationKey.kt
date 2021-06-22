@@ -14,6 +14,6 @@ class FCMNotificationKey {
         const val RECORD_ID = "recordId"
         const val FOLDER_ID = "folderId"
         const val ACCESS_ROLE = "accessRole"
-        const val INVITED_ARCHIVE_NAME = "invitedArchiveName"
+        const val INVITED_EMAIL = "invitedEmail"
     }
 }
