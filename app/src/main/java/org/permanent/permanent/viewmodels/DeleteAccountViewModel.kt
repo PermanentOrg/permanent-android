@@ -3,24 +3,29 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.Context
 import android.text.Editable
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.repositories.INotificationRepository
+import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
 class DeleteAccountViewModel(application: Application) : ObservableAndroidViewModel(application) {
-
+    private val TAG = DeleteAccountViewModel::class.java.simpleName
+    private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         PermanentApplication.instance.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-
     private val isBusy = MutableLiveData<Boolean>()
     private val isDeleteAccountEnabled = MutableLiveData(false)
-    private val onNavigateToLoginScreen = SingleLiveEvent<Void>()
+    private val onAccountDeleted = SingleLiveEvent<Void>()
     private val showMessage = MutableLiveData<String>()
     private val text = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -29,7 +34,7 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnNavigateToLoginScreen(): SingleLiveEvent<Void> = onNavigateToLoginScreen
+    fun getOnAccountDeleted(): SingleLiveEvent<Void> = onAccountDeleted
 
     fun getShowMessage(): LiveData<String> = showMessage
 
@@ -49,13 +54,44 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
         }
 
         isBusy.value = true
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    isBusy.value = false
+                    Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
+                    return@OnCompleteListener
+                }
+                val notificationsRepository: INotificationRepository =
+                    NotificationRepositoryImpl(appContext)
+
+                notificationsRepository.deleteDevice(task.result, object : IResponseListener {
+
+                    override fun onSuccess(message: String?) {
+                        isBusy.value = false
+                        deleteAccount()
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        showMessage.value = error
+                        Log.e(TAG, "Deleting Device FCM token failed: $error")
+                    }
+                })
+            })
+    }
+
+    fun deleteAccount() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        isBusy.value = true
         accountRepository.delete(object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
                 showMessage.value = message
                 prefsHelper.saveUserLoggedIn(false)
                 prefsHelper.saveBiometricsLogIn(true) // Setting back to default
-                onNavigateToLoginScreen.call()
+                onAccountDeleted.call()
             }
 
             override fun onFailed(error: String?) {

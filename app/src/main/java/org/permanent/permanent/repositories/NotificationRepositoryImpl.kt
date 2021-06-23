@@ -52,4 +52,24 @@ class NotificationRepositoryImpl(val context: Context): INotificationRepository 
                 }
             })
     }
+
+    override fun deleteDevice(token: String, listener: IResponseListener) {
+        NetworkClient.instance.deleteDeviceToken(prefsHelper.getCsrf(), token)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess("")
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
 }

@@ -66,7 +66,7 @@ class AccountInfoFragment : PermanentBaseFragment() {
         )
     }
 
-    private val onNavigateToLoginScreen = Observer<Void> {
+    private val onAccountDeleted = Observer<Void> {
         dialog.dismiss()
         val currentActivity = PermanentApplication.instance.currentActivity
         currentActivity?.startActivity(
@@ -81,14 +81,14 @@ class AccountInfoFragment : PermanentBaseFragment() {
         viewModel.getShowMessage().observe(this, onError)
         dialogViewModel.getShowMessage().observe(this, onToast)
         viewModel.getOnShowDeleteAccountDialog().observe(this, onShowDeleteAccountDialog)
-        dialogViewModel.getOnNavigateToLoginScreen().observe(this, onNavigateToLoginScreen)
+        dialogViewModel.getOnAccountDeleted().observe(this, onAccountDeleted)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onError)
         dialogViewModel.getShowMessage().removeObserver(onToast)
         viewModel.getOnShowDeleteAccountDialog().removeObserver(onShowDeleteAccountDialog)
-        dialogViewModel.getOnNavigateToLoginScreen().removeObserver(onNavigateToLoginScreen)
+        dialogViewModel.getOnAccountDeleted().removeObserver(onAccountDeleted)
     }
 
     override fun onResume() {

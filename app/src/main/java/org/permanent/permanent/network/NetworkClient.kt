@@ -443,6 +443,12 @@ class NetworkClient {
         return notificationService.registerDevice(requestBody)
     }
 
+    fun deleteDeviceToken(csrf: String?, token: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addSimple(token))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return notificationService.deleteToken(requestBody)
+    }
+
     fun getInvitations(): Call<ResponseVO> {
         val request = toJson(RequestContainer(""))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
