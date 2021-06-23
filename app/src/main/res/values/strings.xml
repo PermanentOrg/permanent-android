@@ -299,4 +299,6 @@
     <string name="dialog_delete_account_message">Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.\n\nThe account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives. Any archives you own that are not deleted prior to deleting your account will become orphaned archives. Archives can only be deleted by logging in to your account on Permanent.org.\n\n(Learn more here.)[https://desk.zoho.com/portal/permanent/en/kb/articles/how-to-delete-an-archive]\n\nWhen you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.</string>
     <string name="dialog_delete_account_placeholder">type DELETE</string>
     <string name="delete_account_error">Type DELETE with all caps in order to delete your account.</string>
+    <string name="phone_verification_fragment_sms_rational_title">SMS permission necessary</string>
+    <string name="phone_verification_fragment_sms_rational_message">The SMS permission is required to autofill verification code when logging in.</string>
 </resources>
