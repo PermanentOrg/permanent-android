@@ -1,13 +1,11 @@
 package org.permanent.permanent.ui.twoStepVerification
 
-import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -27,7 +25,7 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentVerificationPhoneBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -37,23 +35,15 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         context?.let {
             val permissionHelper = PermissionsHelper()
             if (!permissionHelper.hasSMSGroupPermission(it)) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        requireActivity(),
-                        Manifest.permission.READ_SMS
-                    )
-                ) {
-                    val alertBuilder = AlertDialog.Builder(requireActivity());
-                    alertBuilder.setCancelable(true);
-                    alertBuilder.setTitle(getString(R.string.phone_verification_fragment_sms_rational_title));
-                    alertBuilder.setMessage(getString(R.string.phone_verification_fragment_sms_rational_message))
-                    alertBuilder.setPositiveButton(
-                        R.string.yes_button
-                    ) { _, _ -> permissionHelper.requestSMSGroupPermission(this) }
-                    val alert = alertBuilder.create();
-                    alert.show();
-                } else {
-                    permissionHelper.requestSMSGroupPermission(this)
-                }
+                val alertBuilder = AlertDialog.Builder(requireActivity())
+                alertBuilder.setCancelable(false)
+                alertBuilder.setTitle(getString(R.string.phone_verification_fragment_sms_rational_title))
+                alertBuilder.setMessage(getString(R.string.phone_verification_fragment_sms_rational_message))
+                alertBuilder.setPositiveButton(
+                    R.string.ok_button
+                ) { _, _ -> permissionHelper.requestSMSGroupPermission(this) }
+                val alert = alertBuilder.create()
+                alert.show()
             }
         }
 
