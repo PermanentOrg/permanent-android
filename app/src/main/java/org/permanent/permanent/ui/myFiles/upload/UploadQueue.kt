@@ -54,12 +54,16 @@ class UploadQueue(
         accountRepository?.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
                 for (uri in copiedUris) {
-                    if (context.assetSize(uri) < account.spaceLeft!!) {
-                        val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
+                    val upload = Upload(context, folderIdentifier, uri, onFinishedListener)
+                    account.spaceLeft?.let {
+                        if (context.assetSize(uri) < it) {
+                            pendingUploads.add(upload)
+                        } else {
+                            onFinishedListener.onQuotaExceeded()
+                            return
+                        }
+                    } ?: run {
                         pendingUploads.add(upload)
-                    } else {
-                        onFinishedListener.onQuotaExceeded()
-                        return
                     }
                 }
                 enqueuePendingUploads()

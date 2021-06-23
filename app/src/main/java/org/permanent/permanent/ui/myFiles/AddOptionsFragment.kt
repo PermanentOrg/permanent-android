@@ -23,6 +23,7 @@ import org.permanent.permanent.Constants.Companion.FILE_PROVIDER_NAME
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_FILE_SELECT
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_IMAGE_CAPTURE
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_VIDEO_CAPTURE
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
@@ -159,7 +160,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
                     }
                     photoFile?.let { file ->
                         context?.let { ctx ->
-                            photoURI = FileProvider.getUriForFile(ctx, FILE_PROVIDER_NAME, file)
+                            photoURI = FileProvider.getUriForFile(ctx, PermanentApplication.instance.packageName + FILE_PROVIDER_NAME, file)
                         }
                         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                         startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE)
