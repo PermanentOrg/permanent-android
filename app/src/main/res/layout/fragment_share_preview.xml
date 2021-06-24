@@ -95,16 +95,28 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewDivider" />
 
+        <ImageView
+            android:id="@+id/ivChicken"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:visibility="@{viewModel.currentState == PreviewState.ERROR ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toTopOf="@+id/layoutBottom"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/img_chicken_in_sweater" />
+
         <TextView
             android:id="@+id/tvErrorMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="1"
-            android:text="@{viewModel.errorMessage}"
+            android:text="@string/share_preview_link_unavailable"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -112,7 +124,8 @@
             app:layout_constraintBottom_toTopOf="@+id/layoutBottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/ivChicken"
+            app:layout_constraintVertical_bias="0.0" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutBottom"
