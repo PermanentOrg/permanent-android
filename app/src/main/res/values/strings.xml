@@ -209,6 +209,7 @@
     <string name="members_edit_member_title">Edit Member</string>
     <string name="members_remove_button">Remove</string>
 
+    <string name="share_preview_link_unavailable">This link is no longer available</string>
     <string name="share_preview_request_access_button">Request Access</string>
     <string name="share_preview_view_in_archive_button">View in Archive</string>
     <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>
