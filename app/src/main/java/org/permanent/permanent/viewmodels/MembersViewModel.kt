@@ -21,8 +21,8 @@ class MembersViewModel(
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-    private val ownerDisplayName = prefsHelper.getUserFullName()
-    private val ownerEmail = prefsHelper.getEmail()
+    private val ownerDisplayName = prefsHelper.getAccountFullName()
+    private val ownerEmail = prefsHelper.getUserEmail()
     private val existsManagers = MutableLiveData(false)
     private val existsCurators = MutableLiveData(false)
     private val existsEditors = MutableLiveData(false)

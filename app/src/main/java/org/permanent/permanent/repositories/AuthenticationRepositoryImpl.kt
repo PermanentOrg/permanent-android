@@ -48,11 +48,15 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
+                // We save this for the background login after verifyCode
                 prefsHelper.saveUserEmail(email)
+                prefsHelper.saveUserPass(password)
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     // We use this in the members section
-                    prefsHelper.saveUserFullName(responseVO.getAccount()?.fullName)
+                    prefsHelper.saveAccountFullName(responseVO.getAccount()?.fullName)
+                    prefsHelper.saveArchiveFullName(responseVO.getArchive()?.fullName)
+                    prefsHelper.saveUserAccountId(responseVO.getAccount()?.accountId)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
@@ -118,7 +122,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         listener: IAuthenticationRepository.IOnSMSCodeSentListener
     ) {
         val accountId = prefsHelper.getUserAccountId()
-        val email = prefsHelper.getEmail()
+        val email = prefsHelper.getUserEmail()
 
         if (accountId != 0 && email != null) {
             NetworkClient.instance.sendSMSVerificationCode(
@@ -152,7 +156,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         authType: String,
         listener: IAuthenticationRepository.IOnVerifyListener
     ) {
-        prefsHelper.getEmail()?.let {
+        prefsHelper.getUserEmail()?.let {
             NetworkClient.instance.verifyCode(
                 code,
                 authType,
@@ -164,9 +168,6 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                        // We use this in the members section
-                        prefsHelper.saveUserFullName(responseVO.getAccount()?.fullName)
-                        prefsHelper.saveUserAccountId(responseVO.getAccount()?.accountId)
                         listener.onSuccess()
                     } else {
                         listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0)

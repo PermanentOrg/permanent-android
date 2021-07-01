@@ -1,6 +1,5 @@
 package org.permanent.permanent.repositories
 
-import android.app.Application
 import android.content.Context
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
@@ -29,10 +28,6 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                 val responseVO = response.body()
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
-                    // We save this for the Update Phone call
-                    prefsHelper.saveUserAccountId(responseVO.getAccount()?.accountId)
-                    // We save these here in order to use them for the background login call
-                    prefsHelper.saveUserEmail(email)
                     listener.onSuccess("")
                 } else {
                     listener.onFailed(responseVO?.getMessages()?.get(0)
@@ -102,21 +97,21 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
             NetworkClient.instance.deleteAccount(prefsHelper.getCsrf(), accountId)
                 .enqueue(object : Callback<ResponseVO> {
 
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
-                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                        listener.onSuccess(appContext.getString(R.string.account_delete_success))
-                    } else {
-                        listener.onFailed(responseVO?.getMessages()?.get(0)
-                            ?: response.errorBody()?.toString())
+                    override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                        val responseVO = response.body()
+                        prefsHelper.saveCsrf(responseVO?.csrf)
+                        if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                            listener.onSuccess(appContext.getString(R.string.account_delete_success))
+                        } else {
+                            listener.onFailed(responseVO?.getMessages()?.get(0)
+                                ?: response.errorBody()?.toString())
+                        }
                     }
-                }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
-                }
-            })
+                    override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                        listener.onFailed(t.message)
+                    }
+                })
         }
     }
 

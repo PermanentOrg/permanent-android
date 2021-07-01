@@ -22,11 +22,19 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     private val onErrorMessage = Observer<String> { errorMessage ->
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
     }
+
     private val onCodeVerified = Observer<Void> {
-        if (isLoginFlow() || viewModel.isSmsCodeFlow) {
-            startMainActivity()
-        } else startPhoneVerificationFragment()
+        when {
+            isLoginFlow() -> viewModel.tryLoginAgain()
+            viewModel.isSmsCodeFlow -> startMainActivity()
+            else -> startPhoneVerificationFragment()
+        }
     }
+
+    private val onLoggedIn = Observer<Void> {
+        startMainActivity()
+    }
+
     private val onSmsCodeReceived = Observer<String> {
         binding.etVerificationCode.setText(it)
     }
@@ -34,7 +42,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentVerificationCodeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -59,12 +67,14 @@ class CodeVerificationFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnCodeVerified().observe(this, onCodeVerified)
+        viewModel.getOnLoggedIn().observe(this, onLoggedIn)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
         smsVerificationCodeHelper?.getCode()?.observe(this, onSmsCodeReceived)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnCodeVerified().removeObserver(onCodeVerified)
+        viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
         smsVerificationCodeHelper?.getCode()?.removeObserver(onSmsCodeReceived)
     }
@@ -86,6 +96,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     private fun isSmsCodeFlow(): Boolean {
-        return findNavController().previousBackStackEntry?.destination?.id == R.id.phoneVerificationFragment
+        return findNavController().previousBackStackEntry?.destination?.id ==
+                R.id.phoneVerificationFragment
     }
 }

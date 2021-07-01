@@ -150,6 +150,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             .setView(viewDialog)
             .create()
 
+        viewDialog.tvWelcomeTitle.text =
+            getString(R.string.welcome_title, prefsHelper.getArchiveFullName())
         viewDialog.ivBtnClose.setOnClickListener {
             prefsHelper.setWelcomeDialogSeen()
             alert.dismiss()

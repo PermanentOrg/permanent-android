@@ -9,10 +9,12 @@ const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val PREFS_USER_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_USER_EMAIL = "preferences_user_email"
+const val PREFS_USER_PASSWORD = "preferences_user_password"
 const val PREFS_CSRF = "preferences_csrf"
 const val PREFS_ARCHIVE_ID = "preferences_archive_id"
 const val PREFS_ROOT_ARCHIVE_NR = "preferences_root_archive_nr"
-const val PREFS_USER_FULL_NAME = "preferences_user_full_name"
+const val PREFS_ACCOUNT_FULL_NAME = "preferences_account_full_name"
+const val PREFS_ARCHIVE_FULL_NAME = "preferences_archive_full_name"
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
@@ -74,8 +76,19 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getEmail(): String? {
+    fun getUserEmail(): String? {
         return sharedPreferences.getString(PREFS_USER_EMAIL, "")
+    }
+
+    fun saveUserPass(pass: String) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_USER_PASSWORD, pass)
+            apply()
+        }
+    }
+
+    fun getUserPass(): String? {
+        return sharedPreferences.getString(PREFS_USER_PASSWORD, "")
     }
 
     fun saveCsrf(csrf: String?) {
@@ -118,17 +131,30 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
             ?.substringBefore("-") + "-0000"
     }
 
-    fun saveUserFullName(name: String?) {
+    fun saveAccountFullName(name: String?) {
         name?.let {
             with(sharedPreferences.edit()) {
-                putString(PREFS_USER_FULL_NAME, name)
+                putString(PREFS_ACCOUNT_FULL_NAME, name)
                 apply()
             }
         }
     }
 
-    fun getUserFullName(): String? {
-        return sharedPreferences.getString(PREFS_USER_FULL_NAME, "")
+    fun getAccountFullName(): String? {
+        return sharedPreferences.getString(PREFS_ACCOUNT_FULL_NAME, "")
+    }
+
+    fun saveArchiveFullName(name: String?) {
+        name?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_ARCHIVE_FULL_NAME, name)
+                apply()
+            }
+        }
+    }
+
+    fun getArchiveFullName(): String? {
+        return sharedPreferences.getString(PREFS_ARCHIVE_FULL_NAME, "")
     }
 
     fun saveShareLinkUrlToken(urlToken: String) {
