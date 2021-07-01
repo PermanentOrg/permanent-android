@@ -60,6 +60,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         if(record != null) {
+            // notification deeplink
             navigateToShareLinkFragment(record)
             arguments?.clear()
         } else {

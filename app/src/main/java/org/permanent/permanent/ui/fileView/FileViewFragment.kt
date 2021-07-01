@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.fileView
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -74,6 +75,10 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
+    private val onFileDownloaded = Observer<Void> { _ ->
+        viewModel.getUriForSharing()?.let { shareFile(it) }
+    }
+
     private val onFileData = Observer<FileData> {
         fileData = it
         (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
@@ -127,25 +132,36 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
                 super.onOptionsItemSelected(item)
             }
             R.id.shareItem -> {
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.putExtra(Intent.EXTRA_STREAM, viewModel.getUriForSharing())
-                intent.type = fileData?.contentType
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                startActivity(Intent.createChooser(intent, "Share file"))
+                val uriForSharing = viewModel.getUriForSharing()
+                if (uriForSharing != null) {
+                    shareFile(uriForSharing)
+                } else {
+                    viewModel.downloadFile(this)
+                }
                 super.onOptionsItemSelected(item)
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
+    private fun shareFile(sharingUri: Uri) {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.putExtra(Intent.EXTRA_STREAM, sharingUri)
+        intent.type = fileData?.contentType
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivity(Intent.createChooser(intent, "Share file"))
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getFileData().observe(this, onFileData)
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnFileDownloaded().observe(this, onFileDownloaded)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getFileData().removeObserver(onFileData)
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnFileDownloaded().removeObserver(onFileDownloaded)
     }
 
     override fun onStart() {

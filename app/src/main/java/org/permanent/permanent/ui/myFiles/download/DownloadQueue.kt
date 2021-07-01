@@ -34,8 +34,8 @@ class DownloadQueue(
         enqueuedDownloads.value = enqueuedDownloads.value
     }
 
-    fun enqueueNewDownloadFor(file: Record): Download {
-        val download = Download(context, file, onFinishedListener)
+    fun enqueueNewDownloadFor(record: Record): Download {
+        val download = Download(context, record, onFinishedListener)
         download.getWorkRequest()?.let { workManager.enqueue(it) }
         download.observeWorkInfoOn(lifecycleOwner)
         enqueuedDownloads.value?.add(download)

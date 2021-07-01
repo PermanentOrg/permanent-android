@@ -65,26 +65,26 @@ class SharedXMeViewModel(application: Application
 
     fun getOnFileViewRequest(): LiveData<Record> = onFileViewRequest
 
-    fun download(record: DownloadableRecord) {
-        val download = downloadQueue.enqueueNewDownloadFor(record)
-        record.observe(lifecycleOwner, download)
+    fun download(downloadableRecord: DownloadableRecord) {
+        val download = downloadQueue.enqueueNewDownloadFor(downloadableRecord)
+        downloadableRecord.observe(lifecycleOwner, download)
     }
 
-    fun onRecordClick(record: DownloadableRecord) {
-        if (record.type == RecordType.FOLDER) {
-            folderPathStack.push(record)
-            loadFilesOf(record)
+    fun onRecordClick(downloadableRecord: DownloadableRecord) {
+        if (downloadableRecord.type == RecordType.FOLDER) {
+            folderPathStack.push(downloadableRecord)
+            loadFilesOf(downloadableRecord)
         } else {
-            onFileViewRequest.value = record
+            onFileViewRequest.value = downloadableRecord
         }
     }
 
-    private fun loadFilesOf(record: DownloadableRecord) {
+    private fun loadFilesOf(downloadableRecord: DownloadableRecord) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val archiveNr = record.archiveNr
-        val folderLinkId = record.folderLinkId
+        val archiveNr = downloadableRecord.archiveNr
+        val folderLinkId = downloadableRecord.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             isBusy.value = true
             fileRepository.getChildRecordsOf(archiveNr, folderLinkId,
@@ -93,7 +93,7 @@ class SharedXMeViewModel(application: Application
                     override fun onSuccess(recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         isRoot.value = false
-                        folderName.value = record.displayName
+                        folderName.value = downloadableRecord.displayName
                         existsShares.value = !recordVOs.isNullOrEmpty()
                         recordVOs?.let { onRecordsRetrieved.value = getDownloadableRecords(recordVOs) }
                     }
@@ -134,10 +134,7 @@ class SharedXMeViewModel(application: Application
         showMessage.value = message
     }
 
-    override fun onQuotaExceeded() {
+    override fun onQuotaExceeded() {} // Not needed
 
-    }
-
-    override fun onFinished(upload: Upload, succeeded: Boolean) { // Not needed
-    }
+    override fun onFinished(upload: Upload, succeeded: Boolean) {} // Not needed
 }
