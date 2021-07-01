@@ -1,16 +1,22 @@
 package org.permanent.permanent.ui.myFiles.download
 
+import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import org.permanent.permanent.models.FileType
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import org.permanent.permanent.ui.myFiles.upload.WORKER_INPUT_FOLDER_LINK_ID_KEY
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 
 const val WORKER_INPUT_RECORD_ID_KEY = "worker_input_record_id"
 const val DOWNLOAD_PROGRESS = "download_progress"
@@ -29,19 +35,50 @@ class DownloadWorker(val context: Context, workerParams: WorkerParameters)
         val downloadURL = fileData?.downloadURL
         val fileName = fileData?.fileName
 
-        if (downloadURL != null && fileName != null) {
-            fileRepository.downloadFile(downloadURL, getFileOutputStream(fileName),
-                object : CountingRequestListener {
-                    override fun onProgressUpdate(progress: Long) {
-                        setProgressAsync(
-                            Data.Builder().putInt(DOWNLOAD_PROGRESS, progress.toInt()).build()
-                        )
+        downloadURL?.let { url ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val resolver = applicationContext.contentResolver
+
+                val collection: Uri = when {
+                    fileData.contentType?.contains(FileType.IMAGE.toString()) == true ->
+                        MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                    fileData.contentType?.contains(FileType.VIDEO.toString()) == true ->
+                        MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                    else -> MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                }
+
+                val newFileDetails = ContentValues().apply { when {
+                    fileData.contentType?.contains(FileType.IMAGE.toString()) == true ->
+                        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                    fileData.contentType?.contains(FileType.VIDEO.toString()) == true ->
+                        put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
+                    else -> put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                } }
+                resolver.insert(collection, newFileDetails)?.let { fileUri ->
+                    resolver.openOutputStream(fileUri).use {
+                        it?.let { outputStream ->
+                            startDownloading(url, outputStream)
+                        } ?: return Result.failure()
                     }
-                })
-        } else {
-            return Result.failure()
-        }
+                } ?: return Result.failure()
+            } else {
+                fileName?.let { startDownloading(url, getFileOutputStream(it))
+                } ?: return Result.failure()
+            }
+        } ?: return Result.failure()
         return Result.success()
+    }
+
+    private fun startDownloading(downloadURL: String, outputStream: OutputStream) {
+        fileRepository.downloadFile(downloadURL, outputStream,
+            object : CountingRequestListener {
+                override fun onProgressUpdate(progress: Long) {
+                    setProgressAsync(
+                        Data.Builder()
+                            .putInt(DOWNLOAD_PROGRESS, progress.toInt()).build()
+                    )
+                }
+            })
     }
 
     private fun getFileOutputStream(fileName : String) : FileOutputStream {
