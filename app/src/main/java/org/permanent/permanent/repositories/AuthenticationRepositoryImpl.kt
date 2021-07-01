@@ -57,6 +57,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     prefsHelper.saveAccountFullName(responseVO.getAccount()?.fullName)
                     prefsHelper.saveArchiveFullName(responseVO.getArchive()?.fullName)
                     prefsHelper.saveUserAccountId(responseVO.getAccount()?.accountId)
+                    prefsHelper.saveUserLoggedIn(true)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
