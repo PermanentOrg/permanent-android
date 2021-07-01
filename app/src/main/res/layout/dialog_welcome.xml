@@ -9,15 +9,15 @@
 
         <ImageView
             android:id="@+id/ivWelcomeImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="176dp"
+            android:layout_height="176dp"
             android:layout_marginTop="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/img_welcome_screen" />
+            app:srcCompat="@drawable/img_chicken_in_sweater" />
 
         <TextView
             android:id="@+id/tvWelcomeTitle"
@@ -27,7 +27,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
             android:gravity="center"
-            android:text="Welcome to The Bryson Williams Archive"
+            android:text="@string/welcome_title"
             android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"

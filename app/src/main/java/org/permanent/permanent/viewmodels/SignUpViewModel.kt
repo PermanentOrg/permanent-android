@@ -31,29 +31,27 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
 
-    fun getCurrentName(): MutableLiveData<String>? {
-        return currentName
-    }
+    fun getCurrentName(): MutableLiveData<String> = currentName
 
-    fun getCurrentEmail(): MutableLiveData<String>? {
-        return currentEmail
-    }
+    fun getCurrentEmail(): MutableLiveData<String> = currentEmail
 
-    fun getCurrentPassword(): MutableLiveData<String>? {
-        return currentPassword
-    }
+    fun getCurrentPassword(): MutableLiveData<String> = currentPassword
 
-    fun getNameError(): LiveData<Int> {
-        return nameError
-    }
+    fun getNameError(): LiveData<Int> = nameError
 
-    fun getEmailError(): LiveData<Int> {
-        return emailError
-    }
+    fun getEmailError(): LiveData<Int> = emailError
 
-    fun getPasswordError(): LiveData<Int> {
-        return passwordError
-    }
+    fun getPasswordError(): LiveData<Int> = passwordError
+
+    fun getOnErrorMessage(): MutableLiveData<String> = onErrorMessage
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnLoggedIn(): MutableLiveData<Void> = onLoggedIn
+
+    fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> = onReadyToShowTermsDialog
+
+    fun getOnAlreadyHaveAccount(): MutableLiveData<Void> = onAlreadyHaveAccount
 
     fun onNameTextChanged(name: Editable) {
         currentName.value = name.toString()
@@ -65,26 +63,6 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun onPasswordTextChanged(password: Editable) {
         currentPassword.value = password.toString()
-    }
-
-    fun getOnErrorMessage(): MutableLiveData<String> {
-        return onErrorMessage
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getOnLoggedIn(): MutableLiveData<Void> {
-        return onLoggedIn
-    }
-
-    fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> {
-        return onReadyToShowTermsDialog
-    }
-
-    fun getOnAlreadyHaveAccount(): MutableLiveData<Void> {
-        return onAlreadyHaveAccount
     }
 
     fun alreadyHaveAccount() {

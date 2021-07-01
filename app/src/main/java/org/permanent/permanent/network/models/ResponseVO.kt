@@ -42,6 +42,10 @@ class ResponseVO {
         return getData()?.get(0)?.AccountVO
     }
 
+    fun getArchive(): ArchiveVO? {
+        return getData()?.get(0)?.ArchiveVO
+    }
+
     fun getShareByUrlVO(): Shareby_urlVO? {
         return getData()?.get(0)?.Shareby_urlVO
     }

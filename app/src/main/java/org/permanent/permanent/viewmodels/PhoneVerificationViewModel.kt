@@ -80,7 +80,7 @@ class PhoneVerificationViewModel(application: Application) : ObservableAndroidVi
 
     private fun updateAccount(phone: String) {
         val accountId = prefsHelper.getUserAccountId()
-        val email = prefsHelper.getEmail()
+        val email = prefsHelper.getUserEmail()
         val account = Account(accountId, email)
         account.phone = phone
 
