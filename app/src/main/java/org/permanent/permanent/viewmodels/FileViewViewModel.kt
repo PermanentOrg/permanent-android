@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
@@ -133,9 +134,11 @@ class FileViewViewModel(application: Application
         download.observeWorkInfoOn(lifecycleOwner)
     }
 
-    override fun onFinished(download: Download) {
+    override fun onFinished(download: Download, state: WorkInfo.State) {
         isBusy.value = false
-        onFileDownloaded.call()
+        if (state == WorkInfo.State.SUCCEEDED) onFileDownloaded.call()
+        else if (state == WorkInfo.State.FAILED)
+            showMessage.value = appContext.getString(R.string.generic_error)
     }
 
     override fun onFailed(message: String) {

@@ -6,14 +6,16 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import okhttp3.ResponseBody
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
-import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import org.permanent.permanent.ui.myFiles.upload.WORKER_INPUT_FOLDER_LINK_ID_KEY
+import retrofit2.Call
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -23,7 +25,12 @@ const val DOWNLOAD_PROGRESS = "download_progress"
 class DownloadWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
 
+    private var callDownload: Call<ResponseBody>? = null
     private var fileRepository: IFileRepository = FileRepositoryImpl(context)
+
+    override fun onStopped() {
+        callDownload?.cancel()
+    }
 
     override fun doWork(): Result {
         val folderLinkId = inputData.getInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, 0)
@@ -70,15 +77,39 @@ class DownloadWorker(val context: Context, workerParams: WorkerParameters)
     }
 
     private fun startDownloading(downloadURL: String, outputStream: OutputStream) {
-        fileRepository.downloadFile(downloadURL, outputStream,
-            object : CountingRequestListener {
-                override fun onProgressUpdate(progress: Long) {
-                    setProgressAsync(
-                        Data.Builder()
-                            .putInt(DOWNLOAD_PROGRESS, progress.toInt()).build()
-                    )
+        callDownload = fileRepository.downloadFile(downloadURL)
+        val downloadResponse = callDownload?.execute()
+        val contentLength = downloadResponse?.body()?.contentLength()
+        val inputStream = downloadResponse?.body()?.byteStream()
+        if (inputStream != null) {
+            try {
+                val updateInterval = 7
+                val data = ByteArray(4 * 1024) // or other buffer size
+                var totalCount = 0L
+                var count: Int
+                var reportedProgress = 0L
+                while (inputStream.read(data).also { count = it } != -1) {
+                    totalCount += count
+                    outputStream.write(data, 0, count)
+                    // Report progress
+                    if (contentLength != null && contentLength > 0) {
+                        val newProgress = 100 * totalCount / contentLength
+                        if (newProgress >= reportedProgress + updateInterval) {
+                            reportedProgress = newProgress
+                            setProgressAsync(Data.Builder()
+                                .putInt(DOWNLOAD_PROGRESS, reportedProgress.toInt()).build())
+                        }
+                    }
                 }
-            })
+                outputStream.flush()
+            } catch (e: Exception) {
+                Log.e(FileRepositoryImpl::class.java.simpleName, e.message!!)
+                return
+            } finally {
+                inputStream.close()
+                outputStream.close()
+            }
+        }
     }
 
     private fun getFileOutputStream(fileName : String) : FileOutputStream {

@@ -69,7 +69,6 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                     Result.failure()
                 }
                 // #2 CALL: uploadFile
-
                 callUpload = fileRepository.uploadFile(file, mediaType, uploadDestination!!,
                     object : CountingRequestListener {
                         override fun onProgressUpdate(progress: Long) {

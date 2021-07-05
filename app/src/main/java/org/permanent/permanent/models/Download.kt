@@ -80,7 +80,11 @@ class Download private constructor(val context: Context, val listener: OnFinishe
         if(isDownloading.value != isDownloadingValue) isDownloading.value = isDownloadingValue
         if (state.isFinished) {
             removeWorkInfoObserver()
-            listener.onFinished(this)
+            listener.onFinished(this, state)
         }
+    }
+
+    fun cancel() {
+        WorkManager.getInstance(context).cancelWorkById(uuid)
     }
 }

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.ExistingWorkPolicy
+import androidx.work.WorkInfo
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.messaging.FirebaseMessaging
@@ -258,6 +259,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onCancelClick(download: Download) {
+        download.cancel()
+        downloadQueue.removeDownload(download)
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {
@@ -270,8 +273,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         }
     }
 
-    override fun onFinished(download: Download) {
+    override fun onFinished(download: Download, state: WorkInfo.State) {
         onDownloadFinished.value = download
+        if (state == WorkInfo.State.SUCCEEDED)
+            showMessage.value = "Downloaded ${download.getDisplayName()}"
+        else if (state == WorkInfo.State.FAILED)
+            showMessage.value = appContext.getString(R.string.generic_error)
     }
 
     override fun onFailed(message: String) {

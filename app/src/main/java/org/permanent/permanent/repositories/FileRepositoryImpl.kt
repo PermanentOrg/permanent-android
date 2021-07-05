@@ -182,44 +182,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         return NetworkClient.instance.getRecord(prefsHelper.getCsrf(), folderLinkId, recordId)
     }
 
-    override fun downloadFile(
-        downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener) {
-        try {
-            val response = NetworkClient.instance.downloadFile(downloadUrl).execute()
-            val contentLength = response.body()?.contentLength()
-            val inputStream = response.body()?.byteStream()
-            if (inputStream != null) {
-                try {
-                    val updateInterval = 7
-                    val data = ByteArray(4 * 1024) // or other buffer size
-                    var totalCount = 0L
-                    var count: Int
-                    var reportedProgress = 0L
-                    while (inputStream.read(data).also { count = it } != -1) {
-                        totalCount += count
-                        fileOutputStream.write(data, 0, count)
-                        // Report progress
-                        if (contentLength != null && contentLength > 0) {
-                            val newProgress = 100 * totalCount / contentLength
-                            if (newProgress >= reportedProgress + updateInterval) {
-                                reportedProgress = newProgress
-                                listener.onProgressUpdate(reportedProgress)
-                            }
-                        }
-                    }
-                    fileOutputStream.flush()
-                } catch (e: Exception) {
-                    Log.e(FileRepositoryImpl::class.java.simpleName, e.message!!)
-                    return
-                } finally {
-                    inputStream.close()
-                }
-            }
-        } catch (e: IOException) {
-            Log.e(FileRepositoryImpl::class.java.simpleName, e.message!!)
-        } finally {
-            fileOutputStream.close()
-        }
+    override fun downloadFile(downloadUrl: String): Call<ResponseBody> {
+        return NetworkClient.instance.downloadFile(downloadUrl)
     }
 
     override fun deleteRecord(
