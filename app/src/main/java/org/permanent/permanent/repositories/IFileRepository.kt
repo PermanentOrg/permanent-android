@@ -57,8 +57,7 @@ interface IFileRepository {
         recordId: Int?,
     ): Call<ResponseVO>
 
-    fun downloadFile(
-        downloadUrl: String, fileOutputStream: OutputStream, listener: CountingRequestListener)
+    fun downloadFile(downloadUrl: String): Call<ResponseBody>
 
     fun deleteRecord(record: Record, listener: IResponseListener)
 

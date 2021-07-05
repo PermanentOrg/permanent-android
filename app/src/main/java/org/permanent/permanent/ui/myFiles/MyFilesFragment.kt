@@ -122,10 +122,6 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onDownloadFinished = Observer<Download> { download ->
-        Toast.makeText(
-            context, "Downloaded ${download.getDisplayName()}",
-            Toast.LENGTH_LONG
-        ).show()
         downloadsAdapter.remove(download)
     }
 

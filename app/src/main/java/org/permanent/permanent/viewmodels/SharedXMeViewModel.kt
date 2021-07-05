@@ -1,10 +1,13 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.work.WorkInfo
 import org.permanent.permanent.Constants
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
@@ -21,6 +24,7 @@ import java.util.*
 class SharedXMeViewModel(application: Application
 ) : ObservableAndroidViewModel(application), OnFinishedListener {
 
+    private val appContext: Context = application.applicationContext
     private lateinit var lifecycleOwner: LifecycleOwner
     private lateinit var downloadQueue: DownloadQueue
     val isRoot = MutableLiveData(true)
@@ -126,8 +130,11 @@ class SharedXMeViewModel(application: Application
         }
     }
 
-    override fun onFinished(download: Download) {
-        showMessage.value = "Downloaded ${download.getDisplayName()}"
+    override fun onFinished(download: Download, state: WorkInfo.State) {
+        if (state == WorkInfo.State.SUCCEEDED)
+            showMessage.value = "Downloaded ${download.getDisplayName()}"
+        else if (state == WorkInfo.State.FAILED)
+            showMessage.value = appContext.getString(R.string.generic_error)
     }
 
     override fun onFailed(message: String) {

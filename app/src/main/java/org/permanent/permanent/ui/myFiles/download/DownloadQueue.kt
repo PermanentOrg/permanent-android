@@ -44,6 +44,13 @@ class DownloadQueue(
         return download
     }
 
+    fun removeDownload(download: Download) {
+        val enqueuedDownloadsValue = enqueuedDownloads.value
+        if (!enqueuedDownloadsValue.isNullOrEmpty()) {
+            enqueuedDownloadsValue.remove(download)
+        }
+    }
+
     fun getEnqueuedDownloadsLiveData(): MutableLiveData<MutableList<Download>> {
         return enqueuedDownloads
     }

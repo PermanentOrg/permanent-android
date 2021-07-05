@@ -156,7 +156,7 @@
     <string name="delete_button">Delete</string>
     <string name="share_button">Share</string>
     <string name="more_button">More</string>
-    <string name="generic_error">Something went wrong. Please try again later.</string>
+    <string name="generic_error">Something went wrong. Please try again.</string>
     <string name="relocation_success">%s %s successfully.</string>
     <string name="relocation_type_copied">copied</string>
     <string name="relocation_type_moved">moved</string>
