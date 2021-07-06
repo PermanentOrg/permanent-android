@@ -71,7 +71,7 @@ class SharedXMeViewModel(application: Application
 
     fun download(downloadableRecord: DownloadableRecord) {
         val download = downloadQueue.enqueueNewDownloadFor(downloadableRecord)
-        downloadableRecord.observe(lifecycleOwner, download)
+        downloadableRecord.observe(download, lifecycleOwner)
     }
 
     fun onRecordClick(downloadableRecord: DownloadableRecord) {
@@ -128,6 +128,11 @@ class SharedXMeViewModel(application: Application
             folderPathStack.push(previousFolder)
             loadFilesOf(previousFolder)
         }
+    }
+
+    fun cancelDownloadOf(downloadableRecord: DownloadableRecord) {
+        downloadableRecord.cancel()
+        downloadQueue.removeDownload(downloadableRecord.download)
     }
 
     override fun onFinished(download: Download, state: WorkInfo.State) {

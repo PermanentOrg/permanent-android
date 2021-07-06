@@ -116,6 +116,10 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
     }
 
+    override fun onCancelClick(record: DownloadableRecord) {
+        viewModel.cancelDownloadOf(record)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)

@@ -122,8 +122,8 @@
         <Button
             android:id="@+id/btnCancel"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="26dp"
-            android:layout_height="47dp"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
             android:visibility="@{record.isEnqueued || record.isDownloading ? View.VISIBLE : View.GONE}"
             app:icon="@drawable/ic_close_middle_grey"
             app:iconTint="@color/middleGrey"

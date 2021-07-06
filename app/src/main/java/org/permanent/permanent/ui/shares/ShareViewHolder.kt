@@ -15,5 +15,6 @@ class ShareViewHolder (
         binding.lifecycleOwner = lifecycleOwner
         binding.root.setOnClickListener { listener.onRecordClick(record) }
         binding.btnOptions.setOnClickListener { listener.onRecordOptionsClick(record) }
+        binding.btnCancel.setOnClickListener { listener.onCancelClick(record) }
     }
 }

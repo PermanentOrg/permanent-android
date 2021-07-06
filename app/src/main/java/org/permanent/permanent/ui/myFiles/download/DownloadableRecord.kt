@@ -9,6 +9,7 @@ import org.permanent.permanent.network.models.ItemVO
 import org.permanent.permanent.network.models.RecordVO
 
 class DownloadableRecord : Record {
+    lateinit var download: Download
     var isEnqueued = MutableLiveData(false)
     var isDownloading = MutableLiveData(false)
     var progress = MutableLiveData(0)
@@ -18,7 +19,8 @@ class DownloadableRecord : Record {
 
     constructor(recordInfo: RecordVO) : super(recordInfo)
 
-    fun observe(lifecycleOwner: LifecycleOwner, download: Download) {
+    fun observe(theDownload: Download, lifecycleOwner: LifecycleOwner) {
+        download = theDownload
         download.isEnqueued.observe(lifecycleOwner, {
             isEnqueued.value = it
         })
@@ -28,5 +30,9 @@ class DownloadableRecord : Record {
         download.progress.observe(lifecycleOwner, {
             progress.value = it
         })
+    }
+
+    fun cancel() {
+        download.cancel()
     }
 }

@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles.download
 
+import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -25,11 +26,23 @@ const val DOWNLOAD_PROGRESS = "download_progress"
 class DownloadWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
 
+    private var file: File? = null
+    private var fileUri: Uri? = null
+    private lateinit var resolver: ContentResolver
     private var callDownload: Call<ResponseBody>? = null
     private var fileRepository: IFileRepository = FileRepositoryImpl(context)
 
     override fun onStopped() {
         callDownload?.cancel()
+        // Android < Build.VERSION_CODES.Q
+        file?.delete()
+        // Android >= Build.VERSION_CODES.Q
+        fileUri?.let {
+            resolver.delete(
+                it,
+                null,
+                null)
+        }
     }
 
     override fun doWork(): Result {
@@ -44,7 +57,7 @@ class DownloadWorker(val context: Context, workerParams: WorkerParameters)
 
         downloadURL?.let { url ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val resolver = applicationContext.contentResolver
+                resolver = applicationContext.contentResolver
 
                 val collection: Uri = when {
                     fileData.contentType?.contains(FileType.IMAGE.toString()) == true ->
@@ -61,8 +74,9 @@ class DownloadWorker(val context: Context, workerParams: WorkerParameters)
                         put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
                     else -> put(MediaStore.Downloads.DISPLAY_NAME, fileName)
                 } }
-                resolver.insert(collection, newFileDetails)?.let { fileUri ->
-                    resolver.openOutputStream(fileUri).use {
+                resolver.insert(collection, newFileDetails)?.let { uri ->
+                    fileUri = uri
+                    resolver.openOutputStream(uri).use {
                         it?.let { outputStream ->
                             startDownloading(url, outputStream)
                         } ?: return Result.failure()
@@ -113,16 +127,16 @@ class DownloadWorker(val context: Context, workerParams: WorkerParameters)
     }
 
     private fun getFileOutputStream(fileName : String) : FileOutputStream {
-        var file = File(
+        file = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             fileName)
 
-        if(file.exists()) {
+        if(file?.exists() == true) {
             var i = 1
             val parts = fileName.split(".")
             val name = parts[0]
             val exts = parts[1]
-            while (file.exists()) {
+            while (file?.exists() == true) {
                 file = File(
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                     "$name ($i).$exts"
