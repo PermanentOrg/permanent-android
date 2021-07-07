@@ -18,7 +18,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
     private val emailError = MutableLiveData<Int>()
     private val accessRoleError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onMemberAdded = SingleLiveEvent<Void>()
+    private val onMemberAddedConclusion = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
     private var memberRepository: IMemberRepository = MemberRepositoryImpl(application)
@@ -43,8 +43,8 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
         return isBusy
     }
 
-    fun getOnMemberAdded(): LiveData<Void> {
-        return onMemberAdded
+    fun getOnMemberAddedConclusion(): LiveData<Void> {
+        return onMemberAddedConclusion
     }
 
     fun getShowSuccessSnackbar(): LiveData<String> {
@@ -71,12 +71,13 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
             memberRepository.addMember(email, accessRole, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    onMemberAdded.call()
+                    onMemberAddedConclusion.call()
                     showSnackbarSuccess.value = message
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
+                    onMemberAddedConclusion.call()
                     showSnackbar.value = error
                 }
             })

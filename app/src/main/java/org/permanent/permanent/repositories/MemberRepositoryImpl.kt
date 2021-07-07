@@ -1,6 +1,7 @@
 package org.permanent.permanent.repositories
 
 import android.content.Context
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.network.IDataListener
@@ -47,9 +48,10 @@ class MemberRepositoryImpl(val context: Context): IMemberRepository {
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(
                             context.getString(R.string.members_member_added_successfully))
-                    } else {
-                        listener.onFailed(responseVO?.getMessages()?.get(0))
-                    }
+                    } else if (responseVO?.getMessages()?.get(0)
+                        == Constants.ERROR_MEMBER_ALREADY_ADDED) {
+                        listener.onFailed(context.getString(R.string.members_member_already_added))
+                    } else listener.onFailed(responseVO?.getMessages()?.get(0))
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {

@@ -205,10 +205,12 @@
     <string name="members_access_level_title">Access Level</string>
     <string name="members_member_email_hint">Member Email</string>
     <string name="members_member_added_successfully">Member added successfully</string>
+    <string name="members_member_already_added">This account already has access to the Permanent Archive</string>
     <string name="members_member_updated_successfully">Member updated successfully</string>
     <string name="members_member_removed_successfully">Member removed successfully</string>
     <string name="members_edit_member_title">Edit Member</string>
     <string name="members_remove_button">Remove</string>
+    <string name="members_add_members_button">Add Members</string>
 
     <string name="share_preview_link_unavailable">This link is no longer available</string>
     <string name="share_preview_request_access_button">Request Access</string>

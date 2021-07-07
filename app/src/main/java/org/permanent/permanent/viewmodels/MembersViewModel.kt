@@ -170,7 +170,7 @@ class MembersViewModel(
         showSnackbarLong.value = stringInt
     }
 
-    fun onAddFabClick() {
+    fun onAddMembersClick() {
         onShowAddMemberDialogRequest.value = onShowAddMemberDialogRequest.value
     }
 

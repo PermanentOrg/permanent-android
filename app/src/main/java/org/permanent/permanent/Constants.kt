@@ -20,6 +20,7 @@ class Constants {
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
         const val ERROR_UNKNOWN_SIGNIN = "warning.signin.unknown"
         const val ERROR_SERVER_ERROR = "error.api.invalid_request"
+        const val ERROR_MEMBER_ALREADY_ADDED = "error.pr.duplicate_share"
         const val ERROR_NO_API_KEY = "error.api.no_key"
         const val ERROR_ACCOUNT_DUPLICATE = "warning.registration.duplicate_email"
         const val ERROR_PHONE_INVALID = "warning.validation.phone"
