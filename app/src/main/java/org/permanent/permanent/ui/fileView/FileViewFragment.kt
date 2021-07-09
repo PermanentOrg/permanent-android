@@ -8,6 +8,7 @@ import android.os.Environment
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
@@ -34,6 +35,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     private lateinit var viewModel: FileViewViewModel
     private lateinit var binding: FragmentFileViewBinding
     private var fileData: FileData? = null
+    private var downloadingAlert: AlertDialog? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -76,6 +78,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     }
 
     private val onFileDownloaded = Observer<Void> { _ ->
+        downloadingAlert?.cancel()
         viewModel.getUriForSharing()?.let { shareFile(it) }
     }
 
@@ -136,6 +139,15 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
                 if (uriForSharing != null) {
                     shareFile(uriForSharing)
                 } else {
+                    downloadingAlert = context?.let {
+                        AlertDialog.Builder(it)
+                            .setTitle(getString(R.string.downloading_file_in_progress))
+                            .setNegativeButton(getString(R.string.cancel_button)
+                            ) { _, _ -> viewModel.cancelDownload() }
+                            .create()
+                    }
+                    downloadingAlert?.show()
+
                     viewModel.downloadFile(this)
                 }
                 super.onOptionsItemSelected(item)

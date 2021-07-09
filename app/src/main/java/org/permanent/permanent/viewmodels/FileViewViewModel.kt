@@ -34,6 +34,7 @@ class FileViewViewModel(application: Application
     private val appContext = application.applicationContext
     private lateinit var record: Record
     private var file: File? = null
+    private var download: Download? = null
     private var fileData = MutableLiveData<FileData>()
     private val filePath = MutableLiveData<String>()
     private val isVideo = MutableLiveData<Boolean>()
@@ -128,14 +129,16 @@ class FileViewViewModel(application: Application
     }
 
     fun downloadFile(lifecycleOwner: LifecycleOwner) {
-        isBusy.value = true
-        val download = Download(appContext, record, this)
-        download.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
-        download.observeWorkInfoOn(lifecycleOwner)
+        download = Download(appContext, record, this)
+        download?.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
+        download?.observeWorkInfoOn(lifecycleOwner)
+    }
+
+    fun cancelDownload() {
+        download?.cancel()
     }
 
     override fun onFinished(download: Download, state: WorkInfo.State) {
-        isBusy.value = false
         if (state == WorkInfo.State.SUCCEEDED) onFileDownloaded.call()
         else if (state == WorkInfo.State.FAILED)
             showMessage.value = appContext.getString(R.string.generic_error)
