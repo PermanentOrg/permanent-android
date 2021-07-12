@@ -1,12 +1,14 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.text.format.Formatter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.FileData
 
 class FileDetailsViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private val appContext = application.applicationContext
     private val uploaded = MutableLiveData("-")
     private val lastModified = MutableLiveData("-")
     private val created = MutableLiveData("-")
@@ -23,7 +25,8 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
         lastModified.value = fileData.updatedDate?.let { it } ?: "-"
         created.value = fileData.derivedDate?.let { it } ?: "-"
         fileCreated.value = fileData.derivedCreatedDate?.let { it } ?: "-"
-        size.value = if (fileData.size != -1L) fileData.size.toString() else "-"
+        size.value =
+            if (fileData.size != -1L) Formatter.formatFileSize(appContext, fileData.size) else "-"
         fileType.value = fileData.contentType?.substringBefore("/")?.let { it } ?: "-"
         originalFileName.value = fileData.originalFileName?.let { it } ?: "-"
         originalFileType.value = fileData.originalFileType?.let { it } ?: "-"
