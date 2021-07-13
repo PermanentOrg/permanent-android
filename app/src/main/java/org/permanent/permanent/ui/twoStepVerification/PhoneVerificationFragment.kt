@@ -32,21 +32,6 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         viewModel = ViewModelProvider(this).get(PhoneVerificationViewModel::class.java)
         binding.viewModel = viewModel
 
-        context?.let {
-            val permissionHelper = PermissionsHelper()
-            if (!permissionHelper.hasSMSGroupPermission(it)) {
-                val alertBuilder = AlertDialog.Builder(requireActivity())
-                alertBuilder.setCancelable(false)
-                alertBuilder.setTitle(getString(R.string.phone_verification_fragment_sms_rational_title))
-                alertBuilder.setMessage(getString(R.string.phone_verification_fragment_sms_rational_message))
-                alertBuilder.setPositiveButton(
-                    R.string.ok_button
-                ) { _, _ -> permissionHelper.requestSMSGroupPermission(this) }
-                val alert = alertBuilder.create()
-                alert.show()
-            }
-        }
-
         return binding.root
     }
 

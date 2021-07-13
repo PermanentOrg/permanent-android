@@ -21,15 +21,15 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
     private val height = MutableLiveData("-")
 
     fun setFileData(fileData: FileData) {
-        uploaded.value = fileData.createdDate?.let { it } ?: "-"
-        lastModified.value = fileData.updatedDate?.let { it } ?: "-"
-        created.value = fileData.derivedDate?.let { it } ?: "-"
-        fileCreated.value = fileData.derivedCreatedDate?.let { it } ?: "-"
+        uploaded.value = fileData.createdDate ?: "-"
+        lastModified.value = fileData.updatedDate ?: "-"
+        created.value = fileData.derivedDate ?: "-"
+        fileCreated.value = fileData.derivedCreatedDate ?: "-"
         size.value =
             if (fileData.size != -1L) Formatter.formatFileSize(appContext, fileData.size) else "-"
-        fileType.value = fileData.contentType?.substringBefore("/")?.let { it } ?: "-"
-        originalFileName.value = fileData.originalFileName?.let { it } ?: "-"
-        originalFileType.value = fileData.originalFileType?.let { it } ?: "-"
+        fileType.value = fileData.contentType?.substringBefore("/") ?: "-"
+        originalFileName.value = fileData.originalFileName ?: "-"
+        originalFileType.value = fileData.originalFileType ?: "-"
         width.value = if (fileData.width != -1) fileData.width.toString() else "-"
         height.value = if (fileData.height != -1) fileData.height.toString() else "-"
     }
