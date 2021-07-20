@@ -16,7 +16,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
 import java.io.IOException
 
-class RequiresMFAInterceptor : Interceptor {
+class MFAInterceptor : Interceptor {
 
     private var prefsHelper: PreferencesHelper = PreferencesHelper(
         PermanentApplication.instance.getSharedPreferences(
@@ -59,6 +59,6 @@ class RequiresMFAInterceptor : Interceptor {
     }
 
     companion object {
-        private val TAG = RequiresMFAInterceptor::class.java.simpleName
+        private val TAG = MFAInterceptor::class.java.simpleName
     }
 }
