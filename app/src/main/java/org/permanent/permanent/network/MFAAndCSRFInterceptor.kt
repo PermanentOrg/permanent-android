@@ -8,6 +8,7 @@ import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
+import org.permanent.permanent.Constants.Companion.ERROR_INVALID_CSRF
 import org.permanent.permanent.Constants.Companion.ERROR_MFA_TOKEN
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
@@ -16,7 +17,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
 import java.io.IOException
 
-class MFAInterceptor : Interceptor {
+class MFAAndCSRFInterceptor : Interceptor {
 
     private var prefsHelper: PreferencesHelper = PreferencesHelper(
         PermanentApplication.instance.getSharedPreferences(
@@ -33,9 +34,10 @@ class MFAInterceptor : Interceptor {
             val rawJson = responseBody.string()
 
             if (!request.url.toString().contains("login")
-                && rawJson.contains(ERROR_MFA_TOKEN)
+                && (rawJson.contains(ERROR_MFA_TOKEN)
+                || rawJson.contains(ERROR_INVALID_CSRF))
             ) {
-                Log.i(TAG, "Requires MFA Token, redirecting to log in")
+                Log.i(TAG, "Requires MFA Token or CSRF is invalid, redirecting to log in")
                 prefsHelper.saveUserLoggedIn(false)
                 prefsHelper.saveBiometricsLogIn(true) // Setting back to default
                 val currentActivity = PermanentApplication.instance.currentActivity
@@ -59,6 +61,6 @@ class MFAInterceptor : Interceptor {
     }
 
     companion object {
-        private val TAG = MFAInterceptor::class.java.simpleName
+        private val TAG = MFAAndCSRFInterceptor::class.java.simpleName
     }
 }
