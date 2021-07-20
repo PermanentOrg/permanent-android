@@ -7,6 +7,7 @@ const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
+const val IS_USER_SIGNED_UP_IN_APP = "is_user_signed_up_in_app"
 const val PREFS_USER_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_USER_EMAIL = "preferences_user_email"
 const val PREFS_USER_PASSWORD = "preferences_user_password"
@@ -23,7 +24,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
     }
 
-    fun setWelcomeDialogSeen() {
+    fun saveWelcomeDialogSeen() {
         with(sharedPreferences.edit()) {
             putBoolean(IS_WELCOME_SEEN, true)
             apply()
@@ -32,6 +33,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isWelcomeDialogSeen(): Boolean {
         return sharedPreferences.getBoolean(IS_WELCOME_SEEN, false)
+    }
+
+    fun saveUserSignedUpInApp() {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_USER_SIGNED_UP_IN_APP, true)
+            apply()
+        }
+    }
+
+    fun isUserSignedUpInApp(): Boolean {
+        return sharedPreferences.getBoolean(IS_USER_SIGNED_UP_IN_APP, false)
     }
 
     fun saveUserLoggedIn(isLoggedIn: Boolean) {

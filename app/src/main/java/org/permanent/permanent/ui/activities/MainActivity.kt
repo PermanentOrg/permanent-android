@@ -20,7 +20,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
@@ -112,7 +111,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 //        binding.settingsNavigationView.setupWithNavController(navigationController)
 
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-        if (!prefsHelper.isWelcomeDialogSeen()) {
+        if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isWelcomeDialogSeen()) {
             showWelcomeDialog()
         }
 
@@ -153,11 +152,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         viewDialog.tvWelcomeTitle.text =
             getString(R.string.welcome_title, prefsHelper.getArchiveFullName())
         viewDialog.ivBtnClose.setOnClickListener {
-            prefsHelper.setWelcomeDialogSeen()
+            prefsHelper.saveWelcomeDialogSeen()
             alert.dismiss()
         }
         viewDialog.btnStartPreserving.setOnClickListener {
-            prefsHelper.setWelcomeDialogSeen()
+            prefsHelper.saveWelcomeDialogSeen()
             alert.dismiss()
         }
         alert.show()

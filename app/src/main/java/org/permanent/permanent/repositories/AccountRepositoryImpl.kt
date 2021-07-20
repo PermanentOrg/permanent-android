@@ -28,6 +28,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                 val responseVO = response.body()
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
+                    prefsHelper.saveUserSignedUpInApp()
                     listener.onSuccess("")
                 } else {
                     listener.onFailed(responseVO?.getMessages()?.get(0)
