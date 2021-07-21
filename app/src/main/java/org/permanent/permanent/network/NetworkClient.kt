@@ -53,13 +53,12 @@ class NetworkClient {
         )
 
         val interceptor = HttpLoggingInterceptor()
-        interceptor.level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
-        else HttpLoggingInterceptor.Level.NONE
+        interceptor.level = HttpLoggingInterceptor.Level.NONE
 
         val okHttpClient = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .addInterceptor(interceptor)
-            .addInterceptor(MFAInterceptor())
+            .addInterceptor(MFAAndCSRFInterceptor())
             .build()
 
         retrofit = Retrofit.Builder()

@@ -18,6 +18,7 @@ class Constants {
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
         const val AUTH_TYPE_PHONE = "type.auth.phone"
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
+        const val ERROR_INVALID_CSRF = "error.generic.invalid_csrf"
         const val ERROR_UNKNOWN_SIGNIN = "warning.signin.unknown"
         const val ERROR_SERVER_ERROR = "error.api.invalid_request"
         const val ERROR_MEMBER_ALREADY_ADDED = "error.pr.duplicate_share"
