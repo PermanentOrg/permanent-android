@@ -83,7 +83,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     private fun initRecordsRecyclerView(rvRecords: RecyclerView) {
         recordsRecyclerView = rvRecords
-        recordsAdapter = RecordsGridAdapter(this)
+        recordsAdapter = RecordsGridAdapter(this, viewModel)
         recordsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = GridLayoutManager(context, 2)

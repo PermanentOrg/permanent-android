@@ -6,9 +6,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemGridRecordBinding
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
 class RecordsGridAdapter(
     private val lifecycleOwner: LifecycleOwner,
+    private val viewModel: SharePreviewViewModel,
 ) : RecyclerView.Adapter<RecordGridViewHolder>() {
     var records: MutableList<Record> = ArrayList()
 
@@ -29,6 +31,6 @@ class RecordsGridAdapter(
     override fun getItemCount() = records.size
 
     override fun onBindViewHolder(holder: RecordGridViewHolder, position: Int) {
-        holder.bind(records[position], lifecycleOwner)
+        holder.bind(records[position], lifecycleOwner, viewModel.getCurrentState())
     }
 }
