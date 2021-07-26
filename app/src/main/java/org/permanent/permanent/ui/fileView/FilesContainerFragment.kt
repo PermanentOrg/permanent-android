@@ -48,6 +48,7 @@ class FilesContainerFragment : PermanentBaseFragment() {
             val viewPager = binding.vpFileView
             viewPager.adapter = viewAdapter
             viewPager.currentItem = getFileIndexToStartWith(it)
+            viewPager.offscreenPageLimit = 2 //2 before and 2 after the currentItem
         }
     }
 
