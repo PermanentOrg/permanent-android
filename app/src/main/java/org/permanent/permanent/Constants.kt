@@ -6,7 +6,6 @@ class Constants {
         const val POSITION_SHARED_WITH_ME_FRAGMENT = 1
         const val POSITION_INFO_FRAGMENT = 0
         const val POSITION_DETAILS_FRAGMENT = 1
-        const val MIN_PASSWORD_LENGTH = 8
         const val VERIFICATION_CODE_LENGTH = 4
         const val REQUEST_CODE_FILE_SELECT = 200
         const val REQUEST_CODE_IMAGE_CAPTURE = 201

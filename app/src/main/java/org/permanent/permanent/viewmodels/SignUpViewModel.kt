@@ -2,17 +2,14 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.text.Editable
-import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.Constants
-import org.permanent.permanent.R
+import org.permanent.permanent.Validator
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
-import java.util.regex.Pattern
 
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -73,9 +70,17 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        if (!isNameValid()) return
-        if (!isEmailValid()) return
-        if (!isPasswordValid()) return
+        currentName.value = currentName.value?.trim()
+        currentEmail.value = currentEmail.value?.trim()
+        currentPassword.value = currentPassword.value?.trim()
+
+        val name = currentName.value
+        val email = currentEmail.value
+        val password = currentPassword.value
+
+        if (!Validator.isValidName(name, nameError)) return
+        if (!Validator.isValidEmail(email, emailError)) return
+        if (!Validator.isValidPassword(password, passwordError)) return
 
         onReadyToShowTermsDialog.call()
     }
@@ -121,48 +126,5 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
                 onErrorMessage.value = error
             }
         })
-    }
-
-    private fun isNameValid(): Boolean {
-        currentName.value = currentName.value?.trim()
-        val name = currentName.value
-
-        return if (name.isNullOrEmpty()) {
-            nameError.value = R.string.invalid_name_error
-            false
-        } else {
-            nameError.value = null
-            true
-        }
-    }
-
-    private fun isEmailValid(): Boolean {
-        currentEmail.value = currentEmail.value?.trim()
-        val email = currentEmail.value
-        val pattern: Pattern = Patterns.EMAIL_ADDRESS
-
-        if (email.isNullOrEmpty() || !pattern.matcher(email).matches()) {
-            emailError.value = R.string.invalid_email_error
-            return false
-        }
-        emailError.value = null
-        return true
-    }
-
-    private fun isPasswordValid(): Boolean {
-        currentPassword.value = currentPassword.value?.trim()
-        val password = currentPassword.value
-
-        if (password.isNullOrEmpty()) {
-            passwordError.value = R.string.password_empty_error
-            return false
-        } else {
-            if (password.length < Constants.MIN_PASSWORD_LENGTH) {
-                passwordError.value = R.string.sign_up_password_too_small_error
-                return false
-            }
-        }
-        passwordError.value = null
-        return true
     }
 }

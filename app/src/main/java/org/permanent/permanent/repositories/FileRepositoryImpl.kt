@@ -2,7 +2,6 @@ package org.permanent.permanent.repositories
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.permanent.permanent.Constants
@@ -21,8 +20,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.io.IOException
-import java.io.OutputStream
 import java.util.*
 
 class FileRepositoryImpl(val context: Context): IFileRepository {

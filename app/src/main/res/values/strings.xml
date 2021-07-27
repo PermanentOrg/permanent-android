@@ -32,7 +32,7 @@
     <string name="verification_code_length_error">Code must be 4 characters long</string>
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
-    <string name="sign_up_password_too_small_error">Password must be minimum 8 characters long</string>
+    <string name="password_too_short_error">Password must be minimum 8 characters long</string>
     <string name="sign_up_email_in_use_error">This email is already in use</string>
     <string name="invalid_phone_error">Please enter a valid phone number</string>
     <string name="password_empty_error">Password can not be empty</string>
