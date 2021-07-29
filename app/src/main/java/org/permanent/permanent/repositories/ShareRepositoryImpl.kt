@@ -25,7 +25,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
         shareRequestType: ShareRequestType,
         listener: IShareRepository.IShareByUrlListener
     ) {
-        NetworkClient.instance.requestShareLink(prefsHelper.getCsrf(), record, shareRequestType)
+        NetworkClient.instance().requestShareLink(prefsHelper.getCsrf(), record, shareRequestType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -48,7 +48,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
         shareRequestType: ShareRequestType,
         listener: IResponseListener
     ) {
-        NetworkClient.instance.modifyShareLink(prefsHelper.getCsrf(), shareByUrlVO, shareRequestType)
+        NetworkClient.instance().modifyShareLink(prefsHelper.getCsrf(), shareByUrlVO, shareRequestType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -67,7 +67,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun approveShare(share: Share, listener: IResponseListener) {
-        NetworkClient.instance.approveShare(prefsHelper.getCsrf(), share)
+        NetworkClient.instance().approveShare(prefsHelper.getCsrf(), share)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -88,7 +88,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun denyShare(share: Share, listener: IResponseListener) {
-        NetworkClient.instance.denyShare(prefsHelper.getCsrf(), share)
+        NetworkClient.instance().denyShare(prefsHelper.getCsrf(), share)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -109,7 +109,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun checkShareLink(urlToken: String, listener: IShareRepository.IShareByUrlListener) {
-        NetworkClient.instance.checkShareLink(null, urlToken)
+        NetworkClient.instance().checkShareLink(null, urlToken)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -128,7 +128,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun requestShareAccess(urlToken: String, listener: IShareRepository.IShareListener) {
-        NetworkClient.instance.requestShareAccess(prefsHelper.getCsrf(), urlToken)
+        NetworkClient.instance().requestShareAccess(prefsHelper.getCsrf(), urlToken)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -147,7 +147,7 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun getShares(listener: IDataListener) {
-        NetworkClient.instance.getShares(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().getShares(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)

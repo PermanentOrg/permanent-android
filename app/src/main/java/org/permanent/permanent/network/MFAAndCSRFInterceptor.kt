@@ -7,7 +7,7 @@ import android.widget.Toast
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.permanent.permanent.Constants.Companion.ERROR_INVALID_CSRF
 import org.permanent.permanent.Constants.Companion.ERROR_MFA_TOKEN
 import org.permanent.permanent.PermanentApplication
@@ -54,8 +54,10 @@ class MFAAndCSRFInterceptor : Interceptor {
             }
 
             // Re-create the response before returning it because body can be read only once
-            return response.newBuilder()
-                .body(ResponseBody.create(responseBody.contentType(), rawJson)).build()
+            return response
+                .newBuilder()
+                .body(rawJson.toResponseBody(responseBody.contentType()))
+                .build()
         }
         return response
     }

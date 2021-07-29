@@ -18,7 +18,7 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
     )
 
     override fun getTagsByArchive(archiveId: Int, listener: IDataListener) {
-        NetworkClient.instance.getTagsByArchive(prefsHelper.getCsrf(), archiveId)
+        NetworkClient.instance().getTagsByArchive(prefsHelper.getCsrf(), archiveId)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -38,7 +38,7 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
     }
 
     override fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener) {
-        NetworkClient.instance.createOrLinkTag(prefsHelper.getCsrf(), tags, recordId)
+        NetworkClient.instance().createOrLinkTag(prefsHelper.getCsrf(), tags, recordId)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -58,7 +58,7 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
     }
 
     override fun unlinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener) {
-        NetworkClient.instance.unlinkTags(prefsHelper.getCsrf(), tags, recordId)
+        NetworkClient.instance().unlinkTags(prefsHelper.getCsrf(), tags, recordId)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

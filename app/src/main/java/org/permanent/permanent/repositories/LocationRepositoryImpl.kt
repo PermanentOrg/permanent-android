@@ -19,7 +19,7 @@ class LocationRepositoryImpl(val context: Context): ILocationRepository {
         latLng: LatLng,
         listener: ILocationRepository.LocationListener
     ) {
-        NetworkClient.instance.getLocation(prefsHelper.getCsrf(), latLng)
+        NetworkClient.instance().getLocation(prefsHelper.getCsrf(), latLng)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

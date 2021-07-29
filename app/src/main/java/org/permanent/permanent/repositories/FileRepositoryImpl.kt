@@ -29,7 +29,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     private val prefsHelper = PreferencesHelper(sharedPreferences)
 
     override fun getMyFilesRecord(listener: IRecordListener) {
-        NetworkClient.instance.getRoot(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().getRoot(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -68,7 +68,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        NetworkClient.instance.navigateMin(prefsHelper.getCsrf(), archiveNr, folderLinkId)
+        NetworkClient.instance().navigateMin(prefsHelper.getCsrf(), archiveNr, folderLinkId)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(
                     call: Call<ResponseVO>,
@@ -96,7 +96,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     override fun getLeanItems(archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
                               listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        NetworkClient.instance.getLeanItems(prefsHelper.getCsrf(), archiveNr, folderLinkId, sort, childLinkIds)
+        NetworkClient.instance().getLeanItems(prefsHelper.getCsrf(), archiveNr, folderLinkId, sort, childLinkIds)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -116,7 +116,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         name: String,
         listener: IResponseListener
     ) {
-        NetworkClient.instance.createFolder(
+        NetworkClient.instance().createFolder(
             prefsHelper.getCsrf(), name, parentFolderIdentifier.folderId,
             parentFolderIdentifier.folderLinkId
         ).enqueue(object : Callback<ResponseVO> {
@@ -138,7 +138,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     }
 
     override fun getFolder(folderLinkId: Int, listener: IRecordListener) {
-        NetworkClient.instance.getFolder(prefsHelper.getCsrf(), folderLinkId,
+        NetworkClient.instance().getFolder(prefsHelper.getCsrf(), folderLinkId,
         ).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -158,36 +158,36 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     override fun getPresignedUrlForUpload(
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
     ): Call<GetPresignedUrlResponse> {
-        return NetworkClient.instance.getPresignedUrlForUpload(prefsHelper.getCsrf(), file, displayName,
+        return NetworkClient.instance().getPresignedUrlForUpload(prefsHelper.getCsrf(), file, displayName,
             folderId, folderLinkId, mediaType)
     }
 
     override fun uploadFile(
         file: File, mediaType: MediaType, uploadDestination: UploadDestination, listener: CountingRequestListener
     ): Call<ResponseBody> {
-        return NetworkClient.instance.uploadFile(file, mediaType, uploadDestination, listener)
+        return NetworkClient.instance().uploadFile(file, mediaType, uploadDestination, listener)
     }
 
     override fun registerRecord(
         folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
     ): Call<ResponseVO> {
-        return NetworkClient.instance.registerRecord(prefsHelper.getCsrf(), file, displayName,
+        return NetworkClient.instance().registerRecord(prefsHelper.getCsrf(), file, displayName,
             folderId, folderLinkId, s3Url)
     }
 
     override fun getRecord(folderLinkId: Int, recordId: Int?): Call<ResponseVO> {
-        return NetworkClient.instance.getRecord(prefsHelper.getCsrf(), folderLinkId, recordId)
+        return NetworkClient.instance().getRecord(prefsHelper.getCsrf(), folderLinkId, recordId)
     }
 
     override fun downloadFile(downloadUrl: String): Call<ResponseBody> {
-        return NetworkClient.instance.downloadFile(downloadUrl)
+        return NetworkClient.instance().downloadFile(downloadUrl)
     }
 
     override fun deleteRecord(
         record: Record,
         listener: IResponseListener
     ) {
-        NetworkClient.instance.deleteRecord(prefsHelper.getCsrf(), record)
+        NetworkClient.instance().deleteRecord(prefsHelper.getCsrf(), record)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -212,7 +212,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType,
         listener: IResponseListener
     ) {
-        NetworkClient.instance.relocateRecord(
+        NetworkClient.instance().relocateRecord(
             prefsHelper.getCsrf(), recordToRelocate, destFolderLinkId, relocationType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -236,7 +236,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     }
 
     override fun updateRecord(fileData: FileData, listener: IResponseListener) {
-        NetworkClient.instance.updateRecord(prefsHelper.getCsrf(), fileData)
+        NetworkClient.instance().updateRecord(prefsHelper.getCsrf(), fileData)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -256,7 +256,7 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     }
 
     override fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener) {
-        NetworkClient.instance.updateRecord(prefsHelper.getCsrf(), locnVO, fileData)
+        NetworkClient.instance().updateRecord(prefsHelper.getCsrf(), locnVO, fileData)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
