@@ -55,7 +55,7 @@ class SignUpActivity : PermanentBaseActivity() {
             .setView(viewDialog)
             .create()
 
-        viewDialog.webviewtermsOfService.loadUrl(BuildConfig.PRIVACY_POLICY_URL)
+        viewDialog.webviewtermsOfService.loadUrl(BuildConfig.TERMS_URL)
         viewDialog.btnAccept.setOnClickListener {
             viewModel.makeAccount()
             alert.dismiss()
