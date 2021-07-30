@@ -16,7 +16,7 @@ class NotificationRepositoryImpl(val context: Context): INotificationRepository 
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     override fun getNotifications(listener: IDataListener) {
-        NetworkClient.instance.getNotifications().enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().getNotifications().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -34,7 +34,7 @@ class NotificationRepositoryImpl(val context: Context): INotificationRepository 
     }
 
     override fun registerDevice(token: String, listener: IResponseListener) {
-        NetworkClient.instance.registerDevice(prefsHelper.getCsrf(), token)
+        NetworkClient.instance().registerDevice(prefsHelper.getCsrf(), token)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -54,7 +54,7 @@ class NotificationRepositoryImpl(val context: Context): INotificationRepository 
     }
 
     override fun deleteDevice(token: String, listener: IResponseListener) {
-        NetworkClient.instance.deleteDeviceToken(prefsHelper.getCsrf(), token)
+        NetworkClient.instance().deleteDeviceToken(prefsHelper.getCsrf(), token)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

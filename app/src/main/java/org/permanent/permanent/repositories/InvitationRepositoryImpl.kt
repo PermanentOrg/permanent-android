@@ -18,7 +18,7 @@ class InvitationRepositoryImpl(val context: Context): IInvitationRepository {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     override fun getInvitations(listener: IDataListener) {
-        NetworkClient.instance.getInvitations().enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().getInvitations().enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -37,7 +37,7 @@ class InvitationRepositoryImpl(val context: Context): IInvitationRepository {
     }
 
     override fun sendInvitation(name: String, email: String, listener: IResponseListener) {
-        NetworkClient.instance.sendInvitation(prefsHelper.getCsrf(), name, email)
+        NetworkClient.instance().sendInvitation(prefsHelper.getCsrf(), name, email)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -61,7 +61,7 @@ class InvitationRepositoryImpl(val context: Context): IInvitationRepository {
     }
 
     override fun updateInvitation(inviteId: Int, type: UpdateType, listener: IResponseListener) {
-        NetworkClient.instance.updateInvitation(prefsHelper.getCsrf(), inviteId, type)
+        NetworkClient.instance().updateInvitation(prefsHelper.getCsrf(), inviteId, type)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

@@ -19,7 +19,7 @@ class MemberRepositoryImpl(val context: Context): IMemberRepository {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     override fun getMembers(listener: IDataListener) {
-        NetworkClient.instance.getMembers(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr())
+        NetworkClient.instance().getMembers(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr())
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -40,7 +40,7 @@ class MemberRepositoryImpl(val context: Context): IMemberRepository {
     override fun addMember(email: String, accessRole: AccessRole,
                            listener: IResponseListener
     ) {
-        NetworkClient.instance.addMember(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr(), email,
+        NetworkClient.instance().addMember(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr(), email,
             accessRole).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -63,7 +63,7 @@ class MemberRepositoryImpl(val context: Context): IMemberRepository {
     override fun updateMember(accountId: Int, email: String, accessRole: AccessRole,
                               listener: IResponseListener
     ) {
-        NetworkClient.instance.updateMember(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr(),
+        NetworkClient.instance().updateMember(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr(),
             accountId, email, accessRole).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -84,7 +84,7 @@ class MemberRepositoryImpl(val context: Context): IMemberRepository {
 
     override fun deleteMember(accountId: Int, email: String, listener: IResponseListener
     ) {
-        NetworkClient.instance.deleteMember(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr(),
+        NetworkClient.instance().deleteMember(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr(),
             accountId, email).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()

@@ -1,5 +1,6 @@
 package org.permanent.permanent.network
 
+import android.content.Context
 import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -26,7 +27,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 
-class NetworkClient {
+class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val baseUrl: String = BuildConfig.BASE_API_URL
     private val retrofit: Retrofit
     private val authService: IAuthService
@@ -43,24 +44,32 @@ class NetworkClient {
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
 
     companion object {
-        val instance = NetworkClient()
+        private var instance: NetworkClient? = null
+
+        fun instance(): NetworkClient {
+            if (instance == null) {
+                instance = NetworkClient(null, PermanentApplication.instance.applicationContext)
+            }
+            return instance!!
+        }
     }
 
     init {
-        val cookieJar: ClearableCookieJar = PersistentCookieJar(
-            SetCookieCache(),
-            SharedPrefsCookiePersistor(PermanentApplication.instance.applicationContext)
-        )
+        if (okHttpClient == null) {
+            val cookieJar: ClearableCookieJar = PersistentCookieJar(
+                SetCookieCache(),
+                SharedPrefsCookiePersistor(context)
+            )
 
-        val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.NONE
+            val interceptor = HttpLoggingInterceptor()
+            interceptor.level = HttpLoggingInterceptor.Level.BODY
 
-        val okHttpClient = OkHttpClient.Builder()
-            .cookieJar(cookieJar)
-            .addInterceptor(interceptor)
-            .addInterceptor(MFAAndCSRFInterceptor())
-            .build()
-
+            okHttpClient = OkHttpClient.Builder()
+                .cookieJar(cookieJar)
+                .addInterceptor(interceptor)
+                .addInterceptor(MFAAndCSRFInterceptor())
+                .build()
+        }
         retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(MoshiConverterFactory.create())

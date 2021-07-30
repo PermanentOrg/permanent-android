@@ -20,7 +20,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     override fun verifyLoggedIn(
         listener: IAuthenticationRepository.IOnLoggedInListener
     ) {
-        NetworkClient.instance.verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
                 val responseVO = retrofitResponse.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -44,7 +44,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         password: String,
         listener: IAuthenticationRepository.IOnLoginListener
     ) {
-        NetworkClient.instance.login(email, password).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().login(email, password).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -74,7 +74,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     }
 
     override fun logout(listener: IAuthenticationRepository.IOnLogoutListener) {
-        NetworkClient.instance.logout(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().logout(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -99,7 +99,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         email: String,
         listener: IAuthenticationRepository.IOnResetPasswordListener
     ) {
-        NetworkClient.instance.forgotPassword(email).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().forgotPassword(email).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -126,7 +126,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         val email = prefsHelper.getUserEmail()
 
         if (accountId != 0 && email != null) {
-            NetworkClient.instance.sendSMSVerificationCode(
+            NetworkClient.instance().sendSMSVerificationCode(
                 prefsHelper.getCsrf(),
                 accountId,
                 email,
@@ -158,7 +158,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         listener: IAuthenticationRepository.IOnVerifyListener
     ) {
         prefsHelper.getUserEmail()?.let {
-            NetworkClient.instance.verifyCode(
+            NetworkClient.instance().verifyCode(
                 code,
                 authType,
                 prefsHelper.getCsrf(),
