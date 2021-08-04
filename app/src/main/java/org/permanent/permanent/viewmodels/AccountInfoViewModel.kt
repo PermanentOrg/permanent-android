@@ -2,15 +2,13 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.text.Editable
-import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.R
+import org.permanent.permanent.Validator
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
-import java.util.regex.Pattern
 
 class AccountInfoViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var appContext = application.applicationContext
@@ -158,22 +156,11 @@ class AccountInfoViewModel(application: Application) : ObservableAndroidViewMode
         val postalCode = postalCode.value
         val country = country.value?.trim()
 
-        if (name.isNullOrEmpty()) {
-            showMessage.value = appContext.getString(R.string.invalid_name_error)
-            return
-        }
+        if (!Validator.isValidName(appContext, name, null, showMessage)) return
 
-        if (email.isNullOrEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showMessage.value = appContext.getString(R.string.invalid_email_error)
-            return
-        }
+        if (!Validator.isValidEmail(appContext, email, null, showMessage)) return
 
-        if (!phone.isNullOrEmpty()) {
-            if (!Pattern.matches("^[+]?[0-9]{8,13}\$", phone)) {
-                showMessage.value = appContext.getString(R.string.invalid_phone_error)
-                return
-            }
-        }
+        if (!Validator.isValidPhone(appContext, phone, showMessage)) return
 
         account?.fullName = name
         account?.primaryEmail = email
