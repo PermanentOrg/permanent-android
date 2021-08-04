@@ -37,7 +37,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
         val email = currentEmail.value
         val password = currentPassword.value
 
-        if (!Validator.isValidEmail(email, emailError)) return
+        if (!Validator.isValidEmail(null, email, emailError, null)) return
         if (!Validator.isValidPassword(password, passwordError)) return
 
         isBusy.value = true

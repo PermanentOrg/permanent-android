@@ -78,8 +78,8 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         val email = currentEmail.value
         val password = currentPassword.value
 
-        if (!Validator.isValidName(name, nameError)) return
-        if (!Validator.isValidEmail(email, emailError)) return
+        if (!Validator.isValidName(null, name, nameError, null)) return
+        if (!Validator.isValidEmail(null, email, emailError, null)) return
         if (!Validator.isValidPassword(password, passwordError)) return
 
         onReadyToShowTermsDialog.call()
