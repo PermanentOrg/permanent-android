@@ -14,6 +14,7 @@ import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.ui.assetSize
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 
 class UploadQueue(
@@ -73,17 +74,6 @@ class UploadQueue(
                 onFinishedListener.onFailed(error!!)
             }
         })
-    }
-
-    fun Context.assetSize(resourceUri: Uri): Long {
-        try {
-            val descriptor = contentResolver.openAssetFileDescriptor(resourceUri, "r")
-            val size = descriptor?.length ?: return 0
-            descriptor.close()
-            return size
-        } catch (e: Resources.NotFoundException) {
-            return 0
-        }
     }
 
     @SuppressLint("EnqueueWork")

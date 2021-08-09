@@ -1,6 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,33 +9,76 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
-import org.permanent.permanent.repositories.IAuthenticationRepository
-import org.permanent.permanent.repositories.INotificationRepository
-import org.permanent.permanent.repositories.NotificationRepositoryImpl
+import org.permanent.permanent.repositories.*
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.bytesToHumanReadable
 
 class MainViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val TAG = MainViewModel::class.java.simpleName
     private val appContext = application.applicationContext
-    private val currentAccount = MutableLiveData<String>()
-    private val currentSpaceUsed = MutableLiveData<Int>()
+    private val prefsHelper = PreferencesHelper(
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
+    private val userEmail = prefsHelper.getUserEmail()
+    private val spaceUsedPercentage = MutableLiveData<Int>()
+    private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onLoggedOut = SingleLiveEvent<Void>()
-    val versionName = MutableLiveData(application.getString(
-        R.string.version_text, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE.toString()))
-    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
+    val versionName = MutableLiveData(
+        application.getString(
+            R.string.version_text, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE.toString()
+        )
+    )
+    private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository =
+        AuthenticationRepositoryImpl(application)
 
-    fun getCurrentAccount(): MutableLiveData<String> = currentAccount
+    init {
+        getUsedStorageForUser()
+    }
 
-    fun getCurrentSpaceUsed(): MutableLiveData<Int> = currentSpaceUsed
+    fun getUserEmail(): String? = userEmail
+
+    fun getSpaceUsedPercentage(): MutableLiveData<Int> = spaceUsedPercentage
+
+    fun getSpaceUsedText(): MutableLiveData<String> = spaceUsedText
 
     fun getErrorMessage(): LiveData<String> = errorMessage
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
+
+    private fun getUsedStorageForUser() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        accountRepository.getAccount(object : IAccountRepository.IAccountListener {
+            override fun onSuccess(account: Account) {
+                isBusy.value = false
+                val spaceTotal = account.spaceTotal
+                val spaceLeft = account.spaceLeft
+                if (spaceTotal != null && spaceLeft != null) {
+                    val spaceUsed = spaceTotal - spaceLeft
+                    val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
+                    spaceUsedPercentage.value = spaceUsedPercentageFloat.toInt()
+                    spaceUsedText.value = bytesToHumanReadable(spaceUsed) + " " +
+                            appContext.getString(R.string.nav_settings_header_used_suffix)
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                errorMessage.value = error
+            }
+        })
+    }
 
     fun deleteDeviceToken() {
         if (isBusy.value != null && isBusy.value!!) {

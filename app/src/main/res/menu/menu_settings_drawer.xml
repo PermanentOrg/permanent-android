@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group
         android:id="@+id/group1"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/myFilesFragment"
+            android:id="@+id/storage"
             android:title="@string/menu_settings_drawer_storage" />
 
         <item
-            android:id="@+id/secondaryFragment"
-            android:title="@string/menu_settings_drawer_account" />
-        <item
-            android:id="@+id/activityFragment"
-            android:title="@string/menu_settings_drawer_activity" />
-
+            android:id="@+id/accountInfoFragment"
+            android:title="@string/menu_settings_drawer_account_info" />
 
         <item
-            android:id="@+id/NotificationsFragment"
-            android:title="@string/menu_settings_drawer_notifications" />
+            android:id="@+id/activityFeedFragment"
+            android:title="@string/menu_settings_drawer_activity_feed" />
 
         <item
             android:id="@+id/invitationsFragment"
@@ -30,11 +25,15 @@
             android:title="@string/menu_settings_drawer_security" />
 
         <item
-            android:id="@+id/supportFragment"
-            android:title="@string/menu_settings_drawer_support" />
-
-        <item
             android:id="@+id/logOut"
             android:title="@string/menu_settings_drawer_logout" />
+
+        <item
+            android:id="@+id/help"
+            android:title="@string/menu_settings_drawer_help" />
+
+<!--        <item-->
+<!--            android:id="@+id/supportFragment"-->
+<!--            android:title="@string/menu_settings_drawer_contact_support" />-->
     </group>
 </menu>

@@ -42,6 +42,7 @@ android {
             applicationId "org.permanent.PermanentArchive"
             buildConfigField "String", "BASE_API_URL", "\"https://www.permanent.org/api/\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://www.permanent.org/add-storage/\""
+            buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
             buildConfigField "String", "API_KEY", "\"5aef7dd1f32e0d9ca57290e3c82b59db\""
         }
@@ -49,6 +50,7 @@ android {
             applicationId "org.permanent.permanent.staging"
             buildConfigField "String", "BASE_API_URL", "\"https://staging.permanent.org/api/\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
+            buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
             buildConfigField "String", "API_KEY", "\"0f6c8cf215a2a73a174ff45807a76be3\""
         }

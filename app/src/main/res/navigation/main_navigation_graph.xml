@@ -91,25 +91,25 @@
     <fragment
         android:id="@+id/activityFeedFragment"
         android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
-        android:label="@string/menu_drawer_activity_feed"
+        android:label="@string/menu_settings_drawer_activity_feed"
         tools:layout="@layout/fragment_activity_feed"/>
 
     <fragment
         android:id="@+id/invitationsFragment"
         android:name="org.permanent.permanent.ui.invitations.InvitationsFragment"
-        android:label="@string/menu_drawer_invitations"
+        android:label="@string/menu_settings_drawer_invitations"
         tools:layout="@layout/fragment_invitations"/>
 
     <fragment
         android:id="@+id/accountInfoFragment"
         android:name="org.permanent.permanent.ui.settings.AccountInfoFragment"
-        android:label="@string/main_navigation_title_account_info"
+        android:label="@string/menu_settings_drawer_account_info"
         tools:layout="@layout/fragment_account_info"/>
 
     <fragment
         android:id="@+id/securityFragment"
         android:name="org.permanent.permanent.ui.settings.SecurityFragment"
-        android:label="@string/main_navigation_title_security"
+        android:label="@string/menu_settings_drawer_security"
         tools:layout="@layout/fragment_security"/>
 
     <activity

@@ -17,8 +17,8 @@ class AccountVO() {
     var zip: String? = null
     var accessRole: String? = null
     var status: String? = null
-    var spaceTotal: Double? = null
-    var spaceLeft: Double? = null
+    var spaceTotal: Long? = null
+    var spaceLeft: Long? = null
 
     constructor(account: Account) : this() {
         accountId = account.id

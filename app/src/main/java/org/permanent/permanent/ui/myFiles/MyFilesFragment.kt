@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
@@ -58,8 +57,9 @@ class MyFilesFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
         binding.viewModel = viewModel
+
         val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
-        if(record != null) {
+        if (record != null) {
             // notification deeplink
             navigateToShareLinkFragment(record)
             arguments?.clear()
