@@ -13,14 +13,9 @@ class NetworkClientTest {
     fun signUpValidCredentials() {
         val interceptor = MockInterceptor()
 
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .build()
+        val okHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build()
 
-        val networkClient = NetworkClient(
-            okHttpClient,
-            Mockito.mock(Context::class.java)
-        )
+        val networkClient = NetworkClient(okHttpClient, Mockito.mock(Context::class.java))
 
         val responseVO = networkClient
             .signUp("name", MockInterceptor.SUCCESSFUL_EMAIL, "abcd1234")
@@ -36,14 +31,9 @@ class NetworkClientTest {
     fun signUpInvalidCredentials() {
         val interceptor = MockInterceptor()
 
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .build()
+        val okHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build()
 
-        val networkClient = NetworkClient(
-            okHttpClient,
-            Mockito.mock(Context::class.java)
-        )
+        val networkClient = NetworkClient(okHttpClient, Mockito.mock(Context::class.java))
 
         val responseVO = networkClient
             .signUp("name", MockInterceptor.DUPLICATED_EMAIL, "abcd1234")
@@ -53,5 +43,41 @@ class NetworkClientTest {
         val signupResponseSuccessful = responseVO?.isSuccessful != null && responseVO.isSuccessful!!
 
         Truth.assertThat(signupResponseSuccessful).isFalse()
+    }
+
+    @Test
+    fun loginCorrectCredentials() {
+        val interceptor = MockInterceptor()
+
+        val okHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build()
+
+        val networkClient = NetworkClient(okHttpClient, Mockito.mock(Context::class.java))
+
+        val responseVO = networkClient
+            .login(MockInterceptor.CORRECT_CREDENTIALS_EMAIL, "abcd1234")
+            .execute()
+            .body()
+
+        val loginResponseSuccessful = responseVO?.isSuccessful != null && responseVO.isSuccessful!!
+
+        Truth.assertThat(loginResponseSuccessful).isTrue()
+    }
+
+    @Test
+    fun loginIncorrectCredentials() {
+        val interceptor = MockInterceptor()
+
+        val okHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build()
+
+        val networkClient = NetworkClient(okHttpClient, Mockito.mock(Context::class.java))
+
+        val responseVO = networkClient
+            .login(MockInterceptor.INCORRECT_CREDENTIALS_EMAIL, "abcd1234")
+            .execute()
+            .body()
+
+        val loginResponseSuccessful = responseVO?.isSuccessful != null && responseVO.isSuccessful!!
+
+        Truth.assertThat(loginResponseSuccessful).isFalse()
     }
 }
