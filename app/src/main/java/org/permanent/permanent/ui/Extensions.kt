@@ -31,7 +31,7 @@ fun Context.assetSize(resourceUri: Uri): Long {
     }
 }
 
-fun bytesToHumanReadable(bytes: Long): String {
+fun bytesToHumanReadableString(bytes: Long): String {
     val unit = 1024.0
     if (bytes < unit)
         return "$bytes B"

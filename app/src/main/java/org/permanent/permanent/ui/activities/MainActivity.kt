@@ -22,6 +22,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
 import org.permanent.permanent.R
 import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
@@ -180,7 +181,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         val status = googleApiAvailability.isGooglePlayServicesAvailable(activity)
         if (status != ConnectionResult.SUCCESS) {
             if (googleApiAvailability.isUserResolvableError(status)) {
-                googleApiAvailability.getErrorDialog(activity, status, 2404).show()
+                googleApiAvailability.getErrorDialog(
+                    activity,
+                    status,
+                    REQUEST_CODE_GOOGLE_API_AVAILABILITY
+                ).show()
             }
             return false
         }

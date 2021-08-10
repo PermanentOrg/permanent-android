@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.FileData
-import org.permanent.permanent.ui.bytesToHumanReadable
+import org.permanent.permanent.ui.bytesToHumanReadableString
 
 class FileDetailsViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -24,7 +24,7 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
         lastModified.value = fileData.updatedDate ?: "-"
         created.value = fileData.derivedDate ?: "-"
         fileCreated.value = fileData.derivedCreatedDate ?: "-"
-        size.value = if (fileData.size != -1L) bytesToHumanReadable(fileData.size) else "-"
+        size.value = if (fileData.size != -1L) bytesToHumanReadableString(fileData.size) else "-"
         fileType.value = fileData.contentType?.substringBefore("/") ?: "-"
         originalFileName.value = fileData.originalFileName ?: "-"
         originalFileType.value = fileData.originalFileType ?: "-"
