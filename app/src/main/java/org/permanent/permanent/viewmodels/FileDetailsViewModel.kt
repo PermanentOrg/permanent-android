@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.ui.bytesToHumanReadableString
 
 class FileDetailsViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -23,7 +24,7 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
         lastModified.value = fileData.updatedDate ?: "-"
         created.value = fileData.derivedDate ?: "-"
         fileCreated.value = fileData.derivedCreatedDate ?: "-"
-        size.value = if (fileData.size != -1L) bytesToHumanReadable(fileData.size) else "-"
+        size.value = if (fileData.size != -1L) bytesToHumanReadableString(fileData.size) else "-"
         fileType.value = fileData.contentType?.substringBefore("/") ?: "-"
         originalFileName.value = fileData.originalFileName ?: "-"
         originalFileType.value = fileData.originalFileType ?: "-"
@@ -69,26 +70,5 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getHeight(): LiveData<String> {
         return height
-    }
-
-    private fun bytesToHumanReadable(bytes: Long): String {
-        val unit = 1024.0
-        if (bytes < unit)
-            return "$bytes B"
-        var result = bytes.toDouble()
-        val unitsToUse = "KMGTPE"
-        var i = 0
-        val unitsCount = unitsToUse.length
-        while (true) {
-            result /= unit
-            if (result < unit || i == unitsCount - 1)
-                break
-            ++i
-        }
-        return with(StringBuilder(9)) {
-            append(String.format("%.2f ", result))
-            append(unitsToUse[i])
-            append('B')
-        }.toString()
     }
 }

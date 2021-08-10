@@ -10,6 +10,7 @@ class Constants {
         const val REQUEST_CODE_FILE_SELECT = 200
         const val REQUEST_CODE_IMAGE_CAPTURE = 201
         const val REQUEST_CODE_VIDEO_CAPTURE = 203
+        const val REQUEST_CODE_GOOGLE_API_AVAILABILITY = 2404
         const val FOLDER_NAME = "folder_name"
         const val MY_FILES_FOLDER = "My Files"
         const val MEDIA_TYPE_JSON = "application/json;charset=UTF-8"

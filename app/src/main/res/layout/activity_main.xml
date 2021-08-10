@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.MainViewModel" />
@@ -16,12 +18,12 @@
 
         <androidx.drawerlayout.widget.DrawerLayout
             android:id="@+id/drawerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             tools:context=".permanent.ui.mainScreen.MainActivity">
 
             <LinearLayout
@@ -49,18 +51,25 @@
                     app:navGraph="@navigation/main_navigation_graph" />
             </LinearLayout>
 
-            <!--            <com.google.android.material.navigation.NavigationView-->
-            <!--                android:id="@+id/settingsNavigationView"-->
-            <!--                android:layout_width="250dp"-->
-            <!--                android:layout_height="match_parent"-->
-            <!--                android:layout_gravity="end"-->
-            <!--                app:headerLayout="@layout/nav_settings_header"-->
-            <!--                app:itemTextAppearance="@style/customDrawerTextStyle"-->
-            <!--                app:itemTextColor="@color/colorPrimary"-->
-            <!--                app:menu="@menu/menu_settings_drawer" />-->
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/settingsNavigationView"
+                android:layout_width="250dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                app:headerLayout="@layout/nav_settings_header"
+                app:itemTextAppearance="@style/customDrawerTextStyle"
+                app:itemTextColor="@color/colorPrimary"
+                app:menu="@menu/menu_settings_drawer">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/lightGrey"
+                    android:layout_marginTop="120dp"/>
+            </com.google.android.material.navigation.NavigationView>
 
             <com.google.android.material.navigation.NavigationView
-                android:id="@+id/accountNavView"
+                android:id="@+id/mainNavView"
                 android:layout_width="250dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
@@ -70,7 +79,7 @@
                 app:itemTextAppearance="@style/customDrawerTextStyle"
                 app:itemTextColor="@color/white"
                 app:menu="@menu/menu_main_drawer"
-                app:theme="@style/customDrawerStyle" >
+                app:theme="@style/customDrawerStyle">
 
                 <TextView
                     android:id="@+id/tvVersion"

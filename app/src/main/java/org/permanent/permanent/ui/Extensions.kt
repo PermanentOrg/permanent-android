@@ -3,6 +3,7 @@ package org.permanent.permanent.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
 import android.net.Uri
 import android.os.IBinder
 import android.provider.OpenableColumns
@@ -17,6 +18,38 @@ import java.util.*
 fun Context.hideKeyboardFrom(windowToken: IBinder) {
     val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun Context.assetSize(resourceUri: Uri): Long {
+    try {
+        val descriptor = contentResolver.openAssetFileDescriptor(resourceUri, "r")
+        val size = descriptor?.length ?: return 0
+        descriptor.close()
+        return size
+    } catch (e: Resources.NotFoundException) {
+        return 0
+    }
+}
+
+fun bytesToHumanReadableString(bytes: Long): String {
+    val unit = 1024.0
+    if (bytes < unit)
+        return "$bytes B"
+    var result = bytes.toDouble()
+    val unitsToUse = "KMGTPE"
+    var i = 0
+    val unitsCount = unitsToUse.length
+    while (true) {
+        result /= unit
+        if (result < unit || i == unitsCount - 1)
+            break
+        ++i
+    }
+    return with(StringBuilder(9)) {
+        append(String.format("%.2f ", result))
+        append(unitsToUse[i])
+        append('B')
+    }.toString()
 }
 
 @SuppressLint("SimpleDateFormat")

@@ -12,8 +12,8 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
     var zipCode: String? = null
     var accessRole: AccessRole? = null
     var status: Status? = null
-    var spaceTotal: Double? = null
-    var spaceLeft: Double? = null
+    var spaceTotal: Long? = null
+    var spaceLeft: Long? = null
 
     constructor(accountVO: AccountVO?) : this() {
         id = accountVO?.accountId
