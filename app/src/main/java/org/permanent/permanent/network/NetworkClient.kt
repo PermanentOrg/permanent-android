@@ -62,7 +62,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
             )
 
             val interceptor = HttpLoggingInterceptor()
-            interceptor.level = HttpLoggingInterceptor.Level.BODY
+            interceptor.level = HttpLoggingInterceptor.Level.NONE
 
             okHttpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)

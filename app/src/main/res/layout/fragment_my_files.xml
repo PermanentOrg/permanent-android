@@ -3,8 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <import type="android.view.View" />
+
         <import type="org.permanent.permanent.ui.myFiles.RelocationType" />
+
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.MyFilesViewModel" />
@@ -33,14 +36,14 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
+                android:afterTextChanged="@{(editable)->viewModel.onSearchQueryTextChanged(editable)}"
                 android:background="@drawable/rounded_border_white_edit_text"
                 android:ems="10"
                 android:hint="@string/my_files_search_hint"
-                android:afterTextChanged="@{(editable)->viewModel.onSearchQueryTextChanged(editable)}"
-                android:text="@{viewModel.getCurrentSearchQuery()}"
                 android:inputType="text"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
+                android:text="@{viewModel.getCurrentSearchQuery()}"
                 android:textColorHint="@color/lightGrey"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -68,10 +71,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:onClick="@{() -> viewModel.onFolderOptionsClick()}"
             android:paddingTop="8dp"
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
-            android:onClick="@{() -> viewModel.onFolderOptionsClick()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -84,8 +87,8 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:visibility="@{viewModel.getIsRoot() ? View.GONE : View.VISIBLE}"
                 android:onClick="@{() -> viewModel.onBackBtnClick()}"
+                android:visibility="@{viewModel.getIsRoot() ? View.GONE : View.VISIBLE}"
                 app:icon="@drawable/ic_arrow_back_middle_grey"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -165,43 +168,67 @@
             app:layout_constraintTop_toBottomOf="@+id/tvDownloadsTitle"
             app:layout_constraintVertical_bias="0.0" />
 
-        <TextView
-            android:id="@+id/tvUploadsTitle"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clUploads"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/my_files_uploads_title"
-            android:textSize="14sp"
-            android:textStyle="bold"
             android:visibility="@{viewModel.getExistsUploads() ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rvDownloads"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvUploads"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:visibility="@{viewModel.getExistsUploads() ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvUploadsTitle"
-            app:layout_constraintVertical_bias="0.0" />
+            <TextView
+                android:id="@+id/tvUploadsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/my_files_uploads_title"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/btnCancelAll"
+                style="@style/customTextButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{() -> viewModel.onCancelAllUploads()}"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:text="@string/cancel_all_button"
+                app:layout_constraintBottom_toBottomOf="@+id/tvUploadsTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvUploadsTitle" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvUploads"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvUploadsTitle"
+                app:layout_constraintVertical_bias="0.0" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clSorting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:paddingTop="8dp"
             android:onClick="@{() -> viewModel.onSortOptionsClick()}"
+            android:paddingTop="8dp"
             android:paddingEnd="8dp"
             android:paddingBottom="8dp"
             android:visibility="@{viewModel.getExistsFiles() || viewModel.getExistsUploads() ? View.VISIBLE : View.GONE}"
@@ -209,7 +236,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rvUploads"
+            app:layout_constraintTop_toBottomOf="@+id/clUploads"
             app:layout_constraintVertical_bias="0.0">
 
             <TextView
@@ -231,14 +258,13 @@
                 android:layout_height="0dp"
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="4dp"
+                android:src="@{viewModel.getIsSortedAsc() ? @drawable/ic_arrow_down_middle_grey : @drawable/ic_arrow_up_middle_grey}"
                 app:layout_constraintBottom_toBottomOf="@+id/tvSortCriteria"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/tvSortCriteria"
                 app:layout_constraintTop_toTopOf="@+id/tvSortCriteria"
-                app:layout_constraintVertical_bias="1.0"
-                android:src="@{viewModel.getIsSortedAsc() ? @drawable/ic_arrow_down_middle_grey : @drawable/ic_arrow_up_middle_grey}"
-                />
+                app:layout_constraintVertical_bias="1.0" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -269,10 +295,10 @@
             android:layout_marginBottom="32dp"
             android:clickable="true"
             android:focusable="true"
-            app:backgroundTint="@color/colorAccent"
-            app:fabSize="auto"
             android:onClick="@{()-> viewModel.onAddFabClick()}"
             android:visibility="@{viewModel.isRelocationMode ? View.GONE: View.VISIBLE}"
+            app:backgroundTint="@color/colorAccent"
+            app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -282,6 +308,7 @@
             app:tint="@null" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clRelocationBtns"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:background="@color/white"
@@ -296,10 +323,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
+                android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.getFolderIdentifier().folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
                 android:onClick="@{() -> viewModel.onRelocateBtnClick()}"
                 android:text="@{viewModel.relocationType.name()}"
                 android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.getFolderIdentifier().folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/colorPrimary : @color/lightGrey}"
-                android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.getFolderIdentifier().folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.getFolderIdentifier().folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -326,13 +353,13 @@
             android:id="@+id/ivCat"
             android:layout_width="wrap_content"
             android:layout_height="112dp"
+            android:src="@{viewModel.getIsRoot() ? @drawable/img_my_files_cat : @drawable/ic_empty_folder}"
+            android:visibility="@{viewModel.getExistsFiles() || viewModel.getExistsUploads() ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.40"
-            android:visibility="@{viewModel.getExistsFiles() || viewModel.getExistsUploads() ? View.GONE : View.VISIBLE}"
-            android:src="@{viewModel.getIsRoot() ? @drawable/img_my_files_cat : @drawable/ic_empty_folder}" />
+            app:layout_constraintVertical_bias="0.40" />
 
         <TextView
             android:id="@+id/tvNoFiles"

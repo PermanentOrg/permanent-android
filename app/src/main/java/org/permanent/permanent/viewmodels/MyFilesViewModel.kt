@@ -251,6 +251,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         downloadQueue.enqueueNewDownloadFor(record)
     }
 
+    fun onCancelAllUploads() {
+        currentFolder.value?.getUploadQueue()?.clear()
+    }
+
     override fun onCancelClick(upload: Upload) {
         val uploadQueue = currentFolder.value?.getUploadQueue()
         uploadQueue?.prepareToRequeueUploadsExcept(upload)
