@@ -480,7 +480,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:fontFamily="@font/open_sans_bold"
             android:onClick="@{()-> viewModel.onAddMembersClick()}"
             android:text="@string/members_add_members_button"
             app:layout_constraintBottom_toBottomOf="parent"
