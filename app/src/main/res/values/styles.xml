@@ -37,7 +37,8 @@
     <style name="customDrawerStyle">
         <item name="android:listDivider">@color/white</item>
     </style>
-    <style name="customDrawerTextStyle" >
+
+    <style name="customDrawerTextStyle">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -51,6 +52,8 @@
         <item name="android:layout_marginStart">12dp</item>
         <item name="android:layout_marginEnd">12dp</item>
         <item name="android:backgroundTint">@color/colorPrimary</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">@font/open_sans_bold</item>
     </style>
 
     <style name="colorSwitchStyle" parent="Theme.AppCompat.Light">

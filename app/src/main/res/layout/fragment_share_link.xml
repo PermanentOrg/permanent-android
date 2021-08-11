@@ -106,7 +106,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:fontFamily="@font/open_sans_bold"
                     android:onClick="@{() -> viewModel.onCopyLinkBtnClick()}"
                     android:text="@string/share_link_copy_link_button"
                     android:visibility="@{viewModel.existsLink ? View.VISIBLE : View.GONE}"
@@ -120,7 +119,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:fontFamily="@font/open_sans_bold"
                     android:onClick="@{() -> viewModel.onAdvancedOptionsBtnClick()}"
                     android:text="@string/share_link_advanced_options_button"
                     android:visibility="@{viewModel.existsLink ? View.VISIBLE : View.GONE}"
@@ -135,7 +133,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:backgroundTint="@color/deepRed"
-                    android:fontFamily="@font/open_sans_bold"
                     android:onClick="@{() -> viewModel.onRevokeLinkBtnClick()}"
                     android:text="@string/share_link_revoke_link_button"
                     android:visibility="@{viewModel.existsLink ? View.VISIBLE : View.GONE}"
@@ -149,14 +146,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
-                    android:fontFamily="@font/open_sans_bold"
                     android:onClick="@{() -> viewModel.onGetLinkBtnClick()}"
                     android:text="@string/share_link_get_share_link_button"
                     android:visibility="@{viewModel.existsLink ? View.GONE : View.VISIBLE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
