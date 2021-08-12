@@ -106,10 +106,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 R.id.storage -> {
                     binding.drawerLayout.closeDrawers()
                     navigateOnWebTo(BuildConfig.ADD_STORAGE_URL)
+                    // Returning 'false' to not remain the item selected on resuming
+                    return@setNavigationItemSelectedListener false
                 }
                 R.id.help -> {
                     binding.drawerLayout.closeDrawers()
                     navigateOnWebTo(BuildConfig.HELP_URL)
+                    // Returning 'false' to not remain the item selected on resuming
+                    return@setNavigationItemSelectedListener false
                 }
                 R.id.logOut -> viewModel.deleteDeviceToken()
                 else -> {

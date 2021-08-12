@@ -40,7 +40,7 @@
 
     <style name="customDrawerTextStyle">
         <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/open_sans_bold</item>
     </style>
 
     <style name="customButtonBottomSheetStyle">
