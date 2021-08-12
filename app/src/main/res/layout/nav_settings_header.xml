@@ -42,18 +42,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/pbSpaceUsed"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="fill_parent"
             android:layout_height="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             android:max="100"
             android:progress="@{viewModel.spaceUsedPercentage}"
-            android:progressTint="@color/barneyPurple"
+            app:indicatorColor="@color/barneyPurple"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvHeaderEmail" />
+            app:layout_constraintTop_toBottomOf="@id/tvHeaderEmail"
+            app:trackColor="@color/superLightGrey"
+            app:trackThickness="10dp" />
 
         <TextView
             android:id="@+id/tvSpaceUsed"

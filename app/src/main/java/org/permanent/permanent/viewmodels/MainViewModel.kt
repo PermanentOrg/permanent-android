@@ -37,10 +37,6 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
 
-    init {
-        getUsedStorageForUser()
-    }
-
     fun getUserEmail(): String? = userEmail
 
     fun getSpaceUsedPercentage(): MutableLiveData<Int> = spaceUsedPercentage
@@ -53,15 +49,9 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
 
-    private fun getUsedStorageForUser() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-
-        isBusy.value = true
+    fun getUsedStorageForUser() {
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
-                isBusy.value = false
                 val spaceTotal = account.spaceTotal
                 val spaceLeft = account.spaceLeft
                 if (spaceTotal != null && spaceLeft != null) {
@@ -74,7 +64,6 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
                 errorMessage.value = error
             }
         })

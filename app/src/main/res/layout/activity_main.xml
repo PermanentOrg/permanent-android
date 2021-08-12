@@ -57,15 +57,16 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="end"
                 app:headerLayout="@layout/nav_settings_header"
+                app:itemBackground="@drawable/drawer_selected_background_color"
                 app:itemTextAppearance="@style/customDrawerTextStyle"
-                app:itemTextColor="@color/colorPrimary"
+                app:itemTextColor="@drawable/drawer_settings_selected_text_color"
                 app:menu="@menu/menu_settings_drawer">
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/lightGrey"
-                    android:layout_marginTop="120dp"/>
+                    android:layout_marginTop="108dp"
+                    android:background="@color/lightGrey" />
             </com.google.android.material.navigation.NavigationView>
 
             <com.google.android.material.navigation.NavigationView
@@ -74,7 +75,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:background="@color/colorPrimary"
-                app:itemBackground="@drawable/drawer_selected_item"
+                app:itemBackground="@drawable/drawer_selected_background_color"
                 app:itemIconTint="@color/white"
                 app:itemTextAppearance="@style/customDrawerTextStyle"
                 app:itemTextColor="@color/white"

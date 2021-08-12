@@ -25,12 +25,12 @@
             android:title="@string/menu_settings_drawer_security" />
 
         <item
-            android:id="@+id/logOut"
-            android:title="@string/menu_settings_drawer_logout" />
-
-        <item
             android:id="@+id/help"
             android:title="@string/menu_settings_drawer_help" />
+
+        <item
+            android:id="@+id/logOut"
+            android:title="@string/menu_settings_drawer_logout" />
 
 <!--        <item-->
 <!--            android:id="@+id/supportFragment"-->

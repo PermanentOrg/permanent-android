@@ -1,7 +1,6 @@
 package org.permanent.permanent.models
 
 import android.content.Context
-import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -46,7 +45,8 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
         workInfoLiveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(uuid)
     }
 
-    constructor(context: Context, workInfo: WorkInfo, listener: OnFinishedListener
+    constructor(
+        context: Context, workInfo: WorkInfo, listener: OnFinishedListener
     ) : this(context, listener) {
         for (tag in workInfo.tags) {
             if (!tag.contains(UploadWorker::class.java.simpleName)) displayName = tag
@@ -62,7 +62,7 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
     fun getWorkRequest() = workRequest
 
     private val workInfoObserver = Observer<WorkInfo> { workInfo ->
-        if(workInfo != null) {
+        if (workInfo != null) {
             val progressValue = workInfo.progress.getInt(UPLOAD_PROGRESS, 0)
             progress.value = progressValue
 

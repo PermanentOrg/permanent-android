@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -105,12 +106,16 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 R.id.storage -> {
                     binding.drawerLayout.closeDrawers()
                     navigateOnWebTo(BuildConfig.ADD_STORAGE_URL)
+                    // Returning 'false' to not remain the item selected on resuming
+                    return@setNavigationItemSelectedListener false
                 }
-                R.id.logOut -> viewModel.deleteDeviceToken()
                 R.id.help -> {
                     binding.drawerLayout.closeDrawers()
                     navigateOnWebTo(BuildConfig.HELP_URL)
+                    // Returning 'false' to not remain the item selected on resuming
+                    return@setNavigationItemSelectedListener false
                 }
+                R.id.logOut -> viewModel.deleteDeviceToken()
                 else -> {
                     menuItem.onNavDestinationSelected(navController)
                     binding.drawerLayout.closeDrawers()
@@ -118,6 +123,22 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
             true
         }
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                if (drawerView.id == binding.settingsNavigationView.id) {
+                    viewModel.getUsedStorageForUser()
+                }
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+            }
+        })
 
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isWelcomeDialogSeen()) {

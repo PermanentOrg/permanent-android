@@ -2,7 +2,6 @@ package org.permanent.permanent.ui.myFiles.upload
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -133,6 +132,13 @@ class UploadQueue(
         val enqueuedUploadsValue = enqueuedUploads.value
         if (!enqueuedUploadsValue.isNullOrEmpty()) {
             enqueuedUploadsValue.remove(upload)
+        }
+    }
+
+    fun clear() {
+        val enqueuedUploadsValue = enqueuedUploads.value
+        if (!enqueuedUploadsValue.isNullOrEmpty()) {
+            WorkManager.getInstance(context).cancelAllWorkByTag(UploadWorker::class.java.name)
         }
     }
 }
