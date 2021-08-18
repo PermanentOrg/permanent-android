@@ -8,6 +8,8 @@ import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.Constants
 import org.permanent.permanent.Constants.Companion.ERROR_INVALID_CSRF
 import org.permanent.permanent.Constants.Companion.ERROR_MFA_TOKEN
 import org.permanent.permanent.PermanentApplication
@@ -29,35 +31,37 @@ class MFAAndCSRFInterceptor : Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request: Request = chain.request()
+        val requestUrl = request.url.toString()
         val response = chain.proceed(request)
-        response.body?.let { responseBody ->
-            val rawJson = responseBody.string()
 
-            if (!request.url.toString().contains("login")
-                && (rawJson.contains(ERROR_MFA_TOKEN)
-                || rawJson.contains(ERROR_INVALID_CSRF))
-            ) {
-                Log.i(TAG, "Requires MFA Token or CSRF is invalid, redirecting to log in")
-                prefsHelper.saveUserLoggedIn(false)
-                prefsHelper.saveBiometricsLogIn(true) // Setting back to default
-                val currentActivity = PermanentApplication.instance.currentActivity
-                currentActivity?.let {
-                    it.startActivity(Intent(it, LoginActivity::class.java))
-                    it.runOnUiThread {
-                        Toast.makeText(
-                            it,
-                            it.getString(R.string.warning_auth_mfa_token_message),
-                            Toast.LENGTH_SHORT
-                        ).show()
+        if (requestUrl.contains(BuildConfig.BASE_API_URL)
+            && !requestUrl.contains(Constants.LOGIN_URL_SUFFIX)
+        ) {
+            response.body?.let { responseBody ->
+                val rawJson = responseBody.string()
+
+                if (rawJson.contains(ERROR_MFA_TOKEN) || rawJson.contains(ERROR_INVALID_CSRF)) {
+                    Log.i(TAG, "Requires MFA Token or CSRF is invalid, redirecting to log in")
+                    prefsHelper.saveUserLoggedIn(false)
+                    prefsHelper.saveBiometricsLogIn(true) // Setting back to default
+                    val currentActivity = PermanentApplication.instance.currentActivity
+                    currentActivity?.let {
+                        it.startActivity(Intent(it, LoginActivity::class.java))
+                        it.runOnUiThread {
+                            Toast.makeText(
+                                it,
+                                it.getString(R.string.warning_auth_mfa_token_message),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
+                // Re-create the response before returning it because body can be read only once
+                return response
+                    .newBuilder()
+                    .body(rawJson.toResponseBody(responseBody.contentType()))
+                    .build()
             }
-
-            // Re-create the response before returning it because body can be read only once
-            return response
-                .newBuilder()
-                .body(rawJson.toResponseBody(responseBody.contentType()))
-                .build()
         }
         return response
     }
