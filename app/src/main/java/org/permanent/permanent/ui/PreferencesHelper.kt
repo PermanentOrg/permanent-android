@@ -16,6 +16,7 @@ const val PREFS_ARCHIVE_ID = "preferences_archive_id"
 const val PREFS_ROOT_ARCHIVE_NR = "preferences_root_archive_nr"
 const val PREFS_ACCOUNT_FULL_NAME = "preferences_account_full_name"
 const val PREFS_ARCHIVE_FULL_NAME = "preferences_archive_full_name"
+const val PREFS_ARCHIVE_THUMB_URL = "preferences_archive_thumb_url"
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
@@ -143,19 +144,6 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
             ?.substringBefore("-") + "-0000"
     }
 
-    fun saveAccountFullName(name: String?) {
-        name?.let {
-            with(sharedPreferences.edit()) {
-                putString(PREFS_ACCOUNT_FULL_NAME, name)
-                apply()
-            }
-        }
-    }
-
-    fun getAccountFullName(): String? {
-        return sharedPreferences.getString(PREFS_ACCOUNT_FULL_NAME, "")
-    }
-
     fun saveArchiveFullName(name: String?) {
         name?.let {
             with(sharedPreferences.edit()) {
@@ -167,6 +155,32 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getArchiveFullName(): String? {
         return sharedPreferences.getString(PREFS_ARCHIVE_FULL_NAME, "")
+    }
+
+    fun saveArchiveThumbURL(thumbURL: String?) {
+        thumbURL?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_ARCHIVE_THUMB_URL, thumbURL)
+                apply()
+            }
+        }
+    }
+
+    fun getArchiveThumbURL(): String? {
+        return sharedPreferences.getString(PREFS_ARCHIVE_THUMB_URL, "")
+    }
+
+    fun saveAccountFullName(name: String?) {
+        name?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_ACCOUNT_FULL_NAME, name)
+                apply()
+            }
+        }
+    }
+
+    fun getAccountFullName(): String? {
+        return sharedPreferences.getString(PREFS_ACCOUNT_FULL_NAME, "")
     }
 
     fun saveShareLinkUrlToken(urlToken: String) {

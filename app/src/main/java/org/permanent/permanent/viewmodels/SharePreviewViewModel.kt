@@ -17,7 +17,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
 
     private lateinit var urlToken: String
     private var recordIdToView: Int? = null
-    private var archiveImageURL = MutableLiveData<String>()
+    private var archiveThumbURL = MutableLiveData<String>()
     private var recordDisplayName = MutableLiveData<String>()
     private var accountDisplayName = MutableLiveData<String>()
     private var archiveDisplayName = MutableLiveData<String>()
@@ -29,8 +29,8 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val errorMessage = MutableLiveData<String>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
 
-    fun getArchiveImageURL(): MutableLiveData<String> {
-        return archiveImageURL
+    fun getArchiveThumbURL(): MutableLiveData<String> {
+        return archiveThumbURL
     }
 
     fun getRecordDisplayName(): MutableLiveData<String> {
@@ -80,7 +80,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
             override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                 isBusy.value = false
                 // Loading data in the header
-                archiveImageURL.value = shareByUrlVO?.ArchiveVO?.thumbURL500
+                archiveThumbURL.value = shareByUrlVO?.ArchiveVO?.thumbURL500
                 accountDisplayName.value = "Shared by ${shareByUrlVO?.AccountVO?.fullName}"
                 archiveDisplayName.value = "From the ${shareByUrlVO?.ArchiveVO?.fullName} Archive"
                 // Loading data in the list

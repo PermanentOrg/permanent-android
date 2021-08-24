@@ -39,7 +39,7 @@ class FileMetadataFragment: PermanentBaseFragment(), View.OnClickListener {
             (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
         }
         binding.executePendingBindings()
-        binding.ivThumbnail.setOnClickListener(this)
+        binding.ivFileThumb.setOnClickListener(this)
         val shouldScroll = arguments?.getBoolean(BOOLEAN_SHOULD_SCROLL_KEY)
         shouldScroll?.let { if (it) binding.vpFileMetadata.requestFocus() }
         setHasOptionsMenu(true)

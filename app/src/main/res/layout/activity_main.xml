@@ -60,21 +60,15 @@
                 app:itemBackground="@drawable/drawer_selected_background_color"
                 app:itemTextAppearance="@style/customDrawerTextStyle"
                 app:itemTextColor="@drawable/drawer_settings_selected_text_color"
-                app:menu="@menu/menu_settings_drawer">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="108dp"
-                    android:background="@color/lightGrey" />
-            </com.google.android.material.navigation.NavigationView>
+                app:menu="@menu/menu_settings_drawer" />
 
             <com.google.android.material.navigation.NavigationView
-                android:id="@+id/mainNavView"
+                android:id="@+id/mainNavigationView"
                 android:layout_width="250dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:background="@color/colorPrimary"
+                app:headerLayout="@layout/nav_main_header"
                 app:itemBackground="@drawable/drawer_selected_background_color"
                 app:itemIconTint="@color/white"
                 app:itemTextAppearance="@style/customDrawerTextStyle"

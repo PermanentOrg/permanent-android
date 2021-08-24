@@ -37,7 +37,7 @@
                 android:background="@color/white">
 
                 <ImageView
-                    android:id="@+id/ivThumbnail"
+                    android:id="@+id/ivFileThumb"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_marginStart="12dp"
@@ -68,7 +68,7 @@
                     android:text="@{record.displayName}"
                     app:layout_constraintBottom_toTopOf="@+id/guideline"
                     app:layout_constraintEnd_toStartOf="@+id/btnOptions"
-                    app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
+                    app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0" />
 
@@ -79,7 +79,7 @@
                     android:layout_marginStart="8dp"
                     android:text="@{record.displayDate}"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
+                    app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
                     app:layout_constraintTop_toTopOf="@+id/guideline"
                     app:layout_constraintVertical_bias="0.0" />
 

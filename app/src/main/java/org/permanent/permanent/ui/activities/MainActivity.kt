@@ -27,6 +27,7 @@ import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAIL
 import org.permanent.permanent.R
 import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
+import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -38,9 +39,16 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
+    private lateinit var headerMainBinding: NavMainHeaderBinding
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+
+    private val onManageArchives = Observer<Void> {
+        navController.navigateUp()
+        navController.navigate(R.id.archiveFragment)
+        binding.drawerLayout.closeDrawers()
+    }
 
     private val onLoggedOut = Observer<Void> {
         prefsHelper.saveUserLoggedIn(false)
@@ -48,6 +56,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
+
     private val onErrorMessage = Observer<String> { errorMessage ->
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
     }
@@ -60,6 +69,13 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
+        // Left drawer header binding
+        headerMainBinding =
+            NavMainHeaderBinding.bind(binding.mainNavigationView.getHeaderView(0))
+        headerMainBinding.executePendingBindings()
+        headerMainBinding.lifecycleOwner = this
+        headerMainBinding.viewModel = viewModel
 
         // Right drawer header binding
         headerSettingsBinding =
@@ -76,6 +92,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         // Toolbar & ActionBar & AppBarConfiguration setup
         setSupportActionBar(binding.toolbar)
         val topLevelDestinations = setOf(
+            R.id.archiveFragment,
             R.id.myFilesFragment,
             R.id.sharesFragment,
             R.id.membersFragment,
@@ -99,7 +116,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         }
 
         // NavViews setup
-        binding.mainNavView.setupWithNavController(navController)
+        binding.mainNavigationView.setupWithNavController(navController)
         binding.settingsNavigationView.setupWithNavController(navController)
         binding.settingsNavigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -214,11 +231,13 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     override fun connectViewModelEvents() {
+        viewModel.getOnManageArchives().observe(this, onManageArchives)
         viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnManageArchives().removeObserver(onManageArchives)
         viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }

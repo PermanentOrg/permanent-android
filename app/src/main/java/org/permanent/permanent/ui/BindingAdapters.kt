@@ -63,20 +63,12 @@ fun loadImage(view: ImageView, record: Record?) {
 
 @BindingAdapter("imageUrl")
 fun loadSimpleImage(view: ImageView, url: String?) {
-    Picasso.get()
-        .load(url)
-        .placeholder(R.drawable.ic_stop_light_grey)
-        .into(view)
-}
-
-@BindingAdapter("roundedImageUrl")
-fun loadRoundedImage(view: ImageView, url: String?) {
-    Picasso.get()
-        .load(url)
-        .placeholder(R.drawable.ic_stop_light_grey)
-        .fit()
-        .transform(CircleTransform())
-        .into(view)
+    if (!url.isNullOrEmpty()) {
+        Picasso.get()
+            .load(url)
+            .placeholder(R.drawable.ic_stop_light_grey)
+            .into(view)
+    }
 }
 
 @BindingAdapter("setError")

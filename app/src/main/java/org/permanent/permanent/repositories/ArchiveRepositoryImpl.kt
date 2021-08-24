@@ -14,9 +14,28 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MemberRepositoryImpl(val context: Context): IMemberRepository {
+class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
     private val prefsHelper = PreferencesHelper(
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+
+    override fun getAllArchives(listener: IDataListener) {
+        NetworkClient.instance().getAllArchives(prefsHelper.getCsrf())
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
 
     override fun getMembers(listener: IDataListener) {
         NetworkClient.instance().getMembers(prefsHelper.getCsrf(), prefsHelper.getUserArchiveNr())

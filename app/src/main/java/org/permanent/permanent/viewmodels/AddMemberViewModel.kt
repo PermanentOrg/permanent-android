@@ -8,8 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.repositories.IMemberRepository
-import org.permanent.permanent.repositories.MemberRepositoryImpl
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
 import java.util.regex.Pattern
 
 class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -21,7 +21,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
     private val onMemberAddedConclusion = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
-    private var memberRepository: IMemberRepository = MemberRepositoryImpl(application)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun getCurrentEmail(): MutableLiveData<String> {
         return currentEmail
@@ -68,7 +68,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
 
         if (email != null && accessRole != null) {
             isBusy.value = true
-            memberRepository.addMember(email, accessRole, object : IResponseListener {
+            archiveRepository.addMember(email, accessRole, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     onMemberAddedConclusion.call()

@@ -23,10 +23,14 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val userEmail = prefsHelper.getUserEmail()
+    private val archiveThumb = prefsHelper.getArchiveThumbURL()
+    private val archiveName =
+        application.getString(R.string.nav_main_header_title_text, prefsHelper.getArchiveFullName())
     private val spaceUsedPercentage = MutableLiveData<Int>()
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
+    private val onManageArchives = SingleLiveEvent<Void>()
     private val onLoggedOut = SingleLiveEvent<Void>()
     val versionName = MutableLiveData(
         application.getString(
@@ -39,6 +43,10 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getUserEmail(): String? = userEmail
 
+    fun getArchiveThumb(): String? = archiveThumb
+
+    fun getArchiveName(): String = archiveName
+
     fun getSpaceUsedPercentage(): MutableLiveData<Int> = spaceUsedPercentage
 
     fun getSpaceUsedText(): MutableLiveData<String> = spaceUsedText
@@ -47,7 +55,13 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
+    fun getOnManageArchives(): LiveData<Void> = onManageArchives
+
     fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
+
+    fun onManageArchivesClick() {
+        onManageArchives.call()
+    }
 
     fun getUsedStorageForUser() {
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {

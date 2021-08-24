@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.repositories.IMemberRepository
-import org.permanent.permanent.repositories.MemberRepositoryImpl
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
 
 class EditMemberViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var member: Account? = null
@@ -18,7 +18,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
     private val onMemberDeleted = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
-    private var memberRepository: IMemberRepository = MemberRepositoryImpl(application)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun setMember(member: Account?) {
         this.member = member
@@ -65,7 +65,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
 
         if (member?.id != null && member?.primaryEmail != null && member?.accessRole != null) {
             isBusy.value = true
-            memberRepository.updateMember(member!!.id!!, member!!.primaryEmail!!,
+            archiveRepository.updateMember(member!!.id!!, member!!.primaryEmail!!,
                 member!!.accessRole!!, object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
@@ -88,7 +88,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
 
         if (member?.id != null && member?.primaryEmail != null && member?.accessRole != null) {
             isBusy.value = true
-            memberRepository.deleteMember(member!!.id!!, member!!.primaryEmail!!,
+            archiveRepository.deleteMember(member!!.id!!, member!!.primaryEmail!!,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false

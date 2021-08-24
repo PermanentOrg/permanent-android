@@ -8,8 +8,8 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.repositories.IMemberRepository
-import org.permanent.permanent.repositories.MemberRepositoryImpl
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.members.MemberListener
@@ -38,7 +38,7 @@ class MembersViewModel(
     private val showSnackbarLong = MutableLiveData<Int>()
     private val onShowAddMemberDialogRequest = MutableLiveData<Void>()
     private val onShowEditMemberDialogRequest = MutableLiveData<Account>()
-    private var memberRepository: IMemberRepository = MemberRepositoryImpl(appContext)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(appContext)
 
     init {
         refreshMembers()
@@ -50,7 +50,7 @@ class MembersViewModel(
         }
 
         isBusy.value = true
-        memberRepository.getMembers(object : IDataListener {
+        archiveRepository.getMembers(object : IDataListener {
 
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false

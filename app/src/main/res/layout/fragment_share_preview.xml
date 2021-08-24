@@ -15,12 +15,12 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/ivArchiveImage"
+            android:id="@+id/ivArchiveThumb"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
-            app:roundedImageUrl="@{viewModel.archiveImageURL}"
+            app:imageUrl="@{viewModel.archiveThumbURL}"
             android:visibility="@{viewModel.currentState == PreviewState.ERROR ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -42,7 +42,7 @@
             android:visibility="@{viewModel.currentState == PreviewState.ERROR ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@+id/tvAccountName"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveImage" />
+            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb" />
 
         <TextView
             android:id="@+id/tvAccountName"
@@ -53,10 +53,10 @@
             android:text="@{viewModel.accountDisplayName}"
             android:textSize="13sp"
             android:visibility="@{viewModel.currentState == PreviewState.ERROR ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveImage"
+            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveImage"
-            app:layout_constraintTop_toTopOf="@+id/ivArchiveImage" />
+            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
+            app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
 
         <TextView
             android:id="@+id/tvArchiveName"
@@ -68,7 +68,7 @@
             android:textSize="13sp"
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveImage"
+            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
             app:layout_constraintTop_toBottomOf="@+id/tvAccountName" />
 
         <View
@@ -80,7 +80,7 @@
             android:visibility="@{viewModel.currentState == PreviewState.ERROR ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivArchiveImage" />
+            app:layout_constraintTop_toBottomOf="@+id/ivArchiveThumb" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRecords"
