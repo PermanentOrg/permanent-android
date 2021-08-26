@@ -65,7 +65,6 @@
     <string name="welcome_title">Welcome to The %s Archive</string>
     <string name="welcome_text">This archive represents your personal digital legacy. Upload your most important digital records then share them with total control.</string>
     <string name="welcome_start_preserving_button">Start Preserving</string>
-    <string name="nav_main_header_title_text">The %s Archive</string>
     <string name="nav_main_header_subtitle_text">Tap to manage archives</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
     <string name="nav_settings_header_used_suffix">used</string>
@@ -308,4 +307,5 @@
     <string name="archive_current_archive">Current Archive</string>
     <string name="archive_choose_archive">Choose Archive:</string>
     <string name="archive_button_create_new_archive">Create new archive</string>
+    <string name="archive_current_archive_switch_success">Archive switched successfully.</string>
 </resources>

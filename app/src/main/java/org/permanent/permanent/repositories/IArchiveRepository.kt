@@ -8,6 +8,8 @@ interface IArchiveRepository {
 
     fun getAllArchives(listener: IDataListener)
 
+    fun switchToArchive(archiveNr: String?, listener: IResponseListener)
+
     fun getMembers(listener: IDataListener)
 
     fun addMember(email: String, accessRole: AccessRole, listener: IResponseListener)

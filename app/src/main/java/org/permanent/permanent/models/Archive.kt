@@ -6,6 +6,7 @@ import org.permanent.permanent.network.models.ArchiveVO
 
 class Archive() : Parcelable {
     var id: Int = -1
+    var number: String? = null
     var fullName: String? = null
     var thumbURL500: String? = null
     var accessRole: AccessRole? = null
@@ -13,6 +14,7 @@ class Archive() : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readInt()
+        number = parcel.readString()
         fullName = parcel.readString()
         thumbURL500 = parcel.readString()
         accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
@@ -21,9 +23,11 @@ class Archive() : Parcelable {
 
     constructor(archiveVO: ArchiveVO?) : this() {
         id = archiveVO?.archiveId ?: -1
+        number = archiveVO?.archiveNbr
         fullName = "The ${archiveVO?.fullName} Archive"
         thumbURL500 = archiveVO?.thumbURL500
         accessRole = when (archiveVO?.accessRole) {
+            AccessRole.OWNER.backendString -> AccessRole.OWNER
             AccessRole.MANAGER.backendString -> AccessRole.MANAGER
             AccessRole.CURATOR.backendString -> AccessRole.CURATOR
             AccessRole.EDITOR.backendString -> AccessRole.EDITOR
@@ -35,6 +39,7 @@ class Archive() : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
+        parcel.writeString(number)
         parcel.writeString(fullName)
         parcel.writeString(thumbURL500)
         parcel.writeParcelable(accessRole, flags)

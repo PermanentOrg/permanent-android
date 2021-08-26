@@ -145,8 +145,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
 
             override fun onDrawerOpened(drawerView: View) {
-                if (drawerView.id == binding.settingsNavigationView.id) {
-                    viewModel.getUsedStorageForUser()
+                if (drawerView.id == binding.mainNavigationView.id) {
+                    viewModel.updateCurrentArchiveHeader()
+                } else if (drawerView.id == binding.settingsNavigationView.id) {
+                    viewModel.updateUsedStorage()
                 }
             }
 
@@ -202,7 +204,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             .create()
 
         viewDialog.tvWelcomeTitle.text =
-            getString(R.string.welcome_title, prefsHelper.getArchiveFullName())
+            getString(R.string.welcome_title, prefsHelper.getCurrentArchiveFullName())
         viewDialog.ivBtnClose.setOnClickListener {
             prefsHelper.saveWelcomeDialogSeen()
             alert.dismiss()

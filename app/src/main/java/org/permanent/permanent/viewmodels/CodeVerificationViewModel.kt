@@ -110,8 +110,8 @@ class CodeVerificationViewModel(application: Application) :
         val prefsHelper = PreferencesHelper(
             appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
-        val userEmail = prefsHelper.getUserEmail()
-        val userPass = prefsHelper.getUserPass()
+        val userEmail = prefsHelper.getAccountEmail()
+        val userPass = prefsHelper.getAccountPass()
 
         if (userEmail != null && userPass != null) {
             isBusy.value = true

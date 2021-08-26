@@ -4,9 +4,9 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
@@ -21,9 +21,10 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val currentArchiveThumb = prefsHelper.getArchiveThumbURL()
+    private val currentArchiveThumb =
+        MutableLiveData<String>(prefsHelper.getCurrentArchiveThumbURL())
     private val currentArchiveName =
-        application.getString(R.string.nav_main_header_title_text, prefsHelper.getArchiveFullName())
+        MutableLiveData<String>(prefsHelper.getCurrentArchiveFullName())
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private val existsArchives = MutableLiveData(false)
@@ -44,7 +45,7 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 if (!dataList.isNullOrEmpty()) {
-                    val currentArchiveId = prefsHelper.getArchiveId()
+                    val currentArchiveId = prefsHelper.getCurrentArchiveId()
                     val archives: MutableList<Archive> = ArrayList()
 
                     for (datum in dataList) {
@@ -66,14 +67,39 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onArchiveClick(archive: Archive) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        archiveRepository.switchToArchive(archive.number, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                prefsHelper.saveCurrentArchiveInfo(
+                    archive.id,
+                    archive.number,
+                    archive.fullName,
+                    archive.thumbURL500
+                )
+                getArchives()
+                currentArchiveThumb.value = archive.thumbURL500
+                currentArchiveName.value = archive.fullName
+                showMessage.value = message
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     fun onCreateNewArchiveClick() {
     }
 
-    fun getCurrentArchiveThumb(): String? = currentArchiveThumb
+    fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
 
-    fun getCurrentArchiveName(): String = currentArchiveName
+    fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

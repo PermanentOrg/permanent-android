@@ -22,10 +22,9 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val userEmail = prefsHelper.getUserEmail()
-    private val archiveThumb = prefsHelper.getArchiveThumbURL()
-    private val archiveName =
-        application.getString(R.string.nav_main_header_title_text, prefsHelper.getArchiveFullName())
+    private val userEmail = prefsHelper.getAccountEmail()
+    private val archiveThumb = MutableLiveData<String>()
+    private val archiveName = MutableLiveData<String>()
     private val spaceUsedPercentage = MutableLiveData<Int>()
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
@@ -43,9 +42,9 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getUserEmail(): String? = userEmail
 
-    fun getArchiveThumb(): String? = archiveThumb
+    fun getArchiveThumb(): MutableLiveData<String> = archiveThumb
 
-    fun getArchiveName(): String = archiveName
+    fun getArchiveName(): MutableLiveData<String> = archiveName
 
     fun getSpaceUsedPercentage(): MutableLiveData<Int> = spaceUsedPercentage
 
@@ -63,7 +62,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         onManageArchives.call()
     }
 
-    fun getUsedStorageForUser() {
+    fun updateUsedStorage() {
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
                 val spaceTotal = account.spaceTotal
@@ -81,6 +80,11 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                 errorMessage.value = error
             }
         })
+    }
+
+    fun updateCurrentArchiveHeader() {
+        archiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
+        archiveName.value = prefsHelper.getCurrentArchiveFullName()
     }
 
     fun deleteDeviceToken() {

@@ -26,6 +26,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
         state = accountVO?.state
         zipCode = accountVO?.zip
         accessRole = when (accountVO?.accessRole) {
+            AccessRole.OWNER.backendString -> AccessRole.OWNER
             AccessRole.MANAGER.backendString -> AccessRole.MANAGER
             AccessRole.CURATOR.backendString -> AccessRole.CURATOR
             AccessRole.EDITOR.backendString -> AccessRole.EDITOR

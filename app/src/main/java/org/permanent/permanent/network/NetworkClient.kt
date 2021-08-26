@@ -403,6 +403,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.getAllArchives(requestBody)
     }
 
+    fun switchToArchive(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.switchArchive(requestBody)
+    }
+
     fun getMembers(csrf: String?, archiveNr: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

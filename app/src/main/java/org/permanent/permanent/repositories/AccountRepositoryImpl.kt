@@ -44,7 +44,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     }
 
     override fun getAccount(listener: IAccountRepository.IAccountListener) {
-        val accountId = prefsHelper.getUserAccountId()
+        val accountId = prefsHelper.getAccountId()
 
         if (accountId != 0) {
             NetworkClient.instance().getAccount(prefsHelper.getCsrf(), accountId)
@@ -93,7 +93,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     }
 
     override fun delete(listener: IResponseListener) {
-        val accountId = prefsHelper.getUserAccountId()
+        val accountId = prefsHelper.getAccountId()
         if (accountId != 0) {
             NetworkClient.instance().deleteAccount(prefsHelper.getCsrf(), accountId)
                 .enqueue(object : Callback<ResponseVO> {
@@ -120,7 +120,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         currentPassword: String, newPassword: String, retypedPassword: String,
         listener: IResponseListener
     ) {
-        val accountId = prefsHelper.getUserAccountId()
+        val accountId = prefsHelper.getAccountId()
 
         if (accountId != 0) {
             NetworkClient.instance().changePassword(
