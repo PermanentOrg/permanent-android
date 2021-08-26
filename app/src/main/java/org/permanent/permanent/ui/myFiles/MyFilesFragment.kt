@@ -17,7 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.dialog_cancel_uploads.view.*
 import kotlinx.android.synthetic.main.dialog_delete.view.*
+import kotlinx.android.synthetic.main.dialog_delete.view.tvTitle
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
@@ -187,6 +189,23 @@ class MyFilesFragment : PermanentBaseFragment() {
         alert.show()
     }
 
+    private val onCancelAllUploads = Observer<Void> {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_cancel_uploads, null)
+        val alert = AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.cancel_uploads_title)
+        viewDialog.tvText.text = getString(R.string.cancel_uploads_text)
+        viewDialog.btnCancelAll.setOnClickListener {
+            viewModel.cancelAllUploads()
+            alert.dismiss()
+        }
+        viewDialog.btnCancelAllNo.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
     private val onFileViewRequest = Observer<ArrayList<Record>> {
         val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
         findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity, bundle)
@@ -247,6 +266,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnShowFileOptionsFragment().observe(this, onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
+        viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
@@ -263,6 +283,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnShowFileOptionsFragment().removeObserver(onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
+        viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)

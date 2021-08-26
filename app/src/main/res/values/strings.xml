@@ -144,6 +144,9 @@
     <string name="my_files_folder_not_deleted_error">Folder could not be deleted.</string>
     <string name="my_files_folder_deleted">Folder has been deleted.</string>
     <string name="create_button">Create</string>
+    <string name="cancel_all_button">Cancel all</string>
+    <string name="cancel_uploads_title">Cancel all uploads</string>
+    <string name="cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
     <string name="new_folder_title">Create New Folder</string>
     <string name="delete_record_title">Delete \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
@@ -302,7 +305,6 @@
     <string name="dialog_delete_account_placeholder">type DELETE</string>
     <string name="delete_account_error">Type DELETE with all caps in order to delete your account.</string>
     <string name="downloading_file_in_progress">Downloading file…</string>
-    <string name="cancel_all_button">Cancel all</string>
 
     <string name="archive_current_archive">Current Archive</string>
     <string name="archive_choose_archive">Choose Archive:</string>
