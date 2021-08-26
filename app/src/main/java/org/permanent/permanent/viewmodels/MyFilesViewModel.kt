@@ -55,6 +55,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val recordToRelocate = MutableLiveData<Record>()
     private val showMessage = SingleLiveEvent<String>()
     private val showQuotaExceeded = SingleLiveEvent<Void>()
+    private val onCancelAllUploads = SingleLiveEvent<Void>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
@@ -251,8 +252,12 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         downloadQueue.enqueueNewDownloadFor(record)
     }
 
-    fun onCancelAllUploads() {
+    fun cancelAllUploads() {
         currentFolder.value?.getUploadQueue()?.clear()
+    }
+
+    fun onCancelAllBtnClick() {
+        onCancelAllUploads.call()
     }
 
     override fun onCancelClick(upload: Upload) {
@@ -416,6 +421,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
 
     fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
+
+    fun getOnCancelAllUploads(): SingleLiveEvent<Void> = onCancelAllUploads
 
     fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> = onDownloadsRetrieved
 
