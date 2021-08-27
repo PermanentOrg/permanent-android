@@ -134,10 +134,7 @@ open class Record : Parcelable {
         shares = ArrayList()
         shareVOs?.let {
             for (shareVO in it) {
-                val archiveVO = shareVO.ArchiveVO
-                val share = Share(shareVO)
-                share.archive?.fullName = "The " + archiveVO?.fullName + " Archive"
-                (shares as ArrayList<Share>).add(share)
+                (shares as ArrayList<Share>).add(Share(shareVO))
             }
         }
     }

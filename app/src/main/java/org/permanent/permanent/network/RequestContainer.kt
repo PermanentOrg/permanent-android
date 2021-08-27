@@ -3,7 +3,6 @@ package org.permanent.permanent.network
 import com.google.android.gms.maps.model.LatLng
 import okhttp3.MediaType
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.Constants
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
 import java.io.File
@@ -71,6 +70,12 @@ class RequestContainer(csrf: String?) {
         val accountVO = AccountVO()
         accountVO.accountId = id
         RequestVO.data?.get(0)?.AccountVO = accountVO
+        return this
+    }
+
+    fun addAccount(id: Int, email: String, defaultArchiveId: Int): RequestContainer {
+        addAccount(id, email)
+        RequestVO.data?.get(0)?.AccountVO?.defaultArchiveId = defaultArchiveId
         return this
     }
 

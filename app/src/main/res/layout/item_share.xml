@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <import type="org.permanent.permanent.models.RecordType" />
+
         <import type="android.view.View" />
+
         <variable
             name="record"
             type="org.permanent.permanent.ui.myFiles.download.DownloadableRecord" />
@@ -17,18 +19,18 @@
         android:background="@color/white">
 
         <ImageView
-            android:id="@+id/ivThumbnail"
+            android:id="@+id/ivRecordThumb"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginStart="12dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
-            app:record="@{record}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:record="@{record}" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
@@ -47,8 +49,8 @@
             android:text="@{record.displayName}"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintEnd_toStartOf="@+id/ivArchiveImage"
-            app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
+            app:layout_constraintEnd_toStartOf="@+id/ivArchiveThumb"
+            app:layout_constraintStart_toEndOf="@+id/ivRecordThumb"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
@@ -60,7 +62,7 @@
             android:text="@{record.displayDate}"
             android:visibility="@{record.isEnqueued || record.isDownloading ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
+            app:layout_constraintStart_toEndOf="@+id/ivRecordThumb"
             app:layout_constraintTop_toTopOf="@+id/guideline"
             app:layout_constraintVertical_bias="0.0" />
 
@@ -78,14 +80,14 @@
             app:tint="@color/middleGrey" />
 
         <ImageView
-            android:id="@+id/ivArchiveImage"
+            android:id="@+id/ivArchiveThumb"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="8dp"
             android:visibility="@{record.showArchiveThumb &amp;&amp; record.isDownloading == false ?  View.VISIBLE : View.GONE}"
-            app:roundedImageUrl="@{record.archiveThumbURL500}"
+            app:imageUrl="@{record.archiveThumbURL500}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btnOptions"
             app:layout_constraintTop_toTopOf="parent" />
@@ -98,7 +100,7 @@
             android:text="@string/my_files_uploads_waiting"
             android:visibility="@{record.isEnqueued ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
+            app:layout_constraintStart_toEndOf="@+id/ivRecordThumb"
             app:layout_constraintTop_toTopOf="@+id/guideline"
             app:layout_constraintVertical_bias="0.0" />
 
@@ -115,7 +117,7 @@
             android:visibility="@{record.isDownloading ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnCancel"
-            app:layout_constraintStart_toEndOf="@+id/ivThumbnail"
+            app:layout_constraintStart_toEndOf="@+id/ivRecordThumb"
             app:layout_constraintTop_toTopOf="@+id/guideline"
             app:layout_constraintVertical_bias="0.0" />
 

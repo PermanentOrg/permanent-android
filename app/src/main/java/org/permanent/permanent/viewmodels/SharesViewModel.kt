@@ -33,8 +33,8 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
                 if (!dataList.isNullOrEmpty()) {
                     val sharesByMe: MutableList<DownloadableRecord> = ArrayList()
                     val sharesWithMe: MutableList<DownloadableRecord> = ArrayList()
-                    val userArchiveId = PreferencesHelper(appContext
-                        .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)).getArchiveId()
+                    val currentArchiveId = PreferencesHelper(appContext
+                        .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)).getCurrentArchiveId()
 
                     for (data in dataList) {
                         val archive = data.ArchiveVO
@@ -43,7 +43,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
                         items?.let {
                             for (item in it) {
                                 val shareItem: DownloadableRecord
-                                if (userArchiveId == archive.archiveId) {
+                                if (currentArchiveId == archive.archiveId) {
                                     shareItem = DownloadableRecord(item, archive, false)
                                     sharesByMe.add(shareItem)
                                 } else {

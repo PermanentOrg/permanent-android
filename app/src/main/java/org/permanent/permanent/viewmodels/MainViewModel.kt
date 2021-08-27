@@ -22,11 +22,14 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val userEmail = prefsHelper.getUserEmail()
+    private val userEmail = prefsHelper.getAccountEmail()
+    private val archiveThumb = MutableLiveData<String>()
+    private val archiveName = MutableLiveData<String>()
     private val spaceUsedPercentage = MutableLiveData<Int>()
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
+    private val onManageArchives = SingleLiveEvent<Void>()
     private val onLoggedOut = SingleLiveEvent<Void>()
     val versionName = MutableLiveData(
         application.getString(
@@ -39,6 +42,10 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getUserEmail(): String? = userEmail
 
+    fun getArchiveThumb(): MutableLiveData<String> = archiveThumb
+
+    fun getArchiveName(): MutableLiveData<String> = archiveName
+
     fun getSpaceUsedPercentage(): MutableLiveData<Int> = spaceUsedPercentage
 
     fun getSpaceUsedText(): MutableLiveData<String> = spaceUsedText
@@ -47,9 +54,15 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
+    fun getOnManageArchives(): LiveData<Void> = onManageArchives
+
     fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
 
-    fun getUsedStorageForUser() {
+    fun onManageArchivesClick() {
+        onManageArchives.call()
+    }
+
+    fun updateUsedStorage() {
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
                 val spaceTotal = account.spaceTotal
@@ -67,6 +80,11 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                 errorMessage.value = error
             }
         })
+    }
+
+    fun updateCurrentArchiveHeader() {
+        archiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
+        archiveName.value = prefsHelper.getCurrentArchiveFullName()
     }
 
     fun deleteDeviceToken() {

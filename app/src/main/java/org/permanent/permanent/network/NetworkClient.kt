@@ -34,7 +34,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val accountService: IAccountService
     private val fileService: IFileService
     private val shareService: IShareService
-    private val memberService: IMemberService
+    private val archiveService: IArchiveService
     private val notificationService: INotificationService
     private val invitationService: IInvitationService
     private val locationService: ILocationService
@@ -80,7 +80,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         accountService = retrofit.create(IAccountService::class.java)
         fileService = retrofit.create(IFileService::class.java)
         shareService = retrofit.create(IShareService::class.java)
-        memberService = retrofit.create(IMemberService::class.java)
+        archiveService = retrofit.create(IArchiveService::class.java)
         notificationService = retrofit.create(INotificationService::class.java)
         invitationService = retrofit.create(IInvitationService::class.java)
         locationService = retrofit.create(ILocationService::class.java)
@@ -154,6 +154,19 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun updateAccount(csrf: String?, account: Account): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAccount(account))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return accountService.updateAccount(requestBody)
+    }
+
+    fun changeDefaultArchive(
+        csrf: String?,
+        accountId: Int,
+        accountEmail: String,
+        defaultArchiveId: Int
+    ): Call<ResponseVO> {
+        val request =
+            toJson(RequestContainer(csrf).addAccount(accountId, accountEmail, defaultArchiveId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return accountService.updateAccount(requestBody)
@@ -397,10 +410,22 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return shareService.getShares(requestBody)
     }
 
+    fun getAllArchives(csrf: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.getAllArchives(requestBody)
+    }
+
+    fun switchToArchive(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.switchArchive(requestBody)
+    }
+
     fun getMembers(csrf: String?, archiveNr: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return memberService.getMembers(requestBody)
+        return archiveService.getMembers(requestBody)
     }
 
     fun addMember(
@@ -415,7 +440,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .addAccount(email, accessRole)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return memberService.addMember(requestBody)
+        return archiveService.addMember(requestBody)
     }
 
     fun updateMember(
@@ -431,13 +456,13 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .addAccount(id, email, accessRole)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return memberService.updateMember(requestBody)
+        return archiveService.updateMember(requestBody)
     }
 
     fun deleteMember(csrf: String?, archiveNr: String?, id: Int, email: String): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr).addAccount(id, email))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return memberService.deleteMember(requestBody)
+        return archiveService.deleteMember(requestBody)
     }
 
     fun getNotifications(): Call<ResponseVO> {

@@ -22,35 +22,34 @@ import retrofit2.Response
 import java.io.File
 import java.util.*
 
-class FileRepositoryImpl(val context: Context): IFileRepository {
+class FileRepositoryImpl(val context: Context) : IFileRepository {
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val prefsHelper = PreferencesHelper(sharedPreferences)
 
     override fun getMyFilesRecord(listener: IRecordListener) {
-        NetworkClient.instance().getRoot(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                val responseVO = response.body()
-                prefsHelper.saveCsrf(responseVO?.csrf)
-                prefsHelper.saveArchiveId(responseVO?.getArchiveId())
-                prefsHelper.saveRootArchiveNr(responseVO?.getArchiveNr())
-                val myFilesRecord = responseVO?.getMyFilesRecord()
+        NetworkClient.instance().getRoot(prefsHelper.getCsrf())
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    val myFilesRecord = responseVO?.getMyFilesRecord()
 
-                if (myFilesRecord != null) {
-                    listener.onSuccess(myFilesRecord)
-                } else {
-                    listener.onFailed(
-                        responseVO?.Results?.get(0)?.message?.get(0)
-                            ?: response.errorBody()?.toString()
-                    )
+                    if (myFilesRecord != null) {
+                        listener.onSuccess(myFilesRecord)
+                    } else {
+                        listener.onFailed(
+                            responseVO?.Results?.get(0)?.message?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                listener.onFailed(t.message)
-            }
-        })
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 
     override fun getChildRecordsOf(
@@ -93,10 +92,12 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
             })
     }
 
-    override fun getLeanItems(archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
-                              listener: IFileRepository.IOnRecordsRetrievedListener
+    override fun getLeanItems(
+        archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
+        listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        NetworkClient.instance().getLeanItems(prefsHelper.getCsrf(), archiveNr, folderLinkId, sort, childLinkIds)
+        NetworkClient.instance()
+            .getLeanItems(prefsHelper.getCsrf(), archiveNr, folderLinkId, sort, childLinkIds)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -138,7 +139,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     }
 
     override fun getFolder(folderLinkId: Int, listener: IRecordListener) {
-        NetworkClient.instance().getFolder(prefsHelper.getCsrf(), folderLinkId,
+        NetworkClient.instance().getFolder(
+            prefsHelper.getCsrf(), folderLinkId,
         ).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -158,12 +160,17 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     override fun getPresignedUrlForUpload(
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
     ): Call<GetPresignedUrlResponse> {
-        return NetworkClient.instance().getPresignedUrlForUpload(prefsHelper.getCsrf(), file, displayName,
-            folderId, folderLinkId, mediaType)
+        return NetworkClient.instance().getPresignedUrlForUpload(
+            prefsHelper.getCsrf(), file, displayName,
+            folderId, folderLinkId, mediaType
+        )
     }
 
     override fun uploadFile(
-        file: File, mediaType: MediaType, uploadDestination: UploadDestination, listener: CountingRequestListener
+        file: File,
+        mediaType: MediaType,
+        uploadDestination: UploadDestination,
+        listener: CountingRequestListener
     ): Call<ResponseBody> {
         return NetworkClient.instance().uploadFile(file, mediaType, uploadDestination, listener)
     }
@@ -171,8 +178,10 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
     override fun registerRecord(
         folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
     ): Call<ResponseVO> {
-        return NetworkClient.instance().registerRecord(prefsHelper.getCsrf(), file, displayName,
-            folderId, folderLinkId, s3Url)
+        return NetworkClient.instance().registerRecord(
+            prefsHelper.getCsrf(), file, displayName,
+            folderId, folderLinkId, s3Url
+        )
     }
 
     override fun getRecord(folderLinkId: Int, recordId: Int?): Call<ResponseVO> {
@@ -195,7 +204,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                     val firstMessage = responseVO?.getMessages()?.get(0)
 
                     if (firstMessage != null && (firstMessage == Constants.FILE_DELETED_SUCCESSFULLY
-                                || firstMessage == Constants.FOLDER_DELETED_SUCCESSFULLY)) {
+                                || firstMessage == Constants.FOLDER_DELETED_SUCCESSFULLY)
+                    ) {
                         listener.onSuccess(null)
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
@@ -213,7 +223,8 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
         listener: IResponseListener
     ) {
         NetworkClient.instance().relocateRecord(
-            prefsHelper.getCsrf(), recordToRelocate, destFolderLinkId, relocationType)
+            prefsHelper.getCsrf(), recordToRelocate, destFolderLinkId, relocationType
+        )
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -222,8 +233,13 @@ class FileRepositoryImpl(val context: Context): IFileRepository {
                         val relocationVerb = if (relocationType == RelocationType.MOVE)
                             context.getString(R.string.relocation_type_moved)
                         else context.getString(R.string.relocation_type_copied)
-                        listener.onSuccess(context.getString(R.string.relocation_success,
-                            recordToRelocate.type?.name?.toLowerCase()?.capitalize(), relocationVerb))
+                        listener.onSuccess(
+                            context.getString(
+                                R.string.relocation_success,
+                                recordToRelocate.type?.name?.toLowerCase()?.capitalize(),
+                                relocationVerb
+                            )
+                        )
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }

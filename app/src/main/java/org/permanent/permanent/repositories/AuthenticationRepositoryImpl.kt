@@ -3,6 +3,7 @@ package org.permanent.permanent.repositories
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
@@ -21,7 +22,10 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         listener: IAuthenticationRepository.IOnLoggedInListener
     ) {
         NetworkClient.instance().verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
-            override fun onResponse(call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>) {
+            override fun onResponse(
+                call: Call<ResponseVO>,
+                retrofitResponse: Response<ResponseVO>
+            ) {
                 val responseVO = retrofitResponse.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
 
@@ -49,14 +53,19 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
                 // We save this for the background login after verifyCode
-                prefsHelper.saveUserEmail(email)
-                prefsHelper.saveUserPass(password)
+                prefsHelper.saveAccountEmail(email)
+                prefsHelper.saveAccountPass(password)
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                    // We use this in the members section
-                    prefsHelper.saveAccountFullName(responseVO.getAccount()?.fullName)
-                    prefsHelper.saveArchiveFullName(responseVO.getArchive()?.fullName)
-                    prefsHelper.saveUserAccountId(responseVO.getAccount()?.accountId)
+                    prefsHelper.saveAccountId(responseVO.getAccount()?.accountId)
+                    prefsHelper.saveDefaultArchiveId(responseVO.getAccount()?.defaultArchiveId)
+                    val archive = Archive(responseVO.getArchive())
+                    prefsHelper.saveCurrentArchiveInfo(
+                        archive.id,
+                        archive.number,
+                        archive.fullName,
+                        archive.thumbURL500
+                    )
                     prefsHelper.saveUserLoggedIn(true)
                     listener.onSuccess()
                 } else {
@@ -74,7 +83,33 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     }
 
     override fun logout(listener: IAuthenticationRepository.IOnLogoutListener) {
-        NetworkClient.instance().logout(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().logout(prefsHelper.getCsrf())
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+
+                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                        listener.onSuccess()
+                    } else {
+                        listener.onFailed(
+                            responseVO?.Results?.get(0)?.message?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun forgotPassword(
+        email: String,
+        listener: IAuthenticationRepository.IOnResetPasswordListener
+    ) {
+        NetworkClient.instance().forgotPassword(email).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
@@ -95,35 +130,11 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         })
     }
 
-    override fun forgotPassword(
-        email: String,
-        listener: IAuthenticationRepository.IOnResetPasswordListener
-    ) {
-        NetworkClient.instance().forgotPassword(email).enqueue(object : Callback<ResponseVO> {
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                val responseVO = response.body()
-                prefsHelper.saveCsrf(responseVO?.csrf)
-
-                if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                    listener.onSuccess()
-                } else {
-                    listener.onFailed(
-                        responseVO?.Results?.get(0)?.message?.get(0)
-                            ?: response.errorBody()?.toString())
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                listener.onFailed(t.message)
-            }
-        })
-    }
-
     override fun sendSMSVerificationCode(
         listener: IAuthenticationRepository.IOnSMSCodeSentListener
     ) {
-        val accountId = prefsHelper.getUserAccountId()
-        val email = prefsHelper.getUserEmail()
+        val accountId = prefsHelper.getAccountId()
+        val email = prefsHelper.getAccountEmail()
 
         if (accountId != 0 && email != null) {
             NetworkClient.instance().sendSMSVerificationCode(
@@ -157,7 +168,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         authType: String,
         listener: IAuthenticationRepository.IOnVerifyListener
     ) {
-        prefsHelper.getUserEmail()?.let {
+        prefsHelper.getAccountEmail()?.let {
             NetworkClient.instance().verifyCode(
                 code,
                 authType,
@@ -171,8 +182,10 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess()
                     } else {
-                        listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0)
-                            ?: response.errorBody()?.toString())
+                        listener.onFailed(
+                            responseVO?.Results?.get(0)?.message?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
                     }
                 }
 

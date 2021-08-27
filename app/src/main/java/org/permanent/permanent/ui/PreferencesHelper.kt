@@ -4,18 +4,19 @@ import android.content.SharedPreferences
 
 const val PREFS_NAME = "permanent_preferences"
 const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
+const val IS_USER_SIGNED_UP_IN_APP = "is_user_signed_up_in_app"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
-const val IS_USER_SIGNED_UP_IN_APP = "is_user_signed_up_in_app"
-const val PREFS_USER_ACCOUNT_ID = "preferences_user_account_id"
-const val PREFS_USER_EMAIL = "preferences_user_email"
-const val PREFS_USER_PASSWORD = "preferences_user_password"
+const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
+const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
+const val PREFS_ACCOUNT_PASSWORD = "preferences_user_password"
 const val PREFS_CSRF = "preferences_csrf"
-const val PREFS_ARCHIVE_ID = "preferences_archive_id"
-const val PREFS_ROOT_ARCHIVE_NR = "preferences_root_archive_nr"
-const val PREFS_ACCOUNT_FULL_NAME = "preferences_account_full_name"
-const val PREFS_ARCHIVE_FULL_NAME = "preferences_archive_full_name"
+const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
+const val PREFS_CURRENT_ARCHIVE_ID = "preferences_current_archive_id"
+const val PREFS_CURRENT_ARCHIVE_NUMBER = "preferences_current_archive_number"
+const val PREFS_CURRENT_ARCHIVE_FULL_NAME = "preferences_current_archive_full_name"
+const val PREFS_CURRENT_ARCHIVE_THUMB_URL = "preferences_current_archive_thumb_url"
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
@@ -68,39 +69,26 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_BIOMETRICS_LOG_IN, true)
     }
 
-    fun saveUserAccountId(id: Int?) {
-        id?.let {
-            with(sharedPreferences.edit()) {
-                putInt(PREFS_USER_ACCOUNT_ID, id)
-                apply()
-            }
-        }
-    }
-
-    fun getUserAccountId(): Int {
-        return sharedPreferences.getInt(PREFS_USER_ACCOUNT_ID, 0)
-    }
-
-    fun saveUserEmail(email: String) {
+    fun saveAccountEmail(email: String) {
         with(sharedPreferences.edit()) {
-            putString(PREFS_USER_EMAIL, email)
+            putString(PREFS_ACCOUNT_EMAIL, email)
             apply()
         }
     }
 
-    fun getUserEmail(): String? {
-        return sharedPreferences.getString(PREFS_USER_EMAIL, "")
+    fun getAccountEmail(): String? {
+        return sharedPreferences.getString(PREFS_ACCOUNT_EMAIL, "")
     }
 
-    fun saveUserPass(pass: String) {
+    fun saveAccountPass(pass: String) {
         with(sharedPreferences.edit()) {
-            putString(PREFS_USER_PASSWORD, pass)
+            putString(PREFS_ACCOUNT_PASSWORD, pass)
             apply()
         }
     }
 
-    fun getUserPass(): String? {
-        return sharedPreferences.getString(PREFS_USER_PASSWORD, "")
+    fun getAccountPass(): String? {
+        return sharedPreferences.getString(PREFS_ACCOUNT_PASSWORD, "")
     }
 
     fun saveCsrf(csrf: String?) {
@@ -116,57 +104,73 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getString(PREFS_CSRF, "")
     }
 
-    fun saveArchiveId(id: Int?) {
+    fun saveAccountId(id: Int?) {
         id?.let {
             with(sharedPreferences.edit()) {
-                putInt(PREFS_ARCHIVE_ID, id)
+                putInt(PREFS_ACCOUNT_ID, id)
                 apply()
             }
         }
     }
 
-    fun getArchiveId(): Int {
-        return sharedPreferences.getInt(PREFS_ARCHIVE_ID, 0)
+    fun getAccountId(): Int {
+        return sharedPreferences.getInt(PREFS_ACCOUNT_ID, 0)
     }
 
-    fun saveRootArchiveNr(archiveNr: String?) {
-        archiveNr?.let {
+    fun saveDefaultArchiveId(id: Int?) {
+        id?.let {
             with(sharedPreferences.edit()) {
-                putString(PREFS_ROOT_ARCHIVE_NR, archiveNr)
+                putInt(PREFS_DEFAULT_ARCHIVE_ID, id)
                 apply()
             }
         }
     }
 
-    fun getUserArchiveNr(): String {
-        return sharedPreferences.getString(PREFS_ROOT_ARCHIVE_NR, "")
-            ?.substringBefore("-") + "-0000"
+    fun getDefaultArchiveId(): Int {
+        return sharedPreferences.getInt(PREFS_DEFAULT_ARCHIVE_ID, 0)
     }
 
-    fun saveAccountFullName(name: String?) {
+    fun saveCurrentArchiveInfo(id: Int?, number: String?, name: String?, thumbURL: String?) {
+        id?.let {
+            with(sharedPreferences.edit()) {
+                putInt(PREFS_CURRENT_ARCHIVE_ID, id)
+                apply()
+            }
+        }
+        number?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_CURRENT_ARCHIVE_NUMBER, number)
+                apply()
+            }
+        }
         name?.let {
             with(sharedPreferences.edit()) {
-                putString(PREFS_ACCOUNT_FULL_NAME, name)
+                putString(PREFS_CURRENT_ARCHIVE_FULL_NAME, name)
                 apply()
             }
         }
-    }
-
-    fun getAccountFullName(): String? {
-        return sharedPreferences.getString(PREFS_ACCOUNT_FULL_NAME, "")
-    }
-
-    fun saveArchiveFullName(name: String?) {
-        name?.let {
+        thumbURL?.let {
             with(sharedPreferences.edit()) {
-                putString(PREFS_ARCHIVE_FULL_NAME, name)
+                putString(PREFS_CURRENT_ARCHIVE_THUMB_URL, thumbURL)
                 apply()
             }
         }
     }
 
-    fun getArchiveFullName(): String? {
-        return sharedPreferences.getString(PREFS_ARCHIVE_FULL_NAME, "")
+    fun getCurrentArchiveId(): Int {
+        return sharedPreferences.getInt(PREFS_CURRENT_ARCHIVE_ID, 0)
+    }
+
+    fun getCurrentArchiveNr(): String? {
+        return sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_NUMBER, "")
+    }
+
+    fun getCurrentArchiveFullName(): String? {
+        return sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_FULL_NAME, "")
+    }
+
+    fun getCurrentArchiveThumbURL(): String? {
+        return sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_THUMB_URL, "")
     }
 
     fun saveShareLinkUrlToken(urlToken: String) {

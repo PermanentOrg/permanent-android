@@ -6,8 +6,16 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-interface IMemberService {
+interface IArchiveService {
 
+    // Used in managing the archives
+    @POST("archive/getAllArchives")
+    fun getAllArchives(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("archive/change")
+    fun switchArchive(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    // Used in members section
     @POST("archive/getShares")
     fun getMembers(@Body requestBody: RequestBody): Call<ResponseVO>
 

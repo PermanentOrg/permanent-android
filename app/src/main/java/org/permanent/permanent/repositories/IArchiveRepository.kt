@@ -4,7 +4,11 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 
-interface IMemberRepository {
+interface IArchiveRepository {
+
+    fun getAllArchives(listener: IDataListener)
+
+    fun switchToArchive(archiveNr: String?, listener: IResponseListener)
 
     fun getMembers(listener: IDataListener)
 

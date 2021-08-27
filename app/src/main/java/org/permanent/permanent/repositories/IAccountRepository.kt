@@ -11,6 +11,8 @@ interface IAccountRepository {
 
     fun update(account: Account, listener: IResponseListener)
 
+    fun changeDefaultArchive(defaultArchiveId: Int, listener: IResponseListener)
+
     fun delete(listener: IResponseListener)
 
     fun changePassword(

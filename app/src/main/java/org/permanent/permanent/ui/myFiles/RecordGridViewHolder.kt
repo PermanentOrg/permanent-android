@@ -33,7 +33,7 @@ class RecordGridViewHolder(
                 .placeholder(R.drawable.ic_stop_light_grey)
                 .fit()
                 .transform(BlurTransformation(context, 25, 5))
-                .into(binding.ivThumbnail)
+                .into(binding.ivRecordThumb)
         }
     }
 }

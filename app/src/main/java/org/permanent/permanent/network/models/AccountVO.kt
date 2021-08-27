@@ -4,6 +4,7 @@ import org.permanent.permanent.models.Account
 
 class AccountVO() {
     var accountId: Int? = null
+    var defaultArchiveId: Int? = null
     var primaryEmail: String? = null
     var rememberMe: Boolean? = null
     var agreed: Boolean? = null
@@ -22,6 +23,7 @@ class AccountVO() {
 
     constructor(account: Account) : this() {
         accountId = account.id
+        defaultArchiveId = account.defaultArchiveId
         fullName = account.fullName
         primaryEmail = account.primaryEmail
         primaryPhone = account.phone

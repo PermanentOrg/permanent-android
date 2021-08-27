@@ -19,13 +19,13 @@
         android:background="@color/white">
 
         <ImageView
-            android:id="@+id/ivArchiveImage"
+            android:id="@+id/ivArchiveThumb"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
-            app:roundedImageUrl="@{share.archive.thumbURL500}"
+            app:imageUrl="@{share.archive.thumbURL500}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -44,8 +44,8 @@
             android:text="@{share.archive.fullName}"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveImage"
-            app:layout_constraintTop_toTopOf="@+id/ivArchiveImage" />
+            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
+            app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
 
         <TextView
             android:id="@+id/tvRelationship"
@@ -54,9 +54,9 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="16dp"
             android:text="Friend"
-            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveImage"
+            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveImage" />
+            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnApprove"
@@ -73,7 +73,7 @@
             android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivArchiveImage" />
+            app:layout_constraintTop_toBottomOf="@+id/ivArchiveThumb" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeny"
@@ -93,6 +93,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/btnApprove"
-            app:layout_constraintTop_toBottomOf="@+id/ivArchiveImage" />
+            app:layout_constraintTop_toBottomOf="@+id/ivArchiveThumb" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

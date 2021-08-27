@@ -1,17 +1,14 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.repositories.IMemberRepository
-import org.permanent.permanent.repositories.MemberRepositoryImpl
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.ui.members.MemberListener
 
 class MembersViewModel(
@@ -19,10 +16,8 @@ class MembersViewModel(
 ) : ObservableAndroidViewModel(application), MemberListener {
 
     private val appContext = application.applicationContext
-    private val prefsHelper = PreferencesHelper(
-        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-    private val ownerDisplayName = prefsHelper.getAccountFullName()
-    private val ownerEmail = prefsHelper.getUserEmail()
+    private val ownerDisplayName = MutableLiveData<String>()
+    private val ownerEmail = MutableLiveData<String>()
     private val existsManagers = MutableLiveData(false)
     private val existsCurators = MutableLiveData(false)
     private val existsEditors = MutableLiveData(false)
@@ -38,7 +33,7 @@ class MembersViewModel(
     private val showSnackbarLong = MutableLiveData<Int>()
     private val onShowAddMemberDialogRequest = MutableLiveData<Void>()
     private val onShowEditMemberDialogRequest = MutableLiveData<Account>()
-    private var memberRepository: IMemberRepository = MemberRepositoryImpl(appContext)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(appContext)
 
     init {
         refreshMembers()
@@ -50,7 +45,7 @@ class MembersViewModel(
         }
 
         isBusy.value = true
-        memberRepository.getMembers(object : IDataListener {
+        archiveRepository.getMembers(object : IDataListener {
 
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
@@ -70,20 +65,19 @@ class MembersViewModel(
         val editors: MutableList<Account> = ArrayList()
         val contributors: MutableList<Account> = ArrayList()
         val viewers: MutableList<Account> = ArrayList()
-        val userAccountId = PreferencesHelper(
-            appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        ).getUserAccountId()
 
         for (datum in allMembers) {
             val account = Account(datum.AccountVO)
-            if (userAccountId != account.id) {
-                when (account.accessRole) {
-                    AccessRole.MANAGER -> managers.add(account)
-                    AccessRole.CURATOR -> curators.add(account)
-                    AccessRole.EDITOR -> editors.add(account)
-                    AccessRole.CONTRIBUTOR -> contributors.add(account)
-                    else -> viewers.add(account)
+            when (account.accessRole) {
+                AccessRole.OWNER -> {
+                    ownerDisplayName.value = account.fullName
+                    ownerEmail.value = account.primaryEmail
                 }
+                AccessRole.MANAGER -> managers.add(account)
+                AccessRole.CURATOR -> curators.add(account)
+                AccessRole.EDITOR -> editors.add(account)
+                AccessRole.CONTRIBUTOR -> contributors.add(account)
+                else -> viewers.add(account)
             }
         }
         onManagersRetrieved.value = managers
@@ -98,74 +92,6 @@ class MembersViewModel(
         existsViewers.value = viewers.isNotEmpty()
     }
 
-    fun getOnManagersRetrieved(): LiveData<List<Account>> {
-        return onManagersRetrieved
-    }
-
-    fun getOnCuratorsRetrieved(): LiveData<List<Account>> {
-        return onCuratorsRetrieved
-    }
-
-    fun getOnEditorsRetrieved(): LiveData<List<Account>> {
-        return onEditorsRetrieved
-    }
-
-    fun getOnContributorsRetrieved(): LiveData<List<Account>> {
-        return onContributorsRetrieved
-    }
-
-    fun getOnViewersRetrieved(): LiveData<List<Account>> {
-        return onViewersRetrieved
-    }
-
-    fun getOwnerDisplayName(): String? {
-        return ownerDisplayName
-    }
-
-    fun getOwnerEmail(): String? {
-        return ownerEmail
-    }
-
-    fun getExistsManagers(): MutableLiveData<Boolean> {
-        return existsManagers
-    }
-
-    fun getExistsCurators(): MutableLiveData<Boolean> {
-        return existsCurators
-    }
-
-    fun getExistsEditors(): MutableLiveData<Boolean> {
-        return existsEditors
-    }
-
-    fun getExistsContributors(): MutableLiveData<Boolean> {
-        return existsContributors
-    }
-
-    fun getExistsViewers(): MutableLiveData<Boolean> {
-        return existsViewers
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getShowSnackbar(): LiveData<String> {
-        return showSnackbar
-    }
-
-    fun getShowAddMemberDialogRequest(): LiveData<Void> {
-        return onShowAddMemberDialogRequest
-    }
-
-    fun getShowEditMemberDialogRequest(): LiveData<Account> {
-        return onShowEditMemberDialogRequest
-    }
-
-    fun getShowSnackbarLong(): LiveData<Int> {
-        return showSnackbarLong
-    }
-
     fun onInfoBtnClick(stringInt: Int) {
         showSnackbarLong.value = stringInt
     }
@@ -177,4 +103,38 @@ class MembersViewModel(
     override fun onMemberEdit(member: Account) {
         onShowEditMemberDialogRequest.value = member
     }
+
+    fun getOnManagersRetrieved(): LiveData<List<Account>> = onManagersRetrieved
+
+    fun getOnCuratorsRetrieved(): LiveData<List<Account>> = onCuratorsRetrieved
+
+    fun getOnEditorsRetrieved(): LiveData<List<Account>> = onEditorsRetrieved
+
+    fun getOnContributorsRetrieved(): LiveData<List<Account>> = onContributorsRetrieved
+
+    fun getOnViewersRetrieved(): LiveData<List<Account>> = onViewersRetrieved
+
+    fun getOwnerDisplayName(): MutableLiveData<String> = ownerDisplayName
+
+    fun getOwnerEmail(): MutableLiveData<String> = ownerEmail
+
+    fun getExistsManagers(): MutableLiveData<Boolean> = existsManagers
+
+    fun getExistsCurators(): MutableLiveData<Boolean> = existsCurators
+
+    fun getExistsEditors(): MutableLiveData<Boolean> = existsEditors
+
+    fun getExistsContributors(): MutableLiveData<Boolean> = existsContributors
+
+    fun getExistsViewers(): MutableLiveData<Boolean> = existsViewers
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
+
+    fun getShowAddMemberDialogRequest(): LiveData<Void> = onShowAddMemberDialogRequest
+
+    fun getShowEditMemberDialogRequest(): LiveData<Account> = onShowEditMemberDialogRequest
+
+    fun getShowSnackbarLong(): LiveData<Int> = showSnackbarLong
 }
