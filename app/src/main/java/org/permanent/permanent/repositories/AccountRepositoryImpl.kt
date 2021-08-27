@@ -22,25 +22,27 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     override fun signUp(
         fullName: String, email: String, password: String, listener: IResponseListener
     ) {
-        NetworkClient.instance().signUp(fullName, email, password).enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().signUp(fullName, email, password)
+            .enqueue(object : Callback<ResponseVO> {
 
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                val responseVO = response.body()
-                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                    responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
-                    prefsHelper.saveUserSignedUpInApp()
-                    listener.onSuccess("")
-                } else {
-                    listener.onFailed(responseVO?.getMessages()?.get(0)
-                        ?: response.errorBody()?.toString()
-                    )
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
+                        prefsHelper.saveUserSignedUpInApp()
+                        listener.onSuccess("")
+                    } else {
+                        listener.onFailed(
+                            responseVO?.getMessages()?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                listener.onFailed(t.message)
-            }
-        })
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 
     override fun getAccount(listener: IAccountRepository.IAccountListener) {
@@ -50,14 +52,19 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
             NetworkClient.instance().getAccount(prefsHelper.getCsrf(), accountId)
                 .enqueue(object : Callback<ResponseVO> {
 
-                    override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    override fun onResponse(
+                        call: Call<ResponseVO>,
+                        response: Response<ResponseVO>
+                    ) {
                         val responseVO = response.body()
                         prefsHelper.saveCsrf(responseVO?.csrf)
                         if (response.isSuccessful && responseVO?.isSuccessful!!) {
                             listener.onSuccess(Account(responseVO.getAccount()))
                         } else {
-                            listener.onFailed(responseVO?.getMessages()?.get(0)
-                                ?: response.errorBody()?.toString())
+                            listener.onFailed(
+                                responseVO?.getMessages()?.get(0)
+                                    ?: response.errorBody()?.toString()
+                            )
                         }
                     }
 
@@ -78,10 +85,11 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess(appContext.getString(R.string.account_update_success))
                     } else {
-                        val errorMessage: String? = when (val responseMessage = responseVO?.getMessages()?.get(0)) {
-                            Constants.ERROR_PHONE_INVALID -> appContext.getString(R.string.invalid_phone_error)
-                            else -> responseMessage
-                        }
+                        val errorMessage: String? =
+                            when (val responseMessage = responseVO?.getMessages()?.get(0)) {
+                                Constants.ERROR_PHONE_INVALID -> appContext.getString(R.string.invalid_phone_error)
+                                else -> responseMessage
+                            }
                         listener.onFailed(errorMessage)
                     }
                 }
@@ -92,20 +100,54 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
             })
     }
 
+    override fun changeDefaultArchive(defaultArchiveId: Int, listener: IResponseListener) {
+        prefsHelper.getAccountEmail()?.let {
+            NetworkClient.instance().changeDefaultArchive(
+                prefsHelper.getCsrf(),
+                prefsHelper.getAccountId(),
+                it,
+                defaultArchiveId
+            ).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(
+                    call: Call<ResponseVO>,
+                    response: Response<ResponseVO>
+                ) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                        listener.onSuccess(appContext.getString(R.string.archive_update_default_success))
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+        }
+    }
+
     override fun delete(listener: IResponseListener) {
         val accountId = prefsHelper.getAccountId()
         if (accountId != 0) {
             NetworkClient.instance().deleteAccount(prefsHelper.getCsrf(), accountId)
                 .enqueue(object : Callback<ResponseVO> {
 
-                    override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    override fun onResponse(
+                        call: Call<ResponseVO>,
+                        response: Response<ResponseVO>
+                    ) {
                         val responseVO = response.body()
                         prefsHelper.saveCsrf(responseVO?.csrf)
                         if (response.isSuccessful && responseVO?.isSuccessful!!) {
                             listener.onSuccess(appContext.getString(R.string.account_delete_success))
                         } else {
-                            listener.onFailed(responseVO?.getMessages()?.get(0)
-                                ?: response.errorBody()?.toString())
+                            listener.onFailed(
+                                responseVO?.getMessages()?.get(0)
+                                    ?: response.errorBody()?.toString()
+                            )
                         }
                     }
 
@@ -133,12 +175,13 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess(appContext.getString(R.string.security_password_update_success))
                     } else {
-                        val errorMessage: String? = when (val responseMessage = responseVO?.getMessages()?.get(0)) {
-                            Constants.ERROR_PASSWORD_COMPLEXITY_LOW -> appContext.getString(R.string.security_error_low_password_complexity)
-                            Constants.ERROR_PASSWORD_NO_MATCH -> appContext.getString(R.string.security_error_password_no_match)
-                            Constants.ERROR_PASSWORD_OLD_INCORRECT -> appContext.getString(R.string.security_error_incorrect_old_password)
-                            else -> responseMessage
-                        }
+                        val errorMessage: String? =
+                            when (val responseMessage = responseVO?.getMessages()?.get(0)) {
+                                Constants.ERROR_PASSWORD_COMPLEXITY_LOW -> appContext.getString(R.string.security_error_low_password_complexity)
+                                Constants.ERROR_PASSWORD_NO_MATCH -> appContext.getString(R.string.security_error_password_no_match)
+                                Constants.ERROR_PASSWORD_OLD_INCORRECT -> appContext.getString(R.string.security_error_incorrect_old_password)
+                                else -> responseMessage
+                            }
                         listener.onFailed(errorMessage)
                     }
                 }

@@ -310,4 +310,6 @@
     <string name="archive_choose_archive">Choose Archive:</string>
     <string name="archive_button_create_new_archive">Create new archive</string>
     <string name="archive_current_archive_switch_success">Archive switched successfully.</string>
+    <string name="archive_update_default_success">Default archive changed successfully.</string>
+    <string name="archive_options_menu_item_make_default">Make Default</string>
 </resources>

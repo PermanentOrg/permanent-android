@@ -3,6 +3,7 @@ package org.permanent.permanent.models
 import org.permanent.permanent.network.models.AccountVO
 
 class Account(var id: Int? = null, var primaryEmail: String? = null) {
+    var defaultArchiveId: Int? = null
     var fullName: String? = null
     var phone: String? = null
     var address: String? = null
@@ -17,6 +18,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
 
     constructor(accountVO: AccountVO?) : this() {
         id = accountVO?.accountId
+        defaultArchiveId = accountVO?.defaultArchiveId
         fullName = accountVO?.fullName
         primaryEmail = accountVO?.primaryEmail
         phone = accountVO?.primaryPhone

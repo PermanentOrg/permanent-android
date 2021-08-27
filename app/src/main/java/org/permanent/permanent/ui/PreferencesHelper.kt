@@ -12,6 +12,7 @@ const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
 const val PREFS_ACCOUNT_PASSWORD = "preferences_user_password"
 const val PREFS_CSRF = "preferences_csrf"
+const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
 const val PREFS_CURRENT_ARCHIVE_ID = "preferences_current_archive_id"
 const val PREFS_CURRENT_ARCHIVE_NUMBER = "preferences_current_archive_number"
 const val PREFS_CURRENT_ARCHIVE_FULL_NAME = "preferences_current_archive_full_name"
@@ -68,19 +69,6 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_BIOMETRICS_LOG_IN, true)
     }
 
-    fun saveAccountId(id: Int?) {
-        id?.let {
-            with(sharedPreferences.edit()) {
-                putInt(PREFS_ACCOUNT_ID, id)
-                apply()
-            }
-        }
-    }
-
-    fun getAccountId(): Int {
-        return sharedPreferences.getInt(PREFS_ACCOUNT_ID, 0)
-    }
-
     fun saveAccountEmail(email: String) {
         with(sharedPreferences.edit()) {
             putString(PREFS_ACCOUNT_EMAIL, email)
@@ -114,6 +102,32 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getCsrf(): String? {
         return sharedPreferences.getString(PREFS_CSRF, "")
+    }
+
+    fun saveAccountId(id: Int?) {
+        id?.let {
+            with(sharedPreferences.edit()) {
+                putInt(PREFS_ACCOUNT_ID, id)
+                apply()
+            }
+        }
+    }
+
+    fun getAccountId(): Int {
+        return sharedPreferences.getInt(PREFS_ACCOUNT_ID, 0)
+    }
+
+    fun saveDefaultArchiveId(id: Int?) {
+        id?.let {
+            with(sharedPreferences.edit()) {
+                putInt(PREFS_DEFAULT_ARCHIVE_ID, id)
+                apply()
+            }
+        }
+    }
+
+    fun getDefaultArchiveId(): Int {
+        return sharedPreferences.getInt(PREFS_DEFAULT_ARCHIVE_ID, 0)
     }
 
     fun saveCurrentArchiveInfo(id: Int?, number: String?, name: String?, thumbURL: String?) {

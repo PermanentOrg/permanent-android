@@ -33,7 +33,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun onDownloadBtnClick() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
             && !PermissionsHelper().hasWriteStoragePermission(appContext)) {
-            onRequestWritePermission.value = onRequestWritePermission.value
+            onRequestWritePermission.call()
         } else {
             startFileDownload()
         }

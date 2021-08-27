@@ -32,12 +32,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="5dp"
-            android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans_bold"
             android:text="@{archive.fullName}"
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnOptions"
             app:layout_constraintStart_toEndOf="@id/ivFileThumb"
             app:layout_constraintTop_toTopOf="@+id/ivFileThumb" />
 
@@ -46,7 +45,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="5dp"
             android:fontFamily="@font/open_sans"
             android:text="@{archive.accessRoleText}"
@@ -54,7 +52,30 @@
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/ivFileThumb"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnOptions"
             app:layout_constraintStart_toEndOf="@+id/ivFileThumb" />
+
+        <Button
+            android:id="@+id/btnOptions"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_more_middle_grey"
+            app:iconTint="@color/middleGrey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnDefaultArchive"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_star_accent_color"
+            app:iconTint="@color/colorAccent"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

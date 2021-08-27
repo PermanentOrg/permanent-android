@@ -159,6 +159,19 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return accountService.updateAccount(requestBody)
     }
 
+    fun changeDefaultArchive(
+        csrf: String?,
+        accountId: Int,
+        accountEmail: String,
+        defaultArchiveId: Int
+    ): Call<ResponseVO> {
+        val request =
+            toJson(RequestContainer(csrf).addAccount(accountId, accountEmail, defaultArchiveId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return accountService.updateAccount(requestBody)
+    }
+
     fun deleteAccount(csrf: String?, accountId: Int): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAccount(accountId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
