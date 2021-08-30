@@ -55,6 +55,11 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
         return showSnackbar
     }
 
+    fun clearFields() {
+        currentEmail.value = ""
+        accessRole = null
+    }
+
     fun setAccessRole(role: AccessRole) {
         accessRole = role
     }

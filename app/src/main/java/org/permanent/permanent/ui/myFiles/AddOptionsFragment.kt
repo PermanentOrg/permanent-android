@@ -27,7 +27,7 @@ import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
-import org.permanent.permanent.databinding.DialogNewFolderBinding
+import org.permanent.permanent.databinding.DialogCreateNewFolderBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
@@ -45,7 +45,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     private lateinit var binding: FragmentAddOptionsBinding
     private lateinit var viewModel: AddOptionsViewModel
     private lateinit var dialogViewModel: NewFolderViewModel
-    private lateinit var dialogBinding: DialogNewFolderBinding
+    private lateinit var dialogBinding: DialogCreateNewFolderBinding
     private lateinit var currentPhotoPath: String
     private lateinit var photoURI: Uri
     private var alertDialog: AlertDialog? = null
@@ -123,7 +123,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     private fun showNewFolderDialog() {
         dialogBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
-            R.layout.dialog_new_folder, null, false
+            R.layout.dialog_create_new_folder, null, false
         )
         dialogBinding.executePendingBindings()
         dialogBinding.lifecycleOwner = this
@@ -151,21 +151,25 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
             // Ensure that there's a camera activity to handle the intent
             context?.packageManager?.let {
 
-                    // Create the File where the photo should go
-                    val photoFile: File? = try {
-                        createImageFile()
-                    } catch (ex: IOException) {
-                        Toast.makeText(context, ex.message, Toast.LENGTH_LONG).show()
-                        null
-                    }
-                    photoFile?.let { file ->
-                        context?.let { ctx ->
-                            photoURI = FileProvider.getUriForFile(ctx, PermanentApplication.instance.packageName + FILE_PROVIDER_NAME, file)
-                        }
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                        startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE)
-                    }
+                // Create the File where the photo should go
+                val photoFile: File? = try {
+                    createImageFile()
+                } catch (ex: IOException) {
+                    Toast.makeText(context, ex.message, Toast.LENGTH_LONG).show()
+                    null
                 }
+                photoFile?.let { file ->
+                    context?.let { ctx ->
+                        photoURI = FileProvider.getUriForFile(
+                            ctx,
+                            PermanentApplication.instance.packageName + FILE_PROVIDER_NAME,
+                            file
+                        )
+                    }
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                    startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE)
+                }
+            }
 
         }
     }
