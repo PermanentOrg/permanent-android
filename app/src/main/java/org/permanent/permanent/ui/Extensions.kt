@@ -48,7 +48,35 @@ fun bytesToHumanReadableString(bytes: Long): String {
     return with(StringBuilder(9)) {
         append(String.format("%.2f ", result))
         append(unitsToUse[i])
-        append('B')
+        append("B")
+    }.toString()
+}
+
+fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String {
+    val unit = 1024.0
+    var result = bytes.toDouble()
+    if (result < unit)
+        return "$result MB"
+    result /= unit
+    val unitsToUse = "MGTPE"
+    val unitsCount = unitsToUse.length
+    val conversionLimit = 100
+    var i = 0
+
+    while (true) {
+        result /= unit
+        if (result < conversionLimit || i == unitsCount - 1)
+            break
+        ++i
+    }
+
+    val resultString = if (showDecimal) String.format("%.1f", result) else result.toInt().toString()
+
+    return with(StringBuilder(9)) {
+        append(resultString)
+        append(" ")
+        append(unitsToUse[i])
+        append("B")
     }.toString()
 }
 

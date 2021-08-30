@@ -71,6 +71,7 @@
     <string name="nav_main_header_subtitle_text">Tap to manage archives</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
     <string name="nav_settings_header_used_suffix">used</string>
+    <string name="nav_settings_header_of">of</string>
 
     <string name="menu_drawer_my_files">My Files</string>
     <string name="menu_drawer_shares">Shares</string>
