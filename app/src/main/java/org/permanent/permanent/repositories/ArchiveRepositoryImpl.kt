@@ -4,6 +4,7 @@ import android.content.Context
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
@@ -45,6 +46,25 @@ class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(context.getString(R.string.archive_current_archive_switch_success))
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun createNewArchive(name: String, type: ArchiveType, listener: IResponseListener) {
+        NetworkClient.instance().createNewArchive(prefsHelper.getCsrf(), name, type)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(R.string.archive_create_new_archive_success))
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }

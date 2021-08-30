@@ -184,6 +184,7 @@ class MembersFragment : PermanentBaseFragment() {
         addDialogBinding.executePendingBindings()
         addDialogBinding.lifecycleOwner = this
         addDialogBinding.viewModel = addDialogViewModel
+        addDialogViewModel.clearFields()
         addDialogBinding.actvAccessLevel.setOnClickListener {
             context?.hideKeyboardFrom(addDialogBinding.root.windowToken)
         }

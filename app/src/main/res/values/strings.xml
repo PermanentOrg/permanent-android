@@ -29,6 +29,7 @@
     <string name="verification_code_enter_verification_code">Enter verification code</string>
     <string name="verification_code_enter_code_hint">Enter the 4-digit code</string>
     <string name="verification_code_button_done">Done</string>
+
     <string name="verification_code_length_error">Code must be 4 characters long</string>
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
@@ -40,10 +41,12 @@
     <string name="invalid_email_error">Please enter a valid email address</string>
     <string name="invalid_name_error">Please enter a valid name</string>
     <string name="invalid_access_level_error">Please select an access level</string>
+    <string name="invalid_archive_type_error">Please select an archive type</string>
     <string name="invalid_folder_name_error">Please enter a valid folder name</string>
     <string name="invalid_current_password_error">Please enter your current password</string>
     <string name="invalid_new_password_error">Please enter your new password</string>
     <string name="invalid_retype_new_password_error">Please re-type your new password</string>
+
     <string name="two_step_verification_add_later_message">You can always add this later</string>
     <string name="two_step_verification_skip_button">Skip</string>
     <string name="two_step_verification_submit_button">Submit</string>
@@ -311,5 +314,9 @@
     <string name="archive_button_create_new_archive">Create new archive</string>
     <string name="archive_current_archive_switch_success">Archive switched successfully.</string>
     <string name="archive_update_default_success">Default archive changed successfully.</string>
+    <string name="archive_create_new_archive_success">Archive created successfully.</string>
     <string name="archive_options_menu_item_make_default">Make Default</string>
+    <string name="archive_create_new_archive_title">Create New Archive</string>
+    <string name="archive_archive_name_hint">Archive Name</string>
+    <string name="archive_archive_type_hint">Archive Type</string>
 </resources>

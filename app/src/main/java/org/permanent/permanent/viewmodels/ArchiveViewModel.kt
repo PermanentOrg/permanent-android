@@ -32,14 +32,15 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val existsArchives = MutableLiveData(false)
     private val onArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val onDefaultArchiveChanged = MutableLiveData<Int>()
+    private val onShowCreateArchiveDialog = SingleLiveEvent<Void>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     init {
-        getArchives()
+        refreshArchives()
     }
 
-    fun getArchives() {
+    fun refreshArchives() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -85,7 +86,7 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
                     archive.fullName,
                     archive.thumbURL500
                 )
-                getArchives()
+                refreshArchives()
                 isCurrentArchiveDefault.value = archive.id == prefsHelper.getDefaultArchiveId()
                 currentArchiveThumb.value = archive.thumbURL500
                 currentArchiveName.value = archive.fullName
@@ -129,6 +130,7 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun onCreateNewArchiveBtnClick() {
+        onShowCreateArchiveDialog.call()
     }
 
     fun getIsCurrentArchiveDefault(): MutableLiveData<Boolean> = isCurrentArchiveDefault
@@ -146,4 +148,6 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getOnArchivesRetrieved(): LiveData<List<Archive>> = onArchivesRetrieved
 
     fun getOnDefaultArchiveChanged(): LiveData<Int> = onDefaultArchiveChanged
+
+    fun getShowCreateArchiveDialog(): LiveData<Void> = onShowCreateArchiveDialog
 }

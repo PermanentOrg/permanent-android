@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.AddMemberViewModel" />
+            type="org.permanent.permanent.viewmodels.CreateNewArchiveViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +25,7 @@
             android:gravity="center"
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
-            android:text="@string/members_add_member_title"
+            android:text="@string/archive_create_new_archive_title"
             android:textColor="@color/colorPrimary"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -37,7 +37,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutEmail"
+            android:id="@+id/layoutArchiveName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -52,29 +52,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             app:layout_constraintVertical_bias="0.0"
-            android:hint="@string/members_member_email_hint"
-            app:setError="@{viewModel.emailError}">
+            android:hint="@string/archive_archive_name_hint"
+            app:setError="@{viewModel.nameError}">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmail"
+                android:id="@+id/etArchiveName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:afterTextChanged="@{(editable)->viewModel.onEmailTextChanged(editable)}"
-                android:inputType="textEmailAddress"
-                android:text="@{viewModel.getCurrentEmail()}"
+                android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
+                android:inputType="textPersonName"
+                android:text="@{viewModel.getCurrentName()}"
                 android:textColor="@color/black"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutAccessLevel"
+            android:id="@+id/layoutArchiveType"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
-            android:hint="@string/members_access_level_title"
+            android:hint="@string/archive_archive_type_hint"
             app:boxCornerRadiusBottomEnd="4dp"
             app:boxCornerRadiusBottomStart="4dp"
             app:boxCornerRadiusTopEnd="4dp"
@@ -82,12 +82,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
+            app:layout_constraintTop_toBottomOf="@+id/layoutArchiveName"
             app:layout_constraintVertical_bias="0.0"
-            app:setError="@{viewModel.accessRoleError}">
+            app:setError="@{viewModel.archiveTypeError}">
 
             <AutoCompleteTextView
-                android:id="@+id/actvAccessLevel"
+                android:id="@+id/actvArchiveType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="false"
@@ -109,11 +109,11 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutAccessLevel"
+            app:layout_constraintTop_toBottomOf="@+id/layoutArchiveType"
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSave"
+            android:id="@+id/btnCreate"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -121,12 +121,12 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="16dp"
-            android:onClick="@{() -> viewModel.addNewMember()}"
-            android:text="@string/save_button"
+            android:onClick="@{() -> viewModel.onCreateBtnClick()}"
+            android:text="@string/create_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/layoutAccessLevel"
+            app:layout_constraintTop_toBottomOf="@+id/layoutArchiveType"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.constraintlayout.widget.Guideline
