@@ -56,6 +56,7 @@ class CreateNewArchiveViewModel(application: Application) :
 
     fun setArchiveType(type: ArchiveType) {
         archiveType = type
+        archiveTypeError.value = null
     }
 
     fun onCreateBtnClick() {

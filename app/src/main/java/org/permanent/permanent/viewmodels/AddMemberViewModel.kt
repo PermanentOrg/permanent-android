@@ -62,6 +62,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun setAccessRole(role: AccessRole) {
         accessRole = role
+        accessRoleError.value = null
     }
 
     fun addNewMember() {
