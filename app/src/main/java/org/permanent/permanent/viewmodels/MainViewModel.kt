@@ -71,10 +71,11 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                     val spaceUsed = spaceTotal - spaceLeft
                     val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
                     spaceUsedPercentage.value = spaceUsedPercentageFloat.toInt()
-                    spaceUsedText.value = bytesToCustomHumanReadableString(spaceUsed, true) + " " +
-                            appContext.getString(R.string.nav_settings_header_of) + " " +
-                            bytesToCustomHumanReadableString(spaceTotal, false) + " " +
-                            appContext.getString(R.string.nav_settings_header_used_suffix)
+                    spaceUsedText.value = appContext.getString(
+                        R.string.nav_settings_header_storage_text,
+                        bytesToCustomHumanReadableString(spaceUsed, true),
+                        bytesToCustomHumanReadableString(spaceTotal, false)
+                    )
                 }
             }
 
