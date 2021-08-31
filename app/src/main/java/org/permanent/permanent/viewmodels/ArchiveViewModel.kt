@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
@@ -21,8 +22,7 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val isCurrentArchiveDefault =
-        MutableLiveData(prefsHelper.getCurrentArchiveId() == prefsHelper.getDefaultArchiveId())
+    private val isCurrentArchiveDefault = MutableLiveData(false)
     private val currentArchiveThumb =
         MutableLiveData<String>(prefsHelper.getCurrentArchiveThumbURL())
     private val currentArchiveName =
@@ -37,7 +37,29 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     init {
-        refreshArchives()
+        getDefaultArchive()
+    }
+
+    private fun getDefaultArchive() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        accountRepository.getAccount(object : IAccountRepository.IAccountListener {
+            override fun onSuccess(account: Account) {
+                isBusy.value = false
+                prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
+                isCurrentArchiveDefault.value =
+                    prefsHelper.getCurrentArchiveId() == account.defaultArchiveId
+                refreshArchives()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     fun refreshArchives() {
