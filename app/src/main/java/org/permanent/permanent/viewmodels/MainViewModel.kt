@@ -14,7 +14,7 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.*
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.bytesToHumanReadableString
+import org.permanent.permanent.ui.bytesToCustomHumanReadableString
 
 class MainViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val TAG = MainViewModel::class.java.simpleName
@@ -71,8 +71,11 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                     val spaceUsed = spaceTotal - spaceLeft
                     val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
                     spaceUsedPercentage.value = spaceUsedPercentageFloat.toInt()
-                    spaceUsedText.value = bytesToHumanReadableString(spaceUsed) + " " +
-                            appContext.getString(R.string.nav_settings_header_used_suffix)
+                    spaceUsedText.value = appContext.getString(
+                        R.string.nav_settings_header_storage_text,
+                        bytesToCustomHumanReadableString(spaceUsed, true),
+                        bytesToCustomHumanReadableString(spaceTotal, false)
+                    )
                 }
             }
 
