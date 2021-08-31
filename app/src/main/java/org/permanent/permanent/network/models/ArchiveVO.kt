@@ -8,4 +8,5 @@ class ArchiveVO {
     var archiveNbr: String? = null
     var type: String? = null
     var thumbURL500: String? = null
+    var status: String? = null
 }

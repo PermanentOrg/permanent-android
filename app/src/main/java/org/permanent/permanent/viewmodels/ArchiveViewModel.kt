@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
@@ -77,7 +78,7 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
 
                     for (datum in dataList) {
                         val archive = Archive(datum.ArchiveVO)
-                        if (currentArchiveId != archive.id) {
+                        if (currentArchiveId != archive.id && archive.status != Status.PENDING) {
                             archives.add(archive)
                         }
                     }
