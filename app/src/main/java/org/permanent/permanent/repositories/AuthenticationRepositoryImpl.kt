@@ -58,7 +58,6 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     prefsHelper.saveAccountId(responseVO.getAccount()?.accountId)
-                    prefsHelper.saveDefaultArchiveId(responseVO.getAccount()?.defaultArchiveId)
                     val archive = Archive(responseVO.getArchive())
                     prefsHelper.saveCurrentArchiveInfo(
                         archive.id,
