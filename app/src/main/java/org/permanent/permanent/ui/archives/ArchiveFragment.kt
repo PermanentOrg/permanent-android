@@ -66,6 +66,10 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         archivesAdapter.onDefaultArchiveChanged(it)
     }
 
+    private val onDeleteArchiveObserver = Observer<Int> {
+        viewModel.deleteArchive(it)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -108,7 +112,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
                     )
                 )
 
-                showArchiveOptions(prefsHelper.getCurrentArchiveId())
+                showArchiveOptions(Archive(prefsHelper.getCurrentArchiveId()))
             }
         }
     }
@@ -118,7 +122,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
     }
 
     override fun onOptionsBtnClick(archive: Archive) {
-        showArchiveOptions(archive.id)
+        showArchiveOptions(archive)
     }
 
     private val onShowCreateArchiveDialog = Observer<Void> {
@@ -161,12 +165,14 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         alertDialog?.dismiss()
     }
 
-    private fun showArchiveOptions(currentArchiveId: Int) {
+    private fun showArchiveOptions(archive: Archive) {
         archiveOptionsFragment = ArchiveOptionsFragment()
-        archiveOptionsFragment?.setBundleArguments(currentArchiveId)
+        archiveOptionsFragment?.setBundleArguments(archive)
         archiveOptionsFragment?.show(parentFragmentManager, archiveOptionsFragment?.tag)
         archiveOptionsFragment?.getOnChangeDefaultArchiveRequest()
             ?.observe(this, onChangeDefaultArchiveObserver)
+        archiveOptionsFragment?.getOnDeleteArchiveRequest()
+            ?.observe(this, onDeleteArchiveObserver)
     }
 
     override fun connectViewModelEvents() {
@@ -185,6 +191,8 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         viewModel.getShowCreateArchiveDialog().removeObserver(onShowCreateArchiveDialog)
         archiveOptionsFragment?.getOnChangeDefaultArchiveRequest()
             ?.removeObserver(onChangeDefaultArchiveObserver)
+        archiveOptionsFragment?.getOnDeleteArchiveRequest()
+            ?.removeObserver(onDeleteArchiveObserver)
         dialogCreateArchiveViewModel.getShowMessage().removeObserver(onShowMessage)
         dialogCreateArchiveViewModel.getOnArchiveCreatedResult().removeObserver(onArchiveCreated)
     }

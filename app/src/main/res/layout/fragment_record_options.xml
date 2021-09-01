@@ -138,7 +138,7 @@
                 android:layout_height="wrap_content"
                 android:indeterminate="true"
                 android:translationZ="2dp"
-                android:visibility="@{viewModel.getIsBusy() ? View.VISIBLE : View.GONE}"
+                android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

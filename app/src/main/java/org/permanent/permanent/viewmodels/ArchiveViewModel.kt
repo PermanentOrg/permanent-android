@@ -152,6 +152,9 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
         })
     }
 
+    fun deleteArchive(archiveId: Int) {
+    }
+
     fun onCreateNewArchiveBtnClick() {
         onShowCreateArchiveDialog.call()
     }

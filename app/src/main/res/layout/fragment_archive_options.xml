@@ -2,7 +2,15 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data></data>
+    <data>
+
+        <import type="android.view.View" />
+        <import type="org.permanent.permanent.models.AccessRole" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.ArchiveOptionsViewModel" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clBottomMenu"
@@ -20,6 +28,22 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDeleteArchive"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/deepRed"
+            android:text="@string/archive_options_menu_item_delete_archive"
+            android:visibility="@{viewModel.isCurrentArchive || viewModel.accessRole != AccessRole.OWNER ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnMakeDefault" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
