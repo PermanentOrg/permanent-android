@@ -11,6 +11,7 @@ class Archive() : Parcelable {
     var thumbURL500: String? = null
     var accessRole: AccessRole? = null
     var accessRoleText: String? = null
+    var status: Status? = null
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readInt()
@@ -19,6 +20,7 @@ class Archive() : Parcelable {
         thumbURL500 = parcel.readString()
         accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         accessRoleText = parcel.readString()
+        status = parcel.readParcelable(Status::class.java.classLoader)
     }
 
     constructor(archiveVO: ArchiveVO?) : this() {
@@ -35,6 +37,10 @@ class Archive() : Parcelable {
             else -> AccessRole.VIEWER
         }
         accessRoleText = "Access: ${accessRole?.toTitleCase()}"
+        status = when (archiveVO?.status) {
+            Status.PENDING.toBackendString() -> Status.PENDING
+            else -> Status.OK
+        }
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -44,6 +50,7 @@ class Archive() : Parcelable {
         parcel.writeString(thumbURL500)
         parcel.writeParcelable(accessRole, flags)
         parcel.writeString(accessRoleText)
+        parcel.writeParcelable(status, flags)
     }
 
     override fun describeContents(): Int {
