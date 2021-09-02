@@ -13,6 +13,8 @@ interface IArchiveRepository {
 
     fun createNewArchive(name: String, type: ArchiveType, listener: IResponseListener)
 
+    fun deleteArchive(archiveNr: String, listener: IResponseListener)
+
     fun getMembers(listener: IDataListener)
 
     fun addMember(email: String, accessRole: AccessRole, listener: IResponseListener)

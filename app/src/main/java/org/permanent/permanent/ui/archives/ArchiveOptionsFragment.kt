@@ -19,7 +19,7 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
     private lateinit var viewModel: ArchiveOptionsViewModel
     private var archive: Archive? = null
     private val onChangeDefaultArchiveRequest = MutableLiveData<Int>()
-    private val onDeleteArchiveRequest = MutableLiveData<Int>()
+    private val onDeleteArchiveRequest = MutableLiveData<Archive>()
 
     fun setBundleArguments(archive: Archive) {
         val bundle = Bundle()
@@ -51,7 +51,7 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
                 onChangeDefaultArchiveRequest.value = archive?.id
             }
             R.id.btnDeleteArchive -> {
-                onDeleteArchiveRequest.value = archive?.id
+                onDeleteArchiveRequest.value = archive
             }
         }
     }
@@ -74,5 +74,5 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
 
     fun getOnChangeDefaultArchiveRequest(): MutableLiveData<Int> = onChangeDefaultArchiveRequest
 
-    fun getOnDeleteArchiveRequest(): MutableLiveData<Int> = onDeleteArchiveRequest
+    fun getOnDeleteArchiveRequest(): MutableLiveData<Archive> = onDeleteArchiveRequest
 }

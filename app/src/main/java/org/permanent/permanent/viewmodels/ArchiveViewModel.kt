@@ -152,7 +152,26 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
         })
     }
 
-    fun deleteArchive(archiveId: Int) {
+    fun deleteArchive(archive: Archive) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        archive.number?.let {
+            archiveRepository.deleteArchive(it, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    showMessage.value = message
+                    refreshArchives()
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showMessage.value = error
+                }
+            })
+        }
     }
 
     fun onCreateNewArchiveBtnClick() {

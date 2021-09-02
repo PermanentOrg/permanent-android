@@ -18,6 +18,9 @@ interface IArchiveService {
     @POST("archive/post")
     fun createNewArchive(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("archive/delete")
+    fun deleteArchive(@Body requestBody: RequestBody): Call<ResponseVO>
+
     // Used in members section
     @POST("archive/getShares")
     fun getMembers(@Body requestBody: RequestBody): Call<ResponseVO>
