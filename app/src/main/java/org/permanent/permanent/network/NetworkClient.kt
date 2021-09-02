@@ -428,6 +428,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.createNewArchive(requestBody)
     }
 
+    fun deleteArchive(csrf: String?, archiveNr: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.deleteArchive(requestBody)
+    }
+
     fun getMembers(csrf: String?, archiveNr: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

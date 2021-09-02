@@ -43,6 +43,10 @@ class Archive() : Parcelable {
         }
     }
 
+    constructor(archiveId: Int) : this() {
+        id = archiveId
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(id)
         parcel.writeString(number)

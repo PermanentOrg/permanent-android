@@ -315,8 +315,11 @@
     <string name="archive_current_archive_switch_success">Archive switched successfully.</string>
     <string name="archive_update_default_success">Default archive changed successfully.</string>
     <string name="archive_create_new_archive_success">Archive created successfully.</string>
+    <string name="archive_delete_archive_success">Archive deleted successfully.</string>
     <string name="archive_options_menu_item_make_default">Make Default</string>
+    <string name="archive_options_menu_item_delete_archive">Delete Archive</string>
     <string name="archive_create_new_archive_title">Create New Archive</string>
     <string name="archive_archive_name_hint">Archive Name</string>
     <string name="archive_archive_type_hint">Archive Type</string>
+    <string name="archive_delete_archive_title">Are you sure you want to permanently delete this archive?</string>
 </resources>

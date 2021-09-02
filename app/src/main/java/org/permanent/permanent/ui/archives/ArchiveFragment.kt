@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCreateNewArchiveBinding
 import org.permanent.permanent.databinding.FragmentArchiveBinding
@@ -66,6 +67,22 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         archivesAdapter.onDefaultArchiveChanged(it)
     }
 
+    private val onDeleteArchiveObserver = Observer<Archive> { archive ->
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
+        val alert = android.app.AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.archive_delete_archive_title)
+        viewDialog.btnDelete.setOnClickListener {
+            viewModel.deleteArchive(archive)
+            alert.dismiss()
+        }
+        viewDialog.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -108,7 +125,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
                     )
                 )
 
-                showArchiveOptions(prefsHelper.getCurrentArchiveId())
+                showArchiveOptions(Archive(prefsHelper.getCurrentArchiveId()))
             }
         }
     }
@@ -118,7 +135,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
     }
 
     override fun onOptionsBtnClick(archive: Archive) {
-        showArchiveOptions(archive.id)
+        showArchiveOptions(archive)
     }
 
     private val onShowCreateArchiveDialog = Observer<Void> {
@@ -161,12 +178,14 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         alertDialog?.dismiss()
     }
 
-    private fun showArchiveOptions(currentArchiveId: Int) {
+    private fun showArchiveOptions(archive: Archive) {
         archiveOptionsFragment = ArchiveOptionsFragment()
-        archiveOptionsFragment?.setBundleArguments(currentArchiveId)
+        archiveOptionsFragment?.setBundleArguments(archive)
         archiveOptionsFragment?.show(parentFragmentManager, archiveOptionsFragment?.tag)
         archiveOptionsFragment?.getOnChangeDefaultArchiveRequest()
             ?.observe(this, onChangeDefaultArchiveObserver)
+        archiveOptionsFragment?.getOnDeleteArchiveRequest()
+            ?.observe(this, onDeleteArchiveObserver)
     }
 
     override fun connectViewModelEvents() {
@@ -185,6 +204,8 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         viewModel.getShowCreateArchiveDialog().removeObserver(onShowCreateArchiveDialog)
         archiveOptionsFragment?.getOnChangeDefaultArchiveRequest()
             ?.removeObserver(onChangeDefaultArchiveObserver)
+        archiveOptionsFragment?.getOnDeleteArchiveRequest()
+            ?.removeObserver(onDeleteArchiveObserver)
         dialogCreateArchiveViewModel.getShowMessage().removeObserver(onShowMessage)
         dialogCreateArchiveViewModel.getOnArchiveCreatedResult().removeObserver(onArchiveCreated)
     }

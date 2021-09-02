@@ -76,6 +76,25 @@ class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
             })
     }
 
+    override fun deleteArchive(archiveNr: String, listener: IResponseListener) {
+        NetworkClient.instance().deleteArchive(prefsHelper.getCsrf(), archiveNr)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(R.string.archive_delete_archive_success))
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
     override fun getMembers(listener: IDataListener) {
         NetworkClient.instance().getMembers(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr())
             .enqueue(object : Callback<ResponseVO> {
