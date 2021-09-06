@@ -26,7 +26,6 @@ import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
@@ -152,7 +151,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onShowRecordOptionsFragment = Observer<Record> {
         recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(it)
+        recordOptionsFragment?.setBundleArguments(it, true)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
@@ -168,9 +167,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onFileDownloadRequest = Observer<Record> {
-        if (it.type != RecordType.FOLDER) {
-            viewModel.download(it)
-        }
+        viewModel.download(it)
     }
 
     private val onRecordDeleteRequest = Observer<Record> { record ->

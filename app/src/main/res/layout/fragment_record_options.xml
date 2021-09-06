@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="@{() -> viewModel.onDownloadBtnClick()}"
                 android:text="@string/file_options_menu_item_download"
-                android:visibility="@{viewModel.getIsFolder() || viewModel.hiddenOptions.contains(RecordOption.DOWNLOAD)? View.GONE : View.VISIBLE}"
+                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.DOWNLOAD)? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -107,7 +107,8 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
                     archive.id,
                     archive.number,
                     archive.fullName,
-                    archive.thumbURL500
+                    archive.thumbURL500,
+                    archive.accessRole
                 )
                 refreshArchives()
                 isCurrentArchiveDefault.value = archive.id == prefsHelper.getDefaultArchiveId()

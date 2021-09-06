@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordOption
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
@@ -110,8 +109,7 @@ class SharedXMeFragment : PermanentBaseFragment(), DownloadableRecordListener {
     override fun onRecordOptionsClick(record: DownloadableRecord) {
         downloadableRecord = record
         recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(record,
-            arrayListOf(RecordOption.COPY, RecordOption.MOVE, RecordOption.DELETE, RecordOption.SHARE))
+        recordOptionsFragment?.setBundleArguments(record, false)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
     }
