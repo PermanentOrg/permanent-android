@@ -6,6 +6,7 @@ import android.text.Editable
 import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.ArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.network.IResponseListener
@@ -13,8 +14,9 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
-class FileInfoViewModel(application: Application
-) : ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener  {
+class FileInfoViewModel(
+    application: Application
+) : ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener {
 
     private val appContext = application.applicationContext
     private lateinit var fileData: FileData
@@ -29,13 +31,15 @@ class FileInfoViewModel(application: Application
     private val showMessage = SingleLiveEvent<String>()
     private val showError = SingleLiveEvent<String>()
     private val existsTags = MutableLiveData(false)
-    private val isEditable = MutableLiveData(true)
+    private val isEditable = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setFileData(fileData: FileData) {
         this.fileData = fileData
-        isEditable.value = fileData.accessRole != AccessRole.VIEWER
+        isEditable.value = !(!ArchivePermissionsManager.instance.isEditAvailable()
+                || fileData.accessRole == AccessRole.VIEWER
+                || fileData.accessRole == AccessRole.CONTRIBUTOR)
         name.value = fileData.displayName
         description.value = fileData.description
         date.value = fileData.displayDate
@@ -88,8 +92,8 @@ class FileInfoViewModel(application: Application
 
         if (fileData.displayName != nameValue
             || fileData.description != description
-            || fileData.displayDate != date) {
-
+            || fileData.displayDate != date
+        ) {
             fileData.displayName = nameValue
             fileData.description = description
             fileData.displayDate = date

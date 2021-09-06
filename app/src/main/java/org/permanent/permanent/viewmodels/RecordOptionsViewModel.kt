@@ -3,7 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.os.Build
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.AccessPermissionsManager
+import org.permanent.permanent.ArchivePermissionsManager
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordOption
@@ -29,13 +29,13 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.DOWNLOAD)
         }
         if (isShownInMyFilesFragment == true) {
-            if (!AccessPermissionsManager.instance.isCreateAvailable())
+            if (!ArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
-            if (!AccessPermissionsManager.instance.isDeleteAvailable())
+            if (!ArchivePermissionsManager.instance.isDeleteAvailable())
                 hiddenOptions.value?.add(RecordOption.DELETE)
-            if (!AccessPermissionsManager.instance.isMoveAvailable())
+            if (!ArchivePermissionsManager.instance.isMoveAvailable())
                 hiddenOptions.value?.add(RecordOption.MOVE)
-            if (!AccessPermissionsManager.instance.isShareAvailable())
+            if (!ArchivePermissionsManager.instance.isShareAvailable())
                 hiddenOptions.value?.add(RecordOption.SHARE)
         } else {
             hiddenOptions.value?.add(RecordOption.DELETE)

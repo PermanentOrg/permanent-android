@@ -16,7 +16,7 @@ import androidx.work.WorkInfo
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.messaging.FirebaseMessaging
-import org.permanent.permanent.AccessPermissionsManager
+import org.permanent.permanent.ArchivePermissionsManager
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
@@ -45,7 +45,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val isSortedAsc = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
-    private val isCreateAvailable = AccessPermissionsManager.instance.isCreateAvailable()
+    private val isCreateAvailable = ArchivePermissionsManager.instance.isCreateAvailable()
     private val isRelocationMode = MutableLiveData(false)
     private val relocationType = MutableLiveData<RelocationType>()
     private val currentSortType: MutableLiveData<SortType> =
