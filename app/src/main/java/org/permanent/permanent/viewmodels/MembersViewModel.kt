@@ -3,6 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.ArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IDataListener
@@ -29,6 +30,7 @@ class MembersViewModel(
     private val onContributorsRetrieved = MutableLiveData<List<Account>>()
     private val onViewersRetrieved = MutableLiveData<List<Account>>()
     private val isBusy = MutableLiveData(false)
+    private val isArchiveShareAvailable = ArchivePermissionsManager.instance.isArchiveShareAvailable()
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarLong = MutableLiveData<Int>()
     private val onShowAddMemberDialogRequest = MutableLiveData<Void>()
@@ -129,6 +131,8 @@ class MembersViewModel(
     fun getExistsViewers(): MutableLiveData<Boolean> = existsViewers
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getIsArchiveShareAvailable(): Boolean = isArchiveShareAvailable
 
     fun getShowSnackbar(): LiveData<String> = showSnackbar
 

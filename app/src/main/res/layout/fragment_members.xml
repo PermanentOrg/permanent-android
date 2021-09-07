@@ -482,6 +482,7 @@
             android:layout_marginBottom="24dp"
             android:onClick="@{()-> viewModel.onAddMembersClick()}"
             android:text="@string/members_add_members_button"
+            android:visibility="@{viewModel.isArchiveShareAvailable ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
