@@ -7,9 +7,9 @@ import org.permanent.permanent.ui.PreferencesHelper
 
 class ArchivePermissionsManager private constructor() {
 
+    private var accessRole: AccessRole
     private var isReadAvailable: Boolean = false
     private var isCreateAvailable: Boolean = false
-    private var isUploadAvailable: Boolean = false
     private var isEditAvailable: Boolean = false
     private var isDeleteAvailable: Boolean = false
     private var isMoveAvailable: Boolean = false
@@ -29,16 +29,16 @@ class ArchivePermissionsManager private constructor() {
                 Context.MODE_PRIVATE
             )
         )
-
-        onAccessRoleChanged(prefsHelper.getCurrentArchiveAccessRole())
+        accessRole = prefsHelper.getCurrentArchiveAccessRole()
+        onAccessRoleChanged(accessRole)
     }
 
     fun onAccessRoleChanged(accessRole: AccessRole) {
+        this.accessRole = accessRole
         when (accessRole) {
             AccessRole.OWNER -> {
                 isReadAvailable = true
                 isCreateAvailable = true
-                isUploadAvailable = true
                 isEditAvailable = true
                 isDeleteAvailable = true
                 isMoveAvailable = true
@@ -50,7 +50,6 @@ class ArchivePermissionsManager private constructor() {
             AccessRole.MANAGER -> {
                 isReadAvailable = true
                 isCreateAvailable = true
-                isUploadAvailable = true
                 isEditAvailable = true
                 isDeleteAvailable = true
                 isMoveAvailable = true
@@ -62,7 +61,6 @@ class ArchivePermissionsManager private constructor() {
             AccessRole.CURATOR -> {
                 isReadAvailable = true
                 isCreateAvailable = true
-                isUploadAvailable = true
                 isEditAvailable = true
                 isDeleteAvailable = true
                 isMoveAvailable = true
@@ -74,7 +72,6 @@ class ArchivePermissionsManager private constructor() {
             AccessRole.EDITOR -> {
                 isReadAvailable = true
                 isCreateAvailable = true
-                isUploadAvailable = true
                 isEditAvailable = true
                 isDeleteAvailable = false
                 isMoveAvailable = false
@@ -86,7 +83,6 @@ class ArchivePermissionsManager private constructor() {
             AccessRole.CONTRIBUTOR -> {
                 isReadAvailable = true
                 isCreateAvailable = true
-                isUploadAvailable = true
                 isEditAvailable = false
                 isDeleteAvailable = false
                 isMoveAvailable = false
@@ -98,7 +94,6 @@ class ArchivePermissionsManager private constructor() {
             AccessRole.VIEWER -> {
                 isReadAvailable = true
                 isCreateAvailable = false
-                isUploadAvailable = false
                 isEditAvailable = false
                 isDeleteAvailable = false
                 isMoveAvailable = false
@@ -110,11 +105,11 @@ class ArchivePermissionsManager private constructor() {
         }
     }
 
+    fun getAccessRole(): AccessRole = accessRole
+
     fun isReadAvailable() = isReadAvailable
 
     fun isCreateAvailable() = isCreateAvailable
-
-    fun isUploadAvailable() = isUploadAvailable
 
     fun isEditAvailable() = isEditAvailable
 
