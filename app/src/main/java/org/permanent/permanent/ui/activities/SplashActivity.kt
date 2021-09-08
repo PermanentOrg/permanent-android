@@ -20,6 +20,7 @@ import org.permanent.permanent.viewmodels.SplashViewModel
 
 class SplashActivity : PermanentBaseActivity() {
 
+    private lateinit var prefsHelper: PreferencesHelper
     private lateinit var binding: ActivitySplashBinding
     private lateinit var viewModel: SplashViewModel
 
@@ -31,12 +32,12 @@ class SplashActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         createNotificationChannel()
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+        prefsHelper.saveShareLinkUrlToken("")
         viewModel.verifyIsUserLoggedIn()
     }
 
     private val loggedInResponseObserver = Observer<Boolean> { isLoggedIn ->
-        val prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-
         prefsHelper.saveUserLoggedIn(isLoggedIn)
 
         if (!isLoggedIn && !prefsHelper.isOnboardingCompleted()) {
