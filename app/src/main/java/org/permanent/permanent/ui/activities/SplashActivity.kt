@@ -34,7 +34,13 @@ class SplashActivity : PermanentBaseActivity() {
         createNotificationChannel()
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         prefsHelper.saveShareLinkUrlToken("")
-        viewModel.verifyIsUserLoggedIn()
+        if(prefsHelper.isArchivesMigrationNeeded()) {
+            prefsHelper.saveUserLoggedIn(false)
+            prefsHelper.saveArchivesMigrationDone()
+            startLoginActivity(false)
+        } else {
+            viewModel.verifyIsUserLoggedIn()
+        }
     }
 
     private val loggedInResponseObserver = Observer<Boolean> { isLoggedIn ->
@@ -44,11 +50,15 @@ class SplashActivity : PermanentBaseActivity() {
             startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
             finish()
         } else {
-            val intent = Intent(this@SplashActivity, LoginActivity::class.java)
-            intent.putExtra(IS_USER_LOGGED_IN, isLoggedIn)
-            startActivity(intent)
-            finish()
+            startLoginActivity(isLoggedIn)
         }
+    }
+
+    private fun startLoginActivity(isUserLoggedIn: Boolean) {
+        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
+        intent.putExtra(IS_USER_LOGGED_IN, isUserLoggedIn)
+        startActivity(intent)
+        finish()
     }
 
     private fun createNotificationChannel() {
