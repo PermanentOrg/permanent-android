@@ -1,6 +1,8 @@
 package org.permanent.permanent.ui
 
 import android.content.SharedPreferences
+import org.permanent.permanent.ArchivePermissionsManager
+import org.permanent.permanent.models.AccessRole
 
 const val PREFS_NAME = "permanent_preferences"
 const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
@@ -17,6 +19,7 @@ const val PREFS_CURRENT_ARCHIVE_ID = "preferences_current_archive_id"
 const val PREFS_CURRENT_ARCHIVE_NUMBER = "preferences_current_archive_number"
 const val PREFS_CURRENT_ARCHIVE_FULL_NAME = "preferences_current_archive_full_name"
 const val PREFS_CURRENT_ARCHIVE_THUMB_URL = "preferences_current_archive_thumb_url"
+const val PREFS_CURRENT_ARCHIVE_ACCESS_ROLE = "preferences_current_archive_access_role"
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
@@ -130,7 +133,13 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getInt(PREFS_DEFAULT_ARCHIVE_ID, 0)
     }
 
-    fun saveCurrentArchiveInfo(id: Int?, number: String?, name: String?, thumbURL: String?) {
+    fun saveCurrentArchiveInfo(
+        id: Int?,
+        number: String?,
+        name: String?,
+        thumbURL: String?,
+        accessRole: AccessRole?
+    ) {
         id?.let {
             with(sharedPreferences.edit()) {
                 putInt(PREFS_CURRENT_ARCHIVE_ID, id)
@@ -155,6 +164,13 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
                 apply()
             }
         }
+        accessRole?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_CURRENT_ARCHIVE_ACCESS_ROLE, accessRole.backendString)
+                apply()
+            }
+            ArchivePermissionsManager.instance.onAccessRoleChanged(accessRole)
+        }
     }
 
     fun getCurrentArchiveId(): Int {
@@ -171,6 +187,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getCurrentArchiveThumbURL(): String? {
         return sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_THUMB_URL, "")
+    }
+
+    fun getCurrentArchiveAccessRole(): AccessRole {
+        return when (sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_ACCESS_ROLE, "")) {
+            AccessRole.OWNER.backendString -> AccessRole.OWNER
+            AccessRole.MANAGER.backendString -> AccessRole.MANAGER
+            AccessRole.CURATOR.backendString -> AccessRole.CURATOR
+            AccessRole.EDITOR.backendString -> AccessRole.EDITOR
+            AccessRole.CONTRIBUTOR.backendString -> AccessRole.CONTRIBUTOR
+            else -> AccessRole.VIEWER
+        }
     }
 
     fun saveShareLinkUrlToken(urlToken: String) {

@@ -2,7 +2,6 @@ package org.permanent.permanent.repositories
 
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
@@ -14,9 +13,8 @@ import retrofit2.Response
 
 class AuthenticationRepositoryImpl(val application: Application) : IAuthenticationRepository {
 
-    private val sharedPreferences: SharedPreferences =
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val prefsHelper = PreferencesHelper(sharedPreferences)
+    private val prefsHelper =
+        PreferencesHelper(application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     override fun verifyLoggedIn(
         listener: IAuthenticationRepository.IOnLoggedInListener
@@ -63,7 +61,8 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                         archive.id,
                         archive.number,
                         archive.fullName,
-                        archive.thumbURL500
+                        archive.thumbURL500,
+                        archive.accessRole
                     )
                     prefsHelper.saveUserLoggedIn(true)
                     listener.onSuccess()

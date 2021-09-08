@@ -14,11 +14,10 @@ import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.FragmentRecordOptionsBinding
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordOption
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.RecordOptionsViewModel
 
-const val HIDDEN_OPTIONS_KEY = "parcelable_hidden_options_key"
+const val IS_SHOWN_IN_MY_FILES_KEY = "is_shown_in_my_files_key"
 
 class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentRecordOptionsBinding
@@ -29,16 +28,10 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onRecordShareRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
 
-    fun setBundleArguments(record: Record) {
+    fun setBundleArguments(record: Record, isShownInMyFilesFragment: Boolean) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
-        this.arguments = bundle
-    }
-
-    fun setBundleArguments(record: Record, hiddenOptionsList: ArrayList<RecordOption>) {
-        val bundle = Bundle()
-        bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
-        bundle.putParcelableArrayList(HIDDEN_OPTIONS_KEY, hiddenOptionsList)
+        bundle.putBoolean(IS_SHOWN_IN_MY_FILES_KEY, isShownInMyFilesFragment)
         this.arguments = bundle
     }
 
@@ -53,9 +46,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
-        viewModel.setRecord(record)
-        val hiddenOptionsList: List<RecordOption>? = arguments?.getParcelableArrayList(HIDDEN_OPTIONS_KEY)
-        hiddenOptionsList?.let { viewModel.addHiddenOptions(it) }
+        viewModel.setRecord(record, arguments?.getBoolean(IS_SHOWN_IN_MY_FILES_KEY))
         return binding.root
     }
 
