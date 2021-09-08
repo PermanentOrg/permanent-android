@@ -10,6 +10,7 @@ const val IS_USER_SIGNED_UP_IN_APP = "is_user_signed_up_in_app"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
+const val IS_ARCHIVES_MIGRATION_NEEDED = "is_archives_migration_needed"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
 const val PREFS_ACCOUNT_PASSWORD = "preferences_user_password"
@@ -209,5 +210,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getShareLinkUrlToken(): String? {
         return sharedPreferences.getString(PREFS_SHARE_LINK_URL_TOKEN, "")
+    }
+
+    fun saveArchivesMigrationDone() {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_ARCHIVES_MIGRATION_NEEDED, false)
+            apply()
+        }
+    }
+
+    fun isArchivesMigrationNeeded(): Boolean {
+        return sharedPreferences.getBoolean(IS_ARCHIVES_MIGRATION_NEEDED, true)
     }
 }

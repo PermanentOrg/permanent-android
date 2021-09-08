@@ -20,6 +20,7 @@ import org.permanent.permanent.viewmodels.SplashViewModel
 
 class SplashActivity : PermanentBaseActivity() {
 
+    private lateinit var prefsHelper: PreferencesHelper
     private lateinit var binding: ActivitySplashBinding
     private lateinit var viewModel: SplashViewModel
 
@@ -31,23 +32,33 @@ class SplashActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         createNotificationChannel()
-        viewModel.verifyIsUserLoggedIn()
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+        prefsHelper.saveShareLinkUrlToken("")
+        if(prefsHelper.isArchivesMigrationNeeded()) {
+            prefsHelper.saveUserLoggedIn(false)
+            prefsHelper.saveArchivesMigrationDone()
+            startLoginActivity(false)
+        } else {
+            viewModel.verifyIsUserLoggedIn()
+        }
     }
 
     private val loggedInResponseObserver = Observer<Boolean> { isLoggedIn ->
-        val prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-
         prefsHelper.saveUserLoggedIn(isLoggedIn)
 
         if (!isLoggedIn && !prefsHelper.isOnboardingCompleted()) {
             startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
             finish()
         } else {
-            val intent = Intent(this@SplashActivity, LoginActivity::class.java)
-            intent.putExtra(IS_USER_LOGGED_IN, isLoggedIn)
-            startActivity(intent)
-            finish()
+            startLoginActivity(isLoggedIn)
         }
+    }
+
+    private fun startLoginActivity(isUserLoggedIn: Boolean) {
+        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
+        intent.putExtra(IS_USER_LOGGED_IN, isUserLoggedIn)
+        startActivity(intent)
+        finish()
     }
 
     private fun createNotificationChannel() {
