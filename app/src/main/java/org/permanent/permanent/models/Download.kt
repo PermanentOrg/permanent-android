@@ -5,12 +5,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
+import androidx.work.*
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import org.permanent.permanent.ui.myFiles.download.*
+import org.permanent.permanent.ui.myFiles.download.DOWNLOAD_PROGRESS
+import org.permanent.permanent.ui.myFiles.download.DownloadWorker
+import org.permanent.permanent.ui.myFiles.download.WORKER_INPUT_RECORD_ID_KEY
 import org.permanent.permanent.ui.myFiles.upload.WORKER_INPUT_FOLDER_LINK_ID_KEY
 import java.util.*
 
@@ -33,14 +32,18 @@ class Download private constructor(val context: Context, val listener: OnFinishe
         val folderLinkId = record.folderLinkId
         val recordId = record.recordId
         if (folderLinkId != null && recordId != null) {
-            val builder = Data.Builder().apply {
+            val data = Data.Builder().apply {
                 putInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, folderLinkId)
                 putInt(WORKER_INPUT_RECORD_ID_KEY, recordId)
-            }
+            }.build()
+            val constraints: Constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
             workRequest = OneTimeWorkRequest.Builder(DownloadWorker::class.java)
                 .addTag(displayName) // sync with the other secondary constructor
                 .addTag(FILE_DOWNLOAD_TAG)
-                .setInputData(builder.build())
+                .setInputData(data)
+                .setConstraints(constraints)
                 .build()
             uuid = workRequest!!.id
             workInfoLiveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(uuid)

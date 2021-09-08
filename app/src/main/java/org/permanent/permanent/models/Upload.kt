@@ -6,10 +6,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
+import androidx.work.*
 import org.permanent.permanent.ui.getDisplayName
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.upload.*
@@ -32,14 +29,18 @@ class Upload private constructor(val context: Context, val listener: OnFinishedL
     ) : this(context, listener) {
         this.uri = uri
         displayName = uri.getDisplayName(context)
-        val builder = Data.Builder().apply {
+        val data = Data.Builder().apply {
             putInt(WORKER_INPUT_FOLDER_ID_KEY, folderIdentifier.folderId)
             putInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, folderIdentifier.folderLinkId)
             putString(WORKER_INPUT_URI_KEY, uri.toString())
-        }
+        }.build()
+        val constraints: Constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
         workRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java)
             .addTag(displayName) // sync with the other secondary constructor
-            .setInputData(builder.build())
+            .setInputData(data)
+            .setConstraints(constraints)
             .build()
         uuid = workRequest!!.id
         workInfoLiveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(uuid)
