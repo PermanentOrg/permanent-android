@@ -18,9 +18,9 @@ import java.util.regex.Pattern
 
 
 class PhoneVerificationViewModel(application: Application) : ObservableAndroidViewModel(application) {
+
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-
     private val currentPhoneNumber = MutableLiveData<String>()
     private val onVerificationSkipped = SingleLiveEvent<Void>()
     private val onSMSCodeSent = SingleLiveEvent<Void>()
@@ -60,6 +60,7 @@ class PhoneVerificationViewModel(application: Application) : ObservableAndroidVi
 
     fun skipTwoStep() {
         onVerificationSkipped.call()
+        prefsHelper.saveSkipTwoStepVerification(true)
     }
 
     fun submit() {

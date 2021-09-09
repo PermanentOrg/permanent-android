@@ -17,7 +17,7 @@ import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SignUpViewModel
 
-const val SKIP_CODE_VERIFICATION = "skip_code_verification"
+const val SKIP_CODE_VERIFICATION_FRAGMENT = "skip_code_verification_fragment"
 
 class SignUpActivity : PermanentBaseActivity() {
     private lateinit var viewModel: SignUpViewModel
@@ -75,7 +75,7 @@ class SignUpActivity : PermanentBaseActivity() {
 
     private fun startTwoStepActivity(skipCodeVerification: Boolean) {
         val intent = Intent(this, TwoStepVerificationActivity::class.java)
-        intent.putExtra(SKIP_CODE_VERIFICATION, skipCodeVerification)
+        intent.putExtra(SKIP_CODE_VERIFICATION_FRAGMENT, skipCodeVerification)
         startActivity(intent)
         finish()
     }

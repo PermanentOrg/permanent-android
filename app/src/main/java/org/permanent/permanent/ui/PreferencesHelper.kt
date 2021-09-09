@@ -11,6 +11,7 @@ const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val IS_ARCHIVES_MIGRATION_NEEDED = "is_archives_migration_needed"
+const val PREFS_SKIP_TWO_STEP_VERIFICATION = "preferences_skip_two_step_verification"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
 const val PREFS_ACCOUNT_PASSWORD = "preferences_user_password"
@@ -49,6 +50,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isUserSignedUpInApp(): Boolean {
         return sharedPreferences.getBoolean(IS_USER_SIGNED_UP_IN_APP, false)
+    }
+
+    fun getSkipTwoStepVerification(): Boolean {
+        return sharedPreferences.getBoolean(PREFS_SKIP_TWO_STEP_VERIFICATION, true)
+    }
+
+    fun saveSkipTwoStepVerification(flag: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(PREFS_SKIP_TWO_STEP_VERIFICATION, flag)
+            apply()
+        }
     }
 
     fun saveUserLoggedIn(isLoggedIn: Boolean) {

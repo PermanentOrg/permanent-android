@@ -1,6 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,10 +11,15 @@ import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private var prefsHelper: PreferencesHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private val nameError = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
@@ -26,7 +32,8 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository =
+        AuthenticationRepositoryImpl(application)
 
     fun getCurrentName(): MutableLiveData<String> = currentName
 
@@ -99,6 +106,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
+                    prefsHelper.saveSkipTwoStepVerification(false)
                     login(email, password)
                 }
 
