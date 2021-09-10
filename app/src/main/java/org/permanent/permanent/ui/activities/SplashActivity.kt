@@ -16,6 +16,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
+import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
 
 class SplashActivity : PermanentBaseActivity() {
@@ -34,7 +35,13 @@ class SplashActivity : PermanentBaseActivity() {
         createNotificationChannel()
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         prefsHelper.saveShareLinkUrlToken("")
-        if(prefsHelper.isArchivesMigrationNeeded()) {
+
+        if(!prefsHelper.getSkipTwoStepVerification()) {
+            val intent = Intent(this@SplashActivity, TwoStepVerificationActivity::class.java)
+            intent.putExtra(SKIP_CODE_VERIFICATION_FRAGMENT, true)
+            startActivity(intent)
+            finish()
+        } else if(prefsHelper.isArchivesMigrationNeeded()) {
             prefsHelper.saveUserLoggedIn(false)
             prefsHelper.saveArchivesMigrationDone()
             startLoginActivity(false)

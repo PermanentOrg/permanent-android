@@ -7,7 +7,7 @@ import androidx.navigation.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityTwoStepVerificationBinding
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
-import org.permanent.permanent.ui.activities.SKIP_CODE_VERIFICATION
+import org.permanent.permanent.ui.activities.SKIP_CODE_VERIFICATION_FRAGMENT
 import org.permanent.permanent.viewmodels.TwoStepVerificationViewModel
 
 class TwoStepVerificationActivity : PermanentBaseActivity() {
@@ -24,7 +24,7 @@ class TwoStepVerificationActivity : PermanentBaseActivity() {
     }
     override fun onStart() {
         super.onStart()
-        val skip: Boolean? = intent.extras?.getBoolean(SKIP_CODE_VERIFICATION)
+        val skip: Boolean? = intent.extras?.getBoolean(SKIP_CODE_VERIFICATION_FRAGMENT)
         if (skip != null && skip) startPhoneVerificationFragment()
     }
 

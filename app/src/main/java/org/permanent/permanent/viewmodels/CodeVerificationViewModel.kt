@@ -16,7 +16,9 @@ import org.permanent.permanent.ui.PreferencesHelper
 class CodeVerificationViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
 
-    private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     var isSmsCodeFlow = false
     private val currentCode = MutableLiveData<String>()
     private val codeError = MutableLiveData<Int>()
@@ -82,17 +84,15 @@ class CodeVerificationViewModel(application: Application) :
                 object : IAuthenticationRepository.IOnVerifyListener {
                     override fun onSuccess() {
                         isBusy.value = false
+                        prefsHelper.saveSkipTwoStepVerification(true)
                         onCodeVerified.call()
                     }
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        if (error.equals("warning.auth.token_does_not_match")) {
-                            errorMessage.value =
-                                PermanentApplication.instance.getString(R.string.verification_code_invalid_error)
-                        } else {
-                            errorMessage.value = error
-                        }
+                        errorMessage.value =
+                            if (error.equals(Constants.ERROR_INVALID_VERIFICATION_CODE))
+                                PermanentApplication.instance.getString(R.string.verification_code_invalid_error) else error
                     }
                 })
         }
@@ -107,9 +107,6 @@ class CodeVerificationViewModel(application: Application) :
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val prefsHelper = PreferencesHelper(
-            appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        )
         val userEmail = prefsHelper.getAccountEmail()
         val userPass = prefsHelper.getAccountPass()
 
