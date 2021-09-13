@@ -16,8 +16,10 @@ import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.archives.PendingArchiveListener
 
-class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(application),
+    PendingArchiveListener {
 
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
@@ -30,6 +32,8 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
         MutableLiveData<String>(prefsHelper.getCurrentArchiveFullName())
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    private val existsPendingArchives = MutableLiveData(false)
+    private val onPendingArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val existsArchives = MutableLiveData(false)
     private val onArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val onDefaultArchiveChanged = MutableLiveData<Int>()
@@ -74,16 +78,20 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
                 isBusy.value = false
                 if (!dataList.isNullOrEmpty()) {
                     val currentArchiveId = prefsHelper.getCurrentArchiveId()
+                    val pendingArchives: MutableList<Archive> = ArrayList()
                     val archives: MutableList<Archive> = ArrayList()
 
                     for (datum in dataList) {
                         val archive = Archive(datum.ArchiveVO)
-                        if (currentArchiveId != archive.id && archive.status != Status.PENDING) {
-                            archives.add(archive)
+                        if (currentArchiveId != archive.id) {
+                            if (archive.status == Status.PENDING) pendingArchives.add(archive) else
+                                archives.add(archive)
                         }
                     }
-                    onArchivesRetrieved.value = archives
+                    existsPendingArchives.value = pendingArchives.isNotEmpty()
+                    onPendingArchivesRetrieved.value = pendingArchives
                     existsArchives.value = archives.isNotEmpty()
+                    onArchivesRetrieved.value = archives
                 }
             }
 
@@ -92,6 +100,12 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
                 showMessage.value = error
             }
         })
+    }
+
+    override fun onAcceptBtnClick(archive: Archive) {
+    }
+
+    override fun onDeclineBtnClick(archive: Archive) {
     }
 
     fun switchCurrentArchiveTo(archive: Archive) {
@@ -188,6 +202,10 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getExistsPendingArchives(): MutableLiveData<Boolean> = existsPendingArchives
+
+    fun getOnPendingArchivesRetrieved(): LiveData<List<Archive>> = onPendingArchivesRetrieved
 
     fun getExistsArchives(): MutableLiveData<Boolean> = existsArchives
 

@@ -59,7 +59,7 @@
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:onClick="@{() -> viewModel.onAddClick()}"
-            android:text="@string/file_info_button_add"
+            android:text="@string/button_add"
             android:textAllCaps="false"
             android:textSize="18sp"
             android:textStyle="bold"

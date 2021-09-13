@@ -100,7 +100,7 @@
             android:backgroundTint="@color/colorAccent"
             android:fontFamily="@font/open_sans_bold"
             android:onClick="@{() -> viewModel.done()}"
-            android:text="@string/verification_code_button_done"
+            android:text="@string/button_done"
             android:textAllCaps="false"
             android:textSize="20sp"
             android:textStyle="bold"
