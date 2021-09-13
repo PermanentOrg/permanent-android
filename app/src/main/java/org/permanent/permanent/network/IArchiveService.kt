@@ -12,6 +12,12 @@ interface IArchiveService {
     @POST("archive/getAllArchives")
     fun getAllArchives(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("archive/accept")
+    fun acceptArchive(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("archive/decline")
+    fun declineArchive(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("archive/change")
     fun switchArchive(@Body requestBody: RequestBody): Call<ResponseVO>
 

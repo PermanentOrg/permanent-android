@@ -4,6 +4,7 @@ import android.content.Context
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
@@ -38,7 +39,45 @@ class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
             })
     }
 
-    override fun switchToArchive(archiveNr: String?, listener: IResponseListener) {
+    override fun acceptArchive(archive: Archive, listener: IResponseListener) {
+        NetworkClient.instance().acceptArchive(prefsHelper.getCsrf(), archive)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(R.string.archive_accept_pending_archive_success))
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun declineArchive(archive: Archive, listener: IResponseListener) {
+        NetworkClient.instance().declineArchive(prefsHelper.getCsrf(), archive)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(R.string.archive_decline_pending_archive_success))
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun switchToArchive(archiveNr: String, listener: IResponseListener) {
         NetworkClient.instance().switchToArchive(prefsHelper.getCsrf(), archiveNr)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

@@ -103,9 +103,43 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onAcceptBtnClick(archive: Archive) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        archiveRepository.acceptArchive(archive, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                showMessage.value = message
+                refreshArchives()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     override fun onDeclineBtnClick(archive: Archive) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        archiveRepository.declineArchive(archive, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                showMessage.value = message
+                refreshArchives()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     fun switchCurrentArchiveTo(archive: Archive) {
@@ -114,28 +148,30 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
         }
 
         isBusy.value = true
-        archiveRepository.switchToArchive(archive.number, object : IResponseListener {
-            override fun onSuccess(message: String?) {
-                isBusy.value = false
-                prefsHelper.saveCurrentArchiveInfo(
-                    archive.id,
-                    archive.number,
-                    archive.fullName,
-                    archive.thumbURL500,
-                    archive.accessRole
-                )
-                refreshArchives()
-                isCurrentArchiveDefault.value = archive.id == prefsHelper.getDefaultArchiveId()
-                currentArchiveThumb.value = archive.thumbURL500
-                currentArchiveName.value = archive.fullName
-                showMessage.value = message
-            }
+        archive.number?.let {
+            archiveRepository.switchToArchive(it, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    prefsHelper.saveCurrentArchiveInfo(
+                        archive.id,
+                        archive.number,
+                        archive.fullName,
+                        archive.thumbURL500,
+                        archive.accessRole
+                    )
+                    refreshArchives()
+                    isCurrentArchiveDefault.value = archive.id == prefsHelper.getDefaultArchiveId()
+                    currentArchiveThumb.value = archive.thumbURL500
+                    currentArchiveName.value = archive.fullName
+                    showMessage.value = message
+                }
 
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                showMessage.value = error
-            }
-        })
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showMessage.value = error
+                }
+            })
+        }
     }
 
     fun changeDefaultArchiveTo(newDefaultArchiveId: Int) {
