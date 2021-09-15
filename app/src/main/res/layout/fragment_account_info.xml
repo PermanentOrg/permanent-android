@@ -284,7 +284,7 @@
                         android:fontFamily="@font/open_sans_bold"
                         android:insetBottom="0dp"
                         android:onClick="@{() -> viewModel.onDeleteAccountBtnClick()}"
-                        android:text="@string/delete_account_button"
+                        android:text="@string/button_delete_account"
                         android:textAllCaps="false"
                         android:textSize="18sp"
                         android:textStyle="bold" />

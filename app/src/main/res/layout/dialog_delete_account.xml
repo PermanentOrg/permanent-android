@@ -31,7 +31,7 @@
                 android:gravity="center"
                 android:paddingTop="15dp"
                 android:paddingBottom="15dp"
-                android:text="@string/delete_account_button"
+                android:text="@string/button_delete_account"
                 android:textColor="@color/colorPrimary"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -102,7 +102,7 @@
                 android:layout_marginBottom="16dp"
                 android:backgroundTint="@color/deepRed"
                 android:onClick="@{() -> viewModel.onDeleteAccountBtnClick()}"
-                android:text="@string/delete_account_button" />
+                android:text="@string/button_delete_account" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline2"

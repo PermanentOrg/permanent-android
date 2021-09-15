@@ -32,6 +32,8 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
 
     private lateinit var binding: FragmentArchiveBinding
     private lateinit var viewModel: ArchiveViewModel
+    private lateinit var pendingArchivesRecyclerView: RecyclerView
+    private lateinit var pendingArchivesAdapter: PendingArchivesAdapter
     private lateinit var archivesRecyclerView: RecyclerView
     private lateinit var archivesAdapter: ArchivesAdapter
     private lateinit var dialogCreateArchiveViewModel: CreateNewArchiveViewModel
@@ -47,6 +49,10 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
 
     private val onShowMessage = Observer<String> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
+    private val onPendingArchivesRetrieved = Observer<List<Archive>> {
+        pendingArchivesAdapter.set(it)
     }
 
     private val onArchivesRetrieved = Observer<List<Archive>> {
@@ -94,6 +100,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.btnCurrentArchiveOptions.setOnClickListener(this)
+        initPendingArchivesRecyclerView(binding.rvPendingArchives)
         initArchivesRecyclerView(binding.rvArchives)
         dialogCreateArchiveViewModel = ViewModelProvider(this).get(CreateNewArchiveViewModel::class.java)
         archiveTypeAdapter = ArrayAdapter(
@@ -103,6 +110,16 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         )
 
         return binding.root
+    }
+
+    private fun initPendingArchivesRecyclerView(rvPendingArchives: RecyclerView) {
+        pendingArchivesRecyclerView = rvPendingArchives
+        pendingArchivesAdapter = PendingArchivesAdapter(viewModel)
+        pendingArchivesRecyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = pendingArchivesAdapter
+        }
     }
 
     private fun initArchivesRecyclerView(rvArchives: RecyclerView) {
@@ -190,6 +207,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnPendingArchivesRetrieved().observe(this, onPendingArchivesRetrieved)
         viewModel.getOnArchivesRetrieved().observe(this, onArchivesRetrieved)
         viewModel.getOnDefaultArchiveChanged().observe(this, onDefaultArchiveChanged)
         viewModel.getShowCreateArchiveDialog().observe(this, onShowCreateArchiveDialog)
@@ -199,6 +217,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnPendingArchivesRetrieved().removeObserver(onPendingArchivesRetrieved)
         viewModel.getOnArchivesRetrieved().removeObserver(onArchivesRetrieved)
         viewModel.getOnDefaultArchiveChanged().removeObserver(onDefaultArchiveChanged)
         viewModel.getShowCreateArchiveDialog().removeObserver(onShowCreateArchiveDialog)

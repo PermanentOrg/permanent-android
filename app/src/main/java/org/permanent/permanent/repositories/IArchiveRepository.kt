@@ -1,6 +1,7 @@
 package org.permanent.permanent.repositories
 
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
@@ -9,7 +10,11 @@ interface IArchiveRepository {
 
     fun getAllArchives(listener: IDataListener)
 
-    fun switchToArchive(archiveNr: String?, listener: IResponseListener)
+    fun acceptArchive(archive: Archive, listener: IResponseListener)
+
+    fun declineArchive(archive: Archive, listener: IResponseListener)
+
+    fun switchToArchive(archiveNr: String, listener: IResponseListener)
 
     fun createNewArchive(name: String, type: ArchiveType, listener: IResponseListener)
 

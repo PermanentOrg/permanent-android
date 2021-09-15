@@ -416,7 +416,19 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.getAllArchives(requestBody)
     }
 
-    fun switchToArchive(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+    fun acceptArchive(csrf: String?, archive: Archive): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archive))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.acceptArchive(requestBody)
+    }
+
+    fun declineArchive(csrf: String?, archive: Archive): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archive))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.declineArchive(requestBody)
+    }
+
+    fun switchToArchive(csrf: String?, archiveNr: String): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.switchArchive(requestBody)

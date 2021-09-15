@@ -235,6 +235,13 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addArchive(archive: Archive): RequestContainer {
+        val archiveVO = ArchiveVO(archive)
+        archiveVO.status = Status.OK.toBackendString()
+        RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
     fun addArchive(archiveNr: String?): RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveNbr = archiveNr
