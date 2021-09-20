@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.shares
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,23 +15,27 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharePreviewBinding
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
+
 const val URL_TOKEN_KEY = "url_token"
 const val RECORD_ID_TO_NAVIGATE_TO_KEY = "record_id_to_navigate_to"
 const val CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY = "child_fragment_to_navigate_to"
+const val SHOW_SCREEN_SIMPLIFIED_KEY = "show_screen_simplified"
 
 class SharePreviewFragment : PermanentBaseFragment() {
 
+    private lateinit var prefsHelper: PreferencesHelper
     private lateinit var recordsRecyclerView: RecyclerView
     private lateinit var recordsAdapter: RecordsGridAdapter
     private lateinit var binding: FragmentSharePreviewBinding
     private lateinit var viewModel: SharePreviewViewModel
+    private var archivesContainerFragment: ArchivesContainerFragment? = null
+    private var urlToken: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,17 +49,16 @@ class SharePreviewFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         initRecordsRecyclerView(binding.rvRecords)
 
+        prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
+            org.permanent.permanent.ui.PREFS_NAME, android.content.Context.MODE_PRIVATE))
         arguments?.takeIf { it.containsKey(URL_TOKEN_KEY) }?.apply {
-            val urlToken = getString(URL_TOKEN_KEY)
+            urlToken = getString(URL_TOKEN_KEY)
 
             if (!urlToken.isNullOrEmpty()) {
-                val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
-                    PREFS_NAME, Context.MODE_PRIVATE))
-
                 if (prefsHelper.isUserLoggedIn()) {
-                    viewModel.checkShareLink(urlToken)
+                    viewModel.checkShareLink(urlToken!!)
                 } else {
-                    prefsHelper.saveShareLinkUrlToken(urlToken)
+                    prefsHelper.saveShareLinkUrlToken(urlToken!!)
                     startActivity(Intent(context, LoginActivity::class.java))
                     activity?.finish()
                 }
@@ -67,6 +69,24 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     private val onRecordsRetrieved = Observer<List<Record>> {
         recordsAdapter.set(it)
+    }
+
+    private val onChangeArchive = Observer<Void> {
+        urlToken?.let { token ->
+            prefsHelper.saveShareLinkUrlToken(token)
+            archivesContainerFragment = ArchivesContainerFragment()
+            archivesContainerFragment?.show(parentFragmentManager, archivesContainerFragment?.tag)
+            archivesContainerFragment?.getOnArchiveChanged()?.observe(this, onArchiveChanged)
+        }
+    }
+
+    private val onArchiveChanged = Observer<Void> {
+        archivesContainerFragment?.dismiss()
+        val token = prefsHelper.getShareLinkUrlToken()
+        if (!token.isNullOrEmpty()) {
+            prefsHelper.saveShareLinkUrlToken("")
+            viewModel.checkShareLink(token)
+        }
     }
 
     private val onViewInArchive = Observer<Int?> { recordId ->
@@ -93,14 +113,17 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
+        viewModel.getOnChangeArchive().observe(this, onChangeArchive)
         viewModel.getOnViewInArchive().observe(this, onViewInArchive)
         viewModel.getOnNavigateUp().observe(this, onNavigateUp)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
+        viewModel.getOnChangeArchive().removeObserver(onChangeArchive)
         viewModel.getOnViewInArchive().removeObserver(onViewInArchive)
         viewModel.getOnNavigateUp().removeObserver(onNavigateUp)
+        archivesContainerFragment?.getOnArchiveChanged()?.removeObserver(onArchiveChanged)
     }
 
     override fun onResume() {

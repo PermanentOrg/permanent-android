@@ -8,123 +8,124 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.ArchiveViewModel" />
+            type="org.permanent.permanent.viewmodels.ArchivesViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clCurrentArchive"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/rounded_grey_border_white_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/ivFileThumb"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                app:imageUrl="@{viewModel.currentArchiveThumb}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/open_sans"
+                android:text="@string/archive_current_archive"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/btnCurrentArchiveOptions"
+                app:layout_constraintStart_toEndOf="@id/ivFileThumb"
+                app:layout_constraintTop_toTopOf="@+id/ivFileThumb" />
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="5dp"
+                android:fontFamily="@font/open_sans_bold"
+                android:text="@{viewModel.currentArchiveName}"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/ivFileThumb"
+                app:layout_constraintEnd_toStartOf="@+id/btnCurrentArchiveOptions"
+                app:layout_constraintStart_toEndOf="@+id/ivFileThumb" />
+
+            <Button
+                android:id="@+id/btnCurrentArchiveOptions"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="36dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:visibility="@{viewModel.isCurrentArchiveDefault || viewModel.showScreenSimplified ? View.INVISIBLE : View.VISIBLE}"
+                app:icon="@drawable/ic_more_middle_grey"
+                app:iconTint="@color/middleGrey"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btnDefaultArchive"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="36dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:visibility="@{viewModel.isCurrentArchiveDefault ? View.VISIBLE : View.GONE}"
+                app:icon="@drawable/ic_star_accent_color"
+                app:iconTint="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="4dp"
             app:layout_constraintBottom_toTopOf="@+id/btnCreateNewArchive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/clCurrentArchive">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="true">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/clCurrentArchive"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@drawable/rounded_border_white_edit_text"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/ivFileThumb"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="12dp"
-                        app:imageUrl="@{viewModel.currentArchiveThumb}"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvTitle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="@font/open_sans"
-                        android:text="@string/archive_current_archive"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toStartOf="@+id/btnCurrentArchiveOptions"
-                        app:layout_constraintStart_toEndOf="@id/ivFileThumb"
-                        app:layout_constraintTop_toTopOf="@+id/ivFileThumb" />
-
-                    <TextView
-                        android:id="@+id/tvSubtitle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginBottom="5dp"
-                        android:fontFamily="@font/open_sans_bold"
-                        android:text="@{viewModel.currentArchiveName}"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="@+id/ivFileThumb"
-                        app:layout_constraintEnd_toStartOf="@+id/btnCurrentArchiveOptions"
-                        app:layout_constraintStart_toEndOf="@+id/ivFileThumb" />
-
-                    <Button
-                        android:id="@+id/btnCurrentArchiveOptions"
-                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                        android:layout_width="36dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:visibility="@{viewModel.isCurrentArchiveDefault ? View.INVISIBLE : View.VISIBLE}"
-                        app:icon="@drawable/ic_more_middle_grey"
-                        app:iconTint="@color/middleGrey"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <Button
-                        android:id="@+id/btnDefaultArchive"
-                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                        android:layout_width="36dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:visibility="@{viewModel.isCurrentArchiveDefault ? View.VISIBLE : View.GONE}"
-                        app:icon="@drawable/ic_star_accent_color"
-                        app:iconTint="@color/colorAccent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
                 <TextView
                     android:id="@+id/tvPendingArchives"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:fontFamily="@font/open_sans_bold"
                     android:text="@string/archive_pending_archives"
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp"
-                    android:visibility="@{viewModel.existsPendingArchives ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{viewModel.existsPendingArchives &amp;&amp; viewModel.showScreenSimplified == false ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/clCurrentArchive" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvPendingArchives"
@@ -132,7 +133,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:visibility="@{viewModel.existsPendingArchives ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{viewModel.existsPendingArchives &amp;&amp; viewModel.showScreenSimplified == false ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -176,7 +177,7 @@
             android:layout_marginBottom="24dp"
             android:onClick="@{()-> viewModel.onCreateNewArchiveBtnClick()}"
             android:text="@string/button_create_new_archive"
-            android:visibility="visible"
+            android:visibility="@{viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

@@ -46,7 +46,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private val onManageArchives = Observer<Void> {
         navController.navigateUp()
-        navController.navigate(R.id.archiveFragment)
+        navController.navigate(R.id.archivesFragment)
         binding.drawerLayout.closeDrawers()
     }
 
@@ -92,7 +92,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         // Toolbar & ActionBar & AppBarConfiguration setup
         setSupportActionBar(binding.toolbar)
         val topLevelDestinations = setOf(
-            R.id.archiveFragment,
+            R.id.archivesFragment,
             R.id.myFilesFragment,
             R.id.sharesFragment,
             R.id.membersFragment,

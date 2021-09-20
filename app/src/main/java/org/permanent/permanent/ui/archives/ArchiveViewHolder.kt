@@ -10,17 +10,24 @@ class ArchiveViewHolder (
     private val listener: ArchiveListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(archive: Archive, defaultArchiveId: Int) {
+    fun bind(archive: Archive, showScreenSimplified: Boolean, defaultArchiveId: Int) {
         binding.archive = archive
         binding.executePendingBindings()
         binding.root.setOnClickListener { listener.onArchiveClick(archive) }
         binding.btnOptions.setOnClickListener { listener.onOptionsBtnClick(archive) }
-        if (archive.id == defaultArchiveId) {
-            binding.btnOptions.visibility = View.INVISIBLE
-            binding.btnDefaultArchive.visibility = View.VISIBLE
-        } else {
-            binding.btnOptions.visibility = View.VISIBLE
-            binding.btnDefaultArchive.visibility = View.GONE
+        when {
+            archive.id == defaultArchiveId -> {
+                binding.btnOptions.visibility = View.INVISIBLE
+                binding.btnDefaultArchive.visibility = View.VISIBLE
+            }
+            showScreenSimplified -> {
+                binding.btnOptions.visibility = View.INVISIBLE
+                binding.btnDefaultArchive.visibility = View.GONE
+            }
+            else -> {
+                binding.btnOptions.visibility = View.VISIBLE
+                binding.btnDefaultArchive.visibility = View.GONE
+            }
         }
     }
 }
