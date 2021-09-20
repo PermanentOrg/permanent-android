@@ -18,13 +18,13 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PendingArchiveListener
 
-class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(application),
+class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(application),
     PendingArchiveListener {
 
-    private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
-        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
+    private var showScreenSimplified = MutableLiveData(false)
     private val isCurrentArchiveDefault = MutableLiveData(false)
     private val currentArchiveThumb =
         MutableLiveData<String>(prefsHelper.getCurrentArchiveThumbURL())
@@ -65,6 +65,10 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
                 showMessage.value = error
             }
         })
+    }
+
+    fun setShowScreenSimplified() {
+        showScreenSimplified.value = true
     }
 
     fun refreshArchives() {
@@ -228,6 +232,8 @@ class ArchiveViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun onCreateNewArchiveBtnClick() {
         onShowCreateArchiveDialog.call()
     }
+
+    fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
 
     fun getIsCurrentArchiveDefault(): MutableLiveData<Boolean> = isCurrentArchiveDefault
 

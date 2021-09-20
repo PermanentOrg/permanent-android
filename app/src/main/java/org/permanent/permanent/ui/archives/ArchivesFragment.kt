@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,21 +18,23 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCreateNewArchiveBinding
-import org.permanent.permanent.databinding.FragmentArchiveBinding
+import org.permanent.permanent.databinding.FragmentArchivesBinding
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.viewmodels.ArchiveViewModel
+import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
+import org.permanent.permanent.viewmodels.ArchivesViewModel
 import org.permanent.permanent.viewmodels.CreateNewArchiveViewModel
+import org.permanent.permanent.viewmodels.SingleLiveEvent
 import java.util.*
 
-class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickListener {
+class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickListener {
 
-    private lateinit var binding: FragmentArchiveBinding
-    private lateinit var viewModel: ArchiveViewModel
+    private lateinit var binding: FragmentArchivesBinding
+    private lateinit var viewModel: ArchivesViewModel
     private lateinit var pendingArchivesRecyclerView: RecyclerView
     private lateinit var pendingArchivesAdapter: PendingArchivesAdapter
     private lateinit var archivesRecyclerView: RecyclerView
@@ -41,11 +44,13 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
     private var archiveOptionsFragment: ArchiveOptionsFragment? = null
     private var alertDialog: AlertDialog? = null
     private lateinit var archiveTypeAdapter: ArrayAdapter<String>
+    private var showScreenSimplified = false
     private val archiveTypeList = listOf(
         ArchiveType.PERSON.toTitleCase(),
         ArchiveType.FAMILY.toTitleCase(),
         ArchiveType.ORGANIZATION.toTitleCase()
     )
+    private val onCurrentArchiveChanged = SingleLiveEvent<Void>()
 
     private val onShowMessage = Observer<String> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
@@ -62,7 +67,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
                 Context.MODE_PRIVATE
             )
         )
-        archivesAdapter.set(it, prefsHelper.getDefaultArchiveId())
+        archivesAdapter.set(it, showScreenSimplified, prefsHelper.getDefaultArchiveId())
     }
 
     private val onChangeDefaultArchiveObserver = Observer<Int> {
@@ -94,20 +99,25 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(ArchiveViewModel::class.java)
-        binding = FragmentArchiveBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(ArchivesViewModel::class.java)
+        binding = FragmentArchivesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         binding.btnCurrentArchiveOptions.setOnClickListener(this)
         initPendingArchivesRecyclerView(binding.rvPendingArchives)
         initArchivesRecyclerView(binding.rvArchives)
-        dialogCreateArchiveViewModel = ViewModelProvider(this).get(CreateNewArchiveViewModel::class.java)
+        dialogCreateArchiveViewModel =
+            ViewModelProvider(this).get(CreateNewArchiveViewModel::class.java)
         archiveTypeAdapter = ArrayAdapter(
             requireContext(),
             R.layout.menu_item_dropdown_access_level,
             archiveTypeList
         )
+        arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
+            showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
+            if (showScreenSimplified) viewModel.setShowScreenSimplified()
+        }
 
         return binding.root
     }
@@ -149,6 +159,7 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
 
     override fun onArchiveClick(archive: Archive) {
         viewModel.switchCurrentArchiveTo(archive)
+        if (showScreenSimplified) onCurrentArchiveChanged.call()
     }
 
     override fun onOptionsBtnClick(archive: Archive) {
@@ -172,10 +183,8 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 val selectedRole = archiveTypeAdapter.getItem(position) as String
                 dialogCreateArchiveViewModel.setArchiveType(
-                    ArchiveType.valueOf(
-                        selectedRole.uppercase(
-                            Locale.getDefault()
-                        )))
+                    ArchiveType.valueOf(selectedRole.uppercase(Locale.getDefault()))
+                )
             }
         val thisContext = context
 
@@ -238,4 +247,6 @@ class ArchiveFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickLi
         super.onPause()
         disconnectViewModelEvents()
     }
+
+    fun getOnCurrentArchiveChanged(): MutableLiveData<Void> = onCurrentArchiveChanged
 }

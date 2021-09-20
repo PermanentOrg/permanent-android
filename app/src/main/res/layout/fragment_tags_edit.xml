@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
-            android:background="@drawable/rounded_border_grey_edit_text"
+            android:background="@drawable/rounded_border_grey_background"
             android:fontFamily="@font/open_sans"
             android:hint="@string/file_info_add_new_tag"
             android:maxLength="16"

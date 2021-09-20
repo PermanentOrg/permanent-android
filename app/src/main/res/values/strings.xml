@@ -92,7 +92,7 @@
     <string name="menu_settings_drawer_contact_support">Contact Support</string>
     <string name="menu_settings_drawer_help">Help</string>
 
-    <string name="main_navigation_title_archive">Archive</string>
+    <string name="main_navigation_title_archives">Archives</string>
     <string name="main_navigation_title_my_files">My Files</string>
     <string name="main_navigation_title_shares">Shares</string>
     <string name="main_navigation_title_members">Members</string>
@@ -217,6 +217,7 @@
     <string name="members_add_members_button">Add Members</string>
 
     <string name="share_preview_link_unavailable">This link is no longer available</string>
+    <string name="share_preview_tap_to_change_archive">Tap to change archive</string>
     <string name="share_preview_request_access_button">Request Access</string>
     <string name="share_preview_view_in_archive_button">View in Archive</string>
     <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>

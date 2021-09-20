@@ -6,10 +6,10 @@
     app:startDestination="@id/myFilesFragment">
 
     <fragment
-        android:id="@+id/archiveFragment"
-        android:name="org.permanent.permanent.ui.archives.ArchiveFragment"
-        android:label="@string/main_navigation_title_archive"
-        tools:layout="@layout/fragment_archive"/>
+        android:id="@+id/archivesFragment"
+        android:name="org.permanent.permanent.ui.archives.ArchivesFragment"
+        android:label="@string/main_navigation_title_archives"
+        tools:layout="@layout/fragment_archives"/>
 
     <fragment
         android:id="@+id/myFilesFragment"

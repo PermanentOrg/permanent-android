@@ -1,6 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Folder
@@ -11,10 +12,15 @@ import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.shares.PreviewState
 
 class SharePreviewViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private lateinit var urlToken: String
     private var recordIdToView: Int? = null
     private var archiveThumbURL = MutableLiveData<String>()
@@ -22,52 +28,15 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private var accountDisplayName = MutableLiveData<String>()
     private var archiveDisplayName = MutableLiveData<String>()
     private val currentState = MutableLiveData(PreviewState.NO_ACCESS)
-    private val isBusy = MutableLiveData<Boolean>()
+    private val currentArchiveThumb = MutableLiveData<String>()
+    private val currentArchiveName = MutableLiveData<String>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
+    private val onChangeArchive = SingleLiveEvent<Void>()
     private val onViewInArchive = SingleLiveEvent<Int?>()
     private val onNavigateUp = SingleLiveEvent<Void>()
+    private val isBusy = MutableLiveData<Boolean>()
     private val errorMessage = MutableLiveData<String>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
-
-    fun getArchiveThumbURL(): MutableLiveData<String> {
-        return archiveThumbURL
-    }
-
-    fun getRecordDisplayName(): MutableLiveData<String> {
-        return recordDisplayName
-    }
-
-    fun getAccountDisplayName(): MutableLiveData<String> {
-        return accountDisplayName
-    }
-
-    fun getArchiveDisplayName(): MutableLiveData<String> {
-        return archiveDisplayName
-    }
-
-    fun getCurrentState(): MutableLiveData<PreviewState> {
-        return currentState
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> {
-        return onRecordsRetrieved
-    }
-
-    fun getOnViewInArchive(): MutableLiveData<Int?> {
-        return onViewInArchive
-    }
-
-    fun getOnNavigateUp(): MutableLiveData<Void> {
-        return onNavigateUp
-    }
-
-    fun getErrorMessage(): LiveData<String> {
-        return errorMessage
-    }
 
     fun checkShareLink(urlToken: String) {
         this.urlToken = urlToken
@@ -111,6 +80,8 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                     // Showing 'Request Access' button
                     currentState.value = PreviewState.NO_ACCESS
                 }
+                currentArchiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
+                currentArchiveName.value = prefsHelper.getCurrentArchiveFullName()
             }
 
             override fun onFailed(error: String?) {
@@ -119,6 +90,10 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                 errorMessage.value = error
             }
         })
+    }
+
+    fun onChangeArchiveBtnClick() {
+        onChangeArchive.call()
     }
 
     fun onRequestAccessBtnClick() {
@@ -152,4 +127,30 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     fun onOkBtnClick() {
         onNavigateUp.call()
     }
+
+    fun getArchiveThumbURL(): MutableLiveData<String> = archiveThumbURL
+
+    fun getRecordDisplayName(): MutableLiveData<String> = recordDisplayName
+
+    fun getAccountDisplayName(): MutableLiveData<String> = accountDisplayName
+
+    fun getArchiveDisplayName(): MutableLiveData<String> = archiveDisplayName
+
+    fun getCurrentState(): MutableLiveData<PreviewState> = currentState
+
+    fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
+
+    fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
+
+    fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
+
+    fun getOnChangeArchive(): MutableLiveData<Void> = onChangeArchive
+
+    fun getOnViewInArchive(): MutableLiveData<Int?> = onViewInArchive
+
+    fun getOnNavigateUp(): MutableLiveData<Void> = onNavigateUp
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getErrorMessage(): LiveData<String> = errorMessage
 }
