@@ -30,6 +30,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val currentState = MutableLiveData(PreviewState.NO_ACCESS)
     private val currentArchiveThumb = MutableLiveData<String>()
     private val currentArchiveName = MutableLiveData<String>()
+    private val isCurrentArchiveDefault = MutableLiveData(false)
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
     private val onChangeArchive = SingleLiveEvent<Void>()
     private val onViewInArchive = SingleLiveEvent<Int?>()
@@ -82,6 +83,8 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                 }
                 currentArchiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
                 currentArchiveName.value = prefsHelper.getCurrentArchiveFullName()
+                isCurrentArchiveDefault.value =
+                    prefsHelper.getCurrentArchiveId() == prefsHelper.getDefaultArchiveId()
             }
 
             override fun onFailed(error: String?) {
@@ -141,6 +144,8 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
 
     fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
+
+    fun getIsCurrentArchiveDefault(): MutableLiveData<Boolean> = isCurrentArchiveDefault
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
 
