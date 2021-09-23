@@ -77,11 +77,11 @@ class PermanentFCMService : FirebaseMessagingService() {
                     fcmMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let { fromAccountName ->
                         fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NUMBER]?.let { toArchiveNr ->
                             fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NAME]?.let { toArchiveName ->
-                                val recordId = fcmMessage.data[FCMNotificationKey.RECORD_ID]
-                                if (recordId == null) fcmMessage.data[FCMNotificationKey.FOLDER_ID]
+                                var recordId = fcmMessage.data[FCMNotificationKey.RECORD_ID]
+                                if (recordId == null) recordId = fcmMessage.data[FCMNotificationKey.FOLDER_ID]
 
-                                val recordName = fcmMessage.data[FCMNotificationKey.RECORD_NAME]
-                                if (recordName == null) fcmMessage.data[FCMNotificationKey.FOLDER_NAME]
+                                var recordName = fcmMessage.data[FCMNotificationKey.RECORD_NAME]
+                                if (recordName == null) recordName = fcmMessage.data[FCMNotificationKey.FOLDER_NAME]
 
                                 val notificationBody =
                                     if (fcmMessage.data[FCMNotificationKey.RECORD_NAME] != null)
