@@ -191,8 +191,6 @@ class MyFilesFragment : PermanentBaseFragment() {
         val alert = AlertDialog.Builder(context)
             .setView(viewDialog)
             .create()
-        viewDialog.tvTitle.text = getString(R.string.cancel_uploads_title)
-        viewDialog.tvText.text = getString(R.string.cancel_uploads_text)
         viewDialog.btnCancelAll.setOnClickListener {
             viewModel.cancelAllUploads()
             alert.dismiss()

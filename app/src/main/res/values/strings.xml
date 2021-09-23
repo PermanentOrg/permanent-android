@@ -135,6 +135,7 @@
     <string name="reset_button">Reset</string>
     <string name="no_button">No</string>
     <string name="cancel_button">Cancel</string>
+    <string name="switch_button">Switch</string>
     <string name="yes_button">Yes</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
@@ -148,8 +149,8 @@
     <string name="my_files_folder_deleted">Folder has been deleted.</string>
     <string name="create_button">Create</string>
     <string name="cancel_all_button">Cancel all</string>
-    <string name="cancel_uploads_title">Cancel all uploads</string>
-    <string name="cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
+    <string name="dialog_cancel_uploads_title">Cancel all uploads</string>
+    <string name="dialog_cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
     <string name="new_folder_title">Create New Folder</string>
     <string name="delete_record_title">Delete \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
@@ -325,5 +326,7 @@
     <string name="archive_create_new_archive_title">Create New Archive</string>
     <string name="archive_archive_name_hint">Archive Name</string>
     <string name="archive_archive_type_hint">Archive Type</string>
-    <string name="archive_delete_archive_title">Are you sure you want to permanently delete this archive?</string>
+    <string name="dialog_delete_archive_title">Are you sure you want to permanently delete this archive?</string>
+    <string name="dialog_switch_archive_title">Switch to The %s Archive?</string>
+    <string name="dialog_switch_archive_text">In order to access this content you need to switch to The %s Archive</string>
 </resources>

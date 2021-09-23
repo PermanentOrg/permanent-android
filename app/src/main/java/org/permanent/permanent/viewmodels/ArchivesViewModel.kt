@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Status
@@ -21,6 +22,7 @@ import org.permanent.permanent.ui.archives.PendingArchiveListener
 class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(application),
     PendingArchiveListener {
 
+    private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
@@ -153,8 +155,8 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
         isBusy.value = true
         archive.number?.let {
-            archiveRepository.switchToArchive(it, object : IResponseListener {
-                override fun onSuccess(message: String?) {
+            archiveRepository.switchToArchive(it, object : IDataListener {
+                override fun onSuccess(dataList: List<Datum>?) {
                     isBusy.value = false
                     prefsHelper.saveCurrentArchiveInfo(
                         archive.id,
@@ -167,7 +169,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                     isCurrentArchiveDefault.value = archive.id == prefsHelper.getDefaultArchiveId()
                     currentArchiveThumb.value = archive.thumbURL500
                     currentArchiveName.value = archive.fullName
-                    showMessage.value = message
+                    showMessage.value = appContext.getString(R.string.archive_current_archive_switch_success)
                 }
 
                 override fun onFailed(error: String?) {

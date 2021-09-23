@@ -34,15 +34,20 @@ import retrofit2.Response
 import kotlin.random.Random
 
 const val START_DESTINATION_FRAGMENT_ID_KEY = "start_destination_fragment_id_key"
+const val RECIPIENT_ARCHIVE_NR_KEY = "recipient_archive_nr_key"
+const val RECIPIENT_ARCHIVE_NAME_KEY = "recipient_archive_name_key"
 
 class PermanentFCMService : FirebaseMessagingService() {
     private val TAG = PermanentFCMService::class.java.simpleName
+    private lateinit var prefsHelper: PreferencesHelper
+    private lateinit var fcmMessage: RemoteMessage
 
     override fun onNewToken(token: String) {
-        val prefsHelper = PreferencesHelper(
-            applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+        prefsHelper = PreferencesHelper(
+            applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
 
-        if(prefsHelper.isUserLoggedIn()) {
+        if (prefsHelper.isUserLoggedIn()) {
             val notificationsRepository: INotificationRepository =
                 NotificationRepositoryImpl(applicationContext)
 
@@ -59,45 +64,89 @@ class PermanentFCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d(TAG, "Message notification: ${remoteMessage.notification?.body}")
-        Log.d(TAG, "Message data payload: ${remoteMessage.data}")
-        if (remoteMessage.data.isNotEmpty()) {
-            when (remoteMessage.data[FCMNotificationKey.NOTIFICATION_TYPE]) {
+        fcmMessage = remoteMessage
+        Log.d(TAG, "Message notification: ${fcmMessage.notification?.body}")
+        Log.d(TAG, "Message data payload: ${fcmMessage.data}")
+        prefsHelper = PreferencesHelper(
+            applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
+        if (fcmMessage.data.isNotEmpty()) {
+            when (fcmMessage.data[FCMNotificationKey.NOTIFICATION_TYPE]) {
+
                 FCMNotificationType.SHARE.toBackendString() -> {
-                    val recordId = if (remoteMessage.data[FCMNotificationKey.RECORD_ID] != null)
-                        remoteMessage.data[FCMNotificationKey.RECORD_ID]
-                    else remoteMessage.data[FCMNotificationKey.FOLDER_ID]
+                    fcmMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let { fromAccountName ->
+                        fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NUMBER]?.let { toArchiveNr ->
+                            fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NAME]?.let { toArchiveName ->
+                                val recordId = fcmMessage.data[FCMNotificationKey.RECORD_ID]
+                                if (recordId == null) fcmMessage.data[FCMNotificationKey.FOLDER_ID]
 
-                    val recordName = if (remoteMessage.data[FCMNotificationKey.RECORD_NAME] != null)
-                        remoteMessage.data[FCMNotificationKey.RECORD_NAME]
-                    else remoteMessage.data[FCMNotificationKey.FOLDER_NAME]
+                                val recordName = fcmMessage.data[FCMNotificationKey.RECORD_NAME]
+                                if (recordName == null) fcmMessage.data[FCMNotificationKey.FOLDER_NAME]
 
-                    remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
-                        val string = if (remoteMessage.data[FCMNotificationKey.RECORD_NAME] != null)
-                            getString(R.string.notification_body_share_file, it, recordName)
-                        else getString(R.string.notification_body_share_folder, it, recordName)
+                                val notificationBody =
+                                    if (fcmMessage.data[FCMNotificationKey.RECORD_NAME] != null)
+                                        getString(
+                                            R.string.notification_body_share_file,
+                                            fromAccountName,
+                                            recordName
+                                        )
+                                    else getString(
+                                        R.string.notification_body_share_folder,
+                                        fromAccountName,
+                                        recordName
+                                    )
 
-                        showNotification(it, string, getRecordViewIntent(recordId?.toInt()))
+                                showNotification(
+                                    fromAccountName,
+                                    notificationBody,
+                                    getRecordViewIntent(
+                                        recordId?.toInt(),
+                                        toArchiveNr,
+                                        toArchiveName
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
+
                 FCMNotificationType.PA_RESPONSE.toBackendString() -> {
-                    remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
-                        val splits = remoteMessage.data[FCMNotificationKey.ACCESS_ROLE]?.split(".")
-                        showNotification(it,
-                            getString(R.string.notification_body_pa_response, it,
-                                remoteMessage.data[FCMNotificationKey.FROM_ARCHIVE_NAME],
-                                splits?.get(splits.lastIndex)),
-                            getMembersViewIntent())
+                    fcmMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let { fromAccountName ->
+                        fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NUMBER]?.let { toArchiveNr ->
+                            fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NAME]?.let { toArchiveName ->
+                                val splits =
+                                    fcmMessage.data[FCMNotificationKey.ACCESS_ROLE]?.split(".")
+                                val accessRole = splits?.get(splits.lastIndex)
+                                showNotification(
+                                    fromAccountName,
+                                    getString(
+                                        R.string.notification_body_pa_response,
+                                        fromAccountName,
+                                        fcmMessage.data[FCMNotificationKey.FROM_ARCHIVE_NAME],
+                                        accessRole
+                                    ),
+                                    getMembersViewIntent(toArchiveNr, toArchiveName)
+                                )
+                            }
+                        }
                     }
                 }
+
                 FCMNotificationType.SHARE_LINK_REQUEST.toBackendString() -> {
-                    remoteMessage.data[FCMNotificationKey.SHARE_FOLDER_LINK_ID]?.let {
-                        requestRecordBy(it.toInt(), remoteMessage, FCMNotificationType.SHARE_LINK_REQUEST)
+                    fcmMessage.data[FCMNotificationKey.SHARE_FOLDER_LINK_ID]?.let { folderLinkId ->
+                        requestRecordBy(
+                            folderLinkId.toInt(),
+                            FCMNotificationType.SHARE_LINK_REQUEST
+                        )
                     }
                 }
+
                 FCMNotificationType.SHARE_INVITATION_ACCEPTANCE.toBackendString() -> {
-                    remoteMessage.data[FCMNotificationKey.FOLDER_LINK_ID]?.let {
-                        requestRecordBy(it.toInt(), remoteMessage, FCMNotificationType.SHARE_INVITATION_ACCEPTANCE)
+                    fcmMessage.data[FCMNotificationKey.FOLDER_LINK_ID]?.let { folderLinkId ->
+                        requestRecordBy(
+                            folderLinkId.toInt(),
+                            FCMNotificationType.SHARE_INVITATION_ACCEPTANCE
+                        )
                     }
                 }
             }
@@ -106,7 +155,6 @@ class PermanentFCMService : FirebaseMessagingService() {
 
     private fun requestRecordBy(
         folderLinkId: Int,
-        remoteMessage: RemoteMessage,
         notificationType: FCMNotificationType
     ) {
         val fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -116,9 +164,9 @@ class PermanentFCMService : FirebaseMessagingService() {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val record = response.body()?.getRecord()
                 if (record != null) {
-                    prepareNotification(remoteMessage, record, notificationType)
+                    prepareNotification(record, notificationType)
                 } else {
-                    requestFolderBy(folderLinkId, fileRepository, remoteMessage, notificationType)
+                    requestFolderBy(folderLinkId, fileRepository, notificationType)
                 }
             }
 
@@ -129,31 +177,38 @@ class PermanentFCMService : FirebaseMessagingService() {
     }
 
     private fun prepareNotification(
-        remoteMessage: RemoteMessage,
         record: Record,
         notificationType: FCMNotificationType
     ) {
-        if (notificationType == FCMNotificationType.SHARE_LINK_REQUEST) {
-            remoteMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
-                showNotification(
-                    it,
-                    getString(
-                        R.string.notification_body_share_link_request, it,
-                        remoteMessage.data[FCMNotificationKey.SHARE_NAME]
-                    ),
-                    getShareLinkViewIntent(record)
-                )
-            }
-        } else {
-            remoteMessage.data[FCMNotificationKey.INVITED_EMAIL]?.let {
-                val recordName = if (record.type == RecordType.FILE)
-                    remoteMessage.data[FCMNotificationKey.RECORD_NAME]
-                else remoteMessage.data[FCMNotificationKey.FOLDER_NAME]
-                showNotification(
-                    it,
-                    getString(R.string.notification_body_share_invitation_acceptance, it, recordName),
-                    getShareLinkViewIntent(record)
-                )
+        fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NUMBER]?.let { toArchiveNr ->
+            fcmMessage.data[FCMNotificationKey.TO_ARCHIVE_NAME]?.let { toArchiveName ->
+                if (notificationType == FCMNotificationType.SHARE_LINK_REQUEST) {
+                    fcmMessage.data[FCMNotificationKey.FROM_ACCOUNT_NAME]?.let {
+                        showNotification(
+                            it,
+                            getString(
+                                R.string.notification_body_share_link_request, it,
+                                fcmMessage.data[FCMNotificationKey.SHARE_NAME]
+                            ),
+                            getShareLinkViewIntent(record, toArchiveNr, toArchiveName)
+                        )
+                    }
+                } else { //FCMNotificationType.SHARE_INVITATION_ACCEPTANCE)
+                    fcmMessage.data[FCMNotificationKey.INVITED_EMAIL]?.let {
+                        val recordName = if (record.type == RecordType.FILE)
+                            fcmMessage.data[FCMNotificationKey.RECORD_NAME]
+                        else fcmMessage.data[FCMNotificationKey.FOLDER_NAME]
+                        showNotification(
+                            it,
+                            getString(
+                                R.string.notification_body_share_invitation_acceptance,
+                                it,
+                                recordName
+                            ),
+                            getShareLinkViewIntent(record, toArchiveNr, toArchiveName)
+                        )
+                    }
+                }
             }
         }
     }
@@ -161,12 +216,11 @@ class PermanentFCMService : FirebaseMessagingService() {
     private fun requestFolderBy(
         folderLinkId: Int,
         fileRepository: IFileRepository,
-        remoteMessage: RemoteMessage,
         notificationType: FCMNotificationType
     ) {
         fileRepository.getFolder(folderLinkId, object : IRecordListener {
             override fun onSuccess(record: Record) {
-                prepareNotification(remoteMessage, record, notificationType)
+                prepareNotification(record, notificationType)
             }
 
             override fun onFailed(error: String?) {
@@ -178,8 +232,10 @@ class PermanentFCMService : FirebaseMessagingService() {
     override fun onDeletedMessages() {}
 
     private fun showNotification(title: String, body: String, contentIntent: PendingIntent?) {
-        val builder = NotificationCompat.Builder(applicationContext,
-            getString(R.string.default_notification_channel_id))
+        val builder = NotificationCompat.Builder(
+            applicationContext,
+            getString(R.string.default_notification_channel_id)
+        )
             .setSmallIcon(R.drawable.img_notification_logo)
             .setColor(ContextCompat.getColor(applicationContext, R.color.colorAccent))
             .setContentTitle(title)
@@ -193,28 +249,48 @@ class PermanentFCMService : FirebaseMessagingService() {
         }
     }
 
-    private fun getRecordViewIntent(recordId: Int?): PendingIntent? {
+    private fun getRecordViewIntent(
+        recordId: Int?,
+        recipientArchiveNr: String,
+        recipientArchiveName: String
+    ): PendingIntent? {
         return if (recordId != null) {
             val intent = Intent(applicationContext, MainActivity::class.java)
             intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.sharesFragment)
-            intent.putExtra(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY, Constants.POSITION_SHARED_WITH_ME_FRAGMENT)
+            intent.putExtra(
+                CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY,
+                Constants.POSITION_SHARED_WITH_ME_FRAGMENT
+            )
             intent.putExtra(RECORD_ID_TO_NAVIGATE_TO_KEY, recordId)
+            intent.putExtra(RECIPIENT_ARCHIVE_NR_KEY, recipientArchiveNr)
+            intent.putExtra(RECIPIENT_ARCHIVE_NAME_KEY, recipientArchiveName)
             getPendingIntent(intent)
         } else {
             getDefaultContentIntent()
         }
     }
 
-    private fun getMembersViewIntent(): PendingIntent? {
+    private fun getMembersViewIntent(
+        recipientArchiveNr: String,
+        recipientArchiveName: String
+    ): PendingIntent? {
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.membersFragment)
+        intent.putExtra(RECIPIENT_ARCHIVE_NR_KEY, recipientArchiveNr)
+        intent.putExtra(RECIPIENT_ARCHIVE_NAME_KEY, recipientArchiveName)
         return getPendingIntent(intent)
     }
 
-    private fun getShareLinkViewIntent(record: Record): PendingIntent? {
+    private fun getShareLinkViewIntent(
+        record: Record,
+        recipientArchiveNr: String,
+        recipientArchiveName: String
+    ): PendingIntent? {
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.putExtra(PARCELABLE_RECORD_KEY, record)
         intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.myFilesFragment)
+        intent.putExtra(RECIPIENT_ARCHIVE_NR_KEY, recipientArchiveNr)
+        intent.putExtra(RECIPIENT_ARCHIVE_NAME_KEY, recipientArchiveName)
         return getPendingIntent(intent)
     }
 

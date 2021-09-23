@@ -12,14 +12,15 @@
 
         <TextView
             android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
             android:gravity="center_horizontal"
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
-            android:text="@string/dialog_cancel_uploads_title"
+            android:text="@string/dialog_switch_archive_title"
             android:textAlignment="center"
             android:textColor="@color/colorPrimary"
             android:textSize="20sp"
@@ -37,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
-            android:text="@string/dialog_cancel_uploads_text"
+            android:text="@string/dialog_switch_archive_text"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -45,7 +46,7 @@
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelAllNo"
+            android:id="@+id/btnNegative"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -53,7 +54,8 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
-            android:text="@string/no_button"
+            android:text="@string/cancel_button"
+            android:backgroundTint="@color/deepRed"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintHorizontal_bias="0.0"
@@ -62,7 +64,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelAll"
+            android:id="@+id/btnPositive"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -70,10 +72,9 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/deepRed"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            android:text="@string/cancel_all_button"
+            android:text="@string/switch_button"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
