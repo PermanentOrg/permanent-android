@@ -54,10 +54,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
-        binding.executePendingBindings()
-        binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
-        binding.viewModel = viewModel
 
         val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         if (record != null) {
@@ -65,31 +62,37 @@ class MyFilesFragment : PermanentBaseFragment() {
             navigateToShareLinkFragment(record)
             arguments?.clear()
         } else {
-            viewModel.registerDeviceForFCM()
-
             val prefsHelper = PreferencesHelper(
-                requireContext().getSharedPreferences(
-                    PREFS_NAME, Context.MODE_PRIVATE
-                )
-            )
+                requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
             val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
+
             if (!shareLinkUrlToken.isNullOrEmpty()) {
+                // click on shareLinkUrl not consumed
                 prefsHelper.saveShareLinkUrlToken("")
-                val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
-                findNavController().navigate(
-                    R.id.action_myFilesFragment_to_sharePreviewFragment,
-                    bundle
-                )
+                navigateToSharePreviewFragment(shareLinkUrlToken)
             } else {
+                binding.executePendingBindings()
+                binding.lifecycleOwner = this
+                binding.viewModel = viewModel
+
                 viewModel.set(parentFragmentManager)
                 viewModel.initUploadsRecyclerView(binding.rvUploads, this)
                 viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
                 viewModel.populateMyFiles()
                 initDownloadsRecyclerView(binding.rvDownloads)
                 initFilesRecyclerView(binding.rvFiles)
+                viewModel.registerDeviceForFCM()
             }
         }
         return binding.root
+    }
+
+    private fun navigateToSharePreviewFragment(shareLinkUrlToken: String) {
+        val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
+        findNavController().navigate(
+            R.id.action_myFilesFragment_to_sharePreviewFragment,
+            bundle
+        )
     }
 
     private val onShowMessage = Observer<String> {
