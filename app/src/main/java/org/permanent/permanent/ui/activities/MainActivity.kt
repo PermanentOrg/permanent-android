@@ -32,6 +32,7 @@ import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
@@ -45,7 +46,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var appBarConfig: AppBarConfiguration
 
     private val onArchiveSwitched = Observer<Void> {
-        startWithCustomDestination()
+        startWithCustomDestination(false)
     }
 
     private val onManageArchives = Observer<Void> {
@@ -115,10 +116,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         val intentExtras = intent.extras
         val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
         if (startDestFragmentId != null && startDestFragmentId != 0) {
-            startWithCustomDestination()
             val recipientArchiveNr = intentExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
             if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
                 showArchiveSwitchDialog(recipientArchiveNr)
+                startWithCustomDestination(true)
+            } else {
+                startWithCustomDestination(false)
             }
         }
 
@@ -191,10 +194,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         alert.show()
     }
 
-    private fun startWithCustomDestination() {
+    private fun startWithCustomDestination(removeRecordId: Boolean) {
         val intentExtras = intent.extras
         val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
         if (startDestFragmentId != null && startDestFragmentId != 0) {
+            if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
             val navGraph = navController.graph
             navGraph.startDestination = startDestFragmentId
             navController.setGraph(navGraph, intentExtras)
