@@ -21,17 +21,18 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
-import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.*
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
 import org.permanent.permanent.R
-import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
@@ -43,6 +44,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+
+    private val onArchiveSwitched = Observer<Void> {
+        startWithCustomDestination(false)
+    }
 
     private val onManageArchives = Observer<Void> {
         navController.navigateUp()
@@ -63,6 +68,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         // MainActivity binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
@@ -106,13 +112,17 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         // Toolbar Settings menu click listener
         binding.toolbar.setOnMenuItemClickListener(this)
 
-        // Custom start destination fragment
+        // Custom start destination fragment from notification
         val intentExtras = intent.extras
         val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
         if (startDestFragmentId != null && startDestFragmentId != 0) {
-            val navGraph = navController.graph
-            navGraph.startDestination = startDestFragmentId
-            navController.setGraph(navGraph, intentExtras)
+            val recipientArchiveNr = intentExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
+            if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
+                showArchiveSwitchDialog(recipientArchiveNr)
+                startWithCustomDestination(true)
+            } else {
+                startWithCustomDestination(false)
+            }
         }
 
         // NavViews setup
@@ -159,13 +169,40 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
         })
 
-        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isWelcomeDialogSeen()) {
             showWelcomeDialog()
         }
 
         if (!isGooglePlayServicesAvailable(this))
             GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
+    }
+
+    private fun showArchiveSwitchDialog(recipientArchiveNr: String?) {
+        val archiveName = intent.extras?.getString(RECIPIENT_ARCHIVE_NAME_KEY)
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
+        val alert = android.app.AlertDialog.Builder(this).setView(viewDialog).create()
+
+        viewDialog.tvTitle.text = getString(R.string.dialog_switch_archive_title, archiveName)
+        viewDialog.tvText.text = getString(R.string.dialog_switch_archive_text, archiveName)
+        viewDialog.btnPositive.setOnClickListener {
+            viewModel.switchCurrentArchiveTo(recipientArchiveNr)
+            alert.dismiss()
+        }
+        viewDialog.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
+    private fun startWithCustomDestination(removeRecordId: Boolean) {
+        val intentExtras = intent.extras
+        val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
+        if (startDestFragmentId != null && startDestFragmentId != 0) {
+            if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
+            val navGraph = navController.graph
+            navGraph.startDestination = startDestFragmentId
+            navController.setGraph(navGraph, intentExtras)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -233,12 +270,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     override fun connectViewModelEvents() {
+        viewModel.getOnArchiveSwitched().observe(this, onArchiveSwitched)
         viewModel.getOnManageArchives().observe(this, onManageArchives)
         viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnArchiveSwitched().removeObserver(onArchiveSwitched)
         viewModel.getOnManageArchives().removeObserver(onManageArchives)
         viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)

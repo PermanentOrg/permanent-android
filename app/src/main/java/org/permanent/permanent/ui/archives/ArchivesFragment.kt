@@ -83,7 +83,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         val alert = android.app.AlertDialog.Builder(context)
             .setView(viewDialog)
             .create()
-        viewDialog.tvTitle.text = getString(R.string.archive_delete_archive_title)
+        viewDialog.tvTitle.text = getString(R.string.dialog_delete_archive_title)
         viewDialog.btnDelete.setOnClickListener {
             viewModel.deleteArchive(archive)
             alert.dismiss()

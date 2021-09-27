@@ -30,10 +30,6 @@ class ResponseVO {
         return getData()?.get(0)?.SimpleVO?.value as Boolean?
     }
 
-    fun getArchiveId(): Int? {
-        return getData()?.get(0)?.FolderVO?.archiveId
-    }
-
     fun getArchiveNr(): String? {
         return getData()?.get(0)?.FolderVO?.archiveNbr
     }

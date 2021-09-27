@@ -10,7 +10,10 @@ import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.*
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -30,6 +33,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onManageArchives = SingleLiveEvent<Void>()
+    private val onArchiveSwitched = SingleLiveEvent<Void>()
     private val onLoggedOut = SingleLiveEvent<Void>()
     val versionName = MutableLiveData(
         application.getString(
@@ -37,26 +41,39 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         )
     )
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-    private var authRepository: IAuthenticationRepository =
-        AuthenticationRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
-    fun getUserEmail(): String? = userEmail
+    fun switchCurrentArchiveTo(archiveNr: String?) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        archiveNr?.let {
+            isBusy.value = true
+            archiveRepository.switchToArchive(it, object : IDataListener {
 
-    fun getArchiveThumb(): MutableLiveData<String> = archiveThumb
+                override fun onSuccess(dataList: List<Datum>?) {
+                    isBusy.value = false
+                    if (!dataList.isNullOrEmpty()) {
+                        val archive = Archive(dataList[0].ArchiveVO)
+                        prefsHelper.saveCurrentArchiveInfo(
+                            archive.id,
+                            archive.number,
+                            archive.fullName,
+                            archive.thumbURL500,
+                            archive.accessRole
+                        )
+                    }
+                    onArchiveSwitched.call()
+                }
 
-    fun getArchiveName(): MutableLiveData<String> = archiveName
-
-    fun getSpaceUsedPercentage(): MutableLiveData<Int> = spaceUsedPercentage
-
-    fun getSpaceUsedText(): MutableLiveData<String> = spaceUsedText
-
-    fun getErrorMessage(): LiveData<String> = errorMessage
-
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
-    fun getOnManageArchives(): LiveData<Void> = onManageArchives
-
-    fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    errorMessage.value = error
+                }
+            })
+        }
+    }
 
     fun onManageArchivesClick() {
         onManageArchives.call()
@@ -139,4 +156,24 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
             }
         })
     }
+
+    fun getUserEmail(): String? = userEmail
+
+    fun getArchiveThumb(): MutableLiveData<String> = archiveThumb
+
+    fun getArchiveName(): MutableLiveData<String> = archiveName
+
+    fun getSpaceUsedPercentage(): MutableLiveData<Int> = spaceUsedPercentage
+
+    fun getSpaceUsedText(): MutableLiveData<String> = spaceUsedText
+
+    fun getErrorMessage(): LiveData<String> = errorMessage
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnArchiveSwitched(): LiveData<Void> = onArchiveSwitched
+
+    fun getOnManageArchives(): LiveData<Void> = onManageArchives
+
+    fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
 }

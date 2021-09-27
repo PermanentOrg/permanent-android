@@ -14,7 +14,7 @@ interface IArchiveRepository {
 
     fun declineArchive(archive: Archive, listener: IResponseListener)
 
-    fun switchToArchive(archiveNr: String, listener: IResponseListener)
+    fun switchToArchive(archiveNr: String, listener: IDataListener)
 
     fun createNewArchive(name: String, type: ArchiveType, listener: IResponseListener)
 
