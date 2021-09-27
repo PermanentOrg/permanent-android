@@ -66,9 +66,11 @@
             app:argType="string"
             android:defaultValue="" />
         <deepLink
-            android:id="@+id/deepLink"
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/share/{url_token}" />
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://www.permanent.org/share/{url_token}" />
         <action
             android:id="@+id/action_sharePreviewFragment_to_sharesFragment"
             app:destination="@id/sharesFragment"
