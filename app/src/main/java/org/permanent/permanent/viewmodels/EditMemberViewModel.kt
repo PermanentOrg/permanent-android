@@ -15,6 +15,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
     private val email = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onMemberEdited = SingleLiveEvent<Void>()
+    private val onOwnershipTransferRequest = SingleLiveEvent<Void>()
     private val onMemberDeleted = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
@@ -26,47 +27,31 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
         email.value = member?.primaryEmail
     }
 
-    fun getFullName(): MutableLiveData<String> {
-        return fullName
-    }
-
-    fun getEmail(): MutableLiveData<String> {
-        return email
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getOnMemberEdited(): LiveData<Void> {
-        return onMemberEdited
-    }
-
-    fun getOnMemberDeleted(): LiveData<Void> {
-        return onMemberDeleted
-    }
-
-    fun getShowSuccessSnackbar(): LiveData<String> {
-        return showSnackbarSuccess
-    }
-
-    fun getShowSnackbar(): LiveData<String> {
-        return showSnackbar
-    }
-
     fun setAccessLevel(role: AccessRole) {
         member?.accessRole = role
     }
 
-    fun saveEdits() {
+    fun onSaveBtnClick() {
+        if (member?.accessRole == AccessRole.OWNER) {
+            onOwnershipTransferRequest.call()
+        } else {
+            updateAccessRole()
+        }
+    }
+
+    private fun updateAccessRole() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
 
-        if (member?.id != null && member?.primaryEmail != null && member?.accessRole != null) {
+        val memberId = member?.id
+        val memberEmail = member?.primaryEmail
+        val memberAccessRole = member?.accessRole
+
+        if (memberId != null && memberEmail != null && memberAccessRole != null) {
             isBusy.value = true
-            archiveRepository.updateMember(member!!.id!!, member!!.primaryEmail!!,
-                member!!.accessRole!!, object : IResponseListener {
+            archiveRepository.updateMember(memberId, memberEmail, memberAccessRole,
+                object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
                         onMemberEdited.call()
@@ -78,6 +63,31 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
                         showSnackbar.value = error
                     }
                 })
+        }
+    }
+
+    fun transferOwnership() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        val memberId = member?.id
+        val memberEmail = member?.primaryEmail
+
+        if (memberId != null && memberEmail != null) {
+            isBusy.value = true
+            archiveRepository.transferOwnership(memberId, memberEmail, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    onMemberEdited.call()
+                    showSnackbarSuccess.value = message
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showSnackbar.value = error
+                }
+            })
         }
     }
 
@@ -103,4 +113,20 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
                 })
         }
     }
+
+    fun getFullName(): MutableLiveData<String> = fullName
+
+    fun getEmail(): MutableLiveData<String> = email
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnMemberEdited(): LiveData<Void> = onMemberEdited
+
+    fun getOnOwnershipTransferRequest(): LiveData<Void> = onOwnershipTransferRequest
+
+    fun getOnMemberDeleted(): LiveData<Void> = onMemberDeleted
+
+    fun getShowSuccessSnackbar(): LiveData<String> = showSnackbarSuccess
+
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
 }

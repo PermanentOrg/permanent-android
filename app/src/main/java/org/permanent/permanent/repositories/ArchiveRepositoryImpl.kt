@@ -198,6 +198,26 @@ class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
             })
     }
 
+    override fun transferOwnership(accountId: Int, email: String, listener: IResponseListener) {
+        NetworkClient.instance().transferOwnership(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(),
+            accountId, email).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                prefsHelper.saveCsrf(responseVO?.csrf)
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(
+                        context.getString(R.string.members_ownership_transfer_request_sent_successfully))
+                } else {
+                    listener.onFailed(responseVO?.getMessages()?.get(0))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
     override fun deleteMember(accountId: Int, email: String, listener: IResponseListener
     ) {
         NetworkClient.instance().deleteMember(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(),

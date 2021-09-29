@@ -132,11 +132,13 @@
     <string name="login_bad_credentials">Incorrect username or password</string>
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
+
     <string name="reset_button">Reset</string>
     <string name="no_button">No</string>
     <string name="cancel_button">Cancel</string>
     <string name="switch_button">Switch</string>
     <string name="yes_button">Yes</string>
+    <string name="button_transfer">Transfer</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -212,10 +214,13 @@
     <string name="members_member_added_successfully">Member added successfully</string>
     <string name="members_member_already_added">This account already has access to the Permanent Archive</string>
     <string name="members_member_updated_successfully">Member updated successfully</string>
+    <string name="members_ownership_transfer_request_sent_successfully">Ownership transfer request sent</string>
     <string name="members_member_removed_successfully">Member removed successfully</string>
     <string name="members_edit_member_title">Edit Member</string>
     <string name="members_remove_button">Remove</string>
     <string name="members_add_members_button">Add Members</string>
+    <string name="dialog_transfer_ownership_title">Transfer Ownership</string>
+    <string name="dialog_transfer_ownership_text">Permanent Archives can only have one owner at a time. Once this is complete, your role will be changed to Curator</string>
 
     <string name="share_preview_link_unavailable">This link is no longer available</string>
     <string name="share_preview_tap_to_change_archive">Tap to change archive</string>

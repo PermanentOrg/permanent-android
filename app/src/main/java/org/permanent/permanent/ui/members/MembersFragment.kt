@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogAddMemberBinding
 import org.permanent.permanent.databinding.DialogEditMemberBinding
@@ -28,6 +29,7 @@ import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.viewmodels.AddMemberViewModel
 import org.permanent.permanent.viewmodels.EditMemberViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
+import java.util.*
 
 
 const val SNACKBAR_DURATION_MILLIS = 5000
@@ -42,6 +44,7 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var editDialogBinding: DialogEditMemberBinding
     private var alertDialog: AlertDialog? = null
     private val accessRoleList = listOf(
+        AccessRole.OWNER.toTitleCase(),
         AccessRole.MANAGER.toTitleCase(),
         AccessRole.CURATOR.toTitleCase(),
         AccessRole.EDITOR.toTitleCase(),
@@ -225,12 +228,12 @@ class MembersFragment : PermanentBaseFragment() {
         editDialogBinding.actvAccessLevel.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 val selectedRole = accessLevelAdapter.getItem(position) as String
-                editDialogViewModel.setAccessLevel(AccessRole.valueOf(selectedRole.toUpperCase()))
+                editDialogViewModel.setAccessLevel(
+                    AccessRole.valueOf(selectedRole.uppercase(Locale.getDefault()))
+                )
             }
-        val thisContext = context
-
-        if (thisContext != null) {
-            alertDialog = AlertDialog.Builder(thisContext)
+        context?.let { ctx ->
+            alertDialog = AlertDialog.Builder(ctx)
                 .setView(editDialogBinding.root)
                 .create()
             editDialogBinding.btnCancel.setOnClickListener {
@@ -243,6 +246,23 @@ class MembersFragment : PermanentBaseFragment() {
     private val onMembersUpdated = Observer<Void> {
         viewModel.refreshMembers()
         alertDialog?.dismiss()
+    }
+
+    private val onOwnershipTransferRequest = Observer<Void> {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
+        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+
+        viewDialog.tvTitle.text = getString(R.string.dialog_transfer_ownership_title)
+        viewDialog.tvText.text = getString(R.string.dialog_transfer_ownership_text)
+        viewDialog.btnPositive.text = getString(R.string.button_transfer)
+        viewDialog.btnPositive.setOnClickListener {
+            editDialogViewModel.transferOwnership()
+            alert.dismiss()
+        }
+        viewDialog.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
     }
 
     override fun connectViewModelEvents() {
@@ -259,6 +279,7 @@ class MembersFragment : PermanentBaseFragment() {
         addDialogViewModel.getShowSuccessSnackbar().observe(this, onShowSuccessSnackbar)
         addDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
         editDialogViewModel.getOnMemberEdited().observe(this, onMembersUpdated)
+        editDialogViewModel.getOnOwnershipTransferRequest().observe(this, onOwnershipTransferRequest)
         editDialogViewModel.getOnMemberDeleted().observe(this, onMembersUpdated)
         editDialogViewModel.getShowSuccessSnackbar().observe(this, onShowSuccessSnackbar)
         editDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
@@ -278,6 +299,7 @@ class MembersFragment : PermanentBaseFragment() {
         addDialogViewModel.getShowSuccessSnackbar().removeObserver(onShowSuccessSnackbar)
         addDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
         editDialogViewModel.getOnMemberEdited().removeObserver(onMembersUpdated)
+        editDialogViewModel.getOnOwnershipTransferRequest().removeObserver(onOwnershipTransferRequest)
         editDialogViewModel.getOnMemberDeleted().removeObserver(onMembersUpdated)
         editDialogViewModel.getShowSuccessSnackbar().removeObserver(onShowSuccessSnackbar)
         editDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
