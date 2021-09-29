@@ -15,7 +15,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
     private val email = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onMemberEdited = SingleLiveEvent<Void>()
-    private val onOwnershipTransferRequest = SingleLiveEvent<Void>()
+    private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
     private val onMemberDeleted = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
@@ -33,7 +33,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
 
     fun onSaveBtnClick() {
         if (member?.accessRole == AccessRole.OWNER) {
-            onOwnershipTransferRequest.call()
+            onOwnershipTransferRequest.value = false
         } else {
             updateAccessRole()
         }
@@ -71,12 +71,11 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
             return
         }
 
-        val memberId = member?.id
         val memberEmail = member?.primaryEmail
 
-        if (memberId != null && memberEmail != null) {
+        if (memberEmail != null) {
             isBusy.value = true
-            archiveRepository.transferOwnership(memberId, memberEmail, object : IResponseListener {
+            archiveRepository.transferOwnership(memberEmail, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     onMemberEdited.call()
@@ -122,7 +121,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
 
     fun getOnMemberEdited(): LiveData<Void> = onMemberEdited
 
-    fun getOnOwnershipTransferRequest(): LiveData<Void> = onOwnershipTransferRequest
+    fun getOnOwnershipTransferRequest(): LiveData<Boolean> = onOwnershipTransferRequest
 
     fun getOnMemberDeleted(): LiveData<Void> = onMemberDeleted
 

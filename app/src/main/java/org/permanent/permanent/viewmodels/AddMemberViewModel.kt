@@ -18,41 +18,14 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
     private val emailError = MutableLiveData<Int>()
     private val accessRoleError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
+    private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
     private val onMemberAddedConclusion = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
-    fun getCurrentEmail(): MutableLiveData<String> {
-        return currentEmail
-    }
-
-    fun getEmailError(): LiveData<Int> {
-        return emailError
-    }
-
-    fun getAccessRoleError(): LiveData<Int> {
-        return accessRoleError
-    }
-
     fun onEmailTextChanged(email: Editable) {
         currentEmail.value = email.toString()
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getOnMemberAddedConclusion(): LiveData<Void> {
-        return onMemberAddedConclusion
-    }
-
-    fun getShowSuccessSnackbar(): LiveData<String> {
-        return showSnackbarSuccess
-    }
-
-    fun getShowSnackbar(): LiveData<String> {
-        return showSnackbar
     }
 
     fun clearFields() {
@@ -65,7 +38,15 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
         accessRoleError.value = null
     }
 
-    fun addNewMember() {
+    fun onSaveBtnClick() {
+        if (accessRole == AccessRole.OWNER) {
+            onOwnershipTransferRequest.value = true
+        } else {
+            addNewMember()
+        }
+    }
+
+    private fun addNewMember() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -75,6 +56,31 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
         if (email != null && accessRole != null) {
             isBusy.value = true
             archiveRepository.addMember(email, accessRole, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    onMemberAddedConclusion.call()
+                    showSnackbarSuccess.value = message
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    onMemberAddedConclusion.call()
+                    showSnackbar.value = error
+                }
+            })
+        }
+    }
+
+    fun transferOwnership() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        val email = getValidatedEmail()
+
+        if (email != null) {
+            isBusy.value = true
+            archiveRepository.transferOwnership(email, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     onMemberAddedConclusion.call()
@@ -109,4 +115,20 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
         accessRoleError.value = null
         return accessRole
     }
+
+    fun getCurrentEmail(): MutableLiveData<String> = currentEmail
+
+    fun getEmailError(): LiveData<Int> = emailError
+
+    fun getAccessRoleError(): LiveData<Int> = accessRoleError
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnOwnershipTransferRequest(): LiveData<Boolean> = onOwnershipTransferRequest
+
+    fun getOnMemberAddedConclusion(): LiveData<Void> = onMemberAddedConclusion
+
+    fun getShowSuccessSnackbar(): LiveData<String> = showSnackbarSuccess
+
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
 }

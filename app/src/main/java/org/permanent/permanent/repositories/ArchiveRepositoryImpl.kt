@@ -16,9 +16,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
+class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     private val prefsHelper = PreferencesHelper(
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
 
     override fun getAllArchives(listener: IDataListener) {
         NetworkClient.instance().getAllArchives(prefsHelper.getCsrf())
@@ -153,60 +154,41 @@ class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
             })
     }
 
-    override fun addMember(email: String, accessRole: AccessRole,
-                           listener: IResponseListener
-    ) {
-        NetworkClient.instance().addMember(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(), email,
-            accessRole).enqueue(object : Callback<ResponseVO> {
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(
-                            context.getString(R.string.members_member_added_successfully))
-                    } else if (responseVO?.getMessages()?.get(0)
-                        == Constants.ERROR_MEMBER_ALREADY_ADDED) {
-                        listener.onFailed(context.getString(R.string.members_member_already_added))
-                    } else listener.onFailed(responseVO?.getMessages()?.get(0))
-                }
-
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
-                }
-            })
-    }
-
-    override fun updateMember(accountId: Int, email: String, accessRole: AccessRole,
-                              listener: IResponseListener
-    ) {
-        NetworkClient.instance().updateMember(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(),
-            accountId, email, accessRole).enqueue(object : Callback<ResponseVO> {
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(
-                            context.getString(R.string.members_member_updated_successfully))
-                    } else {
-                        listener.onFailed(responseVO?.getMessages()?.get(0))
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
-                }
-            })
-    }
-
-    override fun transferOwnership(accountId: Int, email: String, listener: IResponseListener) {
-        NetworkClient.instance().transferOwnership(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(),
-            accountId, email).enqueue(object : Callback<ResponseVO> {
+    override fun addMember(email: String, accessRole: AccessRole, listener: IResponseListener) {
+        NetworkClient.instance().addMember(
+            prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(), email, accessRole
+        ).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
                 if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                     listener.onSuccess(
-                        context.getString(R.string.members_ownership_transfer_request_sent_successfully))
+                        context.getString(R.string.members_member_added_successfully)
+                    )
+                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_MEMBER_ALREADY_ADDED) {
+                    listener.onFailed(context.getString(R.string.members_member_already_added))
+                } else listener.onFailed(responseVO?.getMessages()?.get(0))
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun updateMember(
+        accountId: Int, email: String, accessRole: AccessRole, listener: IResponseListener
+    ) {
+        NetworkClient.instance().updateMember(
+            prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(), accountId, email, accessRole
+        ).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                prefsHelper.saveCsrf(responseVO?.csrf)
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(
+                        context.getString(R.string.members_member_updated_successfully)
+                    )
                 } else {
                     listener.onFailed(responseVO?.getMessages()?.get(0))
                 }
@@ -218,16 +200,41 @@ class ArchiveRepositoryImpl(val context: Context): IArchiveRepository {
         })
     }
 
-    override fun deleteMember(accountId: Int, email: String, listener: IResponseListener
-    ) {
-        NetworkClient.instance().deleteMember(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(),
-            accountId, email).enqueue(object : Callback<ResponseVO> {
+    override fun transferOwnership(email: String, listener: IResponseListener) {
+        NetworkClient.instance().transferOwnership(
+            prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(), email
+        ).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
                 if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                     listener.onSuccess(
-                        context.getString(R.string.members_member_removed_successfully))
+                        context.getString(R.string.members_ownership_transfer_request_sent_successfully)
+                    )
+                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_OWNER_ALREADY_PENDING) {
+                    listener.onFailed(context.getString(R.string.members_owner_already_pending))
+                } else {
+                    listener.onFailed(responseVO?.getMessages()?.get(0))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun deleteMember(accountId: Int, email: String, listener: IResponseListener) {
+        NetworkClient.instance().deleteMember(
+            prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr(), accountId, email
+        ).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                prefsHelper.saveCsrf(responseVO?.csrf)
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(
+                        context.getString(R.string.members_member_removed_successfully)
+                    )
                 } else {
                     listener.onFailed(responseVO?.getMessages()?.get(0))
                 }
