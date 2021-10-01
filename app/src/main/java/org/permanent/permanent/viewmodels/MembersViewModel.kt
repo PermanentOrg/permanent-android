@@ -6,19 +6,22 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.ArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.ui.members.MemberListener
 
-class MembersViewModel(
-    application: Application
+class MembersViewModel(application: Application
 ) : ObservableAndroidViewModel(application), MemberListener {
 
     private val appContext = application.applicationContext
-    private val ownerDisplayName = MutableLiveData<String>()
+    private val ownerName = MutableLiveData<String>()
     private val ownerEmail = MutableLiveData<String>()
+    private var pendingOwner = MutableLiveData<Account>()
+    private val pendingOwnerName = MutableLiveData<String>()
+    private val pendingOwnerEmail = MutableLiveData<String>()
     private val existsManagers = MutableLiveData(false)
     private val existsCurators = MutableLiveData(false)
     private val existsEditors = MutableLiveData(false)
@@ -30,7 +33,8 @@ class MembersViewModel(
     private val onContributorsRetrieved = MutableLiveData<List<Account>>()
     private val onViewersRetrieved = MutableLiveData<List<Account>>()
     private val isBusy = MutableLiveData(false)
-    private val isArchiveShareAvailable = ArchivePermissionsManager.instance.isArchiveShareAvailable()
+    private val isArchiveShareAvailable =
+        ArchivePermissionsManager.instance.isArchiveShareAvailable()
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarLong = MutableLiveData<Int>()
     private val onShowAddMemberDialogRequest = MutableLiveData<Void>()
@@ -62,6 +66,7 @@ class MembersViewModel(
     }
 
     private fun splitByRole(allMembers: List<Datum>) {
+        pendingOwner.value = null
         val managers: MutableList<Account> = ArrayList()
         val curators: MutableList<Account> = ArrayList()
         val editors: MutableList<Account> = ArrayList()
@@ -72,8 +77,14 @@ class MembersViewModel(
             val account = Account(datum.AccountVO)
             when (account.accessRole) {
                 AccessRole.OWNER -> {
-                    ownerDisplayName.value = account.fullName
-                    ownerEmail.value = account.primaryEmail
+                    if (account.status == Status.PENDING) {
+                        pendingOwner.value = account
+                        pendingOwnerName.value = account.fullName
+                        pendingOwnerEmail.value = account.primaryEmail
+                    } else {
+                        ownerName.value = account.fullName
+                        ownerEmail.value = account.primaryEmail
+                    }
                 }
                 AccessRole.MANAGER -> managers.add(account)
                 AccessRole.CURATOR -> curators.add(account)
@@ -102,6 +113,10 @@ class MembersViewModel(
         onShowAddMemberDialogRequest.value = onShowAddMemberDialogRequest.value
     }
 
+    fun onPendingOwnerEditBtnClick() {
+        onShowEditMemberDialogRequest.value = pendingOwner.value
+    }
+
     override fun onMemberEdit(member: Account) {
         onShowEditMemberDialogRequest.value = member
     }
@@ -116,9 +131,15 @@ class MembersViewModel(
 
     fun getOnViewersRetrieved(): LiveData<List<Account>> = onViewersRetrieved
 
-    fun getOwnerDisplayName(): MutableLiveData<String> = ownerDisplayName
+    fun getOwnerName(): MutableLiveData<String> = ownerName
 
     fun getOwnerEmail(): MutableLiveData<String> = ownerEmail
+
+    fun getPendingOwner(): MutableLiveData<Account> = pendingOwner
+
+    fun getPendingOwnerName(): MutableLiveData<String> = pendingOwnerName
+
+    fun getPendingOwnerEmail(): MutableLiveData<String> = pendingOwnerEmail
 
     fun getExistsManagers(): MutableLiveData<Boolean> = existsManagers
 

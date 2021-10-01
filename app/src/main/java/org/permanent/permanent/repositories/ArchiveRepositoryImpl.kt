@@ -189,6 +189,8 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
                     listener.onSuccess(
                         context.getString(R.string.members_member_updated_successfully)
                     )
+                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_PENDING_OWNER_NOT_EDITABLE) {
+                    listener.onFailed(context.getString(R.string.members_pending_owner_not_editable))
                 } else {
                     listener.onFailed(responseVO?.getMessages()?.get(0))
                 }
