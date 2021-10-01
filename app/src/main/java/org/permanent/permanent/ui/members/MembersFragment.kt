@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogAddMemberBinding
 import org.permanent.permanent.databinding.DialogEditMemberBinding
@@ -28,6 +29,7 @@ import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.viewmodels.AddMemberViewModel
 import org.permanent.permanent.viewmodels.EditMemberViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
+import java.util.*
 
 
 const val SNACKBAR_DURATION_MILLIS = 5000
@@ -42,6 +44,7 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var editDialogBinding: DialogEditMemberBinding
     private var alertDialog: AlertDialog? = null
     private val accessRoleList = listOf(
+        AccessRole.OWNER.toTitleCase(),
         AccessRole.MANAGER.toTitleCase(),
         AccessRole.CURATOR.toTitleCase(),
         AccessRole.EDITOR.toTitleCase(),
@@ -159,7 +162,8 @@ class MembersFragment : PermanentBaseFragment() {
     private val onShowSuccessSnackbar = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
@@ -192,12 +196,12 @@ class MembersFragment : PermanentBaseFragment() {
         addDialogBinding.actvAccessLevel.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 val selectedRole = accessLevelAdapter.getItem(position) as String
-                addDialogViewModel.setAccessRole(AccessRole.valueOf(selectedRole.toUpperCase()))
+                addDialogViewModel.setAccessRole(
+                    AccessRole.valueOf(selectedRole.uppercase(Locale.getDefault()))
+                )
             }
-        val thisContext = context
-
-        if (thisContext != null) {
-            alertDialog = AlertDialog.Builder(thisContext)
+        context?.let { ctx ->
+            alertDialog = AlertDialog.Builder(ctx)
                 .setView(addDialogBinding.root)
                 .create()
             addDialogBinding.btnCancel.setOnClickListener {
@@ -225,12 +229,12 @@ class MembersFragment : PermanentBaseFragment() {
         editDialogBinding.actvAccessLevel.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 val selectedRole = accessLevelAdapter.getItem(position) as String
-                editDialogViewModel.setAccessLevel(AccessRole.valueOf(selectedRole.toUpperCase()))
+                editDialogViewModel.setAccessLevel(
+                    AccessRole.valueOf(selectedRole.uppercase(Locale.getDefault()))
+                )
             }
-        val thisContext = context
-
-        if (thisContext != null) {
-            alertDialog = AlertDialog.Builder(thisContext)
+        context?.let { ctx ->
+            alertDialog = AlertDialog.Builder(ctx)
                 .setView(editDialogBinding.root)
                 .create()
             editDialogBinding.btnCancel.setOnClickListener {
@@ -245,6 +249,24 @@ class MembersFragment : PermanentBaseFragment() {
         alertDialog?.dismiss()
     }
 
+    private val onOwnershipTransferRequest = Observer<Boolean> { isFromAddMemberDialog ->
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
+        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+
+        viewDialog.tvTitle.text = getString(R.string.dialog_transfer_ownership_title)
+        viewDialog.tvText.text = getString(R.string.dialog_transfer_ownership_text)
+        viewDialog.btnPositive.text = getString(R.string.button_transfer)
+        viewDialog.btnPositive.setOnClickListener {
+            if (isFromAddMemberDialog) addDialogViewModel.transferOwnership()
+            else editDialogViewModel.transferOwnership()
+            alert.dismiss()
+        }
+        viewDialog.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getOnManagersRetrieved().observe(this, onManagersRetrieved)
         viewModel.getOnCuratorsRetrieved().observe(this, onCuratorsRetrieved)
@@ -255,10 +277,14 @@ class MembersFragment : PermanentBaseFragment() {
         viewModel.getShowSnackbarLong().observe(this, onShowSnackbarLong)
         viewModel.getShowAddMemberDialogRequest().observe(this, onShowAddMemberDialog)
         viewModel.getShowEditMemberDialogRequest().observe(this, onShowEditMemberDialog)
+        addDialogViewModel.getOnOwnershipTransferRequest()
+            .observe(this, onOwnershipTransferRequest)
         addDialogViewModel.getOnMemberAddedConclusion().observe(this, onMembersUpdated)
         addDialogViewModel.getShowSuccessSnackbar().observe(this, onShowSuccessSnackbar)
         addDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
         editDialogViewModel.getOnMemberEdited().observe(this, onMembersUpdated)
+        editDialogViewModel.getOnOwnershipTransferRequest()
+            .observe(this, onOwnershipTransferRequest)
         editDialogViewModel.getOnMemberDeleted().observe(this, onMembersUpdated)
         editDialogViewModel.getShowSuccessSnackbar().observe(this, onShowSuccessSnackbar)
         editDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
@@ -274,10 +300,14 @@ class MembersFragment : PermanentBaseFragment() {
         viewModel.getShowSnackbarLong().removeObserver(onShowSnackbarLong)
         viewModel.getShowAddMemberDialogRequest().removeObserver(onShowAddMemberDialog)
         viewModel.getShowEditMemberDialogRequest().removeObserver(onShowEditMemberDialog)
+        addDialogViewModel.getOnOwnershipTransferRequest()
+            .removeObserver(onOwnershipTransferRequest)
         addDialogViewModel.getOnMemberAddedConclusion().removeObserver(onMembersUpdated)
         addDialogViewModel.getShowSuccessSnackbar().removeObserver(onShowSuccessSnackbar)
         addDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
         editDialogViewModel.getOnMemberEdited().removeObserver(onMembersUpdated)
+        editDialogViewModel.getOnOwnershipTransferRequest()
+            .removeObserver(onOwnershipTransferRequest)
         editDialogViewModel.getOnMemberDeleted().removeObserver(onMembersUpdated)
         editDialogViewModel.getShowSuccessSnackbar().removeObserver(onShowSuccessSnackbar)
         editDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)

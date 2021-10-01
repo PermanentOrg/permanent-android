@@ -56,7 +56,7 @@
                     app:tint="@color/lightGrey" />
 
                 <TextView
-                    android:id="@+id/tvName"
+                    android:id="@+id/tvOwnerName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -65,7 +65,7 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/open_sans_bold"
                     android:maxLines="1"
-                    android:text="@{viewModel.ownerDisplayName}"
+                    android:text="@{viewModel.ownerName}"
                     android:textColor="@color/colorPrimary"
                     android:textSize="15sp"
                     android:textStyle="bold"
@@ -74,7 +74,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/tvOwner" />
 
                 <TextView
-                    android:id="@+id/tvEmail"
+                    android:id="@+id/tvOwnerEmail"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -84,7 +84,74 @@
                     android:textSize="15sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvName" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvOwnerName" />
+
+                <TextView
+                    android:id="@+id/tvPendingOwnerName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:maxLines="1"
+                    android:text="@{viewModel.pendingOwnerName}"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:visibility="@{viewModel.isArchiveShareAvailable &amp;&amp; viewModel.pendingOwner != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toStartOf="@+id/btnEdit"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvOwnerEmail" />
+
+                <TextView
+                    android:id="@+id/tvPending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/open_sans"
+                    android:maxLines="1"
+                    android:text="@string/members_pending"
+                    android:textSize="15sp"
+                    android:textStyle="italic"
+                    android:visibility="@{viewModel.isArchiveShareAvailable &amp;&amp; viewModel.pendingOwner != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toStartOf="@+id/btnEdit"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/tvPendingOwnerName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvOwnerEmail" />
+
+                <TextView
+                    android:id="@+id/tvPendingOwnerEmail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/open_sans"
+                    android:text="@{viewModel.pendingOwnerEmail}"
+                    android:textSize="15sp"
+                    android:visibility="@{viewModel.isArchiveShareAvailable &amp;&amp; viewModel.pendingOwner != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toStartOf="@+id/btnEdit"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvPendingOwnerName" />
+
+                <Button
+                    android:id="@+id/btnEdit"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:text="@string/members_edit_button"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    android:visibility="@{viewModel.isArchiveShareAvailable &amp;&amp; viewModel.pendingOwner != null ? View.VISIBLE : View.INVISIBLE}"
+                    android:onClick="@{() -> viewModel.onPendingOwnerEditBtnClick()}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvPendingOwnerEmail"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tvPendingOwnerName" />
 
                 <View
                     android:id="@+id/viewDividerOwners"
@@ -94,7 +161,7 @@
                     android:background="@color/lightGrey"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvEmail" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvPendingOwnerEmail" />
 
                 <TextView
                     android:id="@+id/tvManagers"

@@ -474,13 +474,19 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         email: String,
         accessRole: AccessRole
     ): Call<ResponseVO> {
-        val request = toJson(
-            RequestContainer(csrf)
-                .addArchive(archiveNr)
-                .addAccount(id, email, accessRole)
-        )
+        val request =
+            toJson(RequestContainer(csrf).addArchive(archiveNr).addAccount(id, email, accessRole))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.updateMember(requestBody)
+    }
+
+    fun transferOwnership(csrf: String?, archiveNr: String?, email: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf)
+                .addArchive(archiveNr)
+                .addAccount(email, AccessRole.OWNER)
+        )
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.transferOwnership(requestBody)
     }
 
     fun deleteMember(csrf: String?, archiveNr: String?, id: Int, email: String): Call<ResponseVO> {

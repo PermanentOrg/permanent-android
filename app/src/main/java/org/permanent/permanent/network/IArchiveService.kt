@@ -37,6 +37,9 @@ interface IArchiveService {
     @POST("archive/updateShare")
     fun updateMember(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("archive/transferOwnership")
+    fun transferOwnership(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("archive/unshare")
     fun deleteMember(@Body requestBody: RequestBody): Call<ResponseVO>
 }

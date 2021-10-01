@@ -28,5 +28,7 @@ interface IArchiveRepository {
         accountId: Int, email: String, accessRole: AccessRole, listener: IResponseListener
     )
 
+    fun transferOwnership(email: String, listener: IResponseListener)
+
     fun deleteMember(accountId: Int, email: String, listener: IResponseListener)
 }
