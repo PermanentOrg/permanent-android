@@ -3,7 +3,6 @@ package org.permanent.permanent.ui.myFiles
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
-import android.widget.Filterable
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +16,7 @@ class RecordsListAdapter(
     private val recordListener: RecordListener,
     private val lifecycleOwner: LifecycleOwner,
     private val isRelocateMode: MutableLiveData<Boolean>
-) : RecyclerView.Adapter<RecordListViewHolder>(), Filterable {
+) : RecordsAdapter() {
     private var records: MutableList<Record> = ArrayList()
     private var filteredRecords: MutableList<Record> = ArrayList()
     private val viewBinderHelper = ViewBinderHelper()
@@ -31,26 +30,29 @@ class RecordsListAdapter(
         return RecordListViewHolder(binding, recordListener)
     }
 
-    fun set(recordList: List<Record>) {
-        records = recordList.toMutableList()
-        for (record in records) record.isRelocateMode = isRelocateMode
-        filteredRecords = records
-        notifyDataSetChanged()
-    }
-
-    fun add(fakeFile: Record) {
-        records.add(0, fakeFile)
-        fakeFile.isRelocateMode = isRelocateMode
-        filteredRecords = records
-        notifyDataSetChanged()
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val record = filteredRecords[position]
+        holder as RecordListViewHolder
+        viewBinderHelper.bind(holder.binding.layoutSwipeReveal, record.folderLinkId.toString())
+        holder.bind(record, lifecycleOwner)
     }
 
     override fun getItemCount() = filteredRecords.size
 
-    override fun onBindViewHolder(holder: RecordListViewHolder, position: Int) {
-        val record = filteredRecords[position]
-        viewBinderHelper.bind(holder.binding.layoutSwipeReveal, record.folderLinkId.toString())
-        holder.bind(record, lifecycleOwner)
+    override fun setRecords(records: List<Record>) {
+        this.records = records.toMutableList()
+        for (record in this.records) record.isRelocateMode = isRelocateMode
+        filteredRecords = this.records
+        notifyDataSetChanged()
+    }
+
+    override fun getRecords(): List<Record> = records
+
+    override fun addRecord(fakeFile: Record) {
+        records.add(0, fakeFile)
+        fakeFile.isRelocateMode = isRelocateMode
+        filteredRecords = records
+        notifyDataSetChanged()
     }
 
     override fun getFilter(): Filter {

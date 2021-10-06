@@ -45,6 +45,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val isSortedAsc = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
+    private val isListViewMode = MutableLiveData(true)
     private val isCreateAvailable = ArchivePermissionsManager.instance.isCreateAvailable()
     private val isRelocationMode = MutableLiveData(false)
     private val relocationType = MutableLiveData<RelocationType>()
@@ -57,6 +58,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val recordToRelocate = MutableLiveData<Record>()
     private val showMessage = SingleLiveEvent<String>()
     private val showQuotaExceeded = SingleLiveEvent<Void>()
+    private val onChangeViewMode = SingleLiveEvent<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
@@ -80,6 +82,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun set(fragmentManager: FragmentManager) {
         this.fragmentManager = fragmentManager
+    }
+
+    fun setIsListViewMode(isListViewMode: Boolean) {
+        this.isListViewMode.value = isListViewMode
     }
 
     fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
@@ -168,7 +174,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         onShowFileOptionsFragment.value = record
     }
 
-    override fun onRecordDeleteFromSwipeClick(record: Record) {
+    override fun onRecordDeleteClick(record: Record) {
         onRecordDeleteRequest.value = record
     }
 
@@ -186,6 +192,11 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     private fun showBottomSheetFragment(fragment: BottomSheetDialogFragment) {
         fragment.show(fragmentManager, fragment.tag)
+    }
+
+    fun onViewModeBtnClick() {
+        isListViewMode.value = !isListViewMode.value!!
+        onChangeViewMode.value = isListViewMode.value
     }
 
     override fun onRecordClick(record: Record) {
@@ -408,6 +419,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getIsSortedAsc(): MutableLiveData<Boolean> = isSortedAsc
 
+    fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
+
     fun getSortName(): MutableLiveData<String> = sortName
 
     fun getRecordToRelocate(): MutableLiveData<Record> = recordToRelocate
@@ -425,6 +438,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
 
     fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
+
+    fun getOnChangeViewMode(): SingleLiveEvent<Boolean> = onChangeViewMode
 
     fun getOnCancelAllUploads(): SingleLiveEvent<Void> = onCancelAllUploads
 

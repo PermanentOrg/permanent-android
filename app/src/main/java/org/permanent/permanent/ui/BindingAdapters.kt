@@ -23,12 +23,18 @@ fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
 }
 
 @BindingAdapter("notificationTypeIcon")
-fun setIconDrawable(view: ImageView, notificationType: Notification.Type) {
+fun setNotificationIconDrawable(view: ImageView, notificationType: Notification.Type) {
     when (notificationType) {
         Notification.Type.SHARE -> view.setImageResource(R.drawable.ic_notification_folder_shared_tangerine)
         Notification.Type.RELATIONSHIP -> view.setImageResource(R.drawable.ic_notification_group_deep_red)
         else -> view.setImageResource(R.drawable.ic_notification_account_blue)
     }
+}
+
+@BindingAdapter("viewModeIcon")
+fun setViewModeIconDrawable(view: ImageView, isListViewMode: Boolean) {
+    if (isListViewMode) view.setImageResource(R.drawable.ic_grid_middle_grey)
+    else view.setImageResource(R.drawable.ic_list_middle_grey)
 }
 
 @BindingAdapter("record")

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -49,8 +50,11 @@ class SharePreviewFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         initRecordsRecyclerView(binding.rvRecords)
 
-        prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
-            org.permanent.permanent.ui.PREFS_NAME, android.content.Context.MODE_PRIVATE))
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(
+                org.permanent.permanent.ui.PREFS_NAME, android.content.Context.MODE_PRIVATE
+            )
+        )
         arguments?.takeIf { it.containsKey(URL_TOKEN_KEY) }?.apply {
             urlToken = getString(URL_TOKEN_KEY)
 
@@ -68,7 +72,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
     }
 
     private val onRecordsRetrieved = Observer<List<Record>> {
-        recordsAdapter.set(it)
+        recordsAdapter.setRecords(it)
     }
 
     private val onChangeArchive = Observer<Void> {
@@ -103,7 +107,13 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     private fun initRecordsRecyclerView(rvRecords: RecyclerView) {
         recordsRecyclerView = rvRecords
-        recordsAdapter = RecordsGridAdapter(this, viewModel)
+        recordsAdapter = RecordsGridAdapter(
+            viewModel,
+            this,
+            MutableLiveData(false),
+            viewModel.getCurrentState(),
+            true
+        )
         recordsRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = GridLayoutManager(context, 2)

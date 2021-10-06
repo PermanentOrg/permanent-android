@@ -14,9 +14,11 @@ import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.shares.PreviewState
 
-class SharePreviewViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class SharePreviewViewModel(application: Application) : ObservableAndroidViewModel(application),
+    RecordListener {
 
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -130,6 +132,12 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     fun onOkBtnClick() {
         onNavigateUp.call()
     }
+
+    override fun onRecordClick(record: Record) {}
+
+    override fun onRecordOptionsClick(record: Record) {}
+
+    override fun onRecordDeleteClick(record: Record) {}
 
     fun getArchiveThumbURL(): MutableLiveData<String> = archiveThumbURL
 

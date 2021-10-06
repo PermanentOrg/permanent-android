@@ -56,7 +56,7 @@ open class Record : Parcelable {
         displayDate = recordInfo.displayDT?.substringBefore("T")
         showArchiveThumb = false
         thumbURL500 = recordInfo.thumbURL500
-        isThumbBlurred = true
+        isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
         status = recordInfo.status
@@ -74,7 +74,7 @@ open class Record : Parcelable {
         displayDate = recordInfo.displayDT?.substringBefore("T")
         showArchiveThumb = false
         thumbURL500 = recordInfo.thumbURL500
-        isThumbBlurred = true
+        isThumbBlurred = false
         type = RecordType.FOLDER
         initShares(recordInfo.ShareVOs)
         status = recordInfo.status
@@ -94,7 +94,7 @@ open class Record : Parcelable {
         archiveThumbURL500 = archive.thumbURL500
         showArchiveThumb = showArchiveThumbnail
         thumbURL500 = item.thumbURL500
-        isThumbBlurred = true
+        isThumbBlurred = false
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
         status = item.status
         viewFirst = false
@@ -105,7 +105,7 @@ open class Record : Parcelable {
         id = recordId
         this.recordId = recordId
         this.folderLinkId = folderLinkId
-        isThumbBlurred = true
+        isThumbBlurred = false
         type = RecordType.FILE
         viewFirst = false
         isProcessing = false

@@ -68,15 +68,15 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clFolderOptions"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
             android:onClick="@{() -> viewModel.onFolderOptionsClick()}"
             android:paddingTop="8dp"
-            android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ivViewModeIcon"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/clSearch"
@@ -98,7 +98,7 @@
 
             <TextView
                 android:id="@+id/tvFolderName"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.folderName}"
                 android:textColor="@color/colorPrimary"
@@ -126,17 +126,15 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
-            android:id="@+id/ivGridIcon"
+            android:id="@+id/ivViewModeIcon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginEnd="16dp"
-            android:visibility="gone"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{() -> viewModel.onViewModeBtnClick()}"
             app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/clFolderOptions"
             app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
-            app:srcCompat="@drawable/ic_grid_middle_grey" />
+            app:viewModeIcon="@{viewModel.isListViewMode}" />
 
         <TextView
             android:id="@+id/tvDownloadsTitle"

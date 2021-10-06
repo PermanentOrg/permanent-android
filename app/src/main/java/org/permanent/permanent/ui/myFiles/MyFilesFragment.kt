@@ -11,10 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_cancel_uploads.view.*
@@ -30,6 +32,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 
@@ -42,7 +45,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
     private lateinit var recordsRecyclerView: RecyclerView
-    private lateinit var recordsAdapter: RecordsListAdapter
+    private lateinit var recordsAdapter: RecordsAdapter
+    private lateinit var recordsListAdapter: RecordsListAdapter
+    private lateinit var recordsGridAdapter: RecordsGridAdapter
+    private lateinit var prefsHelper: PreferencesHelper
     private var shouldRefreshCurrentFolder: Boolean = false
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
@@ -62,8 +68,9 @@ class MyFilesFragment : PermanentBaseFragment() {
             navigateToShareLinkFragment(record)
             arguments?.clear()
         } else {
-            val prefsHelper = PreferencesHelper(
-                requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+            prefsHelper = PreferencesHelper(
+                requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            )
             val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
 
             if (!shareLinkUrlToken.isNullOrEmpty()) {
@@ -89,10 +96,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private fun navigateToSharePreviewFragment(shareLinkUrlToken: String) {
         val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
-        findNavController().navigate(
-            R.id.action_myFilesFragment_to_sharePreviewFragment,
-            bundle
-        )
+        findNavController().navigate(R.id.action_myFilesFragment_to_sharePreviewFragment, bundle)
     }
 
     private val onShowMessage = Observer<String> {
@@ -134,7 +138,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordsRetrieved = Observer<List<Record>> {
-        recordsAdapter.set(it)
+        recordsAdapter.setRecords(it)
     }
 
     private val onRecordsFilterQuery = Observer<Editable> {
@@ -142,7 +146,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onNewTemporaryFile = Observer<Record> {
-        recordsAdapter.add(it)
+        recordsAdapter.addRecord(it)
     }
 
     private val onShowAddOptionsFragment = Observer<NavigationFolderIdentifier> {
@@ -230,6 +234,22 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.refreshCurrentFolder()
     }
 
+    private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
+        prefsHelper.saveIsListViewMode(isListViewMode)
+        val records = recordsAdapter.getRecords()
+        recordsRecyclerView.apply {
+            if (isListViewMode) {
+                layoutManager = LinearLayoutManager(context)
+                recordsAdapter = recordsListAdapter
+            } else {
+                layoutManager = GridLayoutManager(context, 2)
+                recordsAdapter = recordsGridAdapter
+            }
+            adapter = recordsAdapter
+            recordsAdapter.setRecords(records)
+        }
+    }
+
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {
         downloadsRecyclerView = rvDownloads
         downloadsAdapter = DownloadsAdapter(this, viewModel)
@@ -243,18 +263,41 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
         recordsRecyclerView = rvFiles
-        recordsAdapter = RecordsListAdapter(viewModel, this, viewModel.getIsRelocationMode())
+        recordsListAdapter = RecordsListAdapter(
+            viewModel, this, viewModel.getIsRelocationMode()
+        )
+        recordsGridAdapter = RecordsGridAdapter(
+            viewModel,
+            this,
+            viewModel.getIsRelocationMode(),
+            MutableLiveData(PreviewState.ACCESS_GRANTED),
+            false
+        )
+        val isListViewMode = prefsHelper.isListViewMode()
+        viewModel.setIsListViewMode(isListViewMode)
         recordsRecyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
+            if (isListViewMode) {
+                recordsAdapter = recordsListAdapter
+                layoutManager = LinearLayoutManager(context)
+                addItemDecoration(
+                    DividerItemDecoration(
+                        this.context,
+                        DividerItemDecoration.VERTICAL
+                    )
+                )
+            } else {
+                recordsAdapter = recordsGridAdapter
+                layoutManager = GridLayoutManager(context, 2)
+            }
             adapter = recordsAdapter
-            addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
+            setHasFixedSize(true)
         }
     }
 
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
         viewModel.getOnShowQuotaExceeded().observe(this, onShowQuotaExceeded)
+        viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
@@ -272,6 +315,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     override fun disconnectViewModelEvents() {
         viewModel.getOnShowMessage().removeObserver(onShowMessage)
         viewModel.getOnShowQuotaExceeded().removeObserver(onShowQuotaExceeded)
+        viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
