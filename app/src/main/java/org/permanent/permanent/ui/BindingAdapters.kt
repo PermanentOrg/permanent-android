@@ -33,8 +33,8 @@ fun setNotificationIconDrawable(view: ImageView, notificationType: Notification.
 
 @BindingAdapter("viewModeIcon")
 fun setViewModeIconDrawable(view: ImageView, isListViewMode: Boolean) {
-    if (isListViewMode) view.setImageResource(R.drawable.ic_grid_middle_grey)
-    else view.setImageResource(R.drawable.ic_list_middle_grey)
+    if (isListViewMode) view.setImageResource(R.drawable.ic_grid_dark_blue)
+    else view.setImageResource(R.drawable.ic_list_dark_blue)
 }
 
 @BindingAdapter("record")
@@ -61,7 +61,6 @@ fun loadImage(view: ImageView, record: Record?) {
             else -> Picasso.get()
                 .load(record.thumbURL500)
                 .placeholder(R.drawable.ic_stop_light_grey)
-                .fit()
                 .into(view)
         }
     }

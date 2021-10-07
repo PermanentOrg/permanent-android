@@ -129,7 +129,7 @@
             android:id="@+id/ivViewModeIcon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="10dp"
             android:onClick="@{() -> viewModel.onViewModeBtnClick()}"
             app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
             app:layout_constraintEnd_toEndOf="parent"

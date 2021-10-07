@@ -43,12 +43,13 @@
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="12dp"
-                    app:record="@{record}"
+                    android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:record="@{record}" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline"
@@ -99,7 +100,7 @@
                 <Button
                     android:id="@+id/btnOptions"
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                    android:layout_width="36dp"
+                    android:layout_width="38dp"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/ic_more_middle_grey"
                     app:iconTint="@color/middleGrey"
