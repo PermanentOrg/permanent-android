@@ -170,7 +170,7 @@
 
     <string name="share_link_get_share_link_button">Get share link</string>
     <string name="share_link_copy_link_button">Copy Link</string>
-    <string name="share_link_advanced_options_button">Advanced Options</string>
+    <string name="share_link_link_settings_button">Link Settings</string>
     <string name="share_link_revoke_link_button">Revoke Link</string>
     <string name="share_link_share_link_title">Share Link</string>
     <string name="share_link_share_link_message">Send this link via text, email, or other message service to invite people to share this content.</string>
