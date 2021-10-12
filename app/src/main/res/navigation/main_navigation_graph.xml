@@ -41,8 +41,8 @@
         android:label="@string/main_navigation_title_share_link"
         tools:layout="@layout/fragment_share_link">
         <action
-            android:id="@+id/action_shareLinkFragment_to_manageLinkFragment"
-            app:destination="@id/manageLinkFragment"
+            android:id="@+id/action_shareLinkFragment_to_linkSettingsFragment"
+            app:destination="@id/linkSettingsFragment"
             app:enterAnim="@anim/fragment_open_enter"
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
@@ -50,10 +50,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/manageLinkFragment"
-        android:name="org.permanent.permanent.ui.myFiles.linkshare.ManageLinkFragment"
-        android:label="@string/share_link_advanced_options_button"
-        tools:layout="@layout/fragment_manage_link">
+        android:id="@+id/linkSettingsFragment"
+        android:name="org.permanent.permanent.ui.myFiles.linkshare.LinkSettingsFragment"
+        android:label="@string/share_link_link_settings_button"
+        tools:layout="@layout/fragment_link_settings">
     </fragment>
 
     <fragment

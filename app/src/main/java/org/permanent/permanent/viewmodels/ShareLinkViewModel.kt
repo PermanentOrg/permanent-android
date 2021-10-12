@@ -32,7 +32,7 @@ class ShareLinkViewModel(application: Application
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private val showSnackBar = MutableLiveData<String>()
-    private val onManageLinkRequest = MutableLiveData<ShareByUrl>()
+    private val onLinkSettingsRequest = MutableLiveData<ShareByUrl>()
     private val onRevokeLinkRequest = MutableLiveData<Void>()
     private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
@@ -96,8 +96,8 @@ class ShareLinkViewModel(application: Application
         return showSnackBar
     }
 
-    fun getOnManageLinkRequest(): LiveData<ShareByUrl> {
-        return onManageLinkRequest
+    fun getOnLinkSettingsRequest(): LiveData<ShareByUrl> {
+        return onLinkSettingsRequest
     }
 
     fun getOnRevokeLinkRequest(): LiveData<Void> {
@@ -140,8 +140,8 @@ class ShareLinkViewModel(application: Application
         showSnackBar.value = appContext.getString(R.string.share_link_link_copied)
     }
 
-    fun onAdvancedOptionsBtnClick() {
-        onManageLinkRequest.value = shareByUrlVO?.getShareByUrl()
+    fun onLinkSettingsBtnClick() {
+        onLinkSettingsRequest.value = shareByUrlVO?.getShareByUrl()
     }
 
     fun onRevokeLinkBtnClick() {

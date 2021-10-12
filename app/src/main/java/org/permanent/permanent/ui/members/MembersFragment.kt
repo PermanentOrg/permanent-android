@@ -177,6 +177,7 @@ class MembersFragment : PermanentBaseFragment() {
     }
 
     private val onShowSnackbar = Observer<String> {
+        alertDialog?.dismiss()
         Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
     }
 

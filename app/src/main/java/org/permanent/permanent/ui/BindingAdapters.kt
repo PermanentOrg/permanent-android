@@ -23,12 +23,18 @@ fun setImageDrawable(view: ImageView, imageDrawableId: Int) {
 }
 
 @BindingAdapter("notificationTypeIcon")
-fun setIconDrawable(view: ImageView, notificationType: Notification.Type) {
+fun setNotificationIconDrawable(view: ImageView, notificationType: Notification.Type) {
     when (notificationType) {
         Notification.Type.SHARE -> view.setImageResource(R.drawable.ic_notification_folder_shared_tangerine)
         Notification.Type.RELATIONSHIP -> view.setImageResource(R.drawable.ic_notification_group_deep_red)
         else -> view.setImageResource(R.drawable.ic_notification_account_blue)
     }
+}
+
+@BindingAdapter("viewModeIcon")
+fun setViewModeIconDrawable(view: ImageView, isListViewMode: Boolean) {
+    if (isListViewMode) view.setImageResource(R.drawable.ic_grid_dark_blue)
+    else view.setImageResource(R.drawable.ic_list_dark_blue)
 }
 
 @BindingAdapter("record")
@@ -55,7 +61,6 @@ fun loadImage(view: ImageView, record: Record?) {
             else -> Picasso.get()
                 .load(record.thumbURL500)
                 .placeholder(R.drawable.ic_stop_light_grey)
-                .fit()
                 .into(view)
         }
     }

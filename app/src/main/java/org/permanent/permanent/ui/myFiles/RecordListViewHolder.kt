@@ -26,7 +26,7 @@ class RecordListViewHolder(
         binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }
         binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnDelete
             .setOnClickListener {
-                recordListener.onRecordDeleteFromSwipeClick(record)
+                recordListener.onRecordDeleteClick(record)
                 binding.layoutSwipeReveal.close(true)
             }
         binding.layoutSwipeReveal.setLockDrag(record.isProcessing)

@@ -13,8 +13,8 @@ import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 
-class ManageLinkViewModel (application: Application) : ObservableAndroidViewModel(application),
-    DatePickerDialog.OnDateSetListener  {
+class LinkSettingsViewModel(application: Application) : ObservableAndroidViewModel(application),
+    DatePickerDialog.OnDateSetListener {
 
     private val appContext = application.applicationContext
     private lateinit var record: Record

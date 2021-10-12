@@ -11,6 +11,7 @@ const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val IS_ARCHIVES_MIGRATION_NEEDED = "is_archives_migration_needed"
+const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val PREFS_SKIP_TWO_STEP_VERIFICATION = "preferences_skip_two_step_verification"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
@@ -233,5 +234,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isArchivesMigrationNeeded(): Boolean {
         return sharedPreferences.getBoolean(IS_ARCHIVES_MIGRATION_NEEDED, true)
+    }
+
+    fun saveIsListViewMode(isListViewMode: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_LIST_VIEW_MODE, isListViewMode)
+            apply()
+        }
+    }
+
+    fun isListViewMode(): Boolean {
+        return sharedPreferences.getBoolean(IS_LIST_VIEW_MODE, true)
     }
 }

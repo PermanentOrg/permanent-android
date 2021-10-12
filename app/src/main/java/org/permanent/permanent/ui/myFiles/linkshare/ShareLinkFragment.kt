@@ -81,9 +81,9 @@ class ShareLinkFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val onManageLinkRequest = Observer<ShareByUrl> {
+    private val onLinkSettingsRequest = Observer<ShareByUrl> {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, PARCELABLE_SHARE_KEY to it)
-        findNavController().navigate(R.id.action_shareLinkFragment_to_manageLinkFragment, bundle)
+        findNavController().navigate(R.id.action_shareLinkFragment_to_linkSettingsFragment, bundle)
     }
 
     private val onRevokeLinkRequest = Observer<Void> {
@@ -110,7 +110,7 @@ class ShareLinkFragment : PermanentBaseFragment() {
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowSnackBar().observe(this, onShowSnackBar)
-        viewModel.getOnManageLinkRequest().observe(this, onManageLinkRequest)
+        viewModel.getOnLinkSettingsRequest().observe(this, onLinkSettingsRequest)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
         viewModel.getOnShareDenied().observe(this, onShareDenied)
     }
@@ -118,7 +118,7 @@ class ShareLinkFragment : PermanentBaseFragment() {
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowSnackBar().removeObserver(onShowSnackBar)
-        viewModel.getOnManageLinkRequest().removeObserver(onManageLinkRequest)
+        viewModel.getOnLinkSettingsRequest().removeObserver(onLinkSettingsRequest)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
         viewModel.getOnShareDenied().removeObserver(onShareDenied)
     }
