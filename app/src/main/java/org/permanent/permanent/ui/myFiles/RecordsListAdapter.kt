@@ -48,6 +48,13 @@ class RecordsListAdapter(
 
     override fun getRecords(): List<Record> = records
 
+    override fun getItemById(recordId: Int): Record? {
+        for (record in records) {
+            if (record.id == recordId) return record
+        }
+        return null
+    }
+
     override fun addRecord(fakeFile: Record) {
         records.add(0, fakeFile)
         fakeFile.isRelocateMode = isRelocateMode

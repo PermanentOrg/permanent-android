@@ -279,17 +279,17 @@ class MyFilesFragment : PermanentBaseFragment() {
             if (isListViewMode) {
                 recordsAdapter = recordsListAdapter
                 layoutManager = LinearLayoutManager(context)
-                addItemDecoration(
-                    DividerItemDecoration(
-                        this.context,
-                        DividerItemDecoration.VERTICAL
-                    )
-                )
             } else {
                 recordsAdapter = recordsGridAdapter
                 layoutManager = GridLayoutManager(context, 2)
             }
             adapter = recordsAdapter
+            addItemDecoration(
+                DividerItemDecoration(
+                    this.context,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
             setHasFixedSize(true)
         }
     }
