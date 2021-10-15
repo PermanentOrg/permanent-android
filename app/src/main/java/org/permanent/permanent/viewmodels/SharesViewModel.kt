@@ -4,21 +4,21 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
 
 class SharesViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
-    private val onSharesByMeRetrieved = SingleLiveEvent<MutableList<DownloadableRecord>>()
-    private val onSharesWithMeRetrieved = SingleLiveEvent<MutableList<DownloadableRecord>>()
+    private val onSharesByMeRetrieved = SingleLiveEvent<MutableList<Record>>()
+    private val onSharesWithMeRetrieved = SingleLiveEvent<MutableList<Record>>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     fun requestShares() {
@@ -31,8 +31,8 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 if (!dataList.isNullOrEmpty()) {
-                    val sharesByMe: MutableList<DownloadableRecord> = ArrayList()
-                    val sharesWithMe: MutableList<DownloadableRecord> = ArrayList()
+                    val sharesByMe: MutableList<Record> = ArrayList()
+                    val sharesWithMe: MutableList<Record> = ArrayList()
                     val currentArchiveId = PreferencesHelper(appContext
                         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)).getCurrentArchiveId()
 
@@ -42,12 +42,12 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
 
                         items?.let {
                             for (item in it) {
-                                val shareItem: DownloadableRecord
+                                val shareItem: Record
                                 if (currentArchiveId == archive.archiveId) {
-                                    shareItem = DownloadableRecord(item, archive, false)
+                                    shareItem = Record(item, archive, false)
                                     sharesByMe.add(shareItem)
                                 } else {
-                                    shareItem = DownloadableRecord(item, archive, true)
+                                    shareItem = Record(item, archive, true)
                                     sharesWithMe.add(shareItem)
                                 }
                             }
@@ -73,11 +73,11 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
         return showMessage
     }
 
-    fun getOnSharesByMeRetrieved(): LiveData<MutableList<DownloadableRecord>> {
+    fun getOnSharesByMeRetrieved(): LiveData<MutableList<Record>> {
         return onSharesByMeRetrieved
     }
 
-    fun getOnSharesWithMeRetrieved(): LiveData<MutableList<DownloadableRecord>> {
+    fun getOnSharesWithMeRetrieved(): LiveData<MutableList<Record>> {
         return onSharesWithMeRetrieved
     }
 }

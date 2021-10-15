@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.ui.myFiles.download.DownloadableRecord
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 const val NUMBER_OF_FRAGMENTS = 2
@@ -20,7 +20,7 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
     var sharedWithMeFragment: SharedXMeFragment? = null
     private val onShareByMeFragmentReady = SingleLiveEvent<Void>()
     private val onShareWithMeFragmentReady = SingleLiveEvent<Void>()
-    private var sharesWithMe: MutableList<DownloadableRecord> = ArrayList()
+    private var sharesWithMe: MutableList<Record> = ArrayList()
 
     override fun getItemCount(): Int = NUMBER_OF_FRAGMENTS
 
@@ -48,11 +48,11 @@ class SharesViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
         }
     }
 
-    fun setSharesByMe(list: MutableList<DownloadableRecord>) {
+    fun setSharesByMe(list: MutableList<Record>) {
         sharedByMeFragment?.setShares(list)
     }
 
-    fun setSharesWithMe(list: MutableList<DownloadableRecord>) {
+    fun setSharesWithMe(list: MutableList<Record>) {
         sharesWithMe = list
         if (sharedWithMeFragment != null) {
             sharedWithMeFragment!!.setShares(sharesWithMe)

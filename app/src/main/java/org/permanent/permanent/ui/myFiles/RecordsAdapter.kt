@@ -11,4 +11,6 @@ abstract class RecordsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     abstract fun setRecords(records: List<Record>)
 
     abstract fun getRecords(): List<Record>
+
+    abstract fun getItemById(recordId: Int): Record?
 }
