@@ -144,7 +144,7 @@ class FileViewViewModel(application: Application
             showMessage.value = appContext.getString(R.string.generic_error)
     }
 
-    override fun onFailed(message: String) {
+    override fun onFailedUpload(message: String) {
         isBusy.value = false
         showMessage.value = message
     }

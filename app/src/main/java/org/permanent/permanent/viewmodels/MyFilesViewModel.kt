@@ -66,7 +66,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onFilesFilterQuery = MutableLiveData<Editable>()
     private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
-    private val onShowFileOptionsFragment = SingleLiveEvent<Record>()
+    private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
@@ -171,7 +171,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     override fun onRecordOptionsClick(record: Record) {
-        onShowFileOptionsFragment.value = record
+        onShowRecordOptionsFragment.value = record
     }
 
     override fun onRecordDeleteClick(record: Record) {
@@ -303,7 +303,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             showMessage.value = appContext.getString(R.string.generic_error)
     }
 
-    override fun onFailed(message: String) {
+    override fun onFailedUpload(message: String) {
         showMessage.value = message
     }
 
@@ -462,5 +462,5 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment
 
-    fun getOnShowFileOptionsFragment(): MutableLiveData<Record> = onShowFileOptionsFragment
+    fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 }

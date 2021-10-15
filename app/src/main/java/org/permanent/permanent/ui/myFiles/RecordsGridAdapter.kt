@@ -13,11 +13,11 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class RecordsGridAdapter(
-    private val recordListener: RecordListener,
     private val lifecycleOwner: LifecycleOwner,
     private val isRelocateMode: MutableLiveData<Boolean>,
     private val previewState: MutableLiveData<PreviewState>,
-    private val isForSharePreviewScreen: Boolean
+    private val isForSharePreviewScreen: Boolean,
+    private val recordListener: RecordListener
 ) : RecordsAdapter() {
     private var records: MutableList<Record> = ArrayList()
     private var filteredRecords: MutableList<Record> = ArrayList()
