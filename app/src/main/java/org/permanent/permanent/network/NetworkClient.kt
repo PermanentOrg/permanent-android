@@ -323,8 +323,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         recordToRelocate: Record,
         destFolderLinkId: Int,
         relocationType: RelocationType
-    )
-            : Call<ResponseVO> {
+    ): Call<ResponseVO> {
         val request = toJson(
             RequestContainer(csrf).addRecord(recordToRelocate).addFolderDest(destFolderLinkId)
         )
@@ -354,6 +353,16 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer(csrf).addRecord(locnVO, fileData))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return fileService.updateRecord(requestBody)
+    }
+
+    fun updateRecord(csrf: String?, record: Record, newName: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addRecord(record, newName))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return if (record.type == RecordType.FOLDER) {
+            fileService.updateFolder(requestBody)
+        } else {
+            fileService.updateRecord(requestBody)
+        }
     }
 
     fun requestShareLink(

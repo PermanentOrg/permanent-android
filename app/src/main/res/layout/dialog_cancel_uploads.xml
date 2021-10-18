@@ -45,7 +45,7 @@
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelAllNo"
+            android:id="@+id/btnNo"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

@@ -11,7 +11,6 @@ import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import java.io.File
-import java.io.OutputStream
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IRecordListener)
@@ -67,6 +66,8 @@ interface IFileRepository {
     fun updateRecord(fileData: FileData, listener: IResponseListener)
 
     fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener)
+
+    fun updateRecord(record: Record, newName: String, listener: IResponseListener)
 
     interface IOnRecordsRetrievedListener {
         fun onSuccess(recordVOs: List<RecordVO>?)

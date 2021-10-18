@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +25,7 @@ import kotlinx.android.synthetic.main.dialog_delete.view.*
 import kotlinx.android.synthetic.main.dialog_delete.view.tvTitle
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -35,6 +37,7 @@ import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
 import org.permanent.permanent.viewmodels.MyFilesViewModel
+import org.permanent.permanent.viewmodels.RenameRecordViewModel
 
 const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
 const val PARCELABLE_FILES_KEY = "parcelable_files_key"
@@ -48,6 +51,9 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
+    private lateinit var renameDialogViewModel: RenameRecordViewModel
+    private lateinit var renameDialogBinding: DialogRenameRecordBinding
+    private var alertDialog: androidx.appcompat.app.AlertDialog? = null
     private lateinit var prefsHelper: PreferencesHelper
     private var shouldRefreshCurrentFolder: Boolean = false
     private var addOptionsFragment: AddOptionsFragment? = null
@@ -61,6 +67,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     ): View {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
+        renameDialogViewModel = ViewModelProvider(this).get(RenameRecordViewModel::class.java)
 
         val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         if (record != null) {
@@ -162,6 +169,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
+        recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordShareRequest()?.observe(this, onRecordShareRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
@@ -193,6 +201,29 @@ class MyFilesFragment : PermanentBaseFragment() {
         alert.show()
     }
 
+    private val onRecordRenameRequest = Observer<Record> { record ->
+        renameDialogBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context),
+            R.layout.dialog_rename_record, null, false
+        )
+        renameDialogBinding.executePendingBindings()
+        renameDialogBinding.lifecycleOwner = this
+        renameDialogBinding.viewModel = renameDialogViewModel
+        renameDialogViewModel.setRecordName(record.displayName)
+
+        alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(renameDialogBinding.root)
+            .create()
+        renameDialogBinding.tvTitle.text = getString(R.string.rename_record_title, record.displayName)
+        renameDialogBinding.btnRename.setOnClickListener {
+            renameDialogViewModel.renameRecord(record)
+        }
+        renameDialogBinding.btnCancel.setOnClickListener {
+            alertDialog?.dismiss()
+        }
+        alertDialog?.show()
+    }
+
     private val onCancelAllUploads = Observer<Void> {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_cancel_uploads, null)
         val alert = AlertDialog.Builder(context)
@@ -202,7 +233,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             viewModel.cancelAllUploads()
             alert.dismiss()
         }
-        viewDialog.btnCancelAllNo.setOnClickListener {
+        viewDialog.btnNo.setOnClickListener {
             alert.dismiss()
         }
         alert.show()
@@ -248,6 +279,11 @@ class MyFilesFragment : PermanentBaseFragment() {
             adapter = recordsAdapter
             recordsAdapter.setRecords(records)
         }
+    }
+
+    private val onRecordRenamed = Observer<Void> {
+        viewModel.refreshCurrentFolder()
+        alertDialog?.dismiss()
     }
 
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {
@@ -309,6 +345,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
+        renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
+        renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
@@ -327,10 +365,13 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
+        renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
+        renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
+        recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordShareRequest()?.removeObserver(onRecordShareRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)

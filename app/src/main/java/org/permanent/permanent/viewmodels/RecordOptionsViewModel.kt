@@ -15,12 +15,12 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData<Boolean>()
     private val recordName = MutableLiveData<String>()
-    private val hiddenOptions =
-        MutableLiveData(mutableListOf(RecordOption.PUBLISH, RecordOption.EDIT))
+    private val hiddenOptions = MutableLiveData(mutableListOf(RecordOption.PUBLISH))
     private val onRequestWritePermission = SingleLiveEvent<Void>()
-    private val onFileDownloadRequest = MutableLiveData<Void>()
-    private val onRecordDeleteRequest = MutableLiveData<Void>()
-    private val onRecordShareRequest = MutableLiveData<Void>()
+    private val onFileDownloadRequest = SingleLiveEvent<Void>()
+    private val onRecordDeleteRequest = SingleLiveEvent<Void>()
+    private val onRecordRenameRequest = SingleLiveEvent<Void>()
+    private val onRecordShareRequest = SingleLiveEvent<Void>()
     private val onRelocateRequest = MutableLiveData<RelocationType>()
 
     fun setRecord(record: Record?, isShownInMyFilesFragment: Boolean?) {
@@ -60,7 +60,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     private fun startFileDownload() {
-        onFileDownloadRequest.value = onFileDownloadRequest.value
+        onFileDownloadRequest.call()
     }
 
     fun onCopyBtnClick() {
@@ -75,14 +75,15 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onDeleteBtnClick() {
-        onRecordDeleteRequest.value = onRecordDeleteRequest.value
+        onRecordDeleteRequest.call()
     }
 
-    fun onEditBtnClick() {
+    fun onRenameBtnClick() {
+        onRecordRenameRequest.call()
     }
 
     fun onShareBtnClick() {
-        onRecordShareRequest.value = onRecordShareRequest.value
+        onRecordShareRequest.call()
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
@@ -98,6 +99,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun getOnRelocateRequest(): MutableLiveData<RelocationType> = onRelocateRequest
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Void> = onRecordDeleteRequest
+
+    fun getOnRecordRenameRequest(): MutableLiveData<Void> = onRecordRenameRequest
 
     fun getOnRecordShareRequest(): MutableLiveData<Void> = onRecordShareRequest
 }

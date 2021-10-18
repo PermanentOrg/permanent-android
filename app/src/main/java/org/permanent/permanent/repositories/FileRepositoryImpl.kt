@@ -290,4 +290,24 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 }
             })
     }
+
+    override fun updateRecord(record: Record, newName: String, listener: IResponseListener) {
+        NetworkClient.instance().updateRecord(prefsHelper.getCsrf(), record, newName)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(context.getString(R.string.rename_record_rename_success))
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
 }
