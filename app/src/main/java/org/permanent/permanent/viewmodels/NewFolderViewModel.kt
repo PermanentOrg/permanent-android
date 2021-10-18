@@ -20,7 +20,7 @@ class NewFolderViewModel(application: Application) : ObservableAndroidViewModel(
     val errorStringId = MutableLiveData<Int>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun getCurrentFolderName(): MutableLiveData<String>? {
+    fun getCurrentFolderName(): MutableLiveData<String> {
         return currentFolderName
     }
 

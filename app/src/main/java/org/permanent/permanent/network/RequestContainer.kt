@@ -209,6 +209,23 @@ class RequestContainer(csrf: String?) {
         }
     }
 
+    fun addRecord(record: Record, newName: String): RequestContainer {
+        return if (record.type == RecordType.FOLDER) {
+            val folderVO = FolderVO()
+            folderVO.folderId = record.id
+            folderVO.folder_linkId = record.folderLinkId
+            folderVO.displayName = newName
+            RequestVO.data?.get(0)?.FolderVO = folderVO
+            this
+        } else {
+            val recordVO = RecordVO()
+            recordVO.recordId = record.id
+            recordVO.displayName = newName
+            RequestVO.data?.get(0)?.RecordVO = recordVO
+            this
+        }
+    }
+
     fun addFolderDest(folderLinkId: Int): RequestContainer {
         val folderDestVO = FolderDestVO()
         folderDestVO.folder_linkId = folderLinkId

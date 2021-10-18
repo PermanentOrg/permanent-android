@@ -106,14 +106,14 @@
                 app:layout_constraintTop_toBottomOf="@id/btnPublish" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEdit"
+                android:id="@+id/btnRename"
                 style="@style/customButtonBottomSheetStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onEditBtnClick()}"
-                android:text="@string/file_options_menu_item_edit"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.EDIT)? View.GONE : View.VISIBLE}"
+                android:onClick="@{() -> viewModel.onRenameBtnClick()}"
+                android:text="@string/file_options_menu_item_rename"
+                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.RENAME)? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btnDelete" />
@@ -129,7 +129,7 @@
                 android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE)? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnEdit" />
+                app:layout_constraintTop_toBottomOf="@id/btnRename" />
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressBar"

@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.NewFolderViewModel" />
+            type="org.permanent.permanent.viewmodels.RenameRecordViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,7 +17,7 @@
 
         <TextView
             android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
@@ -25,7 +25,7 @@
             android:gravity="center"
             android:paddingTop="15dp"
             android:paddingBottom="15dp"
-            android:text="@string/new_folder_title"
+            android:text="@string/rename_record_title"
             android:textColor="@color/colorPrimary"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -37,7 +37,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutFolderName"
+            android:id="@+id/layoutRecordName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -55,13 +55,13 @@
             app:setError="@{viewModel.nameError}">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etFolderName"
+                android:id="@+id/etRecordName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
-                android:hint="@string/new_folder_hint"
+                android:hint="@string/rename_record_name_hint"
                 android:inputType="text"
-                android:text="@{viewModel.getCurrentFolderName()}"
+                android:text="@{viewModel.getCurrentRecordName()}"
                 android:textColor="@color/black"
                 android:textCursorDrawable="@null" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -80,11 +80,11 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutFolderName"
+            app:layout_constraintTop_toBottomOf="@+id/layoutRecordName"
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCreate"
+            android:id="@+id/btnRename"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="0dp"
             android:layout_height="56dp"
@@ -92,11 +92,11 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/create_button"
+            android:text="@string/button_rename"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/layoutFolderName"
+            app:layout_constraintTop_toBottomOf="@+id/layoutRecordName"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.constraintlayout.widget.Guideline

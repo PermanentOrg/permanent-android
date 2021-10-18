@@ -119,8 +119,11 @@
     <string name="file_options_menu_item_move">Move</string>
     <string name="file_options_menu_item_publish">Publish</string>
     <string name="file_options_menu_item_delete">Delete</string>
-    <string name="file_options_menu_item_edit">Edit</string>
+    <string name="file_options_menu_item_rename">Rename</string>
     <string name="file_options_menu_item_share">Share</string>
+    <string name="rename_record_name_hint">Name</string>
+    <string name="rename_record_title">Rename \"%s\"</string>
+    <string name="rename_record_rename_success">Record renamed successfully</string>
 
     <string name="file_sort_menu_item_name_asc">Name (Ascending)</string>
     <string name="file_sort_menu_item_name_desc">Name (Descending)</string>
@@ -139,6 +142,7 @@
     <string name="switch_button">Switch</string>
     <string name="yes_button">Yes</string>
     <string name="button_transfer">Transfer</string>
+    <string name="button_rename">Rename</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
