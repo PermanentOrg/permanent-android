@@ -7,6 +7,6 @@ import org.permanent.permanent.models.Upload
 interface OnFinishedListener {
     fun onFinished(upload: Upload, succeeded: Boolean)
     fun onFinished(download: Download, state: WorkInfo.State)
-    fun onFailed(message: String)
+    fun onFailedUpload(message: String)
     fun onQuotaExceeded()
 }

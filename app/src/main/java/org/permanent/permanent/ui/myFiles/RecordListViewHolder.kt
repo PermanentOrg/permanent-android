@@ -12,7 +12,9 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 
 class RecordListViewHolder(
-    val binding: ItemListRecordBinding, private val recordListener: RecordListener
+    val binding: ItemListRecordBinding,
+    private val isForSharesScreen: Boolean,
+    private val recordListener: RecordListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(record: Record, lifecycleOwner: LifecycleOwner) {
@@ -29,7 +31,7 @@ class RecordListViewHolder(
                 recordListener.onRecordDeleteClick(record)
                 binding.layoutSwipeReveal.close(true)
             }
-        binding.layoutSwipeReveal.setLockDrag(record.isProcessing)
+        binding.layoutSwipeReveal.setLockDrag(record.isProcessing || isForSharesScreen)
         binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnMore
             .setOnClickListener {
                 recordListener.onRecordOptionsClick(record)
