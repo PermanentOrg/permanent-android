@@ -70,7 +70,7 @@ class UploadQueue(
             }
 
             override fun onFailed(error: String?) {
-                onFinishedListener.onFailed(error!!)
+                onFinishedListener.onFailedUpload(error!!)
             }
         })
     }

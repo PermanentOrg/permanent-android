@@ -264,14 +264,14 @@ class MyFilesFragment : PermanentBaseFragment() {
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
         recordsRecyclerView = rvFiles
         recordsListAdapter = RecordsListAdapter(
-            viewModel, this, viewModel.getIsRelocationMode()
+            this, viewModel.getIsRelocationMode(), false, viewModel
         )
         recordsGridAdapter = RecordsGridAdapter(
-            viewModel,
             this,
             viewModel.getIsRelocationMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
-            false
+            false,
+            viewModel
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)
@@ -304,7 +304,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnFilesFilterQuery().observe(this, onRecordsFilterQuery)
         viewModel.getOnNewTemporaryFile().observe(this, onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
-        viewModel.getOnShowFileOptionsFragment().observe(this, onShowRecordOptionsFragment)
+        viewModel.getOnShowRecordOptionsFragment().observe(this, onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
@@ -322,7 +322,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnFilesFilterQuery().removeObserver(onRecordsFilterQuery)
         viewModel.getOnNewTemporaryFile().removeObserver(onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
-        viewModel.getOnShowFileOptionsFragment().removeObserver(onShowRecordOptionsFragment)
+        viewModel.getOnShowRecordOptionsFragment().removeObserver(onShowRecordOptionsFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)

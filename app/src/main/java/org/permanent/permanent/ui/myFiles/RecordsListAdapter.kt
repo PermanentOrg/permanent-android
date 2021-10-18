@@ -13,9 +13,10 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class RecordsListAdapter(
-    private val recordListener: RecordListener,
     private val lifecycleOwner: LifecycleOwner,
-    private val isRelocateMode: MutableLiveData<Boolean>
+    private val isRelocateMode: MutableLiveData<Boolean>,
+    private val isForSharesScreen: Boolean,
+    private val recordListener: RecordListener
 ) : RecordsAdapter() {
     private var records: MutableList<Record> = ArrayList()
     private var filteredRecords: MutableList<Record> = ArrayList()
@@ -27,7 +28,7 @@ class RecordsListAdapter(
             parent,
             false
         )
-        return RecordListViewHolder(binding, recordListener)
+        return RecordListViewHolder(binding, isForSharesScreen, recordListener)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
