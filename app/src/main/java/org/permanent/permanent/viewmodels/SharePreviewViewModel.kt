@@ -4,12 +4,13 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.models.Folder
-import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.Share
-import org.permanent.permanent.models.Status
+import org.permanent.permanent.models.*
+import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -33,6 +34,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val currentArchiveThumb = MutableLiveData<String>()
     private val currentArchiveName = MutableLiveData<String>()
     private val isCurrentArchiveDefault = MutableLiveData(false)
+    private var showChangeArchiveButton = MutableLiveData(false)
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
     private val onChangeArchive = SingleLiveEvent<Void>()
     private val onViewInArchive = SingleLiveEvent<Int?>()
@@ -40,6 +42,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val isBusy = MutableLiveData<Boolean>()
     private val errorMessage = MutableLiveData<String>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun checkShareLink(urlToken: String) {
         this.urlToken = urlToken
@@ -68,6 +71,28 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                         onRecordsRetrieved.value = Folder(shareByUrlVO).records
                     }
                 }
+
+                isBusy.value = true
+                archiveRepository.getAllArchives(object : IDataListener {
+                    override fun onSuccess(dataList: List<Datum>?) {
+                        isBusy.value = false
+                        if (!dataList.isNullOrEmpty()) {
+                            var notPendingArchives = 0
+
+                            for (datum in dataList) {
+                                val archive = Archive(datum.ArchiveVO)
+                                if (archive.status != Status.PENDING) notPendingArchives++
+                            }
+
+                            showChangeArchiveButton.value = notPendingArchives > 1
+                        }
+                    }
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        errorMessage.value = error
+                    }
+                })
+
                 // Loading data in the footer
                 val shareVO = shareByUrlVO?.ShareVO
                 if (shareVO != null) {
@@ -154,6 +179,8 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
 
     fun getIsCurrentArchiveDefault(): MutableLiveData<Boolean> = isCurrentArchiveDefault
+
+    fun getShowChangeArchiveButton(): MutableLiveData<Boolean> = showChangeArchiveButton
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
 
