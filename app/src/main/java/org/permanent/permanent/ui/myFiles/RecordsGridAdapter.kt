@@ -17,6 +17,7 @@ class RecordsGridAdapter(
     private val isRelocateMode: MutableLiveData<Boolean>,
     private val previewState: MutableLiveData<PreviewState>,
     private val isForSharePreviewScreen: Boolean,
+    private val isForSharesScreen: Boolean,
     private val recordListener: RecordListener
 ) : RecordsAdapter() {
     private var records: MutableList<Record> = ArrayList()
@@ -28,7 +29,13 @@ class RecordsGridAdapter(
             parent,
             false
         )
-        return RecordGridViewHolder(parent.context, binding, isForSharePreviewScreen, recordListener)
+        return RecordGridViewHolder(
+            parent.context,
+            binding,
+            isForSharePreviewScreen,
+            isForSharesScreen,
+            recordListener
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

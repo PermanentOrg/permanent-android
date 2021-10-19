@@ -126,8 +126,9 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
             this,
             MutableLiveData(false),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
-            false,
-            this
+            isForSharePreviewScreen = false,
+            isForSharesScreen = true,
+            recordListener = this
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)

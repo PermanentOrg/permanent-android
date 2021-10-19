@@ -306,8 +306,9 @@ class MyFilesFragment : PermanentBaseFragment() {
             this,
             viewModel.getIsRelocationMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
-            false,
-            viewModel
+            isForSharePreviewScreen = false,
+            isForSharesScreen = false,
+            recordListener = viewModel
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)
