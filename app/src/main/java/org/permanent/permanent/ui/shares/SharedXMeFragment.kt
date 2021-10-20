@@ -42,6 +42,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private lateinit var prefsHelper: PreferencesHelper
     private val getRootRecords = SingleLiveEvent<Void>()
     private var recordOptionsFragment: RecordOptionsFragment? = null
+    private var sortOptionsFragment: SortOptionsFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -190,6 +191,17 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
     }
 
+    private val onShowSortOptionsFragment = Observer<SortType> {
+        sortOptionsFragment = SortOptionsFragment()
+        sortOptionsFragment?.setBundleArguments(it)
+        sortOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
+        sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
+    }
+
+    private val onSortRequest = Observer<SortType> {
+        viewModel.setSortType(it)
+    }
+
     override fun onRecordDeleteClick(record: Record) {}
 
     override fun connectViewModelEvents() {
@@ -200,6 +212,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnRootSharesNeeded().observe(this, onRootSharesNeeded)
         viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
+        viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
     }
 
     override fun disconnectViewModelEvents() {
@@ -210,7 +223,9 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnRootSharesNeeded().removeObserver(onRootSharesNeeded)
         viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
+        viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
+        sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }
 
     override fun onResume() {

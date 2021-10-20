@@ -106,23 +106,50 @@
             app:layout_constraintTop_toBottomOf="@+id/tvDownloadsTitle"
             app:layout_constraintVertical_bias="0.0" />
 
-        <TextView
-            android:id="@+id/tvSharesTitle"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clSorting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/main_navigation_title_shares"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:visibility="@{viewModel.existsDownloads &amp;&amp; viewModel.existsShares ? View.VISIBLE : View.GONE}"
+            android:onClick="@{() -> viewModel.onSortOptionsClick()}"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
+            android:visibility="@{viewModel.existsShares &amp;&amp; viewModel.isRoot == false ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rvDownloads"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0">
+
+            <TextView
+                android:id="@+id/tvSortCriteria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.sortName}"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/ivSortArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="4dp"
+                android:src="@{viewModel.isSortedAsc ? @drawable/ic_arrow_down_middle_grey : @drawable/ic_arrow_up_middle_grey}"
+                app:layout_constraintBottom_toBottomOf="@+id/tvSortCriteria"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/tvSortCriteria"
+                app:layout_constraintTop_toTopOf="@+id/tvSortCriteria"
+                app:layout_constraintVertical_bias="1.0" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvShares"
@@ -133,7 +160,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvSharesTitle"
+            app:layout_constraintTop_toBottomOf="@+id/clSorting"
             app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
