@@ -111,8 +111,9 @@ class SharePreviewFragment : PermanentBaseFragment() {
             this,
             MutableLiveData(false),
             viewModel.getCurrentState(),
-            true,
-            viewModel
+            isForSharePreviewScreen = true,
+            isForSharesScreen = false,
+            recordListener = viewModel
         )
         recordsRecyclerView.apply {
             setHasFixedSize(true)

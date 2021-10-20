@@ -19,6 +19,7 @@ class RecordGridViewHolder(
     private val context: Context,
     private val binding: ItemGridRecordBinding,
     private val isForSharePreviewScreen: Boolean,
+    private val isForSharesScreen: Boolean,
     private val recordListener: RecordListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -33,9 +34,9 @@ class RecordGridViewHolder(
         binding.root.setOnClickListener { recordListener.onRecordClick(record) }
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.btnOptions.visibility =
-            if (ArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER &&
-                record.type == RecordType.FOLDER || isForSharePreviewScreen
-            ) View.GONE else View.VISIBLE
+            if ((ArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
+                        isForSharesScreen) && record.type == RecordType.FOLDER ||
+                isForSharePreviewScreen) View.GONE else View.VISIBLE
 
         if (record.isThumbBlurred != null
             && record.isThumbBlurred!!

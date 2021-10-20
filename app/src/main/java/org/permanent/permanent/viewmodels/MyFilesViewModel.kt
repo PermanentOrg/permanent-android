@@ -14,7 +14,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.ArchivePermissionsManager
 import org.permanent.permanent.Constants
@@ -182,18 +181,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         onShowSortOptionsFragment.value = currentSortType.value
     }
 
-    fun onFolderOptionsClick() {
-//        val fragment = FolderOptionsFragment()
-//        val bundle = Bundle()
-//        bundle.putString(Constants.FOLDER_NAME, Constants.MY_FILES_FOLDER)
-//        fragment.arguments = bundle
-//        showBottomSheetFragment(fragment)
-    }
-
-    private fun showBottomSheetFragment(fragment: BottomSheetDialogFragment) {
-        fragment.show(fragmentManager, fragment.tag)
-    }
-
     fun onViewModeBtnClick() {
         isListViewMode.value = !isListViewMode.value!!
         onChangeViewMode.value = isListViewMode.value
@@ -226,10 +213,9 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onBackBtnClick() {
         currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
-        // This is the record of the current folder but we need his parent
+        // Popping the record of the current folder
         folderPathStack.pop()
-        val previousFolder = folderPathStack.pop()
-        folderPathStack.push(previousFolder)
+        val previousFolder = folderPathStack.peek()
         loadFilesAndUploadsOf(previousFolder)
     }
 

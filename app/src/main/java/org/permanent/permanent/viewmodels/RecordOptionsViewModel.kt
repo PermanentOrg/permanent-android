@@ -37,11 +37,14 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
                 hiddenOptions.value?.add(RecordOption.MOVE)
             if (!ArchivePermissionsManager.instance.isShareAvailable())
                 hiddenOptions.value?.add(RecordOption.SHARE)
+            if (!ArchivePermissionsManager.instance.isEditAvailable())
+                hiddenOptions.value?.add(RecordOption.RENAME)
         } else {
             hiddenOptions.value?.add(RecordOption.DELETE)
             hiddenOptions.value?.add(RecordOption.MOVE)
             hiddenOptions.value?.add(RecordOption.SHARE)
             hiddenOptions.value?.add(RecordOption.COPY)
+            hiddenOptions.value?.add(RecordOption.RENAME)
         }
     }
 
