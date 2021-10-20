@@ -125,12 +125,12 @@
     <string name="rename_record_title">Rename \"%s\"</string>
     <string name="rename_record_rename_success">Record renamed successfully</string>
 
-    <string name="file_sort_menu_item_name_asc">Name (Ascending)</string>
-    <string name="file_sort_menu_item_name_desc">Name (Descending)</string>
-    <string name="file_sort_menu_item_date_asc">Date (Ascending)</string>
-    <string name="file_sort_menu_item_date_desc">Date (Descending)</string>
-    <string name="file_sort_menu_item_type_asc">File Type (Ascending)</string>
-    <string name="file_sort_menu_item_type_desc">File Type (Descending)</string>
+    <string name="file_sort_menu_item_name_asc">Name (A-Z)</string>
+    <string name="file_sort_menu_item_name_desc">Name (Z-A)</string>
+    <string name="file_sort_menu_item_date_asc">Date (Oldest)</string>
+    <string name="file_sort_menu_item_date_desc">Date (Newest)</string>
+    <string name="file_sort_menu_item_type_asc">File Type ↑</string>
+    <string name="file_sort_menu_item_type_desc">File Type ↓</string>
 
     <string name="login_bad_credentials">Incorrect username or password</string>
     <string name="server_error">Server Error</string>
