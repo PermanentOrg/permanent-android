@@ -1,8 +1,10 @@
 package org.permanent.permanent.models
 
+import android.os.Parcel
+import android.os.Parcelable
 import org.permanent.permanent.network.models.AccountVO
 
-class Account(var id: Int? = null, var primaryEmail: String? = null) {
+class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelable {
     var defaultArchiveId: Int? = null
     var fullName: String? = null
     var phone: String? = null
@@ -15,6 +17,24 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
     var status: Status? = null
     var spaceTotal: Long? = null
     var spaceLeft: Long? = null
+
+    constructor(parcel: Parcel) : this(
+        parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readString()
+    ) {
+        defaultArchiveId = parcel.readValue(Int::class.java.classLoader) as? Int
+        fullName = parcel.readString()
+        phone = parcel.readString()
+        address = parcel.readString()
+        country = parcel.readString()
+        city = parcel.readString()
+        state = parcel.readString()
+        zipCode = parcel.readString()
+        accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
+        status = parcel.readParcelable(Status::class.java.classLoader)
+        spaceTotal = parcel.readValue(Long::class.java.classLoader) as? Long
+        spaceLeft = parcel.readValue(Long::class.java.classLoader) as? Long
+    }
 
     constructor(accountVO: AccountVO?) : this() {
         id = accountVO?.accountId
@@ -41,5 +61,36 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) {
         }
         spaceTotal = accountVO?.spaceTotal
         spaceLeft = accountVO?.spaceLeft
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeValue(id)
+        parcel.writeString(primaryEmail)
+        parcel.writeValue(defaultArchiveId)
+        parcel.writeString(fullName)
+        parcel.writeString(phone)
+        parcel.writeString(address)
+        parcel.writeString(country)
+        parcel.writeString(city)
+        parcel.writeString(state)
+        parcel.writeString(zipCode)
+        parcel.writeParcelable(accessRole, flags)
+        parcel.writeParcelable(status, flags)
+        parcel.writeValue(spaceTotal)
+        parcel.writeValue(spaceLeft)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Account> {
+        override fun createFromParcel(parcel: Parcel): Account {
+            return Account(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Account?> {
+            return arrayOfNulls(size)
+        }
     }
 }

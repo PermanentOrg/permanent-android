@@ -62,6 +62,7 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var editorsAdapter: MembersAdapter
     private lateinit var contributorsAdapter: MembersAdapter
     private lateinit var viewersAdapter: MembersAdapter
+    private var memberOptionsFragment: MemberOptionsFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -159,7 +160,7 @@ class MembersFragment : PermanentBaseFragment() {
         viewersAdapter.set(it)
     }
 
-    private val onShowSuccessSnackbar = Observer<String> { message ->
+    private val showSuccessSnackbarObserver = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -212,6 +213,15 @@ class MembersFragment : PermanentBaseFragment() {
         }
     }
 
+    private val onShowMemberOptionsFragment = Observer<Account> { member ->
+        memberOptionsFragment = MemberOptionsFragment()
+        memberOptionsFragment?.setBundleArguments(member)
+        memberOptionsFragment?.show(parentFragmentManager, memberOptionsFragment?.tag)
+        memberOptionsFragment?.getShowEditMemberDialogRequest()
+            ?.observe(this, onShowEditMemberDialog)
+        memberOptionsFragment?.getOnMemberRemoved()?.observe(this, onMemberRemoved)
+    }
+
     private val onShowEditMemberDialog = Observer<Account> {
         editDialogViewModel.setMember(it)
         editDialogBinding = DataBindingUtil.inflate(
@@ -250,6 +260,11 @@ class MembersFragment : PermanentBaseFragment() {
         alertDialog?.dismiss()
     }
 
+    private val onMemberRemoved = Observer<String> { message ->
+        showSuccessSnackbarObserver.onChanged(message)
+        viewModel.refreshMembers()
+    }
+
     private val onOwnershipTransferRequest = Observer<Boolean> { isFromAddMemberDialog ->
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
         val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
@@ -277,17 +292,16 @@ class MembersFragment : PermanentBaseFragment() {
         viewModel.getShowSnackbar().observe(this, onShowSnackbar)
         viewModel.getShowSnackbarLong().observe(this, onShowSnackbarLong)
         viewModel.getShowAddMemberDialogRequest().observe(this, onShowAddMemberDialog)
-        viewModel.getShowEditMemberDialogRequest().observe(this, onShowEditMemberDialog)
+        viewModel.getShowMemberOptionsFragmentRequest().observe(this, onShowMemberOptionsFragment)
         addDialogViewModel.getOnOwnershipTransferRequest()
             .observe(this, onOwnershipTransferRequest)
         addDialogViewModel.getOnMemberAddedConclusion().observe(this, onMembersUpdated)
-        addDialogViewModel.getShowSuccessSnackbar().observe(this, onShowSuccessSnackbar)
+        addDialogViewModel.getShowSuccessSnackbar().observe(this, showSuccessSnackbarObserver)
         addDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
         editDialogViewModel.getOnMemberEdited().observe(this, onMembersUpdated)
         editDialogViewModel.getOnOwnershipTransferRequest()
             .observe(this, onOwnershipTransferRequest)
-        editDialogViewModel.getOnMemberDeleted().observe(this, onMembersUpdated)
-        editDialogViewModel.getShowSuccessSnackbar().observe(this, onShowSuccessSnackbar)
+        editDialogViewModel.getShowSuccessSnackbar().observe(this, showSuccessSnackbarObserver)
         editDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
     }
 
@@ -300,18 +314,20 @@ class MembersFragment : PermanentBaseFragment() {
         viewModel.getShowSnackbar().removeObserver(onShowSnackbar)
         viewModel.getShowSnackbarLong().removeObserver(onShowSnackbarLong)
         viewModel.getShowAddMemberDialogRequest().removeObserver(onShowAddMemberDialog)
-        viewModel.getShowEditMemberDialogRequest().removeObserver(onShowEditMemberDialog)
+        viewModel.getShowMemberOptionsFragmentRequest().removeObserver(onShowMemberOptionsFragment)
         addDialogViewModel.getOnOwnershipTransferRequest()
             .removeObserver(onOwnershipTransferRequest)
         addDialogViewModel.getOnMemberAddedConclusion().removeObserver(onMembersUpdated)
-        addDialogViewModel.getShowSuccessSnackbar().removeObserver(onShowSuccessSnackbar)
+        addDialogViewModel.getShowSuccessSnackbar().removeObserver(showSuccessSnackbarObserver)
         addDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
         editDialogViewModel.getOnMemberEdited().removeObserver(onMembersUpdated)
         editDialogViewModel.getOnOwnershipTransferRequest()
             .removeObserver(onOwnershipTransferRequest)
-        editDialogViewModel.getOnMemberDeleted().removeObserver(onMembersUpdated)
-        editDialogViewModel.getShowSuccessSnackbar().removeObserver(onShowSuccessSnackbar)
+        editDialogViewModel.getShowSuccessSnackbar().removeObserver(showSuccessSnackbarObserver)
         editDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
+        memberOptionsFragment?.getShowEditMemberDialogRequest()
+            ?.removeObserver(onShowEditMemberDialog)
+        memberOptionsFragment?.getOnMemberRemoved()?.removeObserver(onMemberRemoved)
     }
 
     override fun onResume() {

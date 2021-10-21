@@ -16,7 +16,6 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
     private val isBusy = MutableLiveData<Boolean>()
     private val onMemberEdited = SingleLiveEvent<Void>()
     private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
-    private val onMemberDeleted = SingleLiveEvent<Void>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
@@ -90,29 +89,6 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
         }
     }
 
-    fun deleteMember() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-
-        if (member?.id != null && member?.primaryEmail != null && member?.accessRole != null) {
-            isBusy.value = true
-            archiveRepository.deleteMember(member!!.id!!, member!!.primaryEmail!!,
-                object : IResponseListener {
-                    override fun onSuccess(message: String?) {
-                        isBusy.value = false
-                        onMemberDeleted.call()
-                        showSnackbarSuccess.value = message
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        showSnackbar.value = error
-                    }
-                })
-        }
-    }
-
     fun getFullName(): MutableLiveData<String> = fullName
 
     fun getEmail(): MutableLiveData<String> = email
@@ -122,8 +98,6 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
     fun getOnMemberEdited(): LiveData<Void> = onMemberEdited
 
     fun getOnOwnershipTransferRequest(): LiveData<Boolean> = onOwnershipTransferRequest
-
-    fun getOnMemberDeleted(): LiveData<Void> = onMemberDeleted
 
     fun getShowSuccessSnackbar(): LiveData<String> = showSnackbarSuccess
 
