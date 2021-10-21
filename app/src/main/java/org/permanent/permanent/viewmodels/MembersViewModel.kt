@@ -37,8 +37,8 @@ class MembersViewModel(application: Application
         ArchivePermissionsManager.instance.isArchiveShareAvailable()
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarLong = MutableLiveData<Int>()
-    private val onShowAddMemberDialogRequest = MutableLiveData<Void>()
-    private val onShowEditMemberDialogRequest = MutableLiveData<Account>()
+    private val showAddMemberDialogRequest = SingleLiveEvent<Void>()
+    private val showMemberOptionsFragmentRequest = MutableLiveData<Account>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(appContext)
 
     init {
@@ -110,15 +110,15 @@ class MembersViewModel(application: Application
     }
 
     fun onAddMembersClick() {
-        onShowAddMemberDialogRequest.value = onShowAddMemberDialogRequest.value
+        showAddMemberDialogRequest.call()
     }
 
-    fun onPendingOwnerEditBtnClick() {
-        onShowEditMemberDialogRequest.value = pendingOwner.value
+    fun onPendingOwnerOptionsBtnClick() {
+        showMemberOptionsFragmentRequest.value = pendingOwner.value
     }
 
-    override fun onMemberEdit(member: Account) {
-        onShowEditMemberDialogRequest.value = member
+    override fun onMemberOptionsClick(member: Account) {
+        showMemberOptionsFragmentRequest.value = member
     }
 
     fun getOnManagersRetrieved(): LiveData<List<Account>> = onManagersRetrieved
@@ -157,9 +157,9 @@ class MembersViewModel(application: Application
 
     fun getShowSnackbar(): LiveData<String> = showSnackbar
 
-    fun getShowAddMemberDialogRequest(): LiveData<Void> = onShowAddMemberDialogRequest
+    fun getShowAddMemberDialogRequest(): LiveData<Void> = showAddMemberDialogRequest
 
-    fun getShowEditMemberDialogRequest(): LiveData<Account> = onShowEditMemberDialogRequest
+    fun getShowMemberOptionsFragmentRequest(): LiveData<Account> = showMemberOptionsFragmentRequest
 
     fun getShowSnackbarLong(): LiveData<Int> = showSnackbarLong
 }

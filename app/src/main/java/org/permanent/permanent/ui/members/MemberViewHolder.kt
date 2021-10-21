@@ -14,9 +14,9 @@ class MemberViewHolder(
     fun bind(member: Account) {
         binding.member = member
         binding.executePendingBindings()
-        binding.btnEdit.visibility =
+        binding.btnOptions.visibility =
             if (ArchivePermissionsManager.instance.isArchiveShareAvailable())
                 View.VISIBLE else View.INVISIBLE
-        binding.btnEdit.setOnClickListener { memberListener.onMemberEdit(member) }
+        binding.btnOptions.setOnClickListener { memberListener.onMemberOptionsClick(member) }
     }
 }
