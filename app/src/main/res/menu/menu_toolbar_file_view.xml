@@ -11,8 +11,8 @@
         tools:ignore="AlwaysShowAction" />
 
     <item
-        android:id="@+id/shareItem"
-        android:icon="@drawable/ic_share_white"
-        android:title="@string/file_options_menu_item_share"
+        android:id="@+id/moreItem"
+        android:icon="@drawable/ic_more_white"
+        android:title="@string/menu_toolbar_more"
         app:showAsAction="always" />
 </menu>

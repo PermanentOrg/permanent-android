@@ -1,14 +1,11 @@
 package org.permanent.permanent.ui.fileView
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
@@ -29,13 +26,15 @@ import java.io.InputStream
 import java.net.URL
 
 const val PARCELABLE_FILE_DATA_KEY = "parcelable_file_data_key"
+
 class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnClickListener {
 
     private var supportActionBar: ActionBar? = null
     private lateinit var viewModel: FileViewViewModel
     private lateinit var binding: FragmentFileViewBinding
+    private var record: Record? = null
     private var fileData: FileData? = null
-    private var downloadingAlert: AlertDialog? = null
+    private var fileViewOptionsFragment: FileViewOptionsFragment? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -47,7 +46,8 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         binding = FragmentFileViewBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        arguments?.getParcelable<Record>(PARCELABLE_RECORD_KEY)?.let {
+        record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
+        record?.let {
             viewModel.setRecord(it)
         }
         binding.executePendingBindings()
@@ -77,25 +77,24 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
-    private val onFileDownloaded = Observer<Void> { _ ->
-        downloadingAlert?.cancel()
-        viewModel.getUriForSharing()?.let { shareFile(it) }
-    }
-
     private val onFileData = Observer<FileData> {
         fileData = it
         (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
 
         if (it != null && it.contentType?.contains(FileType.PDF.toString()) == true) {
-            val file = File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS), it.fileName)
+            val file = File(
+                Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS
+                ), it.fileName
+            )
 
             if (file.exists()) {
                 binding.pdfView.fromFile(file)
                     .enableSwipe(false)
                     .onError { error ->
                         error.message?.let { errorMsg ->
-                            Log.e(FileViewFragment::class.java.simpleName, errorMsg) }
+                            Log.e(FileViewFragment::class.java.simpleName, errorMsg)
+                        }
                     }
                     .enableAnnotationRendering(false)
                     .password(null)
@@ -110,7 +109,8 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
                                 .enableSwipe(false)
                                 .onError { error ->
                                     error.message?.let { errorMsg ->
-                                        Log.e(FileViewFragment::class.java.simpleName, errorMsg) }
+                                        Log.e(FileViewFragment::class.java.simpleName, errorMsg)
+                                    }
                                 }
                                 .enableAnnotationRendering(false)
                                 .password(null)
@@ -134,46 +134,28 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
                     .navigate(R.id.action_filesContainerFragment_to_fileMetadataFragment, bundle)
                 super.onOptionsItemSelected(item)
             }
-            R.id.shareItem -> {
-                val uriForSharing = viewModel.getUriForSharing()
-                if (uriForSharing != null) {
-                    shareFile(uriForSharing)
-                } else {
-                    downloadingAlert = context?.let {
-                        AlertDialog.Builder(it)
-                            .setTitle(getString(R.string.downloading_file_in_progress))
-                            .setNegativeButton(getString(R.string.cancel_button)
-                            ) { _, _ -> viewModel.cancelDownload() }
-                            .create()
-                    }
-                    downloadingAlert?.show()
-
-                    viewModel.downloadFile(this)
-                }
+            R.id.moreItem -> {
+                showFileViewOptionsFragment()
                 super.onOptionsItemSelected(item)
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun shareFile(sharingUri: Uri) {
-        val intent = Intent(Intent.ACTION_SEND)
-        intent.putExtra(Intent.EXTRA_STREAM, sharingUri)
-        intent.type = fileData?.contentType
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(Intent.createChooser(intent, "Share file"))
+    private fun showFileViewOptionsFragment() {
+        fileViewOptionsFragment = FileViewOptionsFragment()
+        fileViewOptionsFragment?.setBundleArguments(record, fileData)
+        fileViewOptionsFragment?.show(parentFragmentManager, fileViewOptionsFragment?.tag)
     }
 
     override fun connectViewModelEvents() {
         viewModel.getFileData().observe(this, onFileData)
         viewModel.getShowMessage().observe(this, onShowMessage)
-        viewModel.getOnFileDownloaded().observe(this, onFileDownloaded)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getFileData().removeObserver(onFileData)
         viewModel.getShowMessage().removeObserver(onShowMessage)
-        viewModel.getOnFileDownloaded().removeObserver(onFileDownloaded)
     }
 
     override fun onStart() {
