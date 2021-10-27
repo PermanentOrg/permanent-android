@@ -93,7 +93,7 @@ class FileViewOptionsFragment : PermanentBottomSheetFragment() {
         intent.putExtra(Intent.EXTRA_STREAM, sharingUri)
         intent.type = fileData?.contentType
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(Intent.createChooser(intent, "Share file"))
+        startActivity(Intent.createChooser(intent, ""))
     }
 
     override fun connectViewModelEvents() {
