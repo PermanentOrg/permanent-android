@@ -21,7 +21,6 @@ open class Record : Parcelable {
     var type: RecordType? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
-    var status: String? = null
     var viewFirst = false
     var isProcessing = false
 
@@ -40,7 +39,6 @@ open class Record : Parcelable {
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
-        status = parcel.readString()
         viewFirst = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         isProcessing = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
@@ -59,7 +57,6 @@ open class Record : Parcelable {
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
-        status = recordInfo.status
         viewFirst = false
         isProcessing = recordInfo.thumbURL500.isNullOrEmpty()
     }
@@ -77,7 +74,6 @@ open class Record : Parcelable {
         isThumbBlurred = false
         type = RecordType.FOLDER
         initShares(recordInfo.ShareVOs)
-        status = recordInfo.status
         viewFirst = false
         isProcessing = recordInfo.thumbURL500.isNullOrEmpty()
     }
@@ -96,7 +92,6 @@ open class Record : Parcelable {
         thumbURL500 = item.thumbURL500
         isThumbBlurred = false
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
-        status = item.status
         viewFirst = false
         isProcessing = item.thumbURL500.isNullOrEmpty()
     }
@@ -125,7 +120,6 @@ open class Record : Parcelable {
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
         type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo?.ShareVOs)
-        status = recordInfo?.status
         viewFirst = false
         isProcessing = recordInfo?.thumbURL500.isNullOrEmpty()
     }
@@ -160,7 +154,6 @@ open class Record : Parcelable {
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
         parcel.writeTypedList(shares)
-        parcel.writeString(status)
         parcel.writeValue(viewFirst)
         parcel.writeValue(isProcessing)
     }

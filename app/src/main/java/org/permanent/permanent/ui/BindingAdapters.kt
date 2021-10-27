@@ -39,7 +39,7 @@ fun setViewModeIconDrawable(view: ImageView, isListViewMode: Boolean) {
 
 @BindingAdapter("record")
 fun loadImage(view: ImageView, record: Record?) {
-    if (record?.status == null || record.isProcessing) {
+    if (record?.isProcessing != null && record.isProcessing) {
         view.setImageResource(R.drawable.ic_processing)
         val rotate = RotateAnimation(
             0f,
@@ -56,10 +56,10 @@ fun loadImage(view: ImageView, record: Record?) {
         rotate.interpolator = LinearInterpolator()
         view.startAnimation(rotate)
     } else {
-        when (record.type) {
+        when (record?.type) {
             RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
             else -> Picasso.get()
-                .load(record.thumbURL500)
+                .load(record?.thumbURL500)
                 .placeholder(R.drawable.ic_stop_light_grey)
                 .into(view)
         }
