@@ -16,6 +16,13 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_filesContainerFragment_to_shareLinkFragment"
+            app:destination="@id/shareLinkFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -36,6 +43,13 @@
             app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/shareLinkFragment"
+        android:name="org.permanent.permanent.ui.myFiles.linkshare.ShareLinkFragment"
+        android:label="@string/main_navigation_title_share_link"
+        tools:layout="@layout/fragment_share_link">
     </fragment>
 
     <fragment
