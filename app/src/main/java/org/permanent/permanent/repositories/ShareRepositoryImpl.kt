@@ -87,8 +87,8 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
             })
     }
 
-    override fun denyShare(share: Share, listener: IResponseListener) {
-        NetworkClient.instance().denyShare(prefsHelper.getCsrf(), share)
+    override fun deleteShare(share: Share, listener: IResponseListener) {
+        NetworkClient.instance().deleteShare(prefsHelper.getCsrf(), share)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()

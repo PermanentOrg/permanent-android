@@ -180,18 +180,18 @@
                 android:textColor="@color/middleGrey"
                 android:textSize="16sp"
                 android:textStyle="normal"
-                android:visibility="@{viewModel.existsArchives ? View.GONE : View.VISIBLE}"
+                android:visibility="@{viewModel.existsShares ? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvSharingWith" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvArchives"
+                android:id="@+id/rvShares"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:visibility="@{viewModel.existsArchives ? View.VISIBLE : View.GONE}"
+                android:visibility="@{viewModel.existsShares ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

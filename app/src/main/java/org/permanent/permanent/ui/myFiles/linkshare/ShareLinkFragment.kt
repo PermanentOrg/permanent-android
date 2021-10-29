@@ -24,6 +24,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.members.ItemOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.ShareLinkViewModel
 
@@ -36,6 +37,7 @@ class ShareLinkFragment : PermanentBaseFragment() {
     private lateinit var sharesRecyclerView: RecyclerView
     private lateinit var sharesAdapter: SharesAdapter
     private var record: Record? = null
+    private var itemOptionsFragment: ItemOptionsFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,13 +52,13 @@ class ShareLinkFragment : PermanentBaseFragment() {
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         record?.let {
             viewModel.setRecord(it)
-            initArchivesRecyclerView(binding.rvArchives, it)
+            initSharesRecyclerView(binding.rvShares, it)
         }
         return binding.root
     }
 
-    private fun initArchivesRecyclerView(rvArchives: RecyclerView, record: Record) {
-        sharesRecyclerView = rvArchives
+    private fun initSharesRecyclerView(rvShares: RecyclerView, record: Record) {
+        sharesRecyclerView = rvShares
         sharesAdapter = SharesAdapter(this, record.shares, viewModel)
         sharesRecyclerView.apply {
             setHasFixedSize(true)
@@ -66,11 +68,11 @@ class ShareLinkFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onShowMessage = Observer<String> { message ->
+    private val showMessage = Observer<String> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    private val onShowSnackBar = Observer<String> { message ->
+    private val showSnackBar = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
@@ -84,6 +86,13 @@ class ShareLinkFragment : PermanentBaseFragment() {
     private val onLinkSettingsRequest = Observer<ShareByUrl> {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, PARCELABLE_SHARE_KEY to it)
         findNavController().navigate(R.id.action_shareLinkFragment_to_linkSettingsFragment, bundle)
+    }
+
+    private val onShowShareOptionsObserver = Observer<Share> { share ->
+        itemOptionsFragment = ItemOptionsFragment()
+        itemOptionsFragment?.setBundleArguments(share)
+        itemOptionsFragment?.show(parentFragmentManager, itemOptionsFragment?.tag)
+        itemOptionsFragment?.getOnShareRemoved()?.observe(this, onShareRemoved)
     }
 
     private val onRevokeLinkRequest = Observer<Void> {
@@ -103,24 +112,33 @@ class ShareLinkFragment : PermanentBaseFragment() {
         alert.show()
     }
 
-    private val onShareDenied = Observer<Share> {
+    private val onShareRemoved = Observer<Share> {
         sharesAdapter.remove(it)
+        record?.shares?.remove(it)
+        viewModel.getExistsShares().value = !record?.shares.isNullOrEmpty()
+    }
+
+    private val onShowEditShareDialog = Observer<Share> {
+
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getShowMessage().observe(this, onShowMessage)
-        viewModel.getShowSnackBar().observe(this, onShowSnackBar)
+        viewModel.getShowMessage().observe(this, showMessage)
+        viewModel.getShowSnackBar().observe(this, showSnackBar)
         viewModel.getOnLinkSettingsRequest().observe(this, onLinkSettingsRequest)
+        viewModel.getOnShowShareOptionsRequest().observe(this, onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
-        viewModel.getOnShareDenied().observe(this, onShareDenied)
+        viewModel.getOnShareDenied().observe(this, onShareRemoved)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getShowMessage().removeObserver(onShowMessage)
-        viewModel.getShowSnackBar().removeObserver(onShowSnackBar)
+        viewModel.getShowMessage().removeObserver(showMessage)
+        viewModel.getShowSnackBar().removeObserver(showSnackBar)
         viewModel.getOnLinkSettingsRequest().removeObserver(onLinkSettingsRequest)
+        viewModel.getOnShowShareOptionsRequest().removeObserver(onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
-        viewModel.getOnShareDenied().removeObserver(onShareDenied)
+        viewModel.getOnShareDenied().removeObserver(onShareRemoved)
+        itemOptionsFragment?.getOnShareRemoved()?.removeObserver(onShareRemoved)
     }
 
     override fun onResume() {

@@ -62,7 +62,7 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var editorsAdapter: MembersAdapter
     private lateinit var contributorsAdapter: MembersAdapter
     private lateinit var viewersAdapter: MembersAdapter
-    private var memberOptionsFragment: MemberOptionsFragment? = null
+    private var itemOptionsFragment: ItemOptionsFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -214,12 +214,12 @@ class MembersFragment : PermanentBaseFragment() {
     }
 
     private val onShowMemberOptionsFragment = Observer<Account> { member ->
-        memberOptionsFragment = MemberOptionsFragment()
-        memberOptionsFragment?.setBundleArguments(member)
-        memberOptionsFragment?.show(parentFragmentManager, memberOptionsFragment?.tag)
-        memberOptionsFragment?.getShowEditMemberDialogRequest()
+        itemOptionsFragment = ItemOptionsFragment()
+        itemOptionsFragment?.setBundleArguments(member)
+        itemOptionsFragment?.show(parentFragmentManager, itemOptionsFragment?.tag)
+        itemOptionsFragment?.getShowEditMemberDialogRequest()
             ?.observe(this, onShowEditMemberDialog)
-        memberOptionsFragment?.getOnMemberRemoved()?.observe(this, onMemberRemoved)
+        itemOptionsFragment?.getOnMemberRemoved()?.observe(this, onMemberRemoved)
     }
 
     private val onShowEditMemberDialog = Observer<Account> {
@@ -325,9 +325,9 @@ class MembersFragment : PermanentBaseFragment() {
             .removeObserver(onOwnershipTransferRequest)
         editDialogViewModel.getShowSuccessSnackbar().removeObserver(showSuccessSnackbarObserver)
         editDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
-        memberOptionsFragment?.getShowEditMemberDialogRequest()
+        itemOptionsFragment?.getShowEditMemberDialogRequest()
             ?.removeObserver(onShowEditMemberDialog)
-        memberOptionsFragment?.getOnMemberRemoved()?.removeObserver(onMemberRemoved)
+        itemOptionsFragment?.getOnMemberRemoved()?.removeObserver(onMemberRemoved)
     }
 
     override fun onResume() {

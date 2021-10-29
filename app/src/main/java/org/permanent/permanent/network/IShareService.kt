@@ -25,7 +25,7 @@ interface IShareService {
     fun approveShare(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @POST("share/delete")
-    fun denyShare(@Body requestBody: RequestBody): Call<ResponseVO>
+    fun deleteShare(@Body requestBody: RequestBody): Call<ResponseVO>
 
     // SHARE PREVIEW
     @POST("share/checkShareLink")

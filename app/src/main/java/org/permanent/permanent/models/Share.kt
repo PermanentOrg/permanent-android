@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.ShareVO
 
 class Share private constructor() : Parcelable {
-    var shareId: Int? = null
+    var id: Int? = null
     var folderLinkId: Int? = null
     var archiveId: Int? = null
     var archive: Archive? = null
@@ -14,7 +14,7 @@ class Share private constructor() : Parcelable {
     var status = MutableLiveData(Status.OK)
 
     constructor(parcel: Parcel) : this() {
-        shareId = parcel.readValue(Int::class.java.classLoader) as? Int
+        id = parcel.readValue(Int::class.java.classLoader) as? Int
         folderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
         archiveId = parcel.readValue(Int::class.java.classLoader) as? Int
         archive = parcel.readParcelable(Archive::class.java.classLoader)
@@ -23,7 +23,7 @@ class Share private constructor() : Parcelable {
     }
 
     constructor(shareVO: ShareVO) : this() {
-        shareId = shareVO.shareId
+        id = shareVO.shareId
         folderLinkId = shareVO.folder_linkId
         archiveId = shareVO.archiveId
         archive = Archive(shareVO.ArchiveVO)
@@ -35,7 +35,7 @@ class Share private constructor() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeValue(shareId)
+        parcel.writeValue(id)
         parcel.writeValue(folderLinkId)
         parcel.writeValue(archiveId)
         parcel.writeParcelable(archive, flags)

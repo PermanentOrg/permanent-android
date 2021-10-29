@@ -395,10 +395,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return shareService.approveShare(requestBody)
     }
 
-    fun denyShare(csrf: String?, share: Share): Call<ResponseVO> {
+    // Used for both deny and remove
+    fun deleteShare(csrf: String?, share: Share): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addShare(share))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return shareService.denyShare(requestBody)
+        return shareService.deleteShare(requestBody)
     }
 
     fun checkShareLink(csrf: String?, urlToken: String): Call<ResponseVO> {

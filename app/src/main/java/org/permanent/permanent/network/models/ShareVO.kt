@@ -11,7 +11,7 @@ class ShareVO private constructor() {
     var status: String? = null
 
     constructor(share: Share) : this() {
-        shareId = share.shareId
+        shareId = share.id
         folder_linkId = share.folderLinkId
         archiveId = share.archiveId
         accessRole = share.accessRole
