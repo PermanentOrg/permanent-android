@@ -35,12 +35,16 @@
             android:id="@+id/tvName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:layout_marginStart="8dp"
             android:layout_marginTop="5dp"
+            android:layout_marginBottom="2dp"
             android:fontFamily="@font/open_sans_bold"
             android:text="@{archive.fullName}"
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/tvAccessLevel"
             app:layout_constraintEnd_toStartOf="@+id/btnOptions"
             app:layout_constraintStart_toEndOf="@id/ivFileThumb"
             app:layout_constraintTop_toTopOf="@+id/ivFileThumb" />
@@ -50,7 +54,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="4dp"
             android:fontFamily="@font/open_sans"
             android:text="@{archive.accessRoleText}"
             android:textColor="@color/colorPrimary"
@@ -58,7 +62,8 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/ivFileThumb"
             app:layout_constraintEnd_toStartOf="@+id/btnOptions"
-            app:layout_constraintStart_toEndOf="@+id/ivFileThumb" />
+            app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
+            app:layout_constraintTop_toBottomOf="@+id/tvName" />
 
         <Button
             android:id="@+id/btnOptions"
