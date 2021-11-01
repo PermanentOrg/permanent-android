@@ -144,6 +144,7 @@
     <string name="yes_button">Yes</string>
     <string name="button_transfer">Transfer</string>
     <string name="button_rename">Rename</string>
+    <string name="button_retry">Retry</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>

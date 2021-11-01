@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Environment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.R
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.FileData
@@ -19,13 +18,13 @@ import java.io.File
 
 class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    private val appContext = application.applicationContext
     private lateinit var record: Record
     private var file: File? = null
     private var fileData = MutableLiveData<FileData>()
     private val filePath = MutableLiveData<String>()
     private val isVideo = MutableLiveData<Boolean>()
     private val isPDF = MutableLiveData<Boolean>()
+    private val isError = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -45,6 +44,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     isBusy.value = false
+                    isError.value = false
                     fileData.value = response.body()?.getFileData()
                     fileData.value?.let {
                         isPDF.value = it.contentType?.contains(FileType.PDF.toString())
@@ -61,10 +61,14 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
                     isBusy.value = false
-                    showMessage.value = appContext.getString(R.string.generic_error)
+                    isError.value = true
                 }
             })
         }
+    }
+
+    fun onRetryBtnClick(){
+        requestFileData()
     }
 
     fun getFileData(): MutableLiveData<FileData> = fileData
@@ -75,5 +79,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getShowMessage(): LiveData<String> = showMessage
 
-    fun getIsPDFViewVisible(): MutableLiveData<Boolean> = isPDF
+    fun getIsPDF(): MutableLiveData<Boolean> = isPDF
+
+    fun getIsError(): MutableLiveData<Boolean> = isError
 }
