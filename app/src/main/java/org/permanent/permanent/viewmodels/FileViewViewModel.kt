@@ -24,7 +24,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     private val filePath = MutableLiveData<String>()
     private val isVideo = MutableLiveData<Boolean>()
     private val isPDF = MutableLiveData<Boolean>()
-    private val isError = MutableLiveData<Boolean>(false)
+    private val isError = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
