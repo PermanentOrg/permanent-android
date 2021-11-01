@@ -4,6 +4,7 @@ import android.content.Context
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
@@ -16,9 +17,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ShareRepositoryImpl(val context: Context): IShareRepository {
+class ShareRepositoryImpl(val context: Context) : IShareRepository {
     private val prefsHelper = PreferencesHelper(
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
 
     override fun requestShareLink(
         record: Record,
@@ -48,7 +50,8 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
         shareRequestType: ShareRequestType,
         listener: IResponseListener
     ) {
-        NetworkClient.instance().modifyShareLink(prefsHelper.getCsrf(), shareByUrlVO, shareRequestType)
+        NetworkClient.instance()
+            .modifyShareLink(prefsHelper.getCsrf(), shareByUrlVO, shareRequestType)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -66,16 +69,23 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
             })
     }
 
-    override fun approveShare(share: Share, listener: IResponseListener) {
-        NetworkClient.instance().approveShare(prefsHelper.getCsrf(), share)
+    override fun updateShare(share: Share, listener: IResponseListener) {
+        NetworkClient.instance().updateShare(prefsHelper.getCsrf(), share)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(context.getString(
-                            R.string.share_link_share_update_success,
-                            context.getString(R.string.share_link_share_update_type_approved)))
+                        val messageAction =
+                            if (share.status.value == Status.PENDING)
+                                context.getString(R.string.share_link_share_update_type_approved)
+                            else context.getString(R.string.share_link_share_update_type_edited)
+                        listener.onSuccess(
+                            context.getString(
+                                R.string.share_link_share_update_success,
+                                messageAction
+                            )
+                        )
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }
@@ -94,9 +104,16 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(context.getString(
-                            R.string.share_link_share_update_success,
-                            context.getString(R.string.share_link_share_update_type_denied)))
+                        val messageAction =
+                            if (share.status.value == Status.PENDING)
+                                context.getString(R.string.share_link_share_update_type_denied)
+                            else context.getString(R.string.share_link_share_update_type_removed)
+                        listener.onSuccess(
+                            context.getString(
+                                R.string.share_link_share_update_success,
+                                messageAction
+                            )
+                        )
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }
@@ -147,20 +164,21 @@ class ShareRepositoryImpl(val context: Context): IShareRepository {
     }
 
     override fun getShares(listener: IDataListener) {
-        NetworkClient.instance().getShares(prefsHelper.getCsrf()).enqueue(object : Callback<ResponseVO> {
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                val responseVO = response.body()
-                prefsHelper.saveCsrf(responseVO?.csrf)
-                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                    listener.onSuccess(responseVO.getData())
-                } else {
-                    listener.onFailed(responseVO?.getMessages()?.get(0))
+        NetworkClient.instance().getShares(prefsHelper.getCsrf())
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                listener.onFailed(t.message)
-            }
-        })
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 }

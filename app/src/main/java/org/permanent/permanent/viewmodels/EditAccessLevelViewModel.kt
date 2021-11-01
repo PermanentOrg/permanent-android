@@ -5,20 +5,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
+import org.permanent.permanent.repositories.IShareRepository
+import org.permanent.permanent.repositories.ShareRepositoryImpl
 
-class EditMemberViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class EditAccessLevelViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var member: Account? = null
+    private var share: Share? = null
     private val fullName = MutableLiveData<String>()
     private val email = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onMemberEdited = SingleLiveEvent<Void>()
+    private val onItemEdited = SingleLiveEvent<Void>()
     private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
+    private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
 
     fun setMember(member: Account?) {
         this.member = member
@@ -26,42 +31,24 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
         email.value = member?.primaryEmail
     }
 
+    fun setShare(share: Share?) {
+        this.share = share
+        fullName.value = share?.archive?.fullName
+    }
+
     fun setAccessLevel(role: AccessRole) {
-        member?.accessRole = role
+        if (member != null) member?.accessRole = role else share?.accessRole = role
     }
 
     fun onSaveBtnClick() {
-        if (member?.accessRole == AccessRole.OWNER) {
-            onOwnershipTransferRequest.value = false
+        if (member != null) {
+            if (member?.accessRole == AccessRole.OWNER) {
+                onOwnershipTransferRequest.value = false
+            } else {
+                updateMemberAccessRole()
+            }
         } else {
-            updateAccessRole()
-        }
-    }
-
-    private fun updateAccessRole() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-
-        val memberId = member?.id
-        val memberEmail = member?.primaryEmail
-        val memberAccessRole = member?.accessRole
-
-        if (memberId != null && memberEmail != null && memberAccessRole != null) {
-            isBusy.value = true
-            archiveRepository.updateMember(memberId, memberEmail, memberAccessRole,
-                object : IResponseListener {
-                    override fun onSuccess(message: String?) {
-                        isBusy.value = false
-                        onMemberEdited.call()
-                        showSnackbarSuccess.value = message
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        showSnackbar.value = error
-                    }
-                })
+            updateShareAccessRole()
         }
     }
 
@@ -77,7 +64,56 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
             archiveRepository.transferOwnership(memberEmail, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    onMemberEdited.call()
+                    onItemEdited.call()
+                    showSnackbarSuccess.value = message
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showSnackbar.value = error
+                }
+            })
+        }
+    }
+
+    private fun updateMemberAccessRole() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        val memberId = member?.id
+        val memberEmail = member?.primaryEmail
+        val memberAccessRole = member?.accessRole
+
+        if (memberId != null && memberEmail != null && memberAccessRole != null) {
+            isBusy.value = true
+            archiveRepository.updateMember(memberId, memberEmail, memberAccessRole,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        isBusy.value = false
+                        onItemEdited.call()
+                        showSnackbarSuccess.value = message
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        showSnackbar.value = error
+                    }
+                })
+        }
+    }
+
+    private fun updateShareAccessRole() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        share?.let {
+            isBusy.value = true
+            shareRepository.updateShare(it, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    onItemEdited.call()
                     showSnackbarSuccess.value = message
                 }
 
@@ -95,7 +131,7 @@ class EditMemberViewModel(application: Application) : ObservableAndroidViewModel
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnMemberEdited(): LiveData<Void> = onMemberEdited
+    fun getOnItemEdited(): LiveData<Void> = onItemEdited
 
     fun getOnOwnershipTransferRequest(): LiveData<Boolean> = onOwnershipTransferRequest
 

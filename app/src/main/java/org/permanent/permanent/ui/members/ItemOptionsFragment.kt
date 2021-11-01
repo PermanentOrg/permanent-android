@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -22,8 +21,11 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentItemOptionsBinding
     private lateinit var viewModel: ItemOptionsViewModel
     private val onShowEditMemberDialogRequest = MutableLiveData<Account>()
+    private val onShowEditShareDialogRequest = MutableLiveData<Share>()
     private val onMemberRemoved = SingleLiveEvent<String>()
     private val onShareRemoved = SingleLiveEvent<Share>()
+    private val onShowSnackbar = SingleLiveEvent<String>()
+    private val onShowSnackbarSuccess = SingleLiveEvent<String>()
 
     fun setBundleArguments(member: Account) {
         val bundle = Bundle()
@@ -57,6 +59,11 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
+    private val onEditShareObserver = Observer<Share> { share ->
+        onShowEditShareDialogRequest.value = share
+        dismiss()
+    }
+
     private val onMemberRemovedObserver = Observer<String> { message ->
         onMemberRemoved.value = message
         dismiss()
@@ -67,28 +74,41 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    private val onShowMessage = Observer<String> {
-        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    private val onShowSnackbarSuccessObserver = Observer<String> {
+        onShowSnackbarSuccess.value = it
+    }
+
+    private val onShowSnackbarObserver = Observer<String> {
+        onShowSnackbar.value = it
     }
 
     fun getShowEditMemberDialogRequest(): MutableLiveData<Account> = onShowEditMemberDialogRequest
+
+    fun getShowEditShareDialogRequest(): MutableLiveData<Share> = onShowEditShareDialogRequest
 
     fun getOnMemberRemoved(): MutableLiveData<String> = onMemberRemoved
 
     fun getOnShareRemoved(): MutableLiveData<Share> = onShareRemoved
 
+    fun getShowSnackbar(): MutableLiveData<String> = onShowSnackbar
+
+    fun getShowSnackbarSuccess(): MutableLiveData<String> = onShowSnackbarSuccess
+
     override fun connectViewModelEvents() {
         viewModel.getOnEditMemberRequest().observe(this, onEditMemberObserver)
+        viewModel.getOnEditShareRequest().observe(this, onEditShareObserver)
         viewModel.getOnMemberRemoved().observe(this, onMemberRemovedObserver)
         viewModel.getOnShareRemoved().observe(this, onShareRemovedObserver)
-        viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getShowSnackbarRequest().observe(this, onShowSnackbarObserver)
+        viewModel.getShowSnackbarSuccessRequest().observe(this, onShowSnackbarSuccessObserver)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnEditMemberRequest().removeObserver(onEditMemberObserver)
         viewModel.getOnMemberRemoved().removeObserver(onMemberRemovedObserver)
         viewModel.getOnShareRemoved().removeObserver(onShareRemovedObserver)
-        viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getShowSnackbarRequest().removeObserver(onShowSnackbarObserver)
+        viewModel.getShowSnackbarSuccessRequest().removeObserver(onShowSnackbarSuccessObserver)
     }
 
     override fun onResume() {

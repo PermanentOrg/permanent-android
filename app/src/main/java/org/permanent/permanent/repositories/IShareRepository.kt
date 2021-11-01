@@ -23,7 +23,7 @@ interface IShareRepository {
         listener: IResponseListener
     )
 
-    fun approveShare(share: Share, listener: IResponseListener)
+    fun updateShare(share: Share, listener: IResponseListener)
 
     fun deleteShare(share: Share, listener: IResponseListener)
 

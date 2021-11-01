@@ -389,10 +389,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
     }
 
-    fun approveShare(csrf: String?, share: Share): Call<ResponseVO> {
+    // Used for both approve and update access role
+    fun updateShare(csrf: String?, share: Share): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addShare(share))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return shareService.approveShare(requestBody)
+        return shareService.updateShare(requestBody)
     }
 
     // Used for both deny and remove

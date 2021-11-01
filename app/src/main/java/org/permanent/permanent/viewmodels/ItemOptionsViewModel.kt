@@ -17,10 +17,12 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     private var member: Account? = null
     private var share: Share? = null
     private val itemName = MutableLiveData<String>()
+    private val onEditShareRequest = SingleLiveEvent<Share>()
     private val onEditMemberRequest = SingleLiveEvent<Account>()
     private val onMemberRemoved = SingleLiveEvent<String>()
     private val onShareRemoved = SingleLiveEvent<Share>()
-    private val showMessage = MutableLiveData<String>()
+    private val showSnackbar = MutableLiveData<String>()
+    private val showSnackbarSuccess = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
 
@@ -35,7 +37,7 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     }
 
     fun onEditBtnClick() {
-        onEditMemberRequest.value = member
+        if (member != null) onEditMemberRequest.value = member else onEditShareRequest.value = share
     }
 
     fun onRemoveBtnClick() {
@@ -57,7 +59,7 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showMessage.value = error
+                        showSnackbar.value = error
                     }
                 })
         }
@@ -69,12 +71,13 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
             shareRepository.deleteShare(it, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
+                    showSnackbarSuccess.value = message
                     onShareRemoved.value = it
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showSnackbar.value = error
                 }
             })
         }
@@ -86,9 +89,13 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getOnEditMemberRequest(): MutableLiveData<Account> = onEditMemberRequest
 
+    fun getOnEditShareRequest(): MutableLiveData<Share> = onEditShareRequest
+
     fun getOnMemberRemoved(): LiveData<String> = onMemberRemoved
 
     fun getOnShareRemoved(): LiveData<Share> = onShareRemoved
 
-    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowSnackbarRequest(): LiveData<String> = showSnackbar
+
+    fun getShowSnackbarSuccessRequest(): LiveData<String> = showSnackbarSuccess
 }

@@ -30,8 +30,8 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
     private val sharableLink = MutableLiveData<String>()
     private val existsShares = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
-    private val showSnackBar = MutableLiveData<String>()
+    private val showSnackbar = MutableLiveData<String>()
+    private val showSnackbarSuccess = MutableLiveData<String>()
     private val onLinkSettingsRequest = MutableLiveData<ShareByUrl>()
     private val onRevokeLinkRequest = SingleLiveEvent<Void>()
     private val onShowShareOptionsRequest = SingleLiveEvent<Share>()
@@ -64,7 +64,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showSnackbar.value = error
                 }
             })
     }
@@ -88,7 +88,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showSnackbar.value = error
                 }
             })
     }
@@ -99,7 +99,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
             appContext.getString(R.string.share_link_share_link_title), sharableLink.value
         )
         clipboard.setPrimaryClip(clip)
-        showSnackBar.value = appContext.getString(R.string.share_link_link_copied)
+        showSnackbarSuccess.value = appContext.getString(R.string.share_link_link_copied)
     }
 
     fun onLinkSettingsBtnClick() {
@@ -130,7 +130,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showMessage.value = error
+                        showSnackbar.value = error
                     }
                 })
         }
@@ -146,16 +146,16 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         }
 
         isBusy.value = true
-        shareRepository.approveShare(share, object : IResponseListener {
+        shareRepository.updateShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                showMessage.value = message
+                showSnackbarSuccess.value = message
                 share.status.value = Status.OK // This hides the Approve and Deny buttons
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showSnackbar.value = error
             }
         })
     }
@@ -169,13 +169,13 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         shareRepository.deleteShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                showMessage.value = message
+                showSnackbarSuccess.value = message
                 onShareDenied.value = share // Removes share from adapter
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showSnackbar.value = error
             }
         })
     }
@@ -190,9 +190,9 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
 
-    fun getShowSnackBar(): LiveData<String> = showSnackBar
+    fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
 
     fun getOnLinkSettingsRequest(): LiveData<ShareByUrl> = onLinkSettingsRequest
 

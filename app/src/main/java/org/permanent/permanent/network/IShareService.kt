@@ -22,7 +22,7 @@ interface IShareService {
     fun deleteShareLink(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @POST("share/upsert")
-    fun approveShare(@Body requestBody: RequestBody): Call<ResponseVO>
+    fun updateShare(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @POST("share/delete")
     fun deleteShare(@Body requestBody: RequestBody): Call<ResponseVO>

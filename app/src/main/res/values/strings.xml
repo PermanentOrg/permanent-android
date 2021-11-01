@@ -194,6 +194,8 @@
     <string name="share_link_share_update_success">Share was %s successfully</string>
     <string name="share_link_share_update_type_approved">approved</string>
     <string name="share_link_share_update_type_denied">denied</string>
+    <string name="share_link_share_update_type_edited">edited</string>
+    <string name="share_link_share_update_type_removed">removed</string>
     <string name="save_button">Save</string>
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
