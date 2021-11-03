@@ -6,28 +6,35 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.ShareVO
 
 class Share private constructor() : Parcelable {
-    var shareId: Int? = null
+    var id: Int? = null
     var folderLinkId: Int? = null
     var archiveId: Int? = null
     var archive: Archive? = null
-    var accessRole: String? = null
+    var accessRole: AccessRole? = null
     var status = MutableLiveData(Status.OK)
 
     constructor(parcel: Parcel) : this() {
-        shareId = parcel.readValue(Int::class.java.classLoader) as? Int
+        id = parcel.readValue(Int::class.java.classLoader) as? Int
         folderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
         archiveId = parcel.readValue(Int::class.java.classLoader) as? Int
         archive = parcel.readParcelable(Archive::class.java.classLoader)
-        accessRole = parcel.readString()
+        accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         status.value = parcel.readParcelable(Status::class.java.classLoader)
     }
 
     constructor(shareVO: ShareVO) : this() {
-        shareId = shareVO.shareId
+        id = shareVO.shareId
         folderLinkId = shareVO.folder_linkId
         archiveId = shareVO.archiveId
         archive = Archive(shareVO.ArchiveVO)
-        accessRole = shareVO.accessRole
+        accessRole = when (shareVO.accessRole) {
+            AccessRole.OWNER.backendString -> AccessRole.OWNER
+            AccessRole.MANAGER.backendString -> AccessRole.MANAGER
+            AccessRole.CURATOR.backendString -> AccessRole.CURATOR
+            AccessRole.EDITOR.backendString -> AccessRole.EDITOR
+            AccessRole.CONTRIBUTOR.backendString -> AccessRole.CONTRIBUTOR
+            else -> AccessRole.VIEWER
+        }
         status.value = when (shareVO.status) {
             Status.PENDING.toBackendString() -> Status.PENDING
             else -> Status.OK
@@ -35,11 +42,11 @@ class Share private constructor() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeValue(shareId)
+        parcel.writeValue(id)
         parcel.writeValue(folderLinkId)
         parcel.writeValue(archiveId)
         parcel.writeParcelable(archive, flags)
-        parcel.writeString(accessRole)
+        parcel.writeParcelable(accessRole, flags)
         parcel.writeParcelable(status.value, flags)
     }
 

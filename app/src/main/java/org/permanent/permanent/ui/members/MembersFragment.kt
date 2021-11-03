@@ -20,14 +20,14 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogAddMemberBinding
-import org.permanent.permanent.databinding.DialogEditMemberBinding
+import org.permanent.permanent.databinding.DialogEditAccessLevelBinding
 import org.permanent.permanent.databinding.FragmentMembersBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.viewmodels.AddMemberViewModel
-import org.permanent.permanent.viewmodels.EditMemberViewModel
+import org.permanent.permanent.viewmodels.EditAccessLevelViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
 import java.util.*
 
@@ -40,8 +40,8 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentMembersBinding
     private lateinit var addDialogViewModel: AddMemberViewModel
     private lateinit var addDialogBinding: DialogAddMemberBinding
-    private lateinit var editDialogViewModel: EditMemberViewModel
-    private lateinit var editDialogBinding: DialogEditMemberBinding
+    private lateinit var editDialogViewModel: EditAccessLevelViewModel
+    private lateinit var editDialogBinding: DialogEditAccessLevelBinding
     private var alertDialog: AlertDialog? = null
     private val accessRoleList = listOf(
         AccessRole.OWNER.toTitleCase(),
@@ -62,7 +62,7 @@ class MembersFragment : PermanentBaseFragment() {
     private lateinit var editorsAdapter: MembersAdapter
     private lateinit var contributorsAdapter: MembersAdapter
     private lateinit var viewersAdapter: MembersAdapter
-    private var memberOptionsFragment: MemberOptionsFragment? = null
+    private var itemOptionsFragment: ItemOptionsFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,7 +75,7 @@ class MembersFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         addDialogViewModel = ViewModelProvider(this).get(AddMemberViewModel::class.java)
-        editDialogViewModel = ViewModelProvider(this).get(EditMemberViewModel::class.java)
+        editDialogViewModel = ViewModelProvider(this).get(EditAccessLevelViewModel::class.java)
         accessLevelAdapter = ArrayAdapter(
             requireContext(),
             R.layout.menu_item_dropdown_access_level,
@@ -214,19 +214,19 @@ class MembersFragment : PermanentBaseFragment() {
     }
 
     private val onShowMemberOptionsFragment = Observer<Account> { member ->
-        memberOptionsFragment = MemberOptionsFragment()
-        memberOptionsFragment?.setBundleArguments(member)
-        memberOptionsFragment?.show(parentFragmentManager, memberOptionsFragment?.tag)
-        memberOptionsFragment?.getShowEditMemberDialogRequest()
+        itemOptionsFragment = ItemOptionsFragment()
+        itemOptionsFragment?.setBundleArguments(member)
+        itemOptionsFragment?.show(parentFragmentManager, itemOptionsFragment?.tag)
+        itemOptionsFragment?.getShowEditMemberDialogRequest()
             ?.observe(this, onShowEditMemberDialog)
-        memberOptionsFragment?.getOnMemberRemoved()?.observe(this, onMemberRemoved)
+        itemOptionsFragment?.getOnMemberRemoved()?.observe(this, onMemberRemoved)
     }
 
     private val onShowEditMemberDialog = Observer<Account> {
         editDialogViewModel.setMember(it)
         editDialogBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
-            R.layout.dialog_edit_member, null, false
+            R.layout.dialog_edit_access_level, null, false
         )
         editDialogBinding.executePendingBindings()
         editDialogBinding.lifecycleOwner = this
@@ -298,7 +298,7 @@ class MembersFragment : PermanentBaseFragment() {
         addDialogViewModel.getOnMemberAddedConclusion().observe(this, onMembersUpdated)
         addDialogViewModel.getShowSuccessSnackbar().observe(this, showSuccessSnackbarObserver)
         addDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
-        editDialogViewModel.getOnMemberEdited().observe(this, onMembersUpdated)
+        editDialogViewModel.getOnItemEdited().observe(this, onMembersUpdated)
         editDialogViewModel.getOnOwnershipTransferRequest()
             .observe(this, onOwnershipTransferRequest)
         editDialogViewModel.getShowSuccessSnackbar().observe(this, showSuccessSnackbarObserver)
@@ -320,14 +320,14 @@ class MembersFragment : PermanentBaseFragment() {
         addDialogViewModel.getOnMemberAddedConclusion().removeObserver(onMembersUpdated)
         addDialogViewModel.getShowSuccessSnackbar().removeObserver(showSuccessSnackbarObserver)
         addDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
-        editDialogViewModel.getOnMemberEdited().removeObserver(onMembersUpdated)
+        editDialogViewModel.getOnItemEdited().removeObserver(onMembersUpdated)
         editDialogViewModel.getOnOwnershipTransferRequest()
             .removeObserver(onOwnershipTransferRequest)
         editDialogViewModel.getShowSuccessSnackbar().removeObserver(showSuccessSnackbarObserver)
         editDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
-        memberOptionsFragment?.getShowEditMemberDialogRequest()
+        itemOptionsFragment?.getShowEditMemberDialogRequest()
             ?.removeObserver(onShowEditMemberDialog)
-        memberOptionsFragment?.getOnMemberRemoved()?.removeObserver(onMemberRemoved)
+        itemOptionsFragment?.getOnMemberRemoved()?.removeObserver(onMemberRemoved)
     }
 
     override fun onResume() {

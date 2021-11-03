@@ -19,8 +19,8 @@ import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.myFiles.linkshare.ShareListener
 
 
-class ShareLinkViewModel(application: Application
-) : ObservableAndroidViewModel(application), ShareListener {
+class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(application),
+    ShareListener {
 
     private val appContext = application.applicationContext
     private lateinit var record: Record
@@ -30,10 +30,11 @@ class ShareLinkViewModel(application: Application
     private val sharableLink = MutableLiveData<String>()
     private val existsShares = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
-    private val showSnackBar = MutableLiveData<String>()
+    private val showSnackbar = MutableLiveData<String>()
+    private val showSnackbarSuccess = MutableLiveData<String>()
     private val onLinkSettingsRequest = MutableLiveData<ShareByUrl>()
-    private val onRevokeLinkRequest = MutableLiveData<Void>()
+    private val onRevokeLinkRequest = SingleLiveEvent<Void>()
+    private val onShowShareOptionsRequest = SingleLiveEvent<Share>()
     private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
@@ -63,49 +64,9 @@ class ShareLinkViewModel(application: Application
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showSnackbar.value = error
                 }
             })
-    }
-
-    fun getName(): MutableLiveData<String> {
-        return recordName
-    }
-
-    fun getExistsLink(): MutableLiveData<Boolean> {
-        return existsLink
-    }
-
-    fun getSharableLink(): MutableLiveData<String> {
-        return sharableLink
-    }
-
-    fun getExistsArchives(): MutableLiveData<Boolean> {
-        return existsShares
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
-
-    fun getShowSnackBar(): LiveData<String> {
-        return showSnackBar
-    }
-
-    fun getOnLinkSettingsRequest(): LiveData<ShareByUrl> {
-        return onLinkSettingsRequest
-    }
-
-    fun getOnRevokeLinkRequest(): LiveData<Void> {
-        return onRevokeLinkRequest
-    }
-
-    fun getOnShareDenied(): MutableLiveData<Share> {
-        return onShareDenied
     }
 
     fun onGetLinkBtnClick() {
@@ -127,7 +88,7 @@ class ShareLinkViewModel(application: Application
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showSnackbar.value = error
                 }
             })
     }
@@ -135,9 +96,10 @@ class ShareLinkViewModel(application: Application
     fun onCopyLinkBtnClick() {
         val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_link_share_link_title), sharableLink.value)
+            appContext.getString(R.string.share_link_share_link_title), sharableLink.value
+        )
         clipboard.setPrimaryClip(clip)
-        showSnackBar.value = appContext.getString(R.string.share_link_link_copied)
+        showSnackbarSuccess.value = appContext.getString(R.string.share_link_link_copied)
     }
 
     fun onLinkSettingsBtnClick() {
@@ -145,7 +107,7 @@ class ShareLinkViewModel(application: Application
     }
 
     fun onRevokeLinkBtnClick() {
-        onRevokeLinkRequest.value = onRevokeLinkRequest.value
+        onRevokeLinkRequest.call()
     }
 
     fun deleteShareLink() {
@@ -155,20 +117,27 @@ class ShareLinkViewModel(application: Application
 
         shareByUrlVO?.let {
             isBusy.value = true
-            shareRepository.modifyShareLink(it, ShareRequestType.DELETE, object : IResponseListener {
-                override fun onSuccess(message: String?) {
-                    isBusy.value = false
-                    existsLink.value = false
-                    this@ShareLinkViewModel.shareByUrlVO = null
-                    sharableLink.value = ""
-                }
+            shareRepository.modifyShareLink(
+                it,
+                ShareRequestType.DELETE,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        isBusy.value = false
+                        existsLink.value = false
+                        this@ShareLinkViewModel.shareByUrlVO = null
+                        sharableLink.value = ""
+                    }
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    showMessage.value = error
-                }
-            })
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        showSnackbar.value = error
+                    }
+                })
         }
+    }
+
+    override fun onOptionsClick(share: Share) {
+        onShowShareOptionsRequest.value = share
     }
 
     override fun onApproveClick(share: Share) {
@@ -177,16 +146,16 @@ class ShareLinkViewModel(application: Application
         }
 
         isBusy.value = true
-        shareRepository.approveShare(share, object : IResponseListener {
+        shareRepository.updateShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                showMessage.value = message
+                showSnackbarSuccess.value = message
                 share.status.value = Status.OK // This hides the Approve and Deny buttons
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showSnackbar.value = error
             }
         })
     }
@@ -197,19 +166,39 @@ class ShareLinkViewModel(application: Application
         }
 
         isBusy.value = true
-        shareRepository.denyShare(share, object : IResponseListener {
+        shareRepository.deleteShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                showMessage.value = message
+                showSnackbarSuccess.value = message
                 onShareDenied.value = share // Removes share from adapter
-                record.shares?.remove(share)
-                existsShares.value = !record.shares.isNullOrEmpty()
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showSnackbar.value = error
             }
         })
     }
+
+    fun getName(): MutableLiveData<String> = recordName
+
+    fun getExistsLink(): MutableLiveData<Boolean> = existsLink
+
+    fun getSharableLink(): MutableLiveData<String> = sharableLink
+
+    fun getExistsShares(): MutableLiveData<Boolean> = existsShares
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
+
+    fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
+
+    fun getOnLinkSettingsRequest(): LiveData<ShareByUrl> = onLinkSettingsRequest
+
+    fun getOnRevokeLinkRequest(): LiveData<Void> = onRevokeLinkRequest
+
+    fun getOnShowShareOptionsRequest(): LiveData<Share> = onShowShareOptionsRequest
+
+    fun getOnShareDenied(): MutableLiveData<Share> = onShareDenied
 }

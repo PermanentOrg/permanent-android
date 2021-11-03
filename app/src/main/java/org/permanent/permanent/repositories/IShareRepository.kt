@@ -23,9 +23,9 @@ interface IShareRepository {
         listener: IResponseListener
     )
 
-    fun approveShare(share: Share, listener: IResponseListener)
+    fun updateShare(share: Share, listener: IResponseListener)
 
-    fun denyShare(share: Share, listener: IResponseListener)
+    fun deleteShare(share: Share, listener: IResponseListener)
 
     // SHARE PREVIEW
     fun checkShareLink(urlToken: String, listener: IShareByUrlListener)

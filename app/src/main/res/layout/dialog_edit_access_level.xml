@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.EditMemberViewModel" />
+            type="org.permanent.permanent.viewmodels.EditAccessLevelViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,7 +16,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/tvMemberName"
+            android:id="@+id/tvItemName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -36,7 +36,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <TextView
-            android:id="@+id/tvMemberEmail"
+            android:id="@+id/tvItemEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -50,7 +50,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvMemberName"
+            app:layout_constraintTop_toBottomOf="@+id/tvItemName"
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -69,7 +69,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvMemberEmail"
+            app:layout_constraintTop_toBottomOf="@+id/tvItemEmail"
             app:layout_constraintVertical_bias="0.0">
 
             <AutoCompleteTextView

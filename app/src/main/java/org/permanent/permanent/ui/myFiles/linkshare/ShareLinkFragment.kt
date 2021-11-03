@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -19,13 +21,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogEditAccessLevelBinding
 import org.permanent.permanent.databinding.FragmentShareLinkBinding
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.hideKeyboardFrom
+import org.permanent.permanent.ui.members.ItemOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.viewmodels.EditAccessLevelViewModel
 import org.permanent.permanent.viewmodels.ShareLinkViewModel
+import java.util.*
 
 const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
 
@@ -36,6 +44,19 @@ class ShareLinkFragment : PermanentBaseFragment() {
     private lateinit var sharesRecyclerView: RecyclerView
     private lateinit var sharesAdapter: SharesAdapter
     private var record: Record? = null
+    private var itemOptionsFragment: ItemOptionsFragment? = null
+    private lateinit var editDialogViewModel: EditAccessLevelViewModel
+    private lateinit var editDialogBinding: DialogEditAccessLevelBinding
+    private lateinit var accessLevelAdapter: ArrayAdapter<String>
+    private var alertDialog: androidx.appcompat.app.AlertDialog? = null
+    private val accessRoleList = listOf(
+        AccessRole.OWNER.toTitleCase(),
+        AccessRole.MANAGER.toTitleCase(),
+        AccessRole.CURATOR.toTitleCase(),
+        AccessRole.EDITOR.toTitleCase(),
+        AccessRole.CONTRIBUTOR.toTitleCase(),
+        AccessRole.VIEWER.toTitleCase()
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,13 +71,19 @@ class ShareLinkFragment : PermanentBaseFragment() {
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         record?.let {
             viewModel.setRecord(it)
-            initArchivesRecyclerView(binding.rvArchives, it)
+            initSharesRecyclerView(binding.rvShares, it)
         }
+        editDialogViewModel = ViewModelProvider(this).get(EditAccessLevelViewModel::class.java)
+        accessLevelAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.menu_item_dropdown_access_level,
+            accessRoleList
+        )
         return binding.root
     }
 
-    private fun initArchivesRecyclerView(rvArchives: RecyclerView, record: Record) {
-        sharesRecyclerView = rvArchives
+    private fun initSharesRecyclerView(rvShares: RecyclerView, record: Record) {
+        sharesRecyclerView = rvShares
         sharesAdapter = SharesAdapter(this, record.shares, viewModel)
         sharesRecyclerView.apply {
             setHasFixedSize(true)
@@ -66,14 +93,11 @@ class ShareLinkFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-    }
-
-    private val onShowSnackBar = Observer<String> { message ->
+    private val showSnackbarSuccess = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
@@ -81,9 +105,23 @@ class ShareLinkFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
+    private val showSnackbar = Observer<String> { message ->
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
     private val onLinkSettingsRequest = Observer<ShareByUrl> {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, PARCELABLE_SHARE_KEY to it)
         findNavController().navigate(R.id.action_shareLinkFragment_to_linkSettingsFragment, bundle)
+    }
+
+    private val onShowShareOptionsObserver = Observer<Share> { share ->
+        itemOptionsFragment = ItemOptionsFragment()
+        itemOptionsFragment?.setBundleArguments(share)
+        itemOptionsFragment?.show(parentFragmentManager, itemOptionsFragment?.tag)
+        itemOptionsFragment?.getShowEditShareDialogRequest()?.observe(this, onShowEditShareDialog)
+        itemOptionsFragment?.getOnShareRemoved()?.observe(this, onShareRemoved)
+        itemOptionsFragment?.getShowSnackbar()?.observe(this, showSnackbar)
+        itemOptionsFragment?.getShowSnackbarSuccess()?.observe(this, showSnackbarSuccess)
     }
 
     private val onRevokeLinkRequest = Observer<Void> {
@@ -103,24 +141,73 @@ class ShareLinkFragment : PermanentBaseFragment() {
         alert.show()
     }
 
-    private val onShareDenied = Observer<Share> {
+    private val onShareRemoved = Observer<Share> {
         sharesAdapter.remove(it)
+        record?.shares?.remove(it)
+        viewModel.getExistsShares().value = !record?.shares.isNullOrEmpty()
+    }
+
+    private val onItemUpdated = Observer<Void> {
+        alertDialog?.dismiss()
+    }
+
+    private val onShowEditShareDialog = Observer<Share> {
+        editDialogViewModel.setShare(it)
+        editDialogBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context),
+            R.layout.dialog_edit_access_level, null, false
+        )
+        editDialogBinding.executePendingBindings()
+        editDialogBinding.lifecycleOwner = this
+        editDialogBinding.viewModel = editDialogViewModel
+        editDialogBinding.actvAccessLevel.setText(it.accessRole?.toTitleCase())
+        // setAdapter after setText in order to work properly
+        editDialogBinding.actvAccessLevel.setAdapter(accessLevelAdapter)
+        editDialogBinding.actvAccessLevel.setOnClickListener {
+            context?.hideKeyboardFrom(editDialogBinding.root.windowToken)
+        }
+        editDialogBinding.actvAccessLevel.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ ->
+                val selectedRole = accessLevelAdapter.getItem(position) as String
+                editDialogViewModel.setAccessLevel(
+                    AccessRole.valueOf(selectedRole.uppercase(Locale.getDefault()))
+                )
+            }
+        context?.let { ctx ->
+            alertDialog = androidx.appcompat.app.AlertDialog.Builder(ctx)
+                .setView(editDialogBinding.root)
+                .create()
+            editDialogBinding.btnCancel.setOnClickListener {
+                alertDialog?.dismiss()
+            }
+            alertDialog?.show()
+        }
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getShowMessage().observe(this, onShowMessage)
-        viewModel.getShowSnackBar().observe(this, onShowSnackBar)
+        viewModel.getShowSnackbar().observe(this, showSnackbar)
+        viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
         viewModel.getOnLinkSettingsRequest().observe(this, onLinkSettingsRequest)
+        viewModel.getOnShowShareOptionsRequest().observe(this, onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
-        viewModel.getOnShareDenied().observe(this, onShareDenied)
+        viewModel.getOnShareDenied().observe(this, onShareRemoved)
+        editDialogViewModel.getOnItemEdited().observe(this, onItemUpdated)
+        editDialogViewModel.getShowSuccessSnackbar().observe(this, showSnackbarSuccess)
+        editDialogViewModel.getShowSnackbar().observe(this, showSnackbar)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getShowMessage().removeObserver(onShowMessage)
-        viewModel.getShowSnackBar().removeObserver(onShowSnackBar)
+        viewModel.getShowSnackbar().removeObserver(showSnackbar)
+        viewModel.getShowSnackbarSuccess().removeObserver(showSnackbarSuccess)
         viewModel.getOnLinkSettingsRequest().removeObserver(onLinkSettingsRequest)
+        viewModel.getOnShowShareOptionsRequest().removeObserver(onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
-        viewModel.getOnShareDenied().removeObserver(onShareDenied)
+        viewModel.getOnShareDenied().removeObserver(onShareRemoved)
+        itemOptionsFragment?.getShowEditShareDialogRequest()?.removeObserver(onShowEditShareDialog)
+        itemOptionsFragment?.getOnShareRemoved()?.removeObserver(onShareRemoved)
+        itemOptionsFragment?.getShowSnackbar()?.removeObserver(showSnackbar)
+        itemOptionsFragment?.getShowSnackbarSuccess()?.removeObserver(showSnackbarSuccess)
+        editDialogViewModel.getOnItemEdited().removeObserver(onItemUpdated)
     }
 
     override fun onResume() {
