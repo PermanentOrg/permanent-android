@@ -49,6 +49,7 @@ class FileMetadataFragment: PermanentBaseFragment(), View.OnClickListener {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_toolbar_file_view, menu)
         menu.findItem(R.id.metadataItem).isVisible = false
+        menu.findItem(R.id.moreItem).isVisible = false
         super.onCreateOptionsMenu(menu, inflater)
     }
 

@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:onClick="@{() -> viewModel.onShareInPermanentBtnClick()}"
-            android:text="@string/file_view_options_menu_item_share_in_permanent"
+            android:text="@string/file_options_menu_item_share_in_permanent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -36,7 +36,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="24dp"
             android:onClick="@{() -> viewModel.onShareToAnotherAppBtnClick()}"
-            android:text="@string/file_view_options_menu_item_share_to_another_app"
+            android:text="@string/file_options_menu_item_share_to_another_app"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 enum class RecordOption : Parcelable {
-    DOWNLOAD, COPY, MOVE, PUBLISH, DELETE, RENAME, SHARE;
+    DOWNLOAD, COPY, MOVE, PUBLISH, DELETE, RENAME, SHARE_IN_PERMANENT, SHARE_TO_ANOTHER_APP;
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(ordinal)
