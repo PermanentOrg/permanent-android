@@ -120,17 +120,30 @@
                 app:layout_constraintTop_toBottomOf="@id/btnDelete" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnShare"
+                android:id="@+id/btnShareInPermanent"
                 style="@style/customButtonBottomSheetStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onShareBtnClick()}"
-                android:text="@string/file_options_menu_item_share"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE)? View.GONE : View.VISIBLE}"
+                android:onClick="@{() -> viewModel.onShareInPermanentBtnClick()}"
+                android:text="@string/file_options_menu_item_share_in_permanent"
+                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_IN_PERMANENT)? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btnRename" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnShareToAnotherApp"
+                style="@style/customButtonBottomSheetStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:onClick="@{() -> viewModel.onShareToAnotherAppBtnClick()}"
+                android:text="@string/file_options_menu_item_share_to_another_app"
+                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_TO_ANOTHER_APP)? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnShareInPermanent" />
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressBar"

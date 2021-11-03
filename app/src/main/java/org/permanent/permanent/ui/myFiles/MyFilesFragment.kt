@@ -170,7 +170,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareRequest()?.observe(this, onRecordShareRequest)
+        recordOptionsFragment?.getOnRecordShareInPermanentRequest()?.observe(this, onRecordShareInPermanentRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
 
@@ -244,7 +244,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity, bundle)
     }
 
-    private val onRecordShareRequest = Observer<Record> { record ->
+    private val onRecordShareInPermanentRequest = Observer<Record> { record ->
         navigateToShareLinkFragment(record)
     }
 
@@ -373,7 +373,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareRequest()?.removeObserver(onRecordShareRequest)
+        recordOptionsFragment?.getOnRecordShareInPermanentRequest()?.removeObserver(onRecordShareInPermanentRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }
