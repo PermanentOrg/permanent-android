@@ -121,7 +121,7 @@
     <string name="file_options_menu_item_publish">Publish</string>
     <string name="file_options_menu_item_delete">Delete</string>
     <string name="file_options_menu_item_rename">Rename</string>
-    <string name="file_options_menu_item_share_in_permanent">Share in Permanent</string>
+    <string name="file_options_menu_item_share_via_permanent">Share via Permanent</string>
     <string name="file_options_menu_item_share_to_another_app">Share to Another App</string>
     <string name="rename_record_name_hint">Name</string>
     <string name="rename_record_title">Rename \"%s\"</string>

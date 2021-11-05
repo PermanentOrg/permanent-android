@@ -30,7 +30,7 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
     private var download: Download? = null
     private val showMessage = MutableLiveData<String>()
     private val onFileDownloaded = SingleLiveEvent<Void>()
-    private val onShareInPermanentRequest = SingleLiveEvent<Void>()
+    private val onShareViaPermanentRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<Void>()
 
     fun setRecord(record: Record?) {
@@ -41,8 +41,8 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
         this.fileData = fileData
     }
 
-    fun onShareInPermanentBtnClick() {
-        onShareInPermanentRequest.call()
+    fun onShareViaPermanentBtnClick() {
+        onShareViaPermanentRequest.call()
     }
 
     fun onShareToAnotherAppBtnClick() {
@@ -133,7 +133,7 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
 
     fun getOnFileDownloaded(): LiveData<Void> = onFileDownloaded
 
-    fun getOnShareInPermanentRequest(): MutableLiveData<Void> = onShareInPermanentRequest
+    fun getOnShareViaPermanentRequest(): MutableLiveData<Void> = onShareViaPermanentRequest
 
     fun getOnShareToAnotherAppRequest(): MutableLiveData<Void> = onShareToAnotherAppRequest
 }

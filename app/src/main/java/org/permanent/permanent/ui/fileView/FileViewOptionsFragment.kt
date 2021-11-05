@@ -51,7 +51,7 @@ class FileViewOptionsFragment : PermanentBottomSheetFragment() {
         return binding.root
     }
 
-    private val onShareInPermanentObserver = Observer<Void> {
+    private val onShareViaPermanentObserver = Observer<Void> {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
         requireParentFragment().requireParentFragment().findNavController()
             .navigate(R.id.action_filesContainerFragment_to_shareLinkFragment, bundle)
@@ -97,14 +97,14 @@ class FileViewOptionsFragment : PermanentBottomSheetFragment() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnShareInPermanentRequest().observe(this, onShareInPermanentObserver)
+        viewModel.getOnShareViaPermanentRequest().observe(this, onShareViaPermanentObserver)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
         viewModel.getOnFileDownloaded().observe(this, onFileDownloaded)
         viewModel.getShowMessage().observe(this, onShowMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnShareInPermanentRequest().removeObserver(onShareInPermanentObserver)
+        viewModel.getOnShareViaPermanentRequest().removeObserver(onShareViaPermanentObserver)
         viewModel.getOnShareToAnotherAppRequest().removeObserver(onShareToAnotherAppObserver)
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getOnFileDownloaded().removeObserver(onFileDownloaded)

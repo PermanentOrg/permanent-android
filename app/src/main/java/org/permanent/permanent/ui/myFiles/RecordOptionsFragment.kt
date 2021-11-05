@@ -31,7 +31,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onFileDownloadRequest = MutableLiveData<Record>()
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val onRecordRenameRequest = MutableLiveData<Record>()
-    private val onRecordShareInPermanentRequest = MutableLiveData<Record>()
+    private val onRecordShareViaPermanentRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
 
     fun setBundleArguments(record: Record, isShownInMyFilesFragment: Boolean) {
@@ -75,9 +75,9 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         onRecordRenameRequest.value = record
     }
 
-    private val onShareInPermanentRequestObserver = Observer<Void> {
+    private val onShareViaPermanentRequestObserver = Observer<Void> {
         dismiss()
-        onRecordShareInPermanentRequest.value = record
+        onRecordShareViaPermanentRequest.value = record
     }
 
     private val onShareToAnotherAppObserver = Observer<String> { contentType ->
@@ -147,8 +147,8 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
 
-    fun getOnRecordShareInPermanentRequest(): MutableLiveData<Record> =
-        onRecordShareInPermanentRequest
+    fun getOnRecordShareViaPermanentRequest(): MutableLiveData<Record> =
+        onRecordShareViaPermanentRequest
 
     fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, RelocationType>> =
         onRecordRelocateRequest
@@ -158,7 +158,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnDeleteRequest().observe(this, onDeleteRequestObserver)
         viewModel.getOnRenameRequest().observe(this, onRenameRequestObserver)
-        viewModel.getOnShareInPermanentRequest().observe(this, onShareInPermanentRequestObserver)
+        viewModel.getOnShareViaPermanentRequest().observe(this, onShareViaPermanentRequestObserver)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
         viewModel.getOnRelocateRequest().observe(this, onRelocateRequestObserver)
         viewModel.getOnFileDownloadedForSharing().observe(this, onFileDownloadedForSharing)
@@ -170,7 +170,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
         viewModel.getOnDeleteRequest().removeObserver(onDeleteRequestObserver)
         viewModel.getOnRenameRequest().removeObserver(onRenameRequestObserver)
-        viewModel.getOnShareInPermanentRequest().removeObserver(onShareInPermanentRequestObserver)
+        viewModel.getOnShareViaPermanentRequest().removeObserver(onShareViaPermanentRequestObserver)
         viewModel.getOnShareToAnotherAppRequest().removeObserver(onShareToAnotherAppObserver)
         viewModel.getOnRelocateRequest().removeObserver(onRelocateRequestObserver)
         viewModel.getOnFileDownloadedForSharing().removeObserver(onFileDownloadedForSharing)
