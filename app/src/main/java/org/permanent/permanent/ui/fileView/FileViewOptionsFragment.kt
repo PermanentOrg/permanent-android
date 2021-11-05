@@ -45,9 +45,8 @@ class FileViewOptionsFragment : PermanentBottomSheetFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
-        viewModel.setRecord(record)
         fileData = arguments?.getParcelable(PARCELABLE_FILE_DATA_KEY)
-        viewModel.setFileData(fileData)
+        viewModel.setArguments(record, fileData)
         return binding.root
     }
 

@@ -5,7 +5,7 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
-class ArchivePermissionsManager private constructor() {
+class CurrentArchivePermissionsManager private constructor() {
 
     private var accessRole: AccessRole
     private var isReadAvailable: Boolean = false
@@ -19,7 +19,7 @@ class ArchivePermissionsManager private constructor() {
     private var isOwnershipAvailable: Boolean = false
 
     companion object {
-        val instance = ArchivePermissionsManager()
+        val instance = CurrentArchivePermissionsManager()
     }
 
     init {

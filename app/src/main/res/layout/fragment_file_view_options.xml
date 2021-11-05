@@ -24,6 +24,7 @@
             android:layout_marginTop="18dp"
             android:onClick="@{() -> viewModel.onShareViaPermanentBtnClick()}"
             android:text="@string/file_options_menu_item_share_via_permanent"
+            android:visibility="@{viewModel.shouldHideShareViaPermanentButton ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

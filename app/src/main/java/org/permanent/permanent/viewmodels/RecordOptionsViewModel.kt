@@ -53,18 +53,16 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
         }
         if (isShownInMyFilesFragment == true) {
-            if (!ArchivePermissionsManager.instance.isCreateAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
-            if (!ArchivePermissionsManager.instance.isDeleteAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
                 hiddenOptions.value?.add(RecordOption.DELETE)
-            if (!ArchivePermissionsManager.instance.isMoveAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isMoveAvailable())
                 hiddenOptions.value?.add(RecordOption.MOVE)
-            if (!ArchivePermissionsManager.instance.isShareAvailable()) {
-                hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
-                hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
-            }
-            if (!ArchivePermissionsManager.instance.isEditAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isEditAvailable())
                 hiddenOptions.value?.add(RecordOption.RENAME)
+            if (!CurrentArchivePermissionsManager.instance.isOwnershipAvailable())
+                hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
         } else {
             hiddenOptions.value?.add(RecordOption.DELETE)
             hiddenOptions.value?.add(RecordOption.MOVE)
