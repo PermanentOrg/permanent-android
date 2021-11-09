@@ -120,14 +120,14 @@
                 app:layout_constraintTop_toBottomOf="@id/btnDelete" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnShareInPermanent"
+                android:id="@+id/btnShareViaPermanent"
                 style="@style/customButtonBottomSheetStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onShareInPermanentBtnClick()}"
-                android:text="@string/file_options_menu_item_share_in_permanent"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_IN_PERMANENT)? View.GONE : View.VISIBLE}"
+                android:onClick="@{() -> viewModel.onShareViaPermanentBtnClick()}"
+                android:text="@string/file_options_menu_item_share_via_permanent"
+                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_VIA_PERMANENT)? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/btnRename" />
@@ -143,7 +143,7 @@
                 android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_TO_ANOTHER_APP)? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnShareInPermanent" />
+                app:layout_constraintTop_toBottomOf="@id/btnShareViaPermanent" />
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressBar"

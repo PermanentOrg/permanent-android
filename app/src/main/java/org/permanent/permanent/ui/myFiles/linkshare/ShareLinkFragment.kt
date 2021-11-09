@@ -51,7 +51,6 @@ class ShareLinkFragment : PermanentBaseFragment() {
     private var alertDialog: androidx.appcompat.app.AlertDialog? = null
     private val accessRoleList = listOf(
         AccessRole.OWNER.toTitleCase(),
-        AccessRole.MANAGER.toTitleCase(),
         AccessRole.CURATOR.toTitleCase(),
         AccessRole.EDITOR.toTitleCase(),
         AccessRole.CONTRIBUTOR.toTitleCase(),

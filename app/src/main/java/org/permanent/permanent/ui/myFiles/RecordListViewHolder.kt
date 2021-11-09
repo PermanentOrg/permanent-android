@@ -5,7 +5,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_list_record.view.*
 import kotlinx.android.synthetic.main.item_record_underlay.view.*
-import org.permanent.permanent.ArchivePermissionsManager
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.databinding.ItemListRecordBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
@@ -22,7 +22,7 @@ class RecordListViewHolder(
         binding.executePendingBindings()
         binding.lifecycleOwner = lifecycleOwner
         binding.btnOptions.visibility =
-            if ((ArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
+            if ((CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
                         isForSharesScreen) && record.type == RecordType.FOLDER
             ) View.INVISIBLE else View.VISIBLE
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }

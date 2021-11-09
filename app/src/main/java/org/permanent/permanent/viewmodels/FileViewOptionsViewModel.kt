@@ -12,12 +12,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import org.permanent.permanent.Constants
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
-import org.permanent.permanent.models.Download
-import org.permanent.permanent.models.FileType
-import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.Upload
+import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import java.io.File
@@ -29,20 +27,22 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
     private var record: Record? = null
     private var download: Download? = null
     private val showMessage = MutableLiveData<String>()
+    private val shouldHideShareViaPermanentButton = MutableLiveData(false)
     private val onFileDownloaded = SingleLiveEvent<Void>()
-    private val onShareInPermanentRequest = SingleLiveEvent<Void>()
+    private val onShareViaPermanentRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<Void>()
 
-    fun setRecord(record: Record?) {
+    fun setArguments(record: Record?, fileData: FileData?) {
         this.record = record
+        fileData?.let {
+            this.fileData = fileData
+            shouldHideShareViaPermanentButton.value =
+                it.accessRole != AccessRole.OWNER || !CurrentArchivePermissionsManager.instance.isOwnershipAvailable()
+        }
     }
 
-    fun setFileData(fileData: FileData?) {
-        this.fileData = fileData
-    }
-
-    fun onShareInPermanentBtnClick() {
-        onShareInPermanentRequest.call()
+    fun onShareViaPermanentBtnClick() {
+        onShareViaPermanentRequest.call()
     }
 
     fun onShareToAnotherAppBtnClick() {
@@ -131,9 +131,12 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
 
     fun getShowMessage(): LiveData<String> = showMessage
 
+    fun getShouldHideShareViaPermanentButton(): LiveData<Boolean> =
+        shouldHideShareViaPermanentButton
+
     fun getOnFileDownloaded(): LiveData<Void> = onFileDownloaded
 
-    fun getOnShareInPermanentRequest(): MutableLiveData<Void> = onShareInPermanentRequest
+    fun getOnShareViaPermanentRequest(): MutableLiveData<Void> = onShareViaPermanentRequest
 
     fun getOnShareToAnotherAppRequest(): MutableLiveData<Void> = onShareToAnotherAppRequest
 }

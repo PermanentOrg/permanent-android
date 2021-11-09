@@ -1,7 +1,7 @@
 package org.permanent.permanent.ui
 
 import android.content.SharedPreferences
-import org.permanent.permanent.ArchivePermissionsManager
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
 
 const val PREFS_NAME = "permanent_preferences"
@@ -183,7 +183,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
                 putString(PREFS_CURRENT_ARCHIVE_ACCESS_ROLE, accessRole.backendString)
                 apply()
             }
-            ArchivePermissionsManager.instance.onAccessRoleChanged(accessRole)
+            CurrentArchivePermissionsManager.instance.onAccessRoleChanged(accessRole)
         }
     }
 

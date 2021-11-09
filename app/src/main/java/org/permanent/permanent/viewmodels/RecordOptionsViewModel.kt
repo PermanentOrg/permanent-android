@@ -39,7 +39,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onFileDownloadRequest = SingleLiveEvent<Void>()
     private val onDeleteRequest = SingleLiveEvent<Void>()
     private val onRenameRequest = SingleLiveEvent<Void>()
-    private val onShareInPermanentRequest = SingleLiveEvent<Void>()
+    private val onShareViaPermanentRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
     private val onRelocateRequest = MutableLiveData<RelocationType>()
@@ -53,22 +53,20 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
         }
         if (isShownInMyFilesFragment == true) {
-            if (!ArchivePermissionsManager.instance.isCreateAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
-            if (!ArchivePermissionsManager.instance.isDeleteAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
                 hiddenOptions.value?.add(RecordOption.DELETE)
-            if (!ArchivePermissionsManager.instance.isMoveAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isMoveAvailable())
                 hiddenOptions.value?.add(RecordOption.MOVE)
-            if (!ArchivePermissionsManager.instance.isShareAvailable()) {
-                hiddenOptions.value?.add(RecordOption.SHARE_IN_PERMANENT)
-                hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
-            }
-            if (!ArchivePermissionsManager.instance.isEditAvailable())
+            if (!CurrentArchivePermissionsManager.instance.isEditAvailable())
                 hiddenOptions.value?.add(RecordOption.RENAME)
+            if (!CurrentArchivePermissionsManager.instance.isOwnershipAvailable())
+                hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
         } else {
             hiddenOptions.value?.add(RecordOption.DELETE)
             hiddenOptions.value?.add(RecordOption.MOVE)
-            hiddenOptions.value?.add(RecordOption.SHARE_IN_PERMANENT)
+            hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
             hiddenOptions.value?.add(RecordOption.COPY)
             hiddenOptions.value?.add(RecordOption.RENAME)
@@ -112,8 +110,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         onRenameRequest.call()
     }
 
-    fun onShareInPermanentBtnClick() {
-        onShareInPermanentRequest.call()
+    fun onShareViaPermanentBtnClick() {
+        onShareViaPermanentRequest.call()
     }
 
     fun onShareToAnotherAppBtnClick() {
@@ -240,7 +238,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnRenameRequest(): MutableLiveData<Void> = onRenameRequest
 
-    fun getOnShareInPermanentRequest(): MutableLiveData<Void> = onShareInPermanentRequest
+    fun getOnShareViaPermanentRequest(): MutableLiveData<Void> = onShareViaPermanentRequest
 
     fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
 }

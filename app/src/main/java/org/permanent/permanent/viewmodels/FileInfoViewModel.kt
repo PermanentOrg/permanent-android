@@ -6,7 +6,7 @@ import android.text.Editable
 import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.ArchivePermissionsManager
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.network.IResponseListener
@@ -37,7 +37,7 @@ class FileInfoViewModel(
 
     fun setFileData(fileData: FileData) {
         this.fileData = fileData
-        isEditable.value = !(!ArchivePermissionsManager.instance.isEditAvailable()
+        isEditable.value = !(!CurrentArchivePermissionsManager.instance.isEditAvailable()
                 || fileData.accessRole == AccessRole.VIEWER
                 || fileData.accessRole == AccessRole.CONTRIBUTOR)
         name.value = fileData.displayName

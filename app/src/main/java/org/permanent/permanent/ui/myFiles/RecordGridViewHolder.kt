@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.BlurTransformation
-import org.permanent.permanent.ArchivePermissionsManager
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ItemGridRecordBinding
 import org.permanent.permanent.models.AccessRole
@@ -34,7 +34,7 @@ class RecordGridViewHolder(
         binding.root.setOnClickListener { recordListener.onRecordClick(record) }
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.btnOptions.visibility =
-            if ((ArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
+            if ((CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
                         isForSharesScreen) && record.type == RecordType.FOLDER ||
                 isForSharePreviewScreen) View.GONE else View.VISIBLE
 
