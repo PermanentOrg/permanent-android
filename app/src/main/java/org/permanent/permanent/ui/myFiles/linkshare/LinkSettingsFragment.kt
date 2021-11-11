@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -15,6 +16,7 @@ import org.permanent.permanent.databinding.FragmentLinkSettingsBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.LinkSettingsViewModel
 import java.util.*
@@ -55,6 +57,12 @@ class LinkSettingsFragment : PermanentBaseFragment() {
             .addCallback(this , object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     findNavController().popBackStack(R.id.shareLinkFragment, true)
+                    if(activity is FileActivity)
+                    {
+                        (activity as FileActivity?)!!.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.black, null)
+                        (activity as FileActivity?)!!.setToolbarColor(R.color.black)
+                    }
+
                 }
             })
     }

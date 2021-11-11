@@ -2,6 +2,8 @@ package org.permanent.permanent.ui.fileView
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -10,6 +12,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
+import kotlinx.android.synthetic.main.activity_file.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
@@ -43,6 +46,7 @@ class FileActivity : PermanentBaseActivity() {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 
         window.statusBarColor = Color.BLACK
+        setToolbarColor(R.color.black)
     }
 
     // Toolbar back press
@@ -50,6 +54,18 @@ class FileActivity : PermanentBaseActivity() {
         return when(navController.currentDestination?.id) {
             R.id.filesContainerFragment, R.id.fileMetadataFragment -> {
                 this@FileActivity.finish()
+                true
+            }
+            R.id.linkSettingsFragment -> {
+                navController.popBackStack(R.id.shareLinkFragment, true)
+                window.statusBarColor = Color.BLACK
+                setToolbarColor(R.color.black)
+                true
+            }
+            R.id.shareLinkFragment -> {
+                navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
+                window.statusBarColor = Color.BLACK
+                setToolbarColor(R.color.black)
                 true
             }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
@@ -74,6 +90,10 @@ class FileActivity : PermanentBaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        window.statusBarColor = ContextCompat.getColor(applicationContext, R.color.colorPrimary)
+    }
+
+    fun setToolbarColor(colorId: Int) {
+        val toolBar = findViewById<View>(R.id.fileToolbar) as Toolbar
+        toolBar.setBackgroundColor(ContextCompat.getColor(this, colorId))
     }
 }
