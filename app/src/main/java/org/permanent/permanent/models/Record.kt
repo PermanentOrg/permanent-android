@@ -14,14 +14,14 @@ open class Record : Parcelable {
     var parentFolderLinkId: Int? = null
     var displayName: String? = null
     var displayDate: String? = null
-    var archiveThumbURL500: String? = null
+    var archiveThumbURL200: String? = null
     var showArchiveThumb: Boolean? = null
-    var thumbURL500: String? = null
+    var thumbURL200: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
-    var viewFirst = false
+    var displayFirstInCarousel = false
     var isProcessing = false
 
     constructor(parcel: Parcel) {
@@ -33,13 +33,13 @@ open class Record : Parcelable {
         parentFolderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
         displayName = parcel.readString()
         displayDate = parcel.readString()
-        archiveThumbURL500 = parcel.readString()
+        archiveThumbURL200 = parcel.readString()
         showArchiveThumb = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
-        thumbURL500 = parcel.readString()
+        thumbURL200 = parcel.readString()
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
-        viewFirst = parcel.readValue(Boolean::class.java.classLoader) as Boolean
+        displayFirstInCarousel = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         isProcessing = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
@@ -53,12 +53,12 @@ open class Record : Parcelable {
         displayName = recordInfo.displayName
         displayDate = recordInfo.displayDT?.substringBefore("T")
         showArchiveThumb = false
-        thumbURL500 = recordInfo.thumbURL500
+        thumbURL200 = recordInfo.thumbURL200
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
-        viewFirst = false
-        isProcessing = recordInfo.thumbURL500.isNullOrEmpty()
+        displayFirstInCarousel = false
+        isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
     }
 
     constructor(recordInfo: FolderVO) {
@@ -70,12 +70,12 @@ open class Record : Parcelable {
         displayName = recordInfo.displayName
         displayDate = recordInfo.displayDT?.substringBefore("T")
         showArchiveThumb = false
-        thumbURL500 = recordInfo.thumbURL500
+        thumbURL200 = recordInfo.thumbURL200
         isThumbBlurred = false
         type = RecordType.FOLDER
         initShares(recordInfo.ShareVOs)
-        viewFirst = false
-        isProcessing = recordInfo.thumbURL500.isNullOrEmpty()
+        displayFirstInCarousel = false
+        isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
     }
 
     constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) {
@@ -87,13 +87,13 @@ open class Record : Parcelable {
         parentFolderLinkId = item.parentFolder_linkId
         displayName = item.displayName
         displayDate = item.displayDT?.substringBefore("T")
-        archiveThumbURL500 = archive.thumbURL500
+        archiveThumbURL200 = archive.thumbURL200
         showArchiveThumb = showArchiveThumbnail
-        thumbURL500 = item.thumbURL500
+        thumbURL200 = item.thumbURL200
         isThumbBlurred = false
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
-        viewFirst = false
-        isProcessing = item.thumbURL500.isNullOrEmpty()
+        displayFirstInCarousel = false
+        isProcessing = item.thumbURL200.isNullOrEmpty()
     }
 
     constructor(recordId: Int, folderLinkId: Int) {
@@ -102,7 +102,7 @@ open class Record : Parcelable {
         this.folderLinkId = folderLinkId
         isThumbBlurred = false
         type = RecordType.FILE
-        viewFirst = false
+        displayFirstInCarousel = false
         isProcessing = false
     }
 
@@ -116,12 +116,12 @@ open class Record : Parcelable {
         parentFolderLinkId = recordInfo?.parentFolder_linkId
         displayName = recordInfo?.displayName
         displayDate = recordInfo?.displayDT?.substringBefore("T")
-        thumbURL500 = recordInfo?.thumbURL500
+        thumbURL200 = recordInfo?.thumbURL200
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
         type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo?.ShareVOs)
-        viewFirst = false
-        isProcessing = recordInfo?.thumbURL500.isNullOrEmpty()
+        displayFirstInCarousel = false
+        isProcessing = recordInfo?.thumbURL200.isNullOrEmpty()
     }
 
     private fun initShares(shareVOs: List<ShareVO>?) {
@@ -148,13 +148,13 @@ open class Record : Parcelable {
         parcel.writeValue(parentFolderLinkId)
         parcel.writeString(displayName)
         parcel.writeString(displayDate)
-        parcel.writeString(archiveThumbURL500)
+        parcel.writeString(archiveThumbURL200)
         parcel.writeValue(showArchiveThumb)
-        parcel.writeString(thumbURL500)
+        parcel.writeString(thumbURL200)
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
         parcel.writeTypedList(shares)
-        parcel.writeValue(viewFirst)
+        parcel.writeValue(displayFirstInCarousel)
         parcel.writeValue(isProcessing)
     }
 

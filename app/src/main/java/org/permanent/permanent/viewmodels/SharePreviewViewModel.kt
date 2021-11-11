@@ -55,7 +55,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
             override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                 isBusy.value = false
                 // Loading data in the header
-                archiveThumbURL.value = shareByUrlVO?.ArchiveVO?.thumbURL500
+                archiveThumbURL.value = shareByUrlVO?.ArchiveVO?.thumbURL200
                 accountDisplayName.value = "Shared by ${shareByUrlVO?.AccountVO?.fullName}"
                 archiveDisplayName.value = "From the ${shareByUrlVO?.ArchiveVO?.fullName} Archive"
                 // Loading data in the list

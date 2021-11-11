@@ -54,7 +54,7 @@ class FilesContainerFragment : PermanentBaseFragment() {
 
     private fun getFileIndexToStartWith(files: ArrayList<Record>): Int {
         for ((index, file) in files.withIndex())
-            if (file.viewFirst) return index
+            if (file.displayFirstInCarousel) return index
         return 0
     }
 

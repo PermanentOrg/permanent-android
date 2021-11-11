@@ -2,24 +2,21 @@ package org.permanent.permanent.ui.myFiles
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Filter
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.chauthai.swipereveallayout.ViewBinderHelper
 import org.permanent.permanent.databinding.ItemListRecordBinding
 import org.permanent.permanent.models.Record
-import java.util.*
-import kotlin.collections.ArrayList
 
 class RecordsListAdapter(
     private val lifecycleOwner: LifecycleOwner,
     private val isRelocateMode: MutableLiveData<Boolean>,
     private val isForSharesScreen: Boolean,
+    private val isForSearchScreen: Boolean,
     private val recordListener: RecordListener
 ) : RecordsAdapter() {
     private var records: MutableList<Record> = ArrayList()
-    private var filteredRecords: MutableList<Record> = ArrayList()
     private val viewBinderHelper = ViewBinderHelper()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordListViewHolder {
@@ -28,22 +25,21 @@ class RecordsListAdapter(
             parent,
             false
         )
-        return RecordListViewHolder(binding, isForSharesScreen, recordListener)
+        return RecordListViewHolder(binding, isForSharesScreen, isForSearchScreen, recordListener)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val record = filteredRecords[position]
+        val record = records[position]
         holder as RecordListViewHolder
         viewBinderHelper.bind(holder.binding.layoutSwipeReveal, record.folderLinkId.toString())
         holder.bind(record, lifecycleOwner)
     }
 
-    override fun getItemCount() = filteredRecords.size
+    override fun getItemCount() = records.size
 
     override fun setRecords(records: List<Record>) {
         this.records = records.toMutableList()
         for (record in this.records) record.isRelocateMode = isRelocateMode
-        filteredRecords = this.records
         notifyDataSetChanged()
     }
 
@@ -59,37 +55,13 @@ class RecordsListAdapter(
     override fun addRecord(fakeFile: Record) {
         records.add(0, fakeFile)
         fakeFile.isRelocateMode = isRelocateMode
-        filteredRecords = records
         notifyDataSetChanged()
     }
 
-    override fun getFilter(): Filter {
-        return object : Filter() {
-
-            override fun performFiltering(charSequence: CharSequence): FilterResults {
-                val charSearch = charSequence.toString()
-
-                filteredRecords = if (charSearch.isEmpty()) {
-                    records.toMutableList()
-                } else {
-                    val resultList = ArrayList<Record>()
-                    for (record in records) {
-                        if (record.displayName != null
-                            && record.displayName!!.toLowerCase(Locale.ROOT)
-                                .contains(charSearch.toLowerCase(Locale.ROOT))) {
-                            resultList.add(record)
-                        }
-                    }
-                    resultList
-                }
-                val filterResults = FilterResults()
-                filterResults.values = filteredRecords
-                return filterResults
-            }
-
-            @Suppress("UNCHECKED_CAST")
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredRecords = results?.values as ArrayList<Record>
+    fun updateNameOfRecord(recordId: Int?, recordName: String?) {
+        for (record in records) {
+            if (record.id == recordId) {
+                record.displayName = recordName
                 notifyDataSetChanged()
             }
         }

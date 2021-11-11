@@ -226,6 +226,14 @@ class RequestContainer(csrf: String?) {
         }
     }
 
+    fun addSearch(query: String): RequestContainer {
+        val searchVO = SearchVO()
+        searchVO.query = query
+        searchVO.numberOfResults = 10
+        RequestVO.data?.get(0)?.SearchVO = searchVO
+        return this
+    }
+
     fun addFolderDest(folderLinkId: Int): RequestContainer {
         val folderDestVO = FolderDestVO()
         folderDestVO.folder_linkId = folderLinkId

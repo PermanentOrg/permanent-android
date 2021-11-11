@@ -14,6 +14,7 @@ import org.permanent.permanent.models.RecordType
 class RecordListViewHolder(
     val binding: ItemListRecordBinding,
     private val isForSharesScreen: Boolean,
+    private val isForSearchScreen: Boolean,
     private val recordListener: RecordListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -23,7 +24,7 @@ class RecordListViewHolder(
         binding.lifecycleOwner = lifecycleOwner
         binding.btnOptions.visibility =
             if ((CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
-                        isForSharesScreen) && record.type == RecordType.FOLDER
+                        isForSharesScreen) && record.type == RecordType.FOLDER|| isForSearchScreen
             ) View.INVISIBLE else View.VISIBLE
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }
@@ -32,7 +33,7 @@ class RecordListViewHolder(
                 recordListener.onRecordDeleteClick(record)
                 binding.layoutSwipeReveal.close(true)
             }
-        binding.layoutSwipeReveal.setLockDrag(record.isProcessing || isForSharesScreen)
+        binding.layoutSwipeReveal.setLockDrag(record.isProcessing || isForSharesScreen || isForSearchScreen)
         binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnMore
             .setOnClickListener {
                 recordListener.onRecordOptionsClick(record)

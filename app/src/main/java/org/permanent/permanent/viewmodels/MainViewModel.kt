@@ -60,7 +60,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                             archive.id,
                             archive.number,
                             archive.fullName,
-                            archive.thumbURL500,
+                            archive.thumbURL200,
                             archive.accessRole
                         )
                     }

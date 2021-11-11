@@ -1,10 +1,9 @@
 package org.permanent.permanent.ui.myFiles
 
-import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.models.Record
 
-abstract class RecordsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
+abstract class RecordsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     abstract fun addRecord(fakeFile: Record)
 
