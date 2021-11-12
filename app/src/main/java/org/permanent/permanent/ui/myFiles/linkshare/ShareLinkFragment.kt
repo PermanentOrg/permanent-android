@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
@@ -28,6 +29,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.members.ItemOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
@@ -78,6 +80,9 @@ class ShareLinkFragment : PermanentBaseFragment() {
             R.layout.menu_item_dropdown_access_level,
             accessRoleList
         )
+        if(activity is FileActivity){
+            (activity as FileActivity).setToolbarAndStatusBarColor(R.color.colorPrimary)
+        }
         return binding.root
     }
 
@@ -90,6 +95,20 @@ class ShareLinkFragment : PermanentBaseFragment() {
             adapter = sharesAdapter
             addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Device's back press
+        requireActivity().onBackPressedDispatcher
+            .addCallback(this , object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed(){
+                    if(activity is FileActivity) {
+                        (activity as FileActivity).setToolbarAndStatusBarColor(R.color.black)
+                    }
+                    findNavController().popBackStack(R.id.shareLinkFragment, true)
+                }
+            })
     }
 
     private val showSnackbarSuccess = Observer<String> { message ->
