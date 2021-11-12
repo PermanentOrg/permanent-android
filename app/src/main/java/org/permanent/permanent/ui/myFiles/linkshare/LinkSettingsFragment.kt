@@ -59,8 +59,8 @@ class LinkSettingsFragment : PermanentBaseFragment() {
                     findNavController().popBackStack(R.id.shareLinkFragment, true)
                     if(activity is FileActivity)
                     {
-                        (activity as FileActivity?)!!.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.black, null)
-                        (activity as FileActivity?)!!.setToolbarColor(R.color.black)
+                        (activity as FileActivity)?.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.black, null)
+                        (activity as FileActivity?)?.setToolbarColor(R.color.black)
                     }
 
                 }
