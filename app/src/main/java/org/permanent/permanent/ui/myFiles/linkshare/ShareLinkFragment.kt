@@ -82,8 +82,8 @@ class ShareLinkFragment : PermanentBaseFragment() {
             accessRoleList
         )
         if(activity is FileActivity){
-            (activity as FileActivity?)!!.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.colorPrimary, null)
-            (activity as FileActivity?)!!.setToolbarColor(R.color.colorPrimary)
+            (activity as FileActivity)?.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.colorPrimary, null)
+            (activity as FileActivity)?.setToolbarColor(R.color.colorPrimary)
         }
         return binding.root
     }
@@ -107,8 +107,8 @@ class ShareLinkFragment : PermanentBaseFragment() {
                 override fun handleOnBackPressed(){
                     if(activity is FileActivity)
                     {
-                        (activity as FileActivity?)!!.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.black, null)
-                        (activity as FileActivity?)!!.setToolbarColor(R.color.black)
+                        (activity as FileActivity)?.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.black, null)
+                        (activity as FileActivity)?.setToolbarColor(R.color.black)
                     }
                     findNavController().popBackStack(R.id.shareLinkFragment, true)
                 }
