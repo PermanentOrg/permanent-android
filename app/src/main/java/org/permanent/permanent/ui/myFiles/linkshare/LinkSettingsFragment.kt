@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -57,12 +56,9 @@ class LinkSettingsFragment : PermanentBaseFragment() {
             .addCallback(this , object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     findNavController().popBackStack(R.id.shareLinkFragment, true)
-                    if(activity is FileActivity)
-                    {
-                        (activity as FileActivity)?.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.black, null)
-                        (activity as FileActivity)?.setToolbarColor(R.color.black)
+                    if(activity is FileActivity) {
+                        (activity as FileActivity).setToolbarAndStatusBarColor(R.color.black)
                     }
-
                 }
             })
     }

@@ -1,9 +1,6 @@
 package org.permanent.permanent.ui.fileView
 
-import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -45,8 +42,7 @@ class FileActivity : PermanentBaseActivity() {
         appBarConfig = AppBarConfiguration(navController.graph)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 
-        window.statusBarColor = Color.BLACK
-        setToolbarColor(R.color.black)
+        setToolbarAndStatusBarColor(R.color.black)
     }
 
     // Toolbar back press
@@ -58,14 +54,12 @@ class FileActivity : PermanentBaseActivity() {
             }
             R.id.linkSettingsFragment -> {
                 navController.popBackStack(R.id.shareLinkFragment, true)
-                window.statusBarColor = Color.BLACK
-                setToolbarColor(R.color.black)
+                setToolbarAndStatusBarColor(R.color.black)
                 true
             }
             R.id.shareLinkFragment -> {
                 navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
-                window.statusBarColor = Color.BLACK
-                setToolbarColor(R.color.black)
+                setToolbarAndStatusBarColor(R.color.black)
                 true
             }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
@@ -87,13 +81,9 @@ class FileActivity : PermanentBaseActivity() {
         super.onPause()
         disconnectViewModelEvents()
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    fun setToolbarColor(colorId: Int) {
-        val toolBar = findViewById<View>(R.id.fileToolbar) as Toolbar
-        toolBar.setBackgroundColor(ContextCompat.getColor(this, colorId))
+    
+    fun setToolbarAndStatusBarColor(colorId: Int) {
+        binding.fileToolbar.setBackgroundColor(ContextCompat.getColor(this, colorId))
+        window.statusBarColor = ContextCompat.getColor(this, colorId)
     }
 }

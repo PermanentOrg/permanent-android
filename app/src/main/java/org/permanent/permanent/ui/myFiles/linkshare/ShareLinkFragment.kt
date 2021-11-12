@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -82,8 +81,7 @@ class ShareLinkFragment : PermanentBaseFragment() {
             accessRoleList
         )
         if(activity is FileActivity){
-            (activity as FileActivity)?.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.colorPrimary, null)
-            (activity as FileActivity)?.setToolbarColor(R.color.colorPrimary)
+            (activity as FileActivity).setToolbarAndStatusBarColor(R.color.colorPrimary)
         }
         return binding.root
     }
@@ -105,10 +103,8 @@ class ShareLinkFragment : PermanentBaseFragment() {
         requireActivity().onBackPressedDispatcher
             .addCallback(this , object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed(){
-                    if(activity is FileActivity)
-                    {
-                        (activity as FileActivity)?.window?.statusBarColor = ResourcesCompat.getColor(resources, R.color.black, null)
-                        (activity as FileActivity)?.setToolbarColor(R.color.black)
+                    if(activity is FileActivity) {
+                        (activity as FileActivity).setToolbarAndStatusBarColor(R.color.black)
                     }
                     findNavController().popBackStack(R.id.shareLinkFragment, true)
                 }
