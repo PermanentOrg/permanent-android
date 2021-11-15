@@ -15,6 +15,7 @@ import org.permanent.permanent.databinding.FragmentLinkSettingsBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.LinkSettingsViewModel
 import java.util.*
@@ -55,6 +56,9 @@ class LinkSettingsFragment : PermanentBaseFragment() {
             .addCallback(this , object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     findNavController().popBackStack(R.id.shareLinkFragment, true)
+                    if(activity is FileActivity) {
+                        (activity as FileActivity).setToolbarAndStatusBarColor(R.color.black)
+                    }
                 }
             })
     }
