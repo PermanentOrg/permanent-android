@@ -61,7 +61,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                         archive.id,
                         archive.number,
                         archive.fullName,
-                        archive.thumbURL500,
+                        archive.thumbURL200,
                         archive.accessRole
                     )
                     prefsHelper.saveUserLoggedIn(true)

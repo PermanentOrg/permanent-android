@@ -43,7 +43,7 @@ class RecordGridViewHolder(
             && previewState.value != PreviewState.ACCESS_GRANTED
         ) {
             Picasso.get()
-                .load(record.thumbURL500)
+                .load(record.thumbURL200)
                 .placeholder(R.drawable.ic_stop_light_grey)
                 .fit()
                 .transform(BlurTransformation(context, 25, 5))

@@ -69,6 +69,8 @@ interface IFileRepository {
 
     fun updateRecord(record: Record, newName: String, listener: IResponseListener)
 
+    fun searchRecord(query: String, listener: IOnRecordsRetrievedListener)
+
     interface IOnRecordsRetrievedListener {
         fun onSuccess(recordVOs: List<RecordVO>?)
         fun onFailed(error: String?)

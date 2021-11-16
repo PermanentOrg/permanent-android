@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +32,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
@@ -148,12 +148,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordsAdapter.setRecords(it)
     }
 
-    private val onRecordsFilterQuery = Observer<Editable> {
-        recordsAdapter.filter.filter(it)
-    }
-
     private val onNewTemporaryFile = Observer<Record> {
         recordsAdapter.addRecord(it)
+    }
+
+    private val onShowRecordSearchFragment = Observer<Void> {
+        findNavController().navigate(R.id.action_myFilesFragment_to_recordSearchFragment)
     }
 
     private val onShowAddOptionsFragment = Observer<NavigationFolderIdentifier> {
@@ -170,7 +170,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareViaPermanentRequest()?.observe(this, onRecordShareViaPermanentRequest)
+        recordOptionsFragment?.getOnRecordShareViaPermanentRequest()
+            ?.observe(this, onRecordShareViaPermanentRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
 
@@ -214,7 +215,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setView(renameDialogBinding.root)
             .create()
-        renameDialogBinding.tvTitle.text = getString(R.string.rename_record_title, record.displayName)
+        renameDialogBinding.tvTitle.text =
+            getString(R.string.rename_record_title, record.displayName)
         renameDialogBinding.btnRename.setOnClickListener {
             renameDialogViewModel.renameRecord(record)
         }
@@ -300,7 +302,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
         recordsRecyclerView = rvFiles
         recordsListAdapter = RecordsListAdapter(
-            this, viewModel.getIsRelocationMode(), false, viewModel
+            this, viewModel.getIsRelocationMode(),
+            isForSharesScreen = false,
+            isForSearchScreen = false,
+            recordListener = viewModel
         )
         recordsGridAdapter = RecordsGridAdapter(
             this,
@@ -338,10 +343,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
-        viewModel.getOnFilesFilterQuery().observe(this, onRecordsFilterQuery)
         viewModel.getOnNewTemporaryFile().observe(this, onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
         viewModel.getOnShowRecordOptionsFragment().observe(this, onShowRecordOptionsFragment)
+        viewModel.getOnShowRecordSearchFragment().observe(this, onShowRecordSearchFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
@@ -358,10 +363,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
-        viewModel.getOnFilesFilterQuery().removeObserver(onRecordsFilterQuery)
         viewModel.getOnNewTemporaryFile().removeObserver(onNewTemporaryFile)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
         viewModel.getOnShowRecordOptionsFragment().removeObserver(onShowRecordOptionsFragment)
+        viewModel.getOnShowRecordSearchFragment().removeObserver(onShowRecordSearchFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
@@ -373,7 +378,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareViaPermanentRequest()?.removeObserver(onRecordShareViaPermanentRequest)
+        recordOptionsFragment?.getOnRecordShareViaPermanentRequest()
+            ?.removeObserver(onRecordShareViaPermanentRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }
@@ -383,6 +389,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         connectViewModelEvents()
         if (shouldRefreshCurrentFolder) viewModel.refreshCurrentFolder()
         shouldRefreshCurrentFolder = true
+        binding.root.windowToken?.let {context?.hideKeyboardFrom(binding.root.windowToken)}
     }
 
     override fun onPause() {

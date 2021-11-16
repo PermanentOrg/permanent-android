@@ -8,7 +8,7 @@ class Archive() : Parcelable {
     var id: Int = -1
     var number: String? = null
     var fullName: String? = null
-    var thumbURL500: String? = null
+    var thumbURL200: String? = null
     var accessRole: AccessRole? = null
     var accessRoleText: String? = null
     var status: Status? = null
@@ -17,7 +17,7 @@ class Archive() : Parcelable {
         id = parcel.readInt()
         number = parcel.readString()
         fullName = parcel.readString()
-        thumbURL500 = parcel.readString()
+        thumbURL200 = parcel.readString()
         accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         accessRoleText = parcel.readString()
         status = parcel.readParcelable(Status::class.java.classLoader)
@@ -27,7 +27,7 @@ class Archive() : Parcelable {
         id = archiveVO?.archiveId ?: -1
         number = archiveVO?.archiveNbr
         fullName = "The ${archiveVO?.fullName} Archive"
-        thumbURL500 = archiveVO?.thumbURL500
+        thumbURL200 = archiveVO?.thumbURL200
         accessRole = when (archiveVO?.accessRole) {
             AccessRole.OWNER.backendString -> AccessRole.OWNER
             AccessRole.MANAGER.backendString -> AccessRole.MANAGER
@@ -51,7 +51,7 @@ class Archive() : Parcelable {
         parcel.writeInt(id)
         parcel.writeString(number)
         parcel.writeString(fullName)
-        parcel.writeString(thumbURL500)
+        parcel.writeString(thumbURL200)
         parcel.writeParcelable(accessRole, flags)
         parcel.writeString(accessRoleText)
         parcel.writeParcelable(status, flags)

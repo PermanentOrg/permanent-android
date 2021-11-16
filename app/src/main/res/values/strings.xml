@@ -98,11 +98,12 @@
     <string name="main_navigation_title_shares">Shares</string>
     <string name="main_navigation_title_members">Members</string>
     <string name="main_navigation_title_share_link">Share Link</string>
+    <string name="main_navigation_title_search">Search</string>
 
     <string name="file_navigation_title_enter_location">Enter Location</string>
     <string name="file_navigation_title_edit_tags">Edit Tags</string>
 
-    <string name="my_files_search_hint"><font size="14">Search Files</font></string>
+    <string name="my_files_search_hint"><font size="14">Search this archive</font></string>
     <string name="my_files_title">My Files</string>
     <string name="my_files_sort_criteria_name">Name</string>
     <string name="my_files_sort_criteria_date">Date</string>
