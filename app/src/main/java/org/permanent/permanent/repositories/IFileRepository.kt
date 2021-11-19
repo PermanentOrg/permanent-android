@@ -4,6 +4,7 @@ import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.*
@@ -69,7 +70,7 @@ interface IFileRepository {
 
     fun updateRecord(record: Record, newName: String, listener: IResponseListener)
 
-    fun searchRecord(query: String, listener: IOnRecordsRetrievedListener)
+    fun searchRecords(query: String?, tags: List<Tag>, listener: IOnRecordsRetrievedListener)
 
     interface IOnRecordsRetrievedListener {
         fun onSuccess(recordVOs: List<RecordVO>?)

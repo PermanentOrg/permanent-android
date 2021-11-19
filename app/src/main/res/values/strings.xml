@@ -347,4 +347,9 @@
     <string name="dialog_delete_archive_title">Are you sure you want to permanently delete this archive?</string>
     <string name="dialog_switch_archive_title">Switch to The %s Archive?</string>
     <string name="dialog_switch_archive_text">In order to access this content you need to switch to The %s Archive</string>
+
+    <string name="record_search_tags_title">Tags (%s)</string>
+    <string name="record_search_results_title">Results</string>
+    <string name="record_search_no_results_title">Enter search terms to match tags and titles.</string>
+    <string name="record_search_no_results_message">Search results will appear here.</string>
 </resources>

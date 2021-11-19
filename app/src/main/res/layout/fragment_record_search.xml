@@ -36,11 +36,11 @@
                 android:afterTextChanged="@{(editable)->viewModel.onSearchQueryTextChanged(editable)}"
                 android:background="@drawable/rounded_grey_border_white_background"
                 android:ems="10"
+                android:focusableInTouchMode="true"
                 android:hint="@string/my_files_search_hint"
                 android:inputType="text"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
-                android:focusableInTouchMode="true"
                 android:text="@{viewModel.currentSearchQuery}"
                 android:textColorHint="@color/lightGrey"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -109,14 +109,115 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <TextView
+            android:id="@+id/tvTagsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@{viewModel.tagsTitle}"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="@{viewModel.existsTags ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clFolderOptions"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <HorizontalScrollView
+            android:id="@+id/hScrollViewTags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="@{viewModel.existsTags ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTagsTitle">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupTags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                app:chipSpacingVertical="8dp"
+                app:singleLine="true" />
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/tvResultsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/record_search_results_title"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hScrollViewTags"
+            app:layout_constraintVertical_bias="0.0" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRecords"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:visibility="@{viewModel.existsRecords ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/clFolderOptions"
+            app:layout_constraintTop_toBottomOf="@+id/tvResultsTitle"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <ImageView
+            android:id="@+id/ivEmptySearch"
+            android:layout_width="wrap_content"
+            android:layout_height="112dp"
+            android:layout_marginTop="52dp"
+            android:src="@drawable/img_empty_search"
+            android:visibility="@{viewModel.existsRecords ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvResultsTitle"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvNoResultsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/record_search_no_results_title"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="@{viewModel.existsRecords ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivEmptySearch"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvNoResultsMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/record_search_no_results_message"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="@{viewModel.existsRecords ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvNoResultsTitle"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.core.widget.ContentLoadingProgressBar

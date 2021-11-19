@@ -8,7 +8,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
@@ -312,8 +312,12 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             })
     }
 
-    override fun searchRecord(query: String, listener: IFileRepository.IOnRecordsRetrievedListener) {
-        NetworkClient.instance().searchRecord(prefsHelper.getCsrf(), query)
+    override fun searchRecords(
+        query: String?,
+        tags: List<Tag>,
+        listener: IFileRepository.IOnRecordsRetrievedListener
+    ) {
+        NetworkClient.instance().searchRecords(prefsHelper.getCsrf(), query, tags)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
