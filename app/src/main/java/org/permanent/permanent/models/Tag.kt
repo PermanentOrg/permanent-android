@@ -8,7 +8,7 @@ data class Tag constructor(
     var tagId: String? = null,
     var name: String = "",
     var isCheckedOnServer: Boolean = false,
-    var isCheckedOnLocal: Boolean = true
+    var isCheckedOnLocal: Boolean = false
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this() {
