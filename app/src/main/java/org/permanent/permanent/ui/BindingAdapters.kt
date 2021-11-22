@@ -68,12 +68,10 @@ fun loadImage(view: ImageView, record: Record?) {
 
 @BindingAdapter("imageUrl")
 fun loadSimpleImage(view: ImageView, url: String?) {
-    if (!url.isNullOrEmpty()) {
-        Picasso.get()
-            .load(url)
-            .placeholder(R.drawable.ic_stop_light_grey)
-            .into(view)
-    }
+    Picasso.get()
+        .load(url)
+        .placeholder(R.drawable.ic_stop_light_grey)
+        .into(view)
 }
 
 @BindingAdapter("setError")

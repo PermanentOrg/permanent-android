@@ -6,7 +6,6 @@ class Constants {
         const val POSITION_SHARED_WITH_ME_FRAGMENT = 1
         const val POSITION_INFO_FRAGMENT = 0
         const val POSITION_DETAILS_FRAGMENT = 1
-        const val VERIFICATION_CODE_LENGTH = 4
         const val REQUEST_CODE_FILE_SELECT = 200
         const val REQUEST_CODE_IMAGE_CAPTURE = 201
         const val REQUEST_CODE_VIDEO_CAPTURE = 203
@@ -19,6 +18,7 @@ class Constants {
         const val AUTH_TYPE_PHONE = "type.auth.phone"
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
         const val ERROR_INVALID_VERIFICATION_CODE = "warning.auth.token_does_not_match"
+        const val ERROR_EXPIRED_VERIFICATION_CODE = "warning.auth.token_expired"
         const val ERROR_INVALID_CSRF = "error.generic.invalid_csrf"
         const val ERROR_UNKNOWN_SIGNIN = "warning.signin.unknown"
         const val ERROR_SERVER_ERROR = "error.api.invalid_request"

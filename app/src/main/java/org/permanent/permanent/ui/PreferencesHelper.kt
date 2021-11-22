@@ -15,7 +15,6 @@ const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val PREFS_SKIP_TWO_STEP_VERIFICATION = "preferences_skip_two_step_verification"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
-const val PREFS_ACCOUNT_PASSWORD = "preferences_user_password"
 const val PREFS_CSRF = "preferences_csrf"
 const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
 const val PREFS_CURRENT_ARCHIVE_ID = "preferences_current_archive_id"
@@ -97,17 +96,6 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getString(PREFS_ACCOUNT_EMAIL, "")
     }
 
-    fun saveAccountPass(pass: String) {
-        with(sharedPreferences.edit()) {
-            putString(PREFS_ACCOUNT_PASSWORD, pass)
-            apply()
-        }
-    }
-
-    fun getAccountPass(): String? {
-        return sharedPreferences.getString(PREFS_ACCOUNT_PASSWORD, "")
-    }
-
     fun saveCsrf(csrf: String?) {
         csrf?.let {
             with(sharedPreferences.edit()) {
@@ -172,11 +160,9 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
                 apply()
             }
         }
-        thumbURL?.let {
-            with(sharedPreferences.edit()) {
-                putString(PREFS_CURRENT_ARCHIVE_THUMB_URL, thumbURL)
-                apply()
-            }
+        with(sharedPreferences.edit()) {
+            putString(PREFS_CURRENT_ARCHIVE_THUMB_URL, thumbURL)
+            apply()
         }
         accessRole?.let {
             with(sharedPreferences.edit()) {
@@ -200,7 +186,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
     }
 
     fun getCurrentArchiveThumbURL(): String? {
-        return sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_THUMB_URL, "")
+        return sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_THUMB_URL, null)
     }
 
     fun getCurrentArchiveAccessRole(): AccessRole {

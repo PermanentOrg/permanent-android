@@ -25,7 +25,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
 
     private val onCodeVerified = Observer<Void> {
         when {
-            isLoginFlow() -> viewModel.tryLoginAgain()
+            isLoginFlow() -> viewModel.getDefaultArchive()
             viewModel.isSmsCodeFlow -> startMainActivity()
             else -> startPhoneVerificationFragment()
         }
