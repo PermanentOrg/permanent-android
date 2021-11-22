@@ -75,7 +75,7 @@ class TagsEditFragment : PermanentBaseFragment() {
         chipGroup.removeAllViews()
         for (archiveTag in archiveTags) {
             val chip = layoutInflater.inflate(
-                R.layout.item_chip_filter, chipGroup, false) as Chip
+                R.layout.item_chip_filter_white, chipGroup, false) as Chip
             chip.text = (archiveTag.name)
             chip.isChecked = archiveTag.isCheckedOnLocal
             chip.setEnsureMinTouchTargetSize(false)

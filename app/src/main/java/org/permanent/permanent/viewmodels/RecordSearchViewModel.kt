@@ -1,69 +1,124 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.ITagRepository
+import org.permanent.permanent.repositories.TagRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
 import java.util.*
+import kotlin.collections.ArrayList
 
 class RecordSearchViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener {
 
+    private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private var searchJob: Job? = null
     private val isBusy = MutableLiveData(false)
     private val folderName = MutableLiveData<String>()
     private val isRoot = MutableLiveData(true)
-    private val currentSearchQuery = MutableLiveData<String>()
-    private val existsFiles = MutableLiveData(false)
+    val currentSearchQuery = MutableLiveData<String>()
+    private val existsTags = MutableLiveData(false)
+    private val existsRecords = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
+    private val tagsTitle =
+        MutableLiveData(application.getString(R.string.record_search_tags_title, "0"))
+    private val allTags = ArrayList<Tag>()
+    private val onVisibleTagsReady = SingleLiveEvent<ArrayList<Tag>>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
+    private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<Record> = Stack()
 
-    fun onSearchQueryTextChanged(query: Editable) {
-        val queryString = query.toString()
-        currentSearchQuery.value = queryString
-        if (queryString.length < MIN_CHARS_FOR_SEARCH) {
-            searchJob?.cancel()
-            onRecordsRetrieved.value = ArrayList<Record>()
-            isRoot.value = true
-        } else if (queryString.length >= MIN_CHARS_FOR_SEARCH) searchDebounced(queryString)
+    init {
+        requestTagsForCurrentArchive()
     }
 
-    private fun searchDebounced(searchText: String) {
-        searchJob?.cancel()
-        searchJob = viewModelScope.launch {
-            delay(SEARCH_DELAY_MILLIS)
-            requestSearchResults(searchText)
-        }
-    }
-
-    private fun requestSearchResults(query: String?) {
+    private fun requestTagsForCurrentArchive() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
 
-        if (!query.isNullOrEmpty()) {
+        isBusy.value = true
+        tagRepository.getTagsByArchive(prefsHelper.getCurrentArchiveId(), object : IDataListener {
+
+            override fun onSuccess(dataList: List<Datum>?) {
+                isBusy.value = false
+                dataList?.let {
+                    for (data in it) {
+                        data.TagVO?.let { tagVO -> allTags.add(Tag(tagVO)) }
+                    }
+                    allTags.sortBy { tag -> tag.name.lowercase() }
+                    existsTags.value = allTags.isNotEmpty()
+                    onVisibleTagsReady.value = allTags
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    fun onSearchQueryTextChanged(query: Editable) {
+        currentSearchQuery.value = query.toString()
+        if (currentSearchQuery.value.isNullOrEmpty()) {
+            searchJob?.cancel()
+            isRoot.value = true
+            existsRecords.value = false
+        }
+        searchAndFilterDebounced()
+    }
+
+    private fun searchAndFilterDebounced() {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DELAY_MILLIS)
+            searchRecords()
+            filterTags(currentSearchQuery.value)
+        }
+    }
+
+    fun searchRecords() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        val query = currentSearchQuery.value
+        val checkedTags = getCheckedTags(onVisibleTagsReady.value)
+        if (!query.isNullOrEmpty() || checkedTags.isNotEmpty()) {
             isBusy.value = true
-            fileRepository.searchRecord(
+            fileRepository.searchRecords(
                 query,
+                checkedTags,
                 object : IFileRepository.IOnRecordsRetrievedListener {
 
                     override fun onSuccess(recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         isRoot.value = true
-//                    existsResults.value = !recordVOs.isNullOrEmpty()
+                        existsRecords.value = !recordVOs.isNullOrEmpty()
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(it) }
                     }
 
@@ -72,6 +127,41 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
                         showMessage.value = error
                     }
                 })
+        } else {
+            isRoot.value = true
+            existsRecords.value = false
+        }
+    }
+
+    private fun getCheckedTags(visibleTags: ArrayList<Tag>?): ArrayList<Tag> {
+        val checkedTags = ArrayList<Tag>()
+        if (visibleTags != null) {
+            for (tag in visibleTags) {
+                if (tag.isCheckedOnLocal) {
+                    checkedTags.add(tag)
+                }
+            }
+        }
+        tagsTitle.value =
+            appContext.getString(R.string.record_search_tags_title, checkedTags.size.toString())
+        return checkedTags
+    }
+
+    private fun filterTags(searchQuery: String?) {
+        if (searchQuery.isNullOrEmpty()) {
+            existsTags.value = allTags.isNotEmpty()
+            if (allTags.isNotEmpty()) onVisibleTagsReady.value = allTags
+        } else {
+            val filteredTags = ArrayList<Tag>()
+            for (tag in allTags) {
+                if (tag.name.lowercase(Locale.ROOT)
+                        .contains(searchQuery.lowercase(Locale.ROOT)) || tag.isCheckedOnLocal
+                ) {
+                    filteredTags.add(tag)
+                }
+            }
+            existsTags.value = filteredTags.isNotEmpty()
+            if (filteredTags.isNotEmpty()) onVisibleTagsReady.value = filteredTags
         }
     }
 
@@ -92,7 +182,6 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
             folderPathStack.push(record)
             loadChildRecordsOf(record)
         } else onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value, record)
-
     }
 
     private fun loadChildRecordsOf(record: Record) {
@@ -111,7 +200,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
                         isBusy.value = false
                         isRoot.value = false
                         folderName.value = record.displayName
-//                        existsResults.value = !recordVOs.isNullOrEmpty()
+                        existsRecords.value = !recordVOs.isNullOrEmpty()
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
@@ -146,7 +235,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
     fun onBackBtnClick() {
         // Popping the record of the current folder
         folderPathStack.pop()
-        if (folderPathStack.isEmpty()) requestSearchResults(currentSearchQuery.value)
+        if (folderPathStack.isEmpty()) searchRecords()
         else loadChildRecordsOf(folderPathStack.peek())
     }
 
@@ -154,20 +243,23 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getFolderName(): MutableLiveData<String> = folderName
 
-    fun getExistsFiles(): MutableLiveData<Boolean> = existsFiles
+    fun getTagsTitle(): MutableLiveData<String> = tagsTitle
+
+    fun getExistsTags(): MutableLiveData<Boolean> = existsTags
+
+    fun getExistsRecords(): MutableLiveData<Boolean> = existsRecords
 
     fun getIsRoot(): MutableLiveData<Boolean> = isRoot
 
-    fun getCurrentSearchQuery(): MutableLiveData<String> = currentSearchQuery
-
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
+
+    fun getOnVisibleTagsReady(): MutableLiveData<ArrayList<Tag>> = onVisibleTagsReady
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
 
     fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 
     companion object {
-        private const val MIN_CHARS_FOR_SEARCH = 3
-        private const val SEARCH_DELAY_MILLIS = 100L
+        private const val SEARCH_DELAY_MILLIS = 300L
     }
 }

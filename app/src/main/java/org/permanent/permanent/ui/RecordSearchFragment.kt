@@ -13,8 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentRecordSearchBinding
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.fileView.FileInfoFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
@@ -46,6 +50,36 @@ class RecordSearchFragment : PermanentBaseFragment() {
 
     private val onShowMessage = Observer<String> {
         Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    }
+
+    private val onVisibleTagsReady = Observer<ArrayList<Tag>> {
+        val chipGroup = binding.chipGroupTags
+        chipGroup.removeAllViews()
+
+        it.forEachIndexed { index, tag ->
+            val chip = layoutInflater.inflate(
+                R.layout.item_chip_filter_purple, chipGroup, false) as Chip
+            chip.text = (tag.name)
+
+            chip.isChecked = tag.isCheckedOnLocal
+            chip.setEnsureMinTouchTargetSize(false)
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                tag.isCheckedOnLocal = isChecked
+                viewModel.currentSearchQuery.value = ""
+                viewModel.searchRecords()
+            }
+            if (index == 0) {
+                val layoutParams = chip.layoutParams as ChipGroup.LayoutParams
+                layoutParams.marginStart = 40
+                chip.layoutParams = layoutParams
+            }
+            if (index == it.lastIndex) {
+                val layoutParams = chip.layoutParams as ChipGroup.LayoutParams
+                layoutParams.marginEnd = 40
+                chip.layoutParams = layoutParams
+            }
+            chipGroup.addView(chip)
+        }
     }
 
     private val onRecordsRetrieved = Observer<List<Record>> {
@@ -93,12 +127,14 @@ class RecordSearchFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
+        viewModel.getOnVisibleTagsReady().observe(this, onVisibleTagsReady)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnVisibleTagsReady().removeObserver(onVisibleTagsReady)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
     }
