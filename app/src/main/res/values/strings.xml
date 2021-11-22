@@ -27,10 +27,9 @@
     <string name="sign_up_terms_declined">Declined Terms and Conditions</string>
     <string name="login_screen_password_reset_message">An email with instructions to change your password has been sent at %s.</string>
     <string name="verification_code_enter_verification_code">Enter verification code</string>
-    <string name="verification_code_enter_code_hint">Enter the 4-digit code</string>
+    <string name="verification_code_enter_code_hint">Enter the second factor code</string>
     <string name="button_done">Done</string>
 
-    <string name="verification_code_length_error">Code must be 4 characters long</string>
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
     <string name="password_too_short_error">Password must be minimum 8 characters long</string>

@@ -44,6 +44,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     init {
+        // This is needed in case the default changes on the web and the user is already logged in
         getDefaultArchive()
     }
 
@@ -92,6 +93,8 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                         if (currentArchiveId != archive.id) {
                             if (archive.status == Status.PENDING) pendingArchives.add(archive) else
                                 archives.add(archive)
+                        } else {
+                            updateCurrentArchive(archive)
                         }
                     }
                     existsPendingArchives.value = pendingArchives.isNotEmpty()
@@ -106,6 +109,16 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                 showMessage.value = error
             }
         })
+    }
+
+    private fun updateCurrentArchive(archive: Archive) {
+        prefsHelper.saveCurrentArchiveInfo(
+            archive.id,
+            archive.number,
+            archive.fullName,
+            archive.thumbURL200,
+            archive.accessRole
+        )
     }
 
     override fun onAcceptBtnClick(archive: Archive) {
