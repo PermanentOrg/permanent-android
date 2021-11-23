@@ -115,6 +115,29 @@
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
 
+    <string name="public_archive_tab_name">"Public Archive"</string>
+    <string name="public_profile_tab_name">"Public Profile"</string>
+    <string name="public_profile_about">About</string>
+    <string name="public_profile_read_more">Read More</string>
+    <string name="public_profile_person_information">Person Information</string>
+    <string name="public_profile_birth_date">Birth Date</string>
+    <string name="public_profile_birth_location">Birth Location</string>
+    <string name="public_profile_online_presence">Online Presence</string>
+    <string name="public_profile_milestones">Milestones</string>
+    <string name="public_profile_about_text">Dr. Robert Friedman has over a decade of experience
+                                            in the non-profit sector focused on developing an
+                                            inclusive and ethical digital community. As the Executive
+                                            Director of the Permanent Legacy Foundation,
+                                            Dr. Friedman is building a nonprofit, historical trust …</string>
+    <string name="public_profile_full_name">Robert Bryan Friedman</string>
+    <string name="robert_birthdate">May 26, 1981</string>
+    <string name="place">280 Marin Boulevard, Jersey City, New Jersey, US</string>
+    <string name="online">http://twitter.com/omnignorant
+        https://www.linkedin.com/in/robertbryanfriedman/
+        http://omnignorant.com
+</string>
+
+
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>
     <string name="file_options_menu_item_move">Move</string>
@@ -201,6 +224,7 @@
     <string name="save_button">Save</string>
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
+    <string name="empty">Empty</string>
 
     <string name="members_owner">Owner</string>
     <string name="members_managers">Managers</string>

@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
+import kotlinx.android.synthetic.main.activity_file.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
@@ -52,6 +53,16 @@ class FileActivity : PermanentBaseActivity() {
                 this@FileActivity.finish()
                 true
             }
+            R.id.linkSettingsFragment -> {
+                navController.popBackStack(R.id.shareLinkFragment, true)
+                setToolbarAndStatusBarColor(R.color.black)
+                true
+            }
+            R.id.shareLinkFragment -> {
+                navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
+                setToolbarAndStatusBarColor(R.color.black)
+                true
+            }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
     }
@@ -71,9 +82,9 @@ class FileActivity : PermanentBaseActivity() {
         super.onPause()
         disconnectViewModelEvents()
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        window.statusBarColor = ContextCompat.getColor(applicationContext, R.color.colorPrimary)
+    
+    fun setToolbarAndStatusBarColor(colorId: Int) {
+        binding.fileToolbar.setBackgroundColor(ContextCompat.getColor(this, colorId))
+        window.statusBarColor = ContextCompat.getColor(this, colorId)
     }
 }
