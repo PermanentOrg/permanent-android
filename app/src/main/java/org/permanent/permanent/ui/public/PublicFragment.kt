@@ -12,7 +12,6 @@ import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment()  {
 
-
     private lateinit var binding: FragmentPublicBinding
     private lateinit var viewModel: PublicViewModel
 
@@ -55,7 +54,6 @@ class PublicFragment : PermanentBaseFragment()  {
     override fun disconnectViewModelEvents() {
         TODO("Not yet implemented")
     }
-
 }
 
 
