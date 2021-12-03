@@ -50,9 +50,8 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 prefsHelper.saveCsrf(responseVO?.csrf)
-                // We save this for the background login after verifyCode
+                // We save this here for verifyCode
                 prefsHelper.saveAccountEmail(email)
-                prefsHelper.saveAccountPass(password)
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     prefsHelper.saveAccountId(responseVO.getAccount()?.accountId)
@@ -61,7 +60,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                         archive.id,
                         archive.number,
                         archive.fullName,
-                        archive.thumbURL500,
+                        archive.thumbURL200,
                         archive.accessRole
                     )
                     prefsHelper.saveUserLoggedIn(true)
@@ -177,7 +176,10 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
 
-                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                    if (response.isSuccessful && responseVO?.isSuccessful == true) {
+                        val account = responseVO.getAccount()
+                        prefsHelper.saveAccountId(account?.accountId)
+                        prefsHelper.saveDefaultArchiveId(account?.defaultArchiveId)
                         listener.onSuccess()
                     } else {
                         listener.onFailed(

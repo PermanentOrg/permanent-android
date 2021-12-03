@@ -7,6 +7,7 @@ import android.content.res.Resources
 import android.net.Uri
 import android.os.IBinder
 import android.provider.OpenableColumns
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import java.io.File
 import java.io.FileOutputStream
@@ -16,8 +17,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 fun Context.hideKeyboardFrom(windowToken: IBinder) {
-    val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    (getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            ).hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun Context.showKeyboardFor(view: View) {
+    (getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            ).showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
 }
 
 fun Context.assetSize(resourceUri: Uri): Long {
@@ -83,12 +89,14 @@ fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String 
 @SuppressLint("SimpleDateFormat")
 fun Uri.getDisplayName(context: Context): String {
     var displayName = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(Date())
-    val cursor = context.contentResolver.query(this, null, null,
-        null, null)
+    val cursor = context.contentResolver.query(
+        this, null, null,
+        null, null
+    )
     try {
         val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         cursor?.moveToFirst()
-        nameIndex?.let {  displayName = cursor.getString(it) }
+        nameIndex?.let { displayName = cursor.getString(it) }
     } catch (e: IOException) {
         e.printStackTrace()
     } finally {

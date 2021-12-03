@@ -9,13 +9,20 @@
         android:id="@+id/archivesFragment"
         android:name="org.permanent.permanent.ui.archives.ArchivesFragment"
         android:label="@string/main_navigation_title_archives"
-        tools:layout="@layout/fragment_archives"/>
+        tools:layout="@layout/fragment_archives" />
 
     <fragment
         android:id="@+id/myFilesFragment"
         android:name="org.permanent.permanent.ui.myFiles.MyFilesFragment"
         android:label="@string/main_navigation_title_my_files"
         tools:layout="@layout/fragment_my_files">
+        <action
+            android:id="@+id/action_myFilesFragment_to_recordSearchFragment"
+            app:destination="@id/recordSearchFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_myFilesFragment_to_shareLinkFragment"
             app:destination="@id/shareLinkFragment"
@@ -36,6 +43,13 @@
     </fragment>
 
     <fragment
+        android:id="@+id/recordSearchFragment"
+        android:name="org.permanent.permanent.ui.RecordSearchFragment"
+        android:label="@string/main_navigation_title_search"
+        tools:layout="@layout/fragment_record_search" >
+    </fragment>
+
+    <fragment
         android:id="@+id/shareLinkFragment"
         android:name="org.permanent.permanent.ui.myFiles.linkshare.ShareLinkFragment"
         android:label="@string/main_navigation_title_share_link"
@@ -53,8 +67,7 @@
         android:id="@+id/linkSettingsFragment"
         android:name="org.permanent.permanent.ui.myFiles.linkshare.LinkSettingsFragment"
         android:label="@string/share_link_link_settings_button"
-        tools:layout="@layout/fragment_link_settings">
-    </fragment>
+        tools:layout="@layout/fragment_link_settings" />
 
     <fragment
         android:id="@+id/sharePreviewFragment"
@@ -63,8 +76,8 @@
         tools:layout="@layout/fragment_share_preview">
         <argument
             android:name="url_token"
-            app:argType="string"
-            android:defaultValue="" />
+            android:defaultValue=""
+            app:argType="string" />
         <deepLink
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/share/{url_token}" />
@@ -94,31 +107,31 @@
         android:id="@+id/membersFragment"
         android:name="org.permanent.permanent.ui.members.MembersFragment"
         android:label="@string/main_navigation_title_members"
-        tools:layout="@layout/fragment_members"/>
+        tools:layout="@layout/fragment_members" />
 
     <fragment
         android:id="@+id/activityFeedFragment"
         android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
         android:label="@string/menu_settings_drawer_activity_feed"
-        tools:layout="@layout/fragment_activity_feed"/>
+        tools:layout="@layout/fragment_activity_feed" />
 
     <fragment
         android:id="@+id/invitationsFragment"
         android:name="org.permanent.permanent.ui.invitations.InvitationsFragment"
         android:label="@string/menu_settings_drawer_invitations"
-        tools:layout="@layout/fragment_invitations"/>
+        tools:layout="@layout/fragment_invitations" />
 
     <fragment
         android:id="@+id/accountInfoFragment"
         android:name="org.permanent.permanent.ui.settings.AccountInfoFragment"
         android:label="@string/menu_settings_drawer_account_info"
-        tools:layout="@layout/fragment_account_info"/>
+        tools:layout="@layout/fragment_account_info" />
 
     <fragment
         android:id="@+id/securityFragment"
         android:name="org.permanent.permanent.ui.settings.SecurityFragment"
         android:label="@string/menu_settings_drawer_security"
-        tools:layout="@layout/fragment_security"/>
+        tools:layout="@layout/fragment_security" />
 
     <activity
         android:id="@+id/fileActivity"

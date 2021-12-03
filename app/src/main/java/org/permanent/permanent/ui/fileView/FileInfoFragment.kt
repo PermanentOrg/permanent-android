@@ -1,6 +1,8 @@
 package org.permanent.permanent.ui.fileView
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.InputType
@@ -121,6 +123,9 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
 
     private val onFileInfoUpdated = Observer<String> { fileName ->
         (activity as AppCompatActivity?)?.supportActionBar?.title = fileName
+        val resultIntent = Intent()
+        resultIntent.putExtra(ACTIVITY_RESULT_FILE_NAME_KEY, fileName)
+        activity?.setResult(Activity.RESULT_OK, resultIntent)
     }
 
     private val onShowTagsEdit = Observer<Void> {
@@ -202,5 +207,10 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         super.onPause()
         disconnectViewModelEvents()
         mapView?.onPause()
+    }
+
+    companion object {
+        const val ACTIVITY_RESULT_FILE_NAME_KEY = "activity_result_file_name_key"
+        const val ACTIVITY_RESULT_REQUEST_CODE = 1616
     }
 }

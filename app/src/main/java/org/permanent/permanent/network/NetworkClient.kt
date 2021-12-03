@@ -365,6 +365,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
     }
 
+    fun searchRecords(csrf: String?, query: String?, tags: List<Tag>): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addSearch(query, tags))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.searchRecord(requestBody)
+    }
+
     fun requestShareLink(
         csrf: String?, record: Record, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {

@@ -27,10 +27,9 @@
     <string name="sign_up_terms_declined">Declined Terms and Conditions</string>
     <string name="login_screen_password_reset_message">An email with instructions to change your password has been sent at %s.</string>
     <string name="verification_code_enter_verification_code">Enter verification code</string>
-    <string name="verification_code_enter_code_hint">Enter the 4-digit code</string>
+    <string name="verification_code_enter_code_hint">Enter the second factor code</string>
     <string name="button_done">Done</string>
 
-    <string name="verification_code_length_error">Code must be 4 characters long</string>
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
     <string name="password_too_short_error">Password must be minimum 8 characters long</string>
@@ -98,11 +97,12 @@
     <string name="main_navigation_title_shares">Shares</string>
     <string name="main_navigation_title_members">Members</string>
     <string name="main_navigation_title_share_link">Share Link</string>
+    <string name="main_navigation_title_search">Search</string>
 
     <string name="file_navigation_title_enter_location">Enter Location</string>
     <string name="file_navigation_title_edit_tags">Edit Tags</string>
 
-    <string name="my_files_search_hint"><font size="14">Search Files</font></string>
+    <string name="my_files_search_hint"><font size="14">Search this archive</font></string>
     <string name="my_files_title">My Files</string>
     <string name="my_files_sort_criteria_name">Name</string>
     <string name="my_files_sort_criteria_date">Date</string>
@@ -370,4 +370,9 @@
     <string name="dialog_delete_archive_title">Are you sure you want to permanently delete this archive?</string>
     <string name="dialog_switch_archive_title">Switch to The %s Archive?</string>
     <string name="dialog_switch_archive_text">In order to access this content you need to switch to The %s Archive</string>
+
+    <string name="record_search_tags_title">Tags (%s)</string>
+    <string name="record_search_results_title">Results</string>
+    <string name="record_search_no_results_title">Enter search terms to match tags and titles.</string>
+    <string name="record_search_no_results_message">Search results will appear here.</string>
 </resources>

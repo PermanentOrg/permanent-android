@@ -44,6 +44,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     init {
+        // This is needed in case the default changes on the web and the user is already logged in
         getDefaultArchive()
     }
 
@@ -92,6 +93,8 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                         if (currentArchiveId != archive.id) {
                             if (archive.status == Status.PENDING) pendingArchives.add(archive) else
                                 archives.add(archive)
+                        } else {
+                            updateCurrentArchive(archive)
                         }
                     }
                     existsPendingArchives.value = pendingArchives.isNotEmpty()
@@ -106,6 +109,16 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                 showMessage.value = error
             }
         })
+    }
+
+    private fun updateCurrentArchive(archive: Archive) {
+        prefsHelper.saveCurrentArchiveInfo(
+            archive.id,
+            archive.number,
+            archive.fullName,
+            archive.thumbURL200,
+            archive.accessRole
+        )
     }
 
     override fun onAcceptBtnClick(archive: Archive) {
@@ -162,12 +175,12 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                         archive.id,
                         archive.number,
                         archive.fullName,
-                        archive.thumbURL500,
+                        archive.thumbURL200,
                         archive.accessRole
                     )
                     refreshArchives()
                     isCurrentArchiveDefault.value = archive.id == prefsHelper.getDefaultArchiveId()
-                    currentArchiveThumb.value = archive.thumbURL500
+                    currentArchiveThumb.value = archive.thumbURL200
                     currentArchiveName.value = archive.fullName
                     showMessage.value = appContext.getString(R.string.archive_current_archive_switch_success)
                 }

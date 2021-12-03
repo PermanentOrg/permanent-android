@@ -70,4 +70,7 @@ interface IFileService {
 
     @POST("record/update")
     fun updateRecord(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("search/folderAndRecord")
+    fun searchRecord(@Body requestBody: RequestBody): Call<ResponseVO>
 }

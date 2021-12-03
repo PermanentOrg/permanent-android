@@ -54,8 +54,11 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                                 Environment.DIRECTORY_DOWNLOADS
                             ), it.fileName
                         )
-                        filePath.value = if (file?.exists() == true)
-                            Uri.fromFile(file).toString() else it.fileURL
+                        filePath.value = when {
+                            file?.exists() == true -> Uri.fromFile(file).toString()
+                            it.contentType?.contains(FileType.IMAGE.toString()) == true -> it.thumbURL2000
+                            else -> it.fileURL
+                        }
                     }
                 }
 
@@ -67,7 +70,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
         }
     }
 
-    fun onRetryBtnClick(){
+    fun onRetryBtnClick() {
         requestFileData()
     }
 

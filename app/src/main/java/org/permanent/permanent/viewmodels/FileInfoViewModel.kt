@@ -14,9 +14,8 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
-class FileInfoViewModel(
-    application: Application
-) : ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener {
+class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application),
+    DatePickerDialog.OnDateSetListener {
 
     private val appContext = application.applicationContext
     private lateinit var fileData: FileData

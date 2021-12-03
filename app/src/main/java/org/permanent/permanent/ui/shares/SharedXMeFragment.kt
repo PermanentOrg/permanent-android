@@ -66,7 +66,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         arguments?.takeIf { it.containsKey(SHARED_WITH_ME_ITEM_LIST_KEY) }?.apply {
             getParcelableArrayList<Record>(SHARED_WITH_ME_ITEM_LIST_KEY).also {
                 if (!it.isNullOrEmpty()) recordsAdapter.setRecords(it)
-                viewModel.getExistsShares().value = !it.isNullOrEmpty()
+                viewModel.existsShares.value = !it.isNullOrEmpty()
             }
         }
         return binding.root
@@ -121,7 +121,10 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private fun initRecordsRecyclerView(rvRecords: RecyclerView) {
         recordsRecyclerView = rvRecords
         recordsListAdapter = RecordsListAdapter(
-            this, MutableLiveData(false), true, this
+            this, MutableLiveData(false),
+            isForSharesScreen = true,
+            isForSearchScreen = false,
+            recordListener = this
         )
         recordsGridAdapter = RecordsGridAdapter(
             this,
@@ -165,8 +168,8 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
 
     fun setShares(records: MutableList<Record>) {
         recordsAdapter.setRecords(records)
-        viewModel.getIsRoot().value = true
-        viewModel.getExistsShares().value = true
+        viewModel.isRoot.value = true
+        viewModel.existsShares.value = true
     }
 
     fun navigateToRecord(recordIdToNavigateTo: Int) {

@@ -92,7 +92,8 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addAccountPassword(currentPassword: String, newPassword: String, retypedPassword: String
+    fun addAccountPassword(
+        currentPassword: String, newPassword: String, retypedPassword: String
     ): RequestContainer {
         addAccountPassword(newPassword, retypedPassword)
         RequestVO.data?.get(0)?.AccountPasswordVO?.passwordOld = currentPassword
@@ -116,7 +117,12 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
-    fun addFolder(archiveNr: String, folderLinkId: Int, sort: String?, childLinks: List<Int?>): RequestContainer {
+    fun addFolder(
+        archiveNr: String,
+        folderLinkId: Int,
+        sort: String?,
+        childLinks: List<Int?>
+    ): RequestContainer {
         addFolder(archiveNr, folderLinkId, sort)
         val childItems: MutableList<RecordVO> = ArrayList()
         for (childLink in childLinks) {
@@ -224,6 +230,21 @@ class RequestContainer(csrf: String?) {
             RequestVO.data?.get(0)?.RecordVO = recordVO
             this
         }
+    }
+
+    fun addSearch(query: String?, tags: List<Tag>): RequestContainer {
+        val searchVO = SearchVO()
+        searchVO.query = query
+
+        if (tags.isNotEmpty()) {
+            val tagVOs = ArrayList<TagVO>()
+            for (tag in tags) tagVOs.add(TagVO(tag))
+            searchVO.TagVOs = tagVOs
+        }
+
+        searchVO.numberOfResults = 10
+        RequestVO.data?.get(0)?.SearchVO = searchVO
+        return this
     }
 
     fun addFolderDest(folderLinkId: Int): RequestContainer {

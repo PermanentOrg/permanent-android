@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.fileView
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -43,7 +42,7 @@ class FileActivity : PermanentBaseActivity() {
         appBarConfig = AppBarConfiguration(navController.graph)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 
-        window.statusBarColor = Color.BLACK
+        setToolbarAndStatusBarColor(R.color.black)
     }
 
     // Toolbar back press

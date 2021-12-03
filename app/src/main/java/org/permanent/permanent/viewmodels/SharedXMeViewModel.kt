@@ -25,16 +25,15 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     private val appContext = application.applicationContext
     private lateinit var lifecycleOwner: LifecycleOwner
-    private val isRoot = MutableLiveData(true)
+    val isRoot = MutableLiveData(true)
+    var existsShares = MutableLiveData(false)
     private val isListViewMode = MutableLiveData(true)
-    private var existsShares = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
-    private val isSortedAsc = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
     private var folderPathStack: Stack<Record> = Stack()
@@ -64,22 +63,19 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     fun setSortType(sortType: SortType) {
         currentSortType.value = sortType
         sortName.value = sortType.toUIString()
-        isSortedAsc.value = sortType == SortType.FILE_TYPE_ASCENDING
-                || sortType == SortType.DATE_ASCENDING
-                || sortType == SortType.NAME_ASCENDING
-        loadFilesOf(folderPathStack.peek(), currentSortType.value)
+        loadChildRecordsOf(folderPathStack.peek(), currentSortType.value)
     }
 
     fun onRecordClick(record: Record) {
         if (record.type == RecordType.FOLDER) {
             folderPathStack.push(record)
-            loadFilesOf(record, currentSortType.value)
+            loadChildRecordsOf(record, currentSortType.value)
         } else {
             onFileViewRequest.value = record
         }
     }
 
-    private fun loadFilesOf(record: Record, sortType: SortType?) {
+    private fun loadChildRecordsOf(record: Record, sortType: SortType?) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -129,7 +125,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
             onRootSharesNeeded.call()
         } else {
             val previousFolder = folderPathStack.peek()
-            loadFilesOf(previousFolder, currentSortType.value)
+            loadChildRecordsOf(previousFolder, currentSortType.value)
         }
     }
 
@@ -167,19 +163,13 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     override fun onQuotaExceeded() {}
 
-    fun getIsRoot(): MutableLiveData<Boolean> = isRoot
-
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
-
-    fun getExistsShares(): MutableLiveData<Boolean> = existsShares
 
     fun getExistsDownloads(): MutableLiveData<Boolean> = existsDownloads
 
     fun getFolderName(): MutableLiveData<String> = folderName
 
     fun getSortName(): MutableLiveData<String> = sortName
-
-    fun getIsSortedAsc(): MutableLiveData<Boolean> = isSortedAsc
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

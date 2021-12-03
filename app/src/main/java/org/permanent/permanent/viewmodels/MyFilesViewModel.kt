@@ -3,7 +3,6 @@ package org.permanent.permanent.viewmodels
 import android.annotation.SuppressLint
 import android.app.Application
 import android.net.Uri
-import android.text.Editable
 import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
@@ -35,13 +34,12 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
-    RecordListener, RecordOptionsClickListener, CancelListener, OnFinishedListener {
+    RecordListener, CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val isRoot = MutableLiveData(true)
-    private val isSortedAsc = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
     private val isListViewMode = MutableLiveData(true)
@@ -50,7 +48,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val relocationType = MutableLiveData<RelocationType>()
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
-    private val currentSearchQuery = MutableLiveData<String>()
     private var currentFolder = MutableLiveData<NavigationFolder>()
     private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
@@ -62,8 +59,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
-    private val onFilesFilterQuery = MutableLiveData<Editable>()
     private val onNewTemporaryFile = SingleLiveEvent<Record>()
+    private val onShowRecordSearchFragment = SingleLiveEvent<Void>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
     private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
@@ -124,11 +121,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         this.existsDownloads = existsDownloads
     }
 
-    fun onSearchQueryTextChanged(query: Editable) {
-        currentSearchQuery.value = query.toString()
-        onFilesFilterQuery.value = query
-    }
-
     fun refreshCurrentFolder() {
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
@@ -165,6 +157,10 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         return records
     }
 
+    fun onSearchClick() {
+        onShowRecordSearchFragment.call()
+    }
+
     fun onAddFabClick() {
         onShowAddOptionsFragment.value = currentFolder.value?.getFolderIdentifier()
     }
@@ -196,7 +192,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             folderPathStack.push(record)
             loadFilesAndUploadsOf(record)
         } else {
-            record.viewFirst = true
+            record.displayFirstInCarousel = true
             onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
         }
     }
@@ -312,9 +308,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun setSortType(sortType: SortType) {
         currentSortType.value = sortType
         sortName.value = sortType.toUIString()
-        isSortedAsc.value = sortType == SortType.FILE_TYPE_ASCENDING
-                || sortType == SortType.DATE_ASCENDING
-                || sortType == SortType.NAME_ASCENDING
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
@@ -403,8 +396,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getIsRoot(): MutableLiveData<Boolean> = isRoot
 
-    fun getIsSortedAsc(): MutableLiveData<Boolean> = isSortedAsc
-
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
 
     fun getSortName(): MutableLiveData<String> = sortName
@@ -418,8 +409,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getRelocationType(): MutableLiveData<RelocationType> = relocationType
 
     fun getCurrentFolder(): MutableLiveData<NavigationFolder> = currentFolder
-
-    fun getCurrentSearchQuery(): MutableLiveData<String> = currentSearchQuery
 
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
 
@@ -435,8 +424,6 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
 
-    fun getOnFilesFilterQuery(): MutableLiveData<Editable> = onFilesFilterQuery
-
     fun getOnNewTemporaryFile(): MutableLiveData<Record> = onNewTemporaryFile
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
@@ -444,6 +431,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
+
+    fun getOnShowRecordSearchFragment(): MutableLiveData<Void> = onShowRecordSearchFragment
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment

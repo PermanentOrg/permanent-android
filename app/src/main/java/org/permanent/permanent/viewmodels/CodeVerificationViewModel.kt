@@ -8,7 +8,12 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -16,6 +21,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 class CodeVerificationViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
 
+    private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
@@ -28,6 +34,7 @@ class CodeVerificationViewModel(application: Application) :
     private val errorMessage = MutableLiveData<String>()
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun getVerificationCode(): MutableLiveData<String> {
         return currentCode
@@ -60,13 +67,6 @@ class CodeVerificationViewModel(application: Application) :
         if (trimmedCode.isNullOrEmpty()) {
             codeError.value = R.string.verification_code_empty_error
             return false
-        } else {
-            if (trimmedCode.length < Constants.VERIFICATION_CODE_LENGTH
-                || trimmedCode.length > Constants.VERIFICATION_CODE_LENGTH
-            ) {
-                codeError.value = R.string.verification_code_length_error
-                return false
-            }
         }
         codeError.value = null
         return true
@@ -91,8 +91,11 @@ class CodeVerificationViewModel(application: Application) :
                     override fun onFailed(error: String?) {
                         isBusy.value = false
                         errorMessage.value =
-                            if (error.equals(Constants.ERROR_INVALID_VERIFICATION_CODE))
-                                PermanentApplication.instance.getString(R.string.verification_code_invalid_error) else error
+                            if (error.equals(Constants.ERROR_INVALID_VERIFICATION_CODE) ||
+                                error.equals(Constants.ERROR_EXPIRED_VERIFICATION_CODE)
+                            ) PermanentApplication.instance.getString(
+                                R.string.verification_code_invalid_error
+                            ) else error
                     }
                 })
         }
@@ -103,29 +106,41 @@ class CodeVerificationViewModel(application: Application) :
         return Constants.AUTH_TYPE_MFA_VALIDATION
     }
 
-    fun tryLoginAgain() {
+    fun getDefaultArchive() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val userEmail = prefsHelper.getAccountEmail()
-        val userPass = prefsHelper.getAccountPass()
 
-        if (userEmail != null && userPass != null) {
-            isBusy.value = true
-            authRepository.login(
-                userEmail,
-                userPass,
-                object : IAuthenticationRepository.IOnLoginListener {
-                    override fun onSuccess() {
-                        isBusy.value = false
-                        onLoggedIn.call()
-                    }
+        isBusy.value = true
+        archiveRepository.getAllArchives(object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                isBusy.value = false
+                if (!dataList.isNullOrEmpty()) {
+                    val defaultArchiveId = prefsHelper.getDefaultArchiveId()
 
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        errorMessage.value = error
+                    for (data in dataList) {
+                        val archive = Archive(data.ArchiveVO)
+                        if (defaultArchiveId == archive.id) {
+                            prefsHelper.saveCurrentArchiveInfo(
+                                archive.id,
+                                archive.number,
+                                archive.fullName,
+                                archive.thumbURL200,
+                                archive.accessRole
+                            )
+                            prefsHelper.saveUserLoggedIn(true)
+                            onLoggedIn.call()
+                            return
+                        }
                     }
-                })
-        }
+                }
+                errorMessage.value = appContext.getString(R.string.generic_error)
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                errorMessage.value = error
+            }
+        })
     }
 }
