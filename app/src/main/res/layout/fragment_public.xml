@@ -69,7 +69,7 @@
             app:layout_constraintStart_toEndOf="@+id/ivProfileImage"
             app:layout_constraintTop_toTopOf="@+id/ivBackgroundImage"
             app:layout_constraintVertical_bias="1.0"
-            app:maxImageSize="24dp"
+            app:maxImageSize="21dp"
             app:srcCompat="@drawable/ic_camera"
             app:tint="@color/colorPrimary" />
 
@@ -90,7 +90,7 @@
             app:layout_constraintStart_toStartOf="@+id/ivProfileImage"
             app:layout_constraintTop_toBottomOf="@+id/ivBackgroundImage"
             app:layout_constraintVertical_bias="0.0"
-            app:maxImageSize="24dp"
+            app:maxImageSize="21dp"
             app:srcCompat="@drawable/ic_camera"
             app:tint="@color/colorPrimary" />
 
