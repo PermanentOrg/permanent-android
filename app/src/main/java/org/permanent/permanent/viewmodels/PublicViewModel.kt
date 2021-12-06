@@ -13,14 +13,13 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
     )
     private val currentArchiveThumb =
         MutableLiveData<String>(prefsHelper.getCurrentArchiveThumbURL())
-    private val currentArchiveName =
-        MutableLiveData<String>(prefsHelper.getCurrentArchiveFullName())
+    private val currentArchiveName = prefsHelper.getCurrentArchiveFullName()
     private val isBusy = MutableLiveData(false)
 
 
     fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
 
-    fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
+    fun getCurrentArchiveName(): String? = currentArchiveName
 
     fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy

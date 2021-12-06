@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import org.permanent.permanent.databinding.FragmentPublicBinding
@@ -25,6 +26,8 @@ class PublicFragment : PermanentBaseFragment()  {
           binding.executePendingBindings()
           binding.lifecycleOwner = this
           binding.viewModel = viewModel
+
+        (activity as AppCompatActivity?)?.supportActionBar?.title = viewModel.getCurrentArchiveName()
 
           return binding.root
       }
