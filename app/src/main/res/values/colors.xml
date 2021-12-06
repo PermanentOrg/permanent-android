@@ -15,6 +15,7 @@
     <color name="whiteTransparent">#80FFFFFF</color>
     <color name="superLightGrey">#EBEBEB</color>
     <color name="lightGrey">#B4B4B4</color>
+    <color name="lighterGrey">#DADADA</color>
     <color name="middleGrey">#606060</color>
     <color name="black">#000000</color>
 </resources>

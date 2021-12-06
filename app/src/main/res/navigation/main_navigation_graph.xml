@@ -141,4 +141,8 @@
             android:name="parcelable_files_key"
             app:argType="org.permanent.permanent.models.Record" />
     </activity>
+    <fragment
+        android:id="@+id/publicFragment"
+        android:name="org.permanent.permanent.ui.public.PublicFragment"
+        tools:layout="@layout/fragment_public"/>
 </navigation>
