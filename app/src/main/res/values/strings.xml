@@ -128,19 +128,6 @@
     <string name="public_profile_birth_location_hint">Choose a location</string>
     <string name="public_profile_online_presence">Online Presence</string>
     <string name="public_profile_milestones">Milestones</string>
-    <string name="public_profile_about_text">Dr. Robert Friedman has over a decade of experience
-                                            in the non-profit sector focused on developing an
-                                            inclusive and ethical digital community. As the Executive
-                                            Director of the Permanent Legacy Foundation,
-                                            Dr. Friedman is building a nonprofit, historical trust …</string>
-    <string name="public_profile_full_name">Robert Bryan Friedman</string>
-    <string name="robert_birthdate">May 26, 1981</string>
-    <string name="place">280 Marin Boulevard, Jersey City, New Jersey, US</string>
-    <string name="online">http://twitter.com/omnignorant
-        https://www.linkedin.com/in/robertbryanfriedman/
-        http://omnignorant.com
-</string>
-
 
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.PublicViewModel
@@ -32,9 +33,9 @@ class PublicFragment : PermanentBaseFragment()  {
           return binding.root
       }
 
-    val tabArray = arrayOf(
-        "Public Archive",
-        "Public Profile"
+    private val tabArray = arrayOf(
+        R.string.public_archive_tab_name,
+        R.string.public_profile_tab_name
     )
 
 
@@ -46,7 +47,7 @@ class PublicFragment : PermanentBaseFragment()  {
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager){tab, position->
-            tab.text = tabArray[position]
+            tab.text = getString(tabArray[position])
         }.attach()
     }
 
