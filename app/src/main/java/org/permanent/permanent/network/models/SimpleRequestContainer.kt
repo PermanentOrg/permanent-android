@@ -1,13 +1,11 @@
 package org.permanent.permanent.network.models
 
-import org.permanent.permanent.BuildConfig
 import java.io.File
 
 class SimpleRequestContainer(csrf: String?) {
     private var RequestVO: Request = Request()
 
     init {
-        RequestVO.apiKey = BuildConfig.API_KEY
         RequestVO.csrf = csrf
         RequestVO.data = Datum()
     }

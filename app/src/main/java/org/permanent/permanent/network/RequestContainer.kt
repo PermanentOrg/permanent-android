@@ -2,7 +2,6 @@ package org.permanent.permanent.network
 
 import com.google.android.gms.maps.model.LatLng
 import okhttp3.MediaType
-import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
 import java.io.File
@@ -13,7 +12,6 @@ class RequestContainer(csrf: String?) {
     private var RequestVO: RequestVO = RequestVO()
 
     init {
-        RequestVO.apiKey = BuildConfig.API_KEY
         RequestVO.csrf = csrf
         val dataList = (RequestVO.data as ArrayList)
         dataList.add(Datum())
