@@ -70,6 +70,7 @@
                 android:layout_height="28dp"
                 app:icon="@drawable/ic_link"
                 app:iconTint="@color/middleGrey"
+                android:onClick="@{() -> viewModel.onCopyLinkBtnClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
