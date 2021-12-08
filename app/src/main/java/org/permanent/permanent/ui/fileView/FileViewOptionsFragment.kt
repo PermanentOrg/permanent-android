@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileViewOptionsBinding
 import org.permanent.permanent.models.Record
@@ -83,7 +83,7 @@ class FileViewOptionsFragment : PermanentBottomSheetFragment() {
 
     private val onShowMessage = Observer<String> { message ->
         downloadingAlert?.cancel()
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
         dismiss()
     }
 

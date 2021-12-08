@@ -53,6 +53,31 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             })
     }
 
+    override fun getPublicRoot(listener: IRecordListener) {
+        NetworkClient.instance()
+            .getPublicRootForArchive(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr())
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    val publicRecord = responseVO?.getFolderRecord()
+
+                    if (publicRecord != null) {
+                        listener.onSuccess(publicRecord)
+                    } else {
+                        listener.onFailed(
+                            responseVO?.Results?.get(0)?.message?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
     override fun getChildRecordsOf(
         folderArchiveNr: String,
         folderLinkId: Int,

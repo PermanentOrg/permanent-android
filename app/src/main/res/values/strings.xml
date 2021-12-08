@@ -116,6 +116,7 @@
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
 
+    <string name="public_archive_title">Archive</string>
     <string name="public_archive_tab_name">"Public Archive"</string>
     <string name="public_profile_tab_name">"Public Profile"</string>
     <string name="public_profile_about">About</string>
@@ -133,6 +134,7 @@
     <string name="file_options_menu_item_copy">Copy</string>
     <string name="file_options_menu_item_move">Move</string>
     <string name="file_options_menu_item_publish">Publish</string>
+    <string name="file_options_menu_item_copy_link">Copy Link</string>
     <string name="file_options_menu_item_delete">Delete</string>
     <string name="file_options_menu_item_rename">Rename</string>
     <string name="file_options_menu_item_share_via_permanent">Share via Permanent</string>
@@ -197,7 +199,7 @@
     <string name="share_link_share_link_message">Send this link via text, email, or other message service to invite people to share this content.</string>
     <string name="share_link_sharing_with">Sharing With</string>
     <string name="share_link_item_not_shared">This item is not shared with any archives</string>
-    <string name="share_link_link_copied">Link copied</string>
+    <string name="share_link_link_copied">Link copied to clipboard</string>
     <string name="share_link_revoke_title">Revoke link?</string>
     <string name="share_link_revoke_button">Revoke</string>
     <string name="share_link_share_preview">Share Preview</string>

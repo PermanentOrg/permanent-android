@@ -141,8 +141,26 @@
             android:name="parcelable_files_key"
             app:argType="org.permanent.permanent.models.Record" />
     </activity>
+
     <fragment
         android:id="@+id/publicFragment"
         android:name="org.permanent.permanent.ui.public.PublicFragment"
-        tools:layout="@layout/fragment_public"/>
+        android:label="@string/menu_drawer_public"
+        tools:layout="@layout/fragment_public">
+        <action
+            android:id="@+id/action_publicFragment_to_fileActivity"
+            app:destination="@id/fileActivity" />
+        <action
+            android:id="@+id/action_publicFragment_to_publicFolderFragment"
+            app:destination="@id/publicFolderFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/publicFolderFragment"
+        android:name="org.permanent.permanent.ui.public.PublicFolderFragment"
+        tools:layout="@layout/fragment_public_folder">
+        <action
+            android:id="@+id/action_publicFolderFragment_to_fileActivity"
+            app:destination="@id/fileActivity" />
+    </fragment>
 </navigation>

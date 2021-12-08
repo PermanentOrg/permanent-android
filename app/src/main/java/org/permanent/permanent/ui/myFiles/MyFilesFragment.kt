@@ -165,7 +165,11 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onShowRecordOptionsFragment = Observer<Record> {
         recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(it, true)
+        recordOptionsFragment?.setBundleArguments(
+            it,
+            isShownInMyFilesFragment = true,
+            isShownInSharesFragment = false
+        )
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
@@ -178,7 +182,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private val onShowSortOptionsFragment = Observer<SortType> {
         sortOptionsFragment = SortOptionsFragment()
         sortOptionsFragment?.setBundleArguments(it)
-        sortOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
+        sortOptionsFragment?.show(parentFragmentManager, sortOptionsFragment?.tag)
         sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
     }
 
@@ -389,7 +393,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         connectViewModelEvents()
         if (shouldRefreshCurrentFolder) viewModel.refreshCurrentFolder()
         shouldRefreshCurrentFolder = true
-        binding.root.windowToken?.let {context?.hideKeyboardFrom(binding.root.windowToken)}
+        binding.root.windowToken?.let { context?.hideKeyboardFrom(binding.root.windowToken) }
     }
 
     override fun onPause() {

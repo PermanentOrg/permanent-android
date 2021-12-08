@@ -1,6 +1,9 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -11,34 +14,56 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import org.permanent.permanent.Constants
-import org.permanent.permanent.CurrentArchivePermissionsManager
-import org.permanent.permanent.PermanentApplication
-import org.permanent.permanent.R
+import org.permanent.permanent.*
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import java.io.File
 
 class FileViewOptionsViewModel(application: Application) : ObservableAndroidViewModel(application),
     OnFinishedListener {
     private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private var fileData: FileData? = null
     private var record: Record? = null
     private var download: Download? = null
     private val showMessage = MutableLiveData<String>()
+    private val shouldHideCopyLinkButton = MutableLiveData(false)
     private val shouldHideShareViaPermanentButton = MutableLiveData(false)
+    private val shouldHideShareToAnotherAppButton = MutableLiveData(false)
     private val onFileDownloaded = SingleLiveEvent<Void>()
     private val onShareViaPermanentRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<Void>()
 
     fun setArguments(record: Record?, fileData: FileData?) {
         this.record = record
+        shouldHideCopyLinkButton.value = record?.parentFolderArchiveNr == null
         fileData?.let {
             this.fileData = fileData
-            shouldHideShareViaPermanentButton.value =
-                it.accessRole != AccessRole.OWNER || !CurrentArchivePermissionsManager.instance.isOwnershipAvailable()
+            shouldHideShareViaPermanentButton.value = it.accessRole != AccessRole.OWNER ||
+                    !CurrentArchivePermissionsManager.instance.isOwnershipAvailable() ||
+                    record?.parentFolderArchiveNr != null
         }
+        shouldHideShareToAnotherAppButton.value = record?.type == RecordType.FOLDER
+    }
+
+    fun onCopyLinkBtnClick() {
+        val sharableLink =
+            if (record?.type == RecordType.FILE) BuildConfig.BASE_URL + "p/archive/" +
+                    prefsHelper.getCurrentArchiveNr() + "/" + record?.parentFolderArchiveNr + "/" +
+                    record?.parentFolderLinkId + "/record/" + record?.archiveNr
+            else BuildConfig.BASE_URL + "p/archive/" + prefsHelper.getCurrentArchiveNr() + "/" +
+                    record?.archiveNr + "/" + record?.folderLinkId
+        val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText(
+            appContext.getString(R.string.share_link_share_link_title), sharableLink
+        )
+        clipboard.setPrimaryClip(clip)
+        showMessage.value = appContext.getString(R.string.share_link_link_copied)
     }
 
     fun onShareViaPermanentBtnClick() {
@@ -131,8 +156,14 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
 
     fun getShowMessage(): LiveData<String> = showMessage
 
+    fun getShouldHideCopyLinkButton(): LiveData<Boolean> =
+        shouldHideCopyLinkButton
+
     fun getShouldHideShareViaPermanentButton(): LiveData<Boolean> =
         shouldHideShareViaPermanentButton
+
+    fun getShouldHideShareToAnotherAppButton(): LiveData<Boolean> =
+        shouldHideShareToAnotherAppButton
 
     fun getOnFileDownloaded(): LiveData<Void> = onFileDownloaded
 

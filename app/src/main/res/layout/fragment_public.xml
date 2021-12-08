@@ -10,24 +10,28 @@
             type="org.permanent.permanent.viewmodels.PublicViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="true">
 
         <ImageView
             android:id="@+id/ivBackgroundImage"
             android:layout_width="match_parent"
             android:layout_height="112dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="30dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:src="@color/lighterGrey"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.031" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/ivProfileImage"
@@ -77,6 +81,7 @@
             android:id="@+id/fabProfileImage"
             android:layout_width="40dp"
             android:layout_height="41dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/round_white_frame"
             android:backgroundTint="@color/superLightGrey"
             android:clickable="true"
@@ -140,4 +145,5 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.54" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

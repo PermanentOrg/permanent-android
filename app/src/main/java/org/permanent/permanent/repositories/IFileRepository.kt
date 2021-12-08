@@ -16,6 +16,8 @@ import java.io.File
 interface IFileRepository {
     fun getMyFilesRecord(listener: IRecordListener)
 
+    fun getPublicRoot(listener: IRecordListener)
+
     fun getChildRecordsOf(folderArchiveNr: String, folderLinkId: Int, sort: String?,
                           listener: IOnRecordsRetrievedListener)
 
