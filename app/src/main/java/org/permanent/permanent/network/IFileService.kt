@@ -13,6 +13,9 @@ interface IFileService {
     @POST("folder/getroot")
     fun getRoot(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/getPublicRoot")
+    fun getPublicRoot(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("folder/navigateMin")
     fun navigateMin(@Body requestBody: RequestBody): Call<ResponseVO>
 

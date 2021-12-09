@@ -11,6 +11,7 @@ open class Record : Parcelable {
     var recordId: Int? = null
     var folderId: Int? = null
     var folderLinkId: Int? = null
+    var parentFolderArchiveNr: String? = null
     var parentFolderLinkId: Int? = null
     var displayName: String? = null
     var displayDate: String? = null
@@ -30,6 +31,7 @@ open class Record : Parcelable {
         recordId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
+        parentFolderArchiveNr = parcel.readString()
         parentFolderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
         displayName = parcel.readString()
         displayDate = parcel.readString()
@@ -145,6 +147,7 @@ open class Record : Parcelable {
         parcel.writeValue(recordId)
         parcel.writeValue(folderId)
         parcel.writeValue(folderLinkId)
+        parcel.writeString(parentFolderArchiveNr)
         parcel.writeValue(parentFolderLinkId)
         parcel.writeString(displayName)
         parcel.writeString(displayDate)

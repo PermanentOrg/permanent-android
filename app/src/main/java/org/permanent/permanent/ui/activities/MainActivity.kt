@@ -32,6 +32,7 @@ import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
@@ -211,10 +212,18 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         return true
     }
 
-    // On Settings menu click
+    // On Toolbar menu item click
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
-        binding.drawerLayout.openDrawer(GravityCompat.END)
+        if (menuItem?.itemId == R.id.moreItem) sendEventToCurrentFragment()
+        else binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
         return true
+    }
+
+    private fun sendEventToCurrentFragment() {
+        val publicFolderFragment =
+            supportFragmentManager.primaryNavigationFragment?.childFragmentManager
+                ?.fragments?.first() as PublicFolderFragment
+        publicFolderFragment.onMoreItemClick()
     }
 
     // Toolbar back press
@@ -223,6 +232,13 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.linkSettingsFragment -> {
                 navController.popBackStack(R.id.shareLinkFragment, true)
                 true
+            }
+            R.id.publicFolderFragment -> {
+                val publicFolderFragment =
+                    supportFragmentManager.primaryNavigationFragment?.childFragmentManager
+                        ?.fragments?.first() as PublicFolderFragment
+                if (publicFolderFragment.onNavigateUp()) true
+                else navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
             }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }

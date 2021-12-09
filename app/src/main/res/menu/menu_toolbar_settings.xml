@@ -3,9 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/settingsMenuItem"
+        android:id="@+id/settingsItem"
         android:icon="@drawable/ic_settings_white"
         android:title="@string/menu_toolbar_settings"
         app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/moreItem"
+        android:icon="@drawable/ic_more_white"
+        android:title="@string/menu_toolbar_more"
+        app:showAsAction="always"
+        android:visible="false"
         />
 </menu>

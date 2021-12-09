@@ -189,7 +189,11 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     override fun onRecordOptionsClick(record: Record) {
         this.record = record
         recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(record, false)
+        recordOptionsFragment?.setBundleArguments(
+            record,
+            isShownInMyFilesFragment = false,
+            isShownInSharesFragment = true
+        )
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
     }

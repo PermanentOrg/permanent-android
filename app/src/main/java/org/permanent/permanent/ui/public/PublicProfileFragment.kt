@@ -16,7 +16,8 @@ class PublicProfileFragment : PermanentBaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPublicProfileBinding.inflate(inflater, container, false)
-        return binding.root
+        val view = binding.root
+        return view
     }
     override fun connectViewModelEvents() {
         TODO("Not yet implemented")

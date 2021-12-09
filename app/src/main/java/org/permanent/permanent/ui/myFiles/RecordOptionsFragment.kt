@@ -12,7 +12,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
@@ -22,6 +21,7 @@ import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.RecordOptionsViewModel
 
 const val IS_SHOWN_IN_MY_FILES_KEY = "is_shown_in_my_files_key"
+const val IS_SHOWN_IN_SHARES_KEY = "is_shown_in_shares_key"
 
 class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentRecordOptionsBinding
@@ -34,10 +34,15 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onRecordShareViaPermanentRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
 
-    fun setBundleArguments(record: Record, isShownInMyFilesFragment: Boolean) {
+    fun setBundleArguments(
+        record: Record,
+        isShownInMyFilesFragment: Boolean,
+        isShownInSharesFragment: Boolean
+    ) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
         bundle.putBoolean(IS_SHOWN_IN_MY_FILES_KEY, isShownInMyFilesFragment)
+        bundle.putBoolean(IS_SHOWN_IN_SHARES_KEY, isShownInSharesFragment)
         this.arguments = bundle
     }
 
@@ -52,7 +57,11 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
-        viewModel.setRecord(record, arguments?.getBoolean(IS_SHOWN_IN_MY_FILES_KEY))
+        viewModel.setRecord(
+            record,
+            arguments?.getBoolean(IS_SHOWN_IN_MY_FILES_KEY),
+            arguments?.getBoolean(IS_SHOWN_IN_SHARES_KEY)
+        )
         return binding.root
     }
 
@@ -106,7 +115,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     private val onShowMessage = Observer<String> { message ->
         downloadingAlert?.cancel()
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
         dismiss()
     }
 

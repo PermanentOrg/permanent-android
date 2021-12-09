@@ -1,6 +1,9 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -17,6 +20,8 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.RelocationType
 import retrofit2.Call
@@ -28,6 +33,9 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     OnFinishedListener {
 
     private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private var record: Record? = null
@@ -45,7 +53,11 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onRelocateRequest = MutableLiveData<RelocationType>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun setRecord(record: Record?, isShownInMyFilesFragment: Boolean?) {
+    fun setRecord(
+        record: Record?,
+        isShownInMyFilesFragment: Boolean?,
+        isShownInSharesFragment: Boolean?
+    ) {
         this.record = record
         recordName.value = record?.displayName
         if (record?.type == RecordType.FOLDER) {
@@ -53,6 +65,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
         }
         if (isShownInMyFilesFragment == true) {
+            hiddenOptions.value?.add(RecordOption.COPY_LINK)
             if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
             if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
@@ -63,11 +76,19 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
                 hiddenOptions.value?.add(RecordOption.RENAME)
             if (!CurrentArchivePermissionsManager.instance.isOwnershipAvailable())
                 hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
-        } else {
+        } else if (isShownInSharesFragment == true) {
+            hiddenOptions.value?.add(RecordOption.COPY_LINK)
             hiddenOptions.value?.add(RecordOption.DELETE)
             hiddenOptions.value?.add(RecordOption.MOVE)
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
+            hiddenOptions.value?.add(RecordOption.COPY)
+            hiddenOptions.value?.add(RecordOption.RENAME)
+        } else { // Public Archive
+            hiddenOptions.value?.add(RecordOption.DOWNLOAD)
+            hiddenOptions.value?.add(RecordOption.DELETE)
+            hiddenOptions.value?.add(RecordOption.MOVE)
+            hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.COPY)
             hiddenOptions.value?.add(RecordOption.RENAME)
         }
@@ -100,6 +121,21 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onPublishBtnClick() {
+    }
+
+    fun onCopyLinkBtnClick() {
+        val sharableLink =
+            if (record?.type == RecordType.FILE) BuildConfig.BASE_URL + "p/archive/" +
+                    prefsHelper.getCurrentArchiveNr() + "/" + record?.parentFolderArchiveNr + "/" +
+                    record?.parentFolderLinkId + "/record/" + record?.archiveNr
+            else BuildConfig.BASE_URL + "p/archive/" + prefsHelper.getCurrentArchiveNr() + "/" +
+                    record?.archiveNr + "/" + record?.folderLinkId
+        val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText(
+            appContext.getString(R.string.share_link_share_link_title), sharableLink
+        )
+        clipboard.setPrimaryClip(clip)
+        showMessage.value = appContext.getString(R.string.share_link_link_copied)
     }
 
     fun onDeleteBtnClick() {
