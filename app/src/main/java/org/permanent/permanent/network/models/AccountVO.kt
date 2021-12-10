@@ -12,6 +12,7 @@ class AccountVO() {
     var fullName: String? = null
     var primaryPhone: String? = null
     var address: String? = null
+    var address2: String? = null
     var country: String? = null
     var city: String? = null
     var state: String? = null
@@ -28,6 +29,7 @@ class AccountVO() {
         primaryEmail = account.primaryEmail
         primaryPhone = account.phone
         address = account.address
+        address2 = account.addressTwo
         country = account.country
         city = account.city
         state = account.state

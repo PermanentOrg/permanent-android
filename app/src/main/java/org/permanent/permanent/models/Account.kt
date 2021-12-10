@@ -9,6 +9,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
     var fullName: String? = null
     var phone: String? = null
     var address: String? = null
+    var addressTwo: String? = null
     var country: String? = null
     var city: String? = null
     var state: String? = null
@@ -26,6 +27,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
         fullName = parcel.readString()
         phone = parcel.readString()
         address = parcel.readString()
+        addressTwo = parcel.readString()
         country = parcel.readString()
         city = parcel.readString()
         state = parcel.readString()
@@ -43,6 +45,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
         primaryEmail = accountVO?.primaryEmail
         phone = accountVO?.primaryPhone
         address = accountVO?.address
+        addressTwo = accountVO?.address2
         country = accountVO?.country
         city = accountVO?.city
         state = accountVO?.state
@@ -70,6 +73,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
         parcel.writeString(fullName)
         parcel.writeString(phone)
         parcel.writeString(address)
+        parcel.writeString(addressTwo)
         parcel.writeString(country)
         parcel.writeString(city)
         parcel.writeString(state)
