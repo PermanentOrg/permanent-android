@@ -120,10 +120,13 @@
     <string name="public_archive_tab_name">"Public Archive"</string>
     <string name="public_profile_tab_name">"Public Profile"</string>
     <string name="public_profile_about">About</string>
-    <string name="public_profile_about_hint">Add a short description about the purpose of this Archive</string>
+    <string name="public_profile_about_hint">Add a short description about the purpose of this Archive.</string>
     <string name="public_profile_read_more">Read More</string>
     <string name="public_profile_person_information">Person Information</string>
     <string name="public_profile_full_name_hint">Full name</string>
+    <string name="public_profile_nickname">Also known as...</string>
+    <string name="public_profile_nickname_hint">Aliases or nicknames</string>
+    <string name="public_profile_gender">Gender</string>
     <string name="public_profile_birth_date">Birth Date</string>
     <string name="public_profile_date_hint">YYYY-MM-DD</string>
     <string name="public_profile_birth_location">Birth Location</string>
@@ -132,8 +135,18 @@
     <string name="public_profile_online_presence_hint">email@website.com <br />
                                                        www.website.com/user</string>
     <string name="public_profile_milestones">Milestones</string>
+    <string name="public_profile_milestone_title">Title</string>
     <string name="public_profile_milestone_title_hint">What is this milestone?</string>
-    <string name="public_profile_milestone_description_hint">More details and information about this milestone</string>
+    <string name="public_profile_milestone_description_hint">More details and information about this milestone.</string>
+    <string name="edit_about_label">Edit About</string>
+    <string name="edit_about_short_description">What is this Archive for?</string>
+    <string name="edit_about_long_description">Tell us about this Person</string>
+    <string name="edit_about_long_description_hint">Tell the story of the Person this Archive is for.</string>
+    <string name="edit_person_information_label">Edit Person Information</string>
+    <string name="edit_milestone_label">Edit Milestones</string>
+    <string name="edit_milestone_start_date">Start Date</string>
+    <string name="edit_milestone_end_date">End Date</string>
+    <string name="edit_milestone_description_hint">Describe this milestone</string>
 
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>
@@ -374,4 +387,5 @@
     <string name="record_search_no_results_title">Enter search terms to match tags and titles.</string>
     <string name="record_search_no_results_message">Search results will appear here.</string>
 </resources>
+
 

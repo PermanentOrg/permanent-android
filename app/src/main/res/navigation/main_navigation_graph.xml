@@ -153,6 +153,15 @@
         <action
             android:id="@+id/action_publicFragment_to_publicFolderFragment"
             app:destination="@id/publicFolderFragment" />
+        <action
+            android:id="@+id/action_publicFragment_to_editAboutFragment"
+            app:destination="@id/editAboutFragment" />
+        <action
+            android:id="@+id/action_publicFragment_to_editPersonInformationFragment"
+            app:destination="@id/editPersonInformationFragment" />
+        <action
+            android:id="@+id/action_publicFragment_to_editMilestonesFragment"
+            app:destination="@id/editMilestonesFragment" />
     </fragment>
 
     <fragment
@@ -163,4 +172,20 @@
             android:id="@+id/action_publicFolderFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
     </fragment>
+    <fragment
+        android:id="@+id/editAboutFragment"
+        android:name="org.permanent.permanent.ui.public.PublicProfileEditAboutFragment"
+        android:label="@string/edit_about_label"
+        tools:layout="@layout/fragment_edit_about" />
+    <fragment
+        android:id="@+id/editPersonInformationFragment"
+        android:name="org.permanent.permanent.ui.public.PublicProfileEditPersonInformationFragment"
+        android:label="@string/edit_person_information_label"
+        tools:layout="@layout/fragment_edit_person_information" />
+    <fragment
+        android:id="@+id/editMilestonesFragment"
+        android:name="org.permanent.permanent.ui.public.PublicProfileEditMilestonesFragment"
+        android:label="@string/edit_milestone_label"
+        tools:layout="@layout/fragment_edit_milestone" />
+
 </navigation>
