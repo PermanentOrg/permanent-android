@@ -7,6 +7,7 @@ class Datum {
     var FolderVO: FolderVO? = null
     var FolderDestVO: FolderDestVO? = null
     var ArchiveVO: ArchiveVO? = null
+    var Profile_itemVO: Profile_itemVO? = null
     var RecordVO: RecordVO? = null
     var SearchVO: SearchVO? = null
     var SimpleVO: SimpleVO? = null

@@ -39,6 +39,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val invitationService: IInvitationService
     private val locationService: ILocationService
     private val tagService: ITagService
+    private val profileService: IProfileService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
@@ -85,6 +86,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         invitationService = retrofit.create(IInvitationService::class.java)
         locationService = retrofit.create(ILocationService::class.java)
         tagService = retrofit.create(ITagService::class.java)
+        profileService = retrofit.create(IProfileService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
     }
@@ -581,6 +583,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer(csrf).addTagIds(tags).addTagLink(recordId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return tagService.unlinkTags(requestBody)
+    }
+
+    fun getProfileItemsByArchive(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addProfileItem(archiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return profileService.getAllByArchiveNbr(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

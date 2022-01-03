@@ -33,6 +33,7 @@ hs_err_pid*
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.idea/dictionaries/
+/.idea/deploymentTargetDropDown.xml
 .DS_Store
 /build
 /captures

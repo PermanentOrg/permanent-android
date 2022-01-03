@@ -85,6 +85,34 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvArchive" />
 
+        <ImageView
+            android:id="@+id/ivNoFiles"
+            android:layout_width="wrap_content"
+            android:layout_height="112dp"
+            android:src="@drawable/ic_empty_folder"
+            android:visibility="@{viewModel.existsRecords ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.40" />
+
+        <TextView
+            android:id="@+id/tvNoFiles"
+            android:layout_width="328dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/my_files_no_files"
+            android:textColor="@color/lightGrey"
+            android:textSize="18sp"
+            android:visibility="@{viewModel.existsRecords ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivNoFiles"
+            app:layout_constraintVertical_bias="0.0" />
+
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar"
             style="@style/Widget.AppCompat.ProgressBar"

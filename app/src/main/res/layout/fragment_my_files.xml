@@ -349,7 +349,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="@{viewModel.isRoot ? @string/my_files_no_files_root :  @string/my_files_no_files}"
+            android:text="@{viewModel.isRoot ? @string/my_files_no_files_root : @string/my_files_no_files}"
             android:textColor="@{viewModel.isRoot ? @color/colorPrimary : @color/lightGrey}"
             android:textSize="18sp"
             android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.GONE : View.VISIBLE}"
