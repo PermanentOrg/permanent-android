@@ -294,6 +294,7 @@
             android:hint="@string/public_profile_online_presence_hint"
             android:maxLines="3"
             android:autoLink="web"
+            android:lineSpacingExtra="8dp"
             android:text="@{viewModel.onlinePresence}"
             android:textColor="@color/colorPrimary"
             android:textSize="16sp"
