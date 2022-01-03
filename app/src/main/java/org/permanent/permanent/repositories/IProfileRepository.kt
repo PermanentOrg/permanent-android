@@ -4,5 +4,5 @@ import org.permanent.permanent.network.IDataListener
 
 interface IProfileRepository {
 
-    fun getProfileItemsByArchive(listener: IDataListener)
+    fun getProfileItemsByArchive(archiveNr: String?, listener: IDataListener)
 }

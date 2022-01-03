@@ -15,9 +15,9 @@ class ProfileRepositoryImpl(val context: Context) : IProfileRepository {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
 
-    override fun getProfileItemsByArchive(listener: IDataListener) {
+    override fun getProfileItemsByArchive(archiveNr: String?, listener: IDataListener) {
         NetworkClient.instance()
-            .getProfileItemsByArchive(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr())
+            .getProfileItemsByArchive(prefsHelper.getCsrf(), archiveNr)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

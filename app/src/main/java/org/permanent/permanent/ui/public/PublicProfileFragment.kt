@@ -44,20 +44,12 @@ class PublicProfileFragment : PermanentBaseFragment() {
         milestonesAdapter.set(it)
     }
 
-    private val onReadMoreAbout = Observer<Void> {
-        binding.tvAboutText.maxLines = MAX_LINES_NO_LIMIT
+    private val onReadAbout = Observer<Boolean> { isMore ->
+        binding.tvAboutText.maxLines = if (isMore) MAX_LINES_NO_LIMIT else MAX_LINES_ABOUT
     }
 
-    private val onReadLessAbout = Observer<Void> {
-        binding.tvAboutText.maxLines = MAX_LINES_ABOUT
-    }
-
-    private val onReadMoreOnlinePresence = Observer<Void> {
-        binding.tvOnlinePresenceText.maxLines = MAX_LINES_NO_LIMIT
-    }
-
-    private val onReadLessOnlinePresence = Observer<Void> {
-        binding.tvOnlinePresenceText.maxLines = MAX_LINES_ONLINE_PRESENCE
+    private val onShowOnlinePresence = Observer<Boolean> { isMore ->
+        binding.tvOnlinePresenceText.maxLines = if (isMore) MAX_LINES_NO_LIMIT else MAX_LINES_ONLINE_PRESENCE
     }
 
     private fun initMilestonesRecyclerView(rvMilestones: RecyclerView) {
@@ -73,19 +65,15 @@ class PublicProfileFragment : PermanentBaseFragment() {
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getOnMilestonesRetrieved().observe(this, onMilestonesRetrieved)
-        viewModel.getOnReadMoreAbout().observe(this, onReadMoreAbout)
-        viewModel.getOnReadLessAbout().observe(this, onReadLessAbout)
-        viewModel.getOnReadMoreOnlinePresence().observe(this, onReadMoreOnlinePresence)
-        viewModel.getOnReadLessOnlinePresence().observe(this, onReadLessOnlinePresence)
+        viewModel.getOnReadAbout().observe(this, onReadAbout)
+        viewModel.getOnShowOnlinePresence().observe(this, onShowOnlinePresence)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getOnMilestonesRetrieved().removeObserver(onMilestonesRetrieved)
-        viewModel.getOnReadMoreAbout().removeObserver(onReadMoreAbout)
-        viewModel.getOnReadLessAbout().removeObserver(onReadLessAbout)
-        viewModel.getOnReadMoreOnlinePresence().removeObserver(onReadMoreOnlinePresence)
-        viewModel.getOnReadLessOnlinePresence().removeObserver(onReadLessOnlinePresence)
+        viewModel.getOnReadAbout().removeObserver(onReadAbout)
+        viewModel.getOnShowOnlinePresence().removeObserver(onShowOnlinePresence)
     }
 
     override fun onResume() {
