@@ -115,6 +115,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
         prefsHelper.saveCurrentArchiveInfo(
             archive.id,
             archive.number,
+            archive.type,
             archive.fullName,
             archive.thumbURL200,
             archive.accessRole
@@ -174,6 +175,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                     prefsHelper.saveCurrentArchiveInfo(
                         archive.id,
                         archive.number,
+                        archive.type,
                         archive.fullName,
                         archive.thumbURL200,
                         archive.accessRole

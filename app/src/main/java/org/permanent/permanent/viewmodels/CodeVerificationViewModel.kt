@@ -124,6 +124,7 @@ class CodeVerificationViewModel(application: Application) :
                             prefsHelper.saveCurrentArchiveInfo(
                                 archive.id,
                                 archive.number,
+                                archive.type,
                                 archive.fullName,
                                 archive.thumbURL200,
                                 archive.accessRole
