@@ -153,6 +153,27 @@
         <action
             android:id="@+id/action_publicFragment_to_publicFolderFragment"
             app:destination="@id/publicFolderFragment" />
+        <action
+            android:id="@+id/action_publicFragment_to_editAboutFragment"
+            app:destination="@id/editAboutFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_publicFragment_to_editPersonInformationFragment"
+            app:destination="@id/editPersonInformationFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_publicFragment_to_milestonesListFragment"
+            app:destination="@id/milestonesListFragment" />
+        <action
+            android:id="@+id/action_publicFragment_to_onlinePresenceListFragment"
+            app:destination="@id/onlinePresenceListFragment" />
+
     </fragment>
 
     <fragment
@@ -163,4 +184,42 @@
             android:id="@+id/action_publicFolderFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
     </fragment>
+    <fragment
+        android:id="@+id/editAboutFragment"
+        android:name="org.permanent.permanent.ui.public.EditAboutFragment"
+        android:label="@string/edit_about_label"
+        tools:layout="@layout/fragment_edit_about" />
+    <fragment
+        android:id="@+id/editPersonInformationFragment"
+        android:name="org.permanent.permanent.ui.public.EditPersonInformationFragment"
+        android:label="@string/edit_person_information_label"
+        tools:layout="@layout/fragment_edit_person_information" />
+    <fragment
+        android:id="@+id/editMilestonesFragment"
+        android:name="org.permanent.permanent.ui.public.PublicProfileEditMilestonesFragment"
+        android:label="@string/add_milestone_label"
+        tools:layout="@layout/fragment_edit_milestone" />
+    <fragment
+        android:id="@+id/milestonesListFragment"
+        android:name="org.permanent.permanent.ui.public.MilestonesListFragment"
+        android:label="@string/edit_milestone_label"
+        tools:layout="@layout/fragment_milestones_list" >
+        <action
+            android:id="@+id/action_milestonesListFragment_to_editMilestonesFragment"
+            app:destination="@id/editMilestonesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/onlinePresenceListFragment"
+        android:name="org.permanent.permanent.ui.public.OnlinePresenceListFragment"
+        android:label="@string/edit_online_presence_label"
+        tools:layout="@layout/fragment_online_presence_list" >
+        <action
+            android:id="@+id/action_onlinePresenceListFragment_to_addSocialMediaFragment"
+            app:destination="@id/addSocialMediaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addSocialMediaFragment"
+        android:name="org.permanent.permanent.ui.public.AddSocialMediaFragment"
+        android:label="@string/add_social_media_label"
+        tools:layout="@layout/fragment_add_social_media" />
 </navigation>

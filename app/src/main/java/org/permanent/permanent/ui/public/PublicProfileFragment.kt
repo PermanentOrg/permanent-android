@@ -7,8 +7,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.activity_main.*
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
 import org.permanent.permanent.models.Milestone
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -32,8 +35,25 @@ class PublicProfileFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initMilestonesRecyclerView(binding.rvMilestones)
+        activity?.toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
 
         return binding.root
+    }
+
+    private val onEditAboutRequest = Observer<Void> {
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editAboutFragment)
+    }
+
+    private val onEditPersonInformationRequest = Observer<Void> {
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editPersonInformationFragment)
+    }
+
+    private val onEditMilestonesRequest = Observer<Void> {
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_milestonesListFragment)
+    }
+
+    private val onEditOnlinePresenceRequest = Observer<Void> {
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_onlinePresenceListFragment)
     }
 
     private val onShowMessage = Observer<String> { message ->
@@ -67,6 +87,10 @@ class PublicProfileFragment : PermanentBaseFragment() {
         viewModel.getOnMilestonesRetrieved().observe(this, onMilestonesRetrieved)
         viewModel.getOnReadAbout().observe(this, onReadAbout)
         viewModel.getOnShowOnlinePresence().observe(this, onShowOnlinePresence)
+        viewModel.getOnEditAboutRequest().observe(this, onEditAboutRequest)
+        viewModel.getOnEditPersonInformationRequest().observe(this, onEditPersonInformationRequest)
+        viewModel.getOnEditMilestonesRequest().observe(this, onEditMilestonesRequest)
+        viewModel.getOnEditOnlinePresenceRequest().observe(this, onEditOnlinePresenceRequest)
     }
 
     override fun disconnectViewModelEvents() {
@@ -74,6 +98,10 @@ class PublicProfileFragment : PermanentBaseFragment() {
         viewModel.getOnMilestonesRetrieved().removeObserver(onMilestonesRetrieved)
         viewModel.getOnReadAbout().removeObserver(onReadAbout)
         viewModel.getOnShowOnlinePresence().removeObserver(onShowOnlinePresence)
+        viewModel.getOnEditAboutRequest().removeObserver(onEditAboutRequest)
+        viewModel.getOnEditPersonInformationRequest().removeObserver(onEditPersonInformationRequest)
+        viewModel.getOnEditMilestonesRequest().removeObserver(onEditMilestonesRequest)
+        viewModel.getOnEditOnlinePresenceRequest().removeObserver(onEditOnlinePresenceRequest)
     }
 
     override fun onResume() {

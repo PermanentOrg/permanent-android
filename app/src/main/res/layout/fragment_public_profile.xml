@@ -15,10 +15,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:nestedScrollingEnabled="true">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="true">
 
         <TextView
             android:id="@+id/tvAbout"
@@ -406,6 +406,7 @@
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
             android:textStyle="normal"
+            android:onClick="@{() -> viewModel.onEditAboutBtnClick()}"
             app:icon="@drawable/ic_edit"
             app:iconGravity="textEnd"
             app:iconPadding="2dp"
@@ -438,6 +439,7 @@
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
             android:textStyle="normal"
+            android:onClick="@{() -> viewModel.onEditPersonInformationBtnClick()}"
             app:icon="@drawable/ic_edit"
             app:iconGravity="textEnd"
             app:iconPadding="2dp"
@@ -470,6 +472,7 @@
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
             android:textStyle="normal"
+            android:onClick="@{() -> viewModel.onEditOnlinePresenceBtnClick()}"
             app:icon="@drawable/ic_edit"
             app:iconGravity="textEnd"
             app:iconPadding="2dp"
@@ -501,6 +504,7 @@
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
             android:textStyle="normal"
+            android:onClick="@{() -> viewModel.onEditMilestonesBtnClick()}"
             app:icon="@drawable/ic_edit"
             app:iconGravity="textEnd"
             app:iconPadding="2dp"

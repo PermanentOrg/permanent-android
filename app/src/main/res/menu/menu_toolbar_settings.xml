@@ -15,4 +15,11 @@
         app:showAsAction="always"
         android:visible="false"
         />
+    <item
+        android:id="@+id/plusItem"
+        android:icon="@drawable/ic_plus_white"
+        android:title="@string/menu_toolbar_public_add"
+        app:showAsAction="always"
+        android:visible="false"
+        />
 </menu>

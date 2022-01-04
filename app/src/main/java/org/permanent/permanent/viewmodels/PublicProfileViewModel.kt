@@ -33,6 +33,10 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onReadAbout = SingleLiveEvent<Boolean>()
     private val isOnlinePresenceExtended = MutableLiveData(false)
     private val onShowOnlinePresence = SingleLiveEvent<Boolean>()
+    private val onEditAboutRequest = SingleLiveEvent<Void>()
+    private val onEditPersonInformationRequest = SingleLiveEvent<Void>()
+    private val onEditMilestonesRequest = SingleLiveEvent<Void>()
+    private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
 
     init {
@@ -112,6 +116,30 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         onShowOnlinePresence.value = !isOnlinePresenceExtended.value!!
         isOnlinePresenceExtended.value = !isOnlinePresenceExtended.value!!
     }
+
+    fun onEditAboutBtnClick(){
+        onEditAboutRequest.call()
+    }
+
+    fun onEditPersonInformationBtnClick(){
+        onEditPersonInformationRequest.call()
+    }
+
+    fun onEditMilestonesBtnClick(){
+        onEditMilestonesRequest.call()
+    }
+
+    fun onEditOnlinePresenceBtnClick(){
+        onEditOnlinePresenceRequest.call()
+    }
+
+    fun getOnEditAboutRequest(): LiveData<Void> = onEditAboutRequest
+
+    fun getOnEditPersonInformationRequest(): LiveData<Void> = onEditPersonInformationRequest
+
+    fun getOnEditMilestonesRequest(): LiveData<Void> = onEditMilestonesRequest
+
+    fun getOnEditOnlinePresenceRequest(): LiveData<Void> = onEditOnlinePresenceRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
