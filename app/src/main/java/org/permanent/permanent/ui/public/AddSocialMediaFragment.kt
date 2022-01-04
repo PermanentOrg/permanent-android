@@ -10,7 +10,7 @@ import org.permanent.permanent.databinding.FragmentAddSocialMediaBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.PublicProfileViewModel
 
-class PublicProfileAddSocialMediaFragment: PermanentBaseFragment(){
+class AddSocialMediaFragment: PermanentBaseFragment(){
     private lateinit var viewModel: PublicProfileViewModel
         private lateinit var binding: FragmentAddSocialMediaBinding
 

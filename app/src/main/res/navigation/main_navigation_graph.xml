@@ -186,12 +186,12 @@
     </fragment>
     <fragment
         android:id="@+id/editAboutFragment"
-        android:name="org.permanent.permanent.ui.public.PublicProfileEditAboutFragment"
+        android:name="org.permanent.permanent.ui.public.EditAboutFragment"
         android:label="@string/edit_about_label"
         tools:layout="@layout/fragment_edit_about" />
     <fragment
         android:id="@+id/editPersonInformationFragment"
-        android:name="org.permanent.permanent.ui.public.PublicProfileEditPersonInformationFragment"
+        android:name="org.permanent.permanent.ui.public.EditPersonInformationFragment"
         android:label="@string/edit_person_information_label"
         tools:layout="@layout/fragment_edit_person_information" />
     <fragment
@@ -219,7 +219,7 @@
     </fragment>
     <fragment
         android:id="@+id/addSocialMediaFragment"
-        android:name="org.permanent.permanent.ui.public.PublicProfileAddSocialMediaFragment"
+        android:name="org.permanent.permanent.ui.public.AddSocialMediaFragment"
         android:label="@string/add_social_media_label"
         tools:layout="@layout/fragment_add_social_media" />
 </navigation>

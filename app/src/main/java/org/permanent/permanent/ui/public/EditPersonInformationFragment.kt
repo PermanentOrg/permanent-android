@@ -11,7 +11,7 @@ import org.permanent.permanent.databinding.FragmentEditPersonInformationBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.PublicProfileViewModel
 
-class PublicProfileEditPersonInformationFragment: PermanentBaseFragment(){
+class EditPersonInformationFragment: PermanentBaseFragment(){
     private lateinit var viewModel: PublicProfileViewModel
     private lateinit var binding: FragmentEditPersonInformationBinding
 

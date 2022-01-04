@@ -83,6 +83,7 @@
     <string name="menu_toolbar_file_metadata">File Metadata</string>
     <string name="menu_toolbar_done">Done</string>
     <string name="menu_toolbar_more">More</string>
+    <string name="menu_toolbar_public_add">Add</string>
 
     <string name="menu_settings_drawer_storage">Storage</string>
     <string name="menu_settings_drawer_account_info">Account Info</string>

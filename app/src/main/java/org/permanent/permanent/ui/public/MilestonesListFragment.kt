@@ -23,6 +23,7 @@ class MilestonesListFragment: PermanentBaseFragment(){
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+        activity?.toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = true
 
         return binding.root
     }

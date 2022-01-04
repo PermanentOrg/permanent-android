@@ -10,7 +10,7 @@ import org.permanent.permanent.databinding.FragmentEditAboutBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.PublicProfileViewModel
 
-class PublicProfileEditAboutFragment: PermanentBaseFragment(){
+class EditAboutFragment: PermanentBaseFragment(){
     private lateinit var viewModel: PublicProfileViewModel
     private lateinit var binding: FragmentEditAboutBinding
 
