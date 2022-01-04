@@ -123,6 +123,9 @@
     <string name="public_profile_about">About</string>
     <string name="public_profile_about_hint">Add a short description about the purpose of this Archive.</string>
     <string name="public_profile_read_more">Read More</string>
+    <string name="public_profile_read_less">Read Less</string>
+    <string name="public_profile_show_more">Show More</string>
+    <string name="public_profile_show_less">Show Less</string>
     <string name="public_profile_person_information">Person Information</string>
     <string name="public_profile_full_name_hint">Full name</string>
     <string name="public_profile_nickname">Also known as...</string>
@@ -133,9 +136,9 @@
     <string name="public_profile_birth_location">Birth Location</string>
     <string name="public_profile_location_hint">Choose a location</string>
     <string name="public_profile_online_presence">Online Presence</string>
-    <string name="public_profile_online_presence_hint">email@website.com <br />
-                                                       www.website.com/user</string>
+    <string name="public_profile_online_presence_hint">www.website.com/user</string>
     <string name="public_profile_milestones">Milestones</string>
+    <string name="public_profile_no_milestones_text">Milestones capture any significant event in the history of this archive, and are ordered from most recent to least recent.</string>
     <string name="public_profile_milestone_title">Title</string>
     <string name="public_profile_milestone_title_hint">What is this milestone?</string>
     <string name="public_profile_milestone_description_hint">More details and information about this milestone.</string>
@@ -394,5 +397,4 @@
     <string name="record_search_no_results_title">Enter search terms to match tags and titles.</string>
     <string name="record_search_no_results_message">Search results will appear here.</string>
 </resources>
-
 

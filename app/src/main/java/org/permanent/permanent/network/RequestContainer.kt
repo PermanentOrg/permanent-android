@@ -300,6 +300,13 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addProfileItem(archiveNr: String?): RequestContainer {
+        val profileItemVo = Profile_itemVO()
+        profileItemVo.archiveNbr = archiveNr
+        RequestVO.data?.get(0)?.Profile_itemVO = profileItemVo
+        return this
+    }
+
     fun addInvite(fullName: String, email: String): RequestContainer {
         val inviteVO = InviteVO()
         inviteVO.fullName = fullName

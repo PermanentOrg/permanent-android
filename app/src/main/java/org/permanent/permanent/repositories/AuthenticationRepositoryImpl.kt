@@ -59,6 +59,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     prefsHelper.saveCurrentArchiveInfo(
                         archive.id,
                         archive.number,
+                        archive.type,
                         archive.fullName,
                         archive.thumbURL200,
                         archive.accessRole

@@ -3,6 +3,7 @@ package org.permanent.permanent.ui
 import android.content.SharedPreferences
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.ArchiveType
 
 const val PREFS_NAME = "permanent_preferences"
 const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
@@ -19,6 +20,7 @@ const val PREFS_CSRF = "preferences_csrf"
 const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
 const val PREFS_CURRENT_ARCHIVE_ID = "preferences_current_archive_id"
 const val PREFS_CURRENT_ARCHIVE_NUMBER = "preferences_current_archive_number"
+const val PREFS_CURRENT_ARCHIVE_TYPE = "preferences_current_archive_type"
 const val PREFS_CURRENT_ARCHIVE_FULL_NAME = "preferences_current_archive_full_name"
 const val PREFS_CURRENT_ARCHIVE_THUMB_URL = "preferences_current_archive_thumb_url"
 const val PREFS_CURRENT_ARCHIVE_ACCESS_ROLE = "preferences_current_archive_access_role"
@@ -138,6 +140,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
     fun saveCurrentArchiveInfo(
         id: Int?,
         number: String?,
+        type: ArchiveType?,
         name: String?,
         thumbURL: String?,
         accessRole: AccessRole?
@@ -151,6 +154,12 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         number?.let {
             with(sharedPreferences.edit()) {
                 putString(PREFS_CURRENT_ARCHIVE_NUMBER, number)
+                apply()
+            }
+        }
+        type?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_CURRENT_ARCHIVE_TYPE, type.backendString)
                 apply()
             }
         }
@@ -179,6 +188,14 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getCurrentArchiveNr(): String? {
         return sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_NUMBER, "")
+    }
+
+    fun getCurrentArchiveType(): ArchiveType {
+        return when (sharedPreferences.getString(PREFS_CURRENT_ARCHIVE_TYPE, "")) {
+            ArchiveType.FAMILY.backendString -> ArchiveType.FAMILY
+            ArchiveType.ORGANIZATION.backendString -> ArchiveType.ORGANIZATION
+            else -> ArchiveType.PERSON
+        }
     }
 
     fun getCurrentArchiveFullName(): String? {

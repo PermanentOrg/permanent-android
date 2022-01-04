@@ -15,6 +15,7 @@ class ArchiveVO() {
     constructor(archive: Archive) : this() {
         archiveId = archive.id
         archiveNbr = archive.number
+        type = archive.type?.backendString
         fullName = archive.fullName
         thumbURL200 = archive.thumbURL200
         accessRole = archive.accessRole?.backendString
