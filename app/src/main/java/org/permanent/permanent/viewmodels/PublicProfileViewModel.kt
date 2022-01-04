@@ -13,36 +13,36 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val onEditAboutRequest = MutableLiveData<Void>()
-    private val onEditPersonInformationRequest = MutableLiveData<Void>()
-    private val onEditOnlinePresenceRequest = MutableLiveData<Void>()
-    private val onEditMilestonesRequest = MutableLiveData<Void>()
+    private val onEditAboutRequest = SingleLiveEvent<Void>()
+    private val onEditPersonInformationRequest = SingleLiveEvent<Void>()
+    private val onEditMilestonesRequest = SingleLiveEvent<Void>()
+    private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
 
     fun onEditAboutBtnClick(){
-
+        onEditAboutRequest.call()
     }
 
     fun onEditPersonInformationBtnClick(){
-
-    }
-
-    fun onEditOnlinePresenceBtnClick(){
-
+        onEditPersonInformationRequest.call()
     }
 
     fun onEditMilestonesBtnClick(){
+        onEditMilestonesRequest.call()
+    }
 
+    fun onEditOnlinePresenceBtnClick(){
+        onEditOnlinePresenceRequest.call()
     }
 
     fun getOnEditAboutRequest(): LiveData<Void> = onEditAboutRequest
 
     fun getOnEditPersonInformationRequest(): LiveData<Void> = onEditPersonInformationRequest
 
-    fun getOnEditOnlinePresenceRequest(): LiveData<Void> = onEditOnlinePresenceRequest
-
     fun getOnEditMilestonesRequest(): LiveData<Void> = onEditMilestonesRequest
+
+    fun getOnEditOnlinePresenceRequest(): LiveData<Void> = onEditOnlinePresenceRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

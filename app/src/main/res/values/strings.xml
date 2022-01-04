@@ -119,6 +119,7 @@
     <string name="public_archive_title">Archive</string>
     <string name="public_archive_tab_name">"Public Archive"</string>
     <string name="public_profile_tab_name">"Public Profile"</string>
+    <string name="public_profile_character_limit">200 character limit</string>
     <string name="public_profile_about">About</string>
     <string name="public_profile_about_hint">Add a short description about the purpose of this Archive.</string>
     <string name="public_profile_read_more">Read More</string>
@@ -144,9 +145,15 @@
     <string name="edit_about_long_description_hint">Tell the story of the Person this Archive is for.</string>
     <string name="edit_person_information_label">Edit Person Information</string>
     <string name="edit_milestone_label">Edit Milestones</string>
+    <string name="add_milestone_label">Add Milestone</string>
+    <string name="no_milestone_text">You haven\'t added any milestones</string>
     <string name="edit_milestone_start_date">Start Date</string>
     <string name="edit_milestone_end_date">End Date</string>
     <string name="edit_milestone_description_hint">Describe this milestone</string>
+    <string name="edit_add_social_media_hint">www.website.com/user</string>
+    <string name="edit_online_presence_label">Edit Online Presence</string>
+    <string name="add_social_media_label">Add Social Media</string>
+    <string name="no_online_presence_text">You haven\'t added any online presence</string>
 
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>
