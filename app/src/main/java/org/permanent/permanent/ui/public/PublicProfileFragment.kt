@@ -50,14 +50,14 @@ class PublicProfileFragment : PermanentBaseFragment() {
         viewModel.getOnEditAboutRequest().observe(this, onEditAboutRequest)
         viewModel.getOnEditPersonInformationRequest().observe(this, onEditPersonInformationRequest)
         viewModel.getOnEditMilestonesRequest().observe(this, onEditMilestonesRequest)
-        viewModel.getOnEditMilestonesRequest().observe(this, onEditOnlinePresenceRequest)
+        viewModel.getOnEditOnlinePresenceRequest().observe(this, onEditOnlinePresenceRequest)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnEditAboutRequest().removeObserver(onEditAboutRequest)
         viewModel.getOnEditPersonInformationRequest().removeObserver(onEditPersonInformationRequest)
         viewModel.getOnEditMilestonesRequest().removeObserver(onEditMilestonesRequest)
-        viewModel.getOnEditMilestonesRequest().removeObserver(onEditOnlinePresenceRequest)
+        viewModel.getOnEditOnlinePresenceRequest().removeObserver(onEditOnlinePresenceRequest)
     }
 
     override fun onResume() {
