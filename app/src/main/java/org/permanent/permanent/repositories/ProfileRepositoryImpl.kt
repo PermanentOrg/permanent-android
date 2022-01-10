@@ -1,7 +1,9 @@
 package org.permanent.permanent.repositories
 
 import android.content.Context
+import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
@@ -25,6 +27,27 @@ class ProfileRepositoryImpl(val context: Context) : IProfileRepository {
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun safeAddUpdateProfileItems(profileItem: ProfileItem, listener: IProfileItemListener) {
+        NetworkClient.instance()
+            .safeAddUpdateProfileItems(prefsHelper.getCsrf(), profileItem)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(ProfileItem(responseVO.getProfileItemVO()))
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }

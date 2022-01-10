@@ -120,7 +120,7 @@
     <string name="public_archive_title">Archive</string>
     <string name="public_archive_tab_name">"Public Archive"</string>
     <string name="public_profile_tab_name">"Public Profile"</string>
-    <string name="public_profile_character_limit">200 character limit</string>
+    <string name="public_profile_character_limit">(%d/200)</string>
     <string name="public_profile_about">About</string>
     <string name="public_profile_about_hint">Add a short description about the purpose of this Archive.</string>
     <string name="public_profile_read_more">Read More</string>
@@ -147,6 +147,7 @@
     <string name="edit_about_short_description">What is this Archive for?</string>
     <string name="edit_about_long_description">Tell us about this Person</string>
     <string name="edit_about_long_description_hint">Tell the story of the Person this Archive is for.</string>
+    <string name="edit_about_update_success">Fields updated successfully</string>
     <string name="edit_person_information_label">Edit Person Information</string>
     <string name="edit_milestone_label">Edit Milestones</string>
     <string name="add_milestone_label">Add Milestone</string>

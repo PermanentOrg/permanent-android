@@ -5,8 +5,10 @@ import org.permanent.permanent.models.ProfileItem
 class Profile_itemVO() {
 
     var archiveNbr: String? = null
+    var archiveId: Int? = null
     var profile_itemId: Int? = null
     var fieldNameUI: String? = null
+    var type: String? = null
     var string1: String? = null
     var string2: String? = null
     var string3: String? = null
@@ -17,8 +19,10 @@ class Profile_itemVO() {
 
     constructor(profileItem: ProfileItem) : this() {
         archiveNbr = profileItem.archiveNr
+        archiveId = profileItem.archiveId
         profile_itemId = profileItem.id
-        fieldNameUI = profileItem.type?.backendString
+        fieldNameUI = profileItem.fieldName?.backendString
+        type = profileItem.type
         string1 = profileItem.string1
         string2 = profileItem.string2
         string3 = profileItem.string3
