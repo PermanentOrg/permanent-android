@@ -30,15 +30,11 @@ class ResponseVO {
         return getData()?.get(0)?.SimpleVO?.value as Boolean?
     }
 
-    fun getArchiveNr(): String? {
-        return getData()?.get(0)?.FolderVO?.archiveNbr
-    }
-
-    fun getAccount(): AccountVO? {
+    fun getAccountVO(): AccountVO? {
         return getData()?.get(0)?.AccountVO
     }
 
-    fun getArchive(): ArchiveVO? {
+    fun getArchiveVO(): ArchiveVO? {
         return getData()?.get(0)?.ArchiveVO
     }
 
@@ -78,5 +74,9 @@ class ResponseVO {
 
     fun getLocationVO(): LocnVO? {
         return getData()?.get(0)?.LocnVO
+    }
+
+    fun getProfileItemVO(): Profile_itemVO? {
+        return getData()?.get(0)?.Profile_itemVO
     }
 }

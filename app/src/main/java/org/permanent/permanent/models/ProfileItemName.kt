@@ -3,7 +3,7 @@ package org.permanent.permanent.models
 import android.os.Parcel
 import android.os.Parcelable
 
-enum class ProfileItemType(val backendString: String) : Parcelable {
+enum class ProfileItemName(val backendString: String) : Parcelable {
     UNKNOWN("profile"),
     BASIC("profile.basic"),
     GENDER("profile.gender"),
@@ -21,12 +21,12 @@ enum class ProfileItemType(val backendString: String) : Parcelable {
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<ProfileItemType> {
-        override fun createFromParcel(parcel: Parcel): ProfileItemType {
+    companion object CREATOR : Parcelable.Creator<ProfileItemName> {
+        override fun createFromParcel(parcel: Parcel): ProfileItemName {
             return values()[parcel.readInt()]
         }
 
-        override fun newArray(size: Int): Array<ProfileItemType?> {
+        override fun newArray(size: Int): Array<ProfileItemName?> {
             return arrayOfNulls(size)
         }
     }

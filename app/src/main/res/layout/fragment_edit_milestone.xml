@@ -70,7 +70,7 @@
             android:background="@drawable/rounded_grey_border_white_background"
             android:hint="@string/public_profile_location_hint"
             android:includeFontPadding="true"
-            android:paddinStart="5dp"
+            android:paddingStart="5dp"
             android:paddingTop="4dp"
             android:paddingEnd="5dp"
             android:paddingBottom="4dp"

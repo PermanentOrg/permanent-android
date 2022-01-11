@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Milestone
 import org.permanent.permanent.models.ProfileItem
-import org.permanent.permanent.models.ProfileItemType
+import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.IProfileRepository
@@ -20,6 +20,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     )
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    private val profileItems: MutableList<ProfileItem> = ArrayList()
     private val shortAndLongDescription = MutableLiveData("")
     private val name = MutableLiveData<String>()
     private val nickname = MutableLiveData<String>()
@@ -33,17 +34,13 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onReadAbout = SingleLiveEvent<Boolean>()
     private val isOnlinePresenceExtended = MutableLiveData(false)
     private val onShowOnlinePresence = SingleLiveEvent<Boolean>()
-    private val onEditAboutRequest = SingleLiveEvent<Void>()
+    private val onEditAboutRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditPersonInformationRequest = SingleLiveEvent<Void>()
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
 
-    init {
-        getProfileItems()
-    }
-
-    private fun getProfileItems() {
+    fun getProfileItems() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -65,39 +62,38 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     private fun displayProfileItems(dataList: List<Datum>) {
-        val profileItems: MutableList<ProfileItem> = ArrayList()
         val milestones: MutableList<Milestone> = ArrayList()
 
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO)
             profileItems.add(profileItem)
-            when (profileItem.type) {
-                ProfileItemType.SHORT_DESCRIPTION -> {
+            when (profileItem.fieldName) {
+                ProfileItemName.SHORT_DESCRIPTION -> {
                     profileItem.string1?.let { shortAndLongDescription.value = it }
                 }
-                ProfileItemType.DESCRIPTION -> {
+                ProfileItemName.DESCRIPTION -> {
                     profileItem.textData1?.let {
                         shortAndLongDescription.value = shortAndLongDescription.value + "\n\n" + it
                     }
                 }
-                ProfileItemType.BASIC -> {
+                ProfileItemName.BASIC -> {
                     profileItem.string2?.let { name.value = it }
                     profileItem.string3?.let { nickname.value = it }
                 }
-                ProfileItemType.GENDER -> {
+                ProfileItemName.GENDER -> {
                     profileItem.string1?.let { gender.value = it }
                 }
-                ProfileItemType.BIRTH_INFO -> {
+                ProfileItemName.BIRTH_INFO -> {
                     profileItem.day1?.let { date.value = it }
                     profileItem.locationText?.let { location.value = it }
                 }
-                ProfileItemType.SOCIAL_MEDIA -> {
+                ProfileItemName.SOCIAL_MEDIA -> {
                     profileItem.string1?.let {
                         onlinePresence.value =
                             if (onlinePresence.value == "") it else onlinePresence.value + "\n" + it
                     }
                 }
-                ProfileItemType.MILESTONE -> {
+                ProfileItemName.MILESTONE -> {
                     milestones.add(Milestone(profileItem))
                 }
                 else -> {}
@@ -118,7 +114,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onEditAboutBtnClick(){
-        onEditAboutRequest.call()
+        onEditAboutRequest.value = profileItems
     }
 
     fun onEditPersonInformationBtnClick(){
@@ -133,7 +129,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         onEditOnlinePresenceRequest.call()
     }
 
-    fun getOnEditAboutRequest(): LiveData<Void> = onEditAboutRequest
+    fun getOnEditAboutRequest(): LiveData<MutableList<ProfileItem>> = onEditAboutRequest
 
     fun getOnEditPersonInformationRequest(): LiveData<Void> = onEditPersonInformationRequest
 

@@ -59,7 +59,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                         val responseVO = response.body()
                         prefsHelper.saveCsrf(responseVO?.csrf)
                         if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                            listener.onSuccess(Account(responseVO.getAccount()))
+                            listener.onSuccess(Account(responseVO.getAccountVO()))
                         } else {
                             listener.onFailed(
                                 responseVO?.getMessages()?.get(0)

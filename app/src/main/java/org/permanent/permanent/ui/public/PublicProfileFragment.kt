@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -14,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
 import org.permanent.permanent.models.Milestone
+import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.PublicProfileViewModel
 
@@ -40,8 +42,9 @@ class PublicProfileFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onEditAboutRequest = Observer<Void> {
-        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editAboutFragment)
+    private val onEditAboutRequest = Observer<MutableList<ProfileItem>> {
+        val bundle = bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to it)
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editAboutFragment, bundle)
     }
 
     private val onEditPersonInformationRequest = Observer<Void> {
@@ -107,6 +110,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        viewModel.getProfileItems()
     }
 
     override fun onPause() {
@@ -118,5 +122,6 @@ class PublicProfileFragment : PermanentBaseFragment() {
         const val MAX_LINES_ABOUT = 5
         const val MAX_LINES_ONLINE_PRESENCE = 3
         const val MAX_LINES_NO_LIMIT = 900
+        const val PARCELABLE_PROFILE_ITEMS_KEY = "parcelable_profile_items_key"
     }
 }
