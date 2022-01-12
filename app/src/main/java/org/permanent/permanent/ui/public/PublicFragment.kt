@@ -18,20 +18,20 @@ class PublicFragment : PermanentBaseFragment()  {
     private lateinit var viewModel: PublicViewModel
 
     override fun onCreateView(
-          inflater: LayoutInflater,
-          container: ViewGroup?,
-          savedInstanceState: Bundle?
-      ): View {
-          viewModel = ViewModelProvider(this).get(PublicViewModel::class.java)
-          binding = FragmentPublicBinding.inflate(inflater, container, false)
-          binding.executePendingBindings()
-          binding.lifecycleOwner = this
-          binding.viewModel = viewModel
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        viewModel = ViewModelProvider(this).get(PublicViewModel::class.java)
+        binding = FragmentPublicBinding.inflate(inflater, container, false)
+        binding.executePendingBindings()
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
 
         (activity as AppCompatActivity?)?.supportActionBar?.title = viewModel.getCurrentArchiveName()
 
-          return binding.root
-      }
+        return binding.root
+    }
 
     private val tabArray = arrayOf(
         R.string.public_archive_tab_name,
@@ -52,12 +52,8 @@ class PublicFragment : PermanentBaseFragment()  {
     }
 
     override fun connectViewModelEvents() {
-        TODO("Not yet implemented")
     }
 
     override fun disconnectViewModelEvents() {
-        TODO("Not yet implemented")
     }
 }
-
-

@@ -37,7 +37,6 @@ class PublicProfileFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initMilestonesRecyclerView(binding.rvMilestones)
-        activity?.toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
 
         return binding.root
     }
@@ -110,6 +109,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        activity?.toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
         viewModel.getProfileItems()
     }
 

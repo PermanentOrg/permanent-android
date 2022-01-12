@@ -21,6 +21,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.permanent.*
@@ -67,6 +68,30 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
     }
 
+    private val onDestinationChangedListener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
+        when (destination?.id) {
+            R.id.editAboutFragment -> {
+                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+            }
+            R.id.editPersonInformationFragment -> {
+                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+            }
+            R.id.onlinePresenceListFragment -> {
+                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+            }
+            R.id.addSocialMediaFragment -> {
+                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+            }
+            R.id.milestonesListFragment -> {
+                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+            }
+            R.id.editMilestoneFragment -> {
+                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
@@ -91,10 +116,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         headerSettingsBinding.lifecycleOwner = this
         headerSettingsBinding.viewModel = viewModel
 
-        // NavController setup
+        // NavController setupOnDestinationChangedListener
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
+
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
 
         // Toolbar & ActionBar & AppBarConfiguration setup
         setSupportActionBar(binding.toolbar)
@@ -212,10 +239,13 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         return true
     }
 
+
     // On Toolbar menu item click
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
-        if (menuItem?.itemId == R.id.moreItem) sendEventToCurrentFragment()
-        else binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
+        when (menuItem?.itemId) {
+            R.id.moreItem -> sendEventToCurrentFragment()
+            else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
+        }
         return true
     }
 
