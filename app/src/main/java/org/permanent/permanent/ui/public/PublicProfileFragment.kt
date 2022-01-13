@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
 import org.permanent.permanent.models.Milestone
@@ -109,7 +108,6 @@ class PublicProfileFragment : PermanentBaseFragment() {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
-        activity?.toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
         viewModel.getProfileItems()
     }
 

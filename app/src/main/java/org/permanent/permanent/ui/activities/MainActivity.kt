@@ -70,24 +70,17 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private val onDestinationChangedListener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
         when (destination?.id) {
-            R.id.editAboutFragment -> {
-                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-            }
-            R.id.editPersonInformationFragment -> {
-                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-            }
-            R.id.onlinePresenceListFragment -> {
-                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-            }
-            R.id.addSocialMediaFragment -> {
-                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
-            }
+            R.id.editAboutFragment, R.id.editPersonInformationFragment, R.id.onlinePresenceListFragment,
             R.id.milestonesListFragment -> {
                 toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
             }
-            R.id.editMilestoneFragment -> {
+            R.id.addSocialMediaFragment, R.id.editMilestoneFragment -> {
                 toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+            }
+            R.id.publicFragment -> {
+                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
+                toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
             }
         }
     }

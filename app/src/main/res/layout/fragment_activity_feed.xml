@@ -44,7 +44,7 @@
             android:background="@drawable/round_white_frame"
             android:backgroundTint="@color/superLightGrey"
             android:scaleType="center"
-            android:visibility="@{viewModel.existsNotifications ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.hasNotifications ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
@@ -61,7 +61,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:text="@string/no_notifications"
-            android:visibility="@{viewModel.existsNotifications ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.hasNotifications ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ivNotificationBell" />
