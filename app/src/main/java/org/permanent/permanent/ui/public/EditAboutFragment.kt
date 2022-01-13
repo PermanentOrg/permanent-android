@@ -30,7 +30,6 @@ class EditAboutFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
         arguments?.getParcelableArrayList<ProfileItem>(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
             ?.let { viewModel.displayProfileItems(it) }
 

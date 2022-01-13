@@ -195,18 +195,18 @@
         android:label="@string/edit_person_information_label"
         tools:layout="@layout/fragment_edit_person_information" />
     <fragment
-        android:id="@+id/editMilestonesFragment"
+        android:id="@+id/editMilestoneFragment"
         android:name="org.permanent.permanent.ui.public.PublicProfileEditMilestonesFragment"
         android:label="@string/add_milestone_label"
         tools:layout="@layout/fragment_edit_milestone" />
     <fragment
         android:id="@+id/milestonesListFragment"
-        android:name="org.permanent.permanent.ui.public.MilestonesListFragment"
+        android:name="org.permanent.permanent.ui.public.MilestoneListFragment"
         android:label="@string/edit_milestone_label"
-        tools:layout="@layout/fragment_milestones_list" >
+        tools:layout="@layout/fragment_milestone_list" >
         <action
             android:id="@+id/action_milestonesListFragment_to_editMilestonesFragment"
-            app:destination="@id/editMilestonesFragment" />
+            app:destination="@id/editMilestoneFragment" />
     </fragment>
     <fragment
         android:id="@+id/onlinePresenceListFragment"
