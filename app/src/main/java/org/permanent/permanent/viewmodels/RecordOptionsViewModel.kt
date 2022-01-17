@@ -56,6 +56,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun setRecord(
         record: Record?,
         isShownInMyFilesFragment: Boolean?,
+        isShownInPublicFilesFragment: Boolean?,
         isShownInSharesFragment: Boolean?
     ) {
         this.record = record
@@ -76,6 +77,16 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
                 hiddenOptions.value?.add(RecordOption.RENAME)
             if (!CurrentArchivePermissionsManager.instance.isOwnershipAvailable())
                 hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
+        } else if (isShownInPublicFilesFragment == true) {
+            hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
+            if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
+                hiddenOptions.value?.add(RecordOption.COPY)
+            if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
+                hiddenOptions.value?.add(RecordOption.DELETE)
+            if (!CurrentArchivePermissionsManager.instance.isMoveAvailable())
+                hiddenOptions.value?.add(RecordOption.MOVE)
+            if (!CurrentArchivePermissionsManager.instance.isEditAvailable())
+                hiddenOptions.value?.add(RecordOption.RENAME)
         } else if (isShownInSharesFragment == true) {
             hiddenOptions.value?.add(RecordOption.COPY_LINK)
             hiddenOptions.value?.add(RecordOption.DELETE)

@@ -12,6 +12,7 @@ class Constants {
         const val REQUEST_CODE_GOOGLE_API_AVAILABILITY = 2404
         const val LOGIN_URL_SUFFIX = "auth/login"
         const val MY_FILES_FOLDER = "My Files"
+        const val PUBLIC_FILES_FOLDER = "Public"
         const val MEDIA_TYPE_JSON = "application/json;charset=UTF-8"
         const val MEDIA_TYPE_OCTET_STREAM = "application/octet-stream"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"

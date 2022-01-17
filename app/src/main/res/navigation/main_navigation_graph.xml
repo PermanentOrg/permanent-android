@@ -143,9 +143,33 @@
     </activity>
 
     <fragment
+        android:id="@+id/publicFilesFragment"
+        android:name="org.permanent.permanent.ui.public.PublicFilesFragment"
+        android:label="@string/menu_drawer_public_files"
+        tools:layout="@layout/fragment_public_files">
+        <action
+            android:id="@+id/action_publicFilesFragment_to_recordSearchFragment"
+            app:destination="@id/recordSearchFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_publicFilesFragment_to_shareLinkFragment"
+            app:destination="@id/shareLinkFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_publicFilesFragment_to_fileActivity"
+            app:destination="@id/fileActivity" />
+    </fragment>
+
+    <fragment
         android:id="@+id/publicFragment"
         android:name="org.permanent.permanent.ui.public.PublicFragment"
-        android:label="@string/menu_drawer_public"
+        android:label="@string/menu_drawer_public_gallery"
         tools:layout="@layout/fragment_public">
         <action
             android:id="@+id/action_publicFragment_to_fileActivity"

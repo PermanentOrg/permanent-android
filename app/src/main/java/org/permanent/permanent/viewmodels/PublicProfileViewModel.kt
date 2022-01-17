@@ -73,7 +73,12 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 }
                 ProfileItemName.DESCRIPTION -> {
                     profileItem.textData1?.let {
-                        shortAndLongDescription.value = shortAndLongDescription.value + "\n\n" + it
+                        shortAndLongDescription.value =
+                            when {
+                                shortAndLongDescription.value?.isEmpty() == true -> it
+                                it.isEmpty() -> shortAndLongDescription.value
+                                else -> shortAndLongDescription.value + "\n\n" + it
+                            }
                     }
                 }
                 ProfileItemName.BASIC -> {
@@ -113,19 +118,19 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         isOnlinePresenceExtended.value = !isOnlinePresenceExtended.value!!
     }
 
-    fun onEditAboutBtnClick(){
+    fun onEditAboutBtnClick() {
         onEditAboutRequest.value = profileItems
     }
 
-    fun onEditPersonInformationBtnClick(){
+    fun onEditPersonInformationBtnClick() {
         onEditPersonInformationRequest.call()
     }
 
-    fun onEditMilestonesBtnClick(){
+    fun onEditMilestonesBtnClick() {
         onEditMilestonesRequest.call()
     }
 
-    fun onEditOnlinePresenceBtnClick(){
+    fun onEditOnlinePresenceBtnClick() {
         onEditOnlinePresenceRequest.call()
     }
 
