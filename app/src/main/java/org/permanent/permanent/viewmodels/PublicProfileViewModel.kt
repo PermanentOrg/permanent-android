@@ -63,13 +63,20 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     private fun displayProfileItems(dataList: List<Datum>) {
         val milestones: MutableList<Milestone> = ArrayList()
+        shortAndLongDescription.value = ""
 
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO)
             profileItems.add(profileItem)
             when (profileItem.fieldName) {
                 ProfileItemName.SHORT_DESCRIPTION -> {
-                    profileItem.string1?.let { shortAndLongDescription.value = it }
+                    profileItem.string1?.let { shortAndLongDescription.value =
+                        when {
+                            shortAndLongDescription.value?.isEmpty() == true -> it
+                            it.isEmpty() -> shortAndLongDescription.value
+                            else -> it + "\n\n" + shortAndLongDescription.value
+                        }
+                    }
                 }
                 ProfileItemName.DESCRIPTION -> {
                     profileItem.textData1?.let {

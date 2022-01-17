@@ -147,8 +147,8 @@
     <string name="public_profile_milestone_description_hint">More details and information about this milestone.</string>
     <string name="edit_about_label">Edit About</string>
     <string name="edit_about_short_description">What is this Archive for?</string>
-    <string name="edit_about_long_description">Tell us about this Person</string>
-    <string name="edit_about_long_description_hint">Tell the story of the Person this Archive is for.</string>
+    <string name="edit_about_long_description">Tell us about this %s</string>
+    <string name="edit_about_long_description_hint">Tell the story of the %s this Archive is for.</string>
     <string name="edit_about_update_success">Fields updated successfully</string>
     <string name="edit_person_information_label">Edit Person Information</string>
     <string name="edit_milestone_label">Edit Milestones</string>
