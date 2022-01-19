@@ -21,8 +21,23 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     )
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    private val showError = MutableLiveData<String>()
+    private val shortDescriptionCharsNr =
+        MutableLiveData(appContext.getString(R.string.public_profile_character_limit, 0))
     private val shortDescription = MutableLiveData("")
-    private val shortDescriptionCharsNr = MutableLiveData(appContext.getString(R.string.public_profile_character_limit, 0))
+    private val currentArchiveType = prefsHelper.getCurrentArchiveType()
+    private val longDescriptionLabel = MutableLiveData(
+        application.getString(
+            R.string.edit_about_long_description,
+            currentArchiveType.toTitleCase()
+        )
+    )
+    private val longDescriptionHint = MutableLiveData(
+        application.getString(
+            R.string.edit_about_long_description_hint,
+            currentArchiveType.toTitleCase()
+        )
+    )
     private val longDescription = MutableLiveData("")
     private var shortDescriptionProfileItem: ProfileItem? = null
     private var longDescriptionProfileItem: ProfileItem? = null
@@ -55,7 +70,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
                 addUpdateProfileItem(shortDescriptionProfileItem!!)
             }
         } ?: run {
-            if(shortDescription.value?.trim()?.isNotEmpty() == true) {
+            if (shortDescription.value?.trim()?.isNotEmpty() == true) {
                 shortDescriptionProfileItem = ProfileItem()
                 shortDescriptionProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
                 shortDescriptionProfileItem?.fieldName = ProfileItemName.SHORT_DESCRIPTION
@@ -70,7 +85,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
                 addUpdateProfileItem(longDescriptionProfileItem!!)
             }
         } ?: run {
-            if(longDescription.value?.trim()?.isNotEmpty() == true) {
+            if (longDescription.value?.trim()?.isNotEmpty() == true) {
                 longDescriptionProfileItem = ProfileItem()
                 longDescriptionProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
                 longDescriptionProfileItem?.fieldName = ProfileItemName.DESCRIPTION
@@ -82,33 +97,39 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
 
     private fun addUpdateProfileItem(profileItemToUpdate: ProfileItem) {
         isBusy.value = true
-        profileRepository.safeAddUpdateProfileItems(profileItemToUpdate, object : IProfileItemListener {
-            override fun onSuccess(profileItem: ProfileItem) {
-                isBusy.value = false
-                profileItemToUpdate.id = profileItem.id
-                showMessage.value = appContext.getString(R.string.edit_about_update_success)
-            }
+        profileRepository.safeAddUpdateProfileItems(
+            profileItemToUpdate,
+            object : IProfileItemListener {
+                override fun onSuccess(profileItem: ProfileItem) {
+                    isBusy.value = false
+                    profileItemToUpdate.id = profileItem.id
+                    showMessage.value = appContext.getString(R.string.edit_about_update_success)
+                }
 
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                showMessage.value = error
-            }
-        })
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showError.value = error
+                }
+            })
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowError(): LiveData<String> = showError
 
     fun getShortDescription(): LiveData<String> = shortDescription
 
     fun getShortDescriptionCharsNr(): LiveData<String> = shortDescriptionCharsNr
 
+    fun getLongDescriptionLabel(): LiveData<String> = longDescriptionLabel
+    fun getLongDescriptionHint(): LiveData<String> = longDescriptionHint
     fun getLongDescription(): LiveData<String> = longDescription
 
     fun onShortDescriptionTextChanged(text: Editable) {
         shortDescription.value = text.toString()
-        shortDescriptionCharsNr.value = appContext.getString(R.string.public_profile_character_limit, text.length)
+        shortDescriptionCharsNr.value =
+            appContext.getString(R.string.public_profile_character_limit, text.length)
     }
 
     fun onLongDescriptionTextChanged(text: Editable) {

@@ -65,7 +65,7 @@
             android:text="@{viewModel.isAboutExtended ? @string/public_profile_read_less : @string/public_profile_read_more}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
-            android:visibility="@{viewModel.shortAndLongDescription.isEmpty ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.shortAndLongDescription.length() &lt; 100 ? View.GONE : View.VISIBLE}"
             android:onClick="@{() -> viewModel.onReadAboutBtnClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

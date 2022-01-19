@@ -19,6 +19,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.Constants.Companion.FILE_PROVIDER_NAME
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_FILE_SELECT
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_IMAGE_CAPTURE
@@ -40,6 +41,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 const val FOLDER_IDENTIFIER_KEY = "folder_identifier"
+const val IS_SHOWN_IN_PUBLIC_FILES_KEY = "is_shown_in_public_files_key"
 
 class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var binding: FragmentAddOptionsBinding
@@ -67,9 +69,10 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         dismiss()
     }
 
-    fun setBundleArguments(folderIdentifier: NavigationFolderIdentifier?) {
+    fun setBundleArguments(folderIdentifier: NavigationFolderIdentifier?, isShownInPublicFiles: Boolean) {
         val bundle = Bundle()
         bundle.putParcelable(FOLDER_IDENTIFIER_KEY, folderIdentifier)
+        bundle.putBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY, isShownInPublicFiles)
         this.arguments = bundle
     }
 
@@ -113,6 +116,8 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
             R.id.btnUpload -> context?.let {
                 if (!permissionHelper.hasReadStoragePermission(it)) {
                     permissionHelper.requestReadStoragePermission(this)
+                } else if (arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY) == true) {
+                    showConfirmationDialog()
                 } else {
                     startFileSelectionActivity()
                 }
@@ -144,6 +149,23 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
             }
             alertDialog?.show()
         }
+    }
+
+    private fun showConfirmationDialog() {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
+        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+
+        viewDialog.tvTitle.text = getString(R.string.dialog_public_files_upload_title)
+        viewDialog.tvText.text = getString(R.string.dialog_public_files_upload_text)
+        viewDialog.btnPositive.text = getString(R.string.button_upload)
+        viewDialog.btnPositive.setOnClickListener {
+            startFileSelectionActivity()
+            alert.dismiss()
+        }
+        viewDialog.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
     }
 
     private fun dispatchTakePictureIntent() {
@@ -193,7 +215,11 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
                 if (grantResults.isNotEmpty()
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 ) {
-                    startFileSelectionActivity()
+                    if (arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY) == true) {
+                        showConfirmationDialog()
+                    } else {
+                        startFileSelectionActivity()
+                    }
                 } else {
                     dialogViewModel.errorStringId.value = R.string.upload_no_permissions_error
                 }

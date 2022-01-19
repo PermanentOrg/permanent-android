@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.myFiles
+package org.permanent.permanent.ui.public
 
 import android.app.AlertDialog
 import android.content.Context
@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.dialog_delete.view.tvTitle
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
-import org.permanent.permanent.databinding.FragmentMyFilesBinding
+import org.permanent.permanent.databinding.FragmentPublicFilesBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
@@ -33,18 +33,15 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.hideKeyboardFrom
+import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.shares.PreviewState
-import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
-import org.permanent.permanent.viewmodels.MyFilesViewModel
+import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 
-const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
-const val PARCELABLE_FILES_KEY = "parcelable_files_key"
-
-class MyFilesFragment : PermanentBaseFragment() {
-    private lateinit var binding: FragmentMyFilesBinding
-    private lateinit var viewModel: MyFilesViewModel
+class PublicFilesFragment : PermanentBaseFragment() {
+    private lateinit var binding: FragmentPublicFilesBinding
+    private lateinit var viewModel: PublicFilesViewModel
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
     private lateinit var recordsRecyclerView: RecyclerView
@@ -65,45 +62,23 @@ class MyFilesFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMyFilesBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
+        binding = FragmentPublicFilesBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(PublicFilesViewModel::class.java)
         renameDialogViewModel = ViewModelProvider(this).get(RenameRecordViewModel::class.java)
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
+        binding.executePendingBindings()
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
 
-        val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
-        if (record != null) {
-            // notification deeplink
-            navigateToShareLinkFragment(record)
-            arguments?.clear()
-        } else {
-            prefsHelper = PreferencesHelper(
-                requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            )
-            val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
-
-            if (!shareLinkUrlToken.isNullOrEmpty()) {
-                // click on shareLinkUrl not consumed
-                prefsHelper.saveShareLinkUrlToken("")
-                navigateToSharePreviewFragment(shareLinkUrlToken)
-            } else {
-                binding.executePendingBindings()
-                binding.lifecycleOwner = this
-                binding.viewModel = viewModel
-
-                viewModel.set(parentFragmentManager)
-                viewModel.initUploadsRecyclerView(binding.rvUploads, this)
-                viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
-                viewModel.loadRootFiles()
-                initDownloadsRecyclerView(binding.rvDownloads)
-                initFilesRecyclerView(binding.rvFiles)
-                viewModel.registerDeviceForFCM()
-            }
-        }
+        viewModel.set(parentFragmentManager)
+        viewModel.initUploadsRecyclerView(binding.rvUploads, this)
+        viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
+        viewModel.loadRootFiles()
+        initDownloadsRecyclerView(binding.rvDownloads)
+        initFilesRecyclerView(binding.rvFiles)
         return binding.root
-    }
-
-    private fun navigateToSharePreviewFragment(shareLinkUrlToken: String) {
-        val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
-        findNavController().navigate(R.id.action_myFilesFragment_to_sharePreviewFragment, bundle)
     }
 
     private val onShowMessage = Observer<String> {
@@ -153,12 +128,12 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onShowRecordSearchFragment = Observer<Void> {
-        findNavController().navigate(R.id.action_myFilesFragment_to_recordSearchFragment)
+        findNavController().navigate(R.id.action_publicFilesFragment_to_recordSearchFragment)
     }
 
     private val onShowAddOptionsFragment = Observer<NavigationFolderIdentifier> {
         addOptionsFragment = AddOptionsFragment()
-        addOptionsFragment?.setBundleArguments(it, false)
+        addOptionsFragment?.setBundleArguments(it, true)
         addOptionsFragment?.show(parentFragmentManager, addOptionsFragment?.tag)
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
@@ -167,8 +142,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment = RecordOptionsFragment()
         recordOptionsFragment?.setBundleArguments(
             it,
-            isShownInMyFilesFragment = true,
-            isShownInPublicFilesFragment = false,
+            isShownInMyFilesFragment = false,
+            isShownInPublicFilesFragment = true,
             isShownInSharesFragment = false
         )
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
@@ -248,7 +223,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onFileViewRequest = Observer<ArrayList<Record>> {
         val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
-        findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity, bundle)
+        findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity, bundle)
     }
 
     private val onRecordShareViaPermanentRequest = Observer<Record> { record ->
@@ -257,7 +232,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private fun navigateToShareLinkFragment(record: Record?) {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
-        findNavController().navigate(R.id.action_myFilesFragment_to_shareLinkFragment, bundle)
+        findNavController().navigate(R.id.action_publicFilesFragment_to_shareLinkFragment, bundle)
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {

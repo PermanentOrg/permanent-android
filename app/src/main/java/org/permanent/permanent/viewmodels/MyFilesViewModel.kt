@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
+open class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener, CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
@@ -51,8 +51,9 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private var currentFolder = MutableLiveData<NavigationFolder>()
     private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
+    private var showEmptyFolder = MutableLiveData(false)
     private val recordToRelocate = MutableLiveData<Record>()
-    private val showMessage = SingleLiveEvent<String>()
+    protected val showMessage = SingleLiveEvent<String>()
     private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void>()
@@ -67,14 +68,14 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
 
-    private var fileRepository: IFileRepository = FileRepositoryImpl(application)
-    private var folderPathStack: Stack<Record> = Stack()
+    protected var fileRepository: IFileRepository = FileRepositoryImpl(application)
+    protected var folderPathStack: Stack<Record> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsRecyclerView: RecyclerView
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    protected lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
-    private lateinit var lifecycleOwner: LifecycleOwner
+    protected lateinit var lifecycleOwner: LifecycleOwner
 
     fun set(fragmentManager: FragmentManager) {
         this.fragmentManager = fragmentManager
@@ -100,7 +101,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         swipeRefreshLayout.setOnRefreshListener { refreshCurrentFolder() }
     }
 
-    fun populateMyFiles() {
+    open fun loadRootFiles() {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.getMyFilesRecord(object : IRecordListener {
             override fun onSuccess(record: Record) {
@@ -136,8 +137,9 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
                         folderName.value = parentName
-                        isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER)
+                        isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(Constants.PUBLIC_FILES_FOLDER)
                         existsFiles.value = !recordVOs.isNullOrEmpty()
+                        showEmptyFolder.value = existsFiles.value == false && getExistsUploads().value == false
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
@@ -215,7 +217,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
         loadFilesAndUploadsOf(previousFolder)
     }
 
-    private fun loadFilesAndUploadsOf(record: Record) {
+    protected fun loadFilesAndUploadsOf(record: Record) {
         currentFolder.value = NavigationFolder(appContext, record)
         loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
         loadFilesOf(currentFolder.value, currentSortType.value)
@@ -230,7 +232,7 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
             }
     }
 
-    private fun loadEnqueuedDownloads(lifecycleOwner: LifecycleOwner) {
+    protected fun loadEnqueuedDownloads(lifecycleOwner: LifecycleOwner) {
         downloadQueue = DownloadQueue(appContext, lifecycleOwner, this)
         downloadQueue.getEnqueuedDownloadsLiveData().let { enqueuedDownloadsLiveData ->
             enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
@@ -393,6 +395,8 @@ class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getExistsUploads(): MutableLiveData<Boolean> = uploadsAdapter.getExistsUploads()
 
     fun getExistsFiles(): MutableLiveData<Boolean> = existsFiles
+
+    fun getShowEmptyFolder(): MutableLiveData<Boolean> = showEmptyFolder
 
     fun getIsRoot(): MutableLiveData<Boolean> = isRoot
 

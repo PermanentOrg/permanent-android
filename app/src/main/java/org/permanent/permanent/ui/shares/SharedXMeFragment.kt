@@ -192,6 +192,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.setBundleArguments(
             record,
             isShownInMyFilesFragment = false,
+            isShownInPublicFilesFragment = false,
             isShownInSharesFragment = true
         )
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)

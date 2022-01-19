@@ -63,17 +63,29 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     private fun displayProfileItems(dataList: List<Datum>) {
         val milestones: MutableList<Milestone> = ArrayList()
+        shortAndLongDescription.value = ""
 
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO)
             profileItems.add(profileItem)
             when (profileItem.fieldName) {
                 ProfileItemName.SHORT_DESCRIPTION -> {
-                    profileItem.string1?.let { shortAndLongDescription.value = it }
+                    profileItem.string1?.let { shortAndLongDescription.value =
+                        when {
+                            shortAndLongDescription.value?.isEmpty() == true -> it
+                            it.isEmpty() -> shortAndLongDescription.value
+                            else -> it + "\n\n" + shortAndLongDescription.value
+                        }
+                    }
                 }
                 ProfileItemName.DESCRIPTION -> {
                     profileItem.textData1?.let {
-                        shortAndLongDescription.value = shortAndLongDescription.value + "\n\n" + it
+                        shortAndLongDescription.value =
+                            when {
+                                shortAndLongDescription.value?.isEmpty() == true -> it
+                                it.isEmpty() -> shortAndLongDescription.value
+                                else -> shortAndLongDescription.value + "\n\n" + it
+                            }
                     }
                 }
                 ProfileItemName.BASIC -> {
@@ -113,19 +125,19 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         isOnlinePresenceExtended.value = !isOnlinePresenceExtended.value!!
     }
 
-    fun onEditAboutBtnClick(){
+    fun onEditAboutBtnClick() {
         onEditAboutRequest.value = profileItems
     }
 
-    fun onEditPersonInformationBtnClick(){
+    fun onEditPersonInformationBtnClick() {
         onEditPersonInformationRequest.call()
     }
 
-    fun onEditMilestonesBtnClick(){
+    fun onEditMilestonesBtnClick() {
         onEditMilestonesRequest.call()
     }
 
-    fun onEditOnlinePresenceBtnClick(){
+    fun onEditOnlinePresenceBtnClick() {
         onEditOnlinePresenceRequest.call()
     }
 

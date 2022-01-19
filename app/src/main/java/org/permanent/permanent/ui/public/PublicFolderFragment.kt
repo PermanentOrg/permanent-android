@@ -109,6 +109,7 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.setBundleArguments(
             record,
             isShownInMyFilesFragment = false,
+            isShownInPublicFilesFragment = false,
             isShownInSharesFragment = false
         )
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)

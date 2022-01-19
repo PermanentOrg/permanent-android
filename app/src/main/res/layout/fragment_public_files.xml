@@ -10,7 +10,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.MyFilesViewModel" />
+            type="org.permanent.permanent.viewmodels.PublicFilesViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

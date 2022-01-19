@@ -37,11 +37,13 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     fun setBundleArguments(
         record: Record,
         isShownInMyFilesFragment: Boolean,
+        isShownInPublicFilesFragment: Boolean,
         isShownInSharesFragment: Boolean
     ) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
         bundle.putBoolean(IS_SHOWN_IN_MY_FILES_KEY, isShownInMyFilesFragment)
+        bundle.putBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY, isShownInPublicFilesFragment)
         bundle.putBoolean(IS_SHOWN_IN_SHARES_KEY, isShownInSharesFragment)
         this.arguments = bundle
     }
@@ -60,6 +62,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.setRecord(
             record,
             arguments?.getBoolean(IS_SHOWN_IN_MY_FILES_KEY),
+            arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY),
             arguments?.getBoolean(IS_SHOWN_IN_SHARES_KEY)
         )
         return binding.root

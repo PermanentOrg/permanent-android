@@ -75,7 +75,8 @@
 
     <string name="menu_drawer_my_files">My Files</string>
     <string name="menu_drawer_shares">Shares</string>
-    <string name="menu_drawer_public">Public</string>
+    <string name="menu_drawer_public_gallery">Public Gallery</string>
+    <string name="menu_drawer_public_files">Public Files</string>
     <string name="menu_drawer_relationships">Relationships</string>
     <string name="menu_drawer_members">Members</string>
     <string name="menu_drawer_apps">Apps</string>
@@ -110,7 +111,6 @@
     <string name="my_files_sort_criteria_name">Name</string>
     <string name="my_files_sort_criteria_date">Date</string>
     <string name="my_files_sort_criteria_file_type">File Type</string>
-    <string name="my_files_no_files_root">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
     <string name="my_files_no_files">This folder is empty</string>
     <string name="my_files_quota_exceeded_title">Quota Exceeded</string>
     <string name="my_files_quota_exceeded_message">Do you want to add more storage?</string>
@@ -118,6 +118,8 @@
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
 
+    <string name="dialog_public_files_upload_title">Upload to Public?</string>
+    <string name="dialog_public_files_upload_text">This is a public folder. Are you sure you want to upload here?</string>
     <string name="public_archive_title">Archive</string>
     <string name="public_archive_tab_name">"Public Archive"</string>
     <string name="public_profile_tab_name">"Public Profile"</string>
@@ -130,7 +132,7 @@
     <string name="public_profile_show_less">Show Less</string>
     <string name="public_profile_person_information">Person Information</string>
     <string name="public_profile_full_name_hint">Full name</string>
-    <string name="public_profile_nickname">Also known as...</string>
+    <string name="public_profile_nickname">Also known as…</string>
     <string name="public_profile_nickname_hint">Aliases or nicknames</string>
     <string name="public_profile_gender">Gender</string>
     <string name="public_profile_birth_date">Birth Date</string>
@@ -146,8 +148,8 @@
     <string name="public_profile_milestone_description_hint">More details and information about this milestone.</string>
     <string name="edit_about_label">Edit About</string>
     <string name="edit_about_short_description">What is this Archive for?</string>
-    <string name="edit_about_long_description">Tell us about this Person</string>
-    <string name="edit_about_long_description_hint">Tell the story of the Person this Archive is for.</string>
+    <string name="edit_about_long_description">Tell us about this %s</string>
+    <string name="edit_about_long_description_hint">Tell the story of the %s this Archive is for.</string>
     <string name="edit_about_update_success">Fields updated successfully</string>
     <string name="edit_person_information_label">Edit Person Information</string>
     <string name="edit_milestone_label">Edit Milestones</string>
@@ -191,6 +193,7 @@
     <string name="switch_button">Switch</string>
     <string name="yes_button">Yes</string>
     <string name="button_transfer">Transfer</string>
+    <string name="button_upload">Upload</string>
     <string name="button_rename">Rename</string>
     <string name="button_retry">Retry</string>
 
