@@ -51,9 +51,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         startWithCustomDestination(false)
     }
 
-    private val onManageArchives = Observer<Void> {
+    private val onViewProfile = Observer<Void> {
         navController.navigateUp()
-        navController.navigate(R.id.archivesFragment)
+        navController.navigate(R.id.publicFragment)
         binding.drawerLayout.closeDrawers()
     }
 
@@ -312,14 +312,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     override fun connectViewModelEvents() {
         viewModel.getOnArchiveSwitched().observe(this, onArchiveSwitched)
-        viewModel.getOnManageArchives().observe(this, onManageArchives)
+        viewModel.getOnViewProfile().observe(this, onViewProfile)
         viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnArchiveSwitched().removeObserver(onArchiveSwitched)
-        viewModel.getOnManageArchives().removeObserver(onManageArchives)
+        viewModel.getOnViewProfile().removeObserver(onViewProfile)
         viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }

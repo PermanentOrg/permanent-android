@@ -49,6 +49,8 @@ class PublicFragment : PermanentBaseFragment()  {
         TabLayoutMediator(tabLayout, viewPager){tab, position->
             tab.text = getString(tabArray[position])
         }.attach()
+
+        viewPager.setCurrentItem(1, false)
     }
 
     override fun connectViewModelEvents() {
