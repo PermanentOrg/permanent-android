@@ -6,42 +6,47 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/myFilesFragment"
-            android:icon="@drawable/ic_folder_white"
-            android:title="@string/menu_drawer_my_files" />
+            android:icon="@drawable/ic_private_files"
+            android:title="@string/menu_drawer_private_files" />
 
         <item
             android:id="@+id/sharesFragment"
-            android:icon="@drawable/ic_share_white"
-            android:title="@string/menu_drawer_shares" />
+            android:icon="@drawable/ic_shared_files"
+            android:title="@string/menu_drawer_shared_files" />
 
         <item
             android:id="@+id/publicFilesFragment"
-            android:icon="@drawable/ic_public_files_white"
+            android:icon="@drawable/ic_public_files"
             android:title="@string/menu_drawer_public_files" />
 
+    </group>
+
+    <group>
+        android:id="@+id/group2"
+        android:checkableBehavior="single">
+
         <item
-           android:id="@+id/publicFragment"
-            android:icon="@drawable/ic_public_white"
-            android:title="@string/menu_drawer_public_gallery" />
+            android:id="@+id/archivesFragment"
+            android:icon="@drawable/ic_manage_archives"
+            android:title="@string/menu_drawer_manage_archives"
+            />
+
+        <item
+            android:id="@+id/membersFragment"
+            android:icon="@drawable/img_manage_members_square"
+            android:title="@string/menu_drawer_manage_members"
+            />
 
     </group>
 
     <group
-        android:id="@+id/group2"
+        android:id="@+id/group3"
         android:checkableBehavior="single">
-<!--        <item-->
-<!--            android:id="@+id/relationshipsFragment"-->
-<!--            android:icon="@drawable/ic_relationships_white"-->
-<!--            android:title="@string/menu_drawer_relationships" />-->
 
         <item
-            android:id="@+id/membersFragment"
-            android:icon="@drawable/ic_members_white"
-            android:title="@string/menu_drawer_members" />
+            android:id="@+id/publicFragment"
+            android:icon="@drawable/ic_public_gallery"
+            android:title="@string/menu_drawer_public_gallery" />
 
-<!--        <item-->
-<!--            android:id="@+id/AppsFragment"-->
-<!--            android:icon="@drawable/ic_members_white"-->
-<!--            android:title="@string/menu_drawer_apps" />-->
     </group>
 </menu>

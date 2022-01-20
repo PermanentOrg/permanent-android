@@ -8,13 +8,13 @@
     <fragment
         android:id="@+id/archivesFragment"
         android:name="org.permanent.permanent.ui.archives.ArchivesFragment"
-        android:label="@string/main_navigation_title_archives"
+        android:label="@string/menu_drawer_manage_archives"
         tools:layout="@layout/fragment_archives" />
 
     <fragment
         android:id="@+id/myFilesFragment"
         android:name="org.permanent.permanent.ui.myFiles.MyFilesFragment"
-        android:label="@string/main_navigation_title_my_files"
+        android:label="@string/menu_drawer_private_files"
         tools:layout="@layout/fragment_my_files">
         <action
             android:id="@+id/action_myFilesFragment_to_recordSearchFragment"
@@ -96,7 +96,7 @@
     <fragment
         android:id="@+id/sharesFragment"
         android:name="org.permanent.permanent.ui.shares.SharesFragment"
-        android:label="@string/main_navigation_title_shares"
+        android:label="@string/menu_drawer_shared_files"
         tools:layout="@layout/fragment_shares">
         <action
             android:id="@+id/action_sharesFragment_to_fileActivity"
@@ -106,7 +106,7 @@
     <fragment
         android:id="@+id/membersFragment"
         android:name="org.permanent.permanent.ui.members.MembersFragment"
-        android:label="@string/main_navigation_title_members"
+        android:label="@string/menu_drawer_manage_members"
         tools:layout="@layout/fragment_members" />
 
     <fragment

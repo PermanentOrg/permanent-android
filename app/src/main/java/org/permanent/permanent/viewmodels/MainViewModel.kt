@@ -32,7 +32,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onManageArchives = SingleLiveEvent<Void>()
+    private val onViewProfile = SingleLiveEvent<Void>()
     private val onArchiveSwitched = SingleLiveEvent<Void>()
     private val onLoggedOut = SingleLiveEvent<Void>()
     val versionName = MutableLiveData(
@@ -76,8 +76,8 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         }
     }
 
-    fun onManageArchivesClick() {
-        onManageArchives.call()
+    fun onViewProfileClick() {
+        onViewProfile.call()
     }
 
     fun updateUsedStorage() {
@@ -174,7 +174,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getOnArchiveSwitched(): LiveData<Void> = onArchiveSwitched
 
-    fun getOnManageArchives(): LiveData<Void> = onManageArchives
+    fun getOnViewProfile(): LiveData<Void> = onViewProfile
 
     fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
 }
