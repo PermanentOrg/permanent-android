@@ -12,15 +12,11 @@
         <action
             android:id="@+id/action_filesContainerFragment_to_fileMetadataFragment"
             app:destination="@id/fileMetadataFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_filesContainerFragment_to_shareLinkFragment"
             app:destination="@id/shareLinkFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -32,15 +28,11 @@
         <action
             android:id="@+id/action_fileMetadataFragment_to_locationSearchFragment"
             app:destination="@id/locationSearchFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_fileMetadataFragment_to_tagsEditFragment"
             app:destination="@id/tagsEditFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -53,8 +45,6 @@
         <action
             android:id="@+id/action_shareLinkFragment_to_linkSettingsFragment"
             app:destination="@id/linkSettingsFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -74,8 +64,6 @@
         <action
             android:id="@+id/action_locationSearchFragment_to_fileMetadataFragment"
             app:destination="@id/fileMetadataFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -88,8 +76,6 @@
         <action
             android:id="@+id/action_tagsEditFragment_to_fileMetadataFragment"
             app:destination="@id/fileMetadataFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>

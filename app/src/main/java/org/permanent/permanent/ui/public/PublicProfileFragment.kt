@@ -45,8 +45,9 @@ class PublicProfileFragment : PermanentBaseFragment() {
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editAboutFragment, bundle)
     }
 
-    private val onEditPersonInformationRequest = Observer<Void> {
-        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editPersonInformationFragment)
+    private val onEditArchiveInformationRequest = Observer<MutableList<ProfileItem>> {
+        val bundle = bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to it)
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editArchiveInformationFragment, bundle)
     }
 
     private val onEditMilestonesRequest = Observer<Void> {
@@ -57,7 +58,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_onlinePresenceListFragment)
     }
 
-    private val onShowMessage = Observer<String> { message ->
+    private val onShowMessage = Observer<String?> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
@@ -89,7 +90,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
         viewModel.getOnReadAbout().observe(this, onReadAbout)
         viewModel.getOnShowOnlinePresence().observe(this, onShowOnlinePresence)
         viewModel.getOnEditAboutRequest().observe(this, onEditAboutRequest)
-        viewModel.getOnEditPersonInformationRequest().observe(this, onEditPersonInformationRequest)
+        viewModel.getOnEditArchiveInformationRequest().observe(this, onEditArchiveInformationRequest)
         viewModel.getOnEditMilestonesRequest().observe(this, onEditMilestonesRequest)
         viewModel.getOnEditOnlinePresenceRequest().observe(this, onEditOnlinePresenceRequest)
     }
@@ -100,7 +101,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
         viewModel.getOnReadAbout().removeObserver(onReadAbout)
         viewModel.getOnShowOnlinePresence().removeObserver(onShowOnlinePresence)
         viewModel.getOnEditAboutRequest().removeObserver(onEditAboutRequest)
-        viewModel.getOnEditPersonInformationRequest().removeObserver(onEditPersonInformationRequest)
+        viewModel.getOnEditArchiveInformationRequest().removeObserver(onEditArchiveInformationRequest)
         viewModel.getOnEditMilestonesRequest().removeObserver(onEditMilestonesRequest)
         viewModel.getOnEditOnlinePresenceRequest().removeObserver(onEditOnlinePresenceRequest)
     }

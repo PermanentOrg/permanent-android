@@ -19,7 +19,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
+    private val showMessage = MutableLiveData<String?>()
     private val profileItems: MutableList<ProfileItem> = ArrayList()
     private val shortAndLongDescription = MutableLiveData("")
     private val name = MutableLiveData<String>()
@@ -35,7 +35,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val isOnlinePresenceExtended = MutableLiveData(false)
     private val onShowOnlinePresence = SingleLiveEvent<Boolean>()
     private val onEditAboutRequest = SingleLiveEvent<MutableList<ProfileItem>>()
-    private val onEditPersonInformationRequest = SingleLiveEvent<Void>()
+    private val onEditArchiveInformationRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
@@ -97,7 +97,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 }
                 ProfileItemName.BIRTH_INFO -> {
                     profileItem.day1?.let { date.value = it }
-                    profileItem.locationText?.let { location.value = it }
+                    profileItem.locationVO?.getUIAddress()?.let { location.value = it }
                 }
                 ProfileItemName.SOCIAL_MEDIA -> {
                     profileItem.string1?.let {
@@ -129,8 +129,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         onEditAboutRequest.value = profileItems
     }
 
-    fun onEditPersonInformationBtnClick() {
-        onEditPersonInformationRequest.call()
+    fun onEditArchiveInformationBtnClick() {
+        onEditArchiveInformationRequest.value = profileItems
     }
 
     fun onEditMilestonesBtnClick() {
@@ -143,7 +143,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnEditAboutRequest(): LiveData<MutableList<ProfileItem>> = onEditAboutRequest
 
-    fun getOnEditPersonInformationRequest(): LiveData<Void> = onEditPersonInformationRequest
+    fun getOnEditArchiveInformationRequest(): LiveData<MutableList<ProfileItem>> = onEditArchiveInformationRequest
 
     fun getOnEditMilestonesRequest(): LiveData<Void> = onEditMilestonesRequest
 
@@ -151,7 +151,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowMessage(): LiveData<String?> = showMessage
 
     fun getShortAndLongDescription(): LiveData<String> = shortAndLongDescription
 

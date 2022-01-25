@@ -13,15 +13,11 @@
         <action
             android:id="@+id/action_loginFragment_to_codeVerificationFragment"
             app:destination="@id/codeVerificationFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_loginFragment_to_biometricsFragment"
             app:destination="@id/biometricsFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -33,15 +29,11 @@
         <action
             android:id="@+id/action_biometricsFragment_to_loginFragment"
             app:destination="@id/loginFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_biometricsFragment_to_mainActivity"
-            app:destination="@id/mainActivity"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit" />
+            app:destination="@id/mainActivity" />
     </fragment>
     <fragment
         android:id="@+id/codeVerificationFragment"
@@ -50,9 +42,7 @@
         tools:layout="@layout/fragment_verification_code">
         <action
             android:id="@+id/action_codeVerificationFragment_to_mainActivity"
-            app:destination="@id/mainActivity"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit" />
+            app:destination="@id/mainActivity" />
     </fragment>
     <activity
         android:id="@+id/mainActivity"

@@ -1,6 +1,7 @@
 package org.permanent.permanent.network.models
 
 import org.permanent.permanent.models.ProfileItem
+import java.util.*
 
 class Profile_itemVO() {
 
@@ -15,7 +16,8 @@ class Profile_itemVO() {
     var textData1: String? = null
     var day1: String? = null
     var day2: String? = null
-    var LocnVOs: List<LocnVO>? = null
+    var LocnVOs: List<LocnVO?>? = null
+    var locnId1: Int? = null
 
     constructor(profileItem: ProfileItem) : this() {
         archiveNbr = profileItem.archiveNr
@@ -29,5 +31,8 @@ class Profile_itemVO() {
         textData1 = profileItem.textData1
         day1 = profileItem.day1
         day2 = profileItem.day2
+        LocnVOs = ArrayList()
+        (LocnVOs as ArrayList<LocnVO?>).add(profileItem.locationVO)
+        locnId1 = profileItem.locnId1
     }
 }

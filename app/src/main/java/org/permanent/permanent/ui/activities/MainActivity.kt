@@ -33,6 +33,7 @@ import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
@@ -68,22 +69,24 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
     }
 
-    private val onDestinationChangedListener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
-        when (destination?.id) {
-            R.id.editAboutFragment, R.id.editPersonInformationFragment, R.id.onlinePresenceListFragment,
-            R.id.milestonesListFragment -> {
-                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-            }
-            R.id.addSocialMediaFragment, R.id.editMilestoneFragment -> {
-                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
-            }
-            R.id.publicFragment -> {
-                toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
-                toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+    private val onDestinationChangedListener =
+        NavController.OnDestinationChangedListener { controller, destination, arguments ->
+            when (destination.id) {
+                R.id.editAboutFragment, R.id.editArchiveInformationFragment,
+                R.id.onlinePresenceListFragment, R.id.milestonesListFragment -> {
+                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
+                }
+                R.id.addSocialMediaFragment, R.id.editMilestoneFragment -> {
+                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+                }
+                R.id.publicFragment -> {
+                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
+                    toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+                }
             }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -237,17 +240,17 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     // On Toolbar menu item click
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
         when (menuItem?.itemId) {
-            R.id.moreItem -> sendEventToCurrentFragment()
+            R.id.moreItem, R.id.doneItem -> sendEventToFragment()
             else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
         }
         return true
     }
 
-    private fun sendEventToCurrentFragment() {
-        val publicFolderFragment =
-            supportFragmentManager.primaryNavigationFragment?.childFragmentManager
-                ?.fragments?.first() as PublicFolderFragment
-        publicFolderFragment.onMoreItemClick()
+    private fun sendEventToFragment() {
+        val currentFragment = supportFragmentManager.primaryNavigationFragment?.childFragmentManager
+            ?.fragments?.first()
+        if (currentFragment is PublicFolderFragment) currentFragment.onMoreItemClick()
+        else if (currentFragment is LocationSearchFragment) currentFragment.onDoneItemClick()
     }
 
     // Toolbar back press

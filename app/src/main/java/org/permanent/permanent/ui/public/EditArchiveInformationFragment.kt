@@ -1,5 +1,7 @@
 package org.permanent.permanent.ui.public
 
+
+import android.app.DatePickerDialog
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,34 +9,47 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentEditAboutBinding
+import org.permanent.permanent.databinding.FragmentEditArchiveInformationBinding
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.viewmodels.EditAboutViewModel
+import org.permanent.permanent.viewmodels.EditArchiveInformationViewModel
+import java.util.*
 
-class EditAboutFragment : PermanentBaseFragment() {
+const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_file_data_key"
 
-    private lateinit var binding: FragmentEditAboutBinding
-    private lateinit var viewModel: EditAboutViewModel
+class EditArchiveInformationFragment: PermanentBaseFragment() {
+
+    private lateinit var binding: FragmentEditArchiveInformationBinding
+    private lateinit var viewModel: EditArchiveInformationViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(EditAboutViewModel::class.java)
-        binding = FragmentEditAboutBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(EditArchiveInformationViewModel::class.java)
+        binding = FragmentEditArchiveInformationBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
         arguments?.getParcelableArrayList<ProfileItem>(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
             ?.let { viewModel.displayProfileItems(it) }
 
+        setFragmentResultListener(LocationSearchFragment.LOCATION_VO_REQUEST_KEY) { requestKey, bundle ->
+            val locnVO = bundle.getParcelable<LocnVO>(LocationSearchFragment.LOCATION_VO_KEY)
+            locnVO?.let { viewModel.onLocationUpdated(it) }
+        }
         return binding.root
     }
 
@@ -58,14 +73,34 @@ class EditAboutFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
+    private val onShowDatePicker = Observer<Void> {
+        context?.let { context ->
+            val c = Calendar.getInstance()
+            val year = c.get(Calendar.YEAR)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
+            DatePickerDialog(context, viewModel, year, month, day).show()
+        }
+    }
+
+    private val onShowLocationSearch = Observer<ProfileItem?> {
+        val bundle = bundleOf(PARCELABLE_PROFILE_ITEM_KEY to it)
+        findNavController()
+            .navigate(R.id.action_editArchiveInformationFragment_to_locationSearchFragment, bundle)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowError().observe(this, onShowError)
+        viewModel.getShowDatePicker().observe(this, onShowDatePicker)
+        viewModel.getShowLocationSearch().observe(this, onShowLocationSearch)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowError().removeObserver(onShowError)
+        viewModel.getShowDatePicker().removeObserver(onShowDatePicker)
+        viewModel.getShowLocationSearch().removeObserver(onShowLocationSearch)
     }
 
     override fun onResume() {

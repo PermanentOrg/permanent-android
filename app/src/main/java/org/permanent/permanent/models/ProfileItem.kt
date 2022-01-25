@@ -18,7 +18,8 @@ class ProfileItem() : Parcelable {
     var textData1: String? = null
     var day1: String? = null
     var day2: String? = null
-    var locationText: String? = null
+    var locationVO: LocnVO? = null
+    var locnId1: Int? = null
 
     constructor(parcel: Parcel) : this() {
         archiveNr = parcel.readString()
@@ -32,14 +33,15 @@ class ProfileItem() : Parcelable {
         textData1 = parcel.readString()
         day1 = parcel.readString()
         day2 = parcel.readString()
-        locationText = parcel.readString()
+        locationVO = parcel.readParcelable(LocnVO::class.java.classLoader)
+        locnId1 = parcel.readValue(Int::class.java.classLoader) as? Int
     }
 
-    constructor(profileItemVo: Profile_itemVO?) : this() {
-        archiveNr = profileItemVo?.archiveNbr
-        archiveId = profileItemVo?.archiveId
-        id = profileItemVo?.profile_itemId
-        fieldName = when (profileItemVo?.fieldNameUI) {
+    constructor(profileItemVO: Profile_itemVO?) : this() {
+        archiveNr = profileItemVO?.archiveNbr
+        archiveId = profileItemVO?.archiveId
+        id = profileItemVO?.profile_itemId
+        fieldName = when (profileItemVO?.fieldNameUI) {
             ProfileItemName.BASIC.backendString -> ProfileItemName.BASIC
             ProfileItemName.GENDER.backendString -> ProfileItemName.GENDER
             ProfileItemName.SHORT_DESCRIPTION.backendString -> ProfileItemName.SHORT_DESCRIPTION
@@ -49,22 +51,15 @@ class ProfileItem() : Parcelable {
             ProfileItemName.MILESTONE.backendString -> ProfileItemName.MILESTONE
             else -> ProfileItemName.UNKNOWN
         }
-        type = profileItemVo?.type
-        string1 = profileItemVo?.string1
-        string2 = profileItemVo?.string2
-        string3 = profileItemVo?.string3
-        textData1 = profileItemVo?.textData1
-        day1 = profileItemVo?.day1
-        day2 = profileItemVo?.day2
-        profileItemVo?.LocnVOs?.let {
-            val locationVO: LocnVO = it[0]
-            val streetName =
-                if (locationVO.streetName == null) "" else locationVO.streetName + ", "
-            val addressValue =
-                (locationVO.streetNumber ?: "") + " " + streetName + locationVO.locality +
-                        ", " + locationVO.adminOneName + ", " + locationVO.countryCode
-            if (!addressValue.contains("null")) locationText = addressValue.trim()
-        }
+        type = profileItemVO?.type
+        string1 = profileItemVO?.string1
+        string2 = profileItemVO?.string2
+        string3 = profileItemVO?.string3
+        textData1 = profileItemVO?.textData1
+        day1 = profileItemVO?.day1
+        day2 = profileItemVO?.day2
+        profileItemVO?.LocnVOs?.let { locationVO = it[0] }
+        locnId1 = profileItemVO?.locnId1
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -79,7 +74,8 @@ class ProfileItem() : Parcelable {
         parcel.writeString(textData1)
         parcel.writeString(day1)
         parcel.writeString(day2)
-        parcel.writeString(locationText)
+        parcel.writeParcelable(locationVO, flags)
+        parcel.writeValue(locnId1)
     }
 
     override fun describeContents(): Int {

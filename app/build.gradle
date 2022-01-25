@@ -9,13 +9,13 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0.0"
 
@@ -92,6 +92,7 @@ dependencies {
     //====================================== NAVIGATION COMPONENTS =================================
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
+    implementation 'androidx.fragment:fragment-ktx:1.4.0'
     //==============================================================================================
 
     //====================================== MATERIAL COMPONENTS ===================================

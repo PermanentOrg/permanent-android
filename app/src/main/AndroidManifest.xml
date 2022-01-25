@@ -54,33 +54,40 @@
 
         <activity
             android:name=".ui.activities.SignUpActivity"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activities.MainActivity"
             android:screenOrientation="portrait"
+            android:exported="false"
             android:windowSoftInputMode="adjustPan" >
             <nav-graph android:value="@navigation/main_navigation_graph" />
         </activity>
         <activity
-            android:name=".ui.fileView.FileActivity">
+            android:name=".ui.fileView.FileActivity"
+            android:exported="false">
             <nav-graph android:value="@navigation/file_navigation_graph" />
         </activity>
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.onboarding.OnboardingActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.twoStepVerification.TwoStepVerificationActivity"
+            android:exported="false"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.activities.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
