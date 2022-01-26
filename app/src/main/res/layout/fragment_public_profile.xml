@@ -439,7 +439,7 @@
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
             android:textStyle="normal"
-            android:onClick="@{() -> viewModel.onEditPersonInformationBtnClick()}"
+            android:onClick="@{() -> viewModel.onEditArchiveInformationBtnClick()}"
             app:icon="@drawable/ic_edit"
             app:iconGravity="textEnd"
             app:iconPadding="2dp"

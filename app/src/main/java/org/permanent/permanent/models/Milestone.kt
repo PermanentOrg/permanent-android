@@ -12,7 +12,7 @@ class Milestone() {
     constructor(profileItem: ProfileItem?) : this() {
         id = profileItem?.id
         title = profileItem?.string1
-        location = profileItem?.locationText
+        location = profileItem?.locationVO?.getUIAddress()
         startDate = profileItem?.day1
         endDate = profileItem?.day2
         description = profileItem?.string2

@@ -19,22 +19,16 @@
         <action
             android:id="@+id/action_myFilesFragment_to_recordSearchFragment"
             app:destination="@id/recordSearchFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_myFilesFragment_to_shareLinkFragment"
             app:destination="@id/shareLinkFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_myFilesFragment_to_sharePreviewFragment"
             app:destination="@id/sharePreviewFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
@@ -57,8 +51,6 @@
         <action
             android:id="@+id/action_shareLinkFragment_to_linkSettingsFragment"
             app:destination="@id/linkSettingsFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -87,8 +79,6 @@
         <action
             android:id="@+id/action_sharePreviewFragment_to_sharesFragment"
             app:destination="@id/sharesFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -150,15 +140,11 @@
         <action
             android:id="@+id/action_publicFilesFragment_to_recordSearchFragment"
             app:destination="@id/recordSearchFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_publicFilesFragment_to_shareLinkFragment"
             app:destination="@id/shareLinkFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
@@ -180,15 +166,11 @@
         <action
             android:id="@+id/action_publicFragment_to_editAboutFragment"
             app:destination="@id/editAboutFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
-            android:id="@+id/action_publicFragment_to_editPersonInformationFragment"
-            app:destination="@id/editPersonInformationFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:exitAnim="@anim/fragment_open_exit"
+            android:id="@+id/action_publicFragment_to_editArchiveInformationFragment"
+            app:destination="@id/editArchiveInformationFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
@@ -214,10 +196,22 @@
         android:label="@string/edit_about_label"
         tools:layout="@layout/fragment_edit_about" />
     <fragment
-        android:id="@+id/editPersonInformationFragment"
-        android:name="org.permanent.permanent.ui.public.EditPersonInformationFragment"
+        android:id="@+id/editArchiveInformationFragment"
+        android:name="org.permanent.permanent.ui.public.EditArchiveInformationFragment"
         android:label="@string/edit_person_information_label"
-        tools:layout="@layout/fragment_edit_person_information" />
+        tools:layout="@layout/fragment_edit_archive_information" >
+        <action
+            android:id="@+id/action_editArchiveInformationFragment_to_locationSearchFragment"
+            app:destination="@id/locationSearchFragment"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/locationSearchFragment"
+        android:name="org.permanent.permanent.ui.public.LocationSearchFragment"
+        android:label="@string/file_navigation_title_enter_location"
+        tools:layout="@layout/fragment_location_search">
+    </fragment>
     <fragment
         android:id="@+id/editMilestoneFragment"
         android:name="org.permanent.permanent.ui.public.PublicProfileEditMilestonesFragment"

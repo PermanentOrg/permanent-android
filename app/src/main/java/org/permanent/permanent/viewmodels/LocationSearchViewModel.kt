@@ -25,9 +25,10 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
     private lateinit var fileData: FileData
     private lateinit var googleMap: GoogleMap
     private var marker: Marker? = null
-    val showMessage = SingleLiveEvent<String>()
+    val showMessage = SingleLiveEvent<String?>()
     private val isBusy = MutableLiveData(false)
-    private val onLocationUpdate = MutableLiveData<FileData>()
+    private val onRecordLocationUpdate = MutableLiveData<FileData>()
+    private val onLocationUpdate = MutableLiveData<LocnVO>()
     private var locationRepository: ILocationRepository = LocationRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
@@ -43,7 +44,8 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
 
     fun getIsBusy(): LiveData<Boolean> = isBusy
 
-    fun getOnLocationUpdate(): LiveData<FileData> = onLocationUpdate
+    fun getOnRecordLocationUpdate(): LiveData<FileData> = onRecordLocationUpdate
+    fun getOnLocationUpdate(): LiveData<LocnVO> = onLocationUpdate
 
     fun onLatLngSelected(latLng: LatLng) {
         updateMarker(latLng)
@@ -67,6 +69,7 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
 
             override fun onSuccess(locnVO: LocnVO) {
                 locationVO = locnVO
+                onLocationUpdate.value = locnVO
             }
 
             override fun onFailed(error: String?) {
@@ -86,7 +89,7 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
                     isBusy.value = false
                     showMessage.value = message
                     fileData.update(locationVO!!)
-                    onLocationUpdate.value = fileData
+                    onRecordLocationUpdate.value = fileData
                 }
 
                 override fun onFailed(error: String?) {

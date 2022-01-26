@@ -22,4 +22,11 @@
         app:showAsAction="always"
         android:visible="false"
         />
+    <item
+        android:id="@+id/doneItem"
+        android:icon="@drawable/ic_done_white"
+        android:title="@string/menu_toolbar_done"
+        app:showAsAction="always"
+        android:visible="false"
+        />
 </menu>
