@@ -8,14 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.maps.MapView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentEditArchiveInformationBinding
 import org.permanent.permanent.models.ProfileItem
@@ -27,10 +28,11 @@ import java.util.*
 
 const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_file_data_key"
 
-class EditArchiveInformationFragment: PermanentBaseFragment() {
+class EditArchiveInformationFragment : PermanentBaseFragment() {
 
     private lateinit var binding: FragmentEditArchiveInformationBinding
     private lateinit var viewModel: EditArchiveInformationViewModel
+    private var mapView: MapView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,11 +44,21 @@ class EditArchiveInformationFragment: PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+        mapView = binding.mapView
+        mapView?.onCreate(savedInstanceState)
+
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
+            R.string.edit_archive_information_label,
+            viewModel.getCurrentArchiveType().toTitleCase()
+        )
+
         arguments?.getParcelableArrayList<ProfileItem>(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
             ?.let { viewModel.displayProfileItems(it) }
 
-        setFragmentResultListener(LocationSearchFragment.LOCATION_VO_REQUEST_KEY) { requestKey, bundle ->
+        if (viewModel.getLocation().value?.isNotEmpty() == true)
+            mapView?.getMapAsync(viewModel)
+
+        setFragmentResultListener(LocationSearchFragment.LOCATION_VO_REQUEST_KEY) { _, bundle ->
             val locnVO = bundle.getParcelable<LocnVO>(LocationSearchFragment.LOCATION_VO_KEY)
             locnVO?.let { viewModel.onLocationUpdated(it) }
         }
@@ -56,7 +68,8 @@ class EditArchiveInformationFragment: PermanentBaseFragment() {
     private val onShowMessage = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
@@ -67,7 +80,8 @@ class EditArchiveInformationFragment: PermanentBaseFragment() {
     private val onShowError = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
         }
         snackBar.show()
@@ -106,11 +120,38 @@ class EditArchiveInformationFragment: PermanentBaseFragment() {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        mapView?.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
         context?.hideKeyboardFrom(binding.root.windowToken)
+        mapView?.onPause()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapView?.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView?.onStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mapView?.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView?.onLowMemory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView?.onSaveInstanceState(outState)
     }
 }

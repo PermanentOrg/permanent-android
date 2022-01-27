@@ -198,7 +198,7 @@
     <fragment
         android:id="@+id/editArchiveInformationFragment"
         android:name="org.permanent.permanent.ui.public.EditArchiveInformationFragment"
-        android:label="@string/edit_person_information_label"
+        android:label="@string/edit_archive_information_label"
         tools:layout="@layout/fragment_edit_archive_information" >
         <action
             android:id="@+id/action_editArchiveInformationFragment_to_locationSearchFragment"

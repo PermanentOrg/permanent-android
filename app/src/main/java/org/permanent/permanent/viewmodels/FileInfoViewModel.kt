@@ -27,8 +27,8 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     val onShowLocationSearchRequest = SingleLiveEvent<Void>()
     val onShowTagsEdit = SingleLiveEvent<Void>()
     private val onFileInfoUpdated = SingleLiveEvent<String>()
-    private val showMessage = SingleLiveEvent<String>()
-    private val showError = SingleLiveEvent<String>()
+    private val showMessage = SingleLiveEvent<String?>()
+    private val showError = SingleLiveEvent<String?>()
     private val existsTags = MutableLiveData(false)
     private val isEditable = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
@@ -129,9 +129,9 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getShowTagsEdit(): LiveData<Void> = onShowTagsEdit
 
-    fun getShowError(): LiveData<String> = showError
+    fun getShowError(): LiveData<String?> = showError
 
-    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowMessage(): LiveData<String?> = showMessage
 
     fun getExistsTags(): LiveData<Boolean> = existsTags
 

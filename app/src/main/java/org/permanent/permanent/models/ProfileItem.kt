@@ -47,6 +47,7 @@ class ProfileItem() : Parcelable {
             ProfileItemName.SHORT_DESCRIPTION.backendString -> ProfileItemName.SHORT_DESCRIPTION
             ProfileItemName.DESCRIPTION.backendString -> ProfileItemName.DESCRIPTION
             ProfileItemName.BIRTH_INFO.backendString -> ProfileItemName.BIRTH_INFO
+            ProfileItemName.ESTABLISHED_INFO.backendString -> ProfileItemName.ESTABLISHED_INFO
             ProfileItemName.SOCIAL_MEDIA.backendString -> ProfileItemName.SOCIAL_MEDIA
             ProfileItemName.MILESTONE.backendString -> ProfileItemName.MILESTONE
             else -> ProfileItemName.UNKNOWN

@@ -23,7 +23,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     private val showMessage = MutableLiveData<String?>()
     private val showError = MutableLiveData<String?>()
     private val shortDescriptionCharsNr =
-        MutableLiveData(appContext.getString(R.string.public_profile_character_limit, 0))
+        MutableLiveData(appContext.getString(R.string.edit_about_character_limit, 0))
     private val shortDescription = MutableLiveData("")
     private val currentArchiveType = prefsHelper.getCurrentArchiveType()
     private val longDescriptionLabel = MutableLiveData(
@@ -129,7 +129,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     fun onShortDescriptionTextChanged(text: Editable) {
         shortDescription.value = text.toString()
         shortDescriptionCharsNr.value =
-            appContext.getString(R.string.public_profile_character_limit, text.length)
+            appContext.getString(R.string.edit_about_character_limit, text.length)
     }
 
     fun onLongDescriptionTextChanged(text: Editable) {

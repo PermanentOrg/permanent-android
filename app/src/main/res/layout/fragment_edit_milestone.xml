@@ -215,7 +215,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="252dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/public_profile_character_limit"
+            android:text="@string/edit_about_character_limit"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@+id/tvDescriptionTitle"

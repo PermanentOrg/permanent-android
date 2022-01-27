@@ -134,7 +134,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
             .navigate(R.id.action_fileMetadataFragment_to_tagsEditFragment, bundle)
     }
 
-    private val onShowMessage = Observer<String> { message ->
+    private val onShowMessage = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
@@ -145,7 +145,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         snackBar.show()
     }
 
-    private val onShowError = Observer<String> { message ->
+    private val onShowError = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
