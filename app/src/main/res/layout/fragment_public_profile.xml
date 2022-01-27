@@ -5,6 +5,7 @@
 
     <data>
         <import type="android.view.View" />
+        <import type="org.permanent.permanent.models.ArchiveType" />
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.PublicProfileViewModel" />
@@ -92,7 +93,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans_bold"
-            android:text="@string/public_profile_person_information"
+            android:text="@{viewModel.archiveInfoLabel}"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -108,7 +109,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans"
-            android:text="@string/public_profile_full_name_hint"
+            android:text="@{viewModel.nameLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -132,14 +133,14 @@
             app:layout_constraintTop_toBottomOf="@+id/tvFullName" />
 
         <TextView
-            android:id="@+id/tvNickname"
+            android:id="@+id/tvAliases"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans"
-            android:text="@string/public_profile_nickname"
+            android:text="@{viewModel.aliasesLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -153,14 +154,14 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:hint="@string/public_profile_nickname_hint"
-            android:text="@{viewModel.nickname}"
+            android:hint="@string/public_profile_aliases_hint"
+            android:text="@{viewModel.aliases}"
             android:textColor="@color/colorPrimary"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvNickname" />
+            app:layout_constraintTop_toBottomOf="@+id/tvAliases" />
 
         <TextView
             android:id="@+id/tvGender"
@@ -173,6 +174,7 @@
             android:text="@string/public_profile_gender"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
+            android:visibility="@{viewModel.currentArchiveType == ArchiveType.PERSON ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -188,6 +190,7 @@
             android:text="@{viewModel.gender}"
             android:textColor="@color/colorPrimary"
             android:textSize="16sp"
+            android:visibility="@{viewModel.currentArchiveType == ArchiveType.PERSON ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -201,7 +204,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans"
-            android:text="@string/public_profile_birth_date"
+            android:text="@{viewModel.dateLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -232,7 +235,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans"
-            android:text="@string/public_profile_birth_location"
+            android:text="@{viewModel.locationLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"

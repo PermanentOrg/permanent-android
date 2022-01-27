@@ -7,7 +7,13 @@ import android.text.Editable
 import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import org.permanent.permanent.R
+import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IProfileItemListener
@@ -20,7 +26,8 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 
 class EditArchiveInformationViewModel(application: Application) :
-    ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener {
+    ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener,
+    GoogleMap.OnMapClickListener, OnMapReadyCallback {
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -29,7 +36,37 @@ class EditArchiveInformationViewModel(application: Application) :
     private val showMessage = MutableLiveData<String?>()
     private val showError = MutableLiveData<String?>()
 
-    //    private val currentArchiveType = prefsHelper.getCurrentArchiveType()
+    private val currentArchiveType = prefsHelper.getCurrentArchiveType()
+    private val nameLabel = MutableLiveData(
+        when (currentArchiveType) {
+            ArchiveType.FAMILY -> application.getString(R.string.public_profile_family_name_label)
+            ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_organization_name_label)
+            else -> application.getString(R.string.public_profile_full_name_hint)
+        }
+    )
+    private val aliasesLabel = MutableLiveData(
+        when (currentArchiveType) {
+            ArchiveType.FAMILY -> application.getString(R.string.public_profile_family_aliases_label)
+            ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_organization_aliases_label)
+            else -> application.getString(R.string.public_profile_person_aliases_label)
+        }
+    )
+    private val dateLabel = MutableLiveData(
+        when (currentArchiveType) {
+            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_family_and_organization_date_label)
+            else -> application.getString(R.string.public_profile_person_date_label)
+        }
+    )
+    private val locationLabel = MutableLiveData(
+        when (currentArchiveType) {
+            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_family_and_organization_location_label)
+            else -> application.getString(R.string.public_profile_person_location_label)
+        }
+    )
+    private val nameCharsNr =
+        MutableLiveData(appContext.getString(R.string.edit_archive_information_character_limit, 0))
+    private val aliasesCharsNr =
+        MutableLiveData(appContext.getString(R.string.edit_archive_information_character_limit, 0))
     private val name = MutableLiveData("")
     private val aliases = MutableLiveData("")
     private val gender = MutableLiveData("")
@@ -55,7 +92,7 @@ class EditArchiveInformationViewModel(application: Application) :
                     genderProfileItem = profileItem
                     profileItem.string1?.let { gender.value = it }
                 }
-                ProfileItemName.BIRTH_INFO -> {
+                ProfileItemName.BIRTH_INFO, ProfileItemName.ESTABLISHED_INFO -> {
                     dateAndLocationProfileItem = profileItem
                     profileItem.day1?.let { date.value = it }
                     profileItem.locationVO?.getUIAddress()?.let { location.value = it }
@@ -67,10 +104,14 @@ class EditArchiveInformationViewModel(application: Application) :
 
     fun onNameTextChanged(text: Editable) {
         name.value = text.toString()
+        nameCharsNr.value =
+            appContext.getString(R.string.edit_archive_information_character_limit, text.length)
     }
 
     fun onAliasesTextChanged(text: Editable) {
         aliases.value = text.toString()
+        aliasesCharsNr.value =
+            appContext.getString(R.string.edit_archive_information_character_limit, text.length)
     }
 
     fun onGenderTextChanged(text: Editable) {
@@ -86,8 +127,27 @@ class EditArchiveInformationViewModel(application: Application) :
         date.value = "$year-${f.format(month + 1)}-${f.format(dayOfMonth)}"
     }
 
-    fun onLocationClick() {
+    fun onLocationTextClick() {
         showLocationSearchRequest.value = dateAndLocationProfileItem
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        dateAndLocationProfileItem?.locationVO?.let {
+            val lat = it.latitude
+            val long = it.longitude
+            if (lat != null && long != null) {
+                val latLng = LatLng(lat, long)
+                googleMap.apply {
+                    addMarker(MarkerOptions().position(latLng))
+                    animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 9.9f))
+                    setOnMapClickListener(this@EditArchiveInformationViewModel)
+                }
+            }
+        }
+    }
+
+    override fun onMapClick(latLng: LatLng) {
+        onLocationTextClick()
     }
 
     fun onLocationUpdated(locnVO: LocnVO) {
@@ -103,7 +163,9 @@ class EditArchiveInformationViewModel(application: Application) :
             } ?: run {
                 dateAndLocationProfileItem = ProfileItem()
                 dateAndLocationProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
-                dateAndLocationProfileItem?.fieldName = ProfileItemName.BIRTH_INFO
+                dateAndLocationProfileItem?.fieldName =
+                    if (currentArchiveType == ArchiveType.PERSON) ProfileItemName.BIRTH_INFO
+                    else ProfileItemName.ESTABLISHED_INFO
                 dateAndLocationProfileItem?.locnId1 = locnVO.locnId
                 dateAndLocationProfileItem?.locationVO = locnVO
             }
@@ -167,7 +229,9 @@ class EditArchiveInformationViewModel(application: Application) :
             if (dateValue?.isNotEmpty() == true) {
                 dateAndLocationProfileItem = ProfileItem()
                 dateAndLocationProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
-                dateAndLocationProfileItem?.fieldName = ProfileItemName.BIRTH_INFO
+                dateAndLocationProfileItem?.fieldName =
+                    if (currentArchiveType == ArchiveType.PERSON) ProfileItemName.BIRTH_INFO
+                    else ProfileItemName.ESTABLISHED_INFO
                 dateAndLocationProfileItem?.day1 = dateValue
                 addUpdateProfileItem(dateAndLocationProfileItem!!)
             }
@@ -192,16 +256,25 @@ class EditArchiveInformationViewModel(application: Application) :
             })
     }
 
+    fun getCurrentArchiveType(): ArchiveType = currentArchiveType
+
+    fun getNameLabel(): LiveData<String> = nameLabel
+    fun getNameCharsNr(): LiveData<String> = nameCharsNr
     fun getName(): LiveData<String> = name
 
+    fun getAliasesLabel(): LiveData<String> = aliasesLabel
+    fun getAliasesCharsNr(): LiveData<String> = aliasesCharsNr
     fun getAliases(): LiveData<String> = aliases
 
     fun getGender(): LiveData<String> = gender
 
+    fun getDateLabel(): LiveData<String> = dateLabel
     fun getDate(): LiveData<String> = date
-    fun getLocation(): LiveData<String> = location
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
+    fun getLocationLabel(): LiveData<String> = locationLabel
+    fun getLocation(): LiveData<String> = location
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
     fun getShowMessage(): LiveData<String?> = showMessage
 
     fun getShowError(): LiveData<String?> = showError

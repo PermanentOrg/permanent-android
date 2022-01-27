@@ -10,6 +10,7 @@ enum class ProfileItemName(val backendString: String) : Parcelable {
     SHORT_DESCRIPTION("profile.blurb"),
     DESCRIPTION("profile.description"),
     BIRTH_INFO("profile.birth_info"),
+    ESTABLISHED_INFO("profile.established_info"),
     SOCIAL_MEDIA("profile.social_media"),
     MILESTONE("profile.milestone");
 

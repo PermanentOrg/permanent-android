@@ -5,6 +5,7 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="org.permanent.permanent.models.ArchiveType" />
 
         <variable
             name="viewModel"
@@ -16,19 +17,32 @@
 
         <TextView
             android:id="@+id/tvFullNameTitle"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="sans-serif"
-            android:text="@string/sign_up_screen_full_name_hint"
+            android:text="@{viewModel.nameLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvNameCharacterLimit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="@{viewModel.nameCharsNr}"
+            android:textColor="@color/middleGrey"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvFullNameTitle"
+            app:layout_constraintStart_toEndOf="@+id/tvFullNameTitle"
+            app:layout_constraintTop_toTopOf="@+id/tvFullNameTitle"
+            app:layout_constraintVertical_bias="0.0" />
 
         <EditText
             android:id="@+id/etFullnameText"
@@ -47,6 +61,7 @@
             android:paddingBottom="4dp"
             android:textColor="@color/middleGrey"
             android:textSize="16sp"
+            android:maxLength="120"
             android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
             android:text="@{viewModel.name}"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,21 +70,35 @@
             app:layout_constraintTop_toBottomOf="@+id/tvFullNameTitle" />
 
         <TextView
-            android:id="@+id/tvNickname"
-            android:layout_width="0dp"
+            android:id="@+id/tvAliases"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/public_profile_nickname"
+            android:text="@{viewModel.aliasesLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etFullnameText" />
 
+        <TextView
+            android:id="@+id/tvAliasesCharacterLimit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="@{viewModel.aliasesCharsNr}"
+            android:textColor="@color/middleGrey"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvAliases"
+            app:layout_constraintStart_toEndOf="@+id/tvAliases"
+            app:layout_constraintTop_toTopOf="@+id/tvAliases"
+            app:layout_constraintVertical_bias="0.0" />
+
         <EditText
-            android:id="@+id/etNicknameText"
+            android:id="@+id/etAliasesText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -82,14 +111,15 @@
             android:paddingEnd="5dp"
             android:paddingBottom="4dp"
             android:fontFamily="@font/open_sans"
-            android:hint="@string/public_profile_nickname_hint"
+            android:hint="@string/public_profile_aliases_hint"
             android:textColor="@color/middleGrey"
             android:textSize="16sp"
+            android:maxLength="120"
             android:afterTextChanged="@{(editable)->viewModel.onAliasesTextChanged(editable)}"
             android:text="@{viewModel.aliases}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvNickname" />
+            app:layout_constraintTop_toBottomOf="@+id/tvAliases" />
 
         <TextView
             android:id="@+id/tvGender"
@@ -101,9 +131,10 @@
             android:text="@string/public_profile_gender"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
+            android:visibility="@{viewModel.currentArchiveType == ArchiveType.PERSON ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etNicknameText" />
+            app:layout_constraintTop_toBottomOf="@+id/etAliasesText" />
 
         <EditText
             android:id="@+id/etGender"
@@ -124,19 +155,20 @@
             android:textSize="16sp"
             android:afterTextChanged="@{(editable)->viewModel.onGenderTextChanged(editable)}"
             android:text="@{viewModel.gender}"
+            android:visibility="@{viewModel.currentArchiveType == ArchiveType.PERSON ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvGender" />
 
         <TextView
-            android:id="@+id/tvBirthDate"
+            android:id="@+id/tvDate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="sans-serif"
-            android:text="@string/public_profile_birth_date"
+            android:text="@{viewModel.dateLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -145,7 +177,7 @@
             app:layout_constraintTop_toBottomOf="@+id/etGender" />
 
         <EditText
-            android:id="@+id/etBirthDateText"
+            android:id="@+id/etDateText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -165,23 +197,35 @@
             android:onClick="@{() -> viewModel.onDateClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvBirthDate" />
+            app:layout_constraintTop_toBottomOf="@+id/tvDate" />
 
         <TextView
-            android:id="@+id/tvBirthLocation"
+            android:id="@+id/tvLocation"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="sans-serif"
-            android:text="@string/public_profile_birth_location"
+            android:text="@{viewModel.locationLabel}"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etBirthDateText" />
+            app:layout_constraintTop_toBottomOf="@+id/etDateText" />
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:visibility="@{viewModel.location.isEmpty ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLocation" />
 
         <EditText
             android:id="@+id/etLocationText"
@@ -201,11 +245,11 @@
             android:textSize="16sp"
             android:text="@{viewModel.location}"
             android:focusable="false"
-            android:onClick="@{() -> viewModel.onLocationClick()}"
+            android:onClick="@{() -> viewModel.onLocationTextClick()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvBirthLocation" />
+            app:layout_constraintTop_toBottomOf="@+id/mapView" />
 
         <Button
             android:id="@+id/btnSave"
