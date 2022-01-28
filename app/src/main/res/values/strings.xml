@@ -77,7 +77,7 @@
     <string name="menu_drawer_private_files">Private Files</string>
     <string name="menu_drawer_shared_files">Shared Files</string>
     <string name="menu_drawer_public_files">Public Files</string>
-    <string name="menu_drawer_manage_archives">Manage Archives</string>
+    <string name="menu_drawer_switch_archives">Switch Archives</string>
     <string name="menu_drawer_manage_members">Manage Members</string>
     <string name="menu_drawer_public_gallery">Public Gallery</string>
 
@@ -404,4 +404,3 @@
     <string name="record_search_no_results_title">Enter search terms to match tags and titles.</string>
     <string name="record_search_no_results_message">Search results will appear here.</string>
 </resources>
-

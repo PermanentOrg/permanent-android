@@ -21,32 +21,32 @@
 
     </group>
 
-    <group>
+    <group
         android:id="@+id/group2"
         android:checkableBehavior="single">
 
         <item
             android:id="@+id/archivesFragment"
             android:icon="@drawable/ic_manage_archives"
-            android:title="@string/menu_drawer_manage_archives"
-            />
+            android:title="@string/menu_drawer_switch_archives" />
 
         <item
             android:id="@+id/membersFragment"
             android:icon="@drawable/img_manage_members_square"
-            android:title="@string/menu_drawer_manage_members"
-            />
+            android:title="@string/menu_drawer_manage_members" />
 
     </group>
 
+    <!-- -
     <group
         android:id="@+id/group3"
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/publicFragment"
+            android:id="@+id/publicGalleryFragment"
             android:icon="@drawable/ic_public_gallery"
             android:title="@string/menu_drawer_public_gallery" />
 
     </group>
+    <!- -->
 </menu>
