@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/archivesFragment"
         android:name="org.permanent.permanent.ui.archives.ArchivesFragment"
-        android:label="@string/menu_drawer_manage_archives"
+        android:label="@string/menu_drawer_switch_archives"
         tools:layout="@layout/fragment_archives" />
 
     <fragment
@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_myFilesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_publicGalleryFragment"
+            app:destination="@id/publicGalleryFragment" />
     </fragment>
 
     <fragment
@@ -155,7 +158,6 @@
     <fragment
         android:id="@+id/publicFragment"
         android:name="org.permanent.permanent.ui.public.PublicFragment"
-        android:label="@string/menu_drawer_public_gallery"
         tools:layout="@layout/fragment_public">
         <action
             android:id="@+id/action_publicFragment_to_fileActivity"
@@ -181,6 +183,11 @@
             app:destination="@id/onlinePresenceListFragment" />
 
     </fragment>
+    <fragment
+        android:id="@+id/publicGalleryFragment"
+        android:name="org.permanent.permanent.ui.public.PublicGalleryFragment"
+        android:label="@string/menu_drawer_public_gallery"
+        tools:layout="@layout/fragment_public_gallery" />
 
     <fragment
         android:id="@+id/publicFolderFragment"
