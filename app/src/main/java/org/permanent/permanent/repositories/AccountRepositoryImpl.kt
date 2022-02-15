@@ -75,6 +75,32 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         }
     }
 
+    override fun getSessionAccount(listener: IAccountRepository.IAccountListener) {
+        NetworkClient.instance().getSessionAccount(prefsHelper.getCsrf())
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(
+                    call: Call<ResponseVO>,
+                    response: Response<ResponseVO>
+                ) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                        listener.onSuccess(Account(responseVO.getAccountVO()))
+                    } else {
+                        listener.onFailed(
+                            responseVO?.getMessages()?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
     override fun update(account: Account, listener: IResponseListener) {
         NetworkClient.instance().updateAccount(prefsHelper.getCsrf(), account)
             .enqueue(object : Callback<ResponseVO> {

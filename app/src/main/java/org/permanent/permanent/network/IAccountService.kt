@@ -14,6 +14,9 @@ interface IAccountService {
     @POST("account/get")
     fun getAccount(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("account/getsessionaccount")
+    fun getSessionAccount(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("account/update")
     fun updateAccount(@Body requestBody: RequestBody): Call<ResponseVO>
 

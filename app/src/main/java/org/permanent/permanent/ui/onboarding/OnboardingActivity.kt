@@ -12,7 +12,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityOnboardingBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.viewmodels.OnboardingViewModel
 
 
@@ -77,11 +77,11 @@ class OnboardingActivity : PermanentBaseActivity() {
 
     private fun onOnboardingCompleted() {
         viewModel.setOnboardingCompleted(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
-        startLoginActivity()
+        startSignUpActivity()
     }
 
-    private fun startLoginActivity() {
-        startActivity(Intent(this@OnboardingActivity, LoginActivity::class.java))
+    private fun startSignUpActivity() {
+        startActivity(Intent(this@OnboardingActivity, SignUpActivity::class.java))
         finish()
     }
 

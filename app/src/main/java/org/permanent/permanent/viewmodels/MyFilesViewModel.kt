@@ -22,10 +22,7 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IFileRepository
-import org.permanent.permanent.repositories.INotificationRepository
-import org.permanent.permanent.repositories.NotificationRepositoryImpl
+import org.permanent.permanent.repositories.*
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -69,6 +66,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
 
     protected var fileRepository: IFileRepository = FileRepositoryImpl(application)
+    protected var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     protected var folderPathStack: Stack<Record> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var downloadQueue: DownloadQueue

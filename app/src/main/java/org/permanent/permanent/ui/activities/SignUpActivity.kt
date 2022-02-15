@@ -13,7 +13,6 @@ import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySignUpBinding
-import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SignUpViewModel
 
@@ -25,7 +24,6 @@ class SignUpActivity : PermanentBaseActivity() {
 
     private val onLoggedIn = Observer<Void> { startTwoStepActivity(true) }
     private val onReadyToShowTermsDialog = Observer<Void> { showTermsDialog() }
-    private val onAlreadyHaveAccount = Observer<Void> { startLoginActivity() }
     private val onErrorMessage = Observer<String> { errorMessage ->
         when(errorMessage) {
             //Sign up error
@@ -67,12 +65,6 @@ class SignUpActivity : PermanentBaseActivity() {
         alert.show()
     }
 
-    private fun startLoginActivity() {
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
-
     private fun startTwoStepActivity(skipCodeVerification: Boolean) {
         val intent = Intent(this, TwoStepVerificationActivity::class.java)
         intent.putExtra(SKIP_CODE_VERIFICATION_FRAGMENT, skipCodeVerification)
@@ -84,14 +76,12 @@ class SignUpActivity : PermanentBaseActivity() {
         viewModel.getOnErrorMessage().observe(this, onErrorMessage)
         viewModel.getOnLoggedIn().observe(this, onLoggedIn)
         viewModel.getOnReadyToShowTermsDialog().observe(this, onReadyToShowTermsDialog)
-        viewModel.getOnAlreadyHaveAccount().observe(this, onAlreadyHaveAccount)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnErrorMessage().removeObserver(onErrorMessage)
         viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
         viewModel.getOnReadyToShowTermsDialog().removeObserver(onReadyToShowTermsDialog)
-        viewModel.getOnAlreadyHaveAccount().removeObserver(onAlreadyHaveAccount)
     }
 
     override fun onResume() {

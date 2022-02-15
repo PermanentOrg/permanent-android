@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/login_navigation"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/biometricsFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -27,10 +27,8 @@
         android:label="BiometricsFragment"
         tools:layout="@layout/fragment_biometrics">
         <action
-            android:id="@+id/action_biometricsFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            android:id="@+id/action_biometricsFragment_to_signUpActivity"
+            app:destination="@id/signUpActivity" />
         <action
             android:id="@+id/action_biometricsFragment_to_mainActivity"
             app:destination="@id/mainActivity" />
@@ -49,4 +47,9 @@
         android:name="org.permanent.permanent.ui.activities.MainActivity"
         android:label="MainActivity"
         tools:layout="@layout/activity_main"/>
+    <activity
+        android:id="@+id/signUpActivity"
+        android:name="org.permanent.permanent.ui.activities.SignUpActivity"
+        android:label="SignUpActivity"
+        tools:layout="@layout/activity_sign_up"/>
 </navigation>

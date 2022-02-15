@@ -2,13 +2,20 @@ package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
 import android.os.IBinder
 import android.provider.OpenableColumns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import net.openid.appauth.*
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.network.AuthStateManager
+import org.permanent.permanent.ui.activities.SignUpActivity
+import org.permanent.permanent.ui.activities.SplashActivity
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -35,6 +42,44 @@ fun Context.assetSize(resourceUri: Uri): Long {
     } catch (e: Resources.NotFoundException) {
         return 0
     }
+}
+
+fun Context.showLoginScreen() {
+    val serviceConfig = AuthorizationServiceConfiguration(
+        Uri.parse("https://permanent-dev.fusionauth.io/oauth2/authorize"),  // authorization endpoint
+        Uri.parse("https://permanent-dev.fusionauth.io/oauth2/token")
+    ) // token endpoint
+
+    AuthStateManager.getInstance(this).replace(AuthState(serviceConfig))
+
+    val authRequestBuilder = AuthorizationRequest.Builder(
+        serviceConfig,  // the authorization service configuration
+        BuildConfig.AUTH_CLIENT_ID,  // the client ID, typically pre-registered and static
+        ResponseTypeValues.CODE,  // the response_type value: we want a code
+        Uri.parse("org.permanent.permanent.staging://auth-redirect")
+    ) // the redirect URI to which the auth response is sent
+
+    val authRequest = authRequestBuilder
+        .setScope("offline_access")
+        .build()
+
+    val authService = AuthorizationService(this)
+
+    authService.performAuthorizationRequest(
+        authRequest,
+        PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, SplashActivity::class.java),
+            0
+        ),
+        PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, SignUpActivity::class.java),
+            0
+        )
+    )
 }
 
 fun bytesToHumanReadableString(bytes: Long): String {

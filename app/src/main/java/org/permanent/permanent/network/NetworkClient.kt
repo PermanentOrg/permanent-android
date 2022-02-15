@@ -1,6 +1,7 @@
 package org.permanent.permanent.network
 
 import android.content.Context
+import android.util.Log
 import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -10,6 +11,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,6 +20,8 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.invitations.UpdateType
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
@@ -62,14 +66,30 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 SharedPrefsCookiePersistor(context)
             )
 
-            val interceptor = HttpLoggingInterceptor()
-            interceptor.level = HttpLoggingInterceptor.Level.NONE
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+            val prefsHelper = PreferencesHelper(
+                PermanentApplication.instance.applicationContext.getSharedPreferences(
+                    PREFS_NAME,
+                    Context.MODE_PRIVATE
+                )
+            )
 
             okHttpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
-                .addInterceptor(interceptor)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(MFAAndCSRFInterceptor())
+                .addInterceptor(Interceptor { chain ->
+                    val requestBuilder: Request.Builder = chain.request().newBuilder()
+//                    requestBuilder.header("Authorization", "Bearer ${prefsHelper.getAccessToken()}")
+                    requestBuilder.header("Authorization", "Bearer ${AuthStateManager.getInstance(context).current.accessToken}")
+                    chain.proceed(requestBuilder.build())
+                })
+//                .addInterceptor(AuthorizationInterceptor())
+//                .authenticator(TokenAuthenticator())
                 .build()
+            Log.e("NetworkClient", AuthStateManager.getInstance(context).current.accessToken.toString())
         }
         retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -152,6 +172,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return accountService.getAccount(requestBody)
+    }
+
+    fun getSessionAccount(csrf: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return accountService.getSessionAccount(requestBody)
     }
 
     fun updateAccount(csrf: String?, account: Account): Call<ResponseVO> {
@@ -507,7 +533,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun transferOwnership(csrf: String?, archiveNr: String?, email: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf)
+        val request = toJson(
+            RequestContainer(csrf)
                 .addArchive(archiveNr)
                 .addAccount(email, AccessRole.OWNER)
         )

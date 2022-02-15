@@ -18,6 +18,7 @@ android {
         targetSdkVersion 31
         versionCode 1
         versionName "1.0.0"
+        manifestPlaceholders = ['appAuthRedirectScheme': 'org.permanent.permanent.staging']
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -82,6 +83,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'net.openid:appauth:0.11.1'
 
     //====================================== ARCHITECTURE COMPONENTS ===============================
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
