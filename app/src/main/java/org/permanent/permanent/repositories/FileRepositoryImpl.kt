@@ -35,6 +35,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
+                    prefsHelper.savePublicRootRecordFolderLinkId(responseVO?.getPublicRecord()?.folderLinkId)
                     val myFilesRecord = responseVO?.getMyFilesRecord()
 
                     if (myFilesRecord != null) {
@@ -256,9 +257,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        val relocationVerb = if (relocationType == RelocationType.MOVE)
-                            context.getString(R.string.relocation_type_moved)
-                        else context.getString(R.string.relocation_type_copied)
+                        val relocationVerb = when (relocationType) {
+                            RelocationType.MOVE -> context.getString(R.string.relocation_type_moved)
+                            RelocationType.PUBLISH -> context.getString(R.string.relocation_type_published)
+                            else -> context.getString(R.string.relocation_type_copied)
+                        }
                         listener.onSuccess(
                             context.getString(
                                 R.string.relocation_success,

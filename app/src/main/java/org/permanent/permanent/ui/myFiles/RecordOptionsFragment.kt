@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
@@ -127,6 +128,24 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         record?.let { record -> onRecordRelocateRequest.value = Pair(record, it) }
     }
 
+    private val onPublishRequestObserver = Observer<Void> {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
+        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+
+        viewDialog.tvTitle.text =
+            getString(R.string.dialog_record_publish_confirmation_title, record?.displayName)
+        viewDialog.tvText.text = getString(R.string.dialog_record_publish_confirmation_text)
+        viewDialog.btnPositive.text = getString(R.string.button_publish)
+        viewDialog.btnPositive.setOnClickListener {
+            viewModel.publishRecord()
+            alert.dismiss()
+        }
+        viewDialog.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>,
         grantResults: IntArray
@@ -173,6 +192,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnShareViaPermanentRequest().observe(this, onShareViaPermanentRequestObserver)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
         viewModel.getOnRelocateRequest().observe(this, onRelocateRequestObserver)
+        viewModel.getOnPublishRequest().observe(this, onPublishRequestObserver)
         viewModel.getOnFileDownloadedForSharing().observe(this, onFileDownloadedForSharing)
         viewModel.getShowMessage().observe(this, onShowMessage)
     }
@@ -185,6 +205,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnShareViaPermanentRequest().removeObserver(onShareViaPermanentRequestObserver)
         viewModel.getOnShareToAnotherAppRequest().removeObserver(onShareToAnotherAppObserver)
         viewModel.getOnRelocateRequest().removeObserver(onRelocateRequestObserver)
+        viewModel.getOnPublishRequest().removeObserver(onPublishRequestObserver)
         viewModel.getOnFileDownloadedForSharing().removeObserver(onFileDownloadedForSharing)
         viewModel.getShowMessage().removeObserver(onShowMessage)
     }

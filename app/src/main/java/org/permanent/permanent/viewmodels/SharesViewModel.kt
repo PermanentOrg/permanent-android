@@ -16,7 +16,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
 
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
+    private val showMessage = SingleLiveEvent<String>()
     private val onSharesByMeRetrieved = SingleLiveEvent<MutableList<Record>>()
     private val onSharesWithMeRetrieved = SingleLiveEvent<MutableList<Record>>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
@@ -33,8 +33,10 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
                 if (!dataList.isNullOrEmpty()) {
                     val sharesByMe: MutableList<Record> = ArrayList()
                     val sharesWithMe: MutableList<Record> = ArrayList()
-                    val currentArchiveId = PreferencesHelper(appContext
-                        .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)).getCurrentArchiveId()
+                    val currentArchiveId = PreferencesHelper(
+                        appContext
+                            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                    ).getCurrentArchiveId()
 
                     for (data in dataList) {
                         val archive = data.ArchiveVO
@@ -60,7 +62,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                error?.let { showMessage.value = it }
             }
         })
     }
