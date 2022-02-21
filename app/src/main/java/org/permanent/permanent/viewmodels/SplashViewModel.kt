@@ -41,8 +41,6 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
             AuthStateManager.getInstance(appContext).updateAfterTokenResponse(tokenResp, tokenEx)
 
             if (tokenResp != null) { // exchange succeeded
-                prefsHelper.saveTokenResponse(tokenResp.accessToken, tokenResp.refreshToken)
-
                 verifyIsUserLoggedIn()
             } else {
                 showError.value = tokenEx?.errorDescription
@@ -56,12 +54,8 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
             override fun onResponse(isLoggedIn: Boolean) {
                 prefsHelper.saveUserLoggedIn(isLoggedIn)
 
-                if (isLoggedIn) {
-                    if (prefsHelper.getAccountId() == 0) getAccount(isLoggedIn)
-                    else onLoggedInResponse.value = isLoggedIn
-                } else {
-                    onLoggedInResponse.value = isLoggedIn
-                }
+                if (isLoggedIn) getAccount(isLoggedIn)
+                else onLoggedInResponse.value = isLoggedIn
             }
         })
     }
@@ -71,7 +65,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
 
             override fun onSuccess(account: Account) {
                 prefsHelper.saveAccountId(account.id)
-                account.primaryEmail?.let { prefsHelper.saveAccountEmail(it) }
+                prefsHelper.saveAccountEmail(account.primaryEmail)
                 prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
 
                 account.defaultArchiveId?.let { getArchive(it, isLoggedIn) } ?: run {

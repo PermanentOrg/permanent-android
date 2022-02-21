@@ -82,20 +82,12 @@ class SplashActivity : PermanentBaseActivity() {
             if (!prefsHelper.isOnboardingCompleted()) {
                 startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
                 finish()
-            } else {
-                startSignUpActivity()
             }
         } else if (isLoginFlow) { // User just loggedIn, no need for biometrics
             startMainActivity()
         } else { // User was loggedIn, show biometrics
             startLoginActivity()
         }
-    }
-
-    private fun startSignUpActivity() {
-        val intent = Intent(this@SplashActivity, SignUpActivity::class.java)
-        startActivity(intent)
-        finish()
     }
 
     private fun startMainActivity() {

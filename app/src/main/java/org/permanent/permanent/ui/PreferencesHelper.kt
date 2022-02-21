@@ -24,8 +24,6 @@ const val PREFS_CURRENT_ARCHIVE_FULL_NAME = "preferences_current_archive_full_na
 const val PREFS_CURRENT_ARCHIVE_THUMB_URL = "preferences_current_archive_thumb_url"
 const val PREFS_CURRENT_ARCHIVE_ACCESS_ROLE = "preferences_current_archive_access_role"
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
-const val PREFS_ACCESS_TOKEN = "preferences_access_token"
-const val PREFS_REFRESH_TOKEN = "preferences_refresh_token"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -88,10 +86,12 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_BIOMETRICS_LOG_IN, true)
     }
 
-    fun saveAccountEmail(email: String) {
-        with(sharedPreferences.edit()) {
-            putString(PREFS_ACCOUNT_EMAIL, email)
-            apply()
+    fun saveAccountEmail(email: String?) {
+        email?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_ACCOUNT_EMAIL, email)
+                apply()
+            }
         }
     }
 
@@ -238,21 +238,5 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isListViewMode(): Boolean {
         return sharedPreferences.getBoolean(IS_LIST_VIEW_MODE, true)
-    }
-
-    fun saveTokenResponse(accessToken: String?, refreshToken: String?) {
-        with(sharedPreferences.edit()) {
-            putString(PREFS_ACCESS_TOKEN, accessToken)
-            putString(PREFS_REFRESH_TOKEN, refreshToken)
-            apply()
-        }
-    }
-
-    fun getAccessToken(): String? {
-        return sharedPreferences.getString(PREFS_ACCESS_TOKEN, null)
-    }
-
-    fun getRefreshToken(): String? {
-        return sharedPreferences.getString(PREFS_REFRESH_TOKEN, null)
     }
 }

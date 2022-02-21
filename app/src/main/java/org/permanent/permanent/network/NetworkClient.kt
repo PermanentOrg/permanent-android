@@ -1,7 +1,6 @@
 package org.permanent.permanent.network
 
 import android.content.Context
-import android.util.Log
 import com.franmontiel.persistentcookiejar.ClearableCookieJar
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -20,8 +19,6 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.invitations.UpdateType
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
@@ -67,14 +64,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
             )
 
             val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-
-            val prefsHelper = PreferencesHelper(
-                PermanentApplication.instance.applicationContext.getSharedPreferences(
-                    PREFS_NAME,
-                    Context.MODE_PRIVATE
-                )
-            )
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
             okHttpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
@@ -82,14 +72,14 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .addInterceptor(MFAAndCSRFInterceptor())
                 .addInterceptor(Interceptor { chain ->
                     val requestBuilder: Request.Builder = chain.request().newBuilder()
-//                    requestBuilder.header("Authorization", "Bearer ${prefsHelper.getAccessToken()}")
-                    requestBuilder.header("Authorization", "Bearer ${AuthStateManager.getInstance(context).current.accessToken}")
+                    requestBuilder.header(
+                        "Authorization",
+                        "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
+                    )
                     chain.proceed(requestBuilder.build())
                 })
-//                .addInterceptor(AuthorizationInterceptor())
 //                .authenticator(TokenAuthenticator())
                 .build()
-            Log.e("NetworkClient", AuthStateManager.getInstance(context).current.accessToken.toString())
         }
         retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)

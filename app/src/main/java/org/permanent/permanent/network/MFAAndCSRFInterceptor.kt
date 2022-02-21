@@ -1,6 +1,7 @@
 package org.permanent.permanent.network
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import okhttp3.Interceptor
@@ -15,7 +16,7 @@ import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.showLoginScreen
+import org.permanent.permanent.ui.activities.SignUpActivity
 import java.io.IOException
 
 class MFAAndCSRFInterceptor : Interceptor {
@@ -40,12 +41,12 @@ class MFAAndCSRFInterceptor : Interceptor {
                 val rawJson = responseBody.string()
 
                 if (response.code == 401 || rawJson.contains(ERROR_MFA_TOKEN) || rawJson.contains(ERROR_INVALID_CSRF)) {
-                    Log.i(TAG, "Requires MFA Token or CSRF is invalid, redirecting to log in")
+                    Log.w(TAG, "Response code 401 or Requires MFA Token or CSRF is invalid, redirecting to log in")
                     prefsHelper.saveUserLoggedIn(false)
                     prefsHelper.saveBiometricsLogIn(true) // Setting back to default
                     val currentActivity = PermanentApplication.instance.currentActivity
                     currentActivity?.let {
-//                        it.startActivity(Intent(it, SplashActivity::class.java))
+                        it.startActivity(Intent(it, SignUpActivity::class.java))
                         it.runOnUiThread {
                             Toast.makeText(
                                 it,
@@ -54,7 +55,6 @@ class MFAAndCSRFInterceptor : Interceptor {
                             ).show()
                         }
                     }
-                    PermanentApplication.instance.showLoginScreen()
                 }
                 // Re-create the response before returning it because body can be read only once
                 return response
