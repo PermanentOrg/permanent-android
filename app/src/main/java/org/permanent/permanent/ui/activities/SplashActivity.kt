@@ -20,7 +20,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
-import org.permanent.permanent.ui.twoStepVerification.TwoStepVerificationActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
 
 class SplashActivity : PermanentBaseActivity() {
@@ -49,43 +48,38 @@ class SplashActivity : PermanentBaseActivity() {
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         prefsHelper.saveShareLinkUrlToken("")
 
-        if (!prefsHelper.getSkipTwoStepVerification()) {
-            val intent = Intent(this@SplashActivity, TwoStepVerificationActivity::class.java)
-            intent.putExtra(SKIP_CODE_VERIFICATION_FRAGMENT, true)
-            startActivity(intent)
-            finish()
-        } else {
-            val authResponse = AuthorizationResponse.fromIntent(intent)
-            val authException = AuthorizationException.fromIntent(intent)
+        val authResponse = AuthorizationResponse.fromIntent(intent)
+        val authException = AuthorizationException.fromIntent(intent)
 
-            when {
-                authResponse != null -> {
-                    AuthStateManager.getInstance(this).updateAfterAuthorization(authResponse, authException)
-                    isLoginFlow = true
-                    viewModel.requestTokens(authResponse)
-                }
-                authException != null -> {
-                    AuthStateManager.getInstance(this).updateAfterAuthorization(authResponse, authException)
-                    isLoginFlow = true
-                    errorObserver.onChanged(authException.errorDescription)
-                }
-                else -> {
-                    isLoginFlow = false
+        when {
+            authResponse != null -> {
+                AuthStateManager.getInstance(this)
+                    .updateAfterAuthorization(authResponse, authException)
+                isLoginFlow = true
+                viewModel.requestTokens(authResponse)
+            }
+            authException != null -> {
+                AuthStateManager.getInstance(this)
+                    .updateAfterAuthorization(authResponse, authException)
+                isLoginFlow = true
+                errorObserver.onChanged(authException.errorDescription)
+            }
+            else -> {
+                isLoginFlow = false
+                if (!prefsHelper.isOnboardingCompleted()) {
+                    startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
+                    finish()
+                } else {
                     viewModel.verifyIsUserLoggedIn()
                 }
             }
         }
     }
 
-    private val loggedInResponseObserver = Observer<Boolean> { isLoggedIn ->
-        if (!isLoggedIn) {
-            if (!prefsHelper.isOnboardingCompleted()) {
-                startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
-                finish()
-            }
-        } else if (isLoginFlow) { // User just loggedIn, no need for biometrics
+    private val userLoggedInObserver = Observer<Void> {
+        if (isLoginFlow) { // User just loggedIn, no need for biometrics
             startMainActivity()
-        } else { // User was loggedIn, show biometrics
+        } else { // User was loggedIn before, show biometrics
             startLoginActivity()
         }
     }
@@ -113,12 +107,12 @@ class SplashActivity : PermanentBaseActivity() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnLoggedInResponse().observe(this, loggedInResponseObserver)
+        viewModel.getOnUserLoggedIn().observe(this, userLoggedInObserver)
         viewModel.getShowError().observe(this, errorObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnLoggedInResponse().removeObserver(loggedInResponseObserver)
+        viewModel.getOnUserLoggedIn().removeObserver(userLoggedInObserver)
         viewModel.getShowError().removeObserver(errorObserver)
     }
 

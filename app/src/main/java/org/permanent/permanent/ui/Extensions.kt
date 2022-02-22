@@ -9,18 +9,12 @@ import android.content.res.Resources
 import android.net.Uri
 import android.os.IBinder
 import android.provider.OpenableColumns
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
 import net.openid.appauth.*
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.Constants
 import org.permanent.permanent.network.AuthStateManager
-import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.repositories.INotificationRepository
-import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.ui.activities.SplashActivity
 import java.io.File
@@ -53,9 +47,9 @@ fun Context.assetSize(resourceUri: Uri): Long {
 
 fun Context.showLoginScreen() {
     val serviceConfig = AuthorizationServiceConfiguration(
-        Uri.parse("https://permanent-dev.fusionauth.io/oauth2/authorize"),  // authorization endpoint
-        Uri.parse("https://permanent-dev.fusionauth.io/oauth2/token")
-    ) // token endpoint
+        Uri.parse(BuildConfig.LOGIN_BASE_URL + "authorize"),  // authorization endpoint
+        Uri.parse(BuildConfig.LOGIN_BASE_URL + "token") // token endpoint
+    )
 
     AuthStateManager.getInstance(this).replace(AuthState(serviceConfig))
 
@@ -63,11 +57,12 @@ fun Context.showLoginScreen() {
         serviceConfig,  // the authorization service configuration
         BuildConfig.AUTH_CLIENT_ID,  // the client ID, typically pre-registered and static
         ResponseTypeValues.CODE,  // the response_type value: we want a code
-        Uri.parse("org.permanent.permanent.staging://auth-redirect")
+        Uri.parse(BuildConfig.APPLICATION_ID + "://auth-redirect")
     ) // the redirect URI to which the auth response is sent
 
+
     val authRequest = authRequestBuilder
-        .setScope("offline_access")
+        .setScope(Constants.AUTH_REQUEST_SCOPE)
         .build()
 
     val authService = AuthorizationService(this)

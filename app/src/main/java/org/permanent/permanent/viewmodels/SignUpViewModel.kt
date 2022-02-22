@@ -23,9 +23,9 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val nameError = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
+    private val onSuccessMessage = MutableLiveData<String>()
     private val onErrorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onLoggedIn = SingleLiveEvent<Void>()
     private val onReadyToShowTermsDialog = SingleLiveEvent<Void>()
     private val currentName = MutableLiveData<String>()
     private val currentEmail = MutableLiveData<String>()
@@ -44,11 +44,11 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun getPasswordError(): LiveData<Int> = passwordError
 
+    fun getOnSuccessMessage(): MutableLiveData<String> = onSuccessMessage
+
     fun getOnErrorMessage(): MutableLiveData<String> = onErrorMessage
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
-    fun getOnLoggedIn(): MutableLiveData<Void> = onLoggedIn
 
     fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> = onReadyToShowTermsDialog
 
@@ -102,7 +102,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     prefsHelper.saveSkipTwoStepVerification(false)
-                    appContext.showLoginScreen()
+                    message?.let { onSuccessMessage.value = it }
                 }
 
                 override fun onFailed(error: String?) {

@@ -71,12 +71,16 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .addInterceptor(loggingInterceptor)
                 .addInterceptor(MFAAndCSRFInterceptor())
                 .addInterceptor(Interceptor { chain ->
-                    val requestBuilder: Request.Builder = chain.request().newBuilder()
-                    requestBuilder.header(
-                        "Authorization",
-                        "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
-                    )
-                    chain.proceed(requestBuilder.build())
+                    val request = chain.request()
+                    if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
+                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX)) {
+                        val requestBuilder: Request.Builder = request.newBuilder()
+                        requestBuilder.header(
+                            "Authorization",
+                            "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
+                        )
+                        chain.proceed(requestBuilder.build())
+                    } else chain.proceed(request)
                 })
 //                .authenticator(TokenAuthenticator())
                 .build()

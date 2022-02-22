@@ -24,7 +24,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val onLoggedInResponse = SingleLiveEvent<Boolean>()
+    private val onUserLoggedIn = SingleLiveEvent<Void>()
     private val showError = MutableLiveData<String>()
     private val authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
@@ -54,13 +54,13 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
             override fun onResponse(isLoggedIn: Boolean) {
                 prefsHelper.saveUserLoggedIn(isLoggedIn)
 
-                if (isLoggedIn) getAccount(isLoggedIn)
-                else onLoggedInResponse.value = isLoggedIn
+                if (isLoggedIn) getAccount()
+                // else the server responds 401 and the interceptor handles the case
             }
         })
     }
 
-    fun getAccount(isLoggedIn: Boolean) {
+    fun getAccount() {
         accountRepository.getSessionAccount(object : IAccountRepository.IAccountListener {
 
             override fun onSuccess(account: Account) {
@@ -68,9 +68,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
                 prefsHelper.saveAccountEmail(account.primaryEmail)
                 prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
 
-                account.defaultArchiveId?.let { getArchive(it, isLoggedIn) } ?: run {
-                    onLoggedInResponse.value = isLoggedIn
-                }
+                account.defaultArchiveId?.let { getArchive(it) }
             }
 
             override fun onFailed(error: String?) {
@@ -79,7 +77,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         })
     }
 
-    fun getArchive(defaultArchiveId: Int, isLoggedIn: Boolean) {
+    fun getArchive(defaultArchiveId: Int) {
         archiveRepository.getAllArchives(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 if (!dataList.isNullOrEmpty()) {
@@ -95,7 +93,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
                                 archive.thumbURL200,
                                 archive.accessRole
                             )
-                            onLoggedInResponse.value = isLoggedIn
+                            onUserLoggedIn.call()
                             return
                         }
                     }
@@ -109,7 +107,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         })
     }
 
-    fun getOnLoggedInResponse(): MutableLiveData<Boolean> = onLoggedInResponse
+    fun getOnUserLoggedIn(): MutableLiveData<Void> = onUserLoggedIn
 
     fun getShowError(): LiveData<String> = showError
 }

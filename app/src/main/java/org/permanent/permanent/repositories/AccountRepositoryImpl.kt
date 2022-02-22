@@ -30,7 +30,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
                         prefsHelper.saveUserSignedUpInApp()
-                        listener.onSuccess("")
+                        listener.onSuccess(appContext.getString(R.string.account_create_success))
                     } else {
                         listener.onFailed(
                             responseVO?.getMessages()?.get(0)

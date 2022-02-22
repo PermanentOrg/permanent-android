@@ -41,6 +41,7 @@ android {
     productFlavors {
         production {
             applicationId "org.permanent.PermanentArchive"
+            buildConfigField "String", "LOGIN_BASE_URL", "\"https://auth.permanent.org/oauth2/\""
             buildConfigField "String", "BASE_URL", "\"https://www.permanent.org/\""
             buildConfigField "String", "BASE_API_URL", "\"https://www.permanent.org/api/\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://www.permanent.org/add-storage/\""
@@ -49,6 +50,7 @@ android {
         }
         staging {
             applicationId "org.permanent.permanent.staging"
+            buildConfigField "String", "LOGIN_BASE_URL", "\"https://permanent-dev.fusionauth.io/oauth2/\""
             buildConfigField "String", "BASE_URL", "\"https://staging.permanent.org/\""
             buildConfigField "String", "BASE_API_URL", "\"https://staging.permanent.org/api/\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
