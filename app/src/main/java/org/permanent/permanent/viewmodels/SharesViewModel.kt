@@ -16,7 +16,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
 
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
+    private val showMessage = SingleLiveEvent<String>()
     private val onSharesByMeRetrieved = SingleLiveEvent<MutableList<Record>>()
     private val onSharesWithMeRetrieved = SingleLiveEvent<MutableList<Record>>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
@@ -62,7 +62,7 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                error?.let { showMessage.value == it }
+                error?.let { showMessage.value = it }
             }
         })
     }

@@ -16,7 +16,7 @@
         <entry key="app/src/main/res/layout/dialog_send_invitation.xml" value="0.5911458333333334" />
         <entry key="app/src/main/res/layout/dialog_terms_of_service.xml" value="0.5911458333333334" />
         <entry key="app/src/main/res/layout/dialog_title_text_two_buttons.xml" value="0.5" />
-        <entry key="app/src/main/res/layout/fragment_archives.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_archives.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_edit_about.xml" value="0.5820512820512821" />
         <entry key="app/src/main/res/layout/fragment_edit_archive_information.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_edit_milestone.xml" value="0.2046875" />

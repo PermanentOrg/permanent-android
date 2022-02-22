@@ -22,6 +22,20 @@ class ResponseVO {
         return null
     }
 
+    fun getPublicRecord(): Record? {
+        val recordVOs: List<RecordVO>? = getRecordVOs()
+
+        if (recordVOs != null) {
+            for (recordVO in recordVOs) {
+                if (recordVO.displayName.equals(Constants.PUBLIC_FILES_FOLDER)) {
+                    return Record(recordVO)
+                }
+            }
+        }
+
+        return null
+    }
+
     fun getData(): List<Datum>? {
         return Results?.get(0)?.data
     }

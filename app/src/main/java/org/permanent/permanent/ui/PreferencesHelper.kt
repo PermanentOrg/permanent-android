@@ -14,6 +14,7 @@ const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val PREFS_SKIP_TWO_STEP_VERIFICATION = "preferences_skip_two_step_verification"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
+const val PREFS_PUBLIC_ROOT_RECORD_FOLDER_LINK_ID = "preferences_public_root_record_folder_link_id"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
 const val PREFS_CSRF = "preferences_csrf"
 const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
@@ -216,6 +217,19 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
             AccessRole.CONTRIBUTOR.backendString -> AccessRole.CONTRIBUTOR
             else -> AccessRole.VIEWER
         }
+    }
+
+    fun savePublicRootRecordFolderLinkId(id: Int?) {
+        id?.let {
+            with(sharedPreferences.edit()) {
+                putInt(PREFS_PUBLIC_ROOT_RECORD_FOLDER_LINK_ID, id)
+                apply()
+            }
+        }
+    }
+
+    fun getPublicRootRecordFolderLinkId(): Int {
+        return sharedPreferences.getInt(PREFS_PUBLIC_ROOT_RECORD_FOLDER_LINK_ID, 0)
     }
 
     fun saveShareLinkUrlToken(urlToken: String) {
