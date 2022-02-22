@@ -25,8 +25,8 @@
             android:title="@string/menu_settings_drawer_security" />
 
         <item
-            android:id="@+id/help"
-            android:title="@string/menu_settings_drawer_help" />
+            android:id="@+id/contactSupport"
+            android:title="@string/menu_settings_drawer_contact_support" />
 
         <item
             android:id="@+id/logOut"

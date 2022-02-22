@@ -162,7 +162,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     // Returning 'false' to not remain the item selected on resuming
                     return@setNavigationItemSelectedListener false
                 }
-                R.id.help -> {
+                R.id.contactSupport -> {
                     binding.drawerLayout.closeDrawers()
                     navigateOnWebTo(BuildConfig.HELP_URL)
                     // Returning 'false' to not remain the item selected on resuming
