@@ -10,6 +10,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -62,13 +63,26 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 SharedPrefsCookiePersistor(context)
             )
 
-            val interceptor = HttpLoggingInterceptor()
-            interceptor.level = HttpLoggingInterceptor.Level.NONE
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
             okHttpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
-                .addInterceptor(interceptor)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(MFAAndCSRFInterceptor())
+                .addInterceptor(Interceptor { chain ->
+                    val request = chain.request()
+                    if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
+                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX)) {
+                        val requestBuilder: Request.Builder = request.newBuilder()
+                        requestBuilder.header(
+                            "Authorization",
+                            "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
+                        )
+                        chain.proceed(requestBuilder.build())
+                    } else chain.proceed(request)
+                })
+//                .authenticator(TokenAuthenticator())
                 .build()
         }
         retrofit = Retrofit.Builder()
@@ -152,6 +166,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return accountService.getAccount(requestBody)
+    }
+
+    fun getSessionAccount(csrf: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return accountService.getSessionAccount(requestBody)
     }
 
     fun updateAccount(csrf: String?, account: Account): Call<ResponseVO> {
@@ -507,7 +527,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun transferOwnership(csrf: String?, archiveNr: String?, email: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf)
+        val request = toJson(
+            RequestContainer(csrf)
                 .addArchive(archiveNr)
                 .addAccount(email, AccessRole.OWNER)
         )

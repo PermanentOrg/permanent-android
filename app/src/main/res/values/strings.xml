@@ -339,6 +339,7 @@
     <string name="account_screen_state">State or region</string>
     <string name="account_screen_postal_code">Postal code</string>
     <string name="account_screen_country">Country</string>
+    <string name="account_create_success">Your account was successfully created.</string>
     <string name="account_update_success">Account info updated successfully.</string>
     <string name="account_delete_success">Your account was deleted successfully.</string>
 
