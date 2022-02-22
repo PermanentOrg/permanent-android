@@ -18,7 +18,6 @@ android {
         targetSdkVersion 31
         versionCode 1
         versionName "1.0.0"
-        manifestPlaceholders = ['appAuthRedirectScheme': 'org.permanent.permanent.staging']
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -47,6 +46,7 @@ android {
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://www.permanent.org/add-storage/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
+            manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId}"]
         }
         staging {
             applicationId "org.permanent.permanent.staging"
@@ -56,6 +56,7 @@ android {
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
+            manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId}"]
         }
     }
 
