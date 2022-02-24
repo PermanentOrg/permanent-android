@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.public
+package org.permanent.permanent.ui.publicWorkspace
 
 import android.app.AlertDialog
 import android.content.Context

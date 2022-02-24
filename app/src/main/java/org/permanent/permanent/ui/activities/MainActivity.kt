@@ -33,8 +33,8 @@ import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
-import org.permanent.permanent.ui.public.LocationSearchFragment
-import org.permanent.permanent.ui.public.PublicFolderFragment
+import org.permanent.permanent.ui.publicWorkspace.LocationSearchFragment
+import org.permanent.permanent.ui.publicWorkspace.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 

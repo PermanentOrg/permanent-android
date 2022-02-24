@@ -63,7 +63,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
             )
 
             val interceptor = HttpLoggingInterceptor()
-            interceptor.level = HttpLoggingInterceptor.Level.NONE
+            interceptor.level = HttpLoggingInterceptor.Level.BODY
 
             okHttpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
@@ -595,6 +595,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer(csrf).addProfileItem(profileItem))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return profileService.safeAddUpdate(requestBody)
+    }
+
+    fun deleteProfileItem(csrf: String?, profileItem: ProfileItem): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addProfileItem(profileItem))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return profileService.delete(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

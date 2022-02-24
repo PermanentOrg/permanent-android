@@ -137,7 +137,7 @@
 
     <fragment
         android:id="@+id/publicFilesFragment"
-        android:name="org.permanent.permanent.ui.public.PublicFilesFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.PublicFilesFragment"
         android:label="@string/menu_drawer_public_files"
         tools:layout="@layout/fragment_public_files">
         <action
@@ -157,7 +157,7 @@
 
     <fragment
         android:id="@+id/publicFragment"
-        android:name="org.permanent.permanent.ui.public.PublicFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.PublicFragment"
         tools:layout="@layout/fragment_public">
         <action
             android:id="@+id/action_publicFragment_to_fileActivity"
@@ -185,13 +185,13 @@
     </fragment>
     <fragment
         android:id="@+id/publicGalleryFragment"
-        android:name="org.permanent.permanent.ui.public.PublicGalleryFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.PublicGalleryFragment"
         android:label="@string/menu_drawer_public_gallery"
         tools:layout="@layout/fragment_public_gallery" />
 
     <fragment
         android:id="@+id/publicFolderFragment"
-        android:name="org.permanent.permanent.ui.public.PublicFolderFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.PublicFolderFragment"
         tools:layout="@layout/fragment_public_folder">
         <action
             android:id="@+id/action_publicFolderFragment_to_fileActivity"
@@ -199,12 +199,12 @@
     </fragment>
     <fragment
         android:id="@+id/editAboutFragment"
-        android:name="org.permanent.permanent.ui.public.EditAboutFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.EditAboutFragment"
         android:label="@string/edit_about_label"
         tools:layout="@layout/fragment_edit_about" />
     <fragment
         android:id="@+id/editArchiveInformationFragment"
-        android:name="org.permanent.permanent.ui.public.EditArchiveInformationFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.EditArchiveInformationFragment"
         android:label="@string/edit_archive_information_label"
         tools:layout="@layout/fragment_edit_archive_information" >
         <action
@@ -215,18 +215,18 @@
     </fragment>
     <fragment
         android:id="@+id/locationSearchFragment"
-        android:name="org.permanent.permanent.ui.public.LocationSearchFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.LocationSearchFragment"
         android:label="@string/file_navigation_title_enter_location"
         tools:layout="@layout/fragment_location_search">
     </fragment>
     <fragment
         android:id="@+id/editMilestoneFragment"
-        android:name="org.permanent.permanent.ui.public.PublicProfileEditMilestonesFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.PublicProfileEditMilestonesFragment"
         android:label="@string/add_milestone_label"
         tools:layout="@layout/fragment_edit_milestone" />
     <fragment
         android:id="@+id/milestonesListFragment"
-        android:name="org.permanent.permanent.ui.public.MilestoneListFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.MilestoneListFragment"
         android:label="@string/edit_milestone_label"
         tools:layout="@layout/fragment_milestone_list" >
         <action
@@ -235,7 +235,7 @@
     </fragment>
     <fragment
         android:id="@+id/onlinePresenceListFragment"
-        android:name="org.permanent.permanent.ui.public.OnlinePresenceListFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.OnlinePresenceListFragment"
         android:label="@string/edit_online_presence_label"
         tools:layout="@layout/fragment_online_presence_list" >
         <action
@@ -244,7 +244,7 @@
     </fragment>
     <fragment
         android:id="@+id/addSocialMediaFragment"
-        android:name="org.permanent.permanent.ui.public.AddSocialMediaFragment"
+        android:name="org.permanent.permanent.ui.publicWorkspace.AddEditSocialMediaFragment"
         android:label="@string/add_social_media_label"
-        tools:layout="@layout/fragment_add_social_media" />
+        tools:layout="@layout/fragment_add_edit_social_media" />
 </navigation>

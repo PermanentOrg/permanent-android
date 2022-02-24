@@ -30,13 +30,14 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/rounded_grey_border_white_background"
+            android:fontFamily="@font/open_sans"
+            android:hint="@string/public_profile_milestone_title_hint"
             android:includeFontPadding="true"
+            android:maxLength="140"
             android:paddingStart="5dp"
             android:paddingTop="4dp"
             android:paddingEnd="5dp"
             android:paddingBottom="4dp"
-            android:fontFamily="@font/open_sans"
-            android:hint="@string/public_profile_milestone_title_hint"
             android:textColor="@color/middleGrey"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -56,9 +57,20 @@
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etTitleText" />
+            app:layout_constraintTop_toBottomOf="@+id/etDescriptionText" />
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLocationTitle" />
 
         <EditText
             android:id="@+id/etLocationText"
@@ -79,7 +91,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvLocationTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/mapView" />
 
         <TextView
             android:id="@+id/tvStartDate"
@@ -94,7 +106,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etLocationText" />
+            app:layout_constraintTop_toBottomOf="@+id/etTitleText" />
 
         <EditText
             android:id="@+id/etStartDate"
@@ -187,9 +199,9 @@
             app:layout_constraintTop_toBottomOf="@+id/etEndDate" />
 
         <EditText
-            android:id="@+id/tvDescriptionText"
+            android:id="@+id/etDescriptionText"
             android:layout_width="0dp"
-            android:layout_height="155dp"
+            android:layout_height="100dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
@@ -198,6 +210,7 @@
             android:gravity="fill_horizontal"
             android:hint="@string/edit_milestone_description_hint"
             android:includeFontPadding="true"
+            android:maxLength="200"
             android:paddingStart="5dp"
             android:paddingTop="4dp"
             android:paddingEnd="5dp"
@@ -225,6 +238,17 @@
             app:layout_constraintTop_toTopOf="@+id/tvDescriptionTitle"
             app:layout_constraintVertical_bias="0.0" />
 
+        <androidx.core.widget.ContentLoadingProgressBar
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

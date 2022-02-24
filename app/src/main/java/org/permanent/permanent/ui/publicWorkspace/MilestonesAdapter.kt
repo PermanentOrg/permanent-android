@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.public
+package org.permanent.permanent.ui.publicWorkspace
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

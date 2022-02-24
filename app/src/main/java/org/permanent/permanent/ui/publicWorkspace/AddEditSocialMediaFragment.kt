@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.public
+package org.permanent.permanent.ui.publicWorkspace
 
 import android.graphics.Typeface
 import android.os.Bundle
@@ -11,30 +11,29 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentEditAboutBinding
+import org.permanent.permanent.databinding.FragmentAddEditSocialMediaBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.viewmodels.EditAboutViewModel
+import org.permanent.permanent.viewmodels.AddEditSocialMediaViewModel
 
-class EditAboutFragment : PermanentBaseFragment() {
-
-    private lateinit var binding: FragmentEditAboutBinding
-    private lateinit var viewModel: EditAboutViewModel
+class AddEditSocialMediaFragment: PermanentBaseFragment(){
+    private lateinit var viewModel: AddEditSocialMediaViewModel
+    private lateinit var binding: FragmentAddEditSocialMediaBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(EditAboutViewModel::class.java)
-        binding = FragmentEditAboutBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(AddEditSocialMediaViewModel::class.java)
+        binding = FragmentAddEditSocialMediaBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        arguments?.getParcelableArrayList<ProfileItem>(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
-            ?.let { viewModel.displayProfileItems(it) }
-
+        val profileItem: ProfileItem? = arguments?.getParcelable(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
+        val isOnEdit: Boolean? = arguments?.getBoolean(OnlinePresenceListFragment.IS_EDIT_SOCIAL_MEDIA)
+        viewModel.displayProfileItem(profileItem, isOnEdit)
         return binding.root
     }
 
@@ -78,4 +77,5 @@ class EditAboutFragment : PermanentBaseFragment() {
         disconnectViewModelEvents()
         context?.hideKeyboardFrom(binding.root.windowToken)
     }
+
 }

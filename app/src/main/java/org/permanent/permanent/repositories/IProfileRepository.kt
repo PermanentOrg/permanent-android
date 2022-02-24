@@ -9,4 +9,6 @@ interface IProfileRepository {
     fun getProfileItemsByArchive(archiveNr: String?, listener: IDataListener)
 
     fun safeAddUpdateProfileItems(profileItem: ProfileItem, listener: IProfileItemListener)
+
+    fun deleteProfileItem(profileItem: ProfileItem, listener: IProfileItemListener)
 }

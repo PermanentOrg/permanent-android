@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
@@ -16,9 +17,12 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     private val isBusy = MutableLiveData<Boolean>()
     private var member: Account? = null
     private var share: Share? = null
+    private var profileItem: ProfileItem? = null
     private val itemName = MutableLiveData<String>()
     private val onEditShareRequest = SingleLiveEvent<Share>()
     private val onEditMemberRequest = SingleLiveEvent<Account>()
+    private val onEditOnlinePresenceRequest = SingleLiveEvent<ProfileItem>()
+    private val onDeleteOnlinePresenceRequest = SingleLiveEvent<ProfileItem>()
     private val onMemberRemoved = SingleLiveEvent<String>()
     private val onShareRemoved = SingleLiveEvent<Share>()
     private val showSnackbar = MutableLiveData<String>()
@@ -36,15 +40,30 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
         itemName.value = share?.archive?.fullName
     }
 
+    fun setProfileItem(profileItem: ProfileItem?) {
+        this.profileItem = profileItem
+        profileItem?.string1?.let {
+            itemName.value = it
+        }
+    }
+
     fun onEditBtnClick() {
-        if (member != null) onEditMemberRequest.value = member else onEditShareRequest.value = share
+        when {
+            member != null -> onEditMemberRequest.value = member
+            share != null -> onEditShareRequest.value = share
+            else -> onEditOnlinePresenceRequest.value = profileItem
+        }
     }
 
     fun onRemoveBtnClick() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        if (member != null) removeMember() else removeShare()
+        when {
+            member != null -> removeMember()
+            share != null -> removeShare()
+            else -> onDeleteOnlinePresenceRequest.value = profileItem
+        }
     }
 
     private fun removeMember() {
@@ -90,6 +109,10 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     fun getOnEditMemberRequest(): MutableLiveData<Account> = onEditMemberRequest
 
     fun getOnEditShareRequest(): MutableLiveData<Share> = onEditShareRequest
+
+    fun getOnEditOnlinePresenceRequest(): MutableLiveData<ProfileItem> = onEditOnlinePresenceRequest
+
+    fun getOnDeleteOnlinePresenceRequest(): MutableLiveData<ProfileItem> = onDeleteOnlinePresenceRequest
 
     fun getOnMemberRemoved(): LiveData<String> = onMemberRemoved
 

@@ -7,11 +7,14 @@ import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentItemOptionsBinding
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.linkshare.PARCELABLE_SHARE_KEY
+import org.permanent.permanent.ui.publicWorkspace.OnlinePresenceListFragment.Companion.PARCELABLE_PROFILE_ITEMS_KEY
 import org.permanent.permanent.viewmodels.ItemOptionsViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
@@ -22,6 +25,8 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var viewModel: ItemOptionsViewModel
     private val onShowEditMemberDialogRequest = MutableLiveData<Account>()
     private val onShowEditShareDialogRequest = MutableLiveData<Share>()
+    private val onShowOnlinePresenceFragmentRequest = MutableLiveData<ProfileItem>()
+    private val onDeleteOnlinePresenceRequest = MutableLiveData<ProfileItem>()
     private val onMemberRemoved = SingleLiveEvent<String>()
     private val onShareRemoved = SingleLiveEvent<Share>()
     private val onShowSnackbar = SingleLiveEvent<String>()
@@ -39,6 +44,12 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
         this.arguments = bundle
     }
 
+    fun setBundleArguments(profileItem: ProfileItem) {
+        val bundle = Bundle()
+        bundle.putParcelable(PARCELABLE_PROFILE_ITEMS_KEY, profileItem)
+        this.arguments = bundle
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -51,6 +62,11 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
         binding.viewModel = viewModel
         viewModel.setMember(arguments?.getParcelable(PARCELABLE_ACCOUNT_KEY))
         viewModel.setShare(arguments?.getParcelable(PARCELABLE_SHARE_KEY))
+        val profileItem : ProfileItem? = arguments?.getParcelable(PARCELABLE_PROFILE_ITEMS_KEY)
+        viewModel.setProfileItem(profileItem)
+        if(profileItem != null) {
+            binding.btnRemove.setText(R.string.delete_button)
+        }
         return binding.root
     }
 
@@ -61,6 +77,16 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
 
     private val onEditShareObserver = Observer<Share> { share ->
         onShowEditShareDialogRequest.value = share
+        dismiss()
+    }
+
+    private val onEditOnlinePresenceObserver = Observer<ProfileItem> { profileItem ->
+        onShowOnlinePresenceFragmentRequest.value = profileItem
+        dismiss()
+    }
+
+    private val onDeleteOnlinePresenceObserver = Observer<ProfileItem> { profileItem ->
+        onDeleteOnlinePresenceRequest.value = profileItem
         dismiss()
     }
 
@@ -86,6 +112,10 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
 
     fun getShowEditShareDialogRequest(): MutableLiveData<Share> = onShowEditShareDialogRequest
 
+    fun getShowEditOnlinePresenceFragmentRequest(): MutableLiveData<ProfileItem> = onShowOnlinePresenceFragmentRequest
+
+    fun getDeleteOnlinePresenceRequest(): MutableLiveData<ProfileItem> = onDeleteOnlinePresenceRequest
+
     fun getOnMemberRemoved(): MutableLiveData<String> = onMemberRemoved
 
     fun getOnShareRemoved(): MutableLiveData<Share> = onShareRemoved
@@ -97,6 +127,8 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
     override fun connectViewModelEvents() {
         viewModel.getOnEditMemberRequest().observe(this, onEditMemberObserver)
         viewModel.getOnEditShareRequest().observe(this, onEditShareObserver)
+        viewModel.getOnEditOnlinePresenceRequest().observe(this, onEditOnlinePresenceObserver)
+        viewModel.getOnDeleteOnlinePresenceRequest().observe(this, onDeleteOnlinePresenceObserver)
         viewModel.getOnMemberRemoved().observe(this, onMemberRemovedObserver)
         viewModel.getOnShareRemoved().observe(this, onShareRemovedObserver)
         viewModel.getShowSnackbarRequest().observe(this, onShowSnackbarObserver)
@@ -105,6 +137,8 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnEditMemberRequest().removeObserver(onEditMemberObserver)
+        viewModel.getOnEditOnlinePresenceRequest().removeObserver(onEditOnlinePresenceObserver)
+        viewModel.getOnDeleteOnlinePresenceRequest().removeObserver(onDeleteOnlinePresenceObserver)
         viewModel.getOnMemberRemoved().removeObserver(onMemberRemovedObserver)
         viewModel.getOnShareRemoved().removeObserver(onShareRemovedObserver)
         viewModel.getShowSnackbarRequest().removeObserver(onShowSnackbarObserver)

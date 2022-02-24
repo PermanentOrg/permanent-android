@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.public
+package org.permanent.permanent.ui.publicWorkspace
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -54,8 +54,9 @@ class PublicProfileFragment : PermanentBaseFragment() {
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_milestonesListFragment)
     }
 
-    private val onEditOnlinePresenceRequest = Observer<Void> {
-        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_onlinePresenceListFragment)
+    private val onEditOnlinePresenceRequest = Observer<MutableList<ProfileItem>> {
+        val bundle = bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to it)
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_onlinePresenceListFragment, bundle)
     }
 
     private val onShowMessage = Observer<String?> { message ->
