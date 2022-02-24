@@ -20,7 +20,7 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.members.ItemOptionsFragment
 import org.permanent.permanent.viewmodels.OnlinePresenceListViewModel
 
-class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListener{
+class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListener {
     private lateinit var viewModel: OnlinePresenceListViewModel
     private lateinit var binding: FragmentOnlinePresenceListBinding
     private lateinit var onlinePresenceRecyclerView: RecyclerView
@@ -55,7 +55,8 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
 
         activity?.toolbar?.setOnMenuItemClickListener {
             if (it.itemId == R.id.plusItem) {
-                requireParentFragment().findNavController().navigate(R.id.action_onlinePresenceListFragment_to_addSocialMediaFragment)
+                requireParentFragment().findNavController()
+                    .navigate(R.id.action_onlinePresenceListFragment_to_addSocialMediaFragment)
             }
             true
         }
@@ -79,6 +80,34 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
         )
     }
 
+    override fun onOptionsClick(profileItem: ProfileItem) {
+        onlinePresenceOptionsFragment = ItemOptionsFragment()
+        onlinePresenceOptionsFragment?.setBundleArguments(profileItem)
+        onlinePresenceOptionsFragment?.show(
+            parentFragmentManager,
+            onlinePresenceOptionsFragment?.tag
+        )
+        onlinePresenceOptionsFragment?.getShowEditOnlinePresenceFragmentRequest()
+            ?.observe(this, onShowOnlinePresenceEditFragment)
+        onlinePresenceOptionsFragment?.getDeleteOnlinePresenceRequest()
+            ?.observe(this, onProfileItemDeleteRequest)
+    }
+
+    override fun onEditClick(profileItem: ProfileItem) {
+        val bundle =
+            bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to profileItem, IS_EDIT_SOCIAL_MEDIA to true)
+        requireParentFragment().findNavController()
+            .navigate(R.id.action_onlinePresenceListFragment_to_addSocialMediaFragment, bundle)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
+            R.string.edit_online_presence_label
+        )
+
+    }
+
+
+    override fun onDeleteClick(profileItem: ProfileItem) {
+        viewModel.deleteProfileItem(profileItem)
+    }
 
     override fun connectViewModelEvents() {
         viewModel.getOnOnlinePresencesRetrieved().observe(this, onOnlinePresencesRetrieved)
@@ -99,29 +128,9 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
         disconnectViewModelEvents()
     }
 
-    override fun onOptionsClick(profileItem: ProfileItem) {
-        onlinePresenceOptionsFragment = ItemOptionsFragment()
-        onlinePresenceOptionsFragment?.setBundleArguments(profileItem)
-        onlinePresenceOptionsFragment?.show(parentFragmentManager, onlinePresenceOptionsFragment?.tag)
-        onlinePresenceOptionsFragment?.getShowEditOnlinePresenceFragmentRequest()?.observe(this, onShowOnlinePresenceEditFragment)
-        onlinePresenceOptionsFragment?.getDeleteOnlinePresenceRequest()?.observe(this, onProfileItemDeleteRequest)
-    }
-
-    override fun onEditClick(profileItem: ProfileItem) {
-        val bundle = bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to profileItem, IS_EDIT_SOCIAL_MEDIA to true)
-        requireParentFragment().findNavController().navigate(R.id.action_onlinePresenceListFragment_to_addSocialMediaFragment, bundle)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
-            R.string.edit_online_presence_label
-        )
-
-    }
-
-    override fun onDeleteClick(profileItem: ProfileItem) {
-        viewModel.deleteProfileItem(profileItem)
-    }
-
     companion object {
         const val PARCELABLE_PROFILE_ITEMS_KEY = "parcelable_profile_items_key"
         const val IS_EDIT_SOCIAL_MEDIA = "is_edit_social_media"
+        //const val ON_ADD_EMAIL = "on_add_email"
     }
 }

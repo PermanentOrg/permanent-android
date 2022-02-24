@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentAddEditSocialMediaBinding
@@ -57,14 +58,21 @@ class AddEditSocialMediaFragment: PermanentBaseFragment(){
         snackBar.show()
     }
 
+    private val onBackToListFragment = Observer<Void>{
+        requireParentFragment().findNavController()
+            .popBackStack(R.id.onlinePresenceListFragment, false)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowError().observe(this, onShowError)
+        viewModel.getOnBackRequest().observe(this, onBackToListFragment)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowError().removeObserver(onShowError)
+        viewModel.getOnBackRequest().removeObserver(onBackToListFragment)
     }
 
     override fun onResume() {

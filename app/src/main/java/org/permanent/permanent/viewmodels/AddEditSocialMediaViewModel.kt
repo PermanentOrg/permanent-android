@@ -22,6 +22,7 @@ class AddEditSocialMediaViewModel(application: Application) : ObservableAndroidV
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String?>()
     private val showError = MutableLiveData<String?>()
+    private val onBackRequest = SingleLiveEvent<Void>()
     private val socialMedia = MutableLiveData("")
     private var socialMediaProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
@@ -56,6 +57,7 @@ class AddEditSocialMediaViewModel(application: Application) : ObservableAndroidV
                 addUpdateProfileItem(addItem)
             }
         }
+        onBackRequest.call()
     }
 
     private fun addUpdateProfileItem(profileItemToUpdate: ProfileItem) {
@@ -68,7 +70,6 @@ class AddEditSocialMediaViewModel(application: Application) : ObservableAndroidV
                     profileItemToUpdate.id = profileItem.id
                     if(isOnEdit == true) {
                         showMessage.value = appContext.getString(R.string.edit_social_media_success)
-                        socialMedia.value = socialMediaProfileItem?.string1
                     }
                     else
                         showMessage.value = appContext.getString(R.string.add_social_media_success)
@@ -84,6 +85,7 @@ class AddEditSocialMediaViewModel(application: Application) : ObservableAndroidV
 
     fun getShowMessage(): LiveData<String?> = showMessage
     fun getShowError(): LiveData<String?> = showError
+    fun getOnBackRequest(): LiveData<Void> = onBackRequest
 
     fun getSocialMedia(): LiveData<String> = socialMedia
 }
