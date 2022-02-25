@@ -132,6 +132,21 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addFolder(
+        folderId: Int,
+        folderLinkId: Int,
+        archiveNr: String?,
+        thumbArchiveNr: String
+    ): RequestContainer {
+        val folderVO = FolderVO()
+        folderVO.folderId = folderId
+        folderVO.folder_linkId = folderLinkId
+        folderVO.archiveNbr = archiveNr
+        folderVO.thumbArchiveNbr = thumbArchiveNr
+        RequestVO.data?.get(0)?.FolderVO = folderVO
+        return this
+    }
+
     fun addFolder(name: String, folderId: Int, folderLinkId: Int): RequestContainer {
         val folderVO = FolderVO()
         folderVO.displayName = name

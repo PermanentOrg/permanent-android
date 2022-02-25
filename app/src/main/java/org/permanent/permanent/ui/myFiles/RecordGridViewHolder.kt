@@ -18,6 +18,7 @@ import org.permanent.permanent.ui.shares.PreviewState
 class RecordGridViewHolder(
     private val context: Context,
     private val binding: ItemGridRecordBinding,
+    private val showMyFilesSimplified: Boolean,
     private val isForSharePreviewScreen: Boolean,
     private val isForSharesScreen: Boolean,
     private val recordListener: RecordListener
@@ -36,7 +37,7 @@ class RecordGridViewHolder(
         binding.btnOptions.visibility =
             if ((CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
                         isForSharesScreen) && record.type == RecordType.FOLDER ||
-                isForSharePreviewScreen) View.GONE else View.VISIBLE
+                isForSharePreviewScreen || showMyFilesSimplified) View.GONE else View.VISIBLE
 
         if (record.isThumbBlurred != null
             && record.isThumbBlurred!!

@@ -11,17 +11,24 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
+    private val profileBannerThumb =
+        MutableLiveData<String>(prefsHelper.getPublicRecordThumbURL2000())
     private val currentArchiveThumb =
         MutableLiveData<String>(prefsHelper.getCurrentArchiveThumbURL())
     private val currentArchiveName = prefsHelper.getCurrentArchiveFullName()
     private val isBusy = MutableLiveData(false)
 
 
+    fun getProfileBannerThumb(): MutableLiveData<String> = profileBannerThumb
+
     fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
 
     fun getCurrentArchiveName(): String? = currentArchiveName
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun refreshBannerAndProfilePhotos() {
+        profileBannerThumb.value = prefsHelper.getPublicRecordThumbURL2000()
+        currentArchiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
     }
 }

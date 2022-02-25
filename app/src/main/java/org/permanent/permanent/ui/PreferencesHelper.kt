@@ -12,9 +12,11 @@ const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
-const val PREFS_SKIP_TWO_STEP_VERIFICATION = "preferences_skip_two_step_verification"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
-const val PREFS_PUBLIC_ROOT_RECORD_FOLDER_LINK_ID = "preferences_public_root_record_folder_link_id"
+const val PREFS_PUBLIC_RECORD_FOLDER_ID = "preferences_public_record_folder_id"
+const val PREFS_PUBLIC_RECORD_FOLDER_LINK_ID = "preferences_public_record_folder_link_id"
+const val PREFS_PUBLIC_RECORD_ARCHIVE_NR = "preferences_public_record_archive_nr"
+const val PREFS_PUBLIC_RECORD_THUMB_URL_2000 = "preferences_public_record_thumb_url_2000"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
 const val PREFS_CSRF = "preferences_csrf"
 const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
@@ -52,17 +54,6 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isUserSignedUpInApp(): Boolean {
         return sharedPreferences.getBoolean(IS_USER_SIGNED_UP_IN_APP, false)
-    }
-
-    fun getSkipTwoStepVerification(): Boolean {
-        return sharedPreferences.getBoolean(PREFS_SKIP_TWO_STEP_VERIFICATION, true)
-    }
-
-    fun saveSkipTwoStepVerification(flag: Boolean) {
-        with(sharedPreferences.edit()) {
-            putBoolean(PREFS_SKIP_TWO_STEP_VERIFICATION, flag)
-            apply()
-        }
     }
 
     fun saveUserLoggedIn(isLoggedIn: Boolean) {
@@ -219,17 +210,61 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun savePublicRootRecordFolderLinkId(id: Int?) {
-        id?.let {
+    fun savePublicRecordInfo(
+        folderId: Int?,
+        folderLinkId: Int?,
+        archiveNr: String?,
+        thumbURL2000: String?
+    ) {
+        folderId?.let {
             with(sharedPreferences.edit()) {
-                putInt(PREFS_PUBLIC_ROOT_RECORD_FOLDER_LINK_ID, id)
+                putInt(PREFS_PUBLIC_RECORD_FOLDER_ID, it)
+                apply()
+            }
+        }
+        folderLinkId?.let {
+            with(sharedPreferences.edit()) {
+                putInt(PREFS_PUBLIC_RECORD_FOLDER_LINK_ID, it)
+                apply()
+            }
+        }
+        archiveNr?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_PUBLIC_RECORD_ARCHIVE_NR, it)
+                apply()
+            }
+        }
+        thumbURL2000?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_PUBLIC_RECORD_THUMB_URL_2000, it)
                 apply()
             }
         }
     }
 
-    fun getPublicRootRecordFolderLinkId(): Int {
-        return sharedPreferences.getInt(PREFS_PUBLIC_ROOT_RECORD_FOLDER_LINK_ID, 0)
+    fun updatePublicRecordThumb(thumbURL2000: String?) {
+        thumbURL2000?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_PUBLIC_RECORD_THUMB_URL_2000, it)
+                apply()
+            }
+        }
+    }
+
+    fun getPublicRecordFolderId(): Int {
+        return sharedPreferences.getInt(PREFS_PUBLIC_RECORD_FOLDER_ID, 0)
+    }
+
+    fun getPublicRecordFolderLinkId(): Int {
+        return sharedPreferences.getInt(PREFS_PUBLIC_RECORD_FOLDER_LINK_ID, 0)
+    }
+
+    fun getPublicRecordArchiveNr(): String? {
+        return sharedPreferences.getString(PREFS_PUBLIC_RECORD_ARCHIVE_NR, "")
+    }
+
+    fun getPublicRecordThumbURL2000(): String? {
+        return sharedPreferences.getString(PREFS_PUBLIC_RECORD_THUMB_URL_2000, "")
     }
 
     fun saveShareLinkUrlToken(urlToken: String) {

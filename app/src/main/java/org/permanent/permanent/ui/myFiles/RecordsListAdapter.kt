@@ -11,6 +11,7 @@ import org.permanent.permanent.models.Record
 
 class RecordsListAdapter(
     private val lifecycleOwner: LifecycleOwner,
+    private val showMyFilesSimplified: Boolean,
     private val isRelocateMode: MutableLiveData<Boolean>,
     private val isForSharesScreen: Boolean,
     private val isForSearchScreen: Boolean,
@@ -25,7 +26,7 @@ class RecordsListAdapter(
             parent,
             false
         )
-        return RecordListViewHolder(binding, isForSharesScreen, isForSearchScreen, recordListener)
+        return RecordListViewHolder(binding, showMyFilesSimplified, isForSharesScreen, isForSearchScreen, recordListener)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

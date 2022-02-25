@@ -35,7 +35,13 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
-                    prefsHelper.savePublicRootRecordFolderLinkId(responseVO?.getPublicRecord()?.folderLinkId)
+                    val publicRecord = responseVO?.getPublicRecord()
+                    prefsHelper.savePublicRecordInfo(
+                        publicRecord?.folderId,
+                        publicRecord?.folderLinkId,
+                        publicRecord?.archiveNr,
+                        publicRecord?.thumbURL2000
+                    )
                     val myFilesRecord = responseVO?.getMyFilesRecord()
 
                     if (myFilesRecord != null) {
@@ -137,6 +143,30 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                     listener.onFailed(t.message)
                 }
             })
+    }
+
+    override fun updateProfileBanner(thumbRecord: Record, listener: IResponseListener) {
+        thumbRecord.archiveNr?.let {
+            NetworkClient.instance().updateProfileBanner(
+                prefsHelper.getCsrf(),
+                prefsHelper.getPublicRecordFolderId(),
+                prefsHelper.getPublicRecordFolderLinkId(),
+                prefsHelper.getPublicRecordArchiveNr(),
+                it
+            ).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    prefsHelper.updatePublicRecordThumb(thumbRecord.thumbURL2000)
+                    listener.onSuccess("")
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+        }
     }
 
     override fun createFolder(

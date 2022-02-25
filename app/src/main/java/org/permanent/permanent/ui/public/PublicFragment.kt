@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import org.permanent.permanent.R
@@ -12,10 +14,15 @@ import org.permanent.permanent.databinding.FragmentPublicBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.PublicViewModel
 
-class PublicFragment : PermanentBaseFragment()  {
+class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     private lateinit var binding: FragmentPublicBinding
     private lateinit var viewModel: PublicViewModel
+    private var myFilesContainerFragment: MyFilesContainerFragment? = null
+
+    private val onPhotoUpdateObserver = Observer<Void> {
+        viewModel.refreshBannerAndProfilePhotos()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,8 +34,10 @@ class PublicFragment : PermanentBaseFragment()  {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
-        (activity as AppCompatActivity?)?.supportActionBar?.title = viewModel.getCurrentArchiveName()
+        binding.fabProfileBanner.setOnClickListener(this)
+        binding.fabProfilePhoto.setOnClickListener(this)
+        (activity as AppCompatActivity?)?.supportActionBar?.title =
+            viewModel.getCurrentArchiveName()
 
         return binding.root
     }
@@ -38,7 +47,6 @@ class PublicFragment : PermanentBaseFragment()  {
         R.string.public_profile_tab_name
     )
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
@@ -46,16 +54,25 @@ class PublicFragment : PermanentBaseFragment()  {
         val adapter = PublicViewPagerAdapter(this)
         viewPager.adapter = adapter
 
-        TabLayoutMediator(tabLayout, viewPager){tab, position->
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = getString(tabArray[position])
         }.attach()
 
         viewPager.setCurrentItem(1, false)
     }
 
+    override fun onClick(view: View) {
+        myFilesContainerFragment = MyFilesContainerFragment()
+        myFilesContainerFragment?.arguments =
+            bundleOf(IS_FILE_FOR_PROFILE_BANNER_KEY to (view.id == R.id.fabProfileBanner))
+        myFilesContainerFragment?.getOnProfilePhotoUpdate()?.observe(this, onPhotoUpdateObserver)
+        myFilesContainerFragment?.show(parentFragmentManager, myFilesContainerFragment?.tag)
+    }
+
     override fun connectViewModelEvents() {
     }
 
     override fun disconnectViewModelEvents() {
+        myFilesContainerFragment?.getOnProfilePhotoUpdate()?.removeObserver(onPhotoUpdateObserver)
     }
 }

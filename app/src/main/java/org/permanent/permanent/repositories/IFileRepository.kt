@@ -18,8 +18,10 @@ interface IFileRepository {
 
     fun getPublicRoot(listener: IRecordListener)
 
-    fun getChildRecordsOf(folderArchiveNr: String, folderLinkId: Int, sort: String?,
-                          listener: IOnRecordsRetrievedListener)
+    fun getChildRecordsOf(
+        folderArchiveNr: String, folderLinkId: Int, sort: String?,
+        listener: IOnRecordsRetrievedListener
+    )
 
     fun navigateMin(
         archiveNr: String,
@@ -28,8 +30,12 @@ interface IFileRepository {
         listener: IOnRecordsRetrievedListener
     )
 
-    fun getLeanItems(archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
-                     listener: IOnRecordsRetrievedListener)
+    fun getLeanItems(
+        archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
+        listener: IOnRecordsRetrievedListener
+    )
+
+    fun updateProfileBanner(thumbRecord: Record, listener: IResponseListener)
 
     fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier,
@@ -46,8 +52,9 @@ interface IFileRepository {
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
     ): Call<GetPresignedUrlResponse>
 
-    fun uploadFile(file: File, mediaType: MediaType, uploadDestination: UploadDestination,
-                   listener: CountingRequestListener
+    fun uploadFile(
+        file: File, mediaType: MediaType, uploadDestination: UploadDestination,
+        listener: CountingRequestListener
     ): Call<ResponseBody>?
 
     fun registerRecord(
@@ -63,8 +70,10 @@ interface IFileRepository {
 
     fun deleteRecord(record: Record, listener: IResponseListener)
 
-    fun relocateRecord(recordToRelocate: Record, destFolderLinkId: Int,
-                       relocationType: RelocationType, listener: IResponseListener)
+    fun relocateRecord(
+        recordToRelocate: Record, destFolderLinkId: Int,
+        relocationType: RelocationType, listener: IResponseListener
+    )
 
     fun updateRecord(fileData: FileData, listener: IResponseListener)
 

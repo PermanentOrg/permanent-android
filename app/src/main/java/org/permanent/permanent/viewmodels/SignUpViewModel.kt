@@ -101,7 +101,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    prefsHelper.saveSkipTwoStepVerification(false)
+//                    prefsHelper.saveSkipTwoStepVerification(false)
                     message?.let { onSuccessMessage.value = it }
                 }
 

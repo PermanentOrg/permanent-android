@@ -282,13 +282,13 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
         recordsRecyclerView = rvFiles
         recordsListAdapter = RecordsListAdapter(
-            this, viewModel.getIsRelocationMode(),
+            this, false, viewModel.getIsRelocationMode(),
             isForSharesScreen = false,
             isForSearchScreen = false,
             recordListener = viewModel
         )
         recordsGridAdapter = RecordsGridAdapter(
-            this,
+            this, false,
             viewModel.getIsRelocationMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
