@@ -74,6 +74,7 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
         recordsRecyclerView = rvRecords
         recordsAdapter = RecordsGridAdapter(
             this,
+            false,
             MutableLiveData(false),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,

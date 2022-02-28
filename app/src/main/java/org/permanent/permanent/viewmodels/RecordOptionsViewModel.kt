@@ -170,7 +170,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun publishRecord() {
-        val folderLinkId = prefsHelper.getPublicRootRecordFolderLinkId()
+        val folderLinkId = prefsHelper.getPublicRecordFolderLinkId()
 
         if (record != null && folderLinkId != 0) {
             isBusy.value = true

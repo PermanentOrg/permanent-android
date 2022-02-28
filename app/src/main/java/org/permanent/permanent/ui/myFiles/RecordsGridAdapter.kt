@@ -11,6 +11,7 @@ import org.permanent.permanent.ui.shares.PreviewState
 
 class RecordsGridAdapter(
     private val lifecycleOwner: LifecycleOwner,
+    private val showMyFilesSimplified: Boolean,
     private val isRelocateMode: MutableLiveData<Boolean>,
     private val previewState: MutableLiveData<PreviewState>,
     private val isForSharePreviewScreen: Boolean,
@@ -28,6 +29,7 @@ class RecordsGridAdapter(
         return RecordGridViewHolder(
             parent.context,
             binding,
+            showMyFilesSimplified,
             isForSharePreviewScreen,
             isForSharesScreen,
             recordListener

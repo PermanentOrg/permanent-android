@@ -84,7 +84,7 @@ class CodeVerificationViewModel(application: Application) :
                 object : IAuthenticationRepository.IOnVerifyListener {
                     override fun onSuccess() {
                         isBusy.value = false
-                        prefsHelper.saveSkipTwoStepVerification(true)
+//                        prefsHelper.saveSkipTwoStepVerification(true)
                         onCodeVerified.call()
                     }
 

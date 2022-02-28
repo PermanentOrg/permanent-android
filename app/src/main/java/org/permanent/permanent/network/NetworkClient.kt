@@ -73,7 +73,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .addInterceptor(Interceptor { chain ->
                     val request = chain.request()
                     if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
-                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX)) {
+                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX)
+                    ) {
                         val requestBuilder: Request.Builder = request.newBuilder()
                         requestBuilder.header(
                             "Authorization",
@@ -250,6 +251,17 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.getLeanItems(requestBody)
+    }
+
+    fun updateProfileBanner(
+        csrf: String?, folderId: Int, folderLinkId: Int, archiveNr: String?, thumbArchiveNr: String
+    ): Call<ResponseVO> {
+        val json = toJson(
+            RequestContainer(csrf).addFolder(folderId, folderLinkId, archiveNr, thumbArchiveNr)
+        )
+        val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
+
+        return fileService.updateProfileBanner(requestBody)
     }
 
     fun createFolder(
@@ -454,6 +466,18 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return shareService.getShares(requestBody)
+    }
+
+    fun updateProfilePhoto(
+        csrf: String?,
+        archiveNr: String?,
+        archiveId: Int,
+        thumbArchiveNr: String?
+    ): Call<ResponseVO> {
+        val request =
+            toJson(RequestContainer(csrf).addArchive(archiveNr, archiveId, thumbArchiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.updateProfilePhoto(requestBody)
     }
 
     fun getAllArchives(csrf: String?): Call<ResponseVO> {

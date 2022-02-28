@@ -13,6 +13,7 @@ import org.permanent.permanent.models.RecordType
 
 class RecordListViewHolder(
     val binding: ItemListRecordBinding,
+    private val showMyFilesSimplified: Boolean,
     private val isForSharesScreen: Boolean,
     private val isForSearchScreen: Boolean,
     private val recordListener: RecordListener
@@ -24,7 +25,7 @@ class RecordListViewHolder(
         binding.lifecycleOwner = lifecycleOwner
         binding.btnOptions.visibility =
             if ((CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
-                        isForSharesScreen) && record.type == RecordType.FOLDER|| isForSearchScreen
+                        isForSharesScreen) && record.type == RecordType.FOLDER || isForSearchScreen || showMyFilesSimplified
             ) View.INVISIBLE else View.VISIBLE
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }

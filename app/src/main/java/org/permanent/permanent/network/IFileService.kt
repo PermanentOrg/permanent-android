@@ -22,6 +22,9 @@ interface IFileService {
     @POST("folder/getLeanItems")
     fun getLeanItems(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/updateRootColumns")
+    fun updateProfileBanner(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("folder/post")
     fun createFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 

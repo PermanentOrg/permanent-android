@@ -64,6 +64,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
+    private val onPhotoSelected = SingleLiveEvent<Record>()
+    private var showScreenSimplified = MutableLiveData(false)
 
     protected var fileRepository: IFileRepository = FileRepositoryImpl(application)
     protected var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -120,6 +122,12 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         this.existsDownloads = existsDownloads
     }
 
+    fun setShowScreenSimplified() {
+        showScreenSimplified.value = true
+        swipeRefreshLayout.isRefreshing = false
+        swipeRefreshLayout.isEnabled = false
+    }
+
     fun refreshCurrentFolder() {
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
@@ -135,9 +143,13 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
                         folderName.value = parentName
-                        isRoot.value = parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(Constants.PUBLIC_FILES_FOLDER)
+                        isRoot.value =
+                            parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
+                                Constants.PUBLIC_FILES_FOLDER
+                            )
                         existsFiles.value = !recordVOs.isNullOrEmpty()
-                        showEmptyFolder.value = existsFiles.value == false && getExistsUploads().value == false
+                        showEmptyFolder.value =
+                            existsFiles.value == false && getExistsUploads().value == false
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
@@ -187,13 +199,19 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
             return
         }
 
-        if (record.type == RecordType.FOLDER) {
-            currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
-            folderPathStack.push(record)
-            loadFilesAndUploadsOf(record)
-        } else {
-            record.displayFirstInCarousel = true
-            onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
+        when {
+            record.type == RecordType.FOLDER -> {
+                currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
+                folderPathStack.push(record)
+                loadFilesAndUploadsOf(record)
+            }
+            showScreenSimplified.value == true -> {
+                onPhotoSelected.value = record
+            }
+            else -> {
+                record.displayFirstInCarousel = true
+                onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
+            }
         }
     }
 
@@ -432,6 +450,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 
+    fun getOnPhotoSelected(): MutableLiveData<Record> = onPhotoSelected
+
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 
     fun getOnShowRecordSearchFragment(): MutableLiveData<Void> = onShowRecordSearchFragment
@@ -440,4 +460,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         onShowAddOptionsFragment
 
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
+
+    fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
 }
