@@ -8,6 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
@@ -34,6 +35,8 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        (dialog as BottomSheetDialog).behavior.isDraggable = false
+
         myFilesFragment = MyFilesFragment()
         myFilesFragment?.getOnPhotoSelected()?.observe(this, onPhotoSelectedObserver)
         myFilesFragment?.arguments = bundleOf(SHOW_SCREEN_SIMPLIFIED_KEY to true)

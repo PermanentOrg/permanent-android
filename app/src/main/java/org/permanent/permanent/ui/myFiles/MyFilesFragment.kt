@@ -92,10 +92,6 @@ class MyFilesFragment : PermanentBaseFragment() {
                 binding.executePendingBindings()
                 binding.lifecycleOwner = this
                 binding.viewModel = viewModel
-                arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
-                    showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
-                    if (showScreenSimplified) viewModel.setShowScreenSimplified()
-                }
 
                 viewModel.set(parentFragmentManager)
                 viewModel.initUploadsRecyclerView(binding.rvUploads, this)
@@ -104,6 +100,11 @@ class MyFilesFragment : PermanentBaseFragment() {
                 initDownloadsRecyclerView(binding.rvDownloads)
                 initFilesRecyclerView(binding.rvFiles, showScreenSimplified)
                 viewModel.registerDeviceForFCM()
+
+                arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
+                    showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
+                    if (showScreenSimplified) viewModel.setShowScreenSimplified()
+                }
             }
         }
         return binding.root

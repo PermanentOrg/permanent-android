@@ -124,6 +124,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     fun setShowScreenSimplified() {
         showScreenSimplified.value = true
+        swipeRefreshLayout.isRefreshing = false
+        swipeRefreshLayout.isEnabled = false
     }
 
     fun refreshCurrentFolder() {
