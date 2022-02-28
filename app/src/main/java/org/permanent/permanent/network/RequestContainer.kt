@@ -300,6 +300,15 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addArchive(archiveNr: String?, archiveId: Int, thumbArchiveNr: String?): RequestContainer {
+        val archiveVO = ArchiveVO()
+        archiveVO.archiveId = archiveId
+        archiveVO.archiveNbr = archiveNr
+        archiveVO.thumbArchiveNbr = thumbArchiveNr
+        RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
     fun addArchive(archiveId: Int): RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveId = archiveId

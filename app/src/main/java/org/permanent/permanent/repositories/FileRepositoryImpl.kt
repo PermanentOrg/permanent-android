@@ -158,7 +158,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
-                    prefsHelper.updatePublicRecordThumb(thumbRecord.thumbURL2000)
+                    prefsHelper.updatePublicRecordThumbURL(thumbRecord.thumbURL2000)
                     listener.onSuccess("")
                 }
 

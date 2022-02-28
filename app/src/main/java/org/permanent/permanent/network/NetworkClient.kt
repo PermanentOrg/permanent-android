@@ -468,6 +468,18 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return shareService.getShares(requestBody)
     }
 
+    fun updateProfilePhoto(
+        csrf: String?,
+        archiveNr: String?,
+        archiveId: Int,
+        thumbArchiveNr: String?
+    ): Call<ResponseVO> {
+        val request =
+            toJson(RequestContainer(csrf).addArchive(archiveNr, archiveId, thumbArchiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.updateProfilePhoto(requestBody)
+    }
+
     fun getAllArchives(csrf: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

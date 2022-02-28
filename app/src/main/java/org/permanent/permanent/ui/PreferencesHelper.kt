@@ -175,6 +175,13 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
+    fun updateCurrentArchiveThumbURL(thumbURL: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_CURRENT_ARCHIVE_THUMB_URL, thumbURL)
+            apply()
+        }
+    }
+
     fun getCurrentArchiveId(): Int {
         return sharedPreferences.getInt(PREFS_CURRENT_ARCHIVE_ID, 0)
     }
@@ -242,7 +249,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun updatePublicRecordThumb(thumbURL2000: String?) {
+    fun updatePublicRecordThumbURL(thumbURL2000: String?) {
         thumbURL2000?.let {
             with(sharedPreferences.edit()) {
                 putString(PREFS_PUBLIC_RECORD_THUMB_URL_2000, it)

@@ -34,7 +34,6 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
-import org.permanent.permanent.ui.public.IS_FILE_FOR_PROFILE_BANNER_KEY
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
@@ -61,7 +60,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
-    private val onPhotoUpdateEvent = SingleLiveEvent<Void>()
+    private val onPhotoSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
 
@@ -95,9 +94,7 @@ class MyFilesFragment : PermanentBaseFragment() {
                 binding.viewModel = viewModel
                 arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
                     showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
-                    if (showScreenSimplified) viewModel.setShowScreenSimplified(
-                        getBoolean(IS_FILE_FOR_PROFILE_BANNER_KEY)
-                    )
+                    if (showScreenSimplified) viewModel.setShowScreenSimplified()
                 }
 
                 viewModel.set(parentFragmentManager)
@@ -262,8 +259,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity, bundle)
     }
 
-    private val onPhotoUpdateObserver = Observer<Void> {
-        onPhotoUpdateEvent.call()
+    private val onPhotoSelectedObserver = Observer<Record> {
+        onPhotoSelectedEvent.value = it
     }
 
     private val onRecordShareViaPermanentRequest = Observer<Record> { record ->
@@ -359,7 +356,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         }
     }
 
-    fun getOnPhotoUpdate(): MutableLiveData<Void> = onPhotoUpdateEvent
+    fun getOnPhotoSelected(): MutableLiveData<Record> = onPhotoSelectedEvent
 
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
@@ -376,7 +373,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
-        viewModel.getOnPhotoUpdate().observe(this, onPhotoUpdateObserver)
+        viewModel.getOnPhotoSelected().observe(this, onPhotoSelectedObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -397,7 +394,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
-        viewModel.getOnPhotoUpdate().removeObserver(onPhotoUpdateObserver)
+        viewModel.getOnPhotoSelected().removeObserver(onPhotoSelectedObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)

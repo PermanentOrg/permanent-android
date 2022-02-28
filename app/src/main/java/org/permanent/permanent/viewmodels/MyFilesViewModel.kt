@@ -64,9 +64,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
-    private val onPhotoUpdate = SingleLiveEvent<Void>()
+    private val onPhotoSelected = SingleLiveEvent<Record>()
     private var showScreenSimplified = MutableLiveData(false)
-    private var isFileForProfileBanner = false
 
     protected var fileRepository: IFileRepository = FileRepositoryImpl(application)
     protected var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -123,9 +122,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         this.existsDownloads = existsDownloads
     }
 
-    fun setShowScreenSimplified(isFileForProfileBanner: Boolean) {
+    fun setShowScreenSimplified() {
         showScreenSimplified.value = true
-        this.isFileForProfileBanner = isFileForProfileBanner
     }
 
     fun refreshCurrentFolder() {
@@ -206,30 +204,11 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                 loadFilesAndUploadsOf(record)
             }
             showScreenSimplified.value == true -> {
-                updatePhotoWith(record)
+                onPhotoSelected.value = record
             }
             else -> {
                 record.displayFirstInCarousel = true
                 onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
-            }
-        }
-    }
-
-    private fun updatePhotoWith(record: Record) {
-        if (isFileForProfileBanner) {
-            record.archiveNr?.let {
-                swipeRefreshLayout.isRefreshing = true
-                fileRepository.updateProfileBanner(record, object : IResponseListener {
-                    override fun onSuccess(message: String?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        onPhotoUpdate.call()
-                    }
-
-                    override fun onFailed(error: String?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        showMessage.value = error
-                    }
-                })
             }
         }
     }
@@ -469,7 +448,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 
-    fun getOnPhotoUpdate(): MutableLiveData<Void> = onPhotoUpdate
+    fun getOnPhotoSelected(): MutableLiveData<Record> = onPhotoSelected
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 

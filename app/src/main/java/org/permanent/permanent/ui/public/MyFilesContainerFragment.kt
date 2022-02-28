@@ -9,20 +9,19 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.MyFilesFragment
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
-const val IS_FILE_FOR_PROFILE_BANNER_KEY = "is_file_for_profile_banner_key"
-
 class MyFilesContainerFragment : PermanentBottomSheetFragment() {
 
     private var myFilesFragment: MyFilesFragment? = null
-    private val onProfilePhotoUpdateEvent = SingleLiveEvent<Void>()
+    private val onPhotoSelectedEvent = SingleLiveEvent<Record>()
 
-    private val onProfilePhotoUpdateObserver = Observer<Void> {
-        onProfilePhotoUpdateEvent.call()
+    private val onPhotoSelectedObserver = Observer<Record> {
+        onPhotoSelectedEvent.value = it
         dismiss()
     }
 
@@ -36,22 +35,19 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         myFilesFragment = MyFilesFragment()
-        myFilesFragment?.getOnPhotoUpdate()?.observe(this, onProfilePhotoUpdateObserver)
-        myFilesFragment?.arguments = bundleOf(
-            SHOW_SCREEN_SIMPLIFIED_KEY to true,
-            IS_FILE_FOR_PROFILE_BANNER_KEY to arguments?.getBoolean(IS_FILE_FOR_PROFILE_BANNER_KEY)
-        )
+        myFilesFragment?.getOnPhotoSelected()?.observe(this, onPhotoSelectedObserver)
+        myFilesFragment?.arguments = bundleOf(SHOW_SCREEN_SIMPLIFIED_KEY to true)
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
         transaction.replace(R.id.frameLayoutContainer, myFilesFragment!!).commit()
     }
 
-    fun getOnProfilePhotoUpdate(): MutableLiveData<Void> = onProfilePhotoUpdateEvent
+    fun getOnPhotoSelected(): MutableLiveData<Record> = onPhotoSelectedEvent
 
     override fun connectViewModelEvents() {
     }
 
     override fun disconnectViewModelEvents() {
-        myFilesFragment?.getOnPhotoUpdate()?.removeObserver(onProfilePhotoUpdateObserver)
+        myFilesFragment?.getOnPhotoSelected()?.removeObserver(onPhotoSelectedObserver)
     }
 
     override fun onResume() {
