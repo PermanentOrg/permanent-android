@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.publicWorkspace
+package org.permanent.permanent.ui.public
 
 
 import android.app.DatePickerDialog

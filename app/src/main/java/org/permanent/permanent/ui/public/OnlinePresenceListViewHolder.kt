@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.publicWorkspace
+package org.permanent.permanent.ui.public
 
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_list_record.view.*

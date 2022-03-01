@@ -24,8 +24,11 @@ class OnlinePresenceListViewModel(application: Application) : ObservableAndroidV
     private val showMessage = MutableLiveData<String>()
     private var existsOnlinePresences = MutableLiveData(false)
     private var onlinePresences: MutableList<ProfileItem> = ArrayList()
+    private var emails: MutableList<ProfileItem> = ArrayList()
+    private var socialMedias: MutableList<ProfileItem> = ArrayList()
     private var profileItems: MutableList<ProfileItem> = ArrayList()
     private var onOnlinePresencesRetrieved = MutableLiveData<List<ProfileItem>>()
+    private var onAddRequest = SingleLiveEvent<Boolean>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
 
     fun getProfileItems() {
@@ -51,23 +54,31 @@ class OnlinePresenceListViewModel(application: Application) : ObservableAndroidV
 
     fun displayProfileItems(dataList: List<Datum>) {
         onlinePresences = ArrayList()
+        emails = ArrayList()
+        socialMedias = ArrayList()
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO)
             profileItems.add(profileItem)
             when (profileItem.fieldName) {
-                ProfileItemName.EMAIL, ProfileItemName.SOCIAL_MEDIA -> {
+                ProfileItemName.EMAIL -> {
                     profileItem.string1?.let {
-                        onlinePresences.add(profileItem)
+                        emails.add(profileItem)
                     }
-
+                }
+                ProfileItemName.SOCIAL_MEDIA -> {
+                    profileItem.string1?.let {
+                        socialMedias.add(profileItem)
+                    }
                 }
             }
-            if (onlinePresences.isEmpty()) {
-                existsOnlinePresences.value = false
-            } else {
-                existsOnlinePresences.value = true
-                onOnlinePresencesRetrieved.value = onlinePresences
-            }
+        }
+        onlinePresences.addAll(emails)
+        onlinePresences.addAll(socialMedias)
+        if (onlinePresences.isEmpty()) {
+            existsOnlinePresences.value = false
+        } else {
+            existsOnlinePresences.value = true
+            onOnlinePresencesRetrieved.value = onlinePresences
         }
     }
 
@@ -84,10 +95,19 @@ class OnlinePresenceListViewModel(application: Application) : ObservableAndroidV
         })
     }
 
+    fun onAddEmailBtnClick() {
+        onAddRequest.value = true
+    }
+
+    fun onAddSocialMediaBtnClick() {
+        onAddRequest.value = false
+    }
 
     fun getExistsOnlinePresences(): MutableLiveData<Boolean> = existsOnlinePresences
 
     fun getOnOnlinePresencesRetrieved(): LiveData<List<ProfileItem>> = onOnlinePresencesRetrieved
+
+    fun getOnAddRequest(): LiveData<Boolean> = onAddRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

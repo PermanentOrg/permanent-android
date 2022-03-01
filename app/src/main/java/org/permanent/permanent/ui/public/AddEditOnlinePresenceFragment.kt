@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.publicWorkspace
+package org.permanent.permanent.ui.public
 
 import android.graphics.Typeface
 import android.os.Bundle
@@ -9,32 +9,33 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentEditAboutBinding
+import org.permanent.permanent.databinding.FragmentAddEditOnlinePresenceBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.viewmodels.EditAboutViewModel
+import org.permanent.permanent.viewmodels.AddEditOnlinePresenceViewModel
 
-class EditAboutFragment : PermanentBaseFragment() {
-
-    private lateinit var binding: FragmentEditAboutBinding
-    private lateinit var viewModel: EditAboutViewModel
+class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
+    private lateinit var viewModel: AddEditOnlinePresenceViewModel
+    private lateinit var binding: FragmentAddEditOnlinePresenceBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(EditAboutViewModel::class.java)
-        binding = FragmentEditAboutBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(AddEditOnlinePresenceViewModel::class.java)
+        binding = FragmentAddEditOnlinePresenceBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        arguments?.getParcelableArrayList<ProfileItem>(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
-            ?.let { viewModel.displayProfileItems(it) }
-
+        val profileItem: ProfileItem? = arguments?.getParcelable(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
+        val isEdit: Boolean? = arguments?.getBoolean(OnlinePresenceListFragment.IS_EDIT_ONLINE_PRESENCE)
+        val isAddEmail: Boolean? = arguments?.getBoolean(OnlinePresenceListFragment.IS_ADD_EMAIL)
+        viewModel.displayProfileItem(profileItem, isEdit, isAddEmail)
         return binding.root
     }
 
@@ -58,14 +59,21 @@ class EditAboutFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
+    private val onBackToListFragment = Observer<Void>{
+        requireParentFragment().findNavController()
+            .popBackStack(R.id.onlinePresenceListFragment, false)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowError().observe(this, onShowError)
+        viewModel.getOnBackRequest().observe(this, onBackToListFragment)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowError().removeObserver(onShowError)
+        viewModel.getOnBackRequest().removeObserver(onBackToListFragment)
     }
 
     override fun onResume() {
@@ -78,4 +86,5 @@ class EditAboutFragment : PermanentBaseFragment() {
         disconnectViewModelEvents()
         context?.hideKeyboardFrom(binding.root.windowToken)
     }
+
 }

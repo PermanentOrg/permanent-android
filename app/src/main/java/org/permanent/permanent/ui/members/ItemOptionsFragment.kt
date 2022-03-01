@@ -14,7 +14,7 @@ import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.linkshare.PARCELABLE_SHARE_KEY
-import org.permanent.permanent.ui.publicWorkspace.OnlinePresenceListFragment.Companion.PARCELABLE_PROFILE_ITEMS_KEY
+import org.permanent.permanent.ui.public.OnlinePresenceListFragment.Companion.PARCELABLE_PROFILE_ITEMS_KEY
 import org.permanent.permanent.viewmodels.ItemOptionsViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 

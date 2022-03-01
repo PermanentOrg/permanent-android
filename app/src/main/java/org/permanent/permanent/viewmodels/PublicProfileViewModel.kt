@@ -63,6 +63,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val date = MutableLiveData<String>()
     private val location = MutableLiveData<String>()
     private val onlinePresence = MutableLiveData("")
+    private val emails = MutableLiveData("")
+    private val socialMedias = MutableLiveData("")
     private val existsMilestones = MutableLiveData(false)
     private val onMilestonesRetrieved = MutableLiveData<MutableList<Milestone>>()
     private val isAboutExtended = MutableLiveData(false)
@@ -137,14 +139,14 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 }
                 ProfileItemName.EMAIL -> {
                     profileItem.string1?.let {
-                        onlinePresence.value =
-                            if (onlinePresence.value == "") it else onlinePresence.value + "\n" + it
+                        emails.value =
+                            if (emails.value == "") it else emails.value + "\n" + it
                     }
                 }
                 ProfileItemName.SOCIAL_MEDIA -> {
                     profileItem.string1?.let {
-                        onlinePresence.value =
-                            if (onlinePresence.value == "") it else onlinePresence.value + "\n" + it
+                        socialMedias.value =
+                            if (socialMedias.value == "") it else socialMedias.value + "\n" + it
                     }
                 }
                 ProfileItemName.MILESTONE -> {
@@ -153,6 +155,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 else -> {}
             }
         }
+        onlinePresence.value = emails.value + "\n" + socialMedias.value
         existsMilestones.value = milestones.isNotEmpty()
         onMilestonesRetrieved.value = milestones
     }

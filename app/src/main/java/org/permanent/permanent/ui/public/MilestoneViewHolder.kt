@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.publicWorkspace
+package org.permanent.permanent.ui.public
 
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemMilestoneBinding

@@ -6,10 +6,11 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="org.permanent.permanent.R" />
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.AddEditSocialMediaViewModel" />
+            type="org.permanent.permanent.viewmodels.AddEditOnlinePresenceViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -27,7 +28,7 @@
             android:afterTextChanged="@{(editable)->viewModel.onSocialMediaTextChanged(editable)}"
             android:ellipsize="end"
             android:fontFamily="@font/open_sans"
-            android:hint="@string/edit_add_social_media_hint"
+            android:hint="@{viewModel.isOnAddEmail ? R.string.edit_add_email_hint : R.string.edit_add_social_media_hint}"
             android:includeFontPadding="true"
             android:maxLength="120"
             android:paddingLeft="5dp"
