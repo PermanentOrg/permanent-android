@@ -119,6 +119,8 @@
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
 
+    <string name="dialog_record_publish_confirmation_title">Publish \"%s\"?</string>
+    <string name="dialog_record_publish_confirmation_text">Create a publicly viewable copy of this item in your Public workspace and get a public link to share with anyone.</string>
     <string name="dialog_public_files_upload_title">Upload to Public?</string>
     <string name="dialog_public_files_upload_text">This is a public folder. Are you sure you want to upload here?</string>
     <string name="public_archive_title">Archive</string>
@@ -208,6 +210,22 @@
     <string name="button_upload">Upload</string>
     <string name="button_rename">Rename</string>
     <string name="button_retry">Retry</string>
+    <string name="button_publish">Publish</string>
+    <string name="create_button">Create</string>
+    <string name="cancel_all_button">Cancel all</string>
+    <string name="delete_button">Delete</string>
+    <string name="share_button">Share</string>
+    <string name="more_button">More</string>
+    <string name="save_button">Save</string>
+    <string name="share_link_get_share_link_button">Get share link</string>
+    <string name="share_link_copy_link_button">Copy Link</string>
+    <string name="share_link_link_settings_button">Link Settings</string>
+    <string name="share_link_revoke_link_button">Revoke Link</string>
+    <string name="share_link_revoke_button">Revoke</string>
+    <string name="ok_button">OK</string>
+    <string name="send_button">Send</string>
+    <string name="approve_button">Approve</string>
+    <string name="deny_button">Deny</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -218,8 +236,6 @@
     <string name="my_files_file_deleted">File has been deleted.</string>
     <string name="my_files_folder_not_deleted_error">Folder could not be deleted.</string>
     <string name="my_files_folder_deleted">Folder has been deleted.</string>
-    <string name="create_button">Create</string>
-    <string name="cancel_all_button">Cancel all</string>
     <string name="dialog_cancel_uploads_title">Cancel all uploads</string>
     <string name="dialog_cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
     <string name="new_folder_title">Create New Folder</string>
@@ -229,25 +245,18 @@
     <string name="my_files_downloads_title">Downloads</string>
     <string name="my_files_uploads_waiting">Waiting…</string>
     <string name="download_no_permissions_error">Cannot download file without write permission.</string>
-    <string name="delete_button">Delete</string>
-    <string name="share_button">Share</string>
-    <string name="more_button">More</string>
     <string name="generic_error">Something went wrong. Please try again.</string>
     <string name="relocation_success">%s %s successfully.</string>
     <string name="relocation_type_copied">copied</string>
     <string name="relocation_type_moved">moved</string>
+    <string name="relocation_type_published">published</string>
 
-    <string name="share_link_get_share_link_button">Get share link</string>
-    <string name="share_link_copy_link_button">Copy Link</string>
-    <string name="share_link_link_settings_button">Link Settings</string>
-    <string name="share_link_revoke_link_button">Revoke Link</string>
     <string name="share_link_share_link_title">Share Link</string>
     <string name="share_link_share_link_message">Send this link via text, email, or other message service to invite people to share this content.</string>
     <string name="share_link_sharing_with">Sharing With</string>
     <string name="share_link_item_not_shared">This item is not shared with any archives</string>
     <string name="share_link_link_copied">Link copied to clipboard</string>
     <string name="share_link_revoke_title">Revoke link?</string>
-    <string name="share_link_revoke_button">Revoke</string>
     <string name="share_link_share_preview">Share Preview</string>
     <string name="share_link_auto_approve">Auto Approve</string>
     <string name="share_link_auto_approve_message">Automatically approve requests for access to this share.</string>
@@ -260,7 +269,6 @@
     <string name="share_link_share_update_type_denied">denied</string>
     <string name="share_link_share_update_type_edited">edited</string>
     <string name="share_link_share_update_type_removed">removed</string>
-    <string name="save_button">Save</string>
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>
     <string name="empty">Empty</string>
@@ -303,11 +311,6 @@
     <string name="share_preview_view_in_archive_button">View in Archive</string>
     <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>
 
-    <string name="ok_button">OK</string>
-    <string name="send_button">Send</string>
-    <string name="approve_button">Approve</string>
-    <string name="deny_button">Deny</string>
-
     <string name="invitations_title">Give a gig, get a gig</string>
     <string name="invitations_description">Invite your friends and family and both of your accounts will be credited with one free gigabyte of storage when they sign up.</string>
     <string name="invitations_send_new_invite_button">Send New Invite</string>
@@ -340,6 +343,7 @@
     <string name="account_screen_state">State or region</string>
     <string name="account_screen_postal_code">Postal code</string>
     <string name="account_screen_country">Country</string>
+    <string name="account_create_success">Your account was successfully created.</string>
     <string name="account_update_success">Account info updated successfully.</string>
     <string name="account_delete_success">Your account was deleted successfully.</string>
 

@@ -132,6 +132,21 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addFolder(
+        folderId: Int,
+        folderLinkId: Int,
+        archiveNr: String?,
+        thumbArchiveNr: String
+    ): RequestContainer {
+        val folderVO = FolderVO()
+        folderVO.folderId = folderId
+        folderVO.folder_linkId = folderLinkId
+        folderVO.archiveNbr = archiveNr
+        folderVO.thumbArchiveNbr = thumbArchiveNr
+        RequestVO.data?.get(0)?.FolderVO = folderVO
+        return this
+    }
+
     fun addFolder(name: String, folderId: Int, folderLinkId: Int): RequestContainer {
         val folderVO = FolderVO()
         folderVO.displayName = name
@@ -281,6 +296,15 @@ class RequestContainer(csrf: String?) {
     fun addArchive(archiveNr: String?): RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveNbr = archiveNr
+        RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
+    fun addArchive(archiveNr: String?, archiveId: Int, thumbArchiveNr: String?): RequestContainer {
+        val archiveVO = ArchiveVO()
+        archiveVO.archiveId = archiveId
+        archiveVO.archiveNbr = archiveNr
+        archiveVO.thumbArchiveNbr = thumbArchiveNr
         RequestVO.data?.get(0)?.ArchiveVO = archiveVO
         return this
     }

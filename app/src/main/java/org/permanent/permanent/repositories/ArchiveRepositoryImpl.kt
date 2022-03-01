@@ -6,6 +6,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
@@ -20,6 +21,31 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     private val prefsHelper = PreferencesHelper(
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
+
+    override fun updateProfilePhoto(thumbRecord: Record, listener: IResponseListener) {
+        NetworkClient.instance().updateProfilePhoto(
+            prefsHelper.getCsrf(),
+            prefsHelper.getCurrentArchiveNr(),
+            prefsHelper.getCurrentArchiveId(),
+            thumbRecord.archiveNr
+        )
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        prefsHelper.updateCurrentArchiveThumbURL(thumbRecord.thumbURL2000)
+                        listener.onSuccess("")
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
 
     override fun getAllArchives(listener: IDataListener) {
         NetworkClient.instance().getAllArchives(prefsHelper.getCsrf())
@@ -136,7 +162,8 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun getMembers(listener: IDataListener) {
-        NetworkClient.instance().getMembers(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr())
+        NetworkClient.instance()
+            .getMembers(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr())
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -165,7 +192,9 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
                     listener.onSuccess(
                         context.getString(R.string.members_member_added_successfully)
                     )
-                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_MEMBER_ALREADY_ADDED) {
+                } else if (responseVO?.getMessages()
+                        ?.get(0) == Constants.ERROR_MEMBER_ALREADY_ADDED
+                ) {
                     listener.onFailed(context.getString(R.string.members_member_already_added))
                 } else listener.onFailed(responseVO?.getMessages()?.get(0))
             }
@@ -189,7 +218,9 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
                     listener.onSuccess(
                         context.getString(R.string.members_member_updated_successfully)
                     )
-                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_PENDING_OWNER_NOT_EDITABLE) {
+                } else if (responseVO?.getMessages()
+                        ?.get(0) == Constants.ERROR_PENDING_OWNER_NOT_EDITABLE
+                ) {
                     listener.onFailed(context.getString(R.string.members_pending_owner_not_editable))
                 } else {
                     listener.onFailed(responseVO?.getMessages()?.get(0))
@@ -213,7 +244,9 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
                     listener.onSuccess(
                         context.getString(R.string.members_ownership_transfer_request_sent_successfully)
                     )
-                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_OWNER_ALREADY_PENDING) {
+                } else if (responseVO?.getMessages()
+                        ?.get(0) == Constants.ERROR_OWNER_ALREADY_PENDING
+                ) {
                     listener.onFailed(context.getString(R.string.members_owner_already_pending))
                 } else {
                     listener.onFailed(responseVO?.getMessages()?.get(0))

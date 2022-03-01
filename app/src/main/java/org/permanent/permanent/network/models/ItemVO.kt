@@ -11,6 +11,7 @@ class ItemVO {
     var displayDT: String? = null
     var type: String? = null
     var thumbURL200: String? = null
+    var thumbURL2000: String? = null
     var status: String? = null
     var FileVOs: List<FileVO>? = null
 }

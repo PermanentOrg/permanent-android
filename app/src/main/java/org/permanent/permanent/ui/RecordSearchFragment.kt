@@ -58,7 +58,8 @@ class RecordSearchFragment : PermanentBaseFragment() {
 
         it.forEachIndexed { index, tag ->
             val chip = layoutInflater.inflate(
-                R.layout.item_chip_filter_purple, chipGroup, false) as Chip
+                R.layout.item_chip_filter_purple, chipGroup, false
+            ) as Chip
             chip.text = (tag.name)
 
             chip.isChecked = tag.isCheckedOnLocal
@@ -107,7 +108,7 @@ class RecordSearchFragment : PermanentBaseFragment() {
     private fun initRecordsRecyclerView(rvFiles: RecyclerView) {
         recordsRecyclerView = rvFiles
         recordsListAdapter = RecordsListAdapter(
-            this, MutableLiveData(false),
+            this, false, MutableLiveData(false),
             isForSharesScreen = false,
             isForSearchScreen = true,
             recordListener = viewModel

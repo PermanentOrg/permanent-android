@@ -20,8 +20,8 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String?>()
-    private val showError = MutableLiveData<String?>()
+    private val showMessage = MutableLiveData<String>()
+    private val showError = MutableLiveData<String>()
     private val shortDescriptionCharsNr =
         MutableLiveData(appContext.getString(R.string.edit_about_character_limit, 0))
     private val shortDescription = MutableLiveData("")
@@ -108,15 +108,15 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = error
+                    error?.let { showError.value = it }
                 }
             })
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String?> = showMessage
-    fun getShowError(): LiveData<String?> = showError
+    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowError(): LiveData<String> = showError
 
     fun getShortDescription(): LiveData<String> = shortDescription
 

@@ -60,7 +60,7 @@ class PhoneVerificationViewModel(application: Application) : ObservableAndroidVi
 
     fun skipTwoStep() {
         onVerificationSkipped.call()
-        prefsHelper.saveSkipTwoStepVerification(true)
+//        prefsHelper.saveSkipTwoStepVerification(true)
     }
 
     fun submit() {

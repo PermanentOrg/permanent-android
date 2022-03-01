@@ -8,32 +8,29 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Validator
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
-import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
-import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.showLoginScreen
 
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private val appContext = application.applicationContext
     private var prefsHelper: PreferencesHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val nameError = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
+    private val onSuccessMessage = MutableLiveData<String>()
     private val onErrorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onLoggedIn = SingleLiveEvent<Void>()
     private val onReadyToShowTermsDialog = SingleLiveEvent<Void>()
-    private val onAlreadyHaveAccount = SingleLiveEvent<Void>()
     private val currentName = MutableLiveData<String>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-    private var authRepository: IAuthenticationRepository =
-        AuthenticationRepositoryImpl(application)
 
     fun getCurrentName(): MutableLiveData<String> = currentName
 
@@ -47,15 +44,13 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun getPasswordError(): LiveData<Int> = passwordError
 
+    fun getOnSuccessMessage(): MutableLiveData<String> = onSuccessMessage
+
     fun getOnErrorMessage(): MutableLiveData<String> = onErrorMessage
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnLoggedIn(): MutableLiveData<Void> = onLoggedIn
-
     fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> = onReadyToShowTermsDialog
-
-    fun getOnAlreadyHaveAccount(): MutableLiveData<Void> = onAlreadyHaveAccount
 
     fun onNameTextChanged(name: Editable) {
         currentName.value = name.toString()
@@ -70,7 +65,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     }
 
     fun alreadyHaveAccount() {
-        onAlreadyHaveAccount.call()
+        appContext.showLoginScreen()
     }
 
     fun onSignUpBtnClick() {
@@ -106,33 +101,15 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    prefsHelper.saveSkipTwoStepVerification(false)
-                    login(email, password)
+//                    prefsHelper.saveSkipTwoStepVerification(false)
+                    message?.let { onSuccessMessage.value = it }
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    onErrorMessage.value = error
+                    error?.let { onErrorMessage.value = it }
                 }
             })
         }
-    }
-
-    fun login(email: String, password: String) {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-        isBusy.value = true
-        authRepository.login(email, password, object : IAuthenticationRepository.IOnLoginListener {
-            override fun onSuccess() {
-                isBusy.value = false
-                onLoggedIn.call()
-            }
-
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                onErrorMessage.value = error
-            }
-        })
     }
 }

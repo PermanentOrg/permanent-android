@@ -32,7 +32,6 @@ import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
@@ -61,7 +60,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private val onLoggedOut = Observer<Void> {
         prefsHelper.saveUserLoggedIn(false)
         prefsHelper.saveBiometricsLogIn(true) // Setting back to default
-        startActivity(Intent(this, LoginActivity::class.java))
+        startActivity(Intent(this, SignUpActivity::class.java))
         finish()
     }
 
@@ -163,7 +162,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     // Returning 'false' to not remain the item selected on resuming
                     return@setNavigationItemSelectedListener false
                 }
-                R.id.help -> {
+                R.id.contactSupport -> {
                     binding.drawerLayout.closeDrawers()
                     navigateOnWebTo(BuildConfig.HELP_URL)
                     // Returning 'false' to not remain the item selected on resuming

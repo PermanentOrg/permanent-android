@@ -9,6 +9,8 @@ interface IAccountRepository {
 
     fun getAccount(listener: IAccountListener)
 
+    fun getSessionAccount(listener: IAccountListener)
+
     fun update(account: Account, listener: IResponseListener)
 
     fun changeDefaultArchive(defaultArchiveId: Int, listener: IResponseListener)

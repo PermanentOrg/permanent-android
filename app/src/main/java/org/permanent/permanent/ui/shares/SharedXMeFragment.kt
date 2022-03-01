@@ -121,13 +121,13 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private fun initRecordsRecyclerView(rvRecords: RecyclerView) {
         recordsRecyclerView = rvRecords
         recordsListAdapter = RecordsListAdapter(
-            this, MutableLiveData(false),
+            this, false, MutableLiveData(false),
             isForSharesScreen = true,
             isForSearchScreen = false,
             recordListener = this
         )
         recordsGridAdapter = RecordsGridAdapter(
-            this,
+            this,false,
             MutableLiveData(false),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
