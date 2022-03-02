@@ -9,12 +9,16 @@
             android:title="@string/menu_settings_drawer_storage" />
 
         <item
-            android:id="@+id/accountInfoFragment"
-            android:title="@string/menu_settings_drawer_account_info" />
+            android:id="@+id/accountFragment"
+            android:title="@string/menu_settings_drawer_account" />
 
         <item
             android:id="@+id/activityFeedFragment"
             android:title="@string/menu_settings_drawer_activity_feed" />
+
+        <item
+            android:id="@+id/archivesFragment"
+            android:title="@string/menu_settings_drawer_archives" />
 
         <item
             android:id="@+id/invitationsFragment"

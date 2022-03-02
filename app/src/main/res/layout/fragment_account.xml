@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.AccountInfoViewModel" />
+            type="org.permanent.permanent.viewmodels.AccountViewModel" />
     </data>
 
     <RelativeLayout

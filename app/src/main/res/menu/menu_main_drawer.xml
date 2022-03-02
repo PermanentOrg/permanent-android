@@ -26,11 +26,6 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/archivesFragment"
-            android:icon="@drawable/ic_manage_archives"
-            android:title="@string/menu_drawer_switch_archives" />
-
-        <item
             android:id="@+id/membersFragment"
             android:icon="@drawable/img_manage_members_square"
             android:title="@string/menu_drawer_manage_members" />
