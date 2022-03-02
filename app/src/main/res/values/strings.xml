@@ -77,7 +77,6 @@
     <string name="menu_drawer_private_files">Private Files</string>
     <string name="menu_drawer_shared_files">Shared Files</string>
     <string name="menu_drawer_public_files">Public Files</string>
-    <string name="menu_drawer_switch_archives">Switch Archives</string>
     <string name="menu_drawer_manage_members">Manage Members</string>
     <string name="menu_drawer_public_gallery">Public Gallery</string>
 
@@ -88,8 +87,9 @@
     <string name="menu_toolbar_public_add">Add</string>
 
     <string name="menu_settings_drawer_storage">Storage</string>
-    <string name="menu_settings_drawer_account_info">Account Info</string>
+    <string name="menu_settings_drawer_account">Account</string>
     <string name="menu_settings_drawer_activity_feed">Activity Feed</string>
+    <string name="menu_settings_drawer_archives">Archives</string>
     <string name="menu_settings_drawer_invitations">Invitations</string>
     <string name="menu_settings_drawer_security">Security</string>
     <string name="menu_settings_drawer_logout">Log Out</string>

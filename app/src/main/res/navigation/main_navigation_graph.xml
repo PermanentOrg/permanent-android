@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/archivesFragment"
         android:name="org.permanent.permanent.ui.archives.ArchivesFragment"
-        android:label="@string/menu_drawer_switch_archives"
+        android:label="@string/menu_settings_drawer_archives"
         tools:layout="@layout/fragment_archives" />
 
     <fragment
@@ -115,10 +115,10 @@
         tools:layout="@layout/fragment_invitations" />
 
     <fragment
-        android:id="@+id/accountInfoFragment"
-        android:name="org.permanent.permanent.ui.settings.AccountInfoFragment"
-        android:label="@string/menu_settings_drawer_account_info"
-        tools:layout="@layout/fragment_account_info" />
+        android:id="@+id/accountFragment"
+        android:name="org.permanent.permanent.ui.settings.AccountFragment"
+        android:label="@string/menu_settings_drawer_account"
+        tools:layout="@layout/fragment_account" />
 
     <fragment
         android:id="@+id/securityFragment"

@@ -10,7 +10,7 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 
-class AccountInfoViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class AccountViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var appContext = application.applicationContext
     private val isBusy = MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
@@ -40,7 +40,7 @@ class AccountInfoViewModel(application: Application) : ObservableAndroidViewMode
 
             override fun onSuccess(account: Account) {
                 isBusy.value = false
-                this@AccountInfoViewModel.account = account
+                this@AccountViewModel.account = account
                 initFields(account)
             }
 
