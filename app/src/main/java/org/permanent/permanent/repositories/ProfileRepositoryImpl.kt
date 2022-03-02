@@ -58,4 +58,26 @@ class ProfileRepositoryImpl(val context: Context) : IProfileRepository {
                 }
             })
     }
+
+    override fun deleteProfileItem(profileItem: ProfileItem, listener: IProfileItemListener) {
+        NetworkClient.instance()
+            .deleteProfileItem(prefsHelper.getCsrf(), profileItem)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(ProfileItem(responseVO.getProfileItemVO()))
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
 }

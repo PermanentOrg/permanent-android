@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="org.permanent.permanent.models.ProfileItem" />
         <import type="android.view.View" />
         <variable
-            name="record"
-            type="org.permanent.permanent.models.Record" />
+            name="profileItem"
+            type="org.permanent.permanent.models.ProfileItem" />
     </data>
 
     <com.chauthai.swipereveallayout.SwipeRevealLayout
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
-            <include layout="@layout/item_record_underlay"/>
+            <include layout="@layout/item_online_presence_underlay"/>
 
         </FrameLayout>
 
@@ -49,9 +49,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:ellipsize="end"
-                    android:fontFamily="@font/open_sans_bold"
                     android:maxLines="1"
-                    android:text="@{record.displayName}"
+                    android:text="@{profileItem.string1}"
+                    android:textColor="@color/black"
                     app:layout_constraintBottom_toBottomOf="@+id/layoutWhiteTransparent"
                     app:layout_constraintEnd_toStartOf="@+id/btnOptions"
                     app:layout_constraintStart_toStartOf="@+id/layoutWhiteTransparent"
@@ -71,7 +71,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/layoutWhiteTransparent"
                     android:layout_width="410dp"
-                    android:layout_height="60dp"
+                    android:layout_height="50dp"
                     android:background="@color/whiteTransparent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

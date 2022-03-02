@@ -49,6 +49,7 @@ class ProfileItem() : Parcelable {
             ProfileItemName.BIRTH_INFO.backendString -> ProfileItemName.BIRTH_INFO
             ProfileItemName.ESTABLISHED_INFO.backendString -> ProfileItemName.ESTABLISHED_INFO
             ProfileItemName.SOCIAL_MEDIA.backendString -> ProfileItemName.SOCIAL_MEDIA
+            ProfileItemName.EMAIL.backendString -> ProfileItemName.EMAIL
             ProfileItemName.MILESTONE.backendString -> ProfileItemName.MILESTONE
             else -> ProfileItemName.UNKNOWN
         }

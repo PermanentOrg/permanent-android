@@ -168,9 +168,13 @@
     <string name="edit_milestone_start_date">Start Date</string>
     <string name="edit_milestone_end_date">End Date</string>
     <string name="edit_milestone_description_hint">Describe this milestone</string>
-    <string name="edit_add_social_media_hint">www.website.com/user</string>
+    <string name="edit_add_social_media_hint">https://www.website.com/user</string>
+    <string name="edit_add_email_hint">user@example.com</string>
     <string name="edit_online_presence_label">Edit Online Presence</string>
+    <string name="add_email_button">Add Email</string>
     <string name="add_social_media_label">Add Social Media</string>
+    <string name="add_social_media_success">Social Media added successfully</string>
+    <string name="edit_social_media_success">Social Media edited successfully</string>
     <string name="no_online_presence_text">You haven\'t added any online presence</string>
 
     <string name="file_options_menu_item_download">Download</string>

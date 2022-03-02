@@ -642,6 +642,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return profileService.safeAddUpdate(requestBody)
     }
 
+    fun deleteProfileItem(csrf: String?, profileItem: ProfileItem): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addProfileItem(profileItem))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return profileService.delete(requestBody)
+    }
+
     private fun toJson(container: RequestContainer): String {
         return jsonAdapter.toJson(container)
     }

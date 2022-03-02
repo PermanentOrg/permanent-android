@@ -12,6 +12,7 @@ enum class ProfileItemName(val backendString: String) : Parcelable {
     BIRTH_INFO("profile.birth_info"),
     ESTABLISHED_INFO("profile.established_info"),
     SOCIAL_MEDIA("profile.social_media"),
+    EMAIL("profile.email"),
     MILESTONE("profile.milestone");
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

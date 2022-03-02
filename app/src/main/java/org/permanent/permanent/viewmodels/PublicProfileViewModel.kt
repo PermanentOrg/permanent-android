@@ -23,7 +23,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String?>()
     private val currentArchiveType = prefsHelper.getCurrentArchiveType()
-    private val profileItems: MutableList<ProfileItem> = ArrayList()
+    private var profileItems: MutableList<ProfileItem> = ArrayList()
     private val shortAndLongDescription = MutableLiveData("")
     private val archiveInfoLabel = MutableLiveData(
         application.getString(
@@ -63,6 +63,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val date = MutableLiveData<String>()
     private val location = MutableLiveData<String>()
     private val onlinePresence = MutableLiveData("")
+    private val emails = MutableLiveData("")
+    private val socialMedias = MutableLiveData("")
     private val existsMilestones = MutableLiveData(false)
     private val onMilestonesRetrieved = MutableLiveData<MutableList<Milestone>>()
     private val isAboutExtended = MutableLiveData(false)
@@ -72,7 +74,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditAboutRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditArchiveInformationRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
-    private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
+    private val onEditOnlinePresenceRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
 
     fun getProfileItems() {
@@ -99,7 +101,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private fun displayProfileItems(dataList: List<Datum>) {
         val milestones: MutableList<Milestone> = ArrayList()
         shortAndLongDescription.value = ""
-
+        profileItems = ArrayList()
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO)
             profileItems.add(profileItem)
@@ -135,10 +137,16 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                     profileItem.day1?.let { date.value = it }
                     profileItem.locationVO?.getUIAddress()?.let { location.value = it }
                 }
+                ProfileItemName.EMAIL -> {
+                    profileItem.string1?.let {
+                        emails.value =
+                            if (emails.value == "") it else emails.value + "\n" + it
+                    }
+                }
                 ProfileItemName.SOCIAL_MEDIA -> {
                     profileItem.string1?.let {
-                        onlinePresence.value =
-                            if (onlinePresence.value == "") it else onlinePresence.value + "\n" + it
+                        socialMedias.value =
+                            if (socialMedias.value == "") it else socialMedias.value + "\n" + it
                     }
                 }
                 ProfileItemName.MILESTONE -> {
@@ -147,6 +155,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 else -> {}
             }
         }
+        onlinePresence.value = emails.value + "\n" + socialMedias.value
         existsMilestones.value = milestones.isNotEmpty()
         onMilestonesRetrieved.value = milestones
     }
@@ -169,12 +178,12 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         onEditArchiveInformationRequest.value = profileItems
     }
 
-    fun onEditMilestonesBtnClick() {
-        onEditMilestonesRequest.call()
+    fun onEditOnlinePresenceBtnClick() {
+        onEditOnlinePresenceRequest.value =  profileItems
     }
 
-    fun onEditOnlinePresenceBtnClick() {
-        onEditOnlinePresenceRequest.call()
+    fun onEditMilestonesBtnClick() {
+        onEditMilestonesRequest.call()
     }
 
     fun getCurrentArchiveType(): ArchiveType = currentArchiveType
@@ -186,7 +195,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnEditMilestonesRequest(): LiveData<Void> = onEditMilestonesRequest
 
-    fun getOnEditOnlinePresenceRequest(): LiveData<Void> = onEditOnlinePresenceRequest
+    fun getOnEditOnlinePresenceRequest(): LiveData<MutableList<ProfileItem>> = onEditOnlinePresenceRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

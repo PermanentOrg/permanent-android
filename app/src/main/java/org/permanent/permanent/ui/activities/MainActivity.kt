@@ -76,7 +76,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
                 }
-                R.id.addSocialMediaFragment, R.id.editMilestoneFragment -> {
+                R.id.addEditOnlinePresenceFragment, R.id.editMilestoneFragment -> {
                     toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
                 }
