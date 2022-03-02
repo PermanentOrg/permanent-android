@@ -39,7 +39,7 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
 
     private val onAddRequest = Observer<Boolean> {
         val bundle = bundleOf(IS_ADD_EMAIL to it)
-        requireParentFragment().findNavController().navigate(R.id.action_onlinePresenceListFragment_to_addSocialMediaFragment, bundle)
+        requireParentFragment().findNavController().navigate(R.id.action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment, bundle)
         if(it == true) {
             (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
                 R.string.add_email_button
@@ -95,7 +95,7 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
         val bundle =
             bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to profileItem, IS_EDIT_ONLINE_PRESENCE to true)
         requireParentFragment().findNavController()
-            .navigate(R.id.action_onlinePresenceListFragment_to_addSocialMediaFragment, bundle)
+            .navigate(R.id.action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment, bundle)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
             R.string.edit_online_presence_label
         )

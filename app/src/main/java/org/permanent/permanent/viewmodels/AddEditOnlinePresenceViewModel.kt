@@ -23,7 +23,7 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
     private val showMessage = MutableLiveData<String?>()
     private val showError = MutableLiveData<String?>()
     private val onBackRequest = SingleLiveEvent<Void>()
-    private val socialMedia = MutableLiveData("")
+    private val onlinePresence = MutableLiveData("")
     private var socialMediaProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
     private var isEdit: Boolean? = false
@@ -31,13 +31,13 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
 
     fun displayProfileItem(profileItem: ProfileItem?, isEdit: Boolean?, isAddEmail: Boolean?) {
         socialMediaProfileItem = profileItem
-        profileItem?.string1?.let { socialMedia.value = it }
+        profileItem?.string1?.let { onlinePresence.value = it }
         isEdit?.let { this.isEdit = isEdit}
         isAddEmail?.let { this.isAddEmail = isAddEmail}
     }
 
-    fun onSocialMediaTextChanged(text: Editable) {
-        socialMedia.value = text.toString()
+    fun onOnlinePresenceTextChanged(text: Editable) {
+        onlinePresence.value = text.toString()
     }
 
     fun onSaveInfoBtnClick() {
@@ -46,12 +46,12 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
         }
 
         socialMediaProfileItem?.let {
-            if (!it.string1.contentEquals(socialMedia.value?.trim())) {
-                it.string1 = socialMedia.value?.trim()
+            if (!it.string1.contentEquals(onlinePresence.value?.trim())) {
+                it.string1 = onlinePresence.value?.trim()
                 addUpdateProfileItem(socialMediaProfileItem!!)
             }
         } ?: run {
-            if (socialMedia.value?.trim()?.isNotEmpty() == true) {
+            if (onlinePresence.value?.trim()?.isNotEmpty() == true) {
                 val addItem = ProfileItem ()
                 addItem.archiveId = prefsHelper.getCurrentArchiveId()
                 if(isAddEmail ==  true){
@@ -59,11 +59,10 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
                 } else {
                     addItem.fieldName = ProfileItemName.SOCIAL_MEDIA
                 }
-                addItem.string1 = socialMedia.value?.trim()
+                addItem.string1 = onlinePresence.value?.trim()
                 addUpdateProfileItem(addItem)
             }
         }
-        onBackRequest.call()
     }
 
     private fun addUpdateProfileItem(profileItemToUpdate: ProfileItem) {
@@ -85,6 +84,7 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
                     showError.value = error
                 }
             })
+        onBackRequest.call()
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
@@ -94,5 +94,5 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
     fun getOnBackRequest(): LiveData<Void> = onBackRequest
     fun getIsOnAddEmail(): Boolean? = isAddEmail
 
-    fun getSocialMedia(): LiveData<String> = socialMedia
+    fun getOnlinePresence(): LiveData<String> = onlinePresence
 }

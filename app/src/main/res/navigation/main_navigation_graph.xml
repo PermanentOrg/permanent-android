@@ -239,11 +239,11 @@
         android:label="@string/edit_online_presence_label"
         tools:layout="@layout/fragment_online_presence_list" >
         <action
-            android:id="@+id/action_onlinePresenceListFragment_to_addSocialMediaFragment"
-            app:destination="@id/addSocialMediaFragment" />
+            android:id="@+id/action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment"
+            app:destination="@id/addEditOnlinePresenceFragment" />
     </fragment>
     <fragment
-        android:id="@+id/addSocialMediaFragment"
+        android:id="@+id/addEditOnlinePresenceFragment"
         android:name="org.permanent.permanent.ui.public.AddEditOnlinePresenceFragment"
         android:label="@string/add_social_media_label"
         tools:layout="@layout/fragment_add_edit_online_presence" />

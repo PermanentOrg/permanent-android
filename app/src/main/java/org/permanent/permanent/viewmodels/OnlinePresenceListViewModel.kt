@@ -90,7 +90,7 @@ class OnlinePresenceListViewModel(application: Application) : ObservableAndroidV
 
             }
             override fun onFailed(error: String?) {
-                showMessage.value = error!!
+                showMessage.value = error
             }
         })
     }
