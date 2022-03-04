@@ -150,7 +150,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                     }
                 }
                 ProfileItemName.MILESTONE -> {
-                    milestones.add(Milestone(profileItem))
+                    milestones.add(Milestone(profileItem, true))
                 }
                 else -> {}
             }
@@ -179,7 +179,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onEditOnlinePresenceBtnClick() {
-        onEditOnlinePresenceRequest.value =  profileItems
+        onEditOnlinePresenceRequest.value = profileItems
     }
 
     fun onEditMilestonesBtnClick() {
@@ -195,7 +195,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnEditMilestonesRequest(): LiveData<Void> = onEditMilestonesRequest
 
-    fun getOnEditOnlinePresenceRequest(): LiveData<MutableList<ProfileItem>> = onEditOnlinePresenceRequest
+    fun getOnEditOnlinePresenceRequest(): LiveData<MutableList<ProfileItem>> =
+        onEditOnlinePresenceRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

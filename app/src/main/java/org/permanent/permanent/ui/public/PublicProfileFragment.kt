@@ -51,7 +51,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
     }
 
     private val onEditMilestonesRequest = Observer<Void> {
-        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_milestonesListFragment)
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_milestoneListFragment)
     }
 
     private val onEditOnlinePresenceRequest = Observer<MutableList<ProfileItem>> {
@@ -77,7 +77,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
 
     private fun initMilestonesRecyclerView(rvMilestones: RecyclerView) {
         milestonesRecyclerView = rvMilestones
-        milestonesAdapter = MilestonesAdapter()
+        milestonesAdapter = MilestonesAdapter(null)
         milestonesRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)

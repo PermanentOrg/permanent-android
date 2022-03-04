@@ -171,6 +171,8 @@
     <string name="edit_add_social_media_hint">https://www.website.com/user</string>
     <string name="edit_add_email_hint">user@example.com</string>
     <string name="edit_online_presence_label">Edit Online Presence</string>
+    <string name="online_presence_delete_success">Online presence has been deleted.</string>
+    <string name="milestone_delete_success">Milestone has been deleted.</string>
     <string name="add_email_button">Add Email</string>
     <string name="add_social_media_label">Add Social Media</string>
     <string name="add_social_media_success">Social Media added successfully</string>

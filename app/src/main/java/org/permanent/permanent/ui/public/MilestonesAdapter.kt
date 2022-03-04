@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemMilestoneBinding
 import org.permanent.permanent.models.Milestone
 
-class MilestonesAdapter : RecyclerView.Adapter<MilestoneViewHolder>() {
+class MilestonesAdapter(
+    private val milestoneListener: MilestoneListener?
+) : RecyclerView.Adapter<MilestoneViewHolder>() {
     private var milestones: MutableList<Milestone> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MilestoneViewHolder {
@@ -15,7 +17,7 @@ class MilestonesAdapter : RecyclerView.Adapter<MilestoneViewHolder>() {
             parent,
             false
         )
-        return MilestoneViewHolder(binding)
+        return MilestoneViewHolder(binding, milestoneListener)
     }
 
     fun set(milestones: MutableList<Milestone>) {

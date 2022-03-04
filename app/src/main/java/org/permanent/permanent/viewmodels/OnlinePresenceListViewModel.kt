@@ -15,13 +15,15 @@ import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
-class OnlinePresenceListViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class OnlinePresenceListViewModel(application: Application) :
+    ObservableAndroidViewModel(application) {
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    private val showError = MutableLiveData<String>()
     private var existsOnlinePresences = MutableLiveData(false)
     private var onlinePresences: MutableList<ProfileItem> = ArrayList()
     private var emails: MutableList<ProfileItem> = ArrayList()
@@ -46,7 +48,7 @@ class OnlinePresenceListViewModel(application: Application) : ObservableAndroidV
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error!!
+                    error?.let { showError.value = it }
                 }
             }
         )
@@ -83,14 +85,18 @@ class OnlinePresenceListViewModel(application: Application) : ObservableAndroidV
     }
 
     fun deleteProfileItem(profileItem: ProfileItem) {
+        isBusy.value = true
         profileRepository.deleteProfileItem(profileItem, object : IProfileItemListener {
             override fun onSuccess(profileItem: ProfileItem) {
+                isBusy.value = false
                 getProfileItems()
-                showMessage.value = appContext.getString(R.string.my_files_file_deleted)
+                showMessage.value = appContext.getString(R.string.online_presence_delete_success)
 
             }
+
             override fun onFailed(error: String?) {
-                showMessage.value = error
+                isBusy.value = false
+                error?.let { showError.value = it }
             }
         })
     }
@@ -112,5 +118,6 @@ class OnlinePresenceListViewModel(application: Application) : ObservableAndroidV
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String> = showMessage
-    
+
+    fun getShowError(): LiveData<String> = showError
 }

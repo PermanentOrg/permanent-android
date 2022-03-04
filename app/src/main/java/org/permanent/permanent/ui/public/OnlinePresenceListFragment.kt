@@ -1,10 +1,13 @@
 package org.permanent.permanent.ui.public
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentOnlinePresenceListBinding
 import org.permanent.permanent.models.ProfileItem
@@ -45,6 +49,26 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
                 R.string.add_email_button
             )
         }
+    }
+
+    private val onShowMessage = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
+        snackBar.show()
+    }
+
+    private val onShowError = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
+        }
+        snackBar.show()
     }
 
     override fun onCreateView(
@@ -85,7 +109,7 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
             parentFragmentManager,
             onlinePresenceOptionsFragment?.tag
         )
-        onlinePresenceOptionsFragment?.getShowEditOnlinePresenceFragmentRequest()
+        onlinePresenceOptionsFragment?.getEditOnlinePresenceRequest()
             ?.observe(this, onShowOnlinePresenceEditFragment)
         onlinePresenceOptionsFragment?.getDeleteOnlinePresenceRequest()
             ?.observe(this, onProfileItemDeleteRequest)
@@ -93,7 +117,7 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
 
     override fun onEditClick(profileItem: ProfileItem) {
         val bundle =
-            bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to profileItem, IS_EDIT_ONLINE_PRESENCE to true)
+            bundleOf(PARCELABLE_PROFILE_ITEM_KEY to profileItem, IS_EDIT_ONLINE_PRESENCE to true)
         requireParentFragment().findNavController()
             .navigate(R.id.action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment, bundle)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
@@ -107,11 +131,15 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
     }
 
     override fun connectViewModelEvents() {
+        viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getShowError().observe(this, onShowError)
         viewModel.getOnOnlinePresencesRetrieved().observe(this, onOnlinePresencesRetrieved)
         viewModel.getOnAddRequest().observe(this, onAddRequest)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getShowError().removeObserver(onShowError)
         viewModel.getOnOnlinePresencesRetrieved().removeObserver(onOnlinePresencesRetrieved)
         viewModel.getOnAddRequest().removeObserver(onAddRequest)
     }
@@ -128,7 +156,7 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
     }
 
     companion object {
-        const val PARCELABLE_PROFILE_ITEMS_KEY = "parcelable_profile_items_key"
+        const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_profile_item_key"
         const val IS_EDIT_ONLINE_PRESENCE = "is_edit_online_presence"
         const val IS_ADD_EMAIL = "is_add_email"
     }

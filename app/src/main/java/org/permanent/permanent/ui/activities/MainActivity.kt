@@ -72,11 +72,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         NavController.OnDestinationChangedListener { controller, destination, arguments ->
             when (destination.id) {
                 R.id.editAboutFragment, R.id.editArchiveInformationFragment,
-                R.id.onlinePresenceListFragment, R.id.milestonesListFragment -> {
+                R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
                     toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
                 }
-                R.id.addEditOnlinePresenceFragment, R.id.editMilestoneFragment -> {
+                R.id.addEditOnlinePresenceFragment, R.id.addEditMilestoneFragment -> {
                     toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
                 }

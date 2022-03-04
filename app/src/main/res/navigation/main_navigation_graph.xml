@@ -176,8 +176,8 @@
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
-            android:id="@+id/action_publicFragment_to_milestonesListFragment"
-            app:destination="@id/milestonesListFragment" />
+            android:id="@+id/action_publicFragment_to_milestoneListFragment"
+            app:destination="@id/milestoneListFragment" />
         <action
             android:id="@+id/action_publicFragment_to_onlinePresenceListFragment"
             app:destination="@id/onlinePresenceListFragment" />
@@ -220,18 +220,18 @@
         tools:layout="@layout/fragment_location_search">
     </fragment>
     <fragment
-        android:id="@+id/editMilestoneFragment"
-        android:name="org.permanent.permanent.ui.public.PublicProfileEditMilestonesFragment"
+        android:id="@+id/addEditMilestoneFragment"
+        android:name="org.permanent.permanent.ui.public.AddEditMilestoneFragment"
         android:label="@string/add_milestone_label"
-        tools:layout="@layout/fragment_edit_milestone" />
+        tools:layout="@layout/fragment_add_edit_milestone" />
     <fragment
-        android:id="@+id/milestonesListFragment"
+        android:id="@+id/milestoneListFragment"
         android:name="org.permanent.permanent.ui.public.MilestoneListFragment"
         android:label="@string/edit_milestone_label"
         tools:layout="@layout/fragment_milestone_list" >
         <action
-            android:id="@+id/action_milestonesListFragment_to_editMilestonesFragment"
-            app:destination="@id/editMilestoneFragment" />
+            android:id="@+id/action_milestoneListFragment_to_addEditMilestoneFragment"
+            app:destination="@id/addEditMilestoneFragment" />
     </fragment>
     <fragment
         android:id="@+id/onlinePresenceListFragment"
