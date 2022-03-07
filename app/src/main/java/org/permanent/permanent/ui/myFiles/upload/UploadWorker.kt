@@ -18,6 +18,9 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.getDisplayName
 import org.permanent.permanent.ui.getFile
 import retrofit2.Call
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.*
 
 /**
  * Worker class responsible for handling record uploads
@@ -87,8 +90,10 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                     Result.failure()
                 }
                 // #3 CALL: registerRecord
+                val fileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java)
+
                 val registerRecordResponse = fileRepository.registerRecord(
-                    folderId, folderLinkId, file, displayName, destinationUrl!!
+                    folderId, folderLinkId, file, displayName, Date(fileAttributes.creationTime().toMillis()), destinationUrl!!
                 ).execute().body()
                 prefsHelper.saveCsrf(registerRecordResponse?.csrf)
                 if (registerRecordResponse?.isSuccessful == false) {

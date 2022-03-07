@@ -12,6 +12,7 @@ import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import java.io.File
+import java.util.*
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IRecordListener)
@@ -58,7 +59,7 @@ interface IFileRepository {
     ): Call<ResponseBody>?
 
     fun registerRecord(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, createdDT: Date, s3Url: String
     ): Call<ResponseVO>
 
     fun getRecord(
