@@ -59,7 +59,7 @@ class OnlinePresenceListViewModel(application: Application) :
         emails = ArrayList()
         socialMedias = ArrayList()
         for (datum in dataList) {
-            val profileItem = ProfileItem(datum.Profile_itemVO)
+            val profileItem = ProfileItem(datum.Profile_itemVO, false)
             profileItems.add(profileItem)
             when (profileItem.fieldName) {
                 ProfileItemName.EMAIL -> {

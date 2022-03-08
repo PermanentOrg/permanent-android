@@ -6,12 +6,11 @@ import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.Profile_itemVO
 
 class ProfileItem() : Parcelable {
-
     var archiveNr: String? = null
     var archiveId: Int? = null
     var id: Int? = null
     var fieldName: ProfileItemName? = null
-    var type: String? = "type.widget.string"
+    var type: String? = null
     var string1: String? = null
     var string2: String? = null
     var string3: String? = null
@@ -20,6 +19,7 @@ class ProfileItem() : Parcelable {
     var day2: String? = null
     var locationVO: LocnVO? = null
     var locnId1: Int? = null
+    var isForPublicProfileScreen: Boolean = true
 
     constructor(parcel: Parcel) : this() {
         archiveNr = parcel.readString()
@@ -35,9 +35,10 @@ class ProfileItem() : Parcelable {
         day2 = parcel.readString()
         locationVO = parcel.readParcelable(LocnVO::class.java.classLoader)
         locnId1 = parcel.readValue(Int::class.java.classLoader) as? Int
+        isForPublicProfileScreen = parcel.readByte() != 0.toByte()
     }
 
-    constructor(profileItemVO: Profile_itemVO?) : this() {
+    constructor(profileItemVO: Profile_itemVO?, isForPublicProfileScreen: Boolean) : this() {
         archiveNr = profileItemVO?.archiveNbr
         archiveId = profileItemVO?.archiveId
         id = profileItemVO?.profile_itemId
@@ -62,6 +63,7 @@ class ProfileItem() : Parcelable {
         day2 = profileItemVO?.day2
         profileItemVO?.LocnVOs?.let { locationVO = it[0] }
         locnId1 = profileItemVO?.locnId1
+        this.isForPublicProfileScreen = isForPublicProfileScreen
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -78,6 +80,7 @@ class ProfileItem() : Parcelable {
         parcel.writeString(day2)
         parcel.writeParcelable(locationVO, flags)
         parcel.writeValue(locnId1)
+        parcel.writeByte(if (isForPublicProfileScreen) 1 else 0)
     }
 
     override fun describeContents(): Int {

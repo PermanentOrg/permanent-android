@@ -8,7 +8,7 @@ import org.permanent.permanent.models.ProfileItem
 
 class OnlinePresenceListViewHolder (
     private val binding: ItemOnlinePresenceBinding,
-    private val listener: OnlinePresenceListener
+    private val listener: ProfileItemListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(profileItem: ProfileItem) {

@@ -1,6 +1,7 @@
 package org.permanent.permanent.network.models
 
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.ProfileItemName
 import java.util.*
 
 class Profile_itemVO() {
@@ -24,15 +25,21 @@ class Profile_itemVO() {
         archiveId = profileItem.archiveId
         profile_itemId = profileItem.id
         fieldNameUI = profileItem.fieldName?.backendString
-        type = profileItem.type
+        type = if (profileItem.type != null) profileItem.type
+        else {
+            if (profileItem.fieldName == ProfileItemName.MILESTONE) "type.widget.locn"
+            else "type.widget.string"
+        }
         string1 = profileItem.string1
         string2 = profileItem.string2
         string3 = profileItem.string3
         textData1 = profileItem.textData1
         day1 = profileItem.day1
         day2 = profileItem.day2
-        LocnVOs = ArrayList()
-        (LocnVOs as ArrayList<LocnVO?>).add(profileItem.locationVO)
+        profileItem.locationVO?.let {
+            LocnVOs = ArrayList()
+            (LocnVOs as ArrayList<LocnVO?>).add(it)
+        }
         locnId1 = profileItem.locnId1
     }
 }

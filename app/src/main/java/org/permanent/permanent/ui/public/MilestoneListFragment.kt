@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
@@ -17,26 +18,27 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentMilestoneListBinding
-import org.permanent.permanent.models.Milestone
+import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.members.ItemOptionsFragment
+import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
 import org.permanent.permanent.viewmodels.MilestoneListViewModel
 
-class MilestoneListFragment : PermanentBaseFragment(), MilestoneListener {
+class MilestoneListFragment : PermanentBaseFragment(), ProfileItemListener {
     private lateinit var viewModel: MilestoneListViewModel
     private lateinit var binding: FragmentMilestoneListBinding
     private lateinit var milestonesRecyclerView: RecyclerView
     private lateinit var milestonesAdapter: MilestonesAdapter
     private var milestoneOptionsFragment: ItemOptionsFragment? = null
-    private val onMilestonesRetrieved = Observer<List<Milestone>> {
-        milestonesAdapter.set(it as MutableList<Milestone>)
+    private val onMilestonesRetrieved = Observer<List<ProfileItem>> {
+        milestonesAdapter.set(it as MutableList<ProfileItem>)
     }
 
-    private val onEditMilestoneFragment = Observer<Milestone> {
+    private val onEditMilestoneFragment = Observer<ProfileItem> {
         onEditClick(it)
     }
 
-    private val onDeleteMilestoneFragment = Observer<Milestone> {
+    private val onDeleteMilestoneFragment = Observer<ProfileItem> {
         onDeleteClick(it)
     }
 
@@ -97,29 +99,32 @@ class MilestoneListFragment : PermanentBaseFragment(), MilestoneListener {
         )
     }
 
-    override fun onOptionsClick(milestone: Milestone) {
+    override fun onOptionsClick(profileItem: ProfileItem) {
         milestoneOptionsFragment = ItemOptionsFragment()
-        milestoneOptionsFragment?.setBundleArguments(milestone)
+        milestoneOptionsFragment?.setBundleArguments(profileItem)
         milestoneOptionsFragment?.show(
             parentFragmentManager,
             milestoneOptionsFragment?.tag
         )
-        milestoneOptionsFragment?.getEditMilestoneRequest()
+        milestoneOptionsFragment?.getEditProfileItemRequest()
             ?.observe(this, onEditMilestoneFragment)
-        milestoneOptionsFragment?.getDeleteMilestoneRequest()
+        milestoneOptionsFragment?.getDeleteProfileItemRequest()
             ?.observe(this, onDeleteMilestoneFragment)
     }
 
-    override fun onEditClick(milestone: Milestone) {
-        val bundle = bundleOf(PARCELABLE_MILESTONE_KEY to milestone)
+    override fun onEditClick(profileItem: ProfileItem) {
+        val bundle = bundleOf(PARCELABLE_PROFILE_ITEM_KEY to profileItem)
         requireParentFragment().findNavController().navigate(
             R.id.action_milestoneListFragment_to_addEditMilestoneFragment,
             bundle
         )
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
+            R.string.edit_milestone_label
+        )
     }
 
-    override fun onDeleteClick(milestone: Milestone) {
-        viewModel.deleteProfileItem(milestone)
+    override fun onDeleteClick(profileItem: ProfileItem) {
+        viewModel.deleteProfileItem(profileItem)
     }
 
     override fun connectViewModelEvents() {
@@ -145,9 +150,5 @@ class MilestoneListFragment : PermanentBaseFragment(), MilestoneListener {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-    }
-
-    companion object {
-        const val PARCELABLE_MILESTONE_KEY = "parcelable_milestone_key"
     }
 }

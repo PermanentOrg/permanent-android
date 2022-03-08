@@ -4,12 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.databinding.ItemMilestoneBinding
-import org.permanent.permanent.models.Milestone
+import org.permanent.permanent.models.ProfileItem
 
 class MilestonesAdapter(
-    private val milestoneListener: MilestoneListener?
+    private val milestoneListener: ProfileItemListener?
 ) : RecyclerView.Adapter<MilestoneViewHolder>() {
-    private var milestones: MutableList<Milestone> = ArrayList()
+    private var profileItems: MutableList<ProfileItem> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MilestoneViewHolder {
         val binding = ItemMilestoneBinding.inflate(
@@ -20,14 +20,14 @@ class MilestonesAdapter(
         return MilestoneViewHolder(binding, milestoneListener)
     }
 
-    fun set(milestones: MutableList<Milestone>) {
-        this.milestones = milestones
+    fun set(profileItems: MutableList<ProfileItem>) {
+        this.profileItems = profileItems
         notifyDataSetChanged()
     }
 
-    override fun getItemCount() = milestones.size
+    override fun getItemCount() = profileItems.size
 
     override fun onBindViewHolder(holder: MilestoneViewHolder, position: Int) {
-        holder.bind(milestones[position])
+        holder.bind(profileItems[position])
     }
 }

@@ -5,7 +5,6 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
-import org.permanent.permanent.models.Milestone
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IDataListener
@@ -25,10 +24,9 @@ class MilestoneListViewModel(application: Application) : ObservableAndroidViewMo
     private val showMessage = MutableLiveData<String>()
     private val showError = MutableLiveData<String>()
     private var existsMilestones = MutableLiveData(false)
-    private var milestones: MutableList<Milestone> = ArrayList()
     private var milestoneProfileItems: MutableList<ProfileItem> = ArrayList()
-    private var onMilestonesRetrieved = MutableLiveData<List<Milestone>>()
-    private var onAddMilestoneRequest = SingleLiveEvent<Void>()
+    private var onMilestonesRetrieved = MutableLiveData<List<ProfileItem>>()
+    private var addMilestoneRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
 
     fun getProfileItems() {
@@ -53,57 +51,46 @@ class MilestoneListViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun displayMilestones(dataList: List<Datum>) {
-        milestones = ArrayList()
         milestoneProfileItems = ArrayList()
         for (datum in dataList) {
-            val profileItem = ProfileItem(datum.Profile_itemVO)
+            val profileItem = ProfileItem(datum.Profile_itemVO, false)
             if (profileItem.fieldName == ProfileItemName.MILESTONE) {
                 milestoneProfileItems.add(profileItem)
-                milestones.add(Milestone(profileItem, false))
             }
         }
-        if (milestones.isEmpty()) {
+        if (milestoneProfileItems.isEmpty()) {
             existsMilestones.value = false
         } else {
             existsMilestones.value = true
-            onMilestonesRetrieved.value = milestones
+            onMilestonesRetrieved.value = milestoneProfileItems
         }
     }
 
-    fun deleteProfileItem(milestone: Milestone) {
-        getProfileItemById(milestone.id)?.let { profileItem ->
-            isBusy.value = true
-            profileRepository.deleteProfileItem(profileItem, object : IProfileItemListener {
-                override fun onSuccess(profileItem: ProfileItem) {
-                    isBusy.value = false
-                    getProfileItems()
-                    showMessage.value = appContext.getString(R.string.milestone_delete_success)
-                }
+    fun deleteProfileItem(profileItem: ProfileItem) {
+        isBusy.value = true
+        profileRepository.deleteProfileItem(profileItem, object : IProfileItemListener {
+            override fun onSuccess(profileItem: ProfileItem) {
+                isBusy.value = false
+                getProfileItems()
+                showMessage.value = appContext.getString(R.string.milestone_delete_success)
+            }
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    error?.let { showError.value = it }
-                }
-            })
-        }
-    }
-
-    private fun getProfileItemById(id: Int?): ProfileItem? {
-        for (profileItem in milestoneProfileItems) {
-            if (profileItem.id == id) return profileItem
-        }
-        return null
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                error?.let { showError.value = it }
+            }
+        })
     }
 
     fun onAddMilestoneBtnClick() {
-        onAddMilestoneRequest.call()
+        addMilestoneRequest.call()
     }
 
     fun getExistsMilestones(): MutableLiveData<Boolean> = existsMilestones
 
-    fun getOnMilestonesRetrieved(): LiveData<List<Milestone>> = onMilestonesRetrieved
+    fun getOnMilestonesRetrieved(): LiveData<List<ProfileItem>> = onMilestonesRetrieved
 
-    fun getOnAddMilestoneRequest(): LiveData<Void> = onAddMilestoneRequest
+    fun getOnAddMilestoneRequest(): LiveData<Void> = addMilestoneRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

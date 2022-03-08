@@ -79,6 +79,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 R.id.addEditOnlinePresenceFragment, R.id.addEditMilestoneFragment -> {
                     toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+                    toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
                 }
                 R.id.publicFragment -> {
                     toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true

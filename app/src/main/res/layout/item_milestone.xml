@@ -7,8 +7,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="milestone"
-            type="org.permanent.permanent.models.Milestone" />
+            name="profileItem"
+            type="org.permanent.permanent.models.ProfileItem" />
     </data>
 
     <com.chauthai.swipereveallayout.SwipeRevealLayout
@@ -45,7 +45,7 @@
                     android:layout_marginTop="12dp"
                     android:fontFamily="@font/open_sans_bold"
                     android:hint="@string/public_profile_milestone_title_hint"
-                    android:text="@{milestone.title}"
+                    android:text="@{profileItem.string1}"
                     android:textColor="@color/colorPrimary"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toStartOf="@id/btnOptions"
@@ -58,7 +58,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/public_profile_location_hint"
-                    android:text="@{milestone.location}"
+                    android:text="@{profileItem.locationVO.UIAddress}"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toStartOf="@id/btnOptions"
@@ -66,12 +66,12 @@
                     app:layout_constraintTop_toBottomOf="@+id/tvMilestoneTitle" />
 
                 <TextView
-                    android:id="@+id/tvMilestoneDate"
+                    android:id="@+id/tvStartDate"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     android:hint="@string/public_profile_date_hint"
-                    android:text="@{milestone.startDate}"
+                    android:text="@{profileItem.day1}"
                     android:textColor="@color/middleGrey"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -87,20 +87,20 @@
                     android:layout_marginTop="16dp"
                     android:fontFamily="@font/open_sans"
                     android:hint="@string/public_profile_milestone_description_hint"
-                    android:text="@{milestone.description}"
+                    android:text="@{profileItem.string2}"
                     android:textColor="@color/black"
                     android:textSize="14sp"
-                    android:visibility="@{milestone.forPublicProfileScreen ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{profileItem.isForPublicProfileScreen ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toStartOf="@id/btnOptions"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvMilestoneDate" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvStartDate" />
 
                 <Button
                     android:id="@+id/btnOptions"
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                     android:layout_width="38dp"
                     android:layout_height="wrap_content"
-                    android:visibility="@{milestone.forPublicProfileScreen ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{profileItem.isForPublicProfileScreen ? View.GONE : View.VISIBLE}"
                     app:icon="@drawable/ic_more_white"
                     app:iconTint="@color/middleGrey"
                     app:layout_constraintBottom_toBottomOf="parent"

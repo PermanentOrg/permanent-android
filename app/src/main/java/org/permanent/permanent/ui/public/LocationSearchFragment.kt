@@ -25,6 +25,7 @@ import org.permanent.permanent.databinding.FragmentLocationSearchBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
 import org.permanent.permanent.viewmodels.LocationSearchViewModel
 
 class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, PlaceSelectionListener,

@@ -276,8 +276,8 @@ class EditArchiveInformationViewModel(application: Application) :
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
     fun getShowMessage(): LiveData<String?> = showMessage
-
     fun getShowError(): LiveData<String?> = showError
+
     fun getShowDatePicker(): LiveData<Void> = showDatePickerRequest
     fun getShowLocationSearch(): LiveData<ProfileItem?> = showLocationSearchRequest
 }

@@ -21,9 +21,10 @@ import org.permanent.permanent.databinding.FragmentOnlinePresenceListBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.members.ItemOptionsFragment
+import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
 import org.permanent.permanent.viewmodels.OnlinePresenceListViewModel
 
-class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListener {
+class OnlinePresenceListFragment : PermanentBaseFragment(), ProfileItemListener {
     private lateinit var viewModel: OnlinePresenceListViewModel
     private lateinit var binding: FragmentOnlinePresenceListBinding
     private lateinit var onlinePresenceRecyclerView: RecyclerView
@@ -41,20 +42,22 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
         onDeleteClick(it)
     }
 
-    private val onAddRequest = Observer<Boolean> {
-        val bundle = bundleOf(IS_ADD_EMAIL to it)
-        requireParentFragment().findNavController().navigate(R.id.action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment, bundle)
-        if(it == true) {
-            (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
+    private val onAddRequest = Observer<Boolean> { isAddEmail ->
+        val bundle = bundleOf(IS_ADD_EMAIL to isAddEmail)
+        requireParentFragment().findNavController().navigate(
+            R.id.action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment,
+            bundle
+        )
+        if (isAddEmail) (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
                 R.string.add_email_button
             )
-        }
     }
 
     private val onShowMessage = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
@@ -65,7 +68,8 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
     private val onShowError = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
         }
         snackBar.show()
@@ -109,21 +113,24 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
             parentFragmentManager,
             onlinePresenceOptionsFragment?.tag
         )
-        onlinePresenceOptionsFragment?.getEditOnlinePresenceRequest()
+        onlinePresenceOptionsFragment?.getEditProfileItemRequest()
             ?.observe(this, onShowOnlinePresenceEditFragment)
-        onlinePresenceOptionsFragment?.getDeleteOnlinePresenceRequest()
+        onlinePresenceOptionsFragment?.getDeleteProfileItemRequest()
             ?.observe(this, onProfileItemDeleteRequest)
     }
 
     override fun onEditClick(profileItem: ProfileItem) {
-        val bundle =
-            bundleOf(PARCELABLE_PROFILE_ITEM_KEY to profileItem, IS_EDIT_ONLINE_PRESENCE to true)
-        requireParentFragment().findNavController()
-            .navigate(R.id.action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment, bundle)
+        val bundle = bundleOf(
+            PARCELABLE_PROFILE_ITEM_KEY to profileItem,
+            IS_EDIT_ONLINE_PRESENCE to true
+        )
+        requireParentFragment().findNavController().navigate(
+            R.id.action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment,
+            bundle
+        )
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
             R.string.edit_online_presence_label
         )
-
     }
 
     override fun onDeleteClick(profileItem: ProfileItem) {
@@ -156,7 +163,6 @@ class OnlinePresenceListFragment: PermanentBaseFragment(), OnlinePresenceListene
     }
 
     companion object {
-        const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_profile_item_key"
         const val IS_EDIT_ONLINE_PRESENCE = "is_edit_online_presence"
         const val IS_ADD_EMAIL = "is_add_email"
     }

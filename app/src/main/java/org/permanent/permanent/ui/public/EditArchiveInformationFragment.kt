@@ -23,10 +23,9 @@ import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
+import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
 import org.permanent.permanent.viewmodels.EditArchiveInformationViewModel
 import java.util.*
-
-const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_file_data_key"
 
 class EditArchiveInformationFragment : PermanentBaseFragment() {
 
@@ -52,7 +51,7 @@ class EditArchiveInformationFragment : PermanentBaseFragment() {
             viewModel.getCurrentArchiveType().toTitleCase()
         )
 
-        arguments?.getParcelableArrayList<ProfileItem>(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
+        arguments?.getParcelableArrayList<ProfileItem>(PublicProfileFragment.PARCELABLE_PROFILE_ITEM_LIST_KEY)
             ?.let { viewModel.displayProfileItems(it) }
 
         if (viewModel.getLocation().value?.isNotEmpty() == true)

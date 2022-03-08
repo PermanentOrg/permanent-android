@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
-import org.permanent.permanent.models.Milestone
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.PublicProfileViewModel
@@ -41,12 +40,12 @@ class PublicProfileFragment : PermanentBaseFragment() {
     }
 
     private val onEditAboutRequest = Observer<MutableList<ProfileItem>> {
-        val bundle = bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to it)
+        val bundle = bundleOf(PARCELABLE_PROFILE_ITEM_LIST_KEY to it)
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editAboutFragment, bundle)
     }
 
     private val onEditArchiveInformationRequest = Observer<MutableList<ProfileItem>> {
-        val bundle = bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to it)
+        val bundle = bundleOf(PARCELABLE_PROFILE_ITEM_LIST_KEY to it)
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editArchiveInformationFragment, bundle)
     }
 
@@ -54,16 +53,15 @@ class PublicProfileFragment : PermanentBaseFragment() {
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_milestoneListFragment)
     }
 
-    private val onEditOnlinePresenceRequest = Observer<MutableList<ProfileItem>> {
-        val bundle = bundleOf(PARCELABLE_PROFILE_ITEMS_KEY to it)
-        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_onlinePresenceListFragment, bundle)
+    private val onEditOnlinePresenceRequest = Observer<Void> {
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_onlinePresenceListFragment)
     }
 
     private val onShowMessage = Observer<String?> { message ->
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    private val onMilestonesRetrieved = Observer<MutableList<Milestone>> {
+    private val onMilestonesRetrieved = Observer<MutableList<ProfileItem>> {
         milestonesAdapter.set(it)
     }
 
@@ -122,6 +120,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
         const val MAX_LINES_ABOUT = 5
         const val MAX_LINES_ONLINE_PRESENCE = 3
         const val MAX_LINES_NO_LIMIT = 900
-        const val PARCELABLE_PROFILE_ITEMS_KEY = "parcelable_profile_items_key"
+        const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_profile_items_key"
+        const val PARCELABLE_PROFILE_ITEM_LIST_KEY = "parcelable_profile_item_list_key"
     }
 }

@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Account
-import org.permanent.permanent.models.Milestone
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.IResponseListener
@@ -19,14 +18,11 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     private var member: Account? = null
     private var share: Share? = null
     private var profileItem: ProfileItem? = null
-    private var milestone: Milestone? = null
     private val itemName = MutableLiveData<String>()
     private val onEditShareRequest = SingleLiveEvent<Share>()
     private val onEditMemberRequest = SingleLiveEvent<Account>()
-    private val onEditOnlinePresenceRequest = SingleLiveEvent<ProfileItem>()
-    private val onDeleteOnlinePresenceRequest = SingleLiveEvent<ProfileItem>()
-    private val onEditMilestoneRequest = SingleLiveEvent<Milestone>()
-    private val onDeleteMilestoneRequest = SingleLiveEvent<Milestone>()
+    private val onEditProfileItemRequest = SingleLiveEvent<ProfileItem>()
+    private val onDeleteProfileItemRequest = SingleLiveEvent<ProfileItem>()
     private val onMemberRemoved = SingleLiveEvent<String>()
     private val onShareRemoved = SingleLiveEvent<Share>()
     private val showSnackbar = MutableLiveData<String>()
@@ -51,19 +47,11 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
         }
     }
 
-    fun setMilestone(milestone: Milestone?) {
-        this.milestone = milestone
-        milestone?.title?.let {
-            itemName.value = it
-        }
-    }
-
     fun onEditBtnClick() {
         when {
             member != null -> onEditMemberRequest.value = member
             share != null -> onEditShareRequest.value = share
-            profileItem != null -> onEditOnlinePresenceRequest.value = profileItem
-            else -> onEditMilestoneRequest.value = milestone
+            else -> onEditProfileItemRequest.value = profileItem
         }
     }
 
@@ -74,8 +62,7 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
         when {
             member != null -> removeMember()
             share != null -> removeShare()
-            profileItem != null -> onDeleteOnlinePresenceRequest.value = profileItem
-            else -> onDeleteMilestoneRequest.value = milestone
+            else -> onDeleteProfileItemRequest.value = profileItem
         }
     }
 
@@ -123,15 +110,9 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getOnEditShareRequest(): MutableLiveData<Share> = onEditShareRequest
 
-    fun getOnEditOnlinePresenceRequest(): MutableLiveData<ProfileItem> = onEditOnlinePresenceRequest
+    fun getOnEditProfileItemRequest(): MutableLiveData<ProfileItem> = onEditProfileItemRequest
 
-    fun getOnDeleteOnlinePresenceRequest(): MutableLiveData<ProfileItem> =
-        onDeleteOnlinePresenceRequest
-
-    fun getOnEditMilestoneRequest(): MutableLiveData<Milestone> = onEditMilestoneRequest
-
-    fun getOnDeleteMilestoneRequest(): MutableLiveData<Milestone> =
-        onDeleteMilestoneRequest
+    fun getOnDeleteProfileItemRequest(): MutableLiveData<ProfileItem> = onDeleteProfileItemRequest
 
     fun getOnMemberRemoved(): LiveData<String> = onMemberRemoved
 

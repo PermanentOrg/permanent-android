@@ -7,7 +7,7 @@ import org.permanent.permanent.databinding.ItemOnlinePresenceBinding
 import org.permanent.permanent.models.ProfileItem
 
 class OnlinePresenceListAdapter(
-    private val onlinePresenceListener: OnlinePresenceListener
+    private val profileItemListener: ProfileItemListener
     ) : RecyclerView.Adapter<OnlinePresenceListViewHolder>() {
     private var onlinePresences: MutableList<ProfileItem> = ArrayList()
 
@@ -17,7 +17,7 @@ class OnlinePresenceListAdapter(
             parent,
             false
         )
-        return OnlinePresenceListViewHolder(binding, onlinePresenceListener)
+        return OnlinePresenceListViewHolder(binding, profileItemListener)
     }
 
     fun set(onlinePresences: MutableList<ProfileItem>) {

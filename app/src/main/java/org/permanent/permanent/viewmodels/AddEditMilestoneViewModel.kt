@@ -1,60 +1,130 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.app.DatePickerDialog
 import android.content.Context
 import android.text.Editable
+import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IProfileItemListener
+import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import java.text.DecimalFormat
+import java.text.NumberFormat
 
-class AddEditMilestoneViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class AddEditMilestoneViewModel(application: Application) :
+    ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener,
+    GoogleMap.OnMapClickListener, OnMapReadyCallback {
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
-    private val showError = MutableLiveData<String>()
-    private val shortDescriptionCharsNr =
-        MutableLiveData(appContext.getString(R.string.edit_about_character_limit, 0))
-    private val shortDescription = MutableLiveData("")
-    private val currentArchiveType = prefsHelper.getCurrentArchiveType()
-    private val longDescriptionLabel = MutableLiveData(
-        application.getString(
-            R.string.edit_about_long_description,
-            currentArchiveType.toTitleCase()
-        )
-    )
-    private val longDescriptionHint = MutableLiveData(
-        application.getString(
-            R.string.edit_about_long_description_hint,
-            currentArchiveType.toTitleCase()
-        )
-    )
-    private val longDescription = MutableLiveData("")
-    private var shortDescriptionProfileItem: ProfileItem? = null
-    private var longDescriptionProfileItem: ProfileItem? = null
+    private val showMessage = SingleLiveEvent<String?>()
+    private val showError = SingleLiveEvent<String?>()
+    private val backRequest = SingleLiveEvent<Void>()
+    private val showDatePickerRequest = SingleLiveEvent<Void>()
+    private val showLocationSearchRequest = SingleLiveEvent<ProfileItem?>()
+    private val title = MutableLiveData<String>()
+    private val startDate = MutableLiveData<String>()
+    private val endDate = MutableLiveData<String>()
+    private val location = MutableLiveData<String>()
+    private val description = MutableLiveData<String>()
+    private val descriptionCharsNr =
+        MutableLiveData(appContext.getString(R.string.edit_description_character_limit, 0))
+    private var isNewLocation = false
+    private var milestoneProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var isEdit: Boolean = true
+    private var isStartDatePicked: Boolean = true
 
-    fun displayProfileItems(profileItems: MutableList<ProfileItem>) {
-        for (profileItem in profileItems) {
-            when (profileItem.fieldName) {
-                ProfileItemName.SHORT_DESCRIPTION -> {
-                    shortDescriptionProfileItem = profileItem
-                    profileItem.string1?.let { shortDescription.value = it }
+    fun displayProfileItem(profileItem: ProfileItem?) {
+        milestoneProfileItem = profileItem
+        profileItem?.string1?.let { title.value = it }
+        profileItem?.day1?.let { startDate.value = it }
+        profileItem?.day2?.let { endDate.value = it }
+        profileItem?.locationVO?.getUIAddress()?.let { location.value = it }
+        profileItem?.string2?.let { description.value = it }
+    }
+
+    fun onTitleTextChanged(text: Editable) {
+        title.value = text.toString()
+    }
+
+    fun onStartDateClick() {
+        isStartDatePicked = true
+        showDatePickerRequest.call()
+    }
+
+    fun onEndDateClick() {
+        isStartDatePicked = false
+        showDatePickerRequest.call()
+    }
+
+    override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
+        val f: NumberFormat = DecimalFormat("00")
+        val date = "$year-${f.format(month + 1)}-${f.format(dayOfMonth)}"
+        if (isStartDatePicked) startDate.value = date else endDate.value = date
+    }
+
+    fun onDescriptionTextChanged(text: Editable) {
+        description.value = text.toString()
+        descriptionCharsNr.value =
+            appContext.getString(R.string.edit_description_character_limit, text.length)
+    }
+
+    fun onLocationTextClick() {
+        showLocationSearchRequest.value = milestoneProfileItem
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        milestoneProfileItem?.locationVO?.let {
+            val lat = it.latitude
+            val long = it.longitude
+            if (lat != null && long != null) {
+                val latLng = LatLng(lat, long)
+                googleMap.apply {
+                    addMarker(MarkerOptions().position(latLng))
+                    animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 9.9f))
+                    setOnMapClickListener(this@AddEditMilestoneViewModel)
                 }
-                ProfileItemName.DESCRIPTION -> {
-                    longDescriptionProfileItem = profileItem
-                    profileItem.textData1?.let { longDescription.value = it }
+            }
+        }
+    }
+
+    override fun onMapClick(latLng: LatLng) {
+        onLocationTextClick()
+    }
+
+    fun onLocationUpdated(locnVO: LocnVO) {
+        if (locnVO.locnId != null) {
+            location.value = locnVO.getUIAddress()
+            isNewLocation = true
+
+            milestoneProfileItem?.let {
+                if (it.locationVO?.locnId != locnVO.locnId) {
+                    it.locnId1 = locnVO.locnId
+                    it.locationVO = locnVO
                 }
-                else -> {}
+            } ?: run {
+                isEdit = false
+                milestoneProfileItem = ProfileItem()
+                milestoneProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
+                milestoneProfileItem?.fieldName = ProfileItemName.MILESTONE
+                milestoneProfileItem?.locnId1 = locnVO.locnId
+                milestoneProfileItem?.locationVO = locnVO
             }
         }
     }
@@ -64,33 +134,43 @@ class AddEditMilestoneViewModel(application: Application) : ObservableAndroidVie
             return
         }
 
-        shortDescriptionProfileItem?.let {
-            if (!it.string1.contentEquals(shortDescription.value?.trim())) {
-                it.string1 = shortDescription.value?.trim()
-                addUpdateProfileItem(shortDescriptionProfileItem!!)
+        val titleValue = title.value?.trim()
+        val startDateValue = startDate.value?.trim()
+        val endDateValue = endDate.value?.trim()
+        val descriptionValue = description.value?.trim()
+        milestoneProfileItem?.let {
+            var updateProfileItem = false
+            if (!it.string1.contentEquals(titleValue)) {
+                it.string1 = titleValue
+                updateProfileItem = true
             }
-        } ?: run {
-            if (shortDescription.value?.trim()?.isNotEmpty() == true) {
-                shortDescriptionProfileItem = ProfileItem()
-                shortDescriptionProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
-                shortDescriptionProfileItem?.fieldName = ProfileItemName.SHORT_DESCRIPTION
-                shortDescriptionProfileItem?.string1 = shortDescription.value?.trim()
-                addUpdateProfileItem(shortDescriptionProfileItem!!)
+            if (!it.day1.contentEquals(startDateValue)) {
+                it.day1 = startDateValue
+                updateProfileItem = true
             }
-        }
+            if (!it.day2.contentEquals(endDateValue)) {
+                it.day2 = endDateValue
+                updateProfileItem = true
+            }
+            if (!it.string2.contentEquals(descriptionValue)) {
+                it.string2 = descriptionValue
+                updateProfileItem = true
+            }
+            if (updateProfileItem || isNewLocation) addUpdateProfileItem(it)
 
-        longDescriptionProfileItem?.let {
-            if (!it.textData1.contentEquals(longDescription.value?.trim())) {
-                it.textData1 = longDescription.value?.trim()
-                addUpdateProfileItem(longDescriptionProfileItem!!)
-            }
         } ?: run {
-            if (longDescription.value?.trim()?.isNotEmpty() == true) {
-                longDescriptionProfileItem = ProfileItem()
-                longDescriptionProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
-                longDescriptionProfileItem?.fieldName = ProfileItemName.DESCRIPTION
-                longDescriptionProfileItem?.textData1 = longDescription.value?.trim()
-                addUpdateProfileItem(longDescriptionProfileItem!!)
+            if (titleValue?.isNotEmpty() == true || startDateValue?.isNotEmpty() == true ||
+                endDateValue?.isNotEmpty() == true || descriptionValue?.isNotEmpty() == true
+            ) {
+                isEdit = false
+                milestoneProfileItem = ProfileItem()
+                milestoneProfileItem?.archiveId = prefsHelper.getCurrentArchiveId()
+                milestoneProfileItem?.fieldName = ProfileItemName.MILESTONE
+                milestoneProfileItem?.string1 = titleValue
+                milestoneProfileItem?.day1 = startDateValue
+                milestoneProfileItem?.day2 = endDateValue
+                milestoneProfileItem?.string2 = descriptionValue
+                addUpdateProfileItem(milestoneProfileItem!!)
             }
         }
     }
@@ -102,37 +182,34 @@ class AddEditMilestoneViewModel(application: Application) : ObservableAndroidVie
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
                     isBusy.value = false
-                    profileItemToUpdate.id = profileItem.id
-                    showMessage.value = appContext.getString(R.string.edit_about_update_success)
+                    showMessage.value = appContext.getString(
+                        R.string.add_edit_milestone_success,
+                        if (isEdit) appContext.getString(R.string.edited)
+                        else appContext.getString(R.string.added)
+                    )
+                    backRequest.call()
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    error?.let { showError.value = it }
+                    showError.value = error
                 }
             })
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String> = showMessage
-    fun getShowError(): LiveData<String> = showError
+    fun getShowMessage(): LiveData<String?> = showMessage
+    fun getShowError(): LiveData<String?> = showError
 
-    fun getShortDescription(): LiveData<String> = shortDescription
+    fun getOnBackRequest(): LiveData<Void> = backRequest
+    fun getShowDatePicker(): LiveData<Void> = showDatePickerRequest
+    fun getShowLocationSearch(): LiveData<ProfileItem?> = showLocationSearchRequest
 
-    fun getShortDescriptionCharsNr(): LiveData<String> = shortDescriptionCharsNr
-
-    fun getLongDescriptionLabel(): LiveData<String> = longDescriptionLabel
-    fun getLongDescriptionHint(): LiveData<String> = longDescriptionHint
-    fun getLongDescription(): LiveData<String> = longDescription
-
-    fun onShortDescriptionTextChanged(text: Editable) {
-        shortDescription.value = text.toString()
-        shortDescriptionCharsNr.value =
-            appContext.getString(R.string.edit_about_character_limit, text.length)
-    }
-
-    fun onLongDescriptionTextChanged(text: Editable) {
-        longDescription.value = text.toString()
-    }
+    fun getTitle(): LiveData<String> = title
+    fun getStartDate(): LiveData<String> = startDate
+    fun getEndDate(): LiveData<String> = endDate
+    fun getLocation(): LiveData<String> = location
+    fun getDescription(): LiveData<String> = description
+    fun getDescriptionCharsNr(): LiveData<String> = descriptionCharsNr
 }
