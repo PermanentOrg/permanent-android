@@ -43,8 +43,7 @@
         android:id="@+id/recordSearchFragment"
         android:name="org.permanent.permanent.ui.RecordSearchFragment"
         android:label="@string/main_navigation_title_search"
-        tools:layout="@layout/fragment_record_search" >
-    </fragment>
+        tools:layout="@layout/fragment_record_search" />
 
     <fragment
         android:id="@+id/shareLinkFragment"
@@ -176,8 +175,8 @@
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
-            android:id="@+id/action_publicFragment_to_milestonesListFragment"
-            app:destination="@id/milestonesListFragment" />
+            android:id="@+id/action_publicFragment_to_milestoneListFragment"
+            app:destination="@id/milestoneListFragment" />
         <action
             android:id="@+id/action_publicFragment_to_onlinePresenceListFragment"
             app:destination="@id/onlinePresenceListFragment" />
@@ -206,7 +205,7 @@
         android:id="@+id/editArchiveInformationFragment"
         android:name="org.permanent.permanent.ui.public.EditArchiveInformationFragment"
         android:label="@string/edit_archive_information_label"
-        tools:layout="@layout/fragment_edit_archive_information" >
+        tools:layout="@layout/fragment_edit_archive_information">
         <action
             android:id="@+id/action_editArchiveInformationFragment_to_locationSearchFragment"
             app:destination="@id/locationSearchFragment"
@@ -217,27 +216,30 @@
         android:id="@+id/locationSearchFragment"
         android:name="org.permanent.permanent.ui.public.LocationSearchFragment"
         android:label="@string/file_navigation_title_enter_location"
-        tools:layout="@layout/fragment_location_search">
+        tools:layout="@layout/fragment_location_search" />
+    <fragment
+        android:id="@+id/addEditMilestoneFragment"
+        android:name="org.permanent.permanent.ui.public.AddEditMilestoneFragment"
+        android:label="@string/add_milestone_label"
+        tools:layout="@layout/fragment_add_edit_milestone">
+        <action
+            android:id="@+id/action_addEditMilestoneFragment_to_locationSearchFragment"
+            app:destination="@id/locationSearchFragment" />
     </fragment>
     <fragment
-        android:id="@+id/editMilestoneFragment"
-        android:name="org.permanent.permanent.ui.public.PublicProfileEditMilestonesFragment"
-        android:label="@string/add_milestone_label"
-        tools:layout="@layout/fragment_edit_milestone" />
-    <fragment
-        android:id="@+id/milestonesListFragment"
+        android:id="@+id/milestoneListFragment"
         android:name="org.permanent.permanent.ui.public.MilestoneListFragment"
-        android:label="@string/edit_milestone_label"
-        tools:layout="@layout/fragment_milestone_list" >
+        android:label="@string/edit_milestones_label"
+        tools:layout="@layout/fragment_milestone_list">
         <action
-            android:id="@+id/action_milestonesListFragment_to_editMilestonesFragment"
-            app:destination="@id/editMilestoneFragment" />
+            android:id="@+id/action_milestoneListFragment_to_addEditMilestoneFragment"
+            app:destination="@id/addEditMilestoneFragment" />
     </fragment>
     <fragment
         android:id="@+id/onlinePresenceListFragment"
         android:name="org.permanent.permanent.ui.public.OnlinePresenceListFragment"
         android:label="@string/edit_online_presence_label"
-        tools:layout="@layout/fragment_online_presence_list" >
+        tools:layout="@layout/fragment_online_presence_list">
         <action
             android:id="@+id/action_onlinePresenceListFragment_to_addEditOnlinePresenceFragment"
             app:destination="@id/addEditOnlinePresenceFragment" />

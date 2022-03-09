@@ -16,6 +16,7 @@ import org.permanent.permanent.databinding.FragmentAddEditOnlinePresenceBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
+import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
 import org.permanent.permanent.viewmodels.AddEditOnlinePresenceViewModel
 
 class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
@@ -32,10 +33,12 @@ class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        val profileItem: ProfileItem? = arguments?.getParcelable(PublicProfileFragment.PARCELABLE_PROFILE_ITEMS_KEY)
+
+        val profileItem: ProfileItem? = arguments?.getParcelable(PARCELABLE_PROFILE_ITEM_KEY)
         val isEdit: Boolean? = arguments?.getBoolean(OnlinePresenceListFragment.IS_EDIT_ONLINE_PRESENCE)
         val isAddEmail: Boolean? = arguments?.getBoolean(OnlinePresenceListFragment.IS_ADD_EMAIL)
         viewModel.displayProfileItem(profileItem, isEdit, isAddEmail)
+
         return binding.root
     }
 
@@ -60,8 +63,7 @@ class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
     }
 
     private val onBackToListFragment = Observer<Void>{
-        requireParentFragment().findNavController()
-            .popBackStack(R.id.onlinePresenceListFragment, false)
+        requireParentFragment().findNavController().popBackStack()
     }
 
     override fun connectViewModelEvents() {
@@ -86,5 +88,4 @@ class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
         disconnectViewModelEvents()
         context?.hideKeyboardFrom(binding.root.windowToken)
     }
-
 }

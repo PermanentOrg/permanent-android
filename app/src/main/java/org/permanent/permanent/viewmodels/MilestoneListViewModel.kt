@@ -15,8 +15,7 @@ import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
-class OnlinePresenceListViewModel(application: Application) :
-    ObservableAndroidViewModel(application) {
+class MilestoneListViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
@@ -24,13 +23,10 @@ class OnlinePresenceListViewModel(application: Application) :
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private val showError = MutableLiveData<String>()
-    private var existsOnlinePresences = MutableLiveData(false)
-    private var onlinePresences: MutableList<ProfileItem> = ArrayList()
-    private var emails: MutableList<ProfileItem> = ArrayList()
-    private var socialMedias: MutableList<ProfileItem> = ArrayList()
-    private var profileItems: MutableList<ProfileItem> = ArrayList()
-    private var onOnlinePresencesRetrieved = MutableLiveData<List<ProfileItem>>()
-    private var onAddRequest = SingleLiveEvent<Boolean>()
+    private var existsMilestones = MutableLiveData(false)
+    private var milestoneProfileItems: MutableList<ProfileItem> = ArrayList()
+    private var onMilestonesRetrieved = MutableLiveData<List<ProfileItem>>()
+    private var addMilestoneRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
 
     fun getProfileItems() {
@@ -43,7 +39,7 @@ class OnlinePresenceListViewModel(application: Application) :
             object : IDataListener {
                 override fun onSuccess(dataList: List<Datum>?) {
                     isBusy.value = false
-                    dataList?.let { displayProfileItems(dataList) }
+                    dataList?.let { displayMilestones(dataList) }
                 }
 
                 override fun onFailed(error: String?) {
@@ -54,33 +50,19 @@ class OnlinePresenceListViewModel(application: Application) :
         )
     }
 
-    fun displayProfileItems(dataList: List<Datum>) {
-        onlinePresences = ArrayList()
-        emails = ArrayList()
-        socialMedias = ArrayList()
+    fun displayMilestones(dataList: List<Datum>) {
+        milestoneProfileItems = ArrayList()
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO, false)
-            profileItems.add(profileItem)
-            when (profileItem.fieldName) {
-                ProfileItemName.EMAIL -> {
-                    profileItem.string1?.let {
-                        emails.add(profileItem)
-                    }
-                }
-                ProfileItemName.SOCIAL_MEDIA -> {
-                    profileItem.string1?.let {
-                        socialMedias.add(profileItem)
-                    }
-                }
+            if (profileItem.fieldName == ProfileItemName.MILESTONE) {
+                milestoneProfileItems.add(profileItem)
             }
         }
-        onlinePresences.addAll(emails)
-        onlinePresences.addAll(socialMedias)
-        if (onlinePresences.isEmpty()) {
-            existsOnlinePresences.value = false
+        if (milestoneProfileItems.isEmpty()) {
+            existsMilestones.value = false
         } else {
-            existsOnlinePresences.value = true
-            onOnlinePresencesRetrieved.value = onlinePresences
+            existsMilestones.value = true
+            onMilestonesRetrieved.value = milestoneProfileItems
         }
     }
 
@@ -90,8 +72,7 @@ class OnlinePresenceListViewModel(application: Application) :
             override fun onSuccess(profileItem: ProfileItem) {
                 isBusy.value = false
                 getProfileItems()
-                showMessage.value = appContext.getString(R.string.online_presence_delete_success)
-
+                showMessage.value = appContext.getString(R.string.milestone_delete_success)
             }
 
             override fun onFailed(error: String?) {
@@ -101,19 +82,15 @@ class OnlinePresenceListViewModel(application: Application) :
         })
     }
 
-    fun onAddEmailBtnClick() {
-        onAddRequest.value = true
+    fun onAddMilestoneBtnClick() {
+        addMilestoneRequest.call()
     }
 
-    fun onAddSocialMediaBtnClick() {
-        onAddRequest.value = false
-    }
+    fun getExistsMilestones(): MutableLiveData<Boolean> = existsMilestones
 
-    fun getExistsOnlinePresences(): MutableLiveData<Boolean> = existsOnlinePresences
+    fun getOnMilestonesRetrieved(): LiveData<List<ProfileItem>> = onMilestonesRetrieved
 
-    fun getOnOnlinePresencesRetrieved(): LiveData<List<ProfileItem>> = onOnlinePresencesRetrieved
-
-    fun getOnAddRequest(): LiveData<Boolean> = onAddRequest
+    fun getOnAddMilestoneRequest(): LiveData<Void> = addMilestoneRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

@@ -21,8 +21,8 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     private val itemName = MutableLiveData<String>()
     private val onEditShareRequest = SingleLiveEvent<Share>()
     private val onEditMemberRequest = SingleLiveEvent<Account>()
-    private val onEditOnlinePresenceRequest = SingleLiveEvent<ProfileItem>()
-    private val onDeleteOnlinePresenceRequest = SingleLiveEvent<ProfileItem>()
+    private val onEditProfileItemRequest = SingleLiveEvent<ProfileItem>()
+    private val onDeleteProfileItemRequest = SingleLiveEvent<ProfileItem>()
     private val onMemberRemoved = SingleLiveEvent<String>()
     private val onShareRemoved = SingleLiveEvent<Share>()
     private val showSnackbar = MutableLiveData<String>()
@@ -32,12 +32,12 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
 
     fun setMember(member: Account?) {
         this.member = member
-        itemName.value = member?.primaryEmail
+        member?.primaryEmail?.let { itemName.value = it }
     }
 
     fun setShare(share: Share?) {
         this.share = share
-        itemName.value = share?.archive?.fullName
+        share?.archive?.fullName?.let { itemName.value = it }
     }
 
     fun setProfileItem(profileItem: ProfileItem?) {
@@ -51,7 +51,7 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
         when {
             member != null -> onEditMemberRequest.value = member
             share != null -> onEditShareRequest.value = share
-            else -> onEditOnlinePresenceRequest.value = profileItem
+            else -> onEditProfileItemRequest.value = profileItem
         }
     }
 
@@ -62,7 +62,7 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
         when {
             member != null -> removeMember()
             share != null -> removeShare()
-            else -> onDeleteOnlinePresenceRequest.value = profileItem
+            else -> onDeleteProfileItemRequest.value = profileItem
         }
     }
 
@@ -73,30 +73,30 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
-                        onMemberRemoved.value = message
+                        message?.let { onMemberRemoved.value = it }
                     }
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showSnackbar.value = error
+                        error?.let { showSnackbar.value = it }
                     }
                 })
         }
     }
 
     private fun removeShare() {
-        share?.let {
+        share?.let { share ->
             isBusy.value = true
-            shareRepository.deleteShare(it, object : IResponseListener {
+            shareRepository.deleteShare(share, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    showSnackbarSuccess.value = message
-                    onShareRemoved.value = it
+                    message?.let { showSnackbarSuccess.value = it }
+                    onShareRemoved.value = share
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showSnackbar.value = error
+                    error?.let { showSnackbar.value = it }
                 }
             })
         }
@@ -110,9 +110,9 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getOnEditShareRequest(): MutableLiveData<Share> = onEditShareRequest
 
-    fun getOnEditOnlinePresenceRequest(): MutableLiveData<ProfileItem> = onEditOnlinePresenceRequest
+    fun getOnEditProfileItemRequest(): MutableLiveData<ProfileItem> = onEditProfileItemRequest
 
-    fun getOnDeleteOnlinePresenceRequest(): MutableLiveData<ProfileItem> = onDeleteOnlinePresenceRequest
+    fun getOnDeleteProfileItemRequest(): MutableLiveData<ProfileItem> = onDeleteProfileItemRequest
 
     fun getOnMemberRemoved(): LiveData<String> = onMemberRemoved
 

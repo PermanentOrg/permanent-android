@@ -47,7 +47,7 @@ class ProfileRepositoryImpl(val context: Context) : IProfileRepository {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(ProfileItem(responseVO.getProfileItemVO()))
+                        listener.onSuccess(ProfileItem(responseVO.getProfileItemVO(), false))
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }
@@ -68,7 +68,7 @@ class ProfileRepositoryImpl(val context: Context) : IProfileRepository {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(ProfileItem(responseVO.getProfileItemVO()))
+                        listener.onSuccess(ProfileItem(responseVO.getProfileItemVO(), false))
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }

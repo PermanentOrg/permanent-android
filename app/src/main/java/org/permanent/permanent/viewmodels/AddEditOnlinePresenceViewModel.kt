@@ -14,7 +14,8 @@ import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
-class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class AddEditOnlinePresenceViewModel(application: Application) :
+    ObservableAndroidViewModel(application) {
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -32,8 +33,8 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
     fun displayProfileItem(profileItem: ProfileItem?, isEdit: Boolean?, isAddEmail: Boolean?) {
         socialMediaProfileItem = profileItem
         profileItem?.string1?.let { onlinePresence.value = it }
-        isEdit?.let { this.isEdit = isEdit}
-        isAddEmail?.let { this.isAddEmail = isAddEmail}
+        isEdit?.let { this.isEdit = isEdit }
+        isAddEmail?.let { this.isAddEmail = isAddEmail }
     }
 
     fun onOnlinePresenceTextChanged(text: Editable) {
@@ -45,21 +46,19 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
             return
         }
 
+        val onlinePresenceValue = onlinePresence.value?.trim()
         socialMediaProfileItem?.let {
-            if (!it.string1.contentEquals(onlinePresence.value?.trim())) {
-                it.string1 = onlinePresence.value?.trim()
-                addUpdateProfileItem(socialMediaProfileItem!!)
+            if (!it.string1.contentEquals(onlinePresenceValue)) {
+                it.string1 = onlinePresenceValue
+                addUpdateProfileItem(it)
             }
         } ?: run {
-            if (onlinePresence.value?.trim()?.isNotEmpty() == true) {
-                val addItem = ProfileItem ()
+            if (onlinePresenceValue?.isNotEmpty() == true) {
+                val addItem = ProfileItem()
                 addItem.archiveId = prefsHelper.getCurrentArchiveId()
-                if(isAddEmail ==  true){
-                    addItem.fieldName = ProfileItemName.EMAIL
-                } else {
-                    addItem.fieldName = ProfileItemName.SOCIAL_MEDIA
-                }
-                addItem.string1 = onlinePresence.value?.trim()
+                if (isAddEmail == true) addItem.fieldName = ProfileItemName.EMAIL
+                else addItem.fieldName = ProfileItemName.SOCIAL_MEDIA
+                addItem.string1 = onlinePresenceValue
                 addUpdateProfileItem(addItem)
             }
         }
@@ -73,25 +72,28 @@ class AddEditOnlinePresenceViewModel(application: Application) : ObservableAndro
                 override fun onSuccess(profileItem: ProfileItem) {
                     isBusy.value = false
                     profileItemToUpdate.id = profileItem.id
-                    if(isEdit == true) {
-                        showMessage.value = appContext.getString(R.string.edit_social_media_success)
-                    }
-                    else
-                        showMessage.value = appContext.getString(R.string.add_social_media_success)
+                    showMessage.value = appContext.getString(
+                        R.string.add_edit_online_presence_success,
+                        if (isEdit == true) appContext.getString(R.string.edited)
+                        else appContext.getString(R.string.added)
+                    )
+                    onBackRequest.call()
                 }
+
                 override fun onFailed(error: String?) {
                     isBusy.value = false
                     showError.value = error
                 }
             })
-        onBackRequest.call()
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String?> = showMessage
     fun getShowError(): LiveData<String?> = showError
+
     fun getOnBackRequest(): LiveData<Void> = onBackRequest
+
     fun getIsOnAddEmail(): Boolean? = isAddEmail
 
     fun getOnlinePresence(): LiveData<String> = onlinePresence

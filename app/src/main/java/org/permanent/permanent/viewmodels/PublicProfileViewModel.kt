@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
-import org.permanent.permanent.models.Milestone
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IDataListener
@@ -21,7 +20,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String?>()
+    private val showMessage = SingleLiveEvent<String?>()
     private val currentArchiveType = prefsHelper.getCurrentArchiveType()
     private var profileItems: MutableList<ProfileItem> = ArrayList()
     private val shortAndLongDescription = MutableLiveData("")
@@ -66,7 +65,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val emails = MutableLiveData("")
     private val socialMedias = MutableLiveData("")
     private val existsMilestones = MutableLiveData(false)
-    private val onMilestonesRetrieved = MutableLiveData<MutableList<Milestone>>()
+    private val onMilestonesRetrieved = SingleLiveEvent<MutableList<ProfileItem>>()
     private val isAboutExtended = MutableLiveData(false)
     private val onReadAbout = SingleLiveEvent<Boolean>()
     private val isOnlinePresenceExtended = MutableLiveData(false)
@@ -74,7 +73,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditAboutRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditArchiveInformationRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
-    private val onEditOnlinePresenceRequest = SingleLiveEvent<MutableList<ProfileItem>>()
+    private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
 
     fun getProfileItems() {
@@ -99,11 +98,11 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     private fun displayProfileItems(dataList: List<Datum>) {
-        val milestones: MutableList<Milestone> = ArrayList()
+        val milestones: MutableList<ProfileItem> = ArrayList()
         shortAndLongDescription.value = ""
         profileItems = ArrayList()
         for (datum in dataList) {
-            val profileItem = ProfileItem(datum.Profile_itemVO)
+            val profileItem = ProfileItem(datum.Profile_itemVO, true)
             profileItems.add(profileItem)
             when (profileItem.fieldName) {
                 ProfileItemName.SHORT_DESCRIPTION -> {
@@ -150,7 +149,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                     }
                 }
                 ProfileItemName.MILESTONE -> {
-                    milestones.add(Milestone(profileItem))
+                    milestones.add(profileItem)
                 }
                 else -> {}
             }
@@ -179,7 +178,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onEditOnlinePresenceBtnClick() {
-        onEditOnlinePresenceRequest.value =  profileItems
+        onEditOnlinePresenceRequest.call()
     }
 
     fun onEditMilestonesBtnClick() {
@@ -195,7 +194,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnEditMilestonesRequest(): LiveData<Void> = onEditMilestonesRequest
 
-    fun getOnEditOnlinePresenceRequest(): LiveData<MutableList<ProfileItem>> = onEditOnlinePresenceRequest
+    fun getOnEditOnlinePresenceRequest(): LiveData<Void> = onEditOnlinePresenceRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
@@ -222,7 +221,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     fun getOnlinePresence(): LiveData<String> = onlinePresence
 
     fun getExistsMilestones(): MutableLiveData<Boolean> = existsMilestones
-    fun getOnMilestonesRetrieved(): LiveData<MutableList<Milestone>> = onMilestonesRetrieved
+    fun getOnMilestonesRetrieved(): LiveData<MutableList<ProfileItem>> = onMilestonesRetrieved
 
     fun getIsAboutExtended(): MutableLiveData<Boolean> = isAboutExtended
     fun getOnReadAbout(): LiveData<Boolean> = onReadAbout
