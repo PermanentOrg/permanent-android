@@ -27,6 +27,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
+import java.util.*
 
 class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val baseUrl: String = BuildConfig.BASE_API_URL
@@ -322,11 +323,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         displayName: String,
         folderId: Int,
         folderLinkId: Int,
+        createdDT: Date,
         s3Url: String
     ): Call<ResponseVO> {
         val request = toJson(
             SimpleRequestContainer(csrf)
-                .addRecord(displayName, file, folderId, folderLinkId)
+                .addRecord(displayName, file, folderId, folderLinkId, createdDT)
                 .addSimple(s3Url)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

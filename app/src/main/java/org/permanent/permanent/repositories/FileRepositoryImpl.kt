@@ -233,11 +233,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun registerRecord(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, createdDT: Date, s3Url: String
     ): Call<ResponseVO> {
         return NetworkClient.instance().registerRecord(
             prefsHelper.getCsrf(), file, displayName,
-            folderId, folderLinkId, s3Url
+            folderId, folderLinkId, createdDT, s3Url
         )
     }
 
