@@ -1,5 +1,6 @@
 package org.permanent.permanent.network
 
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.ClientSecretBasic
@@ -28,6 +29,7 @@ class TokenAuthenticator : Authenticator {
             null
         } else {
             if (response.code == 401) {
+                FirebaseMessaging.getInstance().deleteToken();
                 PermanentApplication.instance.showLoginScreen()
 //                var accessToken: String?
 //                runBlocking {
