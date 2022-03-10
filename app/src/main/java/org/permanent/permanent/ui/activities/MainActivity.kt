@@ -226,7 +226,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         if (startDestFragmentId != null && startDestFragmentId != 0) {
             if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
             val navGraph = navController.graph
-            navGraph.startDestination = startDestFragmentId
+            navGraph.setStartDestination(startDestFragmentId)
             navController.setGraph(navGraph, intentExtras)
         }
     }
@@ -306,7 +306,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     activity,
                     status,
                     REQUEST_CODE_GOOGLE_API_AVAILABILITY
-                ).show()
+                )?.show()
             }
             return false
         }

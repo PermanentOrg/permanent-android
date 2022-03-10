@@ -7,10 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.OpenableColumns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.RequiresApi
 import net.openid.appauth.*
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
@@ -45,6 +47,7 @@ fun Context.assetSize(resourceUri: Uri): Long {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 fun Context.showLoginScreen() {
     val serviceConfig = AuthorizationServiceConfiguration(
         Uri.parse(BuildConfig.LOGIN_BASE_URL + "authorize"),  // authorization endpoint
@@ -73,13 +76,13 @@ fun Context.showLoginScreen() {
             this,
             0,
             Intent(this, SplashActivity::class.java),
-            0
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         ),
         PendingIntent.getActivity(
             this,
             0,
             Intent(this, SignUpActivity::class.java),
-            0
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     )
 }

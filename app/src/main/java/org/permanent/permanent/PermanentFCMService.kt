@@ -305,7 +305,7 @@ class PermanentFCMService : FirebaseMessagingService() {
             // Add the intent, which inflates the back stack
             addNextIntentWithParentStack(intent)
             // Get the PendingIntent containing the entire back stack
-            return getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            return getPendingIntent(0,  PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 }
