@@ -147,6 +147,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         }
 
         isBusy.value = true
+        FirebaseMessaging.getInstance().deleteToken();
         authRepository.logout(object : IAuthenticationRepository.IOnLogoutListener {
             override fun onSuccess() {
                 isBusy.value = false
