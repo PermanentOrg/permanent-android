@@ -130,6 +130,9 @@
     <string name="edit_description_character_limit">(%d/200)</string>
     <string name="edit_archive_information_character_limit">(%d/120)</string>
     <string name="public_profile_about">About</string>
+    <string name="public_profile_public">Public</string>
+    <string name="public_profile_visibility">Profile Visibility</string>
+    <string name="public_profile_visibility_text">Allow anyone to see your personal information. When disabled, only archive members can see your personal information.</string>
     <string name="public_profile_about_hint">Add a short description about the purpose of this Archive.</string>
     <string name="public_profile_read_more">Read More</string>
     <string name="public_profile_read_less">Read Less</string>

@@ -19,6 +19,7 @@ class ProfileItem() : Parcelable {
     var day2: String? = null
     var locationVO: LocnVO? = null
     var locnId1: Int? = null
+    var publicDate: String? = null
     var isForPublicProfileScreen: Boolean = true
 
     constructor(parcel: Parcel) : this() {
@@ -35,6 +36,7 @@ class ProfileItem() : Parcelable {
         day2 = parcel.readString()
         locationVO = parcel.readParcelable(LocnVO::class.java.classLoader)
         locnId1 = parcel.readValue(Int::class.java.classLoader) as? Int
+        publicDate = parcel.readString()
         isForPublicProfileScreen = parcel.readByte() != 0.toByte()
     }
 
@@ -63,6 +65,7 @@ class ProfileItem() : Parcelable {
         day2 = profileItemVO?.day2
         profileItemVO?.LocnVOs?.let { locationVO = it[0] }
         locnId1 = profileItemVO?.locnId1
+        publicDate = profileItemVO?.publicDT
         this.isForPublicProfileScreen = isForPublicProfileScreen
     }
 
@@ -80,6 +83,7 @@ class ProfileItem() : Parcelable {
         parcel.writeString(day2)
         parcel.writeParcelable(locationVO, flags)
         parcel.writeValue(locnId1)
+        parcel.writeString(publicDate)
         parcel.writeByte(if (isForPublicProfileScreen) 1 else 0)
     }
 

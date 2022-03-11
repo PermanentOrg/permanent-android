@@ -13,7 +13,8 @@ enum class ProfileItemName(val backendString: String) : Parcelable {
     ESTABLISHED_INFO("profile.established_info"),
     SOCIAL_MEDIA("profile.social_media"),
     EMAIL("profile.email"),
-    MILESTONE("profile.milestone");
+    MILESTONE("profile.milestone"),
+    TIMEZONE("profile.timezone");
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(ordinal)
