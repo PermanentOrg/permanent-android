@@ -18,7 +18,6 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
-import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
@@ -28,14 +27,13 @@ import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 open class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener, CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
     private val appContext = application.applicationContext
-    private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
+    private val folderName = MutableLiveData(Constants.PRIVATE_FILES)
     private val isRoot = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
@@ -142,11 +140,18 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                     override fun onSuccess(recordVOs: List<RecordVO>?) {
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
-                        folderName.value = parentName
+                        folderName.value = when {
+                            parentName.equals(Constants.MY_FILES_FOLDER) -> Constants.PRIVATE_FILES
+                            parentName.equals(
+                                Constants.PUBLIC_FILES_FOLDER) -> Constants.PUBLIC_FILES
+                            else -> parentName
+                        }
+
                         isRoot.value =
                             parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
                                 Constants.PUBLIC_FILES_FOLDER
                             )
+
                         existsFiles.value = !recordVOs.isNullOrEmpty()
                         showEmptyFolder.value =
                             existsFiles.value == false && getExistsUploads().value == false

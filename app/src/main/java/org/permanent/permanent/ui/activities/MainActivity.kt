@@ -227,7 +227,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         if (startDestFragmentId != null && startDestFragmentId != 0) {
             if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
             val navGraph = navController.graph
-            navGraph.setStartDestination(startDestFragmentId)
+            navGraph.startDestination = startDestFragmentId
             navController.setGraph(navGraph, intentExtras)
         }
     }

@@ -15,6 +15,8 @@ class Constants {
         const val S3_BASE_URL = "https://s3.us-west-2.amazonaws.com"
         const val MY_FILES_FOLDER = "My Files"
         const val PUBLIC_FILES_FOLDER = "Public"
+        const val PRIVATE_FILES = "Private Files"
+        const val PUBLIC_FILES = "Public Files"
         const val MEDIA_TYPE_JSON = "application/json;charset=UTF-8"
         const val MEDIA_TYPE_OCTET_STREAM = "application/octet-stream"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
