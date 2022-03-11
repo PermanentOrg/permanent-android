@@ -29,6 +29,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 import java.util.*
 
+
 class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val baseUrl: String = BuildConfig.BASE_API_URL
     private val retrofit: Retrofit
@@ -44,6 +45,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val profileService: IProfileService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
+    private val profileItemsJsonAdapter: JsonAdapter<ProfileItemsRequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
 
     companion object {
@@ -105,6 +107,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         profileService = retrofit.create(IProfileService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
+        profileItemsJsonAdapter = Moshi.Builder().build().adapter(ProfileItemsRequestContainer::class.java)
     }
 
     fun verifyLoggedIn(): Call<ResponseVO> {
@@ -638,8 +641,14 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return profileService.getAllByArchiveNbr(requestBody)
     }
 
-    fun safeAddUpdateProfileItems(csrf: String?, profileItem: ProfileItem): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf).addProfileItem(profileItem))
+    fun safeAddUpdateProfileItems(
+        csrf: String?,
+        profileItems: List<ProfileItem>,
+        serializeNulls: Boolean
+    ): Call<ResponseVO> {
+        val request = if (serializeNulls) profileItemsJsonAdapter.serializeNulls().toJson(
+            ProfileItemsRequestContainer(csrf).addProfileItems(profileItems)
+        ) else toJson(RequestContainer(csrf).addProfileItem(profileItems[0]))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return profileService.safeAddUpdate(requestBody)
     }

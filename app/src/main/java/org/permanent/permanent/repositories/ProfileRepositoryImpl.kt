@@ -38,9 +38,13 @@ class ProfileRepositoryImpl(val context: Context) : IProfileRepository {
             })
     }
 
-    override fun safeAddUpdateProfileItems(profileItem: ProfileItem, listener: IProfileItemListener) {
+    override fun safeAddUpdateProfileItems(
+        profileItems: List<ProfileItem>,
+        serializeNulls: Boolean,
+        listener: IProfileItemListener
+    ) {
         NetworkClient.instance()
-            .safeAddUpdateProfileItems(prefsHelper.getCsrf(), profileItem)
+            .safeAddUpdateProfileItems(prefsHelper.getCsrf(), profileItems, serializeNulls)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

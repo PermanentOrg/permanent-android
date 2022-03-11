@@ -98,7 +98,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     private fun addUpdateProfileItem(profileItemToUpdate: ProfileItem) {
         isBusy.value = true
         profileRepository.safeAddUpdateProfileItems(
-            profileItemToUpdate,
+            listOf(profileItemToUpdate), false,
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
                     isBusy.value = false

@@ -136,9 +136,8 @@ dependencies {
     //==============================================================================================
 
     //========================================= NETWORK ============================================
-    // Using this version so that JUnit tests work properly
-    implementation 'com.squareup.retrofit2:retrofit:2.7.2'
-    implementation 'com.squareup.retrofit2:converter-moshi:2.7.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.8.0'
+    implementation 'com.squareup.retrofit2:converter-moshi:2.8.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
     //==============================================================================================

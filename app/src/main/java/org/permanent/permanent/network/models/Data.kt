@@ -1,5 +1,5 @@
 package org.permanent.permanent.network.models
 
 class Data {
-    var SimpleVO: Simple? = null
+    var Profile_itemVO: SimpleProfileItemVO? = null
 }

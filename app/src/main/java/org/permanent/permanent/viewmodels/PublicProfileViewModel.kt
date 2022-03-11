@@ -9,11 +9,15 @@ import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class PublicProfileViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val prefsHelper = PreferencesHelper(
@@ -23,6 +27,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val showMessage = SingleLiveEvent<String?>()
     private val currentArchiveType = prefsHelper.getCurrentArchiveType()
     private var profileItems: MutableList<ProfileItem> = ArrayList()
+    private val isProfilePublic = MutableLiveData<Boolean>()
     private val shortAndLongDescription = MutableLiveData("")
     private val archiveInfoLabel = MutableLiveData(
         application.getString(
@@ -104,6 +109,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO, true)
             profileItems.add(profileItem)
+
             when (profileItem.fieldName) {
                 ProfileItemName.SHORT_DESCRIPTION -> {
                     profileItem.string1?.let {
@@ -157,6 +163,47 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         onlinePresence.value = emails.value + "\n" + socialMedias.value
         existsMilestones.value = milestones.isNotEmpty()
         onMilestonesRetrieved.value = milestones
+        for (profileItem in profileItems) {
+            if (profileItem.publicDate == null) {
+                isProfilePublic.value = false
+                return
+            }
+        }
+        isProfilePublic.value = true
+    }
+
+    fun onIsProfilePublicChanged(checked: Boolean) {
+        isBusy.value = true
+        profileRepository.safeAddUpdateProfileItems(
+            getProfileItemsToUpdateVisibility(checked), true,
+            object : IProfileItemListener {
+                override fun onSuccess(profileItem: ProfileItem) {
+                    isBusy.value = false
+                    isProfilePublic.value = checked
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    error?.let { showMessage.value = it }
+                }
+            })
+    }
+
+    private fun getProfileItemsToUpdateVisibility(checked: Boolean): List<ProfileItem> {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val date = dateFormat.format(Date())
+
+        val filteredItems = profileItems.filter {
+            it.fieldName != ProfileItemName.BASIC &&
+                    it.fieldName != ProfileItemName.DESCRIPTION &&
+                    it.fieldName != ProfileItemName.TIMEZONE
+        }
+        filteredItems.map {
+            it.publicDate = if (checked) date else null
+        }
+
+        return filteredItems
     }
 
     fun onReadAboutBtnClick() {
@@ -199,6 +246,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String?> = showMessage
+
+    fun getIsProfilePublic(): LiveData<Boolean> = isProfilePublic
 
     fun getShortAndLongDescription(): LiveData<String> = shortAndLongDescription
 

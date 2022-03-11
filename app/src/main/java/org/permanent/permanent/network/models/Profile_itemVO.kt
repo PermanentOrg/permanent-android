@@ -19,6 +19,7 @@ class Profile_itemVO() {
     var day2: String? = null
     var LocnVOs: List<LocnVO?>? = null
     var locnId1: Int? = null
+    var publicDT: String? = null
 
     constructor(profileItem: ProfileItem) : this() {
         archiveNbr = profileItem.archiveNr
@@ -41,5 +42,6 @@ class Profile_itemVO() {
             (LocnVOs as ArrayList<LocnVO?>).add(it)
         }
         locnId1 = profileItem.locnId1
+        publicDT = profileItem.publicDate
     }
 }
