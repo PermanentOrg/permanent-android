@@ -8,7 +8,7 @@ import org.permanent.permanent.network.IRecordListener
 class PublicFilesViewModel(application: Application) : MyFilesViewModel(application) {
 
     init {
-        getFolderName().value = Constants.PUBLIC_FILES_FOLDER
+        getFolderName().value = Constants.PUBLIC_FILES
     }
 
     override fun loadRootFiles() {
