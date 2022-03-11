@@ -347,7 +347,8 @@
     <string name="account_screen_account_name">Account Name</string>
     <string name="account_screen_primary_email">Primary Email</string>
     <string name="account_screen_mobile_phone">Mobile Phone</string>
-    <string name="account_screen_address">Address</string>
+    <string name="account_screen_address_line_one">Address Line 1</string>
+    <string name="account_screen_address_line_two">Address Line 2</string>
     <string name="account_screen_city">City</string>
     <string name="account_screen_state">State or region</string>
     <string name="account_screen_postal_code">Postal code</string>

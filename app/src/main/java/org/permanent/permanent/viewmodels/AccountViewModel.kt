@@ -20,6 +20,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val email = MutableLiveData<String>()
     private val phone = MutableLiveData<String>()
     private val address = MutableLiveData<String>()
+    private val addressTwo = MutableLiveData<String>()
     private val city = MutableLiveData<String>()
     private val state = MutableLiveData<String>()
     private val postalCode = MutableLiveData<String>()
@@ -56,56 +57,36 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
         account?.primaryEmail?.let { email.value = it }
         account?.phone?.let { phone.value = it }
         account?.address?.let { address.value = it }
+        account?.addressTwo?.let { addressTwo.value = it }
         account?.city?.let { city.value = it }
         account?.state?.let { state.value = it }
         account?.zipCode?.let { postalCode.value = it }
         account?.country?.let { country.value = it }
     }
 
-    fun getOnShowDeleteAccountDialog(): SingleLiveEvent<Void> {
-        return showDeleteAccountDialog
-    }
+    fun getOnShowDeleteAccountDialog(): SingleLiveEvent<Void> = showDeleteAccountDialog
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getShowMessage(): LiveData<String> = showMessage
 
-    fun getName(): LiveData<String> {
-        return name
-    }
+    fun getName(): LiveData<String> = name
 
-    fun getEmail(): LiveData<String> {
-        return email
-    }
+    fun getEmail(): LiveData<String> = email
 
-    fun getPhone(): LiveData<String> {
-        return phone
-    }
+    fun getPhone(): LiveData<String> = phone
 
-    fun getAddress(): LiveData<String> {
-        return address
-    }
+    fun getAddress(): LiveData<String> = address
 
-    fun getCity(): LiveData<String> {
-        return city
-    }
+    fun getAddressTwo(): LiveData<String> = addressTwo
 
-    fun getState(): LiveData<String> {
-        return state
-    }
+    fun getCity(): LiveData<String> = city
 
-    fun getPostalCode(): LiveData<String> {
-        return postalCode
-    }
+    fun getState(): LiveData<String> = state
 
-    fun getCountry(): LiveData<String> {
-        return country
-    }
+    fun getPostalCode(): LiveData<String> = postalCode
 
+    fun getCountry(): LiveData<String> = country
 
     fun onNameTextChanged(text: Editable) {
         name.value = text.toString()
@@ -121,6 +102,10 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun onAddressTextChanged(text: Editable) {
         address.value = text.toString()
+    }
+
+    fun onAddressLineTwoTextChanged(text: Editable) {
+        addressTwo.value = text.toString()
     }
 
     fun onCityTextChanged(text: Editable) {
@@ -151,6 +136,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
         val email = email.value?.trim()
         val phone = phone.value
         val address = address.value?.trim()
+        val addressTwo = addressTwo.value?.trim()
         val city = city.value?.trim()
         val state = state.value?.trim()
         val postalCode = postalCode.value
@@ -166,6 +152,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
         account?.primaryEmail = email
         account?.phone = phone
         account?.address = address
+        account?.addressTwo = addressTwo
         account?.city = city
         account?.state = state
         account?.zipCode = postalCode

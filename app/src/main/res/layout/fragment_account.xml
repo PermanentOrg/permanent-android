@@ -106,15 +106,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/account_screen_address"
+                        android:text="@string/account_screen_address_line_one"
                         android:textColor="@color/colorPrimary"
                         android:textSize="16sp"
-                        android:textStyle="bold">
-
-                    </TextView>
+                        android:textStyle="bold" />
 
                     <EditText
-                        android:id="@+id/etAddress"
+                        android:id="@+id/etAddressOne"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
@@ -123,7 +121,29 @@
                         android:fontFamily="@font/open_sans"
                         android:inputType="text"
                         android:padding="8dp"
-                        android:text="@{viewModel.getAddress()}"
+                        android:text="@{viewModel.address}"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/account_screen_address_line_two"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etAddressTwo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:afterTextChanged="@{(editable)->viewModel.onAddressLineTwoTextChanged(editable)}"
+                        android:background="@drawable/rounded_grey_border_white_background"
+                        android:fontFamily="@font/open_sans"
+                        android:inputType="text"
+                        android:padding="8dp"
+                        android:text="@{viewModel.addressTwo}"
                         android:textSize="16sp" />
 
                     <LinearLayout
