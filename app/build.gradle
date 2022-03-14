@@ -16,7 +16,7 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 1
+        versionCode 21
         versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -46,7 +46,7 @@ android {
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://www.permanent.org/add-storage/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
-            manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId}"]
+            manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId.toLowerCase()}"]
         }
         staging {
             applicationId "org.permanent.permanent.staging"
