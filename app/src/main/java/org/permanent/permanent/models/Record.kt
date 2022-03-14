@@ -11,12 +11,14 @@ open class Record : Parcelable {
     var recordId: Int? = null
     var folderId: Int? = null
     var folderLinkId: Int? = null
+    var parentFolderArchiveNr: String? = null
     var parentFolderLinkId: Int? = null
     var displayName: String? = null
     var displayDate: String? = null
     var archiveThumbURL200: String? = null
     var showArchiveThumb: Boolean? = null
     var thumbURL200: String? = null
+    var thumbURL2000: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
@@ -30,12 +32,14 @@ open class Record : Parcelable {
         recordId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
+        parentFolderArchiveNr = parcel.readString()
         parentFolderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
         displayName = parcel.readString()
         displayDate = parcel.readString()
         archiveThumbURL200 = parcel.readString()
         showArchiveThumb = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         thumbURL200 = parcel.readString()
+        thumbURL2000 = parcel.readString()
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
@@ -54,6 +58,7 @@ open class Record : Parcelable {
         displayDate = recordInfo.displayDT?.substringBefore("T")
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
+        thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo.ShareVOs)
@@ -71,6 +76,7 @@ open class Record : Parcelable {
         displayDate = recordInfo.displayDT?.substringBefore("T")
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
+        thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = RecordType.FOLDER
         initShares(recordInfo.ShareVOs)
@@ -90,6 +96,7 @@ open class Record : Parcelable {
         archiveThumbURL200 = archive.thumbURL200
         showArchiveThumb = showArchiveThumbnail
         thumbURL200 = item.thumbURL200
+        thumbURL2000 = item.thumbURL2000
         isThumbBlurred = false
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
         displayFirstInCarousel = false
@@ -117,6 +124,7 @@ open class Record : Parcelable {
         displayName = recordInfo?.displayName
         displayDate = recordInfo?.displayDT?.substringBefore("T")
         thumbURL200 = recordInfo?.thumbURL200
+        thumbURL2000 = recordInfo?.thumbURL2000
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
         type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo?.ShareVOs)
@@ -145,12 +153,14 @@ open class Record : Parcelable {
         parcel.writeValue(recordId)
         parcel.writeValue(folderId)
         parcel.writeValue(folderLinkId)
+        parcel.writeString(parentFolderArchiveNr)
         parcel.writeValue(parentFolderLinkId)
         parcel.writeString(displayName)
         parcel.writeString(displayDate)
         parcel.writeString(archiveThumbURL200)
         parcel.writeValue(showArchiveThumb)
         parcel.writeString(thumbURL200)
+        parcel.writeString(thumbURL2000)
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
         parcel.writeTypedList(shares)

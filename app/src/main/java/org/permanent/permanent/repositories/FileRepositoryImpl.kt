@@ -35,10 +35,42 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
+                    val publicRecord = responseVO?.getPublicRecord()
+                    prefsHelper.savePublicRecordInfo(
+                        publicRecord?.folderId,
+                        publicRecord?.folderLinkId,
+                        publicRecord?.archiveNr,
+                        publicRecord?.thumbURL2000
+                    )
                     val myFilesRecord = responseVO?.getMyFilesRecord()
 
                     if (myFilesRecord != null) {
                         listener.onSuccess(myFilesRecord)
+                    } else {
+                        listener.onFailed(
+                            responseVO?.Results?.get(0)?.message?.get(0)
+                                ?: response.errorBody()?.toString()
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun getPublicRoot(listener: IRecordListener) {
+        NetworkClient.instance()
+            .getPublicRootForArchive(prefsHelper.getCsrf(), prefsHelper.getCurrentArchiveNr())
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    val publicRecord = responseVO?.getFolderRecord()
+
+                    if (publicRecord != null) {
+                        listener.onSuccess(publicRecord)
                     } else {
                         listener.onFailed(
                             responseVO?.Results?.get(0)?.message?.get(0)
@@ -113,6 +145,30 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             })
     }
 
+    override fun updateProfileBanner(thumbRecord: Record, listener: IResponseListener) {
+        thumbRecord.archiveNr?.let {
+            NetworkClient.instance().updateProfileBanner(
+                prefsHelper.getCsrf(),
+                prefsHelper.getPublicRecordFolderId(),
+                prefsHelper.getPublicRecordFolderLinkId(),
+                prefsHelper.getPublicRecordArchiveNr(),
+                it
+            ).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    prefsHelper.saveCsrf(responseVO?.csrf)
+                    prefsHelper.updatePublicRecordThumbURL(thumbRecord.thumbURL2000)
+                    listener.onSuccess("")
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+        }
+    }
+
     override fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier,
         name: String,
@@ -177,11 +233,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun registerRecord(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, createdDT: Date, s3Url: String
     ): Call<ResponseVO> {
         return NetworkClient.instance().registerRecord(
             prefsHelper.getCsrf(), file, displayName,
-            folderId, folderLinkId, s3Url
+            folderId, folderLinkId, createdDT, s3Url
         )
     }
 
@@ -231,9 +287,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                     val responseVO = response.body()
                     prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        val relocationVerb = if (relocationType == RelocationType.MOVE)
-                            context.getString(R.string.relocation_type_moved)
-                        else context.getString(R.string.relocation_type_copied)
+                        val relocationVerb = when (relocationType) {
+                            RelocationType.MOVE -> context.getString(R.string.relocation_type_moved)
+                            RelocationType.PUBLISH -> context.getString(R.string.relocation_type_published)
+                            else -> context.getString(R.string.relocation_type_copied)
+                        }
                         listener.onSuccess(
                             context.getString(
                                 R.string.relocation_success,

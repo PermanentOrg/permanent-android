@@ -132,6 +132,21 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addFolder(
+        folderId: Int,
+        folderLinkId: Int,
+        archiveNr: String?,
+        thumbArchiveNr: String
+    ): RequestContainer {
+        val folderVO = FolderVO()
+        folderVO.folderId = folderId
+        folderVO.folder_linkId = folderLinkId
+        folderVO.archiveNbr = archiveNr
+        folderVO.thumbArchiveNbr = thumbArchiveNr
+        RequestVO.data?.get(0)?.FolderVO = folderVO
+        return this
+    }
+
     fun addFolder(name: String, folderId: Int, folderLinkId: Int): RequestContainer {
         val folderVO = FolderVO()
         folderVO.displayName = name
@@ -285,6 +300,15 @@ class RequestContainer(csrf: String?) {
         return this
     }
 
+    fun addArchive(archiveNr: String?, archiveId: Int, thumbArchiveNr: String?): RequestContainer {
+        val archiveVO = ArchiveVO()
+        archiveVO.archiveId = archiveId
+        archiveVO.archiveNbr = archiveNr
+        archiveVO.thumbArchiveNbr = thumbArchiveNr
+        RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
     fun addArchive(archiveId: Int): RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveId = archiveId
@@ -297,6 +321,19 @@ class RequestContainer(csrf: String?) {
         archiveVO.fullName = name
         archiveVO.type = type.backendString
         RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
+    fun addProfileItem(archiveNr: String?): RequestContainer {
+        val profileItemVo = Profile_itemVO()
+        profileItemVo.archiveNbr = archiveNr
+        RequestVO.data?.get(0)?.Profile_itemVO = profileItemVo
+        return this
+    }
+
+    fun addProfileItem(profileItem: ProfileItem): RequestContainer {
+        val profileItemVO = Profile_itemVO(profileItem)
+        RequestVO.data?.get(0)?.Profile_itemVO = profileItemVO
         return this
     }
 

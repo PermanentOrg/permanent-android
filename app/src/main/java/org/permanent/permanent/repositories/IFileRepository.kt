@@ -12,12 +12,17 @@ import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import java.io.File
+import java.util.*
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IRecordListener)
 
-    fun getChildRecordsOf(folderArchiveNr: String, folderLinkId: Int, sort: String?,
-                          listener: IOnRecordsRetrievedListener)
+    fun getPublicRoot(listener: IRecordListener)
+
+    fun getChildRecordsOf(
+        folderArchiveNr: String, folderLinkId: Int, sort: String?,
+        listener: IOnRecordsRetrievedListener
+    )
 
     fun navigateMin(
         archiveNr: String,
@@ -26,8 +31,12 @@ interface IFileRepository {
         listener: IOnRecordsRetrievedListener
     )
 
-    fun getLeanItems(archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
-                     listener: IOnRecordsRetrievedListener)
+    fun getLeanItems(
+        archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
+        listener: IOnRecordsRetrievedListener
+    )
+
+    fun updateProfileBanner(thumbRecord: Record, listener: IResponseListener)
 
     fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier,
@@ -44,12 +53,13 @@ interface IFileRepository {
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
     ): Call<GetPresignedUrlResponse>
 
-    fun uploadFile(file: File, mediaType: MediaType, uploadDestination: UploadDestination,
-                   listener: CountingRequestListener
+    fun uploadFile(
+        file: File, mediaType: MediaType, uploadDestination: UploadDestination,
+        listener: CountingRequestListener
     ): Call<ResponseBody>?
 
     fun registerRecord(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String, s3Url: String
+        folderId: Int, folderLinkId: Int, file: File, displayName: String, createdDT: Date, s3Url: String
     ): Call<ResponseVO>
 
     fun getRecord(
@@ -61,8 +71,10 @@ interface IFileRepository {
 
     fun deleteRecord(record: Record, listener: IResponseListener)
 
-    fun relocateRecord(recordToRelocate: Record, destFolderLinkId: Int,
-                       relocationType: RelocationType, listener: IResponseListener)
+    fun relocateRecord(
+        recordToRelocate: Record, destFolderLinkId: Int,
+        relocationType: RelocationType, listener: IResponseListener
+    )
 
     fun updateRecord(fileData: FileData, listener: IResponseListener)
 

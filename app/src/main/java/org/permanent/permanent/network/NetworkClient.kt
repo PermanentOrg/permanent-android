@@ -10,6 +10,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -26,6 +27,8 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
+import java.util.*
+
 
 class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val baseUrl: String = BuildConfig.BASE_API_URL
@@ -39,8 +42,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val invitationService: IInvitationService
     private val locationService: ILocationService
     private val tagService: ITagService
+    private val profileService: IProfileService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
+    private val profileItemsJsonAdapter: JsonAdapter<ProfileItemsRequestContainer>
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
 
     companion object {
@@ -61,13 +66,27 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 SharedPrefsCookiePersistor(context)
             )
 
-            val interceptor = HttpLoggingInterceptor()
-            interceptor.level = HttpLoggingInterceptor.Level.NONE
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
             okHttpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
-                .addInterceptor(interceptor)
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(MFAAndCSRFInterceptor())
+                .addInterceptor(Interceptor { chain ->
+                    val request = chain.request()
+                    if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
+                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX)
+                    ) {
+                        val requestBuilder: Request.Builder = request.newBuilder()
+                        requestBuilder.header(
+                            "Authorization",
+                            "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
+                        )
+                        chain.proceed(requestBuilder.build())
+                    } else chain.proceed(request)
+                })
+//                .authenticator(TokenAuthenticator())
                 .build()
         }
         retrofit = Retrofit.Builder()
@@ -85,8 +104,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         invitationService = retrofit.create(IInvitationService::class.java)
         locationService = retrofit.create(ILocationService::class.java)
         tagService = retrofit.create(ITagService::class.java)
+        profileService = retrofit.create(IProfileService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
+        profileItemsJsonAdapter = Moshi.Builder().build().adapter(ProfileItemsRequestContainer::class.java)
     }
 
     fun verifyLoggedIn(): Call<ResponseVO> {
@@ -152,6 +173,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return accountService.getAccount(requestBody)
     }
 
+    fun getSessionAccount(csrf: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return accountService.getSessionAccount(requestBody)
+    }
+
     fun updateAccount(csrf: String?, account: Account): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addAccount(account))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -200,6 +227,13 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.getRoot(requestBody)
     }
 
+    fun getPublicRootForArchive(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addArchive(archiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return fileService.getPublicRoot(requestBody)
+    }
+
     fun navigateMin(csrf: String?, archiveNr: String, folderLinkId: Int): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf).addFolder(archiveNr, folderLinkId, null))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -221,6 +255,17 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return fileService.getLeanItems(requestBody)
+    }
+
+    fun updateProfileBanner(
+        csrf: String?, folderId: Int, folderLinkId: Int, archiveNr: String?, thumbArchiveNr: String
+    ): Call<ResponseVO> {
+        val json = toJson(
+            RequestContainer(csrf).addFolder(folderId, folderLinkId, archiveNr, thumbArchiveNr)
+        )
+        val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
+
+        return fileService.updateProfileBanner(requestBody)
     }
 
     fun createFolder(
@@ -281,11 +326,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         displayName: String,
         folderId: Int,
         folderLinkId: Int,
+        createdDT: Date,
         s3Url: String
     ): Call<ResponseVO> {
         val request = toJson(
             SimpleRequestContainer(csrf)
-                .addRecord(displayName, file, folderId, folderLinkId)
+                .addRecord(displayName, file, folderId, folderLinkId, createdDT)
                 .addSimple(s3Url)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -427,6 +473,18 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return shareService.getShares(requestBody)
     }
 
+    fun updateProfilePhoto(
+        csrf: String?,
+        archiveNr: String?,
+        archiveId: Int,
+        thumbArchiveNr: String?
+    ): Call<ResponseVO> {
+        val request =
+            toJson(RequestContainer(csrf).addArchive(archiveNr, archiveId, thumbArchiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.updateProfilePhoto(requestBody)
+    }
+
     fun getAllArchives(csrf: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer(csrf))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -498,7 +556,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun transferOwnership(csrf: String?, archiveNr: String?, email: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer(csrf)
+        val request = toJson(
+            RequestContainer(csrf)
                 .addArchive(archiveNr)
                 .addAccount(email, AccessRole.OWNER)
         )
@@ -574,6 +633,30 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer(csrf).addTagIds(tags).addTagLink(recordId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return tagService.unlinkTags(requestBody)
+    }
+
+    fun getProfileItemsByArchive(csrf: String?, archiveNr: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addProfileItem(archiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return profileService.getAllByArchiveNbr(requestBody)
+    }
+
+    fun safeAddUpdateProfileItems(
+        csrf: String?,
+        profileItems: List<ProfileItem>,
+        serializeNulls: Boolean
+    ): Call<ResponseVO> {
+        val request = if (serializeNulls) profileItemsJsonAdapter.serializeNulls().toJson(
+            ProfileItemsRequestContainer(csrf).addProfileItems(profileItems)
+        ) else toJson(RequestContainer(csrf).addProfileItem(profileItems[0]))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return profileService.safeAddUpdate(requestBody)
+    }
+
+    fun deleteProfileItem(csrf: String?, profileItem: ProfileItem): Call<ResponseVO> {
+        val request = toJson(RequestContainer(csrf).addProfileItem(profileItem))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return profileService.delete(requestBody)
     }
 
     private fun toJson(container: RequestContainer): String {

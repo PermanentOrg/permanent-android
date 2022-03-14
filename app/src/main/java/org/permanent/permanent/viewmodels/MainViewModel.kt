@@ -25,14 +25,14 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val userEmail = prefsHelper.getAccountEmail()
+    private val userEmail = MutableLiveData<String>()
     private val archiveThumb = MutableLiveData<String>()
     private val archiveName = MutableLiveData<String>()
     private val spaceUsedPercentage = MutableLiveData<Int>()
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onManageArchives = SingleLiveEvent<Void>()
+    private val onViewProfile = SingleLiveEvent<Void>()
     private val onArchiveSwitched = SingleLiveEvent<Void>()
     private val onLoggedOut = SingleLiveEvent<Void>()
     val versionName = MutableLiveData(
@@ -41,16 +41,17 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         )
     )
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-    private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository =
+        AuthenticationRepositoryImpl(application)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun switchCurrentArchiveTo(archiveNr: String?) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        archiveNr?.let {
+        archiveNr?.let { archiveNumber ->
             isBusy.value = true
-            archiveRepository.switchToArchive(it, object : IDataListener {
+            archiveRepository.switchToArchive(archiveNumber, object : IDataListener {
 
                 override fun onSuccess(dataList: List<Datum>?) {
                     isBusy.value = false
@@ -59,6 +60,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                         prefsHelper.saveCurrentArchiveInfo(
                             archive.id,
                             archive.number,
+                            archive.type,
                             archive.fullName,
                             archive.thumbURL200,
                             archive.accessRole
@@ -69,19 +71,20 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    errorMessage.value = error
+                    error?.let { errorMessage.value = it }
                 }
             })
         }
     }
 
-    fun onManageArchivesClick() {
-        onManageArchives.call()
+    fun onViewProfileClick() {
+        onViewProfile.call()
     }
 
     fun updateUsedStorage() {
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
+                account.primaryEmail?.let { userEmail.value = it }
                 val spaceTotal = account.spaceTotal
                 val spaceLeft = account.spaceLeft
                 if (spaceTotal != null && spaceLeft != null) {
@@ -97,7 +100,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
             }
 
             override fun onFailed(error: String?) {
-                errorMessage.value = error
+                error?.let { errorMessage.value = it }
             }
         })
     }
@@ -131,7 +134,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        errorMessage.value = error
+                        error?.let { errorMessage.value = it }
                         Log.e(TAG, "Deleting Device FCM token failed: $error")
                     }
                 })
@@ -144,6 +147,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         }
 
         isBusy.value = true
+        FirebaseMessaging.getInstance().deleteToken();
         authRepository.logout(object : IAuthenticationRepository.IOnLogoutListener {
             override fun onSuccess() {
                 isBusy.value = false
@@ -152,12 +156,12 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                errorMessage.value = error
+                error?.let { errorMessage.value = it }
             }
         })
     }
 
-    fun getUserEmail(): String? = userEmail
+    fun getUserEmail(): MutableLiveData<String> = userEmail
 
     fun getArchiveThumb(): MutableLiveData<String> = archiveThumb
 
@@ -173,7 +177,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getOnArchiveSwitched(): LiveData<Void> = onArchiveSwitched
 
-    fun getOnManageArchives(): LiveData<Void> = onManageArchives
+    fun getOnViewProfile(): LiveData<Void> = onViewProfile
 
     fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
 }

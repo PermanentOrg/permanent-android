@@ -8,6 +8,10 @@ import retrofit2.http.POST
 
 interface IArchiveService {
 
+    // Used in public profile
+    @POST("archive/update")
+    fun updateProfilePhoto(@Body requestBody: RequestBody): Call<ResponseVO>
+
     // Used in managing the archives
     @POST("archive/getAllArchives")
     fun getAllArchives(@Body requestBody: RequestBody): Call<ResponseVO>

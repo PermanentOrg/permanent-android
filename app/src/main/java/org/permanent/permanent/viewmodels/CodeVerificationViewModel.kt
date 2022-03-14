@@ -84,7 +84,7 @@ class CodeVerificationViewModel(application: Application) :
                 object : IAuthenticationRepository.IOnVerifyListener {
                     override fun onSuccess() {
                         isBusy.value = false
-                        prefsHelper.saveSkipTwoStepVerification(true)
+//                        prefsHelper.saveSkipTwoStepVerification(true)
                         onCodeVerified.call()
                     }
 
@@ -124,6 +124,7 @@ class CodeVerificationViewModel(application: Application) :
                             prefsHelper.saveCurrentArchiveInfo(
                                 archive.id,
                                 archive.number,
+                                archive.type,
                                 archive.fullName,
                                 archive.thumbURL200,
                                 archive.accessRole

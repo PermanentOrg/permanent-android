@@ -54,11 +54,12 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 prefsHelper.saveAccountEmail(email)
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                    prefsHelper.saveAccountId(responseVO.getAccount()?.accountId)
-                    val archive = Archive(responseVO.getArchive())
+                    prefsHelper.saveAccountId(responseVO.getAccountVO()?.accountId)
+                    val archive = Archive(responseVO.getArchiveVO())
                     prefsHelper.saveCurrentArchiveInfo(
                         archive.id,
                         archive.number,
+                        archive.type,
                         archive.fullName,
                         archive.thumbURL200,
                         archive.accessRole
@@ -177,7 +178,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (response.isSuccessful && responseVO?.isSuccessful == true) {
-                        val account = responseVO.getAccount()
+                        val account = responseVO.getAccountVO()
                         prefsHelper.saveAccountId(account?.accountId)
                         prefsHelper.saveDefaultArchiveId(account?.defaultArchiveId)
                         listener.onSuccess()

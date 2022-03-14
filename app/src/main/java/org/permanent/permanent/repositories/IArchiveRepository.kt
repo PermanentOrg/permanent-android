@@ -3,10 +3,13 @@ package org.permanent.permanent.repositories
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 
 interface IArchiveRepository {
+
+    fun updateProfilePhoto(thumbRecord: Record, listener: IResponseListener)
 
     fun getAllArchives(listener: IDataListener)
 

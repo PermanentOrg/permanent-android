@@ -36,7 +36,7 @@
                         android:id="@+id/clSearch"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.VISIBLE : View.GONE}"
+                        android:visibility="@{(viewModel.existsFiles || viewModel.existsUploads) &amp;&amp; viewModel.showScreenSimplified == false ? View.VISIBLE : View.GONE}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -320,7 +320,7 @@
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{()-> viewModel.onAddFabClick()}"
-            android:visibility="@{viewModel.isCreateAvailable == false || viewModel.isRelocationMode ? View.GONE: View.VISIBLE}"
+            android:visibility="@{viewModel.isCreateAvailable == false || viewModel.isRelocationMode || viewModel.showScreenSimplified ? View.GONE: View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -332,11 +332,11 @@
             app:tint="@null" />
 
         <ImageView
-            android:id="@+id/ivCat"
+            android:id="@+id/ivNoFiles"
             android:layout_width="wrap_content"
             android:layout_height="112dp"
-            android:src="@{viewModel.isRoot ? @drawable/img_my_files_cat : @drawable/ic_empty_folder}"
-            android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.GONE : View.VISIBLE}"
+            android:src="@drawable/ic_empty_folder"
+            android:visibility="@{viewModel.showEmptyFolder ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -349,14 +349,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="@{viewModel.isRoot ? @string/my_files_no_files_root :  @string/my_files_no_files}"
-            android:textColor="@{viewModel.isRoot ? @color/colorPrimary : @color/lightGrey}"
+            android:text="@string/my_files_no_files"
+            android:textColor="@color/lightGrey"
             android:textSize="18sp"
-            android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.showEmptyFolder ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivCat"
+            app:layout_constraintTop_toBottomOf="@+id/ivNoFiles"
             app:layout_constraintVertical_bias="0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

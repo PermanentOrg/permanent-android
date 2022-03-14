@@ -14,17 +14,34 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clBottomMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingTop="18dp"
+        android:paddingBottom="24dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnShareViaPermanent"
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginBottom="4dp"
             android:onClick="@{() -> viewModel.onShareViaPermanentBtnClick()}"
             android:text="@string/file_options_menu_item_share_via_permanent"
             android:visibility="@{viewModel.shouldHideShareViaPermanentButton ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toTopOf="@+id/btnShareToAnotherApp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCopyLink"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:onClick="@{() -> viewModel.onCopyLinkBtnClick()}"
+            android:text="@string/share_link_copy_link_button"
+            android:visibility="@{viewModel.shouldHideCopyLinkButton ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toTopOf="@+id/btnShareToAnotherApp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -34,14 +51,12 @@
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="24dp"
             android:onClick="@{() -> viewModel.onShareToAnotherAppBtnClick()}"
             android:text="@string/file_options_menu_item_share_to_another_app"
+            android:visibility="@{viewModel.shouldHideShareToAnotherAppButton ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnShareViaPermanent"
             app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

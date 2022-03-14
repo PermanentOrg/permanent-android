@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.PublicViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="true">
+
+            <ImageView
+                android:id="@+id/ivProfileBanner"
+                android:layout_width="match_parent"
+                android:layout_height="112dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:src="@color/lighterGrey"
+                android:scaleType="centerCrop"
+                app:imageUrl="@{viewModel.profileBannerThumb}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/ivProfilePhoto"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginBottom="458dp"
+                android:background="@drawable/white_image_frame"
+                android:cropToPadding="true"
+                android:padding="2dp"
+                android:paddingStart="2dp"
+                android:paddingLeft="2dp"
+                android:paddingTop="2dp"
+                android:paddingRight="2dp"
+                android:scaleType="centerCrop"
+                android:src="@color/lighterGrey"
+                app:imageUrl="@{viewModel.currentArchiveThumb}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ivProfileBanner"
+                app:layout_constraintVertical_bias="0.453" />
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabProfileBanner"
+                android:layout_width="40dp"
+                android:layout_height="44dp"
+                android:background="@drawable/round_white_frame"
+                android:backgroundTint="@color/superLightGrey"
+                android:clickable="true"
+                android:scaleType="center"
+                app:backgroundTint="@color/white"
+                app:borderWidth="1dp"
+                app:elevation="0dp"
+                app:fabSize="mini"
+                app:layout_constraintBottom_toBottomOf="@+id/ivProfileBanner"
+                app:layout_constraintEnd_toEndOf="@+id/ivProfileBanner"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/ivProfilePhoto"
+                app:layout_constraintTop_toTopOf="@+id/ivProfileBanner"
+                app:layout_constraintVertical_bias="1.0"
+                app:maxImageSize="21dp"
+                app:srcCompat="@drawable/ic_camera"
+                app:tint="@color/colorPrimary" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabProfilePhoto"
+                android:layout_width="40dp"
+                android:layout_height="41dp"
+                android:background="@drawable/round_white_frame"
+                android:backgroundTint="@color/superLightGrey"
+                android:clickable="true"
+                android:scaleType="center"
+                app:backgroundTint="@color/white"
+                app:borderWidth="1dp"
+                app:elevation="0dp"
+                app:fabSize="mini"
+                app:layout_constraintBottom_toTopOf="@+id/tlPublic"
+                app:layout_constraintEnd_toEndOf="@+id/ivProfilePhoto"
+                app:layout_constraintStart_toStartOf="@+id/ivProfilePhoto"
+                app:layout_constraintTop_toTopOf="@+id/ivProfilePhoto"
+                app:layout_constraintVertical_bias="0.88"
+                app:maxImageSize="21dp"
+                app:srcCompat="@drawable/ic_camera"
+                app:tint="@color/colorPrimary" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tlPublic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="448dp"
+                android:elevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivProfilePhoto"
+                app:layout_constraintVertical_bias="0.0"
+                app:tabBackground="@color/white"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/colorPrimary"
+                app:tabMode="fixed"
+                app:tabSelectedTextColor="@color/colorPrimary"
+                app:tabTextColor="@color/lightGrey" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpPublic"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tlPublic"
+                app:layout_constraintVertical_bias="0.0">
+
+            </androidx.viewpager2.widget.ViewPager2>
+
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/progressBar"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="@{viewModel.getIsBusy() ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.54" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

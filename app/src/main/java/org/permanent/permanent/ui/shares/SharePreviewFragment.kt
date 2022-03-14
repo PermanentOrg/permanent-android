@@ -108,7 +108,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
     private fun initRecordsRecyclerView(rvRecords: RecyclerView) {
         recordsRecyclerView = rvRecords
         recordsAdapter = RecordsGridAdapter(
-            this,
+            this, false,
             MutableLiveData(false),
             viewModel.getCurrentState(),
             isForSharePreviewScreen = true,

@@ -14,9 +14,8 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
-class FileInfoViewModel(
-    application: Application
-) : ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener {
+class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application),
+    DatePickerDialog.OnDateSetListener {
 
     private val appContext = application.applicationContext
     private lateinit var fileData: FileData
@@ -28,8 +27,8 @@ class FileInfoViewModel(
     val onShowLocationSearchRequest = SingleLiveEvent<Void>()
     val onShowTagsEdit = SingleLiveEvent<Void>()
     private val onFileInfoUpdated = SingleLiveEvent<String>()
-    private val showMessage = SingleLiveEvent<String>()
-    private val showError = SingleLiveEvent<String>()
+    private val showMessage = SingleLiveEvent<String?>()
+    private val showError = SingleLiveEvent<String?>()
     private val existsTags = MutableLiveData(false)
     private val isEditable = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
@@ -130,9 +129,9 @@ class FileInfoViewModel(
 
     fun getShowTagsEdit(): LiveData<Void> = onShowTagsEdit
 
-    fun getShowError(): LiveData<String> = showError
+    fun getShowError(): LiveData<String?> = showError
 
-    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowMessage(): LiveData<String?> = showMessage
 
     fun getExistsTags(): LiveData<Boolean> = existsTags
 

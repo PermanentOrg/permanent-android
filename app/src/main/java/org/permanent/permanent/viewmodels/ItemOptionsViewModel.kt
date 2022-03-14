@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
@@ -16,9 +17,12 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     private val isBusy = MutableLiveData<Boolean>()
     private var member: Account? = null
     private var share: Share? = null
+    private var profileItem: ProfileItem? = null
     private val itemName = MutableLiveData<String>()
     private val onEditShareRequest = SingleLiveEvent<Share>()
     private val onEditMemberRequest = SingleLiveEvent<Account>()
+    private val onEditProfileItemRequest = SingleLiveEvent<ProfileItem>()
+    private val onDeleteProfileItemRequest = SingleLiveEvent<ProfileItem>()
     private val onMemberRemoved = SingleLiveEvent<String>()
     private val onShareRemoved = SingleLiveEvent<Share>()
     private val showSnackbar = MutableLiveData<String>()
@@ -28,23 +32,38 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
 
     fun setMember(member: Account?) {
         this.member = member
-        itemName.value = member?.primaryEmail
+        member?.primaryEmail?.let { itemName.value = it }
     }
 
     fun setShare(share: Share?) {
         this.share = share
-        itemName.value = share?.archive?.fullName
+        share?.archive?.fullName?.let { itemName.value = it }
+    }
+
+    fun setProfileItem(profileItem: ProfileItem?) {
+        this.profileItem = profileItem
+        profileItem?.string1?.let {
+            itemName.value = it
+        }
     }
 
     fun onEditBtnClick() {
-        if (member != null) onEditMemberRequest.value = member else onEditShareRequest.value = share
+        when {
+            member != null -> onEditMemberRequest.value = member
+            share != null -> onEditShareRequest.value = share
+            else -> onEditProfileItemRequest.value = profileItem
+        }
     }
 
     fun onRemoveBtnClick() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        if (member != null) removeMember() else removeShare()
+        when {
+            member != null -> removeMember()
+            share != null -> removeShare()
+            else -> onDeleteProfileItemRequest.value = profileItem
+        }
     }
 
     private fun removeMember() {
@@ -54,30 +73,30 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
-                        onMemberRemoved.value = message
+                        message?.let { onMemberRemoved.value = it }
                     }
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showSnackbar.value = error
+                        error?.let { showSnackbar.value = it }
                     }
                 })
         }
     }
 
     private fun removeShare() {
-        share?.let {
+        share?.let { share ->
             isBusy.value = true
-            shareRepository.deleteShare(it, object : IResponseListener {
+            shareRepository.deleteShare(share, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    showSnackbarSuccess.value = message
-                    onShareRemoved.value = it
+                    message?.let { showSnackbarSuccess.value = it }
+                    onShareRemoved.value = share
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showSnackbar.value = error
+                    error?.let { showSnackbar.value = it }
                 }
             })
         }
@@ -90,6 +109,10 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
     fun getOnEditMemberRequest(): MutableLiveData<Account> = onEditMemberRequest
 
     fun getOnEditShareRequest(): MutableLiveData<Share> = onEditShareRequest
+
+    fun getOnEditProfileItemRequest(): MutableLiveData<ProfileItem> = onEditProfileItemRequest
+
+    fun getOnDeleteProfileItemRequest(): MutableLiveData<ProfileItem> = onDeleteProfileItemRequest
 
     fun getOnMemberRemoved(): LiveData<String> = onMemberRemoved
 

@@ -13,11 +13,17 @@ interface IFileService {
     @POST("folder/getroot")
     fun getRoot(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/getPublicRoot")
+    fun getPublicRoot(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("folder/navigateMin")
     fun navigateMin(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @POST("folder/getLeanItems")
     fun getLeanItems(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("folder/updateRootColumns")
+    fun updateProfileBanner(@Body requestBody: RequestBody): Call<ResponseVO>
 
     @POST("folder/post")
     fun createFolder(@Body requestBody: RequestBody): Call<ResponseVO>

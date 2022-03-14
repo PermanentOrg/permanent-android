@@ -11,7 +11,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogForgotPasswordBinding
@@ -52,7 +51,7 @@ class LoginFragment  : PermanentBaseFragment() {
     private val onErrorMessage = Observer<String> { errorMessage ->
         when (errorMessage) {
             Constants.ERROR_MFA_TOKEN -> {
-                findNavController().navigate(R.id.action_loginFragment_to_codeVerificationFragment)
+//                findNavController().navigate(R.id.action_loginFragment_to_codeVerificationFragment)
             }
             else -> Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
         }

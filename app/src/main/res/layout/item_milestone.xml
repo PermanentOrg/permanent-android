@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="profileItem"
+            type="org.permanent.permanent.models.ProfileItem" />
+    </data>
+
+    <com.chauthai.swipereveallayout.SwipeRevealLayout
+        android:id="@+id/layoutSwipeReveal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dragEdge="right"
+        app:mode="normal">
+
+        <FrameLayout
+            android:id="@+id/layoutUnderlay"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <include layout="@layout/item_milestone_underlay" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/layoutOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/tvMilestoneTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="26dp"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:hint="@string/public_profile_milestone_title_hint"
+                    android:text="@{profileItem.string1}"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toStartOf="@id/btnOptions"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvMilestoneLocation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/public_profile_location_hint"
+                    android:text="@{profileItem.locationVO.UIAddress}"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@id/btnOptions"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvMilestoneTitle" />
+
+                <TextView
+                    android:id="@+id/tvStartDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="@string/public_profile_date_hint"
+                    android:text="@{profileItem.day1}"
+                    android:textColor="@color/middleGrey"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnOptions"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvMilestoneLocation"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <TextView
+                    android:id="@+id/tvMilestoneDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/open_sans"
+                    android:hint="@string/public_profile_milestone_description_hint"
+                    android:text="@{profileItem.string2}"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:visibility="@{profileItem.isForPublicProfileScreen ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toStartOf="@id/btnOptions"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvStartDate" />
+
+                <Button
+                    android:id="@+id/btnOptions"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{profileItem.isForPublicProfileScreen ? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_more_white"
+                    app:iconTint="@color/middleGrey"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </FrameLayout>
+    </com.chauthai.swipereveallayout.SwipeRevealLayout>
+</layout>

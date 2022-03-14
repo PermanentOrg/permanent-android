@@ -28,7 +28,7 @@ class ArchivesContainerFragment : PermanentBottomSheetFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.fragment_archives_container, container, false)
+        return inflater.inflate(R.layout.fragment_container, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -36,7 +36,7 @@ class ArchivesContainerFragment : PermanentBottomSheetFragment() {
         archivesFragment?.getOnCurrentArchiveChanged()?.observe(this, onCurrentArchiveChanged)
         archivesFragment?.arguments = bundleOf(SHOW_SCREEN_SIMPLIFIED_KEY to true)
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
-        transaction.replace(R.id.flArchivesContainer, archivesFragment!!).commit()
+        transaction.replace(R.id.frameLayoutContainer, archivesFragment!!).commit()
     }
 
     override fun connectViewModelEvents() {

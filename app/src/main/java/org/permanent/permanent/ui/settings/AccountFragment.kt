@@ -14,20 +14,20 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.databinding.DialogDeleteAccountBinding
-import org.permanent.permanent.databinding.FragmentAccountInfoBinding
+import org.permanent.permanent.databinding.FragmentAccountBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.login.LoginActivity
-import org.permanent.permanent.viewmodels.AccountInfoViewModel
+import org.permanent.permanent.viewmodels.AccountViewModel
 import org.permanent.permanent.viewmodels.DeleteAccountViewModel
 
 
-class AccountInfoFragment : PermanentBaseFragment() {
+class AccountFragment : PermanentBaseFragment() {
 
     private lateinit var dialog: Dialog
-    private lateinit var binding: FragmentAccountInfoBinding
+    private lateinit var binding: FragmentAccountBinding
     private lateinit var dialogBinding: DialogDeleteAccountBinding
 
-    private lateinit var viewModel: AccountInfoViewModel
+    private lateinit var viewModel: AccountViewModel
     private lateinit var dialogViewModel: DeleteAccountViewModel
 
     override fun onCreateView(
@@ -35,8 +35,8 @@ class AccountInfoFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(AccountInfoViewModel::class.java)
-        binding = FragmentAccountInfoBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(AccountViewModel::class.java)
+        binding = FragmentAccountBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

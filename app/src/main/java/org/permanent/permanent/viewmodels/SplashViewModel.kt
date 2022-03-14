@@ -1,25 +1,113 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
-import org.permanent.permanent.repositories.IAuthenticationRepository
+import net.openid.appauth.AuthorizationResponse
+import net.openid.appauth.AuthorizationService
+import net.openid.appauth.ClientSecretBasic
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.R
+import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.network.AuthStateManager
+import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.repositories.*
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 class SplashViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    private val onLoggedInResponse = SingleLiveEvent<Boolean>()
-    private val authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
+    private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
+    private val onUserLoggedIn = SingleLiveEvent<Void>()
+    private val showError = MutableLiveData<String>()
+    private val authRepository: IAuthenticationRepository =
+        AuthenticationRepositoryImpl(application)
+    private val accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
-    fun getOnLoggedInResponse(): MutableLiveData<Boolean> {
-        return onLoggedInResponse
+    fun requestTokens(authResponse: AuthorizationResponse) {
+        val clientAuth = ClientSecretBasic(BuildConfig.AUTH_CLIENT_SECRET)
+        val authService = AuthorizationService(appContext)
+
+        authService.performTokenRequest(
+            authResponse.createTokenExchangeRequest(), clientAuth
+        ) { tokenResp, tokenEx ->
+            AuthStateManager.getInstance(appContext).updateAfterTokenResponse(tokenResp, tokenEx)
+
+            if (tokenResp != null) { // exchange succeeded
+                verifyIsUserLoggedIn()
+            } else {
+                showError.value = tokenEx?.errorDescription
+            }
+        }
     }
 
     fun verifyIsUserLoggedIn() {
         authRepository.verifyLoggedIn(object : IAuthenticationRepository.IOnLoggedInListener {
 
             override fun onResponse(isLoggedIn: Boolean) {
-                onLoggedInResponse.value = isLoggedIn
+                prefsHelper.saveUserLoggedIn(isLoggedIn)
+
+                if (isLoggedIn) getAccount()
+                // else the server responds 401 and the interceptor handles the case
             }
         })
     }
+
+    fun getAccount() {
+        accountRepository.getSessionAccount(object : IAccountRepository.IAccountListener {
+
+            override fun onSuccess(account: Account) {
+                prefsHelper.saveAccountId(account.id)
+                prefsHelper.saveAccountEmail(account.primaryEmail)
+                prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
+
+                account.defaultArchiveId?.let { getArchive(it) }
+            }
+
+            override fun onFailed(error: String?) {
+                error?.let { showError.value = it }
+            }
+        })
+    }
+
+    fun getArchive(defaultArchiveId: Int) {
+        archiveRepository.getAllArchives(object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                if (!dataList.isNullOrEmpty()) {
+
+                    for (data in dataList) {
+                        val archive = Archive(data.ArchiveVO)
+                        if (defaultArchiveId == archive.id) {
+                            prefsHelper.saveCurrentArchiveInfo(
+                                archive.id,
+                                archive.number,
+                                archive.type,
+                                archive.fullName,
+                                archive.thumbURL200,
+                                archive.accessRole
+                            )
+                            onUserLoggedIn.call()
+                            return
+                        }
+                    }
+                }
+                showError.value = appContext.getString(R.string.generic_error)
+            }
+
+            override fun onFailed(error: String?) {
+                error?.let { showError.value = it }
+            }
+        })
+    }
+
+    fun getOnUserLoggedIn(): MutableLiveData<Void> = onUserLoggedIn
+
+    fun getShowError(): LiveData<String> = showError
 }

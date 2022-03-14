@@ -14,6 +14,7 @@ class ActivityFeedViewModel(application: Application) : ObservableAndroidViewMod
     private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    private val hasNotifications = MutableLiveData(false)
     private val onNotificationsRetrieved = SingleLiveEvent<MutableList<Notification>>()
     private var notificationsRepository: INotificationRepository = NotificationRepositoryImpl(appContext)
 
@@ -30,6 +31,7 @@ class ActivityFeedViewModel(application: Application) : ObservableAndroidViewMod
         notificationsRepository.getNotifications(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
+                hasNotifications.value = !dataList.isNullOrEmpty()
                 if (!dataList.isNullOrEmpty()) {
                     val notifications: MutableList<Notification> = ArrayList()
 
@@ -46,6 +48,8 @@ class ActivityFeedViewModel(application: Application) : ObservableAndroidViewMod
             }
         })
     }
+
+    fun getHasNotifications(): MutableLiveData<Boolean> = hasNotifications
 
     fun getIsBusy(): MutableLiveData<Boolean> {
         return isBusy

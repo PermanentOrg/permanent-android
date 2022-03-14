@@ -150,18 +150,18 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         )
     }
 
-    private val onShowMessage = Observer<String> {
+    private val onShowMessage = Observer<String?> {
         Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
     override fun connectViewModelEvents() {
         viewModel.showMessage.observe(this, onShowMessage)
-        viewModel.getOnLocationUpdate().observe(this, onLocationUpdated)
+        viewModel.getOnRecordLocationUpdate().observe(this, onLocationUpdated)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.showMessage.removeObserver(onShowMessage)
-        viewModel.getOnLocationUpdate().removeObserver(onLocationUpdated)
+        viewModel.getOnRecordLocationUpdate().removeObserver(onLocationUpdated)
     }
 
     override fun onResume() {

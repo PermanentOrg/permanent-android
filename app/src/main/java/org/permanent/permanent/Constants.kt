@@ -11,11 +11,17 @@ class Constants {
         const val REQUEST_CODE_VIDEO_CAPTURE = 203
         const val REQUEST_CODE_GOOGLE_API_AVAILABILITY = 2404
         const val LOGIN_URL_SUFFIX = "auth/login"
+        const val SIGN_UP_URL_SUFFIX = "account/post"
+        const val S3_BASE_URL = "https://s3.us-west-2.amazonaws.com"
         const val MY_FILES_FOLDER = "My Files"
+        const val PUBLIC_FILES_FOLDER = "Public"
+        const val PRIVATE_FILES = "Private Files"
+        const val PUBLIC_FILES = "Public Files"
         const val MEDIA_TYPE_JSON = "application/json;charset=UTF-8"
         const val MEDIA_TYPE_OCTET_STREAM = "application/octet-stream"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
         const val AUTH_TYPE_PHONE = "type.auth.phone"
+        const val AUTH_REQUEST_SCOPE = "offline_access"
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
         const val ERROR_INVALID_VERIFICATION_CODE = "warning.auth.token_does_not_match"
         const val ERROR_EXPIRED_VERIFICATION_CODE = "warning.auth.token_expired"

@@ -21,6 +21,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import kotlinx.android.synthetic.main.dialog_welcome.view.*
 import org.permanent.permanent.*
@@ -31,7 +32,8 @@ import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.public.LocationSearchFragment
+import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
@@ -49,22 +51,42 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         startWithCustomDestination(false)
     }
 
-    private val onManageArchives = Observer<Void> {
+    private val onViewProfile = Observer<Void> {
         navController.navigateUp()
-        navController.navigate(R.id.archivesFragment)
+        navController.navigate(R.id.publicFragment)
         binding.drawerLayout.closeDrawers()
     }
 
     private val onLoggedOut = Observer<Void> {
         prefsHelper.saveUserLoggedIn(false)
         prefsHelper.saveBiometricsLogIn(true) // Setting back to default
-        startActivity(Intent(this, LoginActivity::class.java))
+        startActivity(Intent(this, SignUpActivity::class.java))
         finish()
     }
 
     private val onErrorMessage = Observer<String> { errorMessage ->
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
     }
+
+    private val onDestinationChangedListener =
+        NavController.OnDestinationChangedListener { controller, destination, arguments ->
+            when (destination.id) {
+                R.id.editAboutFragment, R.id.editArchiveInformationFragment,
+                R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
+                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
+                }
+                R.id.addEditOnlinePresenceFragment, R.id.addEditMilestoneFragment -> {
+                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+                    toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
+                }
+                R.id.publicFragment -> {
+                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
+                    toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,10 +112,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         headerSettingsBinding.lifecycleOwner = this
         headerSettingsBinding.viewModel = viewModel
 
-        // NavController setup
+        // NavController setupOnDestinationChangedListener
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
+
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
 
         // Toolbar & ActionBar & AppBarConfiguration setup
         setSupportActionBar(binding.toolbar)
@@ -104,7 +128,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.membersFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment,
-            R.id.accountInfoFragment,
+            R.id.accountFragment,
+            R.id.publicFilesFragment,
+            R.id.publicFragment,
+            R.id.publicGalleryFragment,
             R.id.securityFragment
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
@@ -136,7 +163,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     // Returning 'false' to not remain the item selected on resuming
                     return@setNavigationItemSelectedListener false
                 }
-                R.id.help -> {
+                R.id.contactSupport -> {
                     binding.drawerLayout.closeDrawers()
                     navigateOnWebTo(BuildConfig.HELP_URL)
                     // Returning 'false' to not remain the item selected on resuming
@@ -210,10 +237,21 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         return true
     }
 
-    // On Settings menu click
+
+    // On Toolbar menu item click
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
-        binding.drawerLayout.openDrawer(GravityCompat.END)
+        when (menuItem?.itemId) {
+            R.id.moreItem, R.id.doneItem -> sendEventToFragment()
+            else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
+        }
         return true
+    }
+
+    private fun sendEventToFragment() {
+        val currentFragment = supportFragmentManager.primaryNavigationFragment?.childFragmentManager
+            ?.fragments?.first()
+        if (currentFragment is PublicFolderFragment) currentFragment.onMoreItemClick()
+        else if (currentFragment is LocationSearchFragment) currentFragment.onDoneItemClick()
     }
 
     // Toolbar back press
@@ -222,6 +260,13 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.linkSettingsFragment -> {
                 navController.popBackStack(R.id.shareLinkFragment, true)
                 true
+            }
+            R.id.publicFolderFragment -> {
+                val publicFolderFragment =
+                    supportFragmentManager.primaryNavigationFragment?.childFragmentManager
+                        ?.fragments?.first() as PublicFolderFragment
+                if (publicFolderFragment.onNavigateUp()) true
+                else navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
             }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
@@ -262,7 +307,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     activity,
                     status,
                     REQUEST_CODE_GOOGLE_API_AVAILABILITY
-                ).show()
+                )?.show()
             }
             return false
         }
@@ -271,14 +316,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     override fun connectViewModelEvents() {
         viewModel.getOnArchiveSwitched().observe(this, onArchiveSwitched)
-        viewModel.getOnManageArchives().observe(this, onManageArchives)
+        viewModel.getOnViewProfile().observe(this, onViewProfile)
         viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnArchiveSwitched().removeObserver(onArchiveSwitched)
-        viewModel.getOnManageArchives().removeObserver(onManageArchives)
+        viewModel.getOnViewProfile().removeObserver(onViewProfile)
         viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
