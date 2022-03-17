@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>min_app_version_android</key>
+        <value>1.0.0</value>
+    </entry>
+</defaultsMap>

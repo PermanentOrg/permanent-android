@@ -11,8 +11,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationResponse
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySplashBinding
 import org.permanent.permanent.network.AuthStateManager
@@ -21,6 +25,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
+import java.util.regex.Pattern
 
 class SplashActivity : PermanentBaseActivity() {
 
@@ -66,14 +71,50 @@ class SplashActivity : PermanentBaseActivity() {
             }
             else -> {
                 isLoginFlow = false
-                if (!prefsHelper.isOnboardingCompleted()) {
-                    startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
-                    finish()
-                } else {
-                    viewModel.verifyIsUserLoggedIn()
+                val remoteConfig = setupRemoteConfig()
+
+                remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
+                    if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
+                    else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
+                    else viewModel.verifyIsUserLoggedIn()
                 }
             }
         }
+    }
+
+    private fun shouldUpdateApp(remoteConfig: FirebaseRemoteConfig): Boolean {
+        var shouldUpdateApp = false
+        val pattern = Pattern.compile("([1-9]\\d*)\\.(\\d+)\\.(\\d+)")
+        val remoteMatcher = pattern.matcher(remoteConfig.getString(MINIMUM_APP_VERSION_KEY))
+        val currentMatcher = pattern.matcher(BuildConfig.VERSION_NAME)
+
+        if (remoteMatcher.matches() && currentMatcher.matches()) {
+            val remoteMajor = remoteMatcher.group(1).toInt()
+            val remoteMinor = remoteMatcher.group(2).toInt()
+            val remotePatch = remoteMatcher.group(3).toInt()
+            val currentMajor = currentMatcher.group(1).toInt()
+            val currentMinor = currentMatcher.group(2).toInt()
+            val currentPatch = currentMatcher.group(3).toInt()
+
+            if (remoteMajor > currentMajor || remoteMinor > currentMinor || remotePatch > currentPatch) {
+                shouldUpdateApp = true
+            }
+        }
+        return shouldUpdateApp
+    }
+
+    private fun setupRemoteConfig(): FirebaseRemoteConfig {
+        val remoteConfig = Firebase.remoteConfig
+
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
+
+        // FOR DEVELOPMENT PURPOSE ONLY
+        // The default minimum fetch interval is 12 hours
+//        val configSettings = remoteConfigSettings {
+//            minimumFetchIntervalInSeconds = 30
+//        }
+//        remoteConfig.setConfigSettingsAsync(configSettings)
+        return remoteConfig
     }
 
     private val userLoggedInObserver = Observer<Void> {
@@ -84,15 +125,23 @@ class SplashActivity : PermanentBaseActivity() {
         }
     }
 
+    private fun startOnboardingActivity() {
+        startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
+        finish()
+    }
+
+    private fun startUpdateAppActivity() {
+        startActivity(Intent(this@SplashActivity, UpdateAppActivity::class.java))
+        finish()
+    }
+
     private fun startMainActivity() {
-        val intent = Intent(this@SplashActivity, MainActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
         finish()
     }
 
     private fun startLoginActivity() {
-        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
         finish()
     }
 
@@ -124,5 +173,9 @@ class SplashActivity : PermanentBaseActivity() {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    companion object {
+        private const val MINIMUM_APP_VERSION_KEY = "min_app_version_android"
     }
 }
