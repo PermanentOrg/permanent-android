@@ -31,6 +31,7 @@
     <string name="verification_code_enter_code_hint">Enter the second factor code</string>
     <string name="no_notifications">No notifications</string>
     <string name="button_done">Done</string>
+    <string name="button_update">Update</string>
 
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
@@ -72,6 +73,8 @@
     <string name="nav_main_header_view_profile">View Profile</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
     <string name="nav_settings_header_storage_text">%s of %s used</string>
+    <string name="update_app_title">Update Permanent Archive?</string>
+    <string name="update_app_text">You must update to the latest version of this app in order to maintain access to your Permanent Archives on this device.</string>
 
     <string name="menu_drawer_public">Public</string>
     <string name="menu_drawer_private_files">Private Files</string>

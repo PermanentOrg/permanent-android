@@ -80,6 +80,10 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.activities.UpdateAppActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".ui.twoStepVerification.TwoStepVerificationActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>

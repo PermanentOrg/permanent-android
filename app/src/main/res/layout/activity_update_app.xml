@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        tools:context=".permanent.ui.UpdateAppActivity">
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="0dp"
+            android:layout_height="184dp"
+            android:src="@drawable/img_splash_logo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.24" />
+
+      <TextView
+          android:id="@+id/tvUpdateTitle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="8dp"
+          android:layout_marginTop="24dp"
+          android:layout_marginEnd="8dp"
+          android:gravity="center"
+          android:text="@string/update_app_title"
+          android:textColor="@color/white"
+          android:textSize="16sp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/ivLogo"
+          app:layout_constraintVertical_bias="0.0" />
+
+      <TextView
+          android:id="@+id/tvUpdateText"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="16dp"
+          android:layout_marginTop="24dp"
+          android:layout_marginEnd="16dp"
+          android:fontFamily="@font/open_sans"
+          android:gravity="center"
+          android:text="@string/update_app_text"
+          android:textColor="@color/white"
+          android:textSize="16sp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/tvUpdateTitle"
+          app:layout_constraintVertical_bias="0.0" />
+
+      <Button
+          android:id="@+id/btnUpdate"
+          style="@style/Widget.MaterialComponents.Button.TextButton"
+          android:layout_width="0dp"
+          android:layout_height="56dp"
+          android:layout_marginStart="32dp"
+          android:layout_marginTop="24dp"
+          android:layout_marginEnd="32dp"
+          android:backgroundTint="@color/colorAccent"
+          android:fontFamily="@font/open_sans_bold"
+          android:text="@string/button_update"
+          android:textAllCaps="false"
+          android:textColor="@color/white"
+          android:textSize="21sp"
+          app:cornerRadius="32dp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/tvUpdateText" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

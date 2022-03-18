@@ -6,7 +6,9 @@
         <entry key="app/src/main/res/drawable/ic_delete_white.xml" value="0.4197916666666667" />
         <entry key="app/src/main/res/drawable/ic_edit.xml" value="0.4197916666666667" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.30512820512820515" />
+        <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/activity_update_app.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/dialog_add_member.xml" value="0.5911458333333334" />
         <entry key="app/src/main/res/layout/dialog_cancel_uploads.xml" value="0.5911458333333334" />
         <entry key="app/src/main/res/layout/dialog_create_new_archive.xml" value="0.5911458333333334" />
@@ -19,6 +21,7 @@
         <entry key="app/src/main/res/layout/dialog_send_invitation.xml" value="0.5911458333333334" />
         <entry key="app/src/main/res/layout/dialog_terms_of_service.xml" value="0.5911458333333334" />
         <entry key="app/src/main/res/layout/dialog_title_text_two_buttons.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/dialog_welcome.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_add_edit_milestone.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_add_edit_online_presence.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_add_milestone.xml" value="0.4036458333333333" />
@@ -31,6 +34,7 @@
         <entry key="app/src/main/res/layout/fragment_edit_milestones.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_edit_person_information.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_file_info.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_item_options.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_location_search.xml" value="0.30512820512820515" />
         <entry key="app/src/main/res/layout/fragment_members.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_milestone_list.xml" value="0.4036458333333333" />
@@ -52,6 +56,7 @@
         <entry key="app/src/main/res/layout/nav_settings_header.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/menu/menu_main_drawer.xml" value="0.5820512820512821" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.4197916666666667" />
+        <entry key="app/src/main/res/xml/remote_config_defaults.xml" value="0.4036458333333333" />
       </map>
     </option>
   </component>
