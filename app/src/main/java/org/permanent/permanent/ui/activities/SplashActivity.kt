@@ -25,7 +25,6 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
-import java.util.regex.Pattern
 
 class SplashActivity : PermanentBaseActivity() {
 
@@ -84,22 +83,24 @@ class SplashActivity : PermanentBaseActivity() {
 
     private fun shouldUpdateApp(remoteConfig: FirebaseRemoteConfig): Boolean {
         var shouldUpdateApp = false
-        val pattern = Pattern.compile("([1-9]\\d*)\\.(\\d+)\\.(\\d+)")
-        val remoteMatcher = pattern.matcher(remoteConfig.getString(MINIMUM_APP_VERSION_KEY))
-        val currentMatcher = pattern.matcher(BuildConfig.VERSION_NAME)
+        val minimumVersionSplit = remoteConfig.getString(MINIMUM_APP_VERSION_KEY).split(".")
+        val currentVersionSplit = BuildConfig.VERSION_NAME.split(".")
 
-        if (remoteMatcher.matches() && currentMatcher.matches()) {
-            val remoteMajor = remoteMatcher.group(1).toInt()
-            val remoteMinor = remoteMatcher.group(2).toInt()
-            val remotePatch = remoteMatcher.group(3).toInt()
-            val currentMajor = currentMatcher.group(1).toInt()
-            val currentMinor = currentMatcher.group(2).toInt()
-            val currentPatch = currentMatcher.group(3).toInt()
+        val remoteMajor = minimumVersionSplit[0].toInt()
+        val remoteMinor = minimumVersionSplit[1].toInt()
+        val remotePatch = minimumVersionSplit[2].toInt()
+        val currentMajor = currentVersionSplit[0].toInt()
+        val currentMinor = currentVersionSplit[1].toInt()
+        val currentPatch = currentVersionSplit[2].toInt()
 
-            if (remoteMajor > currentMajor || remoteMinor > currentMinor || remotePatch > currentPatch) {
-                shouldUpdateApp = true
-            }
+        if (remoteMajor > currentMajor) {
+            shouldUpdateApp = true
+        } else if (remoteMajor == currentMajor && remoteMinor > currentMinor) {
+            shouldUpdateApp = true
+        } else if (remoteMinor == currentMinor && remotePatch > currentPatch) {
+            shouldUpdateApp = true
         }
+
         return shouldUpdateApp
     }
 
