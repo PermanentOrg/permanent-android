@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -14,6 +15,9 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
@@ -34,6 +38,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val TAG = MyFilesViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.PRIVATE_FILES)
+    private var refreshJob: Job? = null
     private val isRoot = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
@@ -127,6 +132,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun refreshCurrentFolder() {
+        refreshJob?.cancel()
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
@@ -296,7 +302,11 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
         if (succeeded) addFakeItemToFilesList(upload)
         if (uploadsAdapter.itemCount == 0) {
-            refreshCurrentFolder()
+            refreshJob?.cancel()
+            refreshJob = viewModelScope.launch {
+                delay(9000)
+                refreshCurrentFolder()
+            }
         }
     }
 
