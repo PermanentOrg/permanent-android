@@ -304,7 +304,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         if (uploadsAdapter.itemCount == 0) {
             refreshJob?.cancel()
             refreshJob = viewModelScope.launch {
-                delay(9000)
+                delay(MILLIS_UNTIL_REFRESH)
                 refreshCurrentFolder()
             }
         }
@@ -477,4 +477,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
+
+    companion object {
+        private const val MILLIS_UNTIL_REFRESH = 9000L
+    }
 }
