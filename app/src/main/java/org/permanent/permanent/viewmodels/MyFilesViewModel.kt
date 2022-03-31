@@ -247,18 +247,18 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {
         folder?.newUploadQueue(lifecycleOwner, this)
             ?.getEnqueuedUploadsLiveData()?.let { enqueuedUploadsLiveData ->
-                enqueuedUploadsLiveData.observe(lifecycleOwner, { enqueuedUploads ->
+                enqueuedUploadsLiveData.observe(lifecycleOwner) { enqueuedUploads ->
                     uploadsAdapter.set(enqueuedUploads)
-                })
+                }
             }
     }
 
     protected fun loadEnqueuedDownloads(lifecycleOwner: LifecycleOwner) {
         downloadQueue = DownloadQueue(appContext, lifecycleOwner, this)
         downloadQueue.getEnqueuedDownloadsLiveData().let { enqueuedDownloadsLiveData ->
-            enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
+            enqueuedDownloadsLiveData.observe(lifecycleOwner) { enqueuedDownloads ->
                 onDownloadsRetrieved.value = enqueuedDownloads
-            })
+            }
         }
     }
 
