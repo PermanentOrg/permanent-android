@@ -27,10 +27,10 @@ class DownloadQueue(
                 enqueuedDownloads.value?.add(restoredDownload)
             }
         }
-        notifyObserversOnEnqueuedDownloadsChanged()
+        notifyEnqueuedDownloadsChanged()
     }
 
-    private fun notifyObserversOnEnqueuedDownloadsChanged() {
+    private fun notifyEnqueuedDownloadsChanged() {
         enqueuedDownloads.value = enqueuedDownloads.value
     }
 
@@ -39,7 +39,7 @@ class DownloadQueue(
         download.getWorkRequest()?.let { workManager.enqueue(it) }
         download.observeWorkInfoOn(lifecycleOwner)
         enqueuedDownloads.value?.add(download)
-        notifyObserversOnEnqueuedDownloadsChanged()
+        notifyEnqueuedDownloadsChanged()
 
         return download
     }
