@@ -31,7 +31,7 @@ class OnlinePresenceListViewModel(application: Application) :
     private var profileItems: MutableList<ProfileItem> = ArrayList()
     private var onOnlinePresencesRetrieved = MutableLiveData<List<ProfileItem>>()
     private var onAddRequest = SingleLiveEvent<Boolean>()
-    private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
 
     fun getProfileItems() {
         if (isBusy.value != null && isBusy.value!!) {

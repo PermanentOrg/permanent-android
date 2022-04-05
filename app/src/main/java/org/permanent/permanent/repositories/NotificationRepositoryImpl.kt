@@ -19,7 +19,6 @@ class NotificationRepositoryImpl(val context: Context): INotificationRepository 
         NetworkClient.instance().getNotifications().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                prefsHelper.saveCsrf(responseVO?.csrf)
                 if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                     listener.onSuccess(responseVO.getData())
                 } else {
@@ -34,12 +33,11 @@ class NotificationRepositoryImpl(val context: Context): INotificationRepository 
     }
 
     override fun registerDevice(token: String, listener: IResponseListener) {
-        NetworkClient.instance().registerDevice(prefsHelper.getCsrf(), token)
+        NetworkClient.instance().registerDevice( token)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess("")
                     } else {
@@ -54,12 +52,11 @@ class NotificationRepositoryImpl(val context: Context): INotificationRepository 
     }
 
     override fun deleteDevice(token: String, listener: IResponseListener) {
-        NetworkClient.instance().deleteDeviceToken(prefsHelper.getCsrf(), token)
+        NetworkClient.instance().deleteDeviceToken(token)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess("")
                     } else {

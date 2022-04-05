@@ -29,7 +29,7 @@ class LocationSearchViewModel(application: Application) : ObservableAndroidViewM
     private val isBusy = MutableLiveData(false)
     private val onRecordLocationUpdate = MutableLiveData<FileData>()
     private val onLocationUpdate = MutableLiveData<LocnVO>()
-    private var locationRepository: ILocationRepository = LocationRepositoryImpl(application)
+    private var locationRepository: ILocationRepository = LocationRepositoryImpl()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setFileData(fileData: FileData) {

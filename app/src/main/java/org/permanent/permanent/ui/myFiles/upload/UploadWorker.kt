@@ -11,7 +11,6 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.Constants
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -65,7 +64,6 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                     folderId, folderLinkId, file, displayName, mediaType
                 )
                 val getPresignedUrlResponse = callGetPresignedUrl?.execute()?.body()
-                prefsHelper.saveCsrf(getPresignedUrlResponse?.csrf)
                 val uploadDestination = getPresignedUrlResponse?.getDestination()
                 if (getPresignedUrlResponse?.isSuccessful == false || uploadDestination == null) {
                     file.delete()
@@ -95,7 +93,6 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                 val registerRecordResponse = fileRepository.registerRecord(
                     folderId, folderLinkId, file, displayName, Date(fileAttributes.creationTime().toMillis()), destinationUrl!!
                 ).execute().body()
-                prefsHelper.saveCsrf(registerRecordResponse?.csrf)
                 if (registerRecordResponse?.isSuccessful == false) {
                     file.delete()
                     Result.failure()
