@@ -26,7 +26,7 @@ class AddEditOnlinePresenceViewModel(application: Application) :
     private val onBackRequest = SingleLiveEvent<Void>()
     private val onlinePresence = MutableLiveData("")
     private var socialMediaProfileItem: ProfileItem? = null
-    private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
     private var isEdit: Boolean? = false
     private var isAddEmail: Boolean? = false
 

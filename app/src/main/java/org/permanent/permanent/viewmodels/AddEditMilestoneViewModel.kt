@@ -46,7 +46,7 @@ class AddEditMilestoneViewModel(application: Application) :
         MutableLiveData(appContext.getString(R.string.edit_description_character_limit, 0))
     private var isNewLocation = false
     private var milestoneProfileItem: ProfileItem? = null
-    private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
     private var isEdit: Boolean = true
     private var isStartDatePicked: Boolean = true
 

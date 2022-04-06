@@ -25,7 +25,6 @@ class Constants {
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
         const val ERROR_INVALID_VERIFICATION_CODE = "warning.auth.token_does_not_match"
         const val ERROR_EXPIRED_VERIFICATION_CODE = "warning.auth.token_expired"
-        const val ERROR_INVALID_CSRF = "error.generic.invalid_csrf"
         const val ERROR_UNKNOWN_SIGNIN = "warning.signin.unknown"
         const val ERROR_SERVER_ERROR = "error.api.invalid_request"
         const val ERROR_OWNER_ALREADY_PENDING = "error.pr.pending_owner"

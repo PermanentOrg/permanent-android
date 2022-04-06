@@ -7,12 +7,11 @@ import org.permanent.permanent.network.models.*
 import java.io.File
 
 
-class RequestContainer(csrf: String?) {
+class RequestContainer {
     // Don't rename this property, is used in the api call
     private var RequestVO: RequestVO = RequestVO()
 
     init {
-        RequestVO.csrf = csrf
         val dataList = (RequestVO.data as ArrayList)
         dataList.add(Datum())
         RequestVO.data = dataList
