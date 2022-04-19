@@ -43,6 +43,11 @@
         <item name="android:fontFamily">@font/open_sans_bold</item>
     </style>
 
+    <style name="storageTabTextStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+    </style>
+
     <style name="customButtonBottomSheetStyle">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>

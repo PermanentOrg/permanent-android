@@ -126,6 +126,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.myFilesFragment,
             R.id.sharesFragment,
             R.id.membersFragment,
+            R.id.storageFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment,
             R.id.accountFragment,
@@ -157,15 +158,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.settingsNavigationView.setupWithNavController(navController)
         binding.settingsNavigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.storage -> {
-                    binding.drawerLayout.closeDrawers()
-                    navigateOnWebTo(BuildConfig.ADD_STORAGE_URL)
-                    // Returning 'false' to not remain the item selected on resuming
-                    return@setNavigationItemSelectedListener false
-                }
                 R.id.contactSupport -> {
                     binding.drawerLayout.closeDrawers()
-                    navigateOnWebTo(BuildConfig.HELP_URL)
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(BuildConfig.HELP_URL)
+                    startActivity(intent)
                     // Returning 'false' to not remain the item selected on resuming
                     return@setNavigationItemSelectedListener false
                 }
@@ -232,7 +229,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar_settings, menu)
         return true
     }
@@ -270,12 +267,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
-    }
-
-    private fun navigateOnWebTo(url: String) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse(url)
-        startActivity(intent)
     }
 
     private fun showWelcomeDialog() {

@@ -5,7 +5,7 @@
         android:id="@+id/group1"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/storage"
+            android:id="@+id/storageFragment"
             android:title="@string/menu_settings_drawer_storage" />
 
         <item
@@ -35,9 +35,5 @@
         <item
             android:id="@+id/logOut"
             android:title="@string/menu_settings_drawer_logout" />
-
-<!--        <item-->
-<!--            android:id="@+id/supportFragment"-->
-<!--            android:title="@string/menu_settings_drawer_contact_support" />-->
     </group>
 </menu>

@@ -43,6 +43,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val locationService: ILocationService
     private val tagService: ITagService
     private val profileService: IProfileService
+    private val storageService: IStorageService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val profileItemsJsonAdapter: JsonAdapter<ProfileItemsRequestContainer>
@@ -76,7 +77,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .addInterceptor(Interceptor { chain ->
                     val request = chain.request()
                     if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
-                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX)
+                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX) &&
+                        !request.url.toString().contains(Constants.STRIPE_URL)
                     ) {
                         val requestBuilder: Request.Builder = request.newBuilder()
                         requestBuilder.header(
@@ -105,6 +107,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         locationService = retrofit.create(ILocationService::class.java)
         tagService = retrofit.create(ITagService::class.java)
         profileService = retrofit.create(IProfileService::class.java)
+        storageService = retrofit.create(IStorageService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
         profileItemsJsonAdapter =
@@ -255,7 +258,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.getLeanItems(requestBody)
     }
 
-    fun updateProfileBanner(folderId: Int, folderLinkId: Int, archiveNr: String?, thumbArchiveNr: String
+    fun updateProfileBanner(
+        folderId: Int, folderLinkId: Int, archiveNr: String?, thumbArchiveNr: String
     ): Call<ResponseVO> {
         val json = toJson(
             RequestContainer().addFolder(folderId, folderLinkId, archiveNr, thumbArchiveNr)
@@ -265,7 +269,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.updateProfileBanner(requestBody)
     }
 
-    fun createFolder(name: String, folderId: Int, folderLinkId: Int
+    fun createFolder(
+        name: String, folderId: Int, folderLinkId: Int
     ): Call<ResponseVO> {
         val json = toJson(RequestContainer().addFolder(name, folderId, folderLinkId))
         val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
@@ -409,7 +414,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.searchRecord(requestBody)
     }
 
-    fun requestShareLink(record: Record, shareRequestType: ShareRequestType
+    fun requestShareLink(
+        record: Record, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer().addRecord(record))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -420,7 +426,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
     }
 
-    fun modifyShareLink(shareVO: Shareby_urlVO, shareRequestType: ShareRequestType
+    fun modifyShareLink(
+        shareVO: Shareby_urlVO, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer().addShareByUrl(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -643,6 +650,14 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer().addProfileItem(profileItem))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return profileService.delete(requestBody)
+    }
+
+    fun getClientSecret(donationAmount: Int): Call<ResponseVO> {
+        return storageService.getClientSecret(
+            Constants.STRIPE_URL,
+            donationAmount,
+            "usd"
+        )
     }
 
     private fun toJson(container: RequestContainer): String {

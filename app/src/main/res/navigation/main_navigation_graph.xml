@@ -114,6 +114,12 @@
         tools:layout="@layout/fragment_invitations" />
 
     <fragment
+        android:id="@+id/storageFragment"
+        android:name="org.permanent.permanent.ui.StorageFragment"
+        android:label="@string/menu_settings_drawer_storage"
+        tools:layout="@layout/fragment_storage" />
+
+    <fragment
         android:id="@+id/accountFragment"
         android:name="org.permanent.permanent.ui.settings.AccountFragment"
         android:label="@string/menu_settings_drawer_account"
