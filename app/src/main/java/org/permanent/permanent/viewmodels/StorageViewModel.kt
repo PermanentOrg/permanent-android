@@ -26,9 +26,9 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
     val storageRepository: IStorageRepository = StorageRepositoryImpl(application)
 
     fun getClientSecret() {
-        val amountSplits = amount.value?.split("$")
+        val amountString = amount.value
         val amountValue =
-            if (amountSplits != null && amountSplits.size > 1 && amountSplits[1].isNotEmpty()) amountSplits[1].toInt() else 0
+            if (amountString != null && amountString.isNotEmpty()) amountString.toInt() else 0
 
         if (amountValue != 0) {
             isBusy.value = true
@@ -54,9 +54,8 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
     }
 
     fun onAmountTextChanged(amount: Editable) {
-        val amountSplits = amount.toString().split("$")
-        val amountString = if (amountSplits.size > 1) amountSplits[1] else ""
-        this.amount.value = "$$amountString"
+        val amountString = amount.toString()
+        this.amount.value = amountString
         val enteredAmount = if (amountString.isNotEmpty()) amountString.toInt() else 0
         this.gbEndowed.value = appContext.getString(
             R.string.storage_gb_endowed,
@@ -69,7 +68,7 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     companion object {
-        private const val DONATION_AMOUNT_DEFAULT_VALUE = "$10"
+        private const val DONATION_AMOUNT_DEFAULT_VALUE = "10"
         private const val GB_ENDOWED_DEFAULT_VALUE = "1"
         const val DONATION_AMOUNT_10_VALUE = "$10"
         const val DONATION_AMOUNT_20_VALUE = "$20"

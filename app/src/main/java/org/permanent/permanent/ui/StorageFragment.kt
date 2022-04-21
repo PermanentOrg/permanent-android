@@ -66,22 +66,21 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     }
 
     override fun onTabSelected(tab: TabLayout.Tab?) {
-        val amount: Int
         when (binding.tlAmount.selectedTabPosition) {
             0 -> {
-                amount = 10
-                viewModel.amount.value = DONATION_AMOUNT_10_VALUE
+                viewModel.amount.value = DONATION_AMOUNT_10_VALUE.removePrefix("$")
             }
             1 -> {
-                amount = 20
-                viewModel.amount.value = DONATION_AMOUNT_20_VALUE
+                viewModel.amount.value = DONATION_AMOUNT_20_VALUE.removePrefix("$")
             }
             else -> {
-                amount = 50
-                viewModel.amount.value = DONATION_AMOUNT_50_VALUE
+                viewModel.amount.value = DONATION_AMOUNT_50_VALUE.removePrefix("$")
             }
         }
-        viewModel.gbEndowed.value = getString(R.string.storage_gb_endowed, (amount / 10).toString())
+        viewModel.gbEndowed.value = getString(
+            R.string.storage_gb_endowed,
+            (viewModel.amount.value?.toInt()?.div(10)).toString()
+        )
     }
 
     override fun onTabUnselected(tab: TabLayout.Tab?) {
