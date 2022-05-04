@@ -41,7 +41,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     private val longDescription = MutableLiveData("")
     private var shortDescriptionProfileItem: ProfileItem? = null
     private var longDescriptionProfileItem: ProfileItem? = null
-    private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
 
     fun displayProfileItems(profileItems: MutableList<ProfileItem>) {
         for (profileItem in profileItems) {

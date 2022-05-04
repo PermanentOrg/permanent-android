@@ -78,7 +78,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditArchiveInformationRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
-    private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
     private var currentArchiveNr: String? = null
 
     fun setArchiveNr(archiveNr: String?) {
@@ -90,7 +90,6 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
             return
         }
         isBusy.value = true
-
         profileRepository.getProfileItemsByArchive(
             currentArchiveNr,
             object : IDataListener {

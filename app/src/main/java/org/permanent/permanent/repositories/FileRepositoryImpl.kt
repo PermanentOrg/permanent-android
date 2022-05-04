@@ -30,11 +30,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     private val prefsHelper = PreferencesHelper(sharedPreferences)
 
     override fun getMyFilesRecord(listener: IRecordListener) {
-        NetworkClient.instance().getRoot(prefsHelper.getCsrf())
+        NetworkClient.instance().getRoot()
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     val publicRecord = responseVO?.getPublicRecord()
                     prefsHelper.savePublicRecordInfo(
                         publicRecord?.folderId,
@@ -62,11 +61,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
 
     override fun getPublicRoot(archiveNr: String?, listener: IRecordListener) {
         NetworkClient.instance()
-            .getPublicRootForArchive(prefsHelper.getCsrf(), archiveNr)
+            .getPublicRootForArchive(archiveNr)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     val publicRecord = responseVO?.getFolderRecord()
 
                     if (publicRecord != null) {
@@ -100,14 +98,12 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         sort: String?,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        NetworkClient.instance().navigateMin(prefsHelper.getCsrf(), archiveNr, folderLinkId)
+        NetworkClient.instance().navigateMin(archiveNr, folderLinkId)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(
                     call: Call<ResponseVO>,
                     response: Response<ResponseVO>
                 ) {
-                    val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     val folderLinkIds: MutableList<Int> = ArrayList()
                     val recordVOs: List<RecordVO?>? = response.body()?.getRecordVOs()
 
@@ -130,12 +126,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
         NetworkClient.instance()
-            .getLeanItems(prefsHelper.getCsrf(), archiveNr, folderLinkId, sort, childLinkIds)
+            .getLeanItems(archiveNr, folderLinkId, sort, childLinkIds)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     listener.onSuccess(responseVO?.getRecordVOs())
                 }
 
@@ -148,7 +143,6 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     override fun updateProfileBanner(thumbRecord: Record, listener: IResponseListener) {
         thumbRecord.archiveNr?.let {
             NetworkClient.instance().updateProfileBanner(
-                prefsHelper.getCsrf(),
                 prefsHelper.getPublicRecordFolderId(),
                 prefsHelper.getPublicRecordFolderLinkId(),
                 prefsHelper.getPublicRecordArchiveNr(),
@@ -156,8 +150,6 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             ).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     prefsHelper.updatePublicRecordThumbURL(thumbRecord.thumbURL2000)
                     listener.onSuccess("")
                 }
@@ -175,13 +167,12 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         listener: IResponseListener
     ) {
         NetworkClient.instance().createFolder(
-            prefsHelper.getCsrf(), name, parentFolderIdentifier.folderId,
+            name, parentFolderIdentifier.folderId,
             parentFolderIdentifier.folderLinkId
         ).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                prefsHelper.saveCsrf(responseVO?.csrf)
                 val firstMessage = responseVO?.getMessages()?.get(0)
 
                 if (firstMessage != null && firstMessage.startsWith("New folder"))
@@ -197,12 +188,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
 
     override fun getFolder(folderLinkId: Int, listener: IRecordListener) {
         NetworkClient.instance().getFolder(
-            prefsHelper.getCsrf(), folderLinkId,
+            folderLinkId,
         ).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                prefsHelper.saveCsrf(responseVO?.csrf)
                 val record = responseVO?.getFolderRecord()
                 if (record != null) listener.onSuccess(record)
                 else listener.onFailed(responseVO?.getMessages()?.get(0))
@@ -218,7 +208,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
     ): Call<GetPresignedUrlResponse> {
         return NetworkClient.instance().getPresignedUrlForUpload(
-            prefsHelper.getCsrf(), file, displayName,
+            file, displayName,
             folderId, folderLinkId, mediaType
         )
     }
@@ -233,16 +223,21 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun registerRecord(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String, createdDT: Date, s3Url: String
+        folderId: Int,
+        folderLinkId: Int,
+        file: File,
+        displayName: String,
+        createdDT: Date,
+        s3Url: String
     ): Call<ResponseVO> {
         return NetworkClient.instance().registerRecord(
-            prefsHelper.getCsrf(), file, displayName,
+            file, displayName,
             folderId, folderLinkId, createdDT, s3Url
         )
     }
 
     override fun getRecord(folderLinkId: Int, recordId: Int?): Call<ResponseVO> {
-        return NetworkClient.instance().getRecord(prefsHelper.getCsrf(), folderLinkId, recordId)
+        return NetworkClient.instance().getRecord(folderLinkId, recordId)
     }
 
     override fun downloadFile(downloadUrl: String): Call<ResponseBody> {
@@ -253,11 +248,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         record: Record,
         listener: IResponseListener
     ) {
-        NetworkClient.instance().deleteRecord(prefsHelper.getCsrf(), record)
+        NetworkClient.instance().deleteRecord(record)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     val firstMessage = responseVO?.getMessages()?.get(0)
 
                     if (firstMessage != null && (firstMessage == Constants.FILE_DELETED_SUCCESSFULLY
@@ -280,12 +274,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         listener: IResponseListener
     ) {
         NetworkClient.instance().relocateRecord(
-            prefsHelper.getCsrf(), recordToRelocate, destFolderLinkId, relocationType
+            recordToRelocate, destFolderLinkId, relocationType
         )
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         val relocationVerb = when (relocationType) {
                             RelocationType.MOVE -> context.getString(R.string.relocation_type_moved)
@@ -295,7 +288,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                         listener.onSuccess(
                             context.getString(
                                 R.string.relocation_success,
-                                recordToRelocate.type?.name?.toLowerCase()?.capitalize(),
+                                recordToRelocate.type?.name?.lowercase(Locale.getDefault())?.capitalize(),
                                 relocationVerb
                             )
                         )
@@ -311,11 +304,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecord(fileData: FileData, listener: IResponseListener) {
-        NetworkClient.instance().updateRecord(prefsHelper.getCsrf(), fileData)
+        NetworkClient.instance().updateRecord(fileData)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(context.getString(R.string.file_info_update_success))
@@ -331,11 +323,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener) {
-        NetworkClient.instance().updateRecord(prefsHelper.getCsrf(), locnVO, fileData)
+        NetworkClient.instance().updateRecord(locnVO, fileData)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(context.getString(R.string.file_location_update_success))
@@ -351,11 +342,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecord(record: Record, newName: String, listener: IResponseListener) {
-        NetworkClient.instance().updateRecord(prefsHelper.getCsrf(), record, newName)
+        NetworkClient.instance().updateRecord(record, newName)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(context.getString(R.string.rename_record_rename_success))
@@ -375,11 +365,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         tags: List<Tag>,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        NetworkClient.instance().searchRecords(prefsHelper.getCsrf(), query, tags)
+        NetworkClient.instance().searchRecords(query, tags)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(responseVO.getData()?.get(0)?.SearchVO?.ChildItemVOs)

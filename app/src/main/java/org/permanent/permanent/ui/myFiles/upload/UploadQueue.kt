@@ -6,7 +6,7 @@ import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.work.ExistingWorkPolicy
-import androidx.work.WorkContinuation
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -25,7 +25,6 @@ class UploadQueue(
 ) {
     private val pendingUploads: MutableList<Upload> = ArrayList()
     private val enqueuedUploads: MutableLiveData<MutableList<Upload>> = MutableLiveData()
-    private var workContinuation: WorkContinuation? = null
     private var accountRepository: IAccountRepository? = AccountRepositoryImpl(context)
 
     init {
@@ -80,20 +79,19 @@ class UploadQueue(
         existingWorkPolicy: ExistingWorkPolicy = ExistingWorkPolicy.APPEND_OR_REPLACE
     ) {
         if (pendingUploads.size != 0) {
-            for (upload in pendingUploads) {
-                workContinuation = if (workContinuation == null) {
-                    upload.getWorkRequest()?.let {
-                        WorkManager.getInstance(context)
-                            .beginUniqueWork(queueId, existingWorkPolicy, it)
-                    }
-                } else {
-                    upload.getWorkRequest()?.let { workContinuation?.then(it) }
-                }
-            }
-            workContinuation?.enqueue()
-            workContinuation = null
+            WorkManager.getInstance(context)
+                .beginUniqueWork(queueId, existingWorkPolicy, getWorkRequestsOf(pendingUploads))
+                .enqueue()
             observePendingUploads()
         }
+    }
+
+    private fun getWorkRequestsOf(uploads: MutableList<Upload>): List<OneTimeWorkRequest> {
+        val workRequests: MutableList<OneTimeWorkRequest> = ArrayList()
+        for (upload in pendingUploads) {
+            upload.getWorkRequest()?.let { workRequests.add(it) }
+        }
+        return workRequests
     }
 
     private fun observePendingUploads() {

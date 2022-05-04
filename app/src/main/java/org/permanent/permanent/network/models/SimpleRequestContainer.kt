@@ -6,11 +6,10 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SimpleRequestContainer(csrf: String?) {
+class SimpleRequestContainer {
     private var RequestVO: Request = Request()
 
     init {
-        RequestVO.csrf = csrf
         RequestVO.data = Datum()
     }
 
@@ -31,7 +30,7 @@ class SimpleRequestContainer(csrf: String?) {
         val tz = TimeZone.getTimeZone("UTC")
         @SuppressLint("SimpleDateFormat")
         val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
-        df.setTimeZone(tz)
+        df.timeZone = tz
         recordVO.derivedCreatedDT = df.format(createdDT)
 
         RequestVO.data?.RecordVO = recordVO

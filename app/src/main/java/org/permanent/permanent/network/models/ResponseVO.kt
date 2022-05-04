@@ -6,7 +6,6 @@ import org.permanent.permanent.models.Record
 class ResponseVO {
     var Results: List<ResultVO>? = null
     var isSuccessful: Boolean? = false
-    var csrf: String? = null
 
     fun getMyFilesRecord(): Record? {
         val recordVOs: List<RecordVO>? = getRecordVOs()

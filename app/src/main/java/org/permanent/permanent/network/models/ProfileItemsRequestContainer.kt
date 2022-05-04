@@ -2,11 +2,10 @@ package org.permanent.permanent.network.models
 
 import org.permanent.permanent.models.ProfileItem
 
-class ProfileItemsRequestContainer(csrf: String?) {
+class ProfileItemsRequestContainer {
     private var RequestVO: ProfileItemsRequestVO = ProfileItemsRequestVO()
 
     init {
-        RequestVO.csrf = csrf
         val dataList = (RequestVO.data as ArrayList)
         dataList.add(Data())
         RequestVO.data = dataList

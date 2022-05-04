@@ -28,7 +28,6 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        responseVO.csrf?.let { prefsHelper.saveCsrf(it) }
                         prefsHelper.saveUserSignedUpInApp()
                         listener.onSuccess(appContext.getString(R.string.account_create_success))
                     } else {
@@ -49,7 +48,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         val accountId = prefsHelper.getAccountId()
 
         if (accountId != 0) {
-            NetworkClient.instance().getAccount(prefsHelper.getCsrf(), accountId)
+            NetworkClient.instance().getAccount(accountId)
                 .enqueue(object : Callback<ResponseVO> {
 
                     override fun onResponse(
@@ -57,7 +56,6 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                         response: Response<ResponseVO>
                     ) {
                         val responseVO = response.body()
-                        prefsHelper.saveCsrf(responseVO?.csrf)
                         if (response.isSuccessful && responseVO?.isSuccessful!!) {
                             listener.onSuccess(Account(responseVO.getAccountVO()))
                         } else {
@@ -76,7 +74,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     }
 
     override fun getSessionAccount(listener: IAccountRepository.IAccountListener) {
-        NetworkClient.instance().getSessionAccount(prefsHelper.getCsrf())
+        NetworkClient.instance().getSessionAccount()
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(
@@ -84,7 +82,6 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                     response: Response<ResponseVO>
                 ) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess(Account(responseVO.getAccountVO()))
                     } else {
@@ -102,12 +99,11 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     }
 
     override fun update(account: Account, listener: IResponseListener) {
-        NetworkClient.instance().updateAccount(prefsHelper.getCsrf(), account)
+        NetworkClient.instance().updateAccount(account)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess(appContext.getString(R.string.account_update_success))
                     } else {
@@ -129,7 +125,6 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     override fun changeDefaultArchive(defaultArchiveId: Int, listener: IResponseListener) {
         prefsHelper.getAccountEmail()?.let {
             NetworkClient.instance().changeDefaultArchive(
-                prefsHelper.getCsrf(),
                 prefsHelper.getAccountId(),
                 it,
                 defaultArchiveId
@@ -140,7 +135,6 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                     response: Response<ResponseVO>
                 ) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess(appContext.getString(R.string.archive_update_default_success))
                     } else {
@@ -158,7 +152,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
     override fun delete(listener: IResponseListener) {
         val accountId = prefsHelper.getAccountId()
         if (accountId != 0) {
-            NetworkClient.instance().deleteAccount(prefsHelper.getCsrf(), accountId)
+            NetworkClient.instance().deleteAccount(accountId)
                 .enqueue(object : Callback<ResponseVO> {
 
                     override fun onResponse(
@@ -166,7 +160,6 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                         response: Response<ResponseVO>
                     ) {
                         val responseVO = response.body()
-                        prefsHelper.saveCsrf(responseVO?.csrf)
                         if (response.isSuccessful && responseVO?.isSuccessful!!) {
                             listener.onSuccess(appContext.getString(R.string.account_delete_success))
                         } else {
@@ -192,12 +185,11 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
 
         if (accountId != 0) {
             NetworkClient.instance().changePassword(
-                prefsHelper.getCsrf(), accountId, currentPassword, newPassword, retypedPassword,
+                accountId, currentPassword, newPassword, retypedPassword
             ).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
                         listener.onSuccess(appContext.getString(R.string.security_password_update_success))
                     } else {

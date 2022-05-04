@@ -22,7 +22,6 @@ class InvitationRepositoryImpl(val context: Context): IInvitationRepository {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                prefsHelper.saveCsrf(responseVO?.csrf)
                 if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                     listener.onSuccess(responseVO.getData())
                 } else {
@@ -37,12 +36,11 @@ class InvitationRepositoryImpl(val context: Context): IInvitationRepository {
     }
 
     override fun sendInvitation(name: String, email: String, listener: IResponseListener) {
-        NetworkClient.instance().sendInvitation(prefsHelper.getCsrf(), name, email)
+        NetworkClient.instance().sendInvitation(name, email)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         listener.onSuccess(context.getString(
@@ -61,12 +59,11 @@ class InvitationRepositoryImpl(val context: Context): IInvitationRepository {
     }
 
     override fun updateInvitation(inviteId: Int, type: UpdateType, listener: IResponseListener) {
-        NetworkClient.instance().updateInvitation(prefsHelper.getCsrf(), inviteId, type)
+        NetworkClient.instance().updateInvitation(inviteId, type)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    prefsHelper.saveCsrf(responseVO?.csrf)
 
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         val updateTypeVerb =

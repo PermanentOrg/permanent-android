@@ -78,7 +78,7 @@ class EditArchiveInformationViewModel(application: Application) :
     private var nameAndAliasesProfileItem: ProfileItem? = null
     private var genderProfileItem: ProfileItem? = null
     private var dateAndLocationProfileItem: ProfileItem? = null
-    private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
 
     fun displayProfileItems(profileItems: MutableList<ProfileItem>) {
         for (profileItem in profileItems) {

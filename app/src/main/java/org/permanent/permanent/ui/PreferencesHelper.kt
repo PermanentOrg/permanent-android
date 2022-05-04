@@ -18,7 +18,6 @@ const val PREFS_PUBLIC_RECORD_FOLDER_LINK_ID = "preferences_public_record_folder
 const val PREFS_PUBLIC_RECORD_ARCHIVE_NR = "preferences_public_record_archive_nr"
 const val PREFS_PUBLIC_RECORD_THUMB_URL_2000 = "preferences_public_record_thumb_url_2000"
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
-const val PREFS_CSRF = "preferences_csrf"
 const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
 const val PREFS_CURRENT_ARCHIVE_ID = "preferences_current_archive_id"
 const val PREFS_CURRENT_ARCHIVE_NUMBER = "preferences_current_archive_number"
@@ -89,19 +88,6 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getAccountEmail(): String? {
         return sharedPreferences.getString(PREFS_ACCOUNT_EMAIL, "")
-    }
-
-    fun saveCsrf(csrf: String?) {
-        csrf?.let {
-            with(sharedPreferences.edit()) {
-                putString(PREFS_CSRF, csrf)
-                apply()
-            }
-        }
-    }
-
-    fun getCsrf(): String? {
-        return sharedPreferences.getString(PREFS_CSRF, "")
     }
 
     fun saveAccountId(id: Int?) {
