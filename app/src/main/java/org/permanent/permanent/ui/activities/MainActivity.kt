@@ -130,8 +130,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.invitationsFragment,
             R.id.accountFragment,
             R.id.publicFilesFragment,
-            R.id.publicFragment,
-            R.id.publicGalleryFragment,
+            R.id.publicArchivesFragment,
             R.id.securityFragment
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)

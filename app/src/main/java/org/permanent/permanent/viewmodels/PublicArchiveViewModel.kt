@@ -29,17 +29,22 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
     private var currentFolder: Record? = null
+    private var currentArchiveNr: String? = null
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
     private val onFolderViewRequest = SingleLiveEvent<Record>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+
+    fun setArchiveNr(archiveNr: String?) {
+        currentArchiveNr = archiveNr ?: prefsHelper.getCurrentArchiveNr()
+    }
 
     fun getRootRecords() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
-        fileRepository.getPublicRoot(object : IRecordListener {
+        fileRepository.getPublicRoot(currentArchiveNr, object : IRecordListener {
             override fun onSuccess(record: Record) {
                 isBusy.value = false
                 currentFolder = record

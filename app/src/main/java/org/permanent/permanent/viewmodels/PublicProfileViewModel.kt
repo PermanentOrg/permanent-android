@@ -17,7 +17,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class PublicProfileViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val prefsHelper = PreferencesHelper(
@@ -80,14 +79,20 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl(application)
+    private var currentArchiveNr: String? = null
+
+    fun setArchiveNr(archiveNr: String?) {
+        currentArchiveNr = archiveNr ?: prefsHelper.getCurrentArchiveNr()
+    }
 
     fun getProfileItems() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
+
         profileRepository.getProfileItemsByArchive(
-            prefsHelper.getCurrentArchiveNr(),
+            currentArchiveNr,
             object : IDataListener {
                 override fun onSuccess(dataList: List<Datum>?) {
                     isBusy.value = false
