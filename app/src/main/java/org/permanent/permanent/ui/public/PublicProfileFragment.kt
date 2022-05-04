@@ -36,9 +36,6 @@ class PublicProfileFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         initMilestonesRecyclerView(binding.rvMilestones)
         val archiveNr = arguments?.getString(PublicFragment.ARCHIVE_NR)
-        if (archiveNr == null) {
-
-        }
         viewModel.setArchiveNr(archiveNr)
         return binding.root
     }

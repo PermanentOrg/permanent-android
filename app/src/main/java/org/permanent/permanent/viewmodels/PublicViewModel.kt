@@ -9,14 +9,12 @@ import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import java.util.ArrayList
 
 class PublicViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val prefsHelper = PreferencesHelper(
@@ -31,7 +29,12 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
     private val showMessage = SingleLiveEvent<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
-    private var currentArchiveNr : String? = null
+
+    fun setArchiveNr(publicArchiveNr: String?): String? {
+        val archiveNr = publicArchiveNr ?: prefsHelper.getCurrentArchiveNr()
+        getArchive(archiveNr)
+        return archiveNr
+    }
 
     fun setHeaderData(archive: Archive) {
         currentArchiveName.value = archive.fullName
@@ -46,8 +49,6 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
 
         isBusy.value = true
 
-        currentArchiveNr = archiveNr ?: prefsHelper.getCurrentArchiveNr()
-
         archiveRepository.getAllArchives(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
@@ -55,12 +56,12 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
 
                     for (datum in dataList) {
                         val archive = Archive(datum.ArchiveVO)
-                        if (currentArchiveNr == archive.number) {
+                        if (archiveNr == archive.number) {
                             currentArchive = archive
                         }
                     }
                 }
-                getPublicRecords(currentArchiveNr)
+                getPublicRecords(archiveNr)
             }
 
             override fun onFailed(error: String?) {
@@ -83,8 +84,7 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun getPublicRecords(archiveNr: String?) {
         isBusy.value = true
-        currentArchiveNr = archiveNr ?: prefsHelper.getCurrentArchiveNr()
-        fileRepository.getPublicRoot(currentArchiveNr, object : IRecordListener {
+        fileRepository.getPublicRoot(archiveNr, object : IRecordListener {
             override fun onSuccess(record: Record) {
                 isBusy.value = false
                 currentRecord = record

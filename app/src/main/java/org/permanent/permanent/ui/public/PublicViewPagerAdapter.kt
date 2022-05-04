@@ -7,7 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 const val NUMBER_OF_FRAGMENTS = 2
 
-class PublicViewPagerAdapter(val fragment: Fragment, archiveNr: String?) : FragmentStateAdapter(fragment) {
+class PublicViewPagerAdapter(archiveNr: String?, val fragment: Fragment) : FragmentStateAdapter(fragment) {
 
     private val bundle = bundleOf(PublicProfileFragment.ARCHIVE_NR to archiveNr)
     override fun getItemCount(): Int {

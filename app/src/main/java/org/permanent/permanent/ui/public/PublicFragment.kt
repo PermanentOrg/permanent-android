@@ -49,14 +49,12 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         binding.fabProfileBanner.setOnClickListener(this)
         binding.fabProfilePhoto.setOnClickListener(this)
         activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
-
-        archiveNr = arguments?.getString(ARCHIVE_NR)
-        viewModel.getArchive(archiveNr)
+        archiveNr = viewModel.setArchiveNr(arguments?.getString(ARCHIVE_NR))
         return binding.root
     }
 
 
-    fun getCurrentArchiveNr():String? {
+    fun getArchiveNr():String? {
         return archiveNr
     }
 
@@ -69,7 +67,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
-        val adapter = PublicViewPagerAdapter( this, archiveNr)
+        val adapter = PublicViewPagerAdapter(archiveNr, this)
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->

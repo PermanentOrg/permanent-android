@@ -35,7 +35,7 @@
             android:id="@+id/action_myFilesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
         <action
-            android:id="@+id/action_myFilesFragment_to_publicGalleryFragment"
+            android:id="@+id/action_myFilesFragment_to_publicArchivesFragment"
             app:destination="@id/publicArchivesFragment" />
     </fragment>
 
@@ -188,7 +188,7 @@
         android:label="@string/menu_drawer_public_archives"
         tools:layout="@layout/fragment_public_archives" >
         <action
-            android:id="@+id/action_publicGalleryFragment_to_publicFragment"
+            android:id="@+id/action_publicArchivesFragment_to_publicFragment"
             app:destination="@id/publicFragment" />
     </fragment>
 
