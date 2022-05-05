@@ -59,9 +59,9 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             })
     }
 
-    override fun getPublicRoot(listener: IRecordListener) {
+    override fun getPublicRoot(archiveNr: String?, listener: IRecordListener) {
         NetworkClient.instance()
-            .getPublicRootForArchive(prefsHelper.getCurrentArchiveNr())
+            .getPublicRootForArchive(archiveNr)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()

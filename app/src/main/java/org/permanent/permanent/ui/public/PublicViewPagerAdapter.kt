@@ -1,13 +1,15 @@
 package org.permanent.permanent.ui.public
 
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
 
 const val NUMBER_OF_FRAGMENTS = 2
 
-class PublicViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(fragment) {
+class PublicViewPagerAdapter(archiveNr: String?, val fragment: Fragment) : FragmentStateAdapter(fragment) {
 
+    private val bundle = bundleOf(PublicProfileFragment.ARCHIVE_NR to archiveNr)
     override fun getItemCount(): Int {
         return NUMBER_OF_FRAGMENTS
     }
@@ -15,10 +17,18 @@ class PublicViewPagerAdapter(val fragment: Fragment) : FragmentStateAdapter(frag
     override fun createFragment(position: Int): Fragment {
         when (position) {
             0 -> {
-                return PublicArchiveFragment()
+                return PublicArchiveFragment().apply {
+                    arguments = bundle
+                }
             }
         }
-        return PublicProfileFragment()
+        return PublicProfileFragment().apply {
+            arguments = bundle
+        }
+    }
+
+    companion object {
+        const val ARCHIVE_NR = "archive_nr"
     }
 }
 

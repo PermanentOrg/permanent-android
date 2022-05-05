@@ -12,6 +12,7 @@ class ArchiveVO() {
     var type: String? = null
     var thumbURL200: String? = null
     var status: String? = null
+    var public: Int? = null
 
     constructor(archive: Archive) : this() {
         archiveId = archive.id
@@ -22,5 +23,6 @@ class ArchiveVO() {
         thumbURL200 = archive.thumbURL200
         accessRole = archive.accessRole?.backendString
         status = archive.status?.toBackendString()
+        public = archive.public
     }
 }

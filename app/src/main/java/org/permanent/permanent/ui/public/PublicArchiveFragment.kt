@@ -47,6 +47,8 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
         initRecordsRecyclerView(binding.rvRecords)
+        val archiveNr = arguments?.getString(PublicFragment.ARCHIVE_NR)
+        viewModel.setArchiveNr(archiveNr)
         return binding.root
     }
 
@@ -134,5 +136,9 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    companion object {
+        const val ARCHIVE_NR = "archive_nr"
     }
 }

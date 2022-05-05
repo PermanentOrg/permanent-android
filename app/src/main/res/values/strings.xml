@@ -81,7 +81,7 @@
     <string name="menu_drawer_shared_files">Shared Files</string>
     <string name="menu_drawer_public_files">Public Files</string>
     <string name="menu_drawer_manage_members">Manage Members</string>
-    <string name="menu_drawer_public_gallery">Public Gallery</string>
+    <string name="menu_drawer_public_archives">Public Archives</string>
 
     <string name="menu_toolbar_settings">Settings</string>
     <string name="menu_toolbar_file_metadata">File Metadata</string>
@@ -188,6 +188,8 @@
     <string name="added">added</string>
     <string name="edited">edited</string>
     <string name="no_online_presence_text">You haven\'t added any online presence</string>
+    <string name="section_your_public_archives">Your Public Archives</string>
+    <string name="public_gallery_search_hint">Search for people, families, or organizations</string>
 
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>

@@ -29,28 +29,36 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
     private var currentFolder: Record? = null
+    private var publicArchiveNr: String? = null
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
     private val onFolderViewRequest = SingleLiveEvent<Record>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+
+    fun setArchiveNr(archiveNr: String?) {
+        publicArchiveNr = archiveNr
+    }
 
     fun getRootRecords() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
-        fileRepository.getPublicRoot(object : IRecordListener {
-            override fun onSuccess(record: Record) {
-                isBusy.value = false
-                currentFolder = record
-                loadFilesOf(record)
-            }
 
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                showMessage.value = error
-            }
-        })
+        if(publicArchiveNr != null) {
+            fileRepository.getPublicRoot(publicArchiveNr, object : IRecordListener {
+                override fun onSuccess(record: Record) {
+                    isBusy.value = false
+                    currentFolder = record
+                    loadFilesOf(record)
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showMessage.value = error
+                }
+            })
+        }
     }
 
     private fun loadFilesOf(record: Record) {
