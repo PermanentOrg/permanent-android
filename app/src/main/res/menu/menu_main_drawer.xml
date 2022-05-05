@@ -32,16 +32,14 @@
 
     </group>
 
-    <!-- -
     <group
         android:id="@+id/group3"
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/publicFragment"
+            android:id="@+id/publicGalleryFragment"
             android:icon="@drawable/ic_public_gallery"
             android:title="@string/menu_drawer_public_gallery" />
 
     </group>
-    <!- -->
 </menu>

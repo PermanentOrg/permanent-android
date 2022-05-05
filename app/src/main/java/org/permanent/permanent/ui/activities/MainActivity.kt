@@ -130,7 +130,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.invitationsFragment,
             R.id.accountFragment,
             R.id.publicFilesFragment,
-            R.id.publicFragment,
             R.id.publicGalleryFragment,
             R.id.securityFragment
         )

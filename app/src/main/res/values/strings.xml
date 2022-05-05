@@ -188,6 +188,8 @@
     <string name="added">added</string>
     <string name="edited">edited</string>
     <string name="no_online_presence_text">You haven\'t added any online presence</string>
+    <string name="section_your_public_archives">Your Public Archives</string>
+    <string name="public_gallery_search_hint">Search for people, families, or organizations</string>
 
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>

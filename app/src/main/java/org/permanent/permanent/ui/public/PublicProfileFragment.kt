@@ -36,6 +36,8 @@ class PublicProfileFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initMilestonesRecyclerView(binding.rvMilestones)
+        val archiveNr = arguments?.getString(PublicFragment.ARCHIVE_NR)
+        viewModel.setArchiveNr(archiveNr)
         arguments?.takeIf { it.containsKey(IS_VIEW_ONLY_MODE) }?.apply {
             val isViewOnlyMode = getBoolean(IS_VIEW_ONLY_MODE)
             if (isViewOnlyMode) viewModel.setIsViewOnlyMode()
@@ -127,5 +129,6 @@ class PublicProfileFragment : PermanentBaseFragment() {
         const val MAX_LINES_NO_LIMIT = 900
         const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_profile_items_key"
         const val PARCELABLE_PROFILE_ITEM_LIST_KEY = "parcelable_profile_item_list_key"
+        const val ARCHIVE_NR = "archive_nr"
     }
 }

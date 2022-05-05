@@ -80,26 +80,28 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var archiveNr: String? = null
+
+    fun setArchiveNr(archiveNr: String?) {
+        this.archiveNr = archiveNr
+    }
 
     fun getProfileItems() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
-        profileRepository.getProfileItemsByArchive(
-            prefsHelper.getCurrentArchiveNr(),
-            object : IDataListener {
-                override fun onSuccess(dataList: List<Datum>?) {
-                    isBusy.value = false
-                    dataList?.let { displayProfileItems(dataList) }
-                }
-
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    showMessage.value = error
-                }
+        profileRepository.getProfileItemsByArchive(archiveNr, object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                isBusy.value = false
+                dataList?.let { displayProfileItems(dataList) }
             }
-        )
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     private fun displayProfileItems(dataList: List<Datum>) {

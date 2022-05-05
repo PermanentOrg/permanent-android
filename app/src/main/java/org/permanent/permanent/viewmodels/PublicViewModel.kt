@@ -3,8 +3,12 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
@@ -16,25 +20,83 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val profileBannerThumb =
-        MutableLiveData<String>(prefsHelper.getPublicRecordThumbURL2000())
-    private val currentArchiveThumb =
-        MutableLiveData<String>(prefsHelper.getCurrentArchiveThumbURL())
-    private val currentArchiveName = prefsHelper.getCurrentArchiveFullName()
+    private var currentArchive: Archive? = null
+    private var currentRecord: Record? = null
+    private val profileBannerThumb = MutableLiveData<String>()
+    private val currentArchiveThumb = MutableLiveData<String>()
+    private val currentArchiveName = MutableLiveData<String>()
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
+    fun setArchiveNr(publicArchiveNr: String?): String? {
+        val archiveNr = publicArchiveNr ?: prefsHelper.getCurrentArchiveNr()
+        getArchive(archiveNr)
+        return archiveNr
+    }
+
+    fun getArchive(archiveNr: String?) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+
+        archiveRepository.getAllArchives(object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                isBusy.value = false
+                if (!dataList.isNullOrEmpty()) {
+
+                    for (datum in dataList) {
+                        val archive = Archive(datum.ArchiveVO)
+                        if (archiveNr == archive.number) {
+                            currentArchive = archive
+                        }
+                    }
+                }
+                getPublicRecords(archiveNr)
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
+
+    }
+
     fun getProfileBannerThumb(): MutableLiveData<String> = profileBannerThumb
 
     fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
 
-    fun getCurrentArchiveName(): String? = currentArchiveName
+    fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): MutableLiveData<String> = showMessage
+
+    fun getPublicRecords(archiveNr: String?) {
+        isBusy.value = true
+        fileRepository.getPublicRoot(archiveNr, object : IRecordListener {
+            override fun onSuccess(record: Record) {
+                isBusy.value = false
+                currentRecord = record
+                currentArchive?.let { setHeaderData(it) }
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    fun setHeaderData(archive: Archive) {
+        currentArchiveName.value = archive.fullName
+        currentArchiveThumb.value = archive.thumbURL200
+        profileBannerThumb.value = currentRecord?.thumbURL2000
+    }
 
     fun updateBannerOrProfilePhoto(isFileForProfileBanner: Boolean, record: Record) {
         if (isFileForProfileBanner) {

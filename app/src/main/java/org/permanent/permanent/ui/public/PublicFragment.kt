@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicBinding
 import org.permanent.permanent.models.Record
@@ -21,7 +22,12 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     private lateinit var viewModel: PublicViewModel
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
+    private var archiveNr: String? = null
     private var isViewOnlyMode = false
+
+    private val onArchiveName = Observer<String> {
+        (activity as AppCompatActivity?)?.supportActionBar?.title = it
+    }
 
     private val onPhotoSelectedObserver = Observer<Record> {
         viewModel.updateBannerOrProfilePhoto(isFileForProfileBanner, it)
@@ -43,8 +49,8 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         binding.viewModel = viewModel
         binding.fabProfileBanner.setOnClickListener(this)
         binding.fabProfilePhoto.setOnClickListener(this)
-        (activity as AppCompatActivity?)?.supportActionBar?.title =
-            viewModel.getCurrentArchiveName()
+        activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
+        archiveNr = viewModel.setArchiveNr(arguments?.getString(ARCHIVE_NR))
         if (isViewOnlyMode) {
             binding.fabProfileBanner.visibility = View.GONE
             binding.fabProfilePhoto.visibility = View.GONE
@@ -62,7 +68,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
-        val adapter = PublicViewPagerAdapter(isViewOnlyMode, this)
+        val adapter = PublicViewPagerAdapter(isViewOnlyMode, archiveNr, this)
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -81,10 +87,26 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getCurrentArchiveName().observe(this, onArchiveName)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getCurrentArchiveName().removeObserver(onArchiveName)
         myFilesContainerFragment?.getOnPhotoSelected()?.removeObserver(onPhotoSelectedObserver)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
+    }
+
+    companion object {
+        const val ARCHIVE_NR = "archive_nr"
     }
 }
