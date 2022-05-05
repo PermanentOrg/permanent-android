@@ -24,6 +24,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     )
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String?>()
+    private var isViewOnlyMode = MutableLiveData(false)
     private val currentArchiveType = prefsHelper.getCurrentArchiveType()
     private var profileItems: MutableList<ProfileItem> = ArrayList()
     private val isProfilePublic = MutableLiveData<Boolean>()
@@ -60,14 +61,14 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
             else -> application.getString(R.string.public_profile_person_location_label)
         }
     )
-    private val name = MutableLiveData<String>()
-    private val aliases = MutableLiveData<String>()
-    private val gender = MutableLiveData<String>()
-    private val date = MutableLiveData<String>()
-    private val location = MutableLiveData<String>()
+    private val name = MutableLiveData("")
+    private val aliases = MutableLiveData("")
+    private val gender = MutableLiveData("")
+    private val date = MutableLiveData("")
+    private val location = MutableLiveData("")
     private val onlinePresence = MutableLiveData("")
-    private val emails = MutableLiveData("")
-    private val socialMedias = MutableLiveData("")
+    private var emails = ""
+    private var socialMedias = ""
     private val existsMilestones = MutableLiveData(false)
     private val onMilestonesRetrieved = SingleLiveEvent<MutableList<ProfileItem>>()
     private val isAboutExtended = MutableLiveData(false)
@@ -143,14 +144,12 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 }
                 ProfileItemName.EMAIL -> {
                     profileItem.string1?.let {
-                        emails.value =
-                            if (emails.value == "") it else emails.value + "\n" + it
+                        emails = if (emails.isEmpty()) it else emails + "\n" + it
                     }
                 }
                 ProfileItemName.SOCIAL_MEDIA -> {
                     profileItem.string1?.let {
-                        socialMedias.value =
-                            if (socialMedias.value == "") it else socialMedias.value + "\n" + it
+                        socialMedias = if (socialMedias.isEmpty()) it else socialMedias + "\n" + it
                     }
                 }
                 ProfileItemName.MILESTONE -> {
@@ -159,7 +158,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 else -> {}
             }
         }
-        onlinePresence.value = emails.value + "\n" + socialMedias.value
+        onlinePresence.value =
+            if (emails.isEmpty() && socialMedias.isEmpty()) "" else emails + "\n" + socialMedias
         existsMilestones.value = milestones.isNotEmpty()
         onMilestonesRetrieved.value = milestones
         for (profileItem in profileItems) {
@@ -169,6 +169,10 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
             }
         }
         isProfilePublic.value = true
+    }
+
+    fun setIsViewOnlyMode() {
+        isViewOnlyMode.value = true
     }
 
     fun onIsProfilePublicChanged(checked: Boolean) {
@@ -245,6 +249,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String?> = showMessage
+
+    fun getIsViewOnlyMode(): MutableLiveData<Boolean> = isViewOnlyMode
 
     fun getIsProfilePublic(): LiveData<Boolean> = isProfilePublic
 

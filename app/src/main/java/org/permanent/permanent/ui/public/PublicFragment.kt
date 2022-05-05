@@ -21,6 +21,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     private lateinit var viewModel: PublicViewModel
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
+    private var isViewOnlyMode = false
 
     private val onPhotoSelectedObserver = Observer<Record> {
         viewModel.updateBannerOrProfilePhoto(isFileForProfileBanner, it)
@@ -35,7 +36,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublicViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicViewModel::class.java]
         binding = FragmentPublicBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -44,6 +45,10 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         binding.fabProfilePhoto.setOnClickListener(this)
         (activity as AppCompatActivity?)?.supportActionBar?.title =
             viewModel.getCurrentArchiveName()
+        if (isViewOnlyMode) {
+            binding.fabProfileBanner.visibility = View.GONE
+            binding.fabProfilePhoto.visibility = View.GONE
+        }
 
         return binding.root
     }
@@ -57,7 +62,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
-        val adapter = PublicViewPagerAdapter(this)
+        val adapter = PublicViewPagerAdapter(isViewOnlyMode, this)
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
