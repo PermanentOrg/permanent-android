@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.public
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +13,19 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicBinding
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     private lateinit var binding: FragmentPublicBinding
     private lateinit var viewModel: PublicViewModel
+    private lateinit var prefsHelper: PreferencesHelper
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
     private var archiveNr: String? = null
@@ -47,10 +53,18 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
         binding.fabProfileBanner.setOnClickListener(this)
         binding.fabProfilePhoto.setOnClickListener(this)
         activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
-        archiveNr = viewModel.setArchiveNr(arguments?.getString(ARCHIVE_NR))
+
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
+        val currentArchive: Archive = arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive()
+        archiveNr = currentArchive.number
+        viewModel.setArchive(currentArchive)
+        isViewOnlyMode = currentArchive.accessRole != AccessRole.OWNER && currentArchive.accessRole != AccessRole.MANAGER
         if (isViewOnlyMode) {
             binding.fabProfileBanner.visibility = View.GONE
             binding.fabProfilePhoto.visibility = View.GONE
@@ -107,6 +121,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     }
 
     companion object {
+        const val ARCHIVE = "archive"
         const val ARCHIVE_NR = "archive_nr"
     }
 }

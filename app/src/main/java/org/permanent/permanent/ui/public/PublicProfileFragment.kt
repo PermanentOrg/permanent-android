@@ -129,6 +129,5 @@ class PublicProfileFragment : PermanentBaseFragment() {
         const val MAX_LINES_NO_LIMIT = 900
         const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_profile_items_key"
         const val PARCELABLE_PROFILE_ITEM_LIST_KEY = "parcelable_profile_item_list_key"
-        const val ARCHIVE_NR = "archive_nr"
     }
 }

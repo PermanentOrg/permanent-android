@@ -1,23 +1,27 @@
 package org.permanent.permanent.ui.public
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicGalleryBinding
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.public.PublicFragment.Companion.ARCHIVE
 import org.permanent.permanent.viewmodels.PublicGalleryViewModel
 
-class PublicGalleryFragment: PermanentBaseFragment(), PublicArchiveListener  {
+class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
     private lateinit var viewModel: PublicGalleryViewModel
     private lateinit var binding: FragmentPublicGalleryBinding
     private lateinit var publicArchiveAdapter: PublicArchiveAdapter
@@ -27,8 +31,26 @@ class PublicGalleryFragment: PermanentBaseFragment(), PublicArchiveListener  {
         publicArchiveAdapter.set(it as MutableList<Archive>)
     }
 
-    private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private val onShowMessage = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
+        snackBar.show()
+    }
+
+    private val onShowError = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
+        }
+        snackBar.show()
     }
 
     override fun onCreateView(
@@ -59,17 +81,20 @@ class PublicGalleryFragment: PermanentBaseFragment(), PublicArchiveListener  {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getShowError().observe(this, onShowError)
         viewModel.getOnPublicArchivesRetrieved().observe(this, onArchivesRetrieved)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getShowError().removeObserver(onShowError)
         viewModel.getOnPublicArchivesRetrieved().removeObserver(onArchivesRetrieved)
     }
 
     override fun onArchiveClick(archive: Archive) {
-        val bundle = bundleOf(ARCHIVE_NR to archive.number, ARCHIVE_NAME to archive.fullName)
-        requireParentFragment().findNavController().navigate(R.id.action_publicGalleryFragment_to_publicFragment, bundle)
+        val bundle = bundleOf(ARCHIVE to archive)
+        requireParentFragment().findNavController()
+            .navigate(R.id.action_publicGalleryFragment_to_publicFragment, bundle)
     }
 
     override fun onShareClick(archive: Archive) {
@@ -85,10 +110,5 @@ class PublicGalleryFragment: PermanentBaseFragment(), PublicArchiveListener  {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-    }
-
-    companion object {
-        const val ARCHIVE_NR = "archive_nr"
-        const val ARCHIVE_NAME = "archive_name"
     }
 }

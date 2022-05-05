@@ -25,6 +25,7 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
         MutableLiveData<String>(prefsHelper.getCurrentArchiveThumbURL())
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
+    private val showError = SingleLiveEvent<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private val onPublicArchivesRetrieved = MutableLiveData<List<Archive>>()
 
@@ -52,7 +53,7 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showError.value = error
                 }
             })
         }
@@ -61,8 +62,8 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
     fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
     fun getShowMessage(): MutableLiveData<String> = showMessage
+    fun getShowError(): MutableLiveData<String> = showError
 
     fun getOnPublicArchivesRetrieved(): LiveData<List<Archive>> = onPublicArchivesRetrieved
 

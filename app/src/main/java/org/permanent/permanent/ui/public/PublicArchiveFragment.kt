@@ -137,8 +137,4 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
         super.onPause()
         disconnectViewModelEvents()
     }
-
-    companion object {
-        const val ARCHIVE_NR = "archive_nr"
-    }
 }
