@@ -14,6 +14,7 @@ class Constants {
         const val SIGN_UP_URL_SUFFIX = "account/post"
         const val S3_BASE_URL = "https://s3.us-west-2.amazonaws.com"
         const val STRIPE_URL = "https://api.stripe.com/v1/payment_intents"
+        const val PAYMENT_INTENT_URL = "https://us-central1-prpledgedev.cloudfunctions.net/donation/payment-sheet"
         const val MY_FILES_FOLDER = "My Files"
         const val PUBLIC_FILES_FOLDER = "Public"
         const val PRIVATE_FILES = "Private Files"

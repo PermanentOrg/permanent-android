@@ -74,5 +74,4 @@ class ProfileRepositoryImpl : IProfileRepository {
                 }
             })
     }
-
 }

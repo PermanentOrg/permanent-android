@@ -4,7 +4,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Record
 
 class ResponseVO {
-    var client_secret: String? = null
+    var paymentIntent: String? = null
     var Results: List<ResultVO>? = null
     var isSuccessful: Boolean? = false
 

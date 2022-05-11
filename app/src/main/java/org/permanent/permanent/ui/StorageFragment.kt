@@ -1,12 +1,15 @@
 package org.permanent.permanent.ui
 
 import android.app.AlertDialog
+import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
@@ -59,7 +62,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
             resultCallback = ::onGooglePayResult
         )
         binding.buttonLayout.setOnClickListener {
-            viewModel.getClientSecret()
+            viewModel.getPaymentIntent()
         }
 
         return binding.root
@@ -89,12 +92,28 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     override fun onTabReselected(tab: TabLayout.Tab?) {
     }
 
-    private val onClientSecretObserver = Observer<String> {
+    private val onPaymentIntentObserver = Observer<String> {
         googlePayLauncher.presentForPaymentIntent(it)
     }
 
-    private val onMessageObserver = Observer<String> {
-        Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+    private val onMessageObserver = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
+        snackBar.show()
+    }
+
+    private val onErrorObserver = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
+        }
+        snackBar.show()
     }
 
     private fun onGooglePayReady(isReady: Boolean) {
@@ -121,7 +140,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     private fun showDialog(title: Int, text: String?) {
         val alertDialog: AlertDialog.Builder = AlertDialog.Builder(activity)
         alertDialog.setTitle(title)
-//        alertDialog.setMessage(text)
+        alertDialog.setMessage(text)
         alertDialog.setPositiveButton(
             R.string.ok_button
         ) { _, _ ->
@@ -132,13 +151,15 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnClientSecretRetrieved().observe(this, onClientSecretObserver)
+        viewModel.getOnPaymentIntentRetrieved().observe(this, onPaymentIntentObserver)
         viewModel.getOnMessage().observe(this, onMessageObserver)
+        viewModel.getOnError().observe(this, onErrorObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnClientSecretRetrieved().removeObserver(onClientSecretObserver)
+        viewModel.getOnPaymentIntentRetrieved().removeObserver(onPaymentIntentObserver)
         viewModel.getOnMessage().removeObserver(onMessageObserver)
+        viewModel.getOnError().removeObserver(onErrorObserver)
     }
 
     override fun onResume() {

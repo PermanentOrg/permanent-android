@@ -446,9 +446,8 @@
     <string name="storage_pick_amount">Pick an amount</string>
     <string name="storage_enter_custom_amount">Or enter manually below</string>
     <string name="storage_gb_endowed">Endow %s GB</string>
-    <string name="storage_donation_successful_title">Donation successful</string>
-    <string name="storage_donation_successful_text"></string>
-    <string name="storage_donation_failed_title">Donation failed</string>
-    <string name="storage_donation_failed_text"></string>
+    <string name="storage_donation_successful_title">Thank you!</string>
+    <string name="storage_donation_successful_text">Your donation was successful!</string>
+    <string name="storage_donation_failed_title">Oops! Your donation failed</string>
     <string name="storage_dollar_sign">$</string>
 </resources>

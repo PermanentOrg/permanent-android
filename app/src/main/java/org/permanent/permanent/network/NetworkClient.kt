@@ -652,11 +652,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return profileService.delete(requestBody)
     }
 
-    fun getClientSecret(donationAmount: Int): Call<ResponseVO> {
-        return storageService.getClientSecret(
-            Constants.STRIPE_URL,
-            donationAmount,
-            "usd"
+    fun getPaymentIntent(accountId: Int, accountEmail: String?, donationAmount: Int): Call<ResponseVO> {
+        return storageService.getPaymentIntent(
+            Constants.PAYMENT_INTENT_URL,
+            accountId,
+            accountEmail,
+            donationAmount
         )
     }
 

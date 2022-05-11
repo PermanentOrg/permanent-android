@@ -10,9 +10,10 @@ interface IStorageService {
     @Headers("Authorization: Basic ${BuildConfig.SECRET_KEY_ENCODED}")
     @FormUrlEncoded
     @POST
-    fun getClientSecret(
+    fun getPaymentIntent(
         @Url url: String,
+        @Field("accountId") accountId :Int,
+        @Field("email") email: String?,
         @Field("amount") amount :Int,
-        @Field("currency") currency: String,
     ): Call<ResponseVO>
 }
