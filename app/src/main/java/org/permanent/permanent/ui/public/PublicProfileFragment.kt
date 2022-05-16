@@ -15,6 +15,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.public.PublicViewPagerAdapter.Companion.IS_VIEW_ONLY_MODE
 import org.permanent.permanent.viewmodels.PublicProfileViewModel
 
 class PublicProfileFragment : PermanentBaseFragment() {
@@ -29,7 +30,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublicProfileViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicProfileViewModel::class.java]
         binding = FragmentPublicProfileBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -37,6 +38,11 @@ class PublicProfileFragment : PermanentBaseFragment() {
         initMilestonesRecyclerView(binding.rvMilestones)
         val archiveNr = arguments?.getString(PublicFragment.ARCHIVE_NR)
         viewModel.setArchiveNr(archiveNr)
+        arguments?.takeIf { it.containsKey(IS_VIEW_ONLY_MODE) }?.apply {
+            val isViewOnlyMode = getBoolean(IS_VIEW_ONLY_MODE)
+            if (isViewOnlyMode) viewModel.setIsViewOnlyMode()
+        }
+
         return binding.root
     }
 
@@ -123,6 +129,5 @@ class PublicProfileFragment : PermanentBaseFragment() {
         const val MAX_LINES_NO_LIMIT = 900
         const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_profile_items_key"
         const val PARCELABLE_PROFILE_ITEM_LIST_KEY = "parcelable_profile_item_list_key"
-        const val ARCHIVE_NR = "archive_nr"
     }
 }

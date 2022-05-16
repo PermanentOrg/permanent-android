@@ -14,40 +14,31 @@ class CreateNewArchiveViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
     private var archiveType: ArchiveType? = null
     private val currentName = MutableLiveData<String>()
-    private val nameError = MutableLiveData<Int>()
-    private val archiveTypeError = MutableLiveData<Int>()
+    private val nameError = MutableLiveData<Int?>()
+    private val archiveTypeError = MutableLiveData<Int?>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onArchiveCreatedResult = SingleLiveEvent<Void>()
     private val showMessage = MutableLiveData<String>()
+    private val showError = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
-    fun getCurrentName(): MutableLiveData<String> {
-        return currentName
-    }
+    fun getCurrentName(): MutableLiveData<String> = currentName
 
-    fun getNameError(): LiveData<Int> {
-        return nameError
-    }
+    fun getNameError(): LiveData<Int?> = nameError
 
-    fun getArchiveTypeError(): LiveData<Int> {
-        return archiveTypeError
-    }
+    fun getArchiveTypeError(): LiveData<Int?> = archiveTypeError
 
     fun onNameTextChanged(name: Editable) {
         currentName.value = name.toString()
     }
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnArchiveCreatedResult(): LiveData<Void> {
-        return onArchiveCreatedResult
-    }
+    fun getOnArchiveCreatedResult(): LiveData<Void> = onArchiveCreatedResult
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getShowError(): LiveData<String> = showError
 
     fun clearFields() {
         currentName.value = ""
@@ -72,13 +63,13 @@ class CreateNewArchiveViewModel(application: Application) :
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     onArchiveCreatedResult.call()
-                    showMessage.value = message
+                    message?.let { showMessage.value = it }
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
                     onArchiveCreatedResult.call()
-                    showMessage.value = error
+                    error?.let { showError.value = it }
                 }
             })
         }

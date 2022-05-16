@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.public
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,17 +13,23 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicBinding
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     private lateinit var binding: FragmentPublicBinding
     private lateinit var viewModel: PublicViewModel
+    private lateinit var prefsHelper: PreferencesHelper
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
     private var archiveNr: String? = null
+    private var isViewOnlyMode = false
 
     private val onArchiveName = Observer<String> {
         (activity as AppCompatActivity?)?.supportActionBar?.title = it
@@ -41,21 +48,29 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublicViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicViewModel::class.java]
         binding = FragmentPublicBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
         binding.fabProfileBanner.setOnClickListener(this)
         binding.fabProfilePhoto.setOnClickListener(this)
         activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
-        archiveNr = viewModel.setArchiveNr(arguments?.getString(ARCHIVE_NR))
+
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
+        val currentArchive: Archive = arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive()
+        archiveNr = currentArchive.number
+        viewModel.setArchive(currentArchive)
+        isViewOnlyMode = currentArchive.accessRole != AccessRole.OWNER && currentArchive.accessRole != AccessRole.MANAGER
+        if (isViewOnlyMode) {
+            binding.fabProfileBanner.visibility = View.GONE
+            binding.fabProfilePhoto.visibility = View.GONE
+        }
+
         return binding.root
-    }
-
-
-    fun getArchiveNr():String? {
-        return archiveNr
     }
 
     private val tabArray = arrayOf(
@@ -67,7 +82,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
-        val adapter = PublicViewPagerAdapter(archiveNr, this)
+        val adapter = PublicViewPagerAdapter(isViewOnlyMode, archiveNr, this)
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -106,6 +121,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     }
 
     companion object {
+        const val ARCHIVE = "archive"
         const val ARCHIVE_NR = "archive_nr"
     }
 }

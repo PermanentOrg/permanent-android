@@ -69,7 +69,7 @@ class PublicArchivesFragment: PermanentBaseFragment(), PublicArchiveListener  {
 
     override fun onArchiveClick(archive: Archive) {
         val bundle = bundleOf(ARCHIVE_NR to archive.number, ARCHIVE_NAME to archive.fullName)
-        requireParentFragment().findNavController().navigate(R.id.action_publicArchivesFragment_to_publicFragment, bundle)
+        requireParentFragment().findNavController().navigate(R.id.action_publicGalleryFragment_to_publicFragment, bundle)
     }
 
     override fun onShareClick(archive: Archive) {

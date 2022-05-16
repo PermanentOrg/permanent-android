@@ -1,20 +1,23 @@
 package org.permanent.permanent.ui.archives
 
 import android.content.Context
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCreateNewArchiveBinding
@@ -52,8 +55,26 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
     )
     private val onCurrentArchiveChanged = SingleLiveEvent<Void>()
 
-    private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private val onShowMessage = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
+        snackBar.show()
+    }
+
+    private val onShowError = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
+        }
+        snackBar.show()
     }
 
     private val onPendingArchivesRetrieved = Observer<List<Archive>> {
@@ -216,16 +237,19 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getShowError().observe(this, onShowError)
         viewModel.getOnPendingArchivesRetrieved().observe(this, onPendingArchivesRetrieved)
         viewModel.getOnArchivesRetrieved().observe(this, onArchivesRetrieved)
         viewModel.getOnDefaultArchiveChanged().observe(this, onDefaultArchiveChanged)
         viewModel.getShowCreateArchiveDialog().observe(this, onShowCreateArchiveDialog)
         dialogCreateArchiveViewModel.getShowMessage().observe(this, onShowMessage)
+        dialogCreateArchiveViewModel.getShowError().observe(this, onShowError)
         dialogCreateArchiveViewModel.getOnArchiveCreatedResult().observe(this, onArchiveCreated)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getShowError().removeObserver(onShowError)
         viewModel.getOnPendingArchivesRetrieved().removeObserver(onPendingArchivesRetrieved)
         viewModel.getOnArchivesRetrieved().removeObserver(onArchivesRetrieved)
         viewModel.getOnDefaultArchiveChanged().removeObserver(onDefaultArchiveChanged)
@@ -235,6 +259,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         archiveOptionsFragment?.getOnDeleteArchiveRequest()
             ?.removeObserver(onDeleteArchiveObserver)
         dialogCreateArchiveViewModel.getShowMessage().removeObserver(onShowMessage)
+        dialogCreateArchiveViewModel.getShowError().removeObserver(onShowError)
         dialogCreateArchiveViewModel.getOnArchiveCreatedResult().removeObserver(onArchiveCreated)
     }
 

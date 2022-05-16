@@ -17,7 +17,6 @@ import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.SortType
-import java.util.*
 
 class PublicArchiveViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -29,14 +28,14 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
     private var currentFolder: Record? = null
-    private var publicArchiveNr: String? = null
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
     private val onFolderViewRequest = SingleLiveEvent<Record>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+    private var archiveNr: String? = null
 
     fun setArchiveNr(archiveNr: String?) {
-        publicArchiveNr = archiveNr
+        this.archiveNr = archiveNr
     }
 
     fun getRootRecords() {
@@ -44,21 +43,18 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
             return
         }
         isBusy.value = true
+        fileRepository.getPublicRoot(archiveNr, object : IRecordListener {
+            override fun onSuccess(record: Record) {
+                isBusy.value = false
+                currentFolder = record
+                loadFilesOf(record)
+            }
 
-        if(publicArchiveNr != null) {
-            fileRepository.getPublicRoot(publicArchiveNr, object : IRecordListener {
-                override fun onSuccess(record: Record) {
-                    isBusy.value = false
-                    currentFolder = record
-                    loadFilesOf(record)
-                }
-
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    showMessage.value = error
-                }
-            })
-        }
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     private fun loadFilesOf(record: Record) {
