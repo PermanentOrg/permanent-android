@@ -178,20 +178,22 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onIsProfilePublicChanged(checked: Boolean) {
-        isBusy.value = true
-        profileRepository.safeAddUpdateProfileItems(
-            getProfileItemsToUpdateVisibility(checked), true,
-            object : IProfileItemListener {
-                override fun onSuccess(profileItem: ProfileItem) {
-                    isBusy.value = false
-                    isProfilePublic.value = checked
-                }
+        if (isViewOnlyMode.value == false) {
+            isBusy.value = true
+            profileRepository.safeAddUpdateProfileItems(
+                getProfileItemsToUpdateVisibility(checked), true,
+                object : IProfileItemListener {
+                    override fun onSuccess(profileItem: ProfileItem) {
+                        isBusy.value = false
+                        isProfilePublic.value = checked
+                    }
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    error?.let { showMessage.value = it }
-                }
-            })
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        error?.let { showMessage.value = it }
+                    }
+                })
+        }
     }
 
     private fun getProfileItemsToUpdateVisibility(checked: Boolean): List<ProfileItem> {

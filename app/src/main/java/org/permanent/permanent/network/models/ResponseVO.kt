@@ -39,6 +39,10 @@ class ResponseVO {
         return Results?.get(0)?.data
     }
 
+    fun getDataFromResults(): List<Datum>? {
+        return Results?.map { it.data }?.flatMap { it!! }
+    }
+
     fun isUserLoggedIn(): Boolean? {
         return getData()?.get(0)?.SimpleVO?.value as Boolean?
     }

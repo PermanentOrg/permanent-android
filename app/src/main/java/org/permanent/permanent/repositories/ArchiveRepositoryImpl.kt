@@ -22,6 +22,24 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
 
+    override fun getArchivesByNr(archiveNrs: List<String?>, listener: IDataListener) {
+        NetworkClient.instance().getArchivesByNr(archiveNrs)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getDataFromResults())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
     override fun updateProfilePhoto(thumbRecord: Record, listener: IResponseListener) {
         NetworkClient.instance().updateProfilePhoto(
             prefsHelper.getCurrentArchiveNr(),

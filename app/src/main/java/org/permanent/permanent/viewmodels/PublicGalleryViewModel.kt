@@ -27,9 +27,14 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
     private val showMessage = SingleLiveEvent<String>()
     private val showError = SingleLiveEvent<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
-    private val onPublicArchivesRetrieved = MutableLiveData<List<Archive>>()
+    private val onYourArchivesRetrieved = MutableLiveData<List<Archive>>()
+    private val onPopularArchivesRetrieved = MutableLiveData<List<Archive>>()
 
-    fun getYourPublicArchives() {
+    init {
+       getYourPublicArchives()
+    }
+
+    private fun getYourPublicArchives() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -47,7 +52,34 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
                                 archives.add(archive)
                             }
                         }
-                        onPublicArchivesRetrieved.value = archives
+                        onYourArchivesRetrieved.value = archives
+                    }
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showError.value = error
+                }
+            })
+        }
+    }
+
+    fun getPopularArchives(minimizedPopularArchives: List<Archive>) {
+        val archiveNumbers = minimizedPopularArchives.map { it.number }
+        isBusy.value = true
+        with(archiveRepository) {
+            getArchivesByNr(archiveNumbers, object : IDataListener {
+                override fun onSuccess(dataList: List<Datum>?) {
+                    isBusy.value = false
+                    if (!dataList.isNullOrEmpty()) {
+                        val archives: MutableList<Archive> = ArrayList()
+                        for (datum in dataList) {
+                            val archive = Archive(datum.ArchiveVO)
+                            if (archive.public == 1) {
+                                archives.add(archive)
+                            }
+                        }
+                        onPopularArchivesRetrieved.value = archives
                     }
                 }
 
@@ -65,7 +97,8 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
     fun getShowMessage(): MutableLiveData<String> = showMessage
     fun getShowError(): MutableLiveData<String> = showError
 
-    fun getOnPublicArchivesRetrieved(): LiveData<List<Archive>> = onPublicArchivesRetrieved
+    fun getOnYourArchivesRetrieved(): LiveData<List<Archive>> = onYourArchivesRetrieved
+    fun getOnPopularArchivesRetrieved(): LiveData<List<Archive>> = onPopularArchivesRetrieved
 
     fun sharePublicArchive(archive: Archive) {
         val sharableLink = BuildConfig.BASE_URL + "p/archive/" + archive.number +

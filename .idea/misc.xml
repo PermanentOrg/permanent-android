@@ -3,8 +3,24 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/donate_with_googlepay_button_content.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/drawer_selected_background_color.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/forgot_pass_box_stroke_color.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/googlepay_button_background.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/googlepay_button_content.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/googlepay_button_no_shadow_background.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/googlepay_button_overlay.xml" value="0.2685" />
         <entry key="app/src/main/res/drawable/ic_delete_white.xml" value="0.4197916666666667" />
         <entry key="app/src/main/res/drawable/ic_edit.xml" value="0.4197916666666667" />
+        <entry key="app/src/main/res/drawable/login_box_background_color.xml" value="0.2585" />
+        <entry key="app/src/main/res/drawable/manage_link_background_color.xml" value="0.2585" />
+        <entry key="app/src/main/res/drawable/rounded_blue_border_white_background.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/rounded_border_grey_background.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/rounded_googlepay_button_background.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/rounded_grey_border_white_background.xml" value="0.2685" />
+        <entry key="app/src/main/res/drawable/share_link_background_color.xml" value="0.2585" />
+        <entry key="app/src/main/res/drawable/storage_tab_background_color.xml" value="0.2585" />
+        <entry key="app/src/main/res/drawable/white_image_frame.xml" value="0.2585" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.30512820512820515" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.3098958333333333" />
@@ -22,12 +38,15 @@
         <entry key="app/src/main/res/layout/dialog_terms_of_service.xml" value="0.5911458333333334" />
         <entry key="app/src/main/res/layout/dialog_title_text_two_buttons.xml" value="0.5" />
         <entry key="app/src/main/res/layout/dialog_welcome.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/donate_with_googlepay_button.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_account.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_add_edit_milestone.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_add_edit_online_presence.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_add_milestone.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archives.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archives_container.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_container.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_donation_summary.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_edit_about.xml" value="0.5820512820512821" />
         <entry key="app/src/main/res/layout/fragment_edit_archive_information.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_edit_milestone.xml" value="0.2046875" />
@@ -44,9 +63,12 @@
         <entry key="app/src/main/res/layout/fragment_public_archive.xml" value="0.3440366972477064" />
         <entry key="app/src/main/res/layout/fragment_public_archives.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_public_files.xml" value="0.4036458333333333" />
-        <entry key="app/src/main/res/layout/fragment_public_gallery.xml" value="0.4036458333333333" />
-        <entry key="app/src/main/res/layout/fragment_public_profile.xml" value="0.15422885572139303" />
+        <entry key="app/src/main/res/layout/fragment_public_gallery.xml" value="0.3974358974358974" />
+        <entry key="app/src/main/res/layout/fragment_public_profile.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_record_options.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_security.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_shares.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_storage.xml" value="0.3963541666666667" />
         <entry key="app/src/main/res/layout/item_archive.xml" value="0.3974358974358974" />
         <entry key="app/src/main/res/layout/item_list_record.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_member.xml" value="0.4036458333333333" />
@@ -54,6 +76,7 @@
         <entry key="app/src/main/res/layout/item_milestone_underlay.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_online_presence.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_online_presence_underlay.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/item_public_archive.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/nav_main_header.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/nav_settings_header.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/menu/menu_main_drawer.xml" value="0.5820512820512821" />

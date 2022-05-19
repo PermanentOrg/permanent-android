@@ -14,6 +14,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicGalleryBinding
 import org.permanent.permanent.models.Archive
@@ -24,11 +29,17 @@ import org.permanent.permanent.viewmodels.PublicGalleryViewModel
 class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
     private lateinit var viewModel: PublicGalleryViewModel
     private lateinit var binding: FragmentPublicGalleryBinding
-    private lateinit var publicArchiveAdapter: PublicArchiveAdapter
+    private lateinit var yourArchivesAdapter: PublicArchiveAdapter
+    private lateinit var popularArchivesAdapter: PublicArchiveAdapter
     private lateinit var yourArchivesRecyclerView: RecyclerView
+    private lateinit var popularArchivesRecyclerView: RecyclerView
 
-    private val onArchivesRetrieved = Observer<List<Archive>> {
-        publicArchiveAdapter.set(it as MutableList<Archive>)
+    private val onYourArchivesRetrieved = Observer<List<Archive>> {
+        yourArchivesAdapter.set(it as MutableList<Archive>)
+    }
+
+    private val onPopularArchivesRetrieved = Observer<List<Archive>> {
+        popularArchivesAdapter.set(it as MutableList<Archive>)
     }
 
     private val onShowMessage = Observer<String?> { message ->
@@ -58,37 +69,73 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublicGalleryViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicGalleryViewModel::class.java]
         binding = FragmentPublicGalleryBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initYourArchivesRecyclerView(binding.rvYourPublicArchives)
+        initPopularArchivesRecyclerView(binding.rvPopularPublicArchives)
+        val remoteConfig = setupRemoteConfig()
+
+        remoteConfig.fetchAndActivate().addOnCompleteListener {
+            val popularArchivesString = remoteConfig.getString(POPULAR_PUBLIC_ARCHIVES_KEY)
+            val gson = Gson()
+            val jsonObject = gson.fromJson(popularArchivesString, JsonObject::class.java)
+            val arr = jsonObject.getAsJsonArray(REMOTE_CONFIG_ARCHIVES_KEY)
+            val minimizedPopularArchives = gson.fromJson(arr, Array<Archive>::class.java).asList()
+            viewModel.getPopularArchives(minimizedPopularArchives)
+        }
 
         return binding.root
     }
 
     private fun initYourArchivesRecyclerView(rvYourPublicArchives: RecyclerView) {
         yourArchivesRecyclerView = rvYourPublicArchives
-        publicArchiveAdapter = PublicArchiveAdapter(this)
+        yourArchivesAdapter = PublicArchiveAdapter(this)
         yourArchivesRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
-            adapter = publicArchiveAdapter
+            adapter = yourArchivesAdapter
         }
+    }
 
+    private fun initPopularArchivesRecyclerView(rvPopularPublicArchives: RecyclerView) {
+        popularArchivesRecyclerView = rvPopularPublicArchives
+        popularArchivesAdapter = PublicArchiveAdapter(this)
+        popularArchivesRecyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = popularArchivesAdapter
+        }
+    }
+
+    private fun setupRemoteConfig(): FirebaseRemoteConfig {
+        val remoteConfig = Firebase.remoteConfig
+
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
+
+        // FOR DEVELOPMENT PURPOSE ONLY
+        // The default minimum fetch interval is 12 hours
+//        val configSettings = remoteConfigSettings {
+//            minimumFetchIntervalInSeconds = 30
+//        }
+//        remoteConfig.setConfigSettingsAsync(configSettings)
+        return remoteConfig
     }
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowError().observe(this, onShowError)
-        viewModel.getOnPublicArchivesRetrieved().observe(this, onArchivesRetrieved)
+        viewModel.getOnYourArchivesRetrieved().observe(this, onYourArchivesRetrieved)
+        viewModel.getOnPopularArchivesRetrieved().observe(this, onPopularArchivesRetrieved)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowError().removeObserver(onShowError)
-        viewModel.getOnPublicArchivesRetrieved().removeObserver(onArchivesRetrieved)
+        viewModel.getOnYourArchivesRetrieved().removeObserver(onYourArchivesRetrieved)
+        viewModel.getOnPopularArchivesRetrieved().removeObserver(onPopularArchivesRetrieved)
     }
 
     override fun onArchiveClick(archive: Archive) {
@@ -103,12 +150,16 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getYourPublicArchives()
         connectViewModelEvents()
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    companion object {
+        private const val POPULAR_PUBLIC_ARCHIVES_KEY = "popular_public_archives_android"
+        private const val REMOTE_CONFIG_ARCHIVES_KEY = "archives"
     }
 }
