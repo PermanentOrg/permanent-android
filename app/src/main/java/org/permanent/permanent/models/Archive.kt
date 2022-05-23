@@ -14,7 +14,8 @@ class Archive() : Parcelable {
     var accessRole: AccessRole? = null
     var accessRoleText: String? = null
     var status: Status? = null
-    var public: Int? = null
+    var isPublic: Int? = null
+    var isPopular: Boolean = false
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readInt()
@@ -26,7 +27,8 @@ class Archive() : Parcelable {
         accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         accessRoleText = parcel.readString()
         status = parcel.readParcelable(Status::class.java.classLoader)
-        public = parcel.readInt()
+        isPublic = parcel.readInt()
+        isPopular = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
     constructor(archiveVO: ArchiveVO?) : this() {
@@ -53,7 +55,7 @@ class Archive() : Parcelable {
             Status.PENDING.toBackendString() -> Status.PENDING
             else -> Status.OK
         }
-        public = archiveVO?.public
+        isPublic = archiveVO?.public
     }
 
     constructor(archiveId: Int) : this() {
@@ -79,7 +81,8 @@ class Archive() : Parcelable {
         parcel.writeParcelable(accessRole, flags)
         parcel.writeString(accessRoleText)
         parcel.writeParcelable(status, flags)
-        parcel.writeValue(public)
+        parcel.writeValue(isPublic)
+        parcel.writeValue(isPopular)
     }
 
     override fun describeContents(): Int {

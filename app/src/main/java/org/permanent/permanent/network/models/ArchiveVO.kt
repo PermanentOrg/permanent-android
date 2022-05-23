@@ -23,6 +23,6 @@ class ArchiveVO() {
         thumbURL200 = archive.thumbURL200
         accessRole = archive.accessRole?.backendString
         status = archive.status?.toBackendString()
-        public = archive.public
+        public = archive.isPublic
     }
 }

@@ -14,11 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicGalleryBinding
 import org.permanent.permanent.models.Archive
@@ -76,16 +71,6 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         binding.viewModel = viewModel
         initYourArchivesRecyclerView(binding.rvYourPublicArchives)
         initPopularArchivesRecyclerView(binding.rvPopularPublicArchives)
-        val remoteConfig = setupRemoteConfig()
-
-        remoteConfig.fetchAndActivate().addOnCompleteListener {
-            val popularArchivesString = remoteConfig.getString(POPULAR_PUBLIC_ARCHIVES_KEY)
-            val gson = Gson()
-            val jsonObject = gson.fromJson(popularArchivesString, JsonObject::class.java)
-            val arr = jsonObject.getAsJsonArray(REMOTE_CONFIG_ARCHIVES_KEY)
-            val minimizedPopularArchives = gson.fromJson(arr, Array<Archive>::class.java).asList()
-            viewModel.getPopularArchives(minimizedPopularArchives)
-        }
 
         return binding.root
     }
@@ -108,20 +93,6 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
             layoutManager = LinearLayoutManager(context)
             adapter = popularArchivesAdapter
         }
-    }
-
-    private fun setupRemoteConfig(): FirebaseRemoteConfig {
-        val remoteConfig = Firebase.remoteConfig
-
-        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
-
-        // FOR DEVELOPMENT PURPOSE ONLY
-        // The default minimum fetch interval is 12 hours
-//        val configSettings = remoteConfigSettings {
-//            minimumFetchIntervalInSeconds = 30
-//        }
-//        remoteConfig.setConfigSettingsAsync(configSettings)
-        return remoteConfig
     }
 
     override fun connectViewModelEvents() {
@@ -156,10 +127,5 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-    }
-
-    companion object {
-        private const val POPULAR_PUBLIC_ARCHIVES_KEY = "popular_public_archives_android"
-        private const val REMOTE_CONFIG_ARCHIVES_KEY = "archives"
     }
 }
