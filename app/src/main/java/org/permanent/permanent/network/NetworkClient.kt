@@ -255,7 +255,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.getLeanItems(requestBody)
     }
 
-    fun updateProfileBanner(folderId: Int, folderLinkId: Int, archiveNr: String?, thumbArchiveNr: String
+    fun updateProfileBanner(
+        folderId: Int, folderLinkId: Int, archiveNr: String?, thumbArchiveNr: String
     ): Call<ResponseVO> {
         val json = toJson(
             RequestContainer().addFolder(folderId, folderLinkId, archiveNr, thumbArchiveNr)
@@ -265,7 +266,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.updateProfileBanner(requestBody)
     }
 
-    fun createFolder(name: String, folderId: Int, folderLinkId: Int
+    fun createFolder(
+        name: String, folderId: Int, folderLinkId: Int
     ): Call<ResponseVO> {
         val json = toJson(RequestContainer().addFolder(name, folderId, folderLinkId))
         val requestBody: RequestBody = json.toRequestBody(jsonMediaType)
@@ -409,7 +411,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.searchRecord(requestBody)
     }
 
-    fun requestShareLink(record: Record, shareRequestType: ShareRequestType
+    fun requestShareLink(
+        record: Record, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer().addRecord(record))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -420,7 +423,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
     }
 
-    fun modifyShareLink(shareVO: Shareby_urlVO, shareRequestType: ShareRequestType
+    fun modifyShareLink(
+        shareVO: Shareby_urlVO, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer().addShareByUrl(shareVO))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -461,6 +465,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer())
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return shareService.getShares(requestBody)
+    }
+
+    fun getArchivesByNr(archiveNrs: List<String?>): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addArchives(archiveNrs))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.getArchivesByNr(requestBody)
     }
 
     fun updateProfilePhoto(

@@ -9,9 +9,16 @@
             name="viewModel"
             type="org.permanent.permanent.viewmodels.PublicGalleryViewModel" />
     </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="true">
 
         <ImageView
             android:id="@+id/ivArchiveThumb"
@@ -58,6 +65,19 @@
             app:srcCompat="@drawable/ic_search_middle_grey"
             app:tint="@color/white" />
 
+        <TextView
+            android:id="@+id/tvYourPublicArchives"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/open_sans_bold"
+            android:text="@string/section_your_public_archives"
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivArchiveThumb" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvYourPublicArchives"
             android:layout_width="match_parent"
@@ -70,17 +90,28 @@
             app:layout_constraintTop_toBottomOf="@+id/tvYourPublicArchives" />
 
         <TextView
-            android:id="@+id/tvYourPublicArchives"
+            android:id="@+id/tvPopularPublicArchives"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="8dp"
             android:fontFamily="@font/open_sans_bold"
-            android:text="@string/section_your_public_archives"
+            android:text="@string/section_popular_public_archives"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivArchiveThumb" />
+            app:layout_constraintTop_toBottomOf="@+id/rvYourPublicArchives" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPopularPublicArchives"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvPopularPublicArchives" />
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar"
@@ -96,4 +127,5 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.54" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

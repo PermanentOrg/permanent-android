@@ -6,6 +6,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
@@ -27,9 +32,25 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
     private val showMessage = SingleLiveEvent<String>()
     private val showError = SingleLiveEvent<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
-    private val onPublicArchivesRetrieved = MutableLiveData<List<Archive>>()
+    private val onYourArchivesRetrieved = MutableLiveData<List<Archive>>()
+    private val onPopularArchivesRetrieved = MutableLiveData<List<Archive>>()
 
-    fun getYourPublicArchives() {
+    init {
+        getYourPublicArchives()
+
+        val remoteConfig = setupRemoteConfig()
+
+        remoteConfig.fetchAndActivate().addOnCompleteListener {
+            val popularArchivesString = remoteConfig.getString(POPULAR_PUBLIC_ARCHIVES_KEY)
+            val gson = Gson()
+            val jsonObject = gson.fromJson(popularArchivesString, JsonObject::class.java)
+            val arr = jsonObject.getAsJsonArray(REMOTE_CONFIG_ARCHIVES_KEY)
+            val minimizedPopularArchives = gson.fromJson(arr, Array<Archive>::class.java).asList()
+            getPopularArchives(minimizedPopularArchives)
+        }
+    }
+
+    private fun getYourPublicArchives() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -43,17 +64,57 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
                         val archives: MutableList<Archive> = ArrayList()
                         for (datum in dataList) {
                             val archive = Archive(datum.ArchiveVO)
-                            if (archive.public == 1) {
+                            if (archive.isPublic == 1) {
                                 archives.add(archive)
                             }
                         }
-                        onPublicArchivesRetrieved.value = archives
+                        onYourArchivesRetrieved.value = archives
                     }
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = error
+                    error?.let { showError.value = it }
+                }
+            })
+        }
+    }
+
+    private fun setupRemoteConfig(): FirebaseRemoteConfig {
+        val remoteConfig = Firebase.remoteConfig
+
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
+
+        // FOR DEVELOPMENT PURPOSE ONLY
+        // The default minimum fetch interval is 12 hours
+//        val configSettings = remoteConfigSettings {
+//            minimumFetchIntervalInSeconds = 30
+//        }
+//        remoteConfig.setConfigSettingsAsync(configSettings)
+        return remoteConfig
+    }
+
+    fun getPopularArchives(minimizedPopularArchives: List<Archive>) {
+        val archiveNumbers = minimizedPopularArchives.map { it.number }
+        isBusy.value = true
+        with(archiveRepository) {
+            getArchivesByNr(archiveNumbers, object : IDataListener {
+                override fun onSuccess(dataList: List<Datum>?) {
+                    isBusy.value = false
+                    if (!dataList.isNullOrEmpty()) {
+                        val archives: MutableList<Archive> = ArrayList()
+                        for (datum in dataList) {
+                            val archive = Archive(datum.ArchiveVO)
+                            archive.isPopular = true
+                            archives.add(archive)
+                        }
+                        onPopularArchivesRetrieved.value = archives
+                    }
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    error?.let { showError.value = it }
                 }
             })
         }
@@ -65,7 +126,8 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
     fun getShowMessage(): MutableLiveData<String> = showMessage
     fun getShowError(): MutableLiveData<String> = showError
 
-    fun getOnPublicArchivesRetrieved(): LiveData<List<Archive>> = onPublicArchivesRetrieved
+    fun getOnYourArchivesRetrieved(): LiveData<List<Archive>> = onYourArchivesRetrieved
+    fun getOnPopularArchivesRetrieved(): LiveData<List<Archive>> = onPopularArchivesRetrieved
 
     fun sharePublicArchive(archive: Archive) {
         val sharableLink = BuildConfig.BASE_URL + "p/archive/" + archive.number +
@@ -78,4 +140,8 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
         showMessage.value = appContext.getString(R.string.share_link_link_copied)
     }
 
+    companion object {
+        private const val POPULAR_PUBLIC_ARCHIVES_KEY = "popular_public_archives_android"
+        private const val REMOTE_CONFIG_ARCHIVES_KEY = "archives"
+    }
 }
