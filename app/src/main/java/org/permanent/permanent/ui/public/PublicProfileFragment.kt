@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.public.PublicViewPagerAdapter.Companion.IS_VIEW_ONLY_MODE
@@ -36,8 +37,8 @@ class PublicProfileFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         initMilestonesRecyclerView(binding.rvMilestones)
-        val archiveNr = arguments?.getString(PublicFragment.ARCHIVE_NR)
-        viewModel.setArchiveNr(archiveNr)
+        val archive: Archive? = arguments?.getParcelable(PublicFragment.ARCHIVE)
+        viewModel.setArchive(archive)
         arguments?.takeIf { it.containsKey(IS_VIEW_ONLY_MODE) }?.apply {
             val isViewOnlyMode = getBoolean(IS_VIEW_ONLY_MODE)
             if (isViewOnlyMode) viewModel.setIsViewOnlyMode()
