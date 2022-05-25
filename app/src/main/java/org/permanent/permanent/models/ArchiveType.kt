@@ -7,7 +7,8 @@ import java.util.*
 enum class ArchiveType(val backendString: String) : Parcelable {
     PERSON("type.archive.person"),
     FAMILY("type.archive.family"),
-    ORGANIZATION("type.archive.organization");
+    ORGANIZATION("type.archive.organization"),
+    NONPROFIT("type.archive.nonprofit");
 
     fun toTitleCase(): String = this.name.lowercase(Locale.getDefault())
         .replaceFirstChar { it.titlecase(Locale.getDefault()) }

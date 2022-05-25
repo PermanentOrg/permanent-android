@@ -3,10 +3,12 @@ package org.permanent.permanent.ui.public
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.ui.public.PublicFragment.Companion.ARCHIVE
 import org.permanent.permanent.ui.public.PublicFragment.Companion.ARCHIVE_NR
 
 
-class PublicViewPagerAdapter(val isViewOnlyMode: Boolean, val archiveNr: String?, val fragment: Fragment) :
+class PublicViewPagerAdapter(val isViewOnlyMode: Boolean, val archive: Archive, val fragment: Fragment) :
     FragmentStateAdapter(fragment) {
 
     override fun getItemCount(): Int {
@@ -17,12 +19,12 @@ class PublicViewPagerAdapter(val isViewOnlyMode: Boolean, val archiveNr: String?
         when (position) {
             0 -> {
                 return PublicArchiveFragment().apply {
-                    arguments = bundleOf(ARCHIVE_NR to archiveNr)
+                    arguments = bundleOf(ARCHIVE_NR to archive.number)
                 }
             }
         }
         return PublicProfileFragment().apply {
-            arguments = bundleOf(IS_VIEW_ONLY_MODE to isViewOnlyMode, ARCHIVE_NR to archiveNr)
+            arguments = bundleOf(IS_VIEW_ONLY_MODE to isViewOnlyMode, ARCHIVE to archive)
         }
     }
 

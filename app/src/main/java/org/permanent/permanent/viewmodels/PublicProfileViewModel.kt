@@ -1,10 +1,10 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
@@ -13,54 +13,24 @@ import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PublicProfileViewModel(application: Application) : ObservableAndroidViewModel(application) {
-    private val prefsHelper = PreferencesHelper(
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    )
+
+    private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String?>()
     private var isViewOnlyMode = MutableLiveData(false)
-    private val currentArchiveType = prefsHelper.getCurrentArchiveType()
+    private var archiveType: ArchiveType? = null
     private var profileItems: MutableList<ProfileItem> = ArrayList()
     private val isProfilePublic = MutableLiveData<Boolean>()
     private val shortAndLongDescription = MutableLiveData("")
-    private val archiveInfoLabel = MutableLiveData(
-        application.getString(
-            R.string.public_profile_archive_information_label,
-            currentArchiveType.toTitleCase()
-        )
-    )
-    private val nameLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY -> application.getString(R.string.public_profile_family_name_label)
-            ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_organization_name_label)
-            else -> application.getString(R.string.public_profile_full_name_hint)
-        }
-    )
-    private val aliasesLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY -> application.getString(R.string.public_profile_family_aliases_label)
-            ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_organization_aliases_label)
-            else -> application.getString(R.string.public_profile_person_aliases_label)
-        }
-    )
-    private val dateLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_family_and_organization_date_label)
-            else -> application.getString(R.string.public_profile_person_date_label)
-        }
-    )
-    private val locationLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_family_and_organization_location_label)
-            else -> application.getString(R.string.public_profile_person_location_label)
-        }
-    )
+    private val archiveInfoLabel = MutableLiveData("")
+    private val nameLabel = MutableLiveData("")
+    private val aliasesLabel = MutableLiveData("")
+    private val dateLabel = MutableLiveData("")
+    private val locationLabel = MutableLiveData("")
     private val name = MutableLiveData("")
     private val aliases = MutableLiveData("")
     private val gender = MutableLiveData("")
@@ -80,10 +50,34 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
-    private var archiveNr: String? = null
+    private var archive: Archive? = null
 
-    fun setArchiveNr(archiveNr: String?) {
-        this.archiveNr = archiveNr
+    fun setArchive(archive: Archive?) {
+        this.archive = archive
+        archiveType = archive?.type
+
+        archiveInfoLabel.value = appContext.getString(
+            R.string.public_profile_archive_information_label,
+            archiveType?.toTitleCase()
+        )
+        nameLabel.value = when (archiveType) {
+            ArchiveType.FAMILY -> appContext.getString(R.string.public_profile_family_name_label)
+            ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_organization_name_label)
+            else -> appContext.getString(R.string.public_profile_full_name_hint)
+        }
+        aliasesLabel.value = when (archiveType) {
+            ArchiveType.FAMILY -> appContext.getString(R.string.public_profile_family_aliases_label)
+            ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_organization_aliases_label)
+            else -> appContext.getString(R.string.public_profile_person_aliases_label)
+        }
+        dateLabel.value = when (archiveType) {
+            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_family_and_organization_date_label)
+            else -> appContext.getString(R.string.public_profile_person_date_label)
+        }
+        locationLabel.value = when (archiveType) {
+            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_family_and_organization_location_label)
+            else -> appContext.getString(R.string.public_profile_person_location_label)
+        }
     }
 
     fun getProfileItems() {
@@ -91,7 +85,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
             return
         }
         isBusy.value = true
-        profileRepository.getProfileItemsByArchive(archiveNr, object : IDataListener {
+        profileRepository.getProfileItemsByArchive(archive?.number, object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 dataList?.let { displayProfileItems(dataList) }
@@ -239,7 +233,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         onEditMilestonesRequest.call()
     }
 
-    fun getCurrentArchiveType(): ArchiveType = currentArchiveType
+    fun getArchiveType(): ArchiveType? = archiveType
 
     fun getOnEditAboutRequest(): LiveData<MutableList<ProfileItem>> = onEditAboutRequest
 

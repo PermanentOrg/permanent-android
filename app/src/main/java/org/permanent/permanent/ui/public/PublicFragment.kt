@@ -28,7 +28,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     private lateinit var prefsHelper: PreferencesHelper
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
-    private var archiveNr: String? = null
+    private lateinit var archive: Archive
     private var isViewOnlyMode = false
 
     private val onArchiveName = Observer<String> {
@@ -61,10 +61,9 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
-        val currentArchive: Archive = arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive()
-        archiveNr = currentArchive.number
-        viewModel.setArchive(currentArchive)
-        isViewOnlyMode = currentArchive.accessRole != AccessRole.OWNER && currentArchive.accessRole != AccessRole.MANAGER
+        archive = arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive()
+        viewModel.setArchive(archive)
+        isViewOnlyMode = archive.accessRole != AccessRole.OWNER && archive.accessRole != AccessRole.MANAGER
         if (isViewOnlyMode) {
             binding.fabProfileBanner.visibility = View.GONE
             binding.fabProfilePhoto.visibility = View.GONE
@@ -82,7 +81,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
-        val adapter = PublicViewPagerAdapter(isViewOnlyMode, archiveNr, this)
+        val adapter = PublicViewPagerAdapter(isViewOnlyMode, archive, this)
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->

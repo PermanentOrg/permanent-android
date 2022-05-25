@@ -37,7 +37,7 @@ class Archive() : Parcelable {
         thumbArchiveNr = archiveVO?.thumbArchiveNbr
         type = when (archiveVO?.type) {
             ArchiveType.FAMILY.backendString -> ArchiveType.FAMILY
-            ArchiveType.ORGANIZATION.backendString -> ArchiveType.ORGANIZATION
+            ArchiveType.ORGANIZATION.backendString, ArchiveType.NONPROFIT.backendString -> ArchiveType.ORGANIZATION
             else -> ArchiveType.PERSON
         }
         fullName = "The ${archiveVO?.fullName} Archive"
@@ -62,7 +62,14 @@ class Archive() : Parcelable {
         id = archiveId
     }
 
-    constructor(id: Int, number: String?, type: ArchiveType, fullName: String?, thumbURL: String?, accessRole: AccessRole) : this() {
+    constructor(
+        id: Int,
+        number: String?,
+        type: ArchiveType,
+        fullName: String?,
+        thumbURL: String?,
+        accessRole: AccessRole
+    ) : this() {
         this.id = id
         this.number = number
         this.type = type
