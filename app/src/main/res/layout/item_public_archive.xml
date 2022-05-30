@@ -20,8 +20,8 @@
 
         <ImageView
             android:id="@+id/ivGalleryThumb"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:scaleType="centerCrop"
             app:imageUrl="@{archive.thumbURL200}"
             app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,7 @@
             android:maxLines="2"
             android:text="@{archive.fullName}"
             android:textColor="@{archive.isPopular? @color/colorPrimary : @color/white}"
-            android:textSize="18sp"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/ivGalleryThumb"

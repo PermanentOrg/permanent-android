@@ -12,6 +12,9 @@ interface IArchiveService {
     @POST("archive/get")
     fun getArchivesByNr(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("search/archive")
+    fun searchArchive(@Body requestBody: RequestBody): Call<ResponseVO>
+
     // Used in public profile
     @POST("archive/update")
     fun updateProfilePhoto(@Body requestBody: RequestBody): Call<ResponseVO>

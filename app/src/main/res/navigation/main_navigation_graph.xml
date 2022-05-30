@@ -177,15 +177,27 @@
         <action
             android:id="@+id/action_publicFragment_to_onlinePresenceListFragment"
             app:destination="@id/onlinePresenceListFragment" />
-
     </fragment>
+
     <fragment
         android:id="@+id/publicGalleryFragment"
         android:name="org.permanent.permanent.ui.public.PublicGalleryFragment"
         android:label="@string/menu_drawer_public_gallery"
-        tools:layout="@layout/fragment_public_gallery" >
+        tools:layout="@layout/fragment_public_gallery">
         <action
             android:id="@+id/action_publicGalleryFragment_to_publicFragment"
+            app:destination="@id/publicFragment" />
+        <action
+            android:id="@+id/action_publicGalleryFragment_to_archiveSearchFragment"
+            app:destination="@id/archiveSearchFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/archiveSearchFragment"
+        android:name="org.permanent.permanent.ui.public.ArchiveSearchFragment"
+        tools:layout="@layout/fragment_archive_search">
+        <action
+            android:id="@+id/action_archiveSearchFragment_to_publicFragment"
             app:destination="@id/publicFragment" />
     </fragment>
 
@@ -197,6 +209,7 @@
             android:id="@+id/action_publicFolderFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
     </fragment>
+
     <fragment
         android:id="@+id/editAboutFragment"
         android:name="org.permanent.permanent.ui.public.EditAboutFragment"
