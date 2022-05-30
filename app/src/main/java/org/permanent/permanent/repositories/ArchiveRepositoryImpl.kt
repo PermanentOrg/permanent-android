@@ -40,6 +40,23 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
             })
     }
 
+    override fun searchArchive(name: String?, listener: IDataListener) {
+        NetworkClient.instance().searchArchive(name).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(responseVO.getData())
+                } else {
+                    listener.onFailed(responseVO?.getMessages()?.get(0))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
     override fun updateProfilePhoto(thumbRecord: Record, listener: IResponseListener) {
         NetworkClient.instance().updateProfilePhoto(
             prefsHelper.getCurrentArchiveNr(),
@@ -237,7 +254,8 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun transferOwnership(email: String, listener: IResponseListener) {
-        NetworkClient.instance().transferOwnership(prefsHelper.getCurrentArchiveNr(), email
+        NetworkClient.instance().transferOwnership(
+            prefsHelper.getCurrentArchiveNr(), email
         ).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()

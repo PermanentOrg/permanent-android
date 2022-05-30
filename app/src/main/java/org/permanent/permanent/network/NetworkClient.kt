@@ -473,6 +473,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.getArchivesByNr(requestBody)
     }
 
+    fun searchArchive(name: String?): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addSearch(name))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.searchArchive(requestBody)
+    }
+
     fun updateProfilePhoto(
         archiveNr: String?,
         archiveId: Int,

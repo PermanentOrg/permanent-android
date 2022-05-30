@@ -69,6 +69,9 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.etSearchQuery.setOnClickListener {
+            findNavController().navigate(R.id.action_publicGalleryFragment_to_archiveSearchFragment)
+        }
         initYourArchivesRecyclerView(binding.rvYourPublicArchives)
         initPopularArchivesRecyclerView(binding.rvPopularPublicArchives)
 
