@@ -7,18 +7,6 @@
         android:layout_height="match_parent"
         android:background="@color/colorPrimary">
 
-        <ImageView
-            android:id="@+id/ivWelcomeImage"
-            android:layout_width="176dp"
-            android:layout_height="176dp"
-            android:layout_marginTop="24dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/img_chicken_in_sweater" />
-
         <TextView
             android:id="@+id/tvWelcomeTitle"
             android:layout_width="wrap_content"
@@ -29,11 +17,12 @@
             android:gravity="center"
             android:text="@string/welcome_title"
             android:textColor="@color/white"
-            android:textSize="16sp"
+            android:textSize="18sp"
+            android:fontFamily="@font/open_sans_bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivWelcomeImage"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
         <TextView
