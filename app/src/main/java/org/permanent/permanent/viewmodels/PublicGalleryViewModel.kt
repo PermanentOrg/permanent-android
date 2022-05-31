@@ -31,6 +31,7 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
     private val showError = SingleLiveEvent<String>()
+    private val existsYourArchives = MutableLiveData(false)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private val onYourArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val onPopularArchivesRetrieved = MutableLiveData<List<Archive>>()
@@ -69,6 +70,7 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
                             }
                         }
                         onYourArchivesRetrieved.value = archives
+                        existsYourArchives.value = archives.isNotEmpty()
                     }
                 }
 
@@ -120,12 +122,12 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
         }
     }
 
-    fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
-
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
     fun getShowMessage(): MutableLiveData<String> = showMessage
     fun getShowError(): MutableLiveData<String> = showError
 
+    fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
+    fun getExistsYourArchives(): MutableLiveData<Boolean> = existsYourArchives
     fun getOnYourArchivesRetrieved(): LiveData<List<Archive>> = onYourArchivesRetrieved
     fun getOnPopularArchivesRetrieved(): LiveData<List<Archive>> = onPopularArchivesRetrieved
 
