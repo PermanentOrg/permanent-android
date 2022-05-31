@@ -191,6 +191,8 @@
     <string name="section_your_public_archives">Your Public Archives</string>
     <string name="section_popular_public_archives">Popular Public Archives</string>
     <string name="public_gallery_search_hint">Search for people, families, or organizations</string>
+    <string name="public_gallery_no_public_archives_title">None of your archives are public.</string>
+    <string name="public_gallery_no_public_archives_subtitle">Learn how to publish an archive</string>
 
     <string name="file_options_menu_item_download">Download</string>
     <string name="file_options_menu_item_copy">Copy</string>

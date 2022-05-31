@@ -1,6 +1,8 @@
 package org.permanent.permanent.ui.public
 
+import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicGalleryBinding
 import org.permanent.permanent.models.Archive
@@ -71,6 +74,11 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         binding.viewModel = viewModel
         binding.etSearchQuery.setOnClickListener {
             findNavController().navigate(R.id.action_publicGalleryFragment_to_archiveSearchFragment)
+        }
+        binding.clNoPublicArchives.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(Constants.HOW_TO_PUBLISH_ARCHIVE_URL)
+            startActivity(intent)
         }
         initYourArchivesRecyclerView(binding.rvYourPublicArchives)
         initPopularArchivesRecyclerView(binding.rvPopularPublicArchives)
