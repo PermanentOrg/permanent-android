@@ -23,7 +23,7 @@
             android:layout_height="0dp"
             android:background="@color/white"
             android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/tvPickAmountLabel"
+            app:layout_constraintBottom_toTopOf="@+id/tvChooseAmountLabel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -200,11 +200,11 @@
         </ScrollView>
 
         <TextView
-            android:id="@+id/tvPickAmountLabel"
+            android:id="@+id/tvChooseAmountLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="@string/storage_pick_amount"
+            android:text="@string/storage_choose_amount"
             android:textColor="@color/colorPrimary"
             android:textSize="14sp"
             android:fontFamily="@font/open_sans"
