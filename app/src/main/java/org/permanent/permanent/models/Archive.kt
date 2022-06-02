@@ -14,6 +14,8 @@ class Archive() : Parcelable {
     var accessRole: AccessRole? = null
     var accessRoleText: String? = null
     var status: Status? = null
+    var isPublic: Int? = null
+    var isPopular: Boolean = false
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readInt()
@@ -25,6 +27,8 @@ class Archive() : Parcelable {
         accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         accessRoleText = parcel.readString()
         status = parcel.readParcelable(Status::class.java.classLoader)
+        isPublic = parcel.readInt()
+        isPopular = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
     constructor(archiveVO: ArchiveVO?) : this() {
@@ -33,7 +37,7 @@ class Archive() : Parcelable {
         thumbArchiveNr = archiveVO?.thumbArchiveNbr
         type = when (archiveVO?.type) {
             ArchiveType.FAMILY.backendString -> ArchiveType.FAMILY
-            ArchiveType.ORGANIZATION.backendString -> ArchiveType.ORGANIZATION
+            ArchiveType.ORGANIZATION.backendString, ArchiveType.NONPROFIT.backendString -> ArchiveType.ORGANIZATION
             else -> ArchiveType.PERSON
         }
         fullName = "The ${archiveVO?.fullName} Archive"
@@ -51,10 +55,27 @@ class Archive() : Parcelable {
             Status.PENDING.toBackendString() -> Status.PENDING
             else -> Status.OK
         }
+        isPublic = archiveVO?.public
     }
 
     constructor(archiveId: Int) : this() {
         id = archiveId
+    }
+
+    constructor(
+        id: Int,
+        number: String?,
+        type: ArchiveType,
+        fullName: String?,
+        thumbURL: String?,
+        accessRole: AccessRole
+    ) : this() {
+        this.id = id
+        this.number = number
+        this.type = type
+        this.fullName = fullName
+        this.thumbURL200 = thumbURL
+        this.accessRole = accessRole
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -67,6 +88,8 @@ class Archive() : Parcelable {
         parcel.writeParcelable(accessRole, flags)
         parcel.writeString(accessRoleText)
         parcel.writeParcelable(status, flags)
+        parcel.writeValue(isPublic)
+        parcel.writeValue(isPopular)
     }
 
     override fun describeContents(): Int {

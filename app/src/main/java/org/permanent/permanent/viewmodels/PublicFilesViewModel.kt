@@ -1,11 +1,18 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IRecordListener
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 class PublicFilesViewModel(application: Application) : MyFilesViewModel(application) {
+
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
 
     init {
         getFolderName().value = Constants.PUBLIC_FILES
@@ -13,7 +20,7 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
 
     override fun loadRootFiles() {
         swipeRefreshLayout.isRefreshing = true
-        fileRepository.getPublicRoot(object : IRecordListener {
+        fileRepository.getPublicRoot(prefsHelper.getCurrentArchiveNr(), object : IRecordListener {
             override fun onSuccess(record: Record) {
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(record)

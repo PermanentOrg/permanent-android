@@ -9,6 +9,10 @@ import org.permanent.permanent.network.IResponseListener
 
 interface IArchiveRepository {
 
+    fun getArchivesByNr(archiveNrs: List<String?>, listener: IDataListener)
+
+    fun searchArchive(name: String?, listener: IDataListener)
+
     fun updateProfilePhoto(thumbRecord: Record, listener: IResponseListener)
 
     fun getAllArchives(listener: IDataListener)

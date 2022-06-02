@@ -34,6 +34,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
         MutableLiveData<String>(prefsHelper.getCurrentArchiveFullName())
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
+    private val showError = MutableLiveData<String>()
     private val existsPendingArchives = MutableLiveData(false)
     private val onPendingArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val existsArchives = MutableLiveData(false)
@@ -65,7 +66,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showError.value = error
             }
         })
     }
@@ -106,7 +107,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showError.value = error
             }
         })
     }
@@ -137,7 +138,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showError.value = error
             }
         })
     }
@@ -157,7 +158,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showError.value = error
             }
         })
     }
@@ -189,7 +190,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showError.value = error
                 }
             })
         }
@@ -219,7 +220,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                showError.value = error
             }
         })
     }
@@ -240,7 +241,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showMessage.value = error
+                    showError.value = error
                 }
             })
         }
@@ -259,8 +260,8 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
     fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
     fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowError(): LiveData<String> = showError
 
     fun getExistsPendingArchives(): MutableLiveData<Boolean> = existsPendingArchives
 

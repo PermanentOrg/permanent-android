@@ -3,6 +3,7 @@ package org.permanent.permanent.ui
 import android.content.SharedPreferences
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 
 const val PREFS_NAME = "permanent_preferences"
@@ -174,6 +175,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
             putString(PREFS_CURRENT_ARCHIVE_THUMB_URL, thumbURL)
             apply()
         }
+    }
+
+    fun getCurrentArchive(): Archive {
+        return Archive(
+            getCurrentArchiveId(),
+            getCurrentArchiveNr(),
+            getCurrentArchiveType(),
+            getCurrentArchiveFullName(),
+            getCurrentArchiveThumbURL(),
+            getCurrentArchiveAccessRole(),
+        )
     }
 
     fun getCurrentArchiveId(): Int {

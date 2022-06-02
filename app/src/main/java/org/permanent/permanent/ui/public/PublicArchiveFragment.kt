@@ -47,6 +47,8 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
         initRecordsRecyclerView(binding.rvRecords)
+        arguments?.getString(PublicFragment.ARCHIVE_NR)?.let { viewModel.setArchiveNr(it) }
+
         return binding.root
     }
 

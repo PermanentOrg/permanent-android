@@ -17,7 +17,6 @@ import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.SortType
-import java.util.*
 
 class PublicArchiveViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -33,13 +32,18 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
     private val onFolderViewRequest = SingleLiveEvent<Record>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+    private var archiveNr: String? = null
+
+    fun setArchiveNr(archiveNr: String?) {
+        this.archiveNr = archiveNr
+    }
 
     fun getRootRecords() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
-        fileRepository.getPublicRoot(object : IRecordListener {
+        fileRepository.getPublicRoot(archiveNr, object : IRecordListener {
             override fun onSuccess(record: Record) {
                 isBusy.value = false
                 currentFolder = record

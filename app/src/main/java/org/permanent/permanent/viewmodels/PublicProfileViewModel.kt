@@ -1,10 +1,10 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
@@ -13,61 +13,32 @@ import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PublicProfileViewModel(application: Application) : ObservableAndroidViewModel(application) {
-    private val prefsHelper = PreferencesHelper(
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    )
+
+    private val appContext = application.applicationContext
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String?>()
-    private val currentArchiveType = prefsHelper.getCurrentArchiveType()
+    private var isViewOnlyMode = MutableLiveData(false)
+    private var archiveType: ArchiveType? = null
     private var profileItems: MutableList<ProfileItem> = ArrayList()
     private val isProfilePublic = MutableLiveData<Boolean>()
     private val shortAndLongDescription = MutableLiveData("")
-    private val archiveInfoLabel = MutableLiveData(
-        application.getString(
-            R.string.public_profile_archive_information_label,
-            currentArchiveType.toTitleCase()
-        )
-    )
-    private val nameLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY -> application.getString(R.string.public_profile_family_name_label)
-            ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_organization_name_label)
-            else -> application.getString(R.string.public_profile_full_name_hint)
-        }
-    )
-    private val aliasesLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY -> application.getString(R.string.public_profile_family_aliases_label)
-            ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_organization_aliases_label)
-            else -> application.getString(R.string.public_profile_person_aliases_label)
-        }
-    )
-    private val dateLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_family_and_organization_date_label)
-            else -> application.getString(R.string.public_profile_person_date_label)
-        }
-    )
-    private val locationLabel = MutableLiveData(
-        when (currentArchiveType) {
-            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_family_and_organization_location_label)
-            else -> application.getString(R.string.public_profile_person_location_label)
-        }
-    )
-    private val name = MutableLiveData<String>()
-    private val aliases = MutableLiveData<String>()
-    private val gender = MutableLiveData<String>()
-    private val date = MutableLiveData<String>()
-    private val location = MutableLiveData<String>()
+    private val archiveInfoLabel = MutableLiveData("")
+    private val nameLabel = MutableLiveData("")
+    private val aliasesLabel = MutableLiveData("")
+    private val dateLabel = MutableLiveData("")
+    private val locationLabel = MutableLiveData("")
+    private val name = MutableLiveData("")
+    private val aliases = MutableLiveData("")
+    private val gender = MutableLiveData("")
+    private val date = MutableLiveData("")
+    private val location = MutableLiveData("")
     private val onlinePresence = MutableLiveData("")
-    private val emails = MutableLiveData("")
-    private val socialMedias = MutableLiveData("")
+    private var emails = ""
+    private var socialMedias = ""
     private val existsMilestones = MutableLiveData(false)
     private val onMilestonesRetrieved = SingleLiveEvent<MutableList<ProfileItem>>()
     private val isAboutExtended = MutableLiveData(false)
@@ -79,26 +50,52 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditMilestonesRequest = SingleLiveEvent<Void>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var archive: Archive? = null
+
+    fun setArchive(archive: Archive?) {
+        this.archive = archive
+        archiveType = archive?.type
+
+        archiveInfoLabel.value = appContext.getString(
+            R.string.public_profile_archive_information_label,
+            archiveType?.toTitleCase()
+        )
+        nameLabel.value = when (archiveType) {
+            ArchiveType.FAMILY -> appContext.getString(R.string.public_profile_family_name_label)
+            ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_organization_name_label)
+            else -> appContext.getString(R.string.public_profile_full_name_hint)
+        }
+        aliasesLabel.value = when (archiveType) {
+            ArchiveType.FAMILY -> appContext.getString(R.string.public_profile_family_aliases_label)
+            ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_organization_aliases_label)
+            else -> appContext.getString(R.string.public_profile_person_aliases_label)
+        }
+        dateLabel.value = when (archiveType) {
+            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_family_and_organization_date_label)
+            else -> appContext.getString(R.string.public_profile_person_date_label)
+        }
+        locationLabel.value = when (archiveType) {
+            ArchiveType.FAMILY, ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_family_and_organization_location_label)
+            else -> appContext.getString(R.string.public_profile_person_location_label)
+        }
+    }
 
     fun getProfileItems() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
-        profileRepository.getProfileItemsByArchive(
-            prefsHelper.getCurrentArchiveNr(),
-            object : IDataListener {
-                override fun onSuccess(dataList: List<Datum>?) {
-                    isBusy.value = false
-                    dataList?.let { displayProfileItems(dataList) }
-                }
-
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    showMessage.value = error
-                }
+        profileRepository.getProfileItemsByArchive(archive?.number, object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                isBusy.value = false
+                dataList?.let { displayProfileItems(dataList) }
             }
-        )
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     private fun displayProfileItems(dataList: List<Datum>) {
@@ -143,14 +140,12 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 }
                 ProfileItemName.EMAIL -> {
                     profileItem.string1?.let {
-                        emails.value =
-                            if (emails.value == "") it else emails.value + "\n" + it
+                        emails = if (emails.isEmpty()) it else emails + "\n" + it
                     }
                 }
                 ProfileItemName.SOCIAL_MEDIA -> {
                     profileItem.string1?.let {
-                        socialMedias.value =
-                            if (socialMedias.value == "") it else socialMedias.value + "\n" + it
+                        socialMedias = if (socialMedias.isEmpty()) it else socialMedias + "\n" + it
                     }
                 }
                 ProfileItemName.MILESTONE -> {
@@ -159,7 +154,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 else -> {}
             }
         }
-        onlinePresence.value = emails.value + "\n" + socialMedias.value
+        onlinePresence.value =
+            if (emails.isEmpty() && socialMedias.isEmpty()) "" else emails + "\n" + socialMedias
         existsMilestones.value = milestones.isNotEmpty()
         onMilestonesRetrieved.value = milestones
         for (profileItem in profileItems) {
@@ -171,21 +167,27 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         isProfilePublic.value = true
     }
 
-    fun onIsProfilePublicChanged(checked: Boolean) {
-        isBusy.value = true
-        profileRepository.safeAddUpdateProfileItems(
-            getProfileItemsToUpdateVisibility(checked), true,
-            object : IProfileItemListener {
-                override fun onSuccess(profileItem: ProfileItem) {
-                    isBusy.value = false
-                    isProfilePublic.value = checked
-                }
+    fun setIsViewOnlyMode() {
+        isViewOnlyMode.value = true
+    }
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    error?.let { showMessage.value = it }
-                }
-            })
+    fun onIsProfilePublicChanged(checked: Boolean) {
+        if (isViewOnlyMode.value == false) {
+            isBusy.value = true
+            profileRepository.safeAddUpdateProfileItems(
+                getProfileItemsToUpdateVisibility(checked), true,
+                object : IProfileItemListener {
+                    override fun onSuccess(profileItem: ProfileItem) {
+                        isBusy.value = false
+                        isProfilePublic.value = checked
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        error?.let { showMessage.value = it }
+                    }
+                })
+        }
     }
 
     private fun getProfileItemsToUpdateVisibility(checked: Boolean): List<ProfileItem> {
@@ -231,7 +233,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         onEditMilestonesRequest.call()
     }
 
-    fun getCurrentArchiveType(): ArchiveType = currentArchiveType
+    fun getArchiveType(): ArchiveType? = archiveType
 
     fun getOnEditAboutRequest(): LiveData<MutableList<ProfileItem>> = onEditAboutRequest
 
@@ -245,6 +247,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String?> = showMessage
+
+    fun getIsViewOnlyMode(): MutableLiveData<Boolean> = isViewOnlyMode
 
     fun getIsProfilePublic(): LiveData<Boolean> = isProfilePublic
 

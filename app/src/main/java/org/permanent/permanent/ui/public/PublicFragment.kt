@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.public
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,18 +10,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicBinding
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     private lateinit var binding: FragmentPublicBinding
     private lateinit var viewModel: PublicViewModel
+    private lateinit var prefsHelper: PreferencesHelper
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
+    private lateinit var archive: Archive
+    private var isViewOnlyMode = false
+
+    private val onArchiveName = Observer<String> {
+        (activity as AppCompatActivity?)?.supportActionBar?.title = it
+    }
 
     private val onPhotoSelectedObserver = Observer<Record> {
         viewModel.updateBannerOrProfilePhoto(isFileForProfileBanner, it)
@@ -35,15 +48,26 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublicViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicViewModel::class.java]
         binding = FragmentPublicBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
         binding.fabProfileBanner.setOnClickListener(this)
         binding.fabProfilePhoto.setOnClickListener(this)
-        (activity as AppCompatActivity?)?.supportActionBar?.title =
-            viewModel.getCurrentArchiveName()
+        activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
+
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
+        archive = arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive()
+        viewModel.setArchive(archive)
+        isViewOnlyMode = archive.accessRole != AccessRole.OWNER && archive.accessRole != AccessRole.MANAGER
+        if (isViewOnlyMode) {
+            binding.fabProfileBanner.visibility = View.GONE
+            binding.fabProfilePhoto.visibility = View.GONE
+        }
 
         return binding.root
     }
@@ -57,7 +81,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
-        val adapter = PublicViewPagerAdapter(this)
+        val adapter = PublicViewPagerAdapter(isViewOnlyMode, archive, this)
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -76,10 +100,27 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getCurrentArchiveName().observe(this, onArchiveName)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getCurrentArchiveName().removeObserver(onArchiveName)
         myFilesContainerFragment?.getOnPhotoSelected()?.removeObserver(onPhotoSelectedObserver)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
+    }
+
+    companion object {
+        const val ARCHIVE = "archive"
+        const val ARCHIVE_NR = "archive_nr"
     }
 }

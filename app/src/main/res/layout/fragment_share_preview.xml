@@ -99,23 +99,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewDivider" />
 
-        <ImageView
-            android:id="@+id/ivChicken"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:visibility="@{viewModel.currentState == PreviewState.ERROR ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toTopOf="@+id/layoutBottom"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/img_chicken_in_sweater" />
-
         <TextView
             android:id="@+id/tvErrorMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
             android:ellipsize="end"
             android:gravity="center"
@@ -128,8 +116,7 @@
             app:layout_constraintBottom_toTopOf="@+id/layoutBottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivChicken"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clCurrentArchive"
@@ -137,9 +124,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
-            android:visibility="@{viewModel.showChangeArchiveButton == true ? View.VISIBLE : View.GONE}"
             android:background="@drawable/rounded_blue_border_white_background"
             android:onClick="@{() -> viewModel.onChangeArchiveBtnClick()}"
+            android:visibility="@{viewModel.showChangeArchiveButton == true ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@+id/layoutBottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -185,9 +172,9 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/ivFileThumb"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 app:layout_constraintEnd_toStartOf="@+id/btnDefaultArchive"
-                app:layout_constraintStart_toEndOf="@+id/ivFileThumb" />
+                app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
             <Button
                 android:id="@+id/btnDefaultArchive"

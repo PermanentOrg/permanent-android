@@ -259,6 +259,13 @@ class RequestContainer {
         return this
     }
 
+    fun addSearch(query: String?): RequestContainer {
+        val searchVO = SearchVO()
+        searchVO.query = query
+        RequestVO.data?.get(0)?.SearchVO = searchVO
+        return this
+    }
+
     fun addFolderDest(folderLinkId: Int): RequestContainer {
         val folderDestVO = FolderDestVO()
         folderDestVO.folder_linkId = folderLinkId
@@ -296,6 +303,20 @@ class RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveNbr = archiveNr
         RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
+    fun addArchives(archiveNrs: List<String?>): RequestContainer {
+        for ((index, archiveNr) in archiveNrs.withIndex()) {
+            val archiveVO = ArchiveVO()
+            archiveVO.archiveNbr = archiveNr
+            if (index == 0) RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+            else {
+                val newData = Datum()
+                newData.ArchiveVO = archiveVO
+                (RequestVO.data as ArrayList).add(newData)
+            }
+        }
         return this
     }
 
