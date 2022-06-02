@@ -14,6 +14,8 @@ interface IStorageService {
         @Url url: String,
         @Field("accountId") accountId :Int,
         @Field("email") email: String?,
+        @Field("name") name: String?,
+        @Field("anonymous") isAnonymous: Boolean?,
         @Field("amount") amount :Int,
     ): Call<ResponseVO>
 }

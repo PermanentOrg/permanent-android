@@ -13,11 +13,13 @@ class StorageRepositoryImpl(val context: Context) : IStorageRepository {
     override fun getPaymentIntent(
         accountId: Int,
         accountEmail: String?,
+        accountName: String?,
+        isDonationAnonymous: Boolean?,
         donationAmount: Int,
         listener: IStringDataListener
     ) {
         NetworkClient.instance().getPaymentIntent(
-            accountId, accountEmail, donationAmount
+            accountId, accountEmail, accountName, isDonationAnonymous, donationAmount
         ).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

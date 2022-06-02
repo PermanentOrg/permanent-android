@@ -49,10 +49,10 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 // We save this here for verifyCode
-                prefsHelper.saveAccountEmail(email)
+//                prefsHelper.saveAccountEmail(email)
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                    prefsHelper.saveAccountId(responseVO.getAccountVO()?.accountId)
+//                    prefsHelper.saveAccountInfo(responseVO.getAccountVO()?.accountId)
                     val archive = Archive(responseVO.getArchiveVO())
                     prefsHelper.saveCurrentArchiveInfo(
                         archive.id,
@@ -170,7 +170,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
 
                     if (response.isSuccessful && responseVO?.isSuccessful == true) {
                         val account = responseVO.getAccountVO()
-                        prefsHelper.saveAccountId(account?.accountId)
+//                        prefsHelper.saveAccountInfo(account?.accountId)
                         prefsHelper.saveDefaultArchiveId(account?.defaultArchiveId)
                         listener.onSuccess()
                     } else {
