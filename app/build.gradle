@@ -16,8 +16,8 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 27
-        versionName "1.0.1"
+        versionCode 28
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -149,6 +149,10 @@ dependencies {
 
     //========================================= PDF VIEWER =========================================
     implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+    //==============================================================================================
+
+    //========================================= STRIPE =========++++================================
+    implementation 'com.stripe:stripe-android:19.3.0'
     //==============================================================================================
 
     //====================================== TESTING ===============================================

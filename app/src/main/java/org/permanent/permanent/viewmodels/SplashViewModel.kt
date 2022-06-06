@@ -64,8 +64,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         accountRepository.getSessionAccount(object : IAccountRepository.IAccountListener {
 
             override fun onSuccess(account: Account) {
-                prefsHelper.saveAccountId(account.id)
-                prefsHelper.saveAccountEmail(account.primaryEmail)
+                prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
                 prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
 
                 account.defaultArchiveId?.let { getArchive(it) }

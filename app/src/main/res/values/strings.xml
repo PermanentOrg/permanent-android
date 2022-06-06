@@ -436,4 +436,24 @@
     <string name="record_search_results_title">Results</string>
     <string name="record_search_no_results_title">Enter search terms to match tags and titles.</string>
     <string name="record_search_no_results_message">Search results will appear here.</string>
+
+    <string name="storage_donate_with_googlepay_button_content_description">Donate With Google Pay</string>
+    <string name="storage_title">Become a Founding Supporter</string>
+    <string name="storage_description">Back the new paradigm for cloud storage.</string>
+    <string name="storage_subtitle1">Our goal is permanence.</string>
+    <string name="storage_subtitle2">How is that possible?</string>
+    <string name="storage_subtitle3">So how does Permanent work now?</string>
+    <string name="storage_subtitle4">It\'s a win-win for our digital future.</string>
+    <string name="storage_text1">Permanence means no subscriptions; a one-time payment for dedicated storage that preserves your most precious memories and an institution that will be there to protect the digital legacy of all people for all time.\n\nPermanence means no subscriptions; a one-time payment for dedicated storage that preserves your most precious memories and an institution that will be there to protect the digital legacy of all people for all time.</string>
+    <string name="storage_text2">We are leveraging the same funding models used by museums, libraries, and universities for centuries. As a public charity, we can pool all our one-time storage fees into an endowment. We use income generated from this tax-exempt investment fund to pay our ongoing operations and storage costs, in perpetuity.</string>
+    <string name="storage_text3">Today, our daily operations are supported by our founder and board chair, Mr. Dean Drako. As we grow our endowment through donations and storage contributions, the returns on that investment will gradually replace his contributions until we are fully independent.</string>
+    <string name="storage_text4">No matter how you found us, we welcome all people to join our movement to democratize permanence and preserve the digital legacy of all people. Choosing Permanent.org isn’t only good for you, it’s a vote for better consumer technology options. Every storage fee donation is also a gift to the nonprofit organizations we through in our byte for byte program.</string>
+    <string name="storage_choose_amount">Choose an amount</string>
+    <string name="storage_enter_custom_amount">Or enter manually below</string>
+    <string name="storage_gb_endowed">Endow %s GB</string>
+    <string name="storage_anonymous_donation">Make my donation anonymous</string>
+    <string name="storage_donation_successful_title">Thank you!</string>
+    <string name="storage_donation_successful_text">Your donation was successful!</string>
+    <string name="storage_donation_failed_title">Oops! Your donation failed</string>
+    <string name="storage_dollar_sign">$</string>
 </resources>

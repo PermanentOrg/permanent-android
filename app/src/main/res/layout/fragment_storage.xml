@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.StorageViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/superLightGrey">
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/tvChooseAmountLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:text="@string/storage_title"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans"
+                    android:text="@string/storage_description"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+                <TextView
+                    android:id="@+id/tvSubtitle1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:text="@string/storage_subtitle1"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
+
+                <TextView
+                    android:id="@+id/tvText1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans"
+                    android:text="@string/storage_text1"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvSubtitle1" />
+
+                <TextView
+                    android:id="@+id/tvSubtitle2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:text="@string/storage_subtitle2"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvText1" />
+
+                <TextView
+                    android:id="@+id/tvText2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans"
+                    android:text="@string/storage_text2"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvSubtitle2" />
+
+                <TextView
+                    android:id="@+id/tvSubtitle3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:text="@string/storage_subtitle3"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvText2" />
+
+                <TextView
+                    android:id="@+id/tvText3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans"
+                    android:text="@string/storage_text3"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvSubtitle3" />
+
+                <TextView
+                    android:id="@+id/tvSubtitle4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:text="@string/storage_subtitle4"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvText3" />
+
+                <TextView
+                    android:id="@+id/tvText4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans"
+                    android:text="@string/storage_text4"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvSubtitle4" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/tvChooseAmountLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/storage_choose_amount"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            android:fontFamily="@font/open_sans"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toTopOf="@id/tlAmount"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tlAmount"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:elevation="4dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toTopOf="@id/tvCustomAmountLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:tabBackground="@drawable/storage_tab_background_color"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="@color/colorAccentDark"
+            app:tabMode="fixed"
+            app:tabTextAppearance="@style/storageTabTextStyle"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tvCustomAmountLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/storage_enter_custom_amount"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            android:fontFamily="@font/open_sans"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toTopOf="@id/etCustomAmount"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvCurrencyLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/open_sans"
+            android:text="@string/storage_dollar_sign"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            android:elevation="2dp"
+            app:layout_constraintBottom_toBottomOf="@+id/etCustomAmount"
+            app:layout_constraintStart_toStartOf="@+id/etCustomAmount"
+            app:layout_constraintTop_toTopOf="@+id/etCustomAmount" />
+
+        <EditText
+            android:id="@+id/etCustomAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:afterTextChanged="@{(editable)->viewModel.onAmountTextChanged(editable)}"
+            android:background="@drawable/rounded_grey_border_white_background"
+            android:fontFamily="@font/open_sans"
+            android:inputType="number"
+            android:padding="8dp"
+            android:paddingStart="16dp"
+            android:text="@{viewModel.amount}"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@id/swAnonymous"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCustomAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@{viewModel.gbEndowed}"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            android:fontFamily="@font/open_sans"
+            app:layout_constraintBottom_toBottomOf="@+id/etCustomAmount"
+            app:layout_constraintEnd_toEndOf="@+id/etCustomAmount"
+            app:layout_constraintTop_toTopOf="@+id/etCustomAmount" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/swAnonymous"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:checked="@{viewModel.isDonationAnonymous}"
+            android:onCheckedChanged="@{(switch, checked) -> viewModel.onIsDonationAnonymousChanged(checked)}"
+            android:fontFamily="@font/open_sans_bold"
+            android:text="@string/storage_anonymous_donation"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@id/buttonLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:theme="@style/colorSwitchStyle" />
+
+        <RelativeLayout
+            android:id="@+id/buttonLayout"
+            android:layout_width="match_parent"
+            android:layout_height="48sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/rounded_googlepay_button_background"
+            android:clickable="true"
+            android:contentDescription="@string/storage_donate_with_googlepay_button_content_description"
+            android:focusable="true"
+            android:padding="2sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:duplicateParentState="true"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:weightSum="2">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:duplicateParentState="true"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/donate_with_googlepay_button_content" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.54" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
