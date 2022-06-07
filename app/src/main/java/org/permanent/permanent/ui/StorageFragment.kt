@@ -54,7 +54,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
         googlePayLauncher = GooglePayLauncher(
             this,
             config = GooglePayLauncher.Config(
-                environment = GooglePayEnvironment.Test,
+                environment = GooglePayEnvironment.Production,
                 merchantCountryCode = MERCHANT_COUNTRY_CODE,
                 merchantName = MERCHANT_NAME
             ),

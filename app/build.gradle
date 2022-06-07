@@ -16,7 +16,7 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 28
+        versionCode 29
         versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -46,6 +46,7 @@ android {
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://www.permanent.org/add-storage/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
+            buildConfigField "String", "PAYMENT_INTENT_URL", "\"https://us-central1-prpledgestaging.cloudfunctions.net/donation/payment-sheet\""
             manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId.toLowerCase()}"]
         }
         staging {
@@ -56,6 +57,7 @@ android {
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
+            buildConfigField "String", "PAYMENT_INTENT_URL", "\"https://us-central1-prpledgeprod.cloudfunctions.net/donation/payment-sheet\""
             manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId}"]
         }
     }

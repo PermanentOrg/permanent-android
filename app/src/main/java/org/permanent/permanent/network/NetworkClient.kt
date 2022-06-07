@@ -672,7 +672,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         donationAmount: Int
     ): Call<ResponseVO> {
         return storageService.getPaymentIntent(
-            Constants.PAYMENT_INTENT_URL,
+            BuildConfig.PAYMENT_INTENT_URL,
             accountId,
             accountEmail,
             accountName,
