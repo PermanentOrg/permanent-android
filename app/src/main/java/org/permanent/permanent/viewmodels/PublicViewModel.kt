@@ -5,8 +5,10 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
@@ -21,10 +23,32 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
     private val profileBannerThumb = MutableLiveData<String>()
     private val currentArchiveThumb = MutableLiveData<String>()
     private val currentArchiveName = MutableLiveData<String>()
+    private val onArchiveRetrieved = MutableLiveData<Archive>()
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
+    private val showError = SingleLiveEvent<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
+
+    fun getArchive(archiveNr: String) {
+        val archiveNrList = listOf(archiveNr)
+        isBusy.value = true
+        with(archiveRepository) {
+            getArchivesByNr(archiveNrList, object : IDataListener {
+                override fun onSuccess(dataList: List<Datum>?) {
+                    isBusy.value = false
+                    if (!dataList.isNullOrEmpty()) {
+                        onArchiveRetrieved.value = Archive(dataList[0].ArchiveVO)
+                    }
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    error?.let { showError.value = it }
+                }
+            })
+        }
+    }
 
     fun setArchive(currentArchive: Archive) {
         getPublicRoot(currentArchive)
@@ -36,9 +60,11 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun getCurrentArchiveName(): MutableLiveData<String> = currentArchiveName
 
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+    fun getOnArchiveRetrieved(): MutableLiveData<Archive> = onArchiveRetrieved
 
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
     fun getShowMessage(): MutableLiveData<String> = showMessage
+    fun getShowError(): MutableLiveData<String> = showError
 
     private fun getPublicRoot(archive: Archive) {
         isBusy.value = true
@@ -50,7 +76,7 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = error
+                error?.let { showError.value = it }
             }
         })
     }
@@ -58,7 +84,7 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
     fun setHeaderData(archive: Archive, bannerThumbURL: String?) {
         currentArchiveName.value = archive.fullName
         currentArchiveThumb.value = archive.thumbURL200
-         bannerThumbURL?.let { profileBannerThumb.value = it }
+        bannerThumbURL?.let { profileBannerThumb.value = it }
     }
 
     fun updateBannerOrProfilePhoto(isFileForProfileBanner: Boolean, record: Record) {

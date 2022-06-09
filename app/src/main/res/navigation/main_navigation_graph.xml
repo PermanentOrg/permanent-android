@@ -144,14 +144,10 @@
         tools:layout="@layout/fragment_public_files">
         <action
             android:id="@+id/action_publicFilesFragment_to_recordSearchFragment"
-            app:destination="@id/recordSearchFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            app:destination="@id/recordSearchFragment" />
         <action
             android:id="@+id/action_publicFilesFragment_to_shareLinkFragment"
-            app:destination="@id/shareLinkFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            app:destination="@id/shareLinkFragment" />
         <action
             android:id="@+id/action_publicFilesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
@@ -161,6 +157,16 @@
         android:id="@+id/publicFragment"
         android:name="org.permanent.permanent.ui.public.PublicFragment"
         tools:layout="@layout/fragment_public">
+        <argument
+            android:name="archive_nr"
+            android:defaultValue=""
+            app:argType="string" />
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/p/archive/{archive_nr}/profile" />
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://www.permanent.org/p/archive/{archive_nr}/profile" />
         <action
             android:id="@+id/action_publicFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
