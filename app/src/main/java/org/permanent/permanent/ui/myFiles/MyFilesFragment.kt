@@ -34,6 +34,7 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
@@ -83,11 +84,14 @@ class MyFilesFragment : PermanentBaseFragment() {
                 requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             )
             val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
+            val deepLinkArchiveNr = prefsHelper.getDeepLinkArchiveNr()
 
             if (!shareLinkUrlToken.isNullOrEmpty()) {
-                // click on shareLinkUrl not consumed
-                prefsHelper.saveShareLinkUrlToken("")
+                // click on shareLinkUrl wasn't consumed
                 navigateToSharePreviewFragment(shareLinkUrlToken)
+            } else if (!deepLinkArchiveNr.isNullOrEmpty()) {
+                // click on public profile link wasn't consumed
+                navigateToPublicFragment(deepLinkArchiveNr)
             } else {
                 binding.executePendingBindings()
                 binding.lifecycleOwner = this
@@ -113,6 +117,11 @@ class MyFilesFragment : PermanentBaseFragment() {
     private fun navigateToSharePreviewFragment(shareLinkUrlToken: String) {
         val bundle = bundleOf(URL_TOKEN_KEY to shareLinkUrlToken)
         findNavController().navigate(R.id.action_myFilesFragment_to_sharePreviewFragment, bundle)
+    }
+
+    private fun navigateToPublicFragment(deepLinkArchiveNr: String) {
+        val bundle = bundleOf(PublicFragment.ARCHIVE_NR to deepLinkArchiveNr)
+        findNavController().navigate(R.id.action_myFilesFragment_to_publicFragment, bundle)
     }
 
     private val onShowMessage = Observer<String> {

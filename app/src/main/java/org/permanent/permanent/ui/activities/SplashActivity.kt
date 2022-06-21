@@ -50,7 +50,6 @@ class SplashActivity : PermanentBaseActivity() {
         binding.viewModel = viewModel
         createNotificationChannel()
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-        prefsHelper.saveShareLinkUrlToken("")
 
         val authResponse = AuthorizationResponse.fromIntent(intent)
         val authException = AuthorizationException.fromIntent(intent)
@@ -77,6 +76,9 @@ class SplashActivity : PermanentBaseActivity() {
                     else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
                     else viewModel.verifyIsUserLoggedIn()
                 }
+                // Clear deep links that weren't consumed
+                prefsHelper.saveShareLinkUrlToken("")
+                prefsHelper.saveDeepLinkArchiveNr("")
             }
         }
     }

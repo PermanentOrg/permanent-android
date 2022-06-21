@@ -60,6 +60,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
             if (!urlToken.isNullOrEmpty()) {
                 if (prefsHelper.isUserLoggedIn()) {
+                    prefsHelper.saveShareLinkUrlToken("")
                     viewModel.checkShareLink(urlToken!!)
                 } else {
                     prefsHelper.saveShareLinkUrlToken(urlToken!!)

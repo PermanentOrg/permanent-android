@@ -28,9 +28,10 @@
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_myFilesFragment_to_sharePreviewFragment"
-            app:destination="@id/sharePreviewFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            app:destination="@id/sharePreviewFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_publicFragment"
+            app:destination="@id/publicFragment" />
         <action
             android:id="@+id/action_myFilesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />

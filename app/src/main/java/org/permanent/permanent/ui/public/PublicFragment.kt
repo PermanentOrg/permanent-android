@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui.public
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -22,6 +23,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
@@ -86,7 +88,14 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         )
         val archiveNr: String? = arguments?.getString(ARCHIVE_NR)
         if (!archiveNr.isNullOrEmpty()) {
-            viewModel.getArchive(archiveNr)
+            if (prefsHelper.isUserLoggedIn()) {
+                prefsHelper.saveDeepLinkArchiveNr("") // marks the deeplink consumed
+                viewModel.getArchive(archiveNr) // a callback is set
+            } else {
+                prefsHelper.saveDeepLinkArchiveNr(archiveNr)
+                startActivity(Intent(context, SignUpActivity::class.java))
+                activity?.finish()
+            }
         } else {
             setArchive(arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive())
         }
