@@ -18,7 +18,7 @@ import org.permanent.permanent.databinding.FragmentSharePreviewBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
@@ -43,7 +43,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(SharePreviewViewModel::class.java)
+        viewModel = ViewModelProvider(this)[SharePreviewViewModel::class.java]
         binding = FragmentSharePreviewBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -60,10 +60,11 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
             if (!urlToken.isNullOrEmpty()) {
                 if (prefsHelper.isUserLoggedIn()) {
+                    prefsHelper.saveShareLinkUrlToken("")
                     viewModel.checkShareLink(urlToken!!)
                 } else {
                     prefsHelper.saveShareLinkUrlToken(urlToken!!)
-                    startActivity(Intent(context, LoginActivity::class.java))
+                    startActivity(Intent(context, SignUpActivity::class.java))
                     activity?.finish()
                 }
             }

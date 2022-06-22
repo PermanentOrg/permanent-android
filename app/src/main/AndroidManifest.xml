@@ -62,7 +62,7 @@
         <activity
             android:name=".ui.activities.MainActivity"
             android:screenOrientation="portrait"
-            android:exported="false"
+            android:exported="true"
             android:windowSoftInputMode="adjustPan" >
             <nav-graph android:value="@navigation/main_navigation_graph" />
         </activity>

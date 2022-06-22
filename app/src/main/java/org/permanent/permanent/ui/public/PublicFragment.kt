@@ -1,14 +1,18 @@
 package org.permanent.permanent.ui.public
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
@@ -19,6 +23,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
@@ -28,8 +33,10 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     private lateinit var prefsHelper: PreferencesHelper
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
-    private lateinit var archive: Archive
-    private var isViewOnlyMode = false
+
+    private val onArchiveRetrieved = Observer<Archive> {
+        setArchive(it)
+    }
 
     private val onArchiveName = Observer<String> {
         (activity as AppCompatActivity?)?.supportActionBar?.title = it
@@ -39,8 +46,26 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         viewModel.updateBannerOrProfilePhoto(isFileForProfileBanner, it)
     }
 
-    private val onShowMessage = Observer<String> { message ->
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private val onShowMessage = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        }
+        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
+        snackBar.show()
+    }
+
+    private val onShowError = Observer<String?> { message ->
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
+        }
+        snackBar.show()
     }
 
     override fun onCreateView(
@@ -61,28 +86,44 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
-        archive = arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive()
-        viewModel.setArchive(archive)
-        isViewOnlyMode = archive.accessRole != AccessRole.OWNER && archive.accessRole != AccessRole.MANAGER
-        if (isViewOnlyMode) {
-            binding.fabProfileBanner.visibility = View.GONE
-            binding.fabProfilePhoto.visibility = View.GONE
+        val archiveNr: String? = arguments?.getString(ARCHIVE_NR)
+        if (!archiveNr.isNullOrEmpty()) {
+            if (prefsHelper.isUserLoggedIn()) {
+                prefsHelper.saveDeepLinkArchiveNr("") // marks the deeplink consumed
+                viewModel.getArchive(archiveNr) // a callback is set
+            } else {
+                prefsHelper.saveDeepLinkArchiveNr(archiveNr)
+                startActivity(Intent(context, SignUpActivity::class.java))
+                activity?.finish()
+            }
+        } else {
+            setArchive(arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive())
         }
 
         return binding.root
     }
 
-    private val tabArray = arrayOf(
-        R.string.public_archive_tab_name,
-        R.string.public_profile_tab_name
-    )
+    private fun setArchive(archive: Archive) {
+        viewModel.setArchive(archive)
+        val isViewOnlyMode = archive.accessRole != AccessRole.OWNER && archive.accessRole != AccessRole.MANAGER
+        if (isViewOnlyMode) {
+            binding.fabProfileBanner.visibility = View.GONE
+            binding.fabProfilePhoto.visibility = View.GONE
+        }
+        initViewPagerAdapter(archive, isViewOnlyMode)
+    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    private fun initViewPagerAdapter(archive: Archive, isViewOnlyMode: Boolean) {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
         val adapter = PublicViewPagerAdapter(isViewOnlyMode, archive, this)
         viewPager.adapter = adapter
+
+        val tabArray = arrayOf(
+            R.string.public_archive_tab_name,
+            R.string.public_profile_tab_name
+        )
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = getString(tabArray[position])
@@ -100,11 +141,14 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getShowError().observe(this, onShowError)
         viewModel.getCurrentArchiveName().observe(this, onArchiveName)
+        viewModel.getOnArchiveRetrieved().observe(this, onArchiveRetrieved)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getShowError().removeObserver(onShowError)
         viewModel.getCurrentArchiveName().removeObserver(onArchiveName)
         myFilesContainerFragment?.getOnPhotoSelected()?.removeObserver(onPhotoSelectedObserver)
     }
