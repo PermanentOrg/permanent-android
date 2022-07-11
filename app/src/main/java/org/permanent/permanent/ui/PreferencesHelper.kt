@@ -12,6 +12,7 @@ const val IS_USER_SIGNED_UP_IN_APP = "is_user_signed_up_in_app"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
+const val IS_ARCHIVE_ONBOARDING_SEEN = "is_archive_onboarding_seen"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_ID = "preferences_public_record_folder_id"
@@ -36,15 +37,26 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
     }
 
-    fun saveWelcomeDialogSeen() {
+    fun saveWelcomeDialogSeen(isSeen: Boolean) {
         with(sharedPreferences.edit()) {
-            putBoolean(IS_WELCOME_SEEN, true)
+            putBoolean(IS_WELCOME_SEEN, isSeen)
             apply()
         }
     }
 
     fun isWelcomeDialogSeen(): Boolean {
         return sharedPreferences.getBoolean(IS_WELCOME_SEEN, false)
+    }
+
+    fun isArchiveOnboardingSeen(): Boolean {
+        return sharedPreferences.getBoolean(IS_ARCHIVE_ONBOARDING_SEEN, false)
+    }
+
+    fun saveArchiveOnboardingSeen(isSeen: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_ARCHIVE_ONBOARDING_SEEN, isSeen)
+            apply()
+        }
     }
 
     fun saveUserSignedUpInApp() {

@@ -29,6 +29,8 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         prefsHelper.saveUserSignedUpInApp()
+                        prefsHelper.saveWelcomeDialogSeen(false)
+                        prefsHelper.saveArchiveOnboardingSeen(false)
                         listener.onSuccess(appContext.getString(R.string.account_create_success))
                     } else {
                         listener.onFailed(

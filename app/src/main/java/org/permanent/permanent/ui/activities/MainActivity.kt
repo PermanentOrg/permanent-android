@@ -275,14 +275,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             .setView(viewDialog)
             .create()
 
-        viewDialog.tvWelcomeTitle.text =
-            getString(R.string.welcome_title, prefsHelper.getCurrentArchiveFullName())
-        viewDialog.ivBtnClose.setOnClickListener {
-            prefsHelper.saveWelcomeDialogSeen()
-            alert.dismiss()
-        }
-        viewDialog.btnStartPreserving.setOnClickListener {
-            prefsHelper.saveWelcomeDialogSeen()
+        viewDialog.tvWelcomeText.text =
+            getString(R.string.welcome_text, prefsHelper.getCurrentArchiveFullName())
+        viewDialog.btnGetStartedWelcomeDialog.setOnClickListener {
+            prefsHelper.saveWelcomeDialogSeen(true)
             alert.dismiss()
         }
         alert.show()

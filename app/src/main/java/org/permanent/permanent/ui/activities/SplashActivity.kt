@@ -22,6 +22,7 @@ import org.permanent.permanent.databinding.ActivitySplashBinding
 import org.permanent.permanent.network.AuthStateManager
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
@@ -122,7 +123,9 @@ class SplashActivity : PermanentBaseActivity() {
 
     private val userLoggedInObserver = Observer<Void> {
         if (isLoginFlow) { // User just loggedIn, no need for biometrics
-            startMainActivity()
+            if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) {
+                startArchiveOnboardingActivity()
+            } else startMainActivity()
         } else { // User was loggedIn before, show biometrics
             startLoginActivity()
         }
@@ -140,6 +143,11 @@ class SplashActivity : PermanentBaseActivity() {
 
     private fun startMainActivity() {
         startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+        finish()
+    }
+
+    private fun startArchiveOnboardingActivity() {
+        startActivity(Intent(this@SplashActivity, ArchiveOnboardingActivity::class.java))
         finish()
     }
 

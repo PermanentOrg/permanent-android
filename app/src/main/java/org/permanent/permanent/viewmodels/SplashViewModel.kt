@@ -17,6 +17,7 @@ import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.*
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.showLoginScreen
 
 class SplashViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -54,8 +55,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
             override fun onResponse(isLoggedIn: Boolean) {
                 prefsHelper.saveUserLoggedIn(isLoggedIn)
 
-                if (isLoggedIn) getAccount()
-                // else the server responds 401 and the interceptor handles the case
+                if (isLoggedIn) getAccount() else appContext.showLoginScreen()
             }
         })
     }

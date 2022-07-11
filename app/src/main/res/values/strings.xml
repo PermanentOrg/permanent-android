@@ -67,9 +67,8 @@
     <string name="login_biometric_welcome_message">Welcome back</string>
     <string name="login_biometric_unlock_with_biometrics_button">Unlock with Biometrics</string>
     <string name="login_biometric_use_credentials_button">Use credentials instead</string>
-    <string name="welcome_title">Welcome to %s</string>
-    <string name="welcome_text">This archive represents your personal digital legacy. Upload your most important digital records then share them with total control.</string>
-    <string name="welcome_start_preserving_button">Start Preserving</string>
+    <string name="welcome_title">Congratulations on your first archive!</string>
+    <string name="welcome_text">Your archive is %s. You are the Owner of this archive.\n\n Get started by uploading your first files, or learn more about your new archive by viewing our help articles</string>
     <string name="nav_main_header_view_profile">View Profile</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
     <string name="nav_settings_header_storage_text">%s of %s used</string>
@@ -456,4 +455,23 @@
     <string name="storage_donation_successful_text">Your donation was successful!</string>
     <string name="storage_donation_failed_title">Oops! Your donation failed</string>
     <string name="storage_dollar_sign">$</string>
+
+    <string name="archive_onboarding_welcome_title">Welcome to Permanent!</string>
+    <string name="archive_onboarding_welcome_text">You’ve just taken the first step on a journey to preserving what matters the most to you by creating archives that can represent yourself, your family, or your community.\n\nNext, you’ll create your first archive. A Permanent archive is the collection of digital materials about an individual, family or group, or organizational entity.</string>
+    <string name="archive_onboarding_type_selection_title">Create Your First Archive: Select Type</string>
+    <string name="archive_onboarding_type_selection_text">You’ve just taken the first step on a journey to preserving what matters the most to you by creating archives that can represent yourself, your family, or your community.\n\nNext, you’ll create your first archive. A Permanent archive is the collection of digital materials about an individual, family or group, or organizational entity.\n\nWhat type of archive will this be? You can always change this later.</string>
+    <string name="archive_onboarding_name_setting_title">Create Your First Archive: Name Your Archive</string>
+    <string name="archive_onboarding_name_setting_text">What is your new archive called?\n\nThis is generally the legal or official name of the person, family, or organization the archive is about — for example, “The Katherine Johnson Archive.” You can always edit your archive’s name later.</string>
+    <string name="archive_onboarding_person_archive_title">Person Archive</string>
+    <string name="archive_onboarding_person_archive_text">represents an individual person, such as yourself or someone else</string>
+    <string name="archive_onboarding_group_archive_title">Group Archive</string>
+    <string name="archive_onboarding_group_archive_text">any group of people, such as a community group or a family</string>
+    <string name="archive_onboarding_organization_archive_title">Organization Archive</string>
+    <string name="archive_onboarding_organization_archive_text">an organizational entity, such as a company or nonprofit</string>
+    <string name="archive_onboarding_back_button">Back</string>
+    <string name="archive_onboarding_name_archive_button">Next: Name Archive</string>
+    <string name="archive_onboarding_create_archive_button">Create Archive</string>
+    <string name="archive_onboarding_the_label">The</string>
+    <string name="archive_onboarding_archive_label">Archive</string>
+    <string name="archive_onboarding_name_hint">Name</string>
 </resources>
