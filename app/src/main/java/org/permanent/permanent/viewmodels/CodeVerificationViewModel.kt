@@ -116,24 +116,24 @@ class CodeVerificationViewModel(application: Application) :
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 if (!dataList.isNullOrEmpty()) {
-                    val defaultArchiveId = prefsHelper.getDefaultArchiveId()
-
-                    for (data in dataList) {
-                        val archive = Archive(data.ArchiveVO)
-                        if (defaultArchiveId == archive.id) {
-                            prefsHelper.saveCurrentArchiveInfo(
-                                archive.id,
-                                archive.number,
-                                archive.type,
-                                archive.fullName,
-                                archive.thumbURL200,
-                                archive.accessRole
-                            )
-                            prefsHelper.saveUserLoggedIn(true)
-                            onLoggedIn.call()
-                            return
-                        }
-                    }
+//                    val defaultArchiveId = prefsHelper.getDefaultArchiveId()
+//
+//                    for (data in dataList) {
+//                        val archive = Archive(data.ArchiveVO)
+//                        if (defaultArchiveId == archive.id) {
+//                            prefsHelper.saveCurrentArchiveInfo(
+//                                archive.id,
+//                                archive.number,
+//                                archive.type,
+//                                archive.fullName,
+//                                archive.thumbURL200,
+//                                archive.accessRole
+//                            )
+//                            prefsHelper.saveUserLoggedIn(true)
+//                            onLoggedIn.call()
+//                            return
+//                        }
+//                    }
                 }
                 errorMessage.value = appContext.getString(R.string.generic_error)
             }

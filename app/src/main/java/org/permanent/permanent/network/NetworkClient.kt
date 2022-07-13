@@ -163,7 +163,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(
             RequestContainer()
                 .addAccountPassword(password, password)
-                .addAccount(fullName, email)
+                .addAccount(fullName, email, optIn = false, agreed = true)
+                .addSimple("createArchive", false)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
@@ -295,7 +296,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(
             RequestContainer()
                 .addRecord(displayName, file, folderId, folderLinkId)
-                .addSimple(mediaType)
+                .addSimple("type", mediaType.type + "/" + mediaType.subtype)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
@@ -584,13 +585,13 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun registerDevice(token: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addSimple(token))
+        val request = toJson(RequestContainer().addSimple("token", token))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return notificationService.registerDevice(requestBody)
     }
 
     fun deleteDeviceToken(token: String): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addSimple(token))
+        val request = toJson(RequestContainer().addSimple("token", token))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return notificationService.deleteToken(requestBody)
     }

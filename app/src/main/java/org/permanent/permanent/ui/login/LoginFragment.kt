@@ -60,7 +60,7 @@ class LoginFragment  : PermanentBaseFragment() {
     private val onLoggedIn = Observer<Void> {
         val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
             PREFS_NAME, Context.MODE_PRIVATE))
-        prefsHelper.saveUserLoggedIn(true)
+//        prefsHelper.saveUserLoggedIn(true)
         startActivity(Intent(context, MainActivity::class.java))
         activity?.finish()
     }

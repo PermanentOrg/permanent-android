@@ -1,7 +1,6 @@
 package org.permanent.permanent.network
 
 import com.google.android.gms.maps.model.LatLng
-import okhttp3.MediaType
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
 import java.io.File
@@ -31,12 +30,12 @@ class RequestContainer {
         return this
     }
 
-    fun addAccount(fullName: String, email: String): RequestContainer {
+    fun addAccount(fullName: String, email: String, optIn: Boolean, agreed: Boolean): RequestContainer {
         val accountVO = AccountVO()
         accountVO.fullName = fullName
         accountVO.primaryEmail = email
-        accountVO.optIn = false
-        accountVO.agreed = true
+        accountVO.optIn = optIn
+        accountVO.agreed = agreed
         RequestVO.data?.get(0)?.AccountVO = accountVO
         return this
     }
@@ -372,18 +371,18 @@ class RequestContainer {
         return this
     }
 
-    fun addSimple(mediaType: MediaType): RequestContainer {
+    fun addSimple(key: String, value: String): RequestContainer {
         val simpleVO = SimpleVO()
-        simpleVO.key = "type"
-        simpleVO.value = mediaType.type + "/" + mediaType.subtype
+        simpleVO.key = key
+        simpleVO.value = value
         RequestVO.data?.get(0)?.SimpleVO = simpleVO
         return this
     }
 
-    fun addSimple(token: String): RequestContainer {
+    fun addSimple(key: String, value: Boolean): RequestContainer {
         val simpleVO = SimpleVO()
-        simpleVO.key = "token"
-        simpleVO.value = token
+        simpleVO.key = key
+        simpleVO.value = value
         RequestVO.data?.get(0)?.SimpleVO = simpleVO
         return this
     }

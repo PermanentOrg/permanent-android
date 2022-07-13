@@ -54,15 +54,15 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
 //                    prefsHelper.saveAccountInfo(responseVO.getAccountVO()?.accountId)
                     val archive = Archive(responseVO.getArchiveVO())
-                    prefsHelper.saveCurrentArchiveInfo(
-                        archive.id,
-                        archive.number,
-                        archive.type,
-                        archive.fullName,
-                        archive.thumbURL200,
-                        archive.accessRole
-                    )
-                    prefsHelper.saveUserLoggedIn(true)
+//                    prefsHelper.saveCurrentArchiveInfo(
+//                        archive.id,
+//                        archive.number,
+//                        archive.type,
+//                        archive.fullName,
+//                        archive.thumbURL200,
+//                        archive.accessRole
+//                    )
+//                    prefsHelper.saveUserLoggedIn(true)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(

@@ -41,21 +41,18 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
             AuthStateManager.getInstance(appContext).updateAfterTokenResponse(tokenResp, tokenEx)
 
             if (tokenResp != null) { // exchange succeeded
-                verifyIsUserLoggedIn()
+                prefsHelper.saveUserLoggedIn(true)
+                verifyLoggedIn()
             } else {
                 showError.value = tokenEx?.errorDescription
             }
         }
     }
 
-    fun verifyIsUserLoggedIn() {
+    private fun verifyLoggedIn() {
         authRepository.verifyLoggedIn(object : IAuthenticationRepository.IOnLoggedInListener {
-
             override fun onResponse(isLoggedIn: Boolean) {
-                prefsHelper.saveUserLoggedIn(isLoggedIn)
-
-                if (isLoggedIn) getAccount()
-                // else the server responds 401 and the interceptor handles the case
+                getAccount()
             }
         })
     }
@@ -67,7 +64,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
                 prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
                 prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
 
-                account.defaultArchiveId?.let { getArchive(it) }
+                account.defaultArchiveId?.let { getArchive(it) } ?: run { onUserLoggedIn.call() }
             }
 
             override fun onFailed(error: String?) {

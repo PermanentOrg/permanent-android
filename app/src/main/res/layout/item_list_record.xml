@@ -94,7 +94,7 @@
                     app:layout_constraintStart_toEndOf="@+id/tvDate"
                     app:layout_constraintTop_toTopOf="@+id/guideline"
                     app:layout_constraintVertical_bias="0.0"
-                    app:srcCompat="@drawable/ic_members_white"
+                    app:srcCompat="@drawable/ic_members_primary"
                     app:tint="@color/middleGrey" />
 
                 <Button

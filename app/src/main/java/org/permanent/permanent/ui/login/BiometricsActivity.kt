@@ -8,7 +8,7 @@ import org.permanent.permanent.databinding.ActivityLoginBinding
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
 import org.permanent.permanent.viewmodels.LoginActivityViewModel
 
-class LoginActivity : PermanentBaseActivity() {
+class BiometricsActivity : PermanentBaseActivity() {
     private lateinit var activityViewModel: LoginActivityViewModel
     private lateinit var binding: ActivityLoginBinding
 
