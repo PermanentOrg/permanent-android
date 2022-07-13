@@ -23,7 +23,7 @@ import org.permanent.permanent.network.AuthStateManager
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.BiometricsActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
 
@@ -32,7 +32,6 @@ class SplashActivity : PermanentBaseActivity() {
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var binding: ActivitySplashBinding
     private lateinit var viewModel: SplashViewModel
-    private var isLoginFlow = false
 
     private val errorObserver = Observer<String> {
         val snackBar = Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG)
@@ -45,7 +44,7 @@ class SplashActivity : PermanentBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash)
-        viewModel = ViewModelProvider(this).get(SplashViewModel::class.java)
+        viewModel = ViewModelProvider(this)[SplashViewModel::class.java]
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -59,27 +58,25 @@ class SplashActivity : PermanentBaseActivity() {
             authResponse != null -> {
                 AuthStateManager.getInstance(this)
                     .updateAfterAuthorization(authResponse, authException)
-                isLoginFlow = true
                 viewModel.requestTokens(authResponse)
             }
             authException != null -> {
                 AuthStateManager.getInstance(this)
                     .updateAfterAuthorization(authResponse, authException)
-                isLoginFlow = true
                 errorObserver.onChanged(authException.errorDescription)
             }
             else -> {
-                isLoginFlow = false
+                // Clear deep links that weren't consumed
+                prefsHelper.saveShareLinkUrlToken("")
+                prefsHelper.saveDeepLinkArchiveNr("")
                 val remoteConfig = setupRemoteConfig()
 
                 remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
                     if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
                     else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
-                    else viewModel.verifyIsUserLoggedIn()
+                    else if (prefsHelper.isUserLoggedIn()) startBiometricsActivity()
+                    else startSignUpActivity()
                 }
-                // Clear deep links that weren't consumed
-                prefsHelper.saveShareLinkUrlToken("")
-                prefsHelper.saveDeepLinkArchiveNr("")
             }
         }
     }
@@ -121,13 +118,11 @@ class SplashActivity : PermanentBaseActivity() {
         return remoteConfig
     }
 
-    private val userLoggedInObserver = Observer<Void> {
-        if (isLoginFlow) { // User just loggedIn, no need for biometrics
-            if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) {
-                startArchiveOnboardingActivity()
-            } else startMainActivity()
-        } else { // User was loggedIn before, show biometrics
-            startLoginActivity()
+    private val userJustLoggedInObserver = Observer<Void> {
+        if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) {
+            startArchiveOnboardingActivity()
+        } else {
+            startMainActivity()
         }
     }
 
@@ -151,8 +146,13 @@ class SplashActivity : PermanentBaseActivity() {
         finish()
     }
 
-    private fun startLoginActivity() {
-        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+    private fun startBiometricsActivity() {
+        startActivity(Intent(this@SplashActivity, BiometricsActivity::class.java))
+        finish()
+    }
+
+    private fun startSignUpActivity() {
+        startActivity(Intent(this@SplashActivity, SignUpActivity::class.java))
         finish()
     }
 
@@ -167,12 +167,12 @@ class SplashActivity : PermanentBaseActivity() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnUserLoggedIn().observe(this, userLoggedInObserver)
+        viewModel.getOnUserLoggedIn().observe(this, userJustLoggedInObserver)
         viewModel.getShowError().observe(this, errorObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnUserLoggedIn().removeObserver(userLoggedInObserver)
+        viewModel.getOnUserLoggedIn().removeObserver(userJustLoggedInObserver)
         viewModel.getShowError().removeObserver(errorObserver)
     }
 

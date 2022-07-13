@@ -16,7 +16,7 @@ import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.databinding.DialogDeleteAccountBinding
 import org.permanent.permanent.databinding.FragmentAccountBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.viewmodels.AccountViewModel
 import org.permanent.permanent.viewmodels.DeleteAccountViewModel
 
@@ -69,12 +69,7 @@ class AccountFragment : PermanentBaseFragment() {
     private val onAccountDeleted = Observer<Void> {
         dialog.dismiss()
         val currentActivity = PermanentApplication.instance.currentActivity
-        currentActivity?.startActivity(
-            Intent(
-                currentActivity,
-                LoginActivity::class.java
-            )
-        )
+        currentActivity?.startActivity(Intent(currentActivity, SignUpActivity::class.java))
     }
 
     override fun connectViewModelEvents() {
