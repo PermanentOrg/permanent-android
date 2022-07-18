@@ -5,13 +5,15 @@ import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
-import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
 
 class CreateNewArchiveViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
+
+    private val appContext = application.applicationContext
     private var archiveType: ArchiveType? = null
     private val currentName = MutableLiveData<String>()
     private val nameError = MutableLiveData<Int?>()
@@ -59,19 +61,24 @@ class CreateNewArchiveViewModel(application: Application) :
 
         if (name != null && archiveType != null) {
             isBusy.value = true
-            archiveRepository.createNewArchive(name, archiveType, object : IResponseListener {
-                override fun onSuccess(message: String?) {
-                    isBusy.value = false
-                    onArchiveCreatedResult.call()
-                    message?.let { showMessage.value = it }
-                }
+            archiveRepository.createNewArchive(
+                name,
+                archiveType,
+                object : IArchiveRepository.IArchiveListener {
 
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    onArchiveCreatedResult.call()
-                    error?.let { showError.value = it }
-                }
-            })
+                    override fun onSuccess(archive: Archive) {
+                        isBusy.value = false
+                        onArchiveCreatedResult.call()
+                        showMessage.value =
+                            appContext.getString(R.string.archive_create_new_archive_success)
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        onArchiveCreatedResult.call()
+                        error?.let { showError.value = it }
+                    }
+                })
         }
     }
 

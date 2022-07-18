@@ -74,6 +74,7 @@ class SplashActivity : PermanentBaseActivity() {
                 remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
                     if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
                     else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
+                    else if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) startArchiveOnboardingActivity()
                     else if (prefsHelper.isUserLoggedIn()) startBiometricsActivity()
                     else startSignUpActivity()
                 }

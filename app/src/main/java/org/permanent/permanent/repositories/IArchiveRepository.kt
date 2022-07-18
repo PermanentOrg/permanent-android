@@ -23,7 +23,7 @@ interface IArchiveRepository {
 
     fun switchToArchive(archiveNr: String, listener: IDataListener)
 
-    fun createNewArchive(name: String, type: ArchiveType, listener: IResponseListener)
+    fun createNewArchive(name: String, type: ArchiveType, listener: IArchiveListener)
 
     fun deleteArchive(archiveNr: String, listener: IResponseListener)
 
@@ -38,4 +38,9 @@ interface IArchiveRepository {
     fun transferOwnership(email: String, listener: IResponseListener)
 
     fun deleteMember(accountId: Int, email: String, listener: IResponseListener)
+
+    interface IArchiveListener {
+        fun onSuccess(archive: Archive)
+        fun onFailed(error: String?)
+    }
 }

@@ -152,13 +152,17 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
             })
     }
 
-    override fun createNewArchive(name: String, type: ArchiveType, listener: IResponseListener) {
+    override fun createNewArchive(
+        name: String,
+        type: ArchiveType,
+        listener: IArchiveRepository.IArchiveListener
+    ) {
         NetworkClient.instance().createNewArchive(name, type)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(context.getString(R.string.archive_create_new_archive_success))
+                        listener.onSuccess(Archive(responseVO.getArchiveVO()))
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }
