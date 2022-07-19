@@ -119,6 +119,10 @@ class SplashActivity : PermanentBaseActivity() {
         return remoteConfig
     }
 
+    private val userMissingDefaultArchiveObserver = Observer<Void> {
+        startArchiveOnboardingActivity()
+    }
+
     private val userJustLoggedInObserver = Observer<Void> {
         if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) {
             startArchiveOnboardingActivity()
@@ -172,12 +176,14 @@ class SplashActivity : PermanentBaseActivity() {
     }
 
     override fun connectViewModelEvents() {
+        viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
         viewModel.getOnUserLoggedIn().observe(this, userJustLoggedInObserver)
         viewModel.getOnArchiveSwitchedToCurrent().observe(this, onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().observe(this, errorObserver)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
         viewModel.getOnUserLoggedIn().removeObserver(userJustLoggedInObserver)
         viewModel.getOnArchiveSwitchedToCurrent().removeObserver(onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().removeObserver(errorObserver)
