@@ -75,7 +75,7 @@ class SplashActivity : PermanentBaseActivity() {
                     if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
                     else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
                     else if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) startArchiveOnboardingActivity()
-                    else if (prefsHelper.isUserLoggedIn()) startBiometricsActivity()
+                    else if (prefsHelper.isUserLoggedIn()) viewModel.switchArchiveToCurrent()
                     else startSignUpActivity()
                 }
             }
@@ -127,6 +127,10 @@ class SplashActivity : PermanentBaseActivity() {
         }
     }
 
+    private val onArchiveSwitchedToCurrentObserver = Observer<Void> {
+        startBiometricsActivity()
+    }
+
     private fun startOnboardingActivity() {
         startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
         finish()
@@ -169,11 +173,13 @@ class SplashActivity : PermanentBaseActivity() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnUserLoggedIn().observe(this, userJustLoggedInObserver)
+        viewModel.getOnArchiveSwitchedToCurrent().observe(this, onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().observe(this, errorObserver)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnUserLoggedIn().removeObserver(userJustLoggedInObserver)
+        viewModel.getOnArchiveSwitchedToCurrent().removeObserver(onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().removeObserver(errorObserver)
     }
 

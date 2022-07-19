@@ -25,6 +25,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val onUserLoggedIn = SingleLiveEvent<Void>()
+    private val onArchiveSwitchedToCurrent = SingleLiveEvent<Void>()
     private val showError = MutableLiveData<String>()
     private val authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
@@ -77,7 +78,6 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         archiveRepository.getAllArchives(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 if (!dataList.isNullOrEmpty()) {
-
                     for (data in dataList) {
                         val archive = Archive(data.ArchiveVO)
                         if (defaultArchiveId == archive.id) {
@@ -103,7 +103,21 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         })
     }
 
-    fun getOnUserLoggedIn(): MutableLiveData<Void> = onUserLoggedIn
+    fun switchArchiveToCurrent() {
+        prefsHelper.getCurrentArchiveNr()?.let { currentArchiveNr ->
+            archiveRepository.switchToArchive(currentArchiveNr, object : IDataListener {
+                override fun onSuccess(dataList: List<Datum>?) {
+                    onArchiveSwitchedToCurrent.call()
+                }
 
+                override fun onFailed(error: String?) {
+                    error?.let { showError.value = it }
+                }
+            })
+        }
+    }
+
+    fun getOnUserLoggedIn(): MutableLiveData<Void> = onUserLoggedIn
+    fun getOnArchiveSwitchedToCurrent(): MutableLiveData<Void> = onArchiveSwitchedToCurrent
     fun getShowError(): LiveData<String> = showError
 }
