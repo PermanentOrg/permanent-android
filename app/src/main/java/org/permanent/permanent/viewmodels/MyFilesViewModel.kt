@@ -146,17 +146,16 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                     override fun onSuccess(recordVOs: List<RecordVO>?) {
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
+                        isRoot.value =
+                            parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
+                                Constants.PUBLIC_FILES_FOLDER
+                            )
                         folderName.value = when {
                             parentName.equals(Constants.MY_FILES_FOLDER) -> Constants.PRIVATE_FILES
                             parentName.equals(
                                 Constants.PUBLIC_FILES_FOLDER) -> Constants.PUBLIC_FILES
                             else -> parentName
                         }
-
-                        isRoot.value =
-                            parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
-                                Constants.PUBLIC_FILES_FOLDER
-                            )
 
                         existsFiles.value = !recordVOs.isNullOrEmpty()
                         showEmptyFolder.value =
@@ -291,11 +290,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         uploadQueue?.enqueuePendingUploads(ExistingWorkPolicy.REPLACE)
     }
 
-    override fun onCancelClick(download: Download) {
-        download.cancel()
-        downloadQueue.removeDownload(download)
-    }
-
     override fun onFinished(upload: Upload, succeeded: Boolean) {
         currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
@@ -308,6 +302,11 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                 refreshCurrentFolder()
             }
         }
+    }
+
+    override fun onCancelClick(download: Download) {
+        download.cancel()
+        downloadQueue.removeDownload(download)
     }
 
     override fun onFinished(download: Download, state: WorkInfo.State) {
@@ -479,6 +478,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
 
     companion object {
-        private const val MILLIS_UNTIL_REFRESH = 9000L
+        const val MILLIS_UNTIL_REFRESH = 9000L
     }
 }
