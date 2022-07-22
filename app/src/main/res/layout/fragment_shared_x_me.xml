@@ -108,6 +108,60 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvDownloadsTitle"
                 app:layout_constraintVertical_bias="0.0" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clUploads"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{viewModel.existsUploads ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rvDownloads"
+                app:layout_constraintVertical_bias="0.0">
+
+                <TextView
+                    android:id="@+id/tvUploadsTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/my_files_uploads_title"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <Button
+                    android:id="@+id/btnCancelAll"
+                    style="@style/customTextButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:text="@string/cancel_all_button"
+                    android:onClick="@{() -> viewModel.onCancelAllBtnClick()}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvUploadsTitle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tvUploadsTitle" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvUploads"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvUploadsTitle"
+                    app:layout_constraintVertical_bias="0.0" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <TextView
                 android:id="@+id/tvSortCriteria"
                 android:layout_width="wrap_content"
@@ -125,7 +179,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rvDownloads"
+                app:layout_constraintTop_toBottomOf="@+id/clUploads"
                 app:layout_constraintVertical_bias="0.0" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -141,10 +195,10 @@
                 app:layout_constraintVertical_bias="0.0" />
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/ivNoShares"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{viewModel.existsShares ? View.GONE : View.VISIBLE}"
+                android:visibility="@{viewModel.isRoot &amp;&amp; viewModel.existsShares == false ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -162,11 +216,38 @@
                 android:gravity="center"
                 android:text="@string/shares_by_me_no_items"
                 android:textSize="16sp"
-                android:visibility="@{viewModel.existsShares ? View.GONE : View.VISIBLE}"
+                android:visibility="@{viewModel.isRoot &amp;&amp; viewModel.existsShares == false ? View.VISIBLE : View.GONE}"                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivNoShares"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <ImageView
+                android:id="@+id/ivNoFiles"
+                android:layout_width="wrap_content"
+                android:layout_height="112dp"
+                android:src="@drawable/ic_empty_folder"
+                android:visibility="@{viewModel.showEmptyFolder ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.40" />
+
+            <TextView
+                android:id="@+id/tvNoFiles"
+                android:layout_width="328dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/my_files_no_files"
+                android:textColor="@color/lightGrey"
+                android:textSize="18sp"
+                android:visibility="@{viewModel.showEmptyFolder ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivNoFiles"
                 app:layout_constraintVertical_bias="0.0" />
 
             <androidx.core.widget.ContentLoadingProgressBar
@@ -181,6 +262,26 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.54" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="32dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()-> viewModel.onAddFabClick()}"
+                android:visibility="@{viewModel.isRoot ? View.GONE: View.VISIBLE}"
+                app:backgroundTint="@color/colorAccent"
+                app:fabSize="auto"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:maxImageSize="40dp"
+                app:srcCompat="@drawable/ic_plus_white"
+                app:tint="@null" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>

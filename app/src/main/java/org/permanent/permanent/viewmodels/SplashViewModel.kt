@@ -25,6 +25,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val onUserLoggedIn = SingleLiveEvent<Void>()
+    private val onUserMissingDefaultArchive = SingleLiveEvent<Void>()
     private val onArchiveSwitchedToCurrent = SingleLiveEvent<Void>()
     private val showError = MutableLiveData<String>()
     private val authRepository: IAuthenticationRepository =
@@ -65,7 +66,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
                 prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
                 prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
 
-                account.defaultArchiveId?.let { getArchive(it) } ?: run { onUserLoggedIn.call() }
+                account.defaultArchiveId?.let { getArchive(it) } ?: run { onUserMissingDefaultArchive.call() }
             }
 
             override fun onFailed(error: String?) {
@@ -117,6 +118,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         }
     }
 
+    fun getOnUserMissingDefaultArchive(): MutableLiveData<Void> = onUserMissingDefaultArchive
     fun getOnUserLoggedIn(): MutableLiveData<Void> = onUserLoggedIn
     fun getOnArchiveSwitchedToCurrent(): MutableLiveData<Void> = onArchiveSwitchedToCurrent
     fun getShowError(): LiveData<String> = showError

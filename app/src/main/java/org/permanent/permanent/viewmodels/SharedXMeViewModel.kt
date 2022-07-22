@@ -1,16 +1,22 @@
 package org.permanent.permanent.viewmodels
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.models.Download
-import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordType
-import org.permanent.permanent.models.Upload
+import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -18,6 +24,8 @@ import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
+import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
+import java.text.SimpleDateFormat
 import java.util.*
 
 class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -25,26 +33,38 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     private val appContext = application.applicationContext
     private lateinit var lifecycleOwner: LifecycleOwner
+    private var refreshJob: Job? = null
+
     val isRoot = MutableLiveData(true)
-    var existsShares = MutableLiveData(false)
     private val isListViewMode = MutableLiveData(true)
+    var existsShares = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
+    var showEmptyFolder = MutableLiveData(false)
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
+    private var folderPathStack: Stack<Record> = Stack()
+    private var currentFolder = MutableLiveData<NavigationFolder>()
+
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
-    private var folderPathStack: Stack<Record> = Stack()
-    private lateinit var downloadQueue: DownloadQueue
+    private val showQuotaExceeded = SingleLiveEvent<Void>()
+    private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
+    private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onRootSharesNeeded = SingleLiveEvent<Void>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
+    private val onCancelAllUploads = SingleLiveEvent<Void>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onFileViewRequest = SingleLiveEvent<Record>()
+
+    private lateinit var downloadQueue: DownloadQueue
+    private lateinit var uploadsAdapter: UploadsAdapter
+    private lateinit var uploadsRecyclerView: RecyclerView
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setLifecycleOwner(lifecycleOwner: LifecycleOwner) {
@@ -63,24 +83,55 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     fun setSortType(sortType: SortType) {
         currentSortType.value = sortType
         sortName.value = sortType.toUIString()
-        loadChildRecordsOf(folderPathStack.peek(), currentSortType.value)
+        loadFilesOf(currentFolder.value, currentSortType.value)
+    }
+
+    fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
+        uploadsRecyclerView = rvUploads
+        this.lifecycleOwner = lifecycleOwner
+        uploadsAdapter = UploadsAdapter(lifecycleOwner, this)
+        uploadsRecyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = uploadsAdapter
+        }
     }
 
     fun onRecordClick(record: Record) {
+        if (record.isProcessing) {
+            return
+        }
         if (record.type == RecordType.FOLDER) {
+            currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
-            loadChildRecordsOf(record, currentSortType.value)
+            currentFolder.value = NavigationFolder(appContext, record)
+            loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
+            loadFilesOf(currentFolder.value, currentSortType.value)
         } else {
             onFileViewRequest.value = record
         }
     }
 
-    private fun loadChildRecordsOf(record: Record, sortType: SortType?) {
+    fun onBackBtnClick() {
+        currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
+        // Popping the record of the current folder
+        folderPathStack.pop()
+        if (folderPathStack.isEmpty()) {
+            onRootSharesNeeded.call()
+        } else {
+            val previousFolder = folderPathStack.peek()
+            currentFolder.value = NavigationFolder(appContext, previousFolder)
+            loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
+            loadFilesOf(currentFolder.value, currentSortType.value)
+        }
+    }
+
+    private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
-        val archiveNr = record.archiveNr
-        val folderLinkId = record.folderLinkId
+        val archiveNr = folder?.getArchiveNr()
+        val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             isBusy.value = true
             fileRepository.getChildRecordsOf(archiveNr, folderLinkId, sortType?.toBackendString(),
@@ -88,8 +139,10 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
                     override fun onSuccess(recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         isRoot.value = false
-                        folderName.value = record.displayName
+                        folderName.value = folder.getDisplayName()
                         existsShares.value = !recordVOs.isNullOrEmpty()
+                        showEmptyFolder.value = isRoot.value == false &&
+                            existsShares.value == false && getExistsUploads().value == false
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
@@ -101,13 +154,30 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         }
     }
 
+    private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {
+        folder?.newUploadQueue(lifecycleOwner, this)
+            ?.getEnqueuedUploadsLiveData()?.let { enqueuedUploadsLiveData ->
+                enqueuedUploadsLiveData.observe(lifecycleOwner) { enqueuedUploads ->
+                    uploadsAdapter.set(enqueuedUploads)
+                }
+            }
+    }
+
     private fun loadEnqueuedDownloads(lifecycleOwner: LifecycleOwner) {
         downloadQueue = DownloadQueue(appContext, lifecycleOwner, this)
         downloadQueue.getEnqueuedDownloadsLiveData().let { enqueuedDownloadsLiveData ->
-            enqueuedDownloadsLiveData.observe(lifecycleOwner, { enqueuedDownloads ->
+            enqueuedDownloadsLiveData.observe(lifecycleOwner) { enqueuedDownloads ->
                 onDownloadsRetrieved.value = enqueuedDownloads
-            })
+            }
         }
+    }
+
+    fun onAddFabClick() {
+        onShowAddOptionsFragment.value = currentFolder.value?.getFolderIdentifier()
+    }
+
+    fun upload(uris: List<Uri>) {
+        currentFolder.value?.getUploadQueue()?.upload(uris)
     }
 
     private fun getRecords(recordVOs: List<RecordVO>): MutableList<Record> {
@@ -116,17 +186,6 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
             records.add(Record(recordVO))
         }
         return records
-    }
-
-    fun onBackBtnClick() {
-        // Popping the record of the current folder
-        folderPathStack.pop()
-        if (folderPathStack.isEmpty()) {
-            onRootSharesNeeded.call()
-        } else {
-            val previousFolder = folderPathStack.peek()
-            loadChildRecordsOf(previousFolder, currentSortType.value)
-        }
     }
 
     fun onViewModeBtnClick() {
@@ -142,6 +201,54 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         downloadQueue.enqueueNewDownloadFor(record)
     }
 
+    fun cancelAllUploads() {
+        currentFolder.value?.getUploadQueue()?.clear()
+    }
+
+    fun onCancelAllBtnClick() {
+        onCancelAllUploads.call()
+    }
+
+    override fun onCancelClick(upload: Upload) {
+        val uploadQueue = currentFolder.value?.getUploadQueue()
+        uploadQueue?.prepareToRequeueUploadsExcept(upload)
+        upload.cancel()
+        uploadQueue?.enqueuePendingUploads(ExistingWorkPolicy.REPLACE)
+    }
+
+    override fun onFinished(upload: Upload, succeeded: Boolean) {
+        currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
+        uploadsAdapter.remove(upload)
+
+        if (succeeded) addFakeItemToFilesList(upload)
+        if (uploadsAdapter.itemCount == 0) {
+            refreshJob?.cancel()
+            refreshJob = viewModelScope.launch {
+                delay(MyFilesViewModel.MILLIS_UNTIL_REFRESH)
+                refreshCurrentFolder()
+            }
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun addFakeItemToFilesList(upload: Upload?) {
+        val sdf = SimpleDateFormat("yyyy-M-dd")
+        val currentDate = sdf.format(Date())
+        val fakeRecordInfo = RecordVO()
+        fakeRecordInfo.displayDT = currentDate
+        fakeRecordInfo.displayName = upload?.getDisplayName()
+        val fakeRecord = Record(fakeRecordInfo)
+        fakeRecord.type = RecordType.FILE
+        onNewTemporaryFile.value = fakeRecord
+        existsShares.value = true
+        showEmptyFolder.value = false
+    }
+
+    fun refreshCurrentFolder() {
+        refreshJob?.cancel()
+        loadFilesOf(currentFolder.value, currentSortType.value)
+    }
+
     override fun onCancelClick(download: Download) {
         download.cancel()
         downloadQueue.removeDownload(download)
@@ -155,15 +262,17 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
             showMessage.value = appContext.getString(R.string.generic_error)
     }
 
-    override fun onCancelClick(upload: Upload) {}
+    override fun onFailedUpload(message: String) {
+        showMessage.value = message
+    }
 
-    override fun onFinished(upload: Upload, succeeded: Boolean) {}
-
-    override fun onFailedUpload(message: String) {}
-
-    override fun onQuotaExceeded() {}
+    override fun onQuotaExceeded() {
+        showQuotaExceeded.call()
+    }
 
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
+
+    fun getExistsUploads(): MutableLiveData<Boolean> = uploadsAdapter.getExistsUploads()
 
     fun getExistsDownloads(): MutableLiveData<Boolean> = existsDownloads
 
@@ -174,6 +283,15 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
+
+    fun getOnNewTemporaryFile(): MutableLiveData<Record> = onNewTemporaryFile
+
+    fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
+        onShowAddOptionsFragment
+
+    fun getOnCancelAllUploads(): SingleLiveEvent<Void> = onCancelAllUploads
 
     fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> = onDownloadsRetrieved
 

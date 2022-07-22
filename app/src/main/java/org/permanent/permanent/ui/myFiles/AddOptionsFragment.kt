@@ -34,11 +34,11 @@ import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.AddOptionsViewModel
 import org.permanent.permanent.viewmodels.NewFolderViewModel
+import org.permanent.permanent.viewmodels.SingleLiveEvent
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 const val FOLDER_IDENTIFIER_KEY = "folder_identifier"
 const val IS_SHOWN_IN_PUBLIC_FILES_KEY = "is_shown_in_public_files_key"
@@ -52,7 +52,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     private lateinit var photoURI: Uri
     private var alertDialog: AlertDialog? = null
     private val filesToUpload = MutableLiveData<MutableList<Uri>>()
-    private val onRefreshFolder = MutableLiveData<Void>()
+    private val onRefreshFolder = SingleLiveEvent<Void>()
 
     private val onErrorStringId = Observer<Int> { errorId ->
         val errorMessage = this.resources.getString(errorId)
@@ -64,7 +64,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     }
 
     private val onFolderCreated = Observer<Void> {
-        onRefreshFolder.value = onRefreshFolder.value
+        onRefreshFolder.call()
         alertDialog?.dismiss()
         dismiss()
     }
@@ -80,13 +80,13 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentAddOptionsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        viewModel = ViewModelProvider(this).get(AddOptionsViewModel::class.java)
+        viewModel = ViewModelProvider(this)[AddOptionsViewModel::class.java]
         binding.viewModel = viewModel
-        dialogViewModel = ViewModelProvider(this).get(NewFolderViewModel::class.java)
+        dialogViewModel = ViewModelProvider(this)[NewFolderViewModel::class.java]
         binding.btnNewFolder.setOnClickListener(this)
         binding.btnTakePhoto.setOnClickListener(this)
         binding.btnTakeVideo.setOnClickListener(this)
