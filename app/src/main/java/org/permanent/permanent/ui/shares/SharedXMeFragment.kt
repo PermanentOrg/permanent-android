@@ -243,9 +243,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         }
     }
 
-    fun getRootShares(): LiveData<Void> {
-        return getRootRecords
-    }
+    fun getRootShares(): LiveData<Void> = getRootRecords
 
     override fun onRecordClick(record: Record) {
         viewModel.onRecordClick(record)

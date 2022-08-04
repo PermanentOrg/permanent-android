@@ -30,6 +30,17 @@ enum class AccessRole(val backendString: String) : Parcelable {
             return values()[parcel.readInt()]
         }
 
+        fun createFromBackendString(accessRoleString: String?): AccessRole {
+            return when (accessRoleString) {
+                OWNER.backendString -> OWNER
+                MANAGER.backendString -> MANAGER
+                CURATOR.backendString -> CURATOR
+                EDITOR.backendString -> EDITOR
+                CONTRIBUTOR.backendString -> CONTRIBUTOR
+                else -> VIEWER
+            }
+        }
+
         override fun newArray(size: Int): Array<AccessRole?> {
             return arrayOfNulls(size)
         }
