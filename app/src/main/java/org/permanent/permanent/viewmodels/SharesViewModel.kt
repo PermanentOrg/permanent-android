@@ -67,19 +67,11 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
         })
     }
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getShowMessage(): LiveData<String> = showMessage
 
-    fun getOnSharesByMeRetrieved(): LiveData<MutableList<Record>> {
-        return onSharesByMeRetrieved
-    }
+    fun getOnSharesByMeRetrieved(): LiveData<MutableList<Record>> = onSharesByMeRetrieved
 
-    fun getOnSharesWithMeRetrieved(): LiveData<MutableList<Record>> {
-        return onSharesWithMeRetrieved
-    }
+    fun getOnSharesWithMeRetrieved(): LiveData<MutableList<Record>> = onSharesWithMeRetrieved
 }

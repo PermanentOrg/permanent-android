@@ -39,10 +39,11 @@ class FileData private constructor() : Parcelable {
         folderLinkId = recordVO.folder_linkId ?: -1
         archiveId = recordVO.archiveId ?: -1
         archiveNr = recordVO.archiveNbr
-        accessRole = getAccessRole(recordVO.accessRole)
+        accessRole = AccessRole.createFromBackendString(recordVO.accessRole)
         // First we check for the converted video to mp4
         val fileVO: FileVO? = if (recordVO.type?.contains(FileType.VIDEO.toString()) == true
-            && recordVO.FileVOs?.size!! > 1) {
+            && recordVO.FileVOs?.size!! > 1
+        ) {
             fileName = recordVO.displayName + ".mp4"
             recordVO.FileVOs?.get(1)
         } else {
@@ -77,17 +78,6 @@ class FileData private constructor() : Parcelable {
         width = fileVO?.width ?: -1
         height = fileVO?.height ?: -1
         initTags(recordVO.TagVOs)
-    }
-
-    private fun getAccessRole(accessRole: String?): AccessRole {
-        return when (accessRole) {
-            AccessRole.OWNER.backendString -> AccessRole.OWNER
-            AccessRole.MANAGER.backendString -> AccessRole.MANAGER
-            AccessRole.CURATOR.backendString -> AccessRole.CURATOR
-            AccessRole.EDITOR.backendString -> AccessRole.EDITOR
-            AccessRole.CONTRIBUTOR.backendString -> AccessRole.CONTRIBUTOR
-            else -> AccessRole.VIEWER
-        }
     }
 
     private fun initTags(tagVOs: List<TagVO>?) {

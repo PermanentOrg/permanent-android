@@ -10,6 +10,7 @@ class ItemVO {
     var displayName: String? = null
     var displayDT: String? = null
     var type: String? = null
+    var accessRole: String? = null
     var thumbURL200: String? = null
     var thumbURL2000: String? = null
     var status: String? = null

@@ -21,6 +21,7 @@ open class Record : Parcelable {
     var thumbURL2000: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
+    var accessRole: AccessRole? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
     var displayFirstInCarousel = false
@@ -42,6 +43,7 @@ open class Record : Parcelable {
         thumbURL2000 = parcel.readString()
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
+        accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
         displayFirstInCarousel = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         isProcessing = parcel.readValue(Boolean::class.java.classLoader) as Boolean
@@ -61,6 +63,7 @@ open class Record : Parcelable {
         thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
+        accessRole = AccessRole.createFromBackendString(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
@@ -79,6 +82,7 @@ open class Record : Parcelable {
         thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = RecordType.FOLDER
+        accessRole = AccessRole.createFromBackendString(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
@@ -99,6 +103,7 @@ open class Record : Parcelable {
         thumbURL2000 = item.thumbURL2000
         isThumbBlurred = false
         type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
+        accessRole = AccessRole.createFromBackendString(item.accessRole)
         displayFirstInCarousel = false
         isProcessing = item.thumbURL200.isNullOrEmpty()
     }
@@ -163,6 +168,7 @@ open class Record : Parcelable {
         parcel.writeString(thumbURL2000)
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
+        parcel.writeParcelable(accessRole, flags)
         parcel.writeTypedList(shares)
         parcel.writeValue(displayFirstInCarousel)
         parcel.writeValue(isProcessing)

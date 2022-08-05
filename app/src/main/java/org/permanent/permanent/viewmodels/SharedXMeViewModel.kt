@@ -15,6 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.RecordVO
@@ -36,6 +37,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     private var refreshJob: Job? = null
 
     val isRoot = MutableLiveData(true)
+    private val isCreateAvailable = MutableLiveData(true)
     private val isListViewMode = MutableLiveData(true)
     var existsShares = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
@@ -105,6 +107,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
             currentFolder.value = NavigationFolder(appContext, record)
+            isCreateAvailable.value =
+                record.accessRole != AccessRole.VIEWER && CurrentArchivePermissionsManager.instance.isCreateAvailable()
             loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
             loadFilesOf(currentFolder.value, currentSortType.value)
         } else {
@@ -121,6 +125,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         } else {
             val previousFolder = folderPathStack.peek()
             currentFolder.value = NavigationFolder(appContext, previousFolder)
+            isCreateAvailable.value =
+                previousFolder.accessRole != AccessRole.VIEWER && CurrentArchivePermissionsManager.instance.isCreateAvailable()
             loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
             loadFilesOf(currentFolder.value, currentSortType.value)
         }
@@ -141,8 +147,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
                         isRoot.value = false
                         folderName.value = folder.getDisplayName()
                         existsShares.value = !recordVOs.isNullOrEmpty()
-                        showEmptyFolder.value = isRoot.value == false &&
-                            existsShares.value == false && getExistsUploads().value == false
+                        showEmptyFolder.value =
+                            isRoot.value == false && existsShares.value == false && getExistsUploads().value == false
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
@@ -283,6 +289,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getIsCreateAvailable(): LiveData<Boolean> = isCreateAvailable
 
     fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
 
