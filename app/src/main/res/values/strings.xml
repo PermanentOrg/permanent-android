@@ -68,7 +68,7 @@
     <string name="login_biometric_unlock_with_biometrics_button">Unlock with Biometrics</string>
     <string name="login_biometric_use_credentials_button">Use credentials instead</string>
     <string name="welcome_title">Congratulations on your first archive!</string>
-    <string name="welcome_text">Your archive is %s. You are the Owner of this archive.\n\n Get started by uploading your first files, or learn more about your new archive by viewing our help articles</string>
+    <string name="welcome_text">Your archive is %s. You are the Owner of this archive.\n\nGet started by uploading your first files, or learn more about your new archive by viewing our help articles.</string>
     <string name="nav_main_header_view_profile">View Profile</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
     <string name="nav_settings_header_storage_text">%s of %s used</string>
