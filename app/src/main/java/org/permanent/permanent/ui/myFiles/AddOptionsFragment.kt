@@ -24,8 +24,8 @@ import org.permanent.permanent.Constants.Companion.FILE_PROVIDER_NAME
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_FILE_SELECT
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_IMAGE_CAPTURE
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_VIDEO_CAPTURE
+import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.PermanentApplication
-import org.permanent.permanent.PermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogCreateNewFolderBinding
@@ -96,7 +96,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     }
 
     override fun onClick(view: View) {
-        val permissionHelper = PermissionsHelper()
+        val permissionHelper = DevicePermissionsHelper()
         when (view.id) {
             R.id.btnNewFolder -> showNewFolderDialog()
             R.id.btnTakePhoto -> context?.let {

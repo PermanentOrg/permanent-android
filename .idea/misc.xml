@@ -33,7 +33,7 @@
         <entry key="app/src/main/res/drawable/share_link_background_color.xml" value="0.2585" />
         <entry key="app/src/main/res/drawable/storage_tab_background_color.xml" value="0.2585" />
         <entry key="app/src/main/res/drawable/white_image_frame.xml" value="0.2585" />
-        <entry key="app/src/main/res/layout/activity_archive_onboarding.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/activity_archive_onboarding.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.30512820512820515" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.3098958333333333" />
@@ -58,9 +58,12 @@
         <entry key="app/src/main/res/layout/fragment_add_edit_online_presence.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_add_milestone.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archive_onboarding.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_archive_onboarding_default_selection.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archive_onboarding_name_setting.xml" value="0.3974358974358974" />
+        <entry key="app/src/main/res/layout/fragment_archive_onboarding_pending_invitations.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_archive_onboarding_start.xml" value="0.4010416666666667" />
         <entry key="app/src/main/res/layout/fragment_archive_onboarding_type_selection.xml" value="0.3974358974358974" />
+        <entry key="app/src/main/res/layout/fragment_archive_onboarding_welcome.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archive_search.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archives.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archives_container.xml" value="0.4036458333333333" />
@@ -72,6 +75,7 @@
         <entry key="app/src/main/res/layout/fragment_edit_person_information.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_file_info.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_file_view_options.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_invitations.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_item_options.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_location_search.xml" value="0.30512820512820515" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.3974358974358974" />
@@ -94,12 +98,14 @@
         <entry key="app/src/main/res/layout/fragment_storage.xml" value="0.3963541666666667" />
         <entry key="app/src/main/res/layout/fragment_verification_code.xml" value="0.3974358974358974" />
         <entry key="app/src/main/res/layout/item_archive.xml" value="0.3974358974358974" />
+        <entry key="app/src/main/res/layout/item_archive_onboarding.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_list_record.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_member.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_milestone.xml" value="0.39114583333333336" />
         <entry key="app/src/main/res/layout/item_milestone_underlay.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_online_presence.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_online_presence_underlay.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/item_pending_archive.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/item_public_archive.xml" value="0.3974358974358974" />
         <entry key="app/src/main/res/layout/item_upload.xml" value="0.3974358974358974" />
         <entry key="app/src/main/res/layout/nav_main_header.xml" value="0.4036458333333333" />

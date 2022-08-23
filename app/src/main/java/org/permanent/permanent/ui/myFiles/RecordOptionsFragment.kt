@@ -13,7 +13,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
-import org.permanent.permanent.PermissionsHelper
+import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.FragmentRecordOptionsBinding
@@ -70,7 +70,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     }
 
     private val onRequestWritePermission = Observer<Void> {
-        PermissionsHelper().requestWriteStoragePermission(this)
+        DevicePermissionsHelper().requestWriteStoragePermission(this)
     }
 
     private val onFileDownloadRequestObserver = Observer<Void> {

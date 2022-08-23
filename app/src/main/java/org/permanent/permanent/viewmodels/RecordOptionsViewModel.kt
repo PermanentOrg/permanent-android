@@ -114,7 +114,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun onDownloadBtnClick() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-            && !PermissionsHelper().hasWriteStoragePermission(appContext)
+            && !DevicePermissionsHelper().hasWriteStoragePermission(appContext)
         ) {
             onRequestWritePermission.call()
         } else {

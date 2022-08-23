@@ -74,9 +74,9 @@ class SplashActivity : PermanentBaseActivity() {
                 remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
                     if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
                     else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
-                    else if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) startArchiveOnboardingActivity()
-                    else if (prefsHelper.isUserLoggedIn()) viewModel.switchArchiveToCurrent()
-                    else startSignUpActivity()
+                    else if (!prefsHelper.isUserLoggedIn()) startSignUpActivity()
+                    else if (prefsHelper.getDefaultArchiveId() == 0) userMissingDefaultArchiveObserver.onChanged(null)
+                    else viewModel.switchArchiveToCurrent()
                 }
             }
         }
@@ -120,15 +120,12 @@ class SplashActivity : PermanentBaseActivity() {
     }
 
     private val userMissingDefaultArchiveObserver = Observer<Void> {
+        prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startArchiveOnboardingActivity()
     }
 
     private val userJustLoggedInObserver = Observer<Void> {
-        if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isArchiveOnboardingSeen()) {
-            startArchiveOnboardingActivity()
-        } else {
-            startMainActivity()
-        }
+        startMainActivity()
     }
 
     private val onArchiveSwitchedToCurrentObserver = Observer<Void> {

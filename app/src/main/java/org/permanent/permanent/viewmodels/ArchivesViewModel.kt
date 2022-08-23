@@ -129,16 +129,16 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
         }
 
         isBusy.value = true
-        archiveRepository.acceptArchive(archive, object : IResponseListener {
+        archiveRepository.acceptArchives(listOf(archive), object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                showMessage.value = message
+                message?.let { showMessage.value = it }
                 refreshArchives()
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showError.value = error
+                error?.let { showError.value = it }
             }
         })
     }

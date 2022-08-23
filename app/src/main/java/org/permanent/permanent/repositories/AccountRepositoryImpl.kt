@@ -28,9 +28,8 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        prefsHelper.saveUserSignedUpInApp()
                         prefsHelper.saveWelcomeDialogSeen(false)
-                        prefsHelper.saveArchiveOnboardingSeen(false)
+                        prefsHelper.saveArchiveOnboardingDoneInApp(false)
                         listener.onSuccess(appContext.getString(R.string.account_create_success))
                     } else {
                         listener.onFailed(

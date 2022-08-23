@@ -59,6 +59,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private val onLoggedOut = Observer<Void> {
         prefsHelper.saveUserLoggedIn(false)
+        prefsHelper.saveDefaultArchiveId(0)
         prefsHelper.saveBiometricsLogIn(true) // Setting back to default
         startActivity(Intent(this, SignUpActivity::class.java))
         finish()
@@ -192,7 +193,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
         })
 
-        if (prefsHelper.isUserSignedUpInApp() && !prefsHelper.isWelcomeDialogSeen()) {
+        if (prefsHelper.isArchiveOnboardingDoneInApp() && !prefsHelper.isWelcomeDialogSeen()) {
             showWelcomeDialog()
         }
 
@@ -275,8 +276,19 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             .setView(viewDialog)
             .create()
 
-        viewDialog.tvWelcomeText.text =
-            getString(R.string.welcome_text, prefsHelper.getCurrentArchiveFullName())
+        viewDialog.tvWelcomeTitleWelcomeDialog.text =
+            if (prefsHelper.isArchiveOnboardingDefaultFlow())
+                getString(R.string.welcome_title) else getString(R.string.archive_onboarding_invitation_welcome_title)
+        viewDialog.tvWelcomeTextWelcomeDialog.text =
+            if (prefsHelper.isArchiveOnboardingDefaultFlow()) getString(
+                R.string.welcome_text,
+                prefsHelper.getCurrentArchiveFullName()
+            ) else getString(
+                R.string.archive_onboarding_invitation_welcome_text,
+                prefsHelper.getCurrentArchiveFullName(),
+                prefsHelper.getCurrentArchiveAccessRole().toTitleCase(),
+                CurrentArchivePermissionsManager.instance.getPermissionsEnumerated()
+            )
         viewDialog.btnGetStartedWelcomeDialog.setOnClickListener {
             prefsHelper.saveWelcomeDialogSeen(true)
             alert.dismiss()

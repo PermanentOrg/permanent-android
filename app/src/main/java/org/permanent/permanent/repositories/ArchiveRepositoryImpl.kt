@@ -98,8 +98,8 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
             })
     }
 
-    override fun acceptArchive(archive: Archive, listener: IResponseListener) {
-        NetworkClient.instance().acceptArchive(archive)
+    override fun acceptArchives(archives: List<Archive>, listener: IResponseListener) {
+        NetworkClient.instance().acceptArchives(archives)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()

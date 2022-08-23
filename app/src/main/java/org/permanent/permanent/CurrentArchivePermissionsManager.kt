@@ -8,15 +8,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 class CurrentArchivePermissionsManager private constructor() {
 
     private var accessRole: AccessRole
-    private var isReadAvailable: Boolean = false
-    private var isCreateAvailable: Boolean = false
-    private var isEditAvailable: Boolean = false
-    private var isDeleteAvailable: Boolean = false
-    private var isMoveAvailable: Boolean = false
-    private var isPublishAvailable: Boolean = false
-    private var isShareAvailable: Boolean = false
-    private var isArchiveShareAvailable: Boolean = false
-    private var isOwnershipAvailable: Boolean = false
+    private var currentArchivePermissions = mutableListOf<ArchivePermission>()
 
     companion object {
         val instance = CurrentArchivePermissionsManager()
@@ -37,91 +29,100 @@ class CurrentArchivePermissionsManager private constructor() {
         this.accessRole = accessRole
         when (accessRole) {
             AccessRole.OWNER -> {
-                isReadAvailable = true
-                isCreateAvailable = true
-                isEditAvailable = true
-                isDeleteAvailable = true
-                isMoveAvailable = true
-                isPublishAvailable = true
-                isShareAvailable = true
-                isArchiveShareAvailable = true
-                isOwnershipAvailable = true
+                currentArchivePermissions = mutableListOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT,
+                    ArchivePermission.DELETE,
+                    ArchivePermission.MOVE,
+                    ArchivePermission.PUBLISH,
+                    ArchivePermission.SHARE,
+                    ArchivePermission.ARCHIVE_SHARE,
+                    ArchivePermission.OWNERSHIP
+                )
             }
             AccessRole.MANAGER -> {
-                isReadAvailable = true
-                isCreateAvailable = true
-                isEditAvailable = true
-                isDeleteAvailable = true
-                isMoveAvailable = true
-                isPublishAvailable = true
-                isShareAvailable = true
-                isArchiveShareAvailable = true
-                isOwnershipAvailable = false
+                currentArchivePermissions = mutableListOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT,
+                    ArchivePermission.DELETE,
+                    ArchivePermission.MOVE,
+                    ArchivePermission.PUBLISH,
+                    ArchivePermission.SHARE,
+                    ArchivePermission.ARCHIVE_SHARE
+                )
             }
             AccessRole.CURATOR -> {
-                isReadAvailable = true
-                isCreateAvailable = true
-                isEditAvailable = true
-                isDeleteAvailable = true
-                isMoveAvailable = true
-                isPublishAvailable = true
-                isShareAvailable = true
-                isArchiveShareAvailable = false
-                isOwnershipAvailable = false
+                currentArchivePermissions = mutableListOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT,
+                    ArchivePermission.DELETE,
+                    ArchivePermission.MOVE,
+                    ArchivePermission.PUBLISH,
+                    ArchivePermission.SHARE
+                )
             }
             AccessRole.EDITOR -> {
-                isReadAvailable = true
-                isCreateAvailable = true
-                isEditAvailable = true
-                isDeleteAvailable = false
-                isMoveAvailable = false
-                isPublishAvailable = false
-                isShareAvailable = false
-                isArchiveShareAvailable = false
-                isOwnershipAvailable = false
+                currentArchivePermissions = mutableListOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT
+                )
             }
             AccessRole.CONTRIBUTOR -> {
-                isReadAvailable = true
-                isCreateAvailable = true
-                isEditAvailable = false
-                isDeleteAvailable = false
-                isMoveAvailable = false
-                isPublishAvailable = false
-                isShareAvailable = false
-                isArchiveShareAvailable = false
-                isOwnershipAvailable = false
+                currentArchivePermissions = mutableListOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE
+                )
             }
             AccessRole.VIEWER -> {
-                isReadAvailable = true
-                isCreateAvailable = false
-                isEditAvailable = false
-                isDeleteAvailable = false
-                isMoveAvailable = false
-                isPublishAvailable = false
-                isShareAvailable = false
-                isArchiveShareAvailable = false
-                isOwnershipAvailable = false
+                currentArchivePermissions = mutableListOf(
+                    ArchivePermission.READ
+                )
             }
         }
     }
 
     fun getAccessRole(): AccessRole = accessRole
 
-    fun isReadAvailable() = isReadAvailable
+    fun isReadAvailable() = currentArchivePermissions.contains(ArchivePermission.READ)
 
-    fun isCreateAvailable() = isCreateAvailable
+    fun isCreateAvailable() = currentArchivePermissions.contains(ArchivePermission.CREATE)
 
-    fun isEditAvailable() = isEditAvailable
+    fun isEditAvailable() = currentArchivePermissions.contains(ArchivePermission.EDIT)
 
-    fun isDeleteAvailable() = isDeleteAvailable
+    fun isDeleteAvailable() = currentArchivePermissions.contains(ArchivePermission.DELETE)
 
-    fun isMoveAvailable() = isMoveAvailable
+    fun isMoveAvailable() = currentArchivePermissions.contains(ArchivePermission.MOVE)
 
-    fun isPublishAvailable() = isPublishAvailable
+    fun isPublishAvailable() = currentArchivePermissions.contains(ArchivePermission.PUBLISH)
 
-    fun isShareAvailable() = isShareAvailable
+    fun isShareAvailable() = currentArchivePermissions.contains(ArchivePermission.SHARE)
 
-    fun isArchiveShareAvailable() = isArchiveShareAvailable
+    fun isArchiveShareAvailable() =
+        currentArchivePermissions.contains(ArchivePermission.ARCHIVE_SHARE)
 
-    fun isOwnershipAvailable() = isOwnershipAvailable
+    fun isOwnershipAvailable() = currentArchivePermissions.contains(ArchivePermission.OWNERSHIP)
+
+    fun getPermissionsEnumerated(): String {
+        var enumeratedPermissions = ""
+        currentArchivePermissions.remove(ArchivePermission.ARCHIVE_SHARE)
+        currentArchivePermissions.map { it.toLowerCase() }
+        currentArchivePermissions.forEachIndexed { index, permission ->
+            enumeratedPermissions += when {
+                currentArchivePermissions.size == 1 -> {
+                    permission.toUIString()
+                }
+                index != currentArchivePermissions.size - 1 -> {
+                    "${permission.toUIString()}, "
+                }
+                else -> {
+                    "and ${permission.toUIString()}"
+                }
+            }
+        }
+        return enumeratedPermissions
+    }
 }

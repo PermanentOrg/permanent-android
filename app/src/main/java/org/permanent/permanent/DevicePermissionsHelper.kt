@@ -10,7 +10,7 @@ const val REQUEST_CODE_READ_STORAGE_PERMISSION = 124
 const val REQUEST_CODE_WRITE_STORAGE_PERMISSION = 125
 const val REQUEST_CODE_CAMERA_PERMISSION = 126
 
-class PermissionsHelper {
+class DevicePermissionsHelper {
 
     fun hasReadStoragePermission(ctx: Context): Boolean {
         return (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_EXTERNAL_STORAGE)

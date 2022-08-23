@@ -10,6 +10,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
@@ -19,13 +20,10 @@ import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.archiveOnboarding.NameSettingFragment
-import org.permanent.permanent.ui.archiveOnboarding.OnboardingPage
-import org.permanent.permanent.ui.archiveOnboarding.StartFragment
-import org.permanent.permanent.ui.archiveOnboarding.TypeSelectionFragment
+import org.permanent.permanent.ui.archiveOnboarding.*
 
 class ArchiveOnboardingViewModel(application: Application) :
-    ObservableAndroidViewModel(application) {
+    ObservableAndroidViewModel(application), OnboardingArchiveListener {
 
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
@@ -39,15 +37,76 @@ class ArchiveOnboardingViewModel(application: Application) :
     private val selectedArchiveTypeTitle = MutableLiveData<String>()
     private val selectedArchiveTypeText = MutableLiveData<String>()
     private val name = MutableLiveData<String>()
-    private val onNextFragmentRequired = SingleLiveEvent<Fragment>()
-    private val onArchiveCreated = SingleLiveEvent<Void>()
-    val currentPage = MutableLiveData(OnboardingPage.START)
+    private val onPendingArchivesRetrieved = MutableLiveData<List<Archive>>()
+    private val onShowNextFragment = SingleLiveEvent<Fragment>()
+    private val onArchiveOnboardingDone = SingleLiveEvent<Void>()
+    private val currentPage = MutableLiveData(OnboardingPage.WELCOME)
     val progress = MutableLiveData(1)
-    private var startFragment = StartFragment()
+    private val confirmationText = MutableLiveData<String>()
+    private var welcomeFragment = WelcomeFragment()
     private var typeSelectionFragment = TypeSelectionFragment()
     private var nameSettingFragment = NameSettingFragment()
+    private var pendingInvitationsFragment = PendingInvitationsFragment()
+    private var defaultSelectionFragment = DefaultSelectionFragment()
+    private var areAllArchivesAccepted = false
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+
+    init {
+        getPendingArchives()
+    }
+
+    private fun getPendingArchives() {
+        archiveRepository.getAllArchives(object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                if (!dataList.isNullOrEmpty()) {
+                    val pendingArchives: MutableList<Archive> = ArrayList()
+                    for (data in dataList) {
+                        val archive = Archive(data.ArchiveVO)
+                        if (archive.status == Status.PENDING) pendingArchives.add(archive)
+                    }
+                    if (pendingArchives.isNotEmpty()) {
+                        showFragment(pendingInvitationsFragment)
+                        onPendingArchivesRetrieved.value = pendingArchives
+                    } else {
+                        showFragment(welcomeFragment)
+                    }
+                } else {
+                    showFragment(welcomeFragment)
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                error?.let { showError.value = it }
+            }
+        })
+    }
+
+    private fun showFragment(fragment: Fragment) {
+        when (fragment) {
+            welcomeFragment -> {
+                currentPage.value = OnboardingPage.WELCOME
+                prefsHelper.saveArchiveOnboardingDefaultFlow(true)
+            }
+            typeSelectionFragment -> {
+                currentPage.value = OnboardingPage.TYPE_SELECTION
+                prefsHelper.saveArchiveOnboardingDefaultFlow(true)
+            }
+            nameSettingFragment -> {
+                currentPage.value = OnboardingPage.NAME_SETTING
+                prefsHelper.saveArchiveOnboardingDefaultFlow(true)
+            }
+            pendingInvitationsFragment -> {
+                currentPage.value = OnboardingPage.PENDING_INVITATIONS
+                prefsHelper.saveArchiveOnboardingDefaultFlow(false)
+            }
+            defaultSelectionFragment -> {
+                currentPage.value = OnboardingPage.DEFAULT_SELECTION
+                prefsHelper.saveArchiveOnboardingDefaultFlow(false)
+            }
+        }
+        onShowNextFragment.value = fragment
+    }
 
     fun onArchiveTypeBtnClick(archiveType: ArchiveType) {
         isArchiveSelected.value = true
@@ -69,25 +128,29 @@ class ArchiveOnboardingViewModel(application: Application) :
     }
 
     fun onGetStartedBtnClick() {
-        onNextFragmentRequired.value = typeSelectionFragment
-        currentPage.value = OnboardingPage.TYPE_SELECTION
+        showFragment(typeSelectionFragment)
         progress.value = progress.value?.plus(1)
     }
 
     fun onBackBtnClick() {
         if (currentPage.value == OnboardingPage.TYPE_SELECTION) {
-            onNextFragmentRequired.value = startFragment
-            currentPage.value = OnboardingPage.START
+            if (onPendingArchivesRetrieved.value?.isNotEmpty() == true) {
+                if (areAllArchivesAccepted) {
+                    showFragment(defaultSelectionFragment)
+                } else {
+                    showFragment(pendingInvitationsFragment)
+                }
+            } else {
+                showFragment(welcomeFragment)
+            }
         } else {
-            onNextFragmentRequired.value = typeSelectionFragment
-            currentPage.value = OnboardingPage.TYPE_SELECTION
+            showFragment(typeSelectionFragment)
         }
         progress.value = progress.value?.minus(1)
     }
 
     fun onNameArchiveBtnClick() {
-        onNextFragmentRequired.value = nameSettingFragment
-        currentPage.value = OnboardingPage.NAME_SETTING
+        showFragment(nameSettingFragment)
         progress.value = progress.value?.plus(1)
     }
 
@@ -148,7 +211,7 @@ class ArchiveOnboardingViewModel(application: Application) :
                         newArchive.thumbURL200,
                         newArchive.accessRole
                     )
-                    onArchiveCreated.call()
+                    onArchiveOnboardingDone.call()
                 }
 
                 override fun onFailed(error: String?) {
@@ -159,16 +222,81 @@ class ArchiveOnboardingViewModel(application: Application) :
         }
     }
 
+    fun onCreateNewArchiveBtnClick() {
+        onGetStartedBtnClick()
+    }
+
+    override fun onAcceptBtnClick(archive: Archive) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        archiveRepository.acceptArchives(listOf(archive), object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                archive.status = Status.OK
+                setNewArchiveAsDefault(archive)
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                error?.let { showError.value = it }
+                return
+            }
+        })
+    }
+
+    fun onAcceptAllBtnClick() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        val pendingArchives = onPendingArchivesRetrieved.value
+
+        if (!pendingArchives.isNullOrEmpty()) {
+            isBusy.value = true
+            archiveRepository.acceptArchives(pendingArchives, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    isBusy.value = false
+                    for (pendingArchive in pendingArchives) {
+                        pendingArchive.status = Status.OK
+                    }
+                    onPendingArchivesRetrieved.value = onPendingArchivesRetrieved.value
+                    showFragment(defaultSelectionFragment)
+                    confirmationText.value = appContext.getString(
+                        R.string.archive_onboarding_default_selection_text,
+                        pendingArchives.size.toString()
+                    )
+                    areAllArchivesAccepted = true
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    error?.let { showError.value = it }
+                    return
+                }
+            })
+        }
+    }
+
+    override fun onMakeDefaultBtnClick(archive: Archive) {
+        setNewArchiveAsDefault(archive)
+    }
+
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
     fun getShowMessage(): LiveData<String> = showMessage
     fun getShowError(): LiveData<String> = showError
 
+    fun getCurrentPage(): MutableLiveData<OnboardingPage> = currentPage
     fun getIsArchiveSelected(): MutableLiveData<Boolean> = isArchiveSelected
     fun getSelectedArchiveType(): MutableLiveData<ArchiveType> = selectedArchiveType
     fun getSelectedArchiveTypeTitle(): MutableLiveData<String> = selectedArchiveTypeTitle
     fun getSelectedArchiveTypeText(): MutableLiveData<String> = selectedArchiveTypeText
     fun getName(): MutableLiveData<String> = name
+    fun getConfirmationText(): MutableLiveData<String> = confirmationText
 
-    fun getOnNextFragmentRequired(): LiveData<Fragment> = onNextFragmentRequired
-    fun getOnArchiveCreated(): LiveData<Void> = onArchiveCreated
+    fun getOnArchivesRetrieved(): LiveData<List<Archive>> = onPendingArchivesRetrieved
+    fun getOnShowNextFragment(): LiveData<Fragment> = onShowNextFragment
+    fun getOnArchiveOnboardingDone(): LiveData<Void> = onArchiveOnboardingDone
 }

@@ -42,6 +42,7 @@ class UnauthorizedInterceptor : Interceptor {
                 if (response.code == 401 || rawJson.contains(ERROR_MFA_TOKEN)) {
                     Log.w(TAG, "Response code 401 or Requires MFA Token, redirecting to log in")
                     prefsHelper.saveUserLoggedIn(false)
+                    prefsHelper.saveDefaultArchiveId(0)
                     prefsHelper.saveBiometricsLogIn(true) // Setting back to default
                     val currentActivity = PermanentApplication.instance.currentActivity
                     currentActivity?.let {

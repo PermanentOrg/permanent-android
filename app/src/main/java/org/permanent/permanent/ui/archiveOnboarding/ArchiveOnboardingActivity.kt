@@ -26,7 +26,6 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var binding: ActivityArchiveOnboardingBinding
     private lateinit var viewModel: ArchiveOnboardingViewModel
-    private var startFragment = StartFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +37,6 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
 
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         setSupportActionBar(binding.toolbar)
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        showFragment(startFragment)
     }
 
     private fun showFragment(fragment: Fragment) {
@@ -68,12 +62,11 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
         snackBar.show()
     }
 
-    private val onNextFragmentRequired = Observer<Fragment> {
+    private val onShowNextFragment = Observer<Fragment> {
         showFragment(it)
     }
 
-    private val onArchiveCreated = Observer<Void> {
-        prefsHelper.saveArchiveOnboardingSeen(true)
+    private val onArchiveOnboardingDone = Observer<Void> {
         startActivity(Intent(this@ArchiveOnboardingActivity, MainActivity::class.java))
         finish()
     }
@@ -81,15 +74,15 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getShowError().observe(this, onShowError)
-        viewModel.getOnNextFragmentRequired().observe(this, onNextFragmentRequired)
-        viewModel.getOnArchiveCreated().observe(this, onArchiveCreated)
+        viewModel.getOnShowNextFragment().observe(this, onShowNextFragment)
+        viewModel.getOnArchiveOnboardingDone().observe(this, onArchiveOnboardingDone)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowError().removeObserver(onShowError)
-        viewModel.getOnNextFragmentRequired().removeObserver(onNextFragmentRequired)
-        viewModel.getOnArchiveCreated().removeObserver(onArchiveCreated)
+        viewModel.getOnShowNextFragment().removeObserver(onShowNextFragment)
+        viewModel.getOnArchiveOnboardingDone().removeObserver(onArchiveOnboardingDone)
     }
 
     override fun onResume() {
