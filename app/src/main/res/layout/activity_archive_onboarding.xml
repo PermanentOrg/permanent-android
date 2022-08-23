@@ -42,6 +42,7 @@
             android:max="3"
             android:progress="@{viewModel.progress}"
             android:progressTint="@color/colorPrimary"
+            android:visibility="@{viewModel.currentPage == OnboardingPage.PENDING_INVITATIONS || viewModel.currentPage == OnboardingPage.DEFAULT_SELECTION ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -91,7 +92,7 @@
             android:onClick="@{() -> viewModel.onGetStartedBtnClick()}"
             android:text="@string/onboarding_get_started_button"
             android:textSize="18sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.START ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{viewModel.currentPage == OnboardingPage.WELCOME ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -106,7 +107,7 @@
             android:onClick="@{() -> viewModel.onBackBtnClick()}"
             android:text="@string/archive_onboarding_back_button"
             android:textSize="16sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.START ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.currentPage == OnboardingPage.TYPE_SELECTION || viewModel.currentPage == OnboardingPage.NAME_SETTING ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -133,7 +134,6 @@
             style="@style/customButtonBottomSheetStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
             android:enabled="@{viewModel.name == null || viewModel.name.trim().isEmpty ? false : true}"
@@ -145,5 +145,58 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/btnBack" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/middleGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.50" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAcceptAll"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="24dp"
+            android:onClick="@{() -> viewModel.onAcceptAllBtnClick()}"
+            android:text="@string/archive_onboarding_accept_all_button"
+            android:textSize="16sp"
+            android:visibility="@{viewModel.currentPage == OnboardingPage.PENDING_INVITATIONS ? View.VISIBLE : View.GONE }"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/middleGuideline" />
+
+        <TextView
+            android:id="@+id/tvCreateNewArchive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:fontFamily="@font/open_sans_bold"
+            android:onClick="@{() -> viewModel.onCreateNewArchiveBtnClick()}"
+            android:text="@string/button_create_new_archive"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp"
+            android:visibility="@{viewModel.currentPage == OnboardingPage.PENDING_INVITATIONS ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnAcceptAll"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCreateNewArchive2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:fontFamily="@font/open_sans_bold"
+            android:onClick="@{() -> viewModel.onCreateNewArchiveBtnClick()}"
+            android:text="@string/button_create_new_archive"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp"
+            android:visibility="@{viewModel.currentPage == OnboardingPage.DEFAULT_SELECTION ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,5 +1,5 @@
 package org.permanent.permanent.ui.archiveOnboarding
 
 enum class OnboardingPage {
-    START, TYPE_SELECTION, NAME_SETTING
+    WELCOME, TYPE_SELECTION, NAME_SETTING, PENDING_INVITATIONS, DEFAULT_SELECTION
 }

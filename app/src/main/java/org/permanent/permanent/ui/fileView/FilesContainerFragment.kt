@@ -3,7 +3,7 @@ package org.permanent.permanent.ui.fileView
 import android.os.Bundle
 import android.view.*
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.permanent.PermissionsHelper
+import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFilesContainerBinding
 import org.permanent.permanent.models.Record
@@ -30,7 +30,7 @@ class FilesContainerFragment : PermanentBaseFragment() {
         binding.viewModel = viewModel
         setHasOptionsMenu(true)
         // Requesting permission for viewing files stored locally
-        val permissionHelper = PermissionsHelper()
+        val permissionHelper = DevicePermissionsHelper()
         if (!permissionHelper.hasReadStoragePermission(requireContext())) {
             permissionHelper.requestReadStoragePermission(this)
         }

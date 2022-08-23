@@ -472,7 +472,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun getArchivesByNr(archiveNrs: List<String?>): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addArchives(archiveNrs))
+        val request = toJson(RequestContainer().addArchiveNrs(archiveNrs))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.getArchivesByNr(requestBody)
     }
@@ -500,8 +500,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.getAllArchives(requestBody)
     }
 
-    fun acceptArchive(archive: Archive): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addArchive(archive))
+    fun acceptArchives(archive: List<Archive>): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addArchives(archive))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.acceptArchive(requestBody)
     }

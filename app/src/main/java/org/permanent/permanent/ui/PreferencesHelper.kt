@@ -8,11 +8,11 @@ import org.permanent.permanent.models.ArchiveType
 
 const val PREFS_NAME = "permanent_preferences"
 const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
-const val IS_USER_SIGNED_UP_IN_APP = "is_user_signed_up_in_app"
+const val IS_ARCHIVE_ONBOARDING_IN_APP = "is_archive_onboarding_done_in_app"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
-const val IS_ARCHIVE_ONBOARDING_SEEN = "is_archive_onboarding_seen"
+const val IS_ARCHIVE_ONBOARDING_DEFAULT_FLOW = "is_archive_onboarding_default_flow"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_ID = "preferences_public_record_folder_id"
@@ -48,26 +48,26 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_WELCOME_SEEN, false)
     }
 
-    fun isArchiveOnboardingSeen(): Boolean {
-        return sharedPreferences.getBoolean(IS_ARCHIVE_ONBOARDING_SEEN, false)
-    }
-
-    fun saveArchiveOnboardingSeen(isSeen: Boolean) {
+    fun saveArchiveOnboardingDefaultFlow(isDefault: Boolean) {
         with(sharedPreferences.edit()) {
-            putBoolean(IS_ARCHIVE_ONBOARDING_SEEN, isSeen)
+            putBoolean(IS_ARCHIVE_ONBOARDING_DEFAULT_FLOW, isDefault)
             apply()
         }
     }
 
-    fun saveUserSignedUpInApp() {
+    fun isArchiveOnboardingDefaultFlow(): Boolean {
+        return sharedPreferences.getBoolean(IS_ARCHIVE_ONBOARDING_DEFAULT_FLOW, false)
+    }
+
+    fun saveArchiveOnboardingDoneInApp(isDoneInApp: Boolean) {
         with(sharedPreferences.edit()) {
-            putBoolean(IS_USER_SIGNED_UP_IN_APP, true)
+            putBoolean(IS_ARCHIVE_ONBOARDING_IN_APP, isDoneInApp)
             apply()
         }
     }
 
-    fun isUserSignedUpInApp(): Boolean {
-        return sharedPreferences.getBoolean(IS_USER_SIGNED_UP_IN_APP, false)
+    fun isArchiveOnboardingDoneInApp(): Boolean {
+        return sharedPreferences.getBoolean(IS_ARCHIVE_ONBOARDING_IN_APP, false)
     }
 
     fun saveUserLoggedIn(isLoggedIn: Boolean) {

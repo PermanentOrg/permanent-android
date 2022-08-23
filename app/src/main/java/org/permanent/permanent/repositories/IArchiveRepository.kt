@@ -17,7 +17,7 @@ interface IArchiveRepository {
 
     fun getAllArchives(listener: IDataListener)
 
-    fun acceptArchive(archive: Archive, listener: IResponseListener)
+    fun acceptArchives(archives: List<Archive>, listener: IResponseListener)
 
     fun declineArchive(archive: Archive, listener: IResponseListener)
 

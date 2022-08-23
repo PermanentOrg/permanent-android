@@ -305,10 +305,23 @@ class RequestContainer {
         return this
     }
 
-    fun addArchives(archiveNrs: List<String?>): RequestContainer {
+    fun addArchiveNrs(archiveNrs: List<String?>): RequestContainer {
         for ((index, archiveNr) in archiveNrs.withIndex()) {
             val archiveVO = ArchiveVO()
             archiveVO.archiveNbr = archiveNr
+            if (index == 0) RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+            else {
+                val newData = Datum()
+                newData.ArchiveVO = archiveVO
+                (RequestVO.data as ArrayList).add(newData)
+            }
+        }
+        return this
+    }
+
+    fun addArchives(archives: List<Archive>): RequestContainer {
+        for ((index, archive) in archives.withIndex()) {
+            val archiveVO = ArchiveVO(archive)
             if (index == 0) RequestVO.data?.get(0)?.ArchiveVO = archiveVO
             else {
                 val newData = Datum()

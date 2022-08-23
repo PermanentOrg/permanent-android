@@ -68,7 +68,7 @@
     <string name="login_biometric_unlock_with_biometrics_button">Unlock with Biometrics</string>
     <string name="login_biometric_use_credentials_button">Use credentials instead</string>
     <string name="welcome_title">Congratulations on your first archive!</string>
-    <string name="welcome_text">Your archive is %s. You are the Owner of this archive.\n\n Get started by uploading your first files, or learn more about your new archive by viewing our help articles</string>
+    <string name="welcome_text">Your archive is %s. You are the Owner of this archive.\n\nGet started by uploading your first files, or learn more about your new archive by viewing our help articles.</string>
     <string name="nav_main_header_view_profile">View Profile</string>
     <string name="nav_settings_header_title_text">Logged in as:</string>
     <string name="nav_settings_header_storage_text">%s of %s used</string>
@@ -415,7 +415,7 @@
     <string name="archive_current_archive">Current Archive</string>
     <string name="archive_pending_archives">Pending Archives:</string>
     <string name="archive_choose_archive">Choose Archive:</string>
-    <string name="button_create_new_archive">Create new archive</string>
+    <string name="button_create_new_archive">Create New Archive</string>
     <string name="archive_accept_pending_archive_success">Archive accepted successfully.</string>
     <string name="archive_decline_pending_archive_success">Archive declined successfully.</string>
     <string name="archive_current_archive_switch_success">Archive switched successfully.</string>
@@ -457,7 +457,12 @@
     <string name="storage_dollar_sign">$</string>
 
     <string name="archive_onboarding_welcome_title">Welcome to Permanent!</string>
+    <string name="archive_onboarding_confirmation_title">Confirmation: Invitation Accepted</string>
     <string name="archive_onboarding_welcome_text">You’ve just taken the first step on a journey to preserving what matters the most to you by creating archives that can represent yourself, your family, or your community.\n\nNext, you’ll create your first archive. A Permanent archive is the collection of digital materials about an individual, family or group, or organizational entity.</string>
+    <string name="archive_onboarding_invitation_welcome_title">Invitation accepted</string>
+    <string name="archive_onboarding_invitation_welcome_text">Your default archive is %s. You can change your archive settings at any time through the menu in the upper right-hand corner.\n\nYou are a %s of this archive. This means you can %s items within this archive. Read more about roles for collaboration and sharing here: https://desk.zoho.com/portal/permanent/en/kb/articles/roles-for-collaboration-and-sharing</string>
+    <string name="archive_onboarding_pending_invitations_text">You’ve been invited to collaborate on an archive as an archive member. A Permanent archive is the collection of digital materials about an individual, family or group, or organizational entity. Get started by accepting an invitation, or by creating a new archive of your own.</string>
+    <string name="archive_onboarding_default_selection_text">Congratulations! You’ve joined %s archives. The last step is to choose which archive to set as your default, the first one you’ll see when you log in. Select your default archive below, or create a new one of your own to be your default.</string>
     <string name="archive_onboarding_type_selection_title">Create Your First Archive: Select Type</string>
     <string name="archive_onboarding_type_selection_text">You’ve just taken the first step on a journey to preserving what matters the most to you by creating archives that can represent yourself, your family, or your community.\n\nNext, you’ll create your first archive. A Permanent archive is the collection of digital materials about an individual, family or group, or organizational entity.\n\nWhat type of archive will this be? You can always change this later.</string>
     <string name="archive_onboarding_name_setting_title">Create Your First Archive: Name Your Archive</string>
@@ -471,7 +476,11 @@
     <string name="archive_onboarding_back_button">Back</string>
     <string name="archive_onboarding_name_archive_button">Next: Name Archive</string>
     <string name="archive_onboarding_create_archive_button">Create Archive</string>
+    <string name="archive_onboarding_accept_all_button">Accept All</string>
+    <string name="archive_onboarding_accept_button">Accept</string>
     <string name="archive_onboarding_the_label">The</string>
     <string name="archive_onboarding_archive_label">Archive</string>
     <string name="archive_onboarding_name_hint">Name</string>
+    <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
+    <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
 </resources>

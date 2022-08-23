@@ -8,7 +8,7 @@
         android:background="@color/colorPrimary">
 
         <TextView
-            android:id="@+id/tvWelcomeTitle"
+            android:id="@+id/tvWelcomeTitleWelcomeDialog"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -25,7 +25,7 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <TextView
-            android:id="@+id/tvWelcomeText"
+            android:id="@+id/tvWelcomeTextWelcomeDialog"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -35,10 +35,11 @@
             android:text="@string/welcome_text"
             android:textColor="@color/white"
             android:textSize="16sp"
+            android:autoLink="web"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvWelcomeTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvWelcomeTitleWelcomeDialog"
             app:layout_constraintVertical_bias="0.0" />
 
         <Button
@@ -64,7 +65,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvWelcomeText"
+            app:layout_constraintTop_toBottomOf="@+id/tvWelcomeTextWelcomeDialog"
             app:layout_constraintVertical_bias="0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

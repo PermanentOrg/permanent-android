@@ -4,19 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import org.permanent.permanent.databinding.FragmentArchiveOnboardingStartBinding
+import org.permanent.permanent.databinding.FragmentArchiveOnboardingWelcomeBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 
-class StartFragment : PermanentBaseFragment() {
+class WelcomeFragment : PermanentBaseFragment() {
 
-    private lateinit var binding: FragmentArchiveOnboardingStartBinding
+    private lateinit var binding: FragmentArchiveOnboardingWelcomeBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentArchiveOnboardingStartBinding.inflate(inflater, container, false)
+        binding = FragmentArchiveOnboardingWelcomeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
 

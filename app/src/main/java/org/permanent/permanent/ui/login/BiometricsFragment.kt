@@ -31,6 +31,7 @@ class BiometricsFragment : PermanentBaseFragment() {
         val prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         prefsHelper.saveUserLoggedIn(false)
+        prefsHelper.saveDefaultArchiveId(0)
         findNavController().navigate(R.id.action_biometricsFragment_to_signUpActivity)
     }
     private val onShowOpenSettingsQuestionDialog = Observer<Void> {
