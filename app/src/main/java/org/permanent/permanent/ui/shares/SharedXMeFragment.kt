@@ -56,12 +56,13 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[SharedXMeViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity())[SharedXMeViewModel::class.java]
         binding = FragmentSharedXMeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         viewModel.setLifecycleOwner(this)
+        viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
@@ -284,7 +285,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
         viewModel.getOnNewTemporaryFile().observe(this, onNewTemporaryFile)
         viewModel.getOnRootSharesNeeded().observe(this, onRootSharesNeeded)
-        viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
@@ -300,7 +300,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
         viewModel.getOnNewTemporaryFile().removeObserver(onNewTemporaryFile)
         viewModel.getOnRootSharesNeeded().removeObserver(onRootSharesNeeded)
-        viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
@@ -317,5 +316,10 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
     }
 }

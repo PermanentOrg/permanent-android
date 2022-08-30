@@ -13,6 +13,7 @@ class ItemVO {
     var accessRole: String? = null
     var thumbURL200: String? = null
     var thumbURL2000: String? = null
+    var ShareVOs: List<ShareVO>? = null
     var status: String? = null
     var FileVOs: List<FileVO>? = null
 }

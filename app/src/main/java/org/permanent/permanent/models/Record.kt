@@ -15,6 +15,7 @@ open class Record : Parcelable {
     var parentFolderLinkId: Int? = null
     var displayName: String? = null
     var displayDate: String? = null
+    var archiveFullName: String? = null
     var archiveThumbURL200: String? = null
     var showArchiveThumb: Boolean? = null
     var thumbURL200: String? = null
@@ -26,6 +27,7 @@ open class Record : Parcelable {
     var shares: MutableList<Share>? = null
     var displayFirstInCarousel = false
     var isProcessing = false
+    var displayInShares = false
 
     constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -37,6 +39,7 @@ open class Record : Parcelable {
         parentFolderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
         displayName = parcel.readString()
         displayDate = parcel.readString()
+        archiveFullName = parcel.readString()
         archiveThumbURL200 = parcel.readString()
         showArchiveThumb = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         thumbURL200 = parcel.readString()
@@ -47,6 +50,7 @@ open class Record : Parcelable {
         shares = parcel.createTypedArrayList(Share)
         displayFirstInCarousel = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         isProcessing = parcel.readValue(Boolean::class.java.classLoader) as Boolean
+        displayInShares = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
     constructor(recordInfo: RecordVO) {
@@ -67,6 +71,7 @@ open class Record : Parcelable {
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
+        displayInShares = false
     }
 
     constructor(recordInfo: FolderVO) {
@@ -86,26 +91,30 @@ open class Record : Parcelable {
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
+        displayInShares = false
     }
 
-    constructor(item: ItemVO, archive: ArchiveVO, showArchiveThumbnail: Boolean) {
-        id = if (item.folderId != null) item.folderId else item.recordId
-        archiveNr = item.archiveNbr
-        recordId = item.recordId
-        folderId = item.folderId
-        folderLinkId = item.folder_linkId
-        parentFolderLinkId = item.parentFolder_linkId
-        displayName = item.displayName
-        displayDate = item.displayDT?.substringBefore("T")
-        archiveThumbURL200 = archive.thumbURL200
+    constructor(itemVO: ItemVO, archiveVO: ArchiveVO, showArchiveThumbnail: Boolean) {
+        id = if (itemVO.folderId != null) itemVO.folderId else itemVO.recordId
+        archiveNr = itemVO.archiveNbr
+        recordId = itemVO.recordId
+        folderId = itemVO.folderId
+        folderLinkId = itemVO.folder_linkId
+        parentFolderLinkId = itemVO.parentFolder_linkId
+        displayName = itemVO.displayName
+        displayDate = itemVO.displayDT?.substringBefore("T")
+        archiveFullName = "The ${archiveVO.fullName} Archive"
+        archiveThumbURL200 = archiveVO.thumbURL200
         showArchiveThumb = showArchiveThumbnail
-        thumbURL200 = item.thumbURL200
-        thumbURL2000 = item.thumbURL2000
+        thumbURL200 = itemVO.thumbURL200
+        thumbURL2000 = itemVO.thumbURL2000
         isThumbBlurred = false
-        type = if (item.folderId != null) RecordType.FOLDER else RecordType.FILE
-        accessRole = AccessRole.createFromBackendString(item.accessRole)
+        type = if (itemVO.folderId != null) RecordType.FOLDER else RecordType.FILE
+        accessRole = AccessRole.createFromBackendString(itemVO.accessRole)
+        initShares(itemVO.ShareVOs)
         displayFirstInCarousel = false
-        isProcessing = item.thumbURL200.isNullOrEmpty()
+        isProcessing = itemVO.thumbURL200.isNullOrEmpty()
+        displayInShares = true
     }
 
     constructor(recordId: Int, folderLinkId: Int) {
@@ -116,6 +125,7 @@ open class Record : Parcelable {
         type = RecordType.FILE
         displayFirstInCarousel = false
         isProcessing = false
+        displayInShares = false
     }
 
     constructor(shareByUrlVO: Shareby_urlVO) {
@@ -135,6 +145,7 @@ open class Record : Parcelable {
         initShares(recordInfo?.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = recordInfo?.thumbURL200.isNullOrEmpty()
+        displayInShares = false
     }
 
     private fun initShares(shareVOs: List<ShareVO>?) {
@@ -162,6 +173,7 @@ open class Record : Parcelable {
         parcel.writeValue(parentFolderLinkId)
         parcel.writeString(displayName)
         parcel.writeString(displayDate)
+        parcel.writeString(archiveFullName)
         parcel.writeString(archiveThumbURL200)
         parcel.writeValue(showArchiveThumb)
         parcel.writeString(thumbURL200)
@@ -172,6 +184,7 @@ open class Record : Parcelable {
         parcel.writeTypedList(shares)
         parcel.writeValue(displayFirstInCarousel)
         parcel.writeValue(isProcessing)
+        parcel.writeValue(displayInShares)
     }
 
     override fun describeContents(): Int {
