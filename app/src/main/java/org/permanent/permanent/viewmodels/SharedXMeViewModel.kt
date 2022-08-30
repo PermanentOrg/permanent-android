@@ -154,7 +154,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showMessage.value = error
+                        error?.let { showMessage.value = it }
                     }
                 })
         }
@@ -189,7 +189,9 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     private fun getRecords(recordVOs: List<RecordVO>): MutableList<Record> {
         val records = ArrayList<Record>()
         for (recordVO in recordVOs) {
-            records.add(Record(recordVO))
+            val record = Record(recordVO)
+            record.displayInShares = true
+            records.add(record)
         }
         return records
     }

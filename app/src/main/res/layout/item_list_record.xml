@@ -85,11 +85,111 @@
                     app:layout_constraintVertical_bias="0.0" />
 
                 <ImageView
+                    android:id="@+id/ivArchive1Thumb"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toStartOf="@+id/tvDate"
+                    app:layout_constraintTop_toBottomOf="@+id/tvDate"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 0 ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 0 ? record.shares.get(0).archive.thumbURL200 : null}" />
+
+                <ImageView
+                    android:id="@+id/ivArchive2Thumb"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="2dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toEndOf="@+id/ivArchive1Thumb"
+                    app:layout_constraintTop_toTopOf="@+id/ivArchive1Thumb"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 1 ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 1 ? record.shares.get(1).archive.thumbURL200 : null}" />
+
+                <ImageView
+                    android:id="@+id/ivArchive3Thumb"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="2dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toEndOf="@+id/ivArchive2Thumb"
+                    app:layout_constraintTop_toTopOf="@+id/ivArchive2Thumb"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 2 ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 2 ? record.shares.get(2).archive.thumbURL200 : null}" />
+
+                <ImageView
+                    android:id="@+id/ivArchive4Thumb"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="2dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toEndOf="@+id/ivArchive3Thumb"
+                    app:layout_constraintTop_toTopOf="@+id/ivArchive3Thumb"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 3 ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 3 ? record.shares.get(3).archive.thumbURL200 : null}" />
+
+                <ImageView
+                    android:id="@+id/ivArchive5Thumb"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="2dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toEndOf="@+id/ivArchive4Thumb"
+                    app:layout_constraintTop_toTopOf="@+id/ivArchive4Thumb"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 4 ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 4 ? record.shares.get(4).archive.thumbURL200 : null}" />
+
+                <ImageView
+                    android:id="@+id/ivArchive6Thumb"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="2dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toEndOf="@+id/ivArchive5Thumb"
+                    app:layout_constraintTop_toTopOf="@+id/ivArchive5Thumb"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 5 ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 5 ? record.shares.get(5).archive.thumbURL200 : null}" />
+
+                <TextView
+                    android:id="@+id/tvExtraArchivesNr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:text="@{'+' + Integer.toString(record.shares.size() - 6)}"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 6 ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintStart_toEndOf="@+id/ivArchive6Thumb"
+                    app:layout_constraintTop_toTopOf="@+id/ivArchive6Thumb"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <ImageView
+                    android:id="@+id/ivArchiveThumb"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toStartOf="@+id/tvDate"
+                    app:layout_constraintTop_toBottomOf="@+id/tvDate"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.showArchiveThumb &amp;&amp; record.archiveThumbURL200 != null ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{record.archiveThumbURL200}" />
+
+                <TextView
+                    android:id="@+id/tvArchiveName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:text="@{record.archiveFullName}"
+                    android:visibility="@{record.displayInShares &amp;&amp; record.showArchiveThumb &amp;&amp; record.archiveFullName != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
+                    app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
+
+                <ImageView
                     android:id="@+id/ivMembers"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:layout_marginStart="4dp"
-                    android:visibility="@{record.shares == null || record.shares.size() == 0 ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{record.displayInShares == false &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 0 ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tvDate"
                     app:layout_constraintTop_toTopOf="@+id/guideline"
