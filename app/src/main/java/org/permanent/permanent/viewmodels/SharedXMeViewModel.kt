@@ -59,7 +59,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
     private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onRootSharesNeeded = SingleLiveEvent<Void>()
-    private val onChangeViewMode = SingleLiveEvent<Boolean>()
+    private val onChangeViewMode = MutableLiveData<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onFileViewRequest = SingleLiveEvent<Record>()
@@ -311,7 +311,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun getOnRootSharesNeeded(): LiveData<Void> = onRootSharesNeeded
 
-    fun getOnChangeViewMode(): SingleLiveEvent<Boolean> = onChangeViewMode
+    fun getOnChangeViewMode(): MutableLiveData<Boolean> = onChangeViewMode
 
     fun getOnFileViewRequest(): LiveData<Record> = onFileViewRequest
 
