@@ -17,12 +17,17 @@ import androidx.work.WorkManager
 import org.permanent.permanent.*
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IShareRepository
+import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.RelocationType
 import retrofit2.Call
@@ -38,37 +43,63 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
-    private var record: Record? = null
+    private val showSnackbar = MutableLiveData<String>()
+    private val showSnackbarSuccess = MutableLiveData<String>()
+    private lateinit var record: Record
+    private lateinit var workspace: Workspace
+    private val isFragmentShownInSharedWithMe = MutableLiveData(false)
     private var fileData: FileData? = null
     private var download: Download? = null
     private val recordName = MutableLiveData<String>()
+    private val allSharesSize = MutableLiveData(0)
+    private val recordPermission = MutableLiveData<String>()
+    private val sharedWithBtnTxt = MutableLiveData<String>()
+    private val shareableLink = MutableLiveData("")
     private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
+    private val allShares = mutableListOf<Share>()
+    private val onSharesRetrieved = SingleLiveEvent<MutableList<Share>>()
     private val onRequestWritePermission = SingleLiveEvent<Void>()
     private val onFileDownloadRequest = SingleLiveEvent<Void>()
     private val onDeleteRequest = SingleLiveEvent<Void>()
     private val onRenameRequest = SingleLiveEvent<Void>()
-    private val onShareViaPermanentRequest = SingleLiveEvent<Void>()
+    private val onShareManagementRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
     private val onRelocateRequest = MutableLiveData<RelocationType>()
     private val onPublishRequest = SingleLiveEvent<Void>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+    private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
-    fun setRecord(
-        record: Record?,
-        isShownInMyFilesFragment: Boolean?,
-        isShownInPublicFilesFragment: Boolean?,
-        isShownInSharesFragment: Boolean?
+    fun initWith(
+        record: Record,
+        workspace: Workspace,
+        isShownInSharedWithMe: Boolean
     ) {
         this.record = record
-        recordName.value = record?.displayName
-        if (record?.type == RecordType.FOLDER) {
+        this.workspace = workspace
+        this.isFragmentShownInSharedWithMe.value = isShownInSharedWithMe
+        recordName.value = record.displayName
+        recordPermission.value =
+            record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole())
+                ?.toTitleCase()
+        initShares(record)
+        updateSharedWithBtnTxt(allShares.size)
+        if (workspace == Workspace.PRIVATE_FILES) {
+            checkForExistingLink(record)
+        } else {
+            shareableLink.value =
+                if (record.type == RecordType.FILE) BuildConfig.BASE_URL + "p/archive/" +
+                        prefsHelper.getCurrentArchiveNr() + "/" + record.parentFolderArchiveNr + "/" +
+                        record.parentFolderLinkId + "/record/" + record.archiveNr
+                else BuildConfig.BASE_URL + "p/archive/" + prefsHelper.getCurrentArchiveNr() + "/" +
+                        record.archiveNr + "/" + record.folderLinkId
+        }
+
+        if (record.type == RecordType.FOLDER) {
             hiddenOptions.value?.add(RecordOption.DOWNLOAD)
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
         }
-        if (isShownInMyFilesFragment == true) {
-            hiddenOptions.value?.add(RecordOption.COPY_LINK)
+        if (workspace == Workspace.PRIVATE_FILES) {
             if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
             if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
@@ -81,7 +112,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
                 hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             if (!CurrentArchivePermissionsManager.instance.isPublishAvailable())
                 hiddenOptions.value?.add(RecordOption.PUBLISH)
-        } else if (isShownInPublicFilesFragment == true) {
+        } else if (workspace == Workspace.PUBLIC_FILES) {
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
@@ -92,7 +123,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
                 hiddenOptions.value?.add(RecordOption.MOVE)
             if (!CurrentArchivePermissionsManager.instance.isEditAvailable())
                 hiddenOptions.value?.add(RecordOption.RENAME)
-        } else if (isShownInSharesFragment == true) {
+        } else if (workspace == Workspace.SHARES) {
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.COPY_LINK)
             hiddenOptions.value?.add(RecordOption.DELETE)
@@ -110,6 +141,30 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.COPY)
             hiddenOptions.value?.add(RecordOption.RENAME)
         }
+    }
+
+    private fun updateSharedWithBtnTxt(sharesSize: Int?) {
+        sharesSize?.minus(DEFAULT_NR_OF_VISIBLE_SHARES)?.let {
+            sharedWithBtnTxt.value =
+                appContext.getString(R.string.file_options_shared_with_x_more_archives, it)
+        }
+    }
+
+    private fun initShares(record: Record?) {
+        record?.shares?.let {
+            allShares.addAll(it)
+            allSharesSize.value = allShares.size
+
+            if (allShares.size != 0) updateSharesUI()
+        }
+    }
+
+    private fun updateSharesUI() {
+        val fewShares = mutableListOf<Share>()
+
+        if (allShares.size > 0) fewShares.add(allShares[0])
+        if (allShares.size > 1) fewShares.add(allShares[1])
+        onSharesRetrieved.value = fewShares
     }
 
     fun onDownloadBtnClick() {
@@ -143,18 +198,18 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onCopyLinkBtnClick() {
-        val sharableLink =
-            if (record?.type == RecordType.FILE) BuildConfig.BASE_URL + "p/archive/" +
-                    prefsHelper.getCurrentArchiveNr() + "/" + record?.parentFolderArchiveNr + "/" +
-                    record?.parentFolderLinkId + "/record/" + record?.archiveNr
-            else BuildConfig.BASE_URL + "p/archive/" + prefsHelper.getCurrentArchiveNr() + "/" +
-                    record?.archiveNr + "/" + record?.folderLinkId
-        val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboard =
+            appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_link_share_link_title), sharableLink
+            appContext.getString(R.string.share_link_share_link_title),
+            shareableLink.value.toString()
         )
         clipboard.setPrimaryClip(clip)
-        showMessage.value = appContext.getString(R.string.share_link_link_copied)
+        showSnackbarSuccess.value = appContext.getString(R.string.share_link_link_copied)
+    }
+
+    fun onSharedWithBtnClick() {
+        onSharesRetrieved.value = allShares
     }
 
     fun onDeleteBtnClick() {
@@ -165,25 +220,64 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         onRenameRequest.call()
     }
 
+    private fun checkForExistingLink(record: Record) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        shareRepository.requestShareLink(record, ShareRequestType.GET,
+            object : IShareRepository.IShareByUrlListener {
+                override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
+                    isBusy.value = false
+                    shareByUrlVO?.shareUrl?.let { shareableLink.value = it }
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                }
+            })
+    }
+
     fun onShareViaPermanentBtnClick() {
-        onShareViaPermanentRequest.call()
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        shareRepository.requestShareLink(record, ShareRequestType.GENERATE,
+            object : IShareRepository.IShareByUrlListener {
+                override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
+                    isBusy.value = false
+                    shareByUrlVO?.shareUrl?.let { shareableLink.value = it }
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    error?.let { showSnackbar.value = it }
+                }
+            })
+    }
+
+    fun onShareManagementBtnClick() {
+        onShareManagementRequest.call()
     }
 
     fun publishRecord() {
         val folderLinkId = prefsHelper.getPublicRecordFolderLinkId()
 
-        if (record != null && folderLinkId != 0) {
+        if (folderLinkId != 0) {
             isBusy.value = true
-            fileRepository.relocateRecord(record!!, folderLinkId, RelocationType.PUBLISH,
+            fileRepository.relocateRecord(record, folderLinkId, RelocationType.PUBLISH,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
-                        message?.let { showMessage.value = it }
+                        message?.let { showSnackbarSuccess.value = it }
                     }
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        error?.let {showMessage.value = it }
+                        error?.let { showSnackbar.value = it }
                     }
                 })
         }
@@ -191,8 +285,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun onShareToAnotherAppBtnClick() {
         // Requesting FileData
-        val folderLinkId = record?.folderLinkId
-        val recordId = record?.recordId
+        val folderLinkId = record.folderLinkId
+        val recordId = record.recordId
 
         if (folderLinkId != null && recordId != null) {
             isBusy.value = true
@@ -206,18 +300,16 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
                     isBusy.value = false
-                    showMessage.value = t.message
+                    showSnackbar.value = t.message
                 }
             })
         }
     }
 
     fun downloadFileForSharing(lifecycleOwner: LifecycleOwner) {
-        record?.let { record ->
-            download = Download(appContext, record, this)
-            download?.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
-            download?.observeWorkInfoOn(lifecycleOwner)
-        }
+        download = Download(appContext, record, this)
+        download?.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
+        download?.observeWorkInfoOn(lifecycleOwner)
     }
 
     fun cancelDownload() {
@@ -228,7 +320,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         if (state == WorkInfo.State.SUCCEEDED) onFileDownloadedForSharing.value =
             fileData?.contentType
         else if (state == WorkInfo.State.FAILED)
-            showMessage.value = appContext.getString(R.string.generic_error)
+            showSnackbar.value = appContext.getString(R.string.generic_error)
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {}
@@ -295,13 +387,31 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
+
+    fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
 
     fun getOnFileDownloadedForSharing(): LiveData<String> = onFileDownloadedForSharing
 
-    fun getName(): MutableLiveData<String> = recordName
+    fun getRecord(): Record = record
+
+    fun getWorkspace(): Workspace = workspace
+
+    fun getIsFragmentShownInSharedWithMe(): MutableLiveData<Boolean> = isFragmentShownInSharedWithMe
+
+    fun getRecordName(): MutableLiveData<String> = recordName
+
+    fun getSharesSize(): MutableLiveData<Int> = allSharesSize
+
+    fun getRecordPermission(): MutableLiveData<String> = recordPermission
+
+    fun getSharedWithBtnTxt(): MutableLiveData<String> = sharedWithBtnTxt
+
+    fun getShareableLink(): MutableLiveData<String> = shareableLink
 
     fun getHiddenOptions(): MutableLiveData<MutableList<RecordOption>> = hiddenOptions
+
+    fun getOnSharesRetrieved(): MutableLiveData<MutableList<Share>> = onSharesRetrieved
 
     fun getOnRequestWritePermission(): MutableLiveData<Void> = onRequestWritePermission
 
@@ -315,7 +425,11 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnRenameRequest(): MutableLiveData<Void> = onRenameRequest
 
-    fun getOnShareViaPermanentRequest(): MutableLiveData<Void> = onShareViaPermanentRequest
+    fun getOnShareManagementRequest(): MutableLiveData<Void> = onShareManagementRequest
 
     fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
+
+    companion object {
+        const val DEFAULT_NR_OF_VISIBLE_SHARES = 2
+    }
 }

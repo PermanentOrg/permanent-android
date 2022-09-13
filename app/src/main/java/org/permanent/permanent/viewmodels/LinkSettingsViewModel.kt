@@ -10,6 +10,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.ShareByUrl
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
+import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 
@@ -40,44 +41,16 @@ class LinkSettingsViewModel(application: Application) : ObservableAndroidViewMod
         shareByUrl.expiresDT.let { expirationDate.value = it }
     }
 
-    fun getSharePreview(): MutableLiveData<Boolean> {
-        return sharePreview
-    }
-
     fun onSharePreviewChanged(checked: Boolean) {
         this.sharePreview.value = checked
-    }
-
-    fun getAutoApprove(): MutableLiveData<Boolean> {
-        return autoApprove
     }
 
     fun onAutoApproveChanged(checked: Boolean) {
         this.autoApprove.value = checked
     }
 
-    fun getMaxUses(): MutableLiveData<String> {
-        return maxUses
-    }
-
     fun onMaxUsesChanged(maxUses: Editable) {
         this.maxUses.value = maxUses.toString().trim { it <= ' ' }
-    }
-
-    fun getExpirationDate(): MutableLiveData<String> {
-        return expirationDate
-    }
-
-    fun getShowDatePicker(): LiveData<Void> {
-        return showDatePicker
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
     }
 
     fun onExpirationDateClick() {
@@ -98,7 +71,7 @@ class LinkSettingsViewModel(application: Application) : ObservableAndroidViewMod
         shareByUrl.expiresDT = expirationDate.value
 
         isBusy.value = true
-        shareRepository.modifyShareLink(shareByUrl.getShareByUrlVO(), ShareRequestType.UPDATE,
+        shareRepository.modifyShareLink(Shareby_urlVO(shareByUrl), ShareRequestType.UPDATE,
             object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
@@ -111,4 +84,18 @@ class LinkSettingsViewModel(application: Application) : ObservableAndroidViewMod
                 }
             })
     }
+
+    fun getSharePreview(): MutableLiveData<Boolean> = sharePreview
+
+    fun getAutoApprove(): MutableLiveData<Boolean> = autoApprove
+
+    fun getMaxUses(): MutableLiveData<String> = maxUses
+
+    fun getExpirationDate(): MutableLiveData<String> = expirationDate
+
+    fun getShowDatePicker(): LiveData<Void> = showDatePicker
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getShowMessage(): LiveData<String> = showMessage
 }

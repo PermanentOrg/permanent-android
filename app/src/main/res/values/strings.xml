@@ -193,15 +193,20 @@
     <string name="public_gallery_no_public_archives_title">None of your archives are public.</string>
     <string name="public_gallery_no_public_archives_subtitle">Learn how to publish an archive</string>
 
-    <string name="file_options_menu_item_download">Download</string>
-    <string name="file_options_menu_item_copy">Copy</string>
-    <string name="file_options_menu_item_move">Move</string>
-    <string name="file_options_menu_item_publish">Publish</string>
-    <string name="file_options_menu_item_copy_link">Copy Link</string>
+    <string name="file_options_menu_item_download_to_device">Download to device</string>
+    <string name="file_options_menu_item_copy">Copy to another location</string>
+    <string name="file_options_menu_item_move">Move to another location</string>
     <string name="file_options_menu_item_delete">Delete</string>
     <string name="file_options_menu_item_rename">Rename</string>
+    <string name="file_options_menu_item_publish">Publish</string>
+    <string name="file_options_menu_item_copy_link">Copy Link</string>
+    <string name="file_options_menu_item_share_link_via_permanent">Share link via Permanent</string>
     <string name="file_options_menu_item_share_via_permanent">Share via Permanent</string>
-    <string name="file_options_menu_item_share_to_another_app">Share to Another App</string>
+    <string name="file_options_menu_item_share_management">Share management</string>
+    <string name="file_options_menu_item_share_to_another_app">Share to another app</string>
+    <string name="file_options_permission">Permission:</string>
+    <string name="file_options_shared_with">Shared with:</string>
+    <string name="file_options_shared_with_x_more_archives">Shared with %d more archives</string>
     <string name="rename_record_name_hint">Name</string>
     <string name="rename_record_title">Rename \"%s\"</string>
     <string name="rename_record_rename_success">Record renamed successfully</string>

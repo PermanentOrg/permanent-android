@@ -1,162 +1,392 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <import type="android.view.View" />
+
         <import type="org.permanent.permanent.models.RecordOption" />
+        <import type="org.permanent.permanent.ui.Workspace" />
+
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.RecordOptionsViewModel" />
     </data>
 
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clBottomMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+        <ImageView
+            android:id="@+id/ivRecordThumb"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@+id/clContent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:record="@{viewModel.record}" />
 
         <TextView
             android:id="@+id/tvFileName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="12dp"
-            android:text="@{viewModel.getName()}"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:layout_marginBottom="16dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/open_sans_semibold"
+            android:maxLines="1"
+            android:text="@{viewModel.recordName}"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@id/ivRecordThumb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/ivRecordThumb"
+            app:layout_constraintTop_toTopOf="@id/ivRecordThumb" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/white"
+            android:padding="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clBottomButtons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="24dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFileName">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDownload"
-                style="@style/customButtonBottomSheetStyle"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvPermissionLabel"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> viewModel.onDownloadBtnClick()}"
-                android:text="@string/file_options_menu_item_download"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.DOWNLOAD)? View.GONE : View.VISIBLE}"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="6dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans_bold"
+                android:maxLines="1"
+                android:text="@string/file_options_permission"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:visibility="@{viewModel.isFragmentShownInSharedWithMe ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCopy"
-                style="@style/customButtonBottomSheetStyle"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvPermission"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onCopyBtnClick()}"
-                android:text="@string/file_options_menu_item_copy"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.COPY)? View.GONE : View.VISIBLE}"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="6dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans"
+                android:maxLines="1"
+                android:text="@{viewModel.recordPermission}"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:visibility="@{viewModel.isFragmentShownInSharedWithMe ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnDownload" />
+                app:layout_constraintTop_toBottomOf="@+id/tvPermissionLabel" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMove"
-                style="@style/customButtonBottomSheetStyle"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvSharedWithLabel"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onMoveBtnClick()}"
-                android:text="@string/file_options_menu_item_move"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.MOVE)? View.GONE : View.VISIBLE}"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="6dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans_bold"
+                android:maxLines="1"
+                android:text="@string/file_options_shared_with"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:visibility="@{viewModel.sharesSize > 0 ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnCopy" />
+                app:layout_constraintTop_toBottomOf="@+id/tvPermission" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPublish"
-                style="@style/customButtonBottomSheetStyle"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvShares"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onPublishBtnClick()}"
-                android:text="@string/file_options_menu_item_publish"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.PUBLISH)? View.GONE : View.VISIBLE}"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="4dp"
+                android:visibility="@{viewModel.sharesSize > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvSharedWithLabel" />
+
+            <Button
+                android:id="@+id/btnSharedWith"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="6dp"
+                android:fontFamily="@font/open_sans"
+                android:insetLeft="2dp"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
+                android:onClick="@{() -> viewModel.onSharedWithBtnClick()}"
+                android:text="@{viewModel.sharedWithBtnTxt}"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:visibility="@{viewModel.sharesSize > 2 ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnMove" />
+                app:layout_constraintTop_toBottomOf="@+id/rvShares"
+                app:strokeColor="@color/black" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCopyLink"
-                style="@style/customButtonBottomSheetStyle"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvLink"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/share_link_background_color"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:onClick="@{() -> viewModel.onCopyLinkBtnClick()}"
-                android:text="@string/file_options_menu_item_copy_link"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.COPY_LINK)? View.GONE : View.VISIBLE}"
+                android:padding="12dp"
+                android:paddingStart="38dp"
+                android:text="@{viewModel.shareableLink}"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                android:textStyle="normal"
+                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.COPY_LINK) || viewModel.shareableLink.isEmpty ? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnPublish" />
+                app:layout_constraintTop_toBottomOf="@+id/btnSharedWith" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDelete"
-                style="@style/customButtonBottomSheetStyle"
+            <ImageView
+                android:id="@+id/ivLink"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:padding="2dp"
+                android:scaleType="centerInside"
+                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.COPY_LINK) || viewModel.shareableLink.isEmpty ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="@+id/tvLink"
+                app:layout_constraintStart_toStartOf="@+id/tvLink"
+                app:layout_constraintTop_toTopOf="@+id/tvLink"
+                app:srcCompat="@drawable/ic_copy"
+                app:tint="@color/colorPrimary"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clButtons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:backgroundTint="@color/deepRed"
-                android:onClick="@{() -> viewModel.onDeleteBtnClick()}"
-                android:text="@string/file_options_menu_item_delete"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.DELETE)? View.GONE : View.VISIBLE}"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnCopyLink" />
+                app:layout_constraintTop_toBottomOf="@id/tvLink">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRename"
-                style="@style/customButtonBottomSheetStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onRenameBtnClick()}"
-                android:text="@string/file_options_menu_item_rename"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.RENAME)? View.GONE : View.VISIBLE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnDelete" />
+                <Button
+                    android:id="@+id/btnDownload"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:onClick="@{() -> viewModel.onDownloadBtnClick()}"
+                    android:text="@string/file_options_menu_item_download_to_device"
+                    android:textAlignment="textStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.DOWNLOAD)? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_download"
+                    app:iconSize="26dp"
+                    app:iconTint="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnShareViaPermanent"
-                style="@style/customButtonBottomSheetStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onShareViaPermanentBtnClick()}"
-                android:text="@string/file_options_menu_item_share_via_permanent"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_VIA_PERMANENT)? View.GONE : View.VISIBLE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnRename" />
+                <Button
+                    android:id="@+id/btnCopy"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:onClick="@{() -> viewModel.onCopyBtnClick()}"
+                    android:text="@string/file_options_menu_item_copy"
+                    android:textAlignment="textStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.COPY)? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_copy"
+                    app:iconSize="26dp"
+                    app:iconTint="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btnDownload" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnShareToAnotherApp"
-                style="@style/customButtonBottomSheetStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:onClick="@{() -> viewModel.onShareToAnotherAppBtnClick()}"
-                android:text="@string/file_options_menu_item_share_to_another_app"
-                android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_TO_ANOTHER_APP)? View.GONE : View.VISIBLE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnShareViaPermanent" />
+                <Button
+                    android:id="@+id/btnMove"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:onClick="@{() -> viewModel.onMoveBtnClick()}"
+                    android:text="@string/file_options_menu_item_move"
+                    android:textAlignment="textStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.MOVE)? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_move"
+                    app:iconSize="26dp"
+                    app:iconTint="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btnCopy" />
+
+                <Button
+                    android:id="@+id/btnDelete"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:onClick="@{() -> viewModel.onDeleteBtnClick()}"
+                    android:text="@string/file_options_menu_item_delete"
+                    android:textAlignment="textStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.DELETE)? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_delete"
+                    app:iconSize="26dp"
+                    app:iconTint="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btnMove" />
+
+                <Button
+                    android:id="@+id/btnRename"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:onClick="@{() -> viewModel.onRenameBtnClick()}"
+                    android:text="@string/file_options_menu_item_rename"
+                    android:textAlignment="textStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.RENAME)? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_rename"
+                    app:iconSize="26dp"
+                    app:iconTint="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btnDelete" />
+
+                <Button
+                    android:id="@+id/btnPublish"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:onClick="@{() -> viewModel.onPublishBtnClick()}"
+                    android:text="@string/file_options_menu_item_publish"
+                    android:textAlignment="textStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.PUBLISH)? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_publish"
+                    app:iconSize="26dp"
+                    app:iconTint="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btnRename" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clShareLink"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_VIA_PERMANENT) ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btnPublish">
+
+                    <Button
+                        android:id="@+id/btnShareViaPermanent"
+                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/open_sans"
+                        android:onClick="@{() -> viewModel.onShareViaPermanentBtnClick()}"
+                        android:text="@string/file_options_menu_item_share_link_via_permanent"
+                        android:textAlignment="textStart"
+                        android:textAllCaps="false"
+                        android:textColor="@color/black"
+                        android:visibility="@{viewModel.shareableLink.isEmpty == false ? View.GONE : View.VISIBLE}"
+                        app:icon="@drawable/ic_share_via_permanent"
+                        app:iconSize="26dp"
+                        app:iconTint="@color/black"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Button
+                        android:id="@+id/btnShareManagement"
+                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/open_sans"
+                        android:onClick="@{() -> viewModel.onShareManagementBtnClick()}"
+                        android:text="@string/file_options_menu_item_share_management"
+                        android:textAlignment="textStart"
+                        android:textAllCaps="false"
+                        android:textColor="@color/black"
+                        android:visibility="@{viewModel.shareableLink.isEmpty ? View.GONE : View.VISIBLE}"
+                        app:icon="@drawable/ic_link_settings"
+                        app:iconSize="26dp"
+                        app:iconTint="@color/black"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <Button
+                    android:id="@+id/btnShareToAnotherApp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:onClick="@{() -> viewModel.onShareToAnotherAppBtnClick()}"
+                    android:text="@string/file_options_menu_item_share_to_another_app"
+                    android:textAlignment="textStart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.SHARE_TO_ANOTHER_APP)? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_share"
+                    app:iconSize="26dp"
+                    app:iconTint="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/clShareLink" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressBar"
@@ -172,4 +402,5 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
 </layout>

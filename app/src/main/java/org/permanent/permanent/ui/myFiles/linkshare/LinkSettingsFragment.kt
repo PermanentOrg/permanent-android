@@ -33,7 +33,7 @@ class LinkSettingsFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(LinkSettingsViewModel::class.java)
+        viewModel = ViewModelProvider(this)[LinkSettingsViewModel::class.java]
         binding = FragmentLinkSettingsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

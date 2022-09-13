@@ -15,7 +15,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,10 +28,7 @@ import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.hideKeyboardFrom
+import org.permanent.permanent.ui.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.shares.PreviewState
@@ -183,18 +179,13 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onShowRecordOptionsFragment = Observer<Record> {
         recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(
-            it,
-            isShownInMyFilesFragment = true,
-            isShownInPublicFilesFragment = false,
-            isShownInSharesFragment = false
-        )
+        recordOptionsFragment?.setBundleArguments(it, Workspace.PRIVATE_FILES)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareViaPermanentRequest()
-            ?.observe(this, onRecordShareViaPermanentRequest)
+        recordOptionsFragment?.getOnRecordShareManagementRequest()
+            ?.observe(this, onRecordShareManagementObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
 
@@ -273,8 +264,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         onPhotoSelectedEvent.value = it
     }
 
-    private val onRecordShareViaPermanentRequest = Observer<Record> { record ->
-        navigateToShareLinkFragment(record)
+    private val onRecordShareManagementObserver = Observer<Record> {
+        navigateToShareLinkFragment(it)
     }
 
     private fun navigateToShareLinkFragment(record: Record?) {
@@ -356,12 +347,6 @@ class MyFilesFragment : PermanentBaseFragment() {
                 layoutManager = GridLayoutManager(context, 2)
             }
             adapter = recordsAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL
-                )
-            )
             setHasFixedSize(true)
         }
     }
@@ -412,8 +397,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareViaPermanentRequest()
-            ?.removeObserver(onRecordShareViaPermanentRequest)
+        recordOptionsFragment?.getOnRecordShareManagementRequest()
+            ?.removeObserver(onRecordShareManagementObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }

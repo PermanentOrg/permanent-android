@@ -29,6 +29,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
@@ -46,6 +47,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private lateinit var recordsGridAdapter: RecordsGridAdapter
     private lateinit var record: Record
     private lateinit var prefsHelper: PreferencesHelper
+    private var isSharedWithMeFragment = false
     private val getRootRecords = SingleLiveEvent<Void>()
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
@@ -73,6 +75,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
             getString(SHARED_X_ME_NO_ITEMS_MESSAGE_KEY).also { binding.tvNoShares.text = it }
         }
         arguments?.takeIf { it.containsKey(SHARED_WITH_ME_ITEM_LIST_KEY) }?.apply {
+            isSharedWithMeFragment = true
             getParcelableArrayList<Record>(SHARED_WITH_ME_ITEM_LIST_KEY).also {
                 if (!it.isNullOrEmpty()) recordsAdapter.setRecords(it)
                 viewModel.existsShares.value = !it.isNullOrEmpty()
@@ -192,7 +195,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
             recordListener = this
         )
         recordsGridAdapter = RecordsGridAdapter(
-            this,false,
+            this, false,
             MutableLiveData(false),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
@@ -210,12 +213,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
                 layoutManager = GridLayoutManager(context, 2)
             }
             adapter = recordsAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL
-                )
-            )
             setHasFixedSize(true)
         }
     }
@@ -253,12 +250,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     override fun onRecordOptionsClick(record: Record) {
         this.record = record
         recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(
-            record,
-            isShownInMyFilesFragment = false,
-            isShownInPublicFilesFragment = false,
-            isShownInSharesFragment = true
-        )
+        recordOptionsFragment?.setBundleArguments(record, Workspace.SHARES, isSharedWithMeFragment)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
     }

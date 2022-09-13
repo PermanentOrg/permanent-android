@@ -67,7 +67,7 @@
                 android:layout_width="36dp"
                 android:layout_height="wrap_content"
                 android:onClick="@{() -> viewModel.onCopyLinkBtnClick()}"
-                app:icon="@drawable/ic_link_white"
+                app:icon="@drawable/ic_link_black"
                 app:iconSize="16dp"
                 app:iconTint="@color/middleGrey"
                 app:layout_constraintBottom_toBottomOf="parent"

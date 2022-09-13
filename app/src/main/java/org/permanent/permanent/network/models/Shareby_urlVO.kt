@@ -2,7 +2,7 @@ package org.permanent.permanent.network.models
 
 import org.permanent.permanent.models.ShareByUrl
 
-class Shareby_urlVO {
+class Shareby_urlVO() {
     var shareUrl: String? = null
     var shareby_urlId: Int? = null
     var autoApproveToggle: Int? = null // boolean (0 or 1)
@@ -18,17 +18,14 @@ class Shareby_urlVO {
     var AccountVO: AccountVO? = null
     var ShareVO: ShareVO? = null
 
-    fun getShareByUrl(): ShareByUrl {
-        val shareByUrl = ShareByUrl()
-        shareByUrl.shareUrl = shareUrl
-        shareByUrl.shareByUrlId = shareby_urlId
-        shareByUrl.autoApproveToggle = autoApproveToggle
-        shareByUrl.previewToggle = previewToggle
-        shareByUrl.expiresDT = expiresDT
-        shareByUrl.maxUses = maxUses
-        shareByUrl.byAccountId = byAccountId
-        shareByUrl.byArchiveId = byArchiveId
-
-        return shareByUrl
+    constructor(shareByUrl: ShareByUrl) : this() {
+        shareUrl = shareByUrl.shareUrl
+        shareby_urlId = shareByUrl.shareByUrlId
+        autoApproveToggle = shareByUrl.autoApproveToggle
+        previewToggle = shareByUrl.previewToggle
+        expiresDT = shareByUrl.expiresDT
+        maxUses = shareByUrl.maxUses
+        byAccountId = shareByUrl.byAccountId
+        byArchiveId = shareByUrl.byArchiveId
     }
 }
