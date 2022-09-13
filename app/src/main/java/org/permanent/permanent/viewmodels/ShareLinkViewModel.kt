@@ -103,7 +103,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
     }
 
     fun onLinkSettingsBtnClick() {
-        onLinkSettingsRequest.value = shareByUrlVO?.getShareByUrl()
+        shareByUrlVO?.let { onLinkSettingsRequest.value = ShareByUrl(it) }
     }
 
     fun onRevokeLinkBtnClick() {

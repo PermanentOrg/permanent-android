@@ -123,30 +123,19 @@
             app:layout_constraintStart_toEndOf="@+id/ivArchive6Thumb"
             app:layout_constraintTop_toTopOf="@+id/ivArchive6Thumb" />
 
-        <ImageView
-            android:id="@+id/ivArchiveThumb"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tvRecordName"
-            app:layout_constraintTop_toBottomOf="@+id/tvRecordName"
-            android:visibility="@{record.displayInShares &amp;&amp; record.showArchiveThumb &amp;&amp; record.archiveThumbURL200 != null ? View.VISIBLE : View.GONE}"
-            app:imageUrl="@{record.archiveThumbURL200}" />
-
         <TextView
             android:id="@+id/tvArchiveName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="12dp"
             android:fontFamily="@font/open_sans_semibold"
             android:text="@{record.archiveFullName}"
             android:visibility="@{record.displayInShares &amp;&amp; record.showArchiveThumb &amp;&amp; record.archiveFullName != null ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
-            app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
+            app:layout_constraintStart_toStartOf="@+id/tvRecordName"
+            app:layout_constraintTop_toBottomOf="@+id/tvRecordName" />
 
         <Button
             android:id="@+id/btnOptions"

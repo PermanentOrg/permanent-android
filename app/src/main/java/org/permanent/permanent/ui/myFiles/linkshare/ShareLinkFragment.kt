@@ -64,7 +64,7 @@ class ShareLinkFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(ShareLinkViewModel::class.java)
+        viewModel = ViewModelProvider(this)[ShareLinkViewModel::class.java]
         binding = FragmentShareLinkBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -74,13 +74,13 @@ class ShareLinkFragment : PermanentBaseFragment() {
             viewModel.setRecord(it)
             initSharesRecyclerView(binding.rvShares, it)
         }
-        editDialogViewModel = ViewModelProvider(this).get(EditAccessLevelViewModel::class.java)
+        editDialogViewModel = ViewModelProvider(this)[EditAccessLevelViewModel::class.java]
         accessLevelAdapter = ArrayAdapter(
             requireContext(),
             R.layout.menu_item_dropdown_access_level,
             accessRoleList
         )
-        if(activity is FileActivity){
+        if (activity is FileActivity) {
             (activity as FileActivity).setToolbarAndStatusBarColor(R.color.colorPrimary)
         }
         return binding.root
@@ -101,9 +101,9 @@ class ShareLinkFragment : PermanentBaseFragment() {
         super.onCreate(savedInstanceState)
         // Device's back press
         requireActivity().onBackPressedDispatcher
-            .addCallback(this , object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed(){
-                    if(activity is FileActivity) {
+            .addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (activity is FileActivity) {
                         (activity as FileActivity).setToolbarAndStatusBarColor(R.color.black)
                     }
                     findNavController().popBackStack(R.id.shareLinkFragment, true)

@@ -14,6 +14,17 @@ class ShareByUrl() : Parcelable {
     var byAccountId: Int? = null
     var byArchiveId: Int? = null
 
+    constructor(shareByUrlVO: Shareby_urlVO) : this() {
+        shareUrl = shareByUrlVO.shareUrl
+        shareByUrlId = shareByUrlVO.shareby_urlId
+        autoApproveToggle = shareByUrlVO.autoApproveToggle
+        previewToggle = shareByUrlVO.previewToggle
+        expiresDT = shareByUrlVO.expiresDT
+        maxUses = shareByUrlVO.maxUses
+        byAccountId = shareByUrlVO.byAccountId
+        byArchiveId = shareByUrlVO.byArchiveId
+    }
+
     constructor(parcel: Parcel) : this() {
         shareUrl = parcel.readString()
         shareByUrlId = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -23,20 +34,6 @@ class ShareByUrl() : Parcelable {
         maxUses = parcel.readValue(Int::class.java.classLoader) as? Int
         byAccountId = parcel.readValue(Int::class.java.classLoader) as? Int
         byArchiveId = parcel.readValue(Int::class.java.classLoader) as? Int
-    }
-
-    fun getShareByUrlVO(): Shareby_urlVO {
-        val shareByUrlVO = Shareby_urlVO()
-        shareByUrlVO.shareUrl = shareUrl
-        shareByUrlVO.shareby_urlId = shareByUrlId
-        shareByUrlVO.autoApproveToggle = autoApproveToggle
-        shareByUrlVO.previewToggle = previewToggle
-        shareByUrlVO.expiresDT = expiresDT
-        shareByUrlVO.maxUses = maxUses
-        shareByUrlVO.byAccountId = byAccountId
-        shareByUrlVO.byArchiveId = byArchiveId
-
-        return shareByUrlVO
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

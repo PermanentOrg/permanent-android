@@ -28,7 +28,7 @@ class EditAccessLevelViewModel(application: Application) : ObservableAndroidView
     fun setMember(member: Account?) {
         this.member = member
         fullName.value = member?.fullName
-        email.value = member?.primaryEmail
+        member?.primaryEmail?.let { email.value = it }
     }
 
     fun setShare(share: Share?) {

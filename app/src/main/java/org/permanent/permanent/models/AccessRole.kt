@@ -5,17 +5,41 @@ import android.os.Parcelable
 import java.util.*
 
 enum class AccessRole(val backendString: String) : Parcelable {
-    OWNER("access.role.owner"),
-    MANAGER("access.role.manager"),
-    CURATOR("access.role.curator"),
-    EDITOR("access.role.editor"),
-    CONTRIBUTOR("access.role.contributor"),
-    VIEWER("access.role.viewer");
+    OWNER("access.role.owner") {
+        override fun inferiors(): List<AccessRole> =
+            listOf(MANAGER, CURATOR, EDITOR, CONTRIBUTOR, VIEWER)
+    },
+    MANAGER("access.role.manager") {
+        override fun inferiors(): List<AccessRole> =
+            listOf(CURATOR, EDITOR, CONTRIBUTOR, VIEWER)
+    },
+    CURATOR("access.role.curator") {
+        override fun inferiors(): List<AccessRole> =
+            listOf(EDITOR, CONTRIBUTOR, VIEWER)
+    },
+    EDITOR("access.role.editor") {
+        override fun inferiors(): List<AccessRole> =
+            listOf(CONTRIBUTOR, VIEWER)
+    },
+    CONTRIBUTOR("access.role.contributor") {
+        override fun inferiors(): List<AccessRole> =
+            listOf(VIEWER)
+    },
+    VIEWER("access.role.viewer") {
+        override fun inferiors(): List<AccessRole> =
+            listOf()
+    };
+
+    abstract fun inferiors(): List<AccessRole>
 
     fun toTitleCase(): String = this.name.lowercase(Locale.getDefault())
         .replaceFirstChar { it.titlecase(Locale.getDefault()) }
 
     fun toLowerCase(): String = this.name.lowercase(Locale.getDefault())
+
+    fun getInferior(otherAccessRole: AccessRole): AccessRole {
+        return if (otherAccessRole in inferiors()) otherAccessRole else this
+    }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(ordinal)

@@ -21,6 +21,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.fileView.FileViewOptionsFragment
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.shares.PreviewState
@@ -106,12 +107,7 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
 
     override fun onRecordOptionsClick(record: Record) {
         recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(
-            record,
-            isShownInMyFilesFragment = false,
-            isShownInPublicFilesFragment = false,
-            isShownInSharesFragment = false
-        )
+        recordOptionsFragment?.setBundleArguments(record, Workspace.PUBLIC_ARCHIVES)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
     }
 

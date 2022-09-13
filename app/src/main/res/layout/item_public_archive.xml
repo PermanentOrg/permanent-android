@@ -67,7 +67,7 @@
             android:layout_height="36dp"
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="2dp"
-            app:icon="@drawable/ic_link_white"
+            app:icon="@drawable/ic_link_black"
             app:iconTint="@{archive.isPopular? @color/middleGrey : @color/white}"
             app:iconSize="24dp"
             app:layout_constraintBottom_toBottomOf="parent"

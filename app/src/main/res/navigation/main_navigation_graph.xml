@@ -18,14 +18,10 @@
         tools:layout="@layout/fragment_my_files">
         <action
             android:id="@+id/action_myFilesFragment_to_recordSearchFragment"
-            app:destination="@id/recordSearchFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            app:destination="@id/recordSearchFragment" />
         <action
             android:id="@+id/action_myFilesFragment_to_shareLinkFragment"
-            app:destination="@id/shareLinkFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
+            app:destination="@id/shareLinkFragment" />
         <action
             android:id="@+id/action_myFilesFragment_to_sharePreviewFragment"
             app:destination="@id/sharePreviewFragment" />

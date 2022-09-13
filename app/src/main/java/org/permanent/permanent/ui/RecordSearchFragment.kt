@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
@@ -116,12 +115,6 @@ class RecordSearchFragment : PermanentBaseFragment() {
         recordsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = recordsListAdapter
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL
-                )
-            )
             setHasFixedSize(true)
         }
     }
