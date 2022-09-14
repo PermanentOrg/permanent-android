@@ -205,6 +205,7 @@
     <string name="file_options_menu_item_share_management">Share management</string>
     <string name="file_options_menu_item_share_to_another_app">Share to another app</string>
     <string name="file_options_permission">Permission:</string>
+    <string name="file_options_initiated_by">Initiated By:</string>
     <string name="file_options_shared_with">Shared with:</string>
     <string name="file_options_shared_with_x_more_archives">Shared with %d more archives</string>
     <string name="rename_record_name_hint">Name</string>
