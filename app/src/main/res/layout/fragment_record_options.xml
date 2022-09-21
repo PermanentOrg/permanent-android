@@ -236,7 +236,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="16dp"
                     android:background="@color/lighterGrey"
-                    android:visibility="@{viewModel.showViewAllBtn ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{viewModel.sharesSize > 0 ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/btnViewAll" />

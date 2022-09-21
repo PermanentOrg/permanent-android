@@ -164,7 +164,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         if (allShares.size > 0) fewShares.add(allShares[0])
         if (allShares.size > 1) fewShares.add(allShares[1])
         onSharesRetrieved.value = fewShares
-        showViewAllBtn.value = fewShares.size > 0
+        showViewAllBtn.value = allShares.size > DEFAULT_NR_OF_VISIBLE_SHARES
     }
 
     fun onDownloadBtnClick() {
@@ -406,4 +406,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun getOnManageSharingRequest(): MutableLiveData<Void> = onManageSharingRequest
 
     fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
+
+    companion object {
+        const val DEFAULT_NR_OF_VISIBLE_SHARES = 2
+    }
 }
