@@ -141,8 +141,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareManagementRequest()
-            ?.observe(this, onRecordShareManagementObserver)
+        recordOptionsFragment?.getOnRecordManageSharingRequest()
+            ?.observe(this, onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
 
@@ -217,7 +217,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity, bundle)
     }
 
-    private val onRecordShareManagementObserver = Observer<Record> {
+    private val onRecordManageSharingObserver = Observer<Record> {
         navigateToShareLinkFragment(it)
     }
 
@@ -343,8 +343,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordShareManagementRequest()
-            ?.removeObserver(onRecordShareManagementObserver)
+        recordOptionsFragment?.getOnRecordManageSharingRequest()
+            ?.removeObserver(onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }

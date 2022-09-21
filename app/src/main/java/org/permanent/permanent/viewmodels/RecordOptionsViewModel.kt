@@ -1,8 +1,6 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -52,17 +50,19 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private var download: Download? = null
     private val recordName = MutableLiveData<String>()
     private val allSharesSize = MutableLiveData(0)
+    private val showViewAllBtn = MutableLiveData(false)
     private val recordPermission = MutableLiveData<String>()
-    private val sharedWithBtnTxt = MutableLiveData<String>()
+    private val sharedWithLabelTxt = MutableLiveData<String>()
     private val shareableLink = MutableLiveData("")
     private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
     private val allShares = mutableListOf<Share>()
     private val onSharesRetrieved = SingleLiveEvent<MutableList<Share>>()
     private val onRequestWritePermission = SingleLiveEvent<Void>()
     private val onFileDownloadRequest = SingleLiveEvent<Void>()
+    private val onShareLinkRequest = SingleLiveEvent<String>()
     private val onDeleteRequest = SingleLiveEvent<Void>()
     private val onRenameRequest = SingleLiveEvent<Void>()
-    private val onShareManagementRequest = SingleLiveEvent<Void>()
+    private val onManageSharingRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
     private val onRelocateRequest = MutableLiveData<RelocationType>()
@@ -144,9 +144,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     private fun updateSharedWithBtnTxt(sharesSize: Int?) {
-        sharesSize?.minus(DEFAULT_NR_OF_VISIBLE_SHARES)?.let {
-            sharedWithBtnTxt.value =
-                appContext.getString(R.string.file_options_shared_with_x_more_archives, it)
+        sharesSize?.let {
+            sharedWithLabelTxt.value = appContext.getString(R.string.file_options_shared_with, it)
         }
     }
 
@@ -165,6 +164,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         if (allShares.size > 0) fewShares.add(allShares[0])
         if (allShares.size > 1) fewShares.add(allShares[1])
         onSharesRetrieved.value = fewShares
+        showViewAllBtn.value = fewShares.size > 0
     }
 
     fun onDownloadBtnClick() {
@@ -197,19 +197,13 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         onPublishRequest.call()
     }
 
-    fun onCopyLinkBtnClick() {
-        val clipboard =
-            appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_link_share_link_title),
-            shareableLink.value.toString()
-        )
-        clipboard.setPrimaryClip(clip)
-        showSnackbarSuccess.value = appContext.getString(R.string.share_link_link_copied)
+    fun onShareLinkBtnClick() {
+        onShareLinkRequest.value = shareableLink.value.toString()
     }
 
-    fun onSharedWithBtnClick() {
+    fun onViewAllBtnClick() {
         onSharesRetrieved.value = allShares
+        showViewAllBtn.value = false
     }
 
     fun onDeleteBtnClick() {
@@ -239,28 +233,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             })
     }
 
-    fun onShareViaPermanentBtnClick() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-
-        isBusy.value = true
-        shareRepository.requestShareLink(record, ShareRequestType.GENERATE,
-            object : IShareRepository.IShareByUrlListener {
-                override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-                    isBusy.value = false
-                    shareByUrlVO?.shareUrl?.let { shareableLink.value = it }
-                }
-
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    error?.let { showSnackbar.value = it }
-                }
-            })
-    }
-
-    fun onShareManagementBtnClick() {
-        onShareManagementRequest.call()
+    fun onManageSharingBtnClick() {
+        onManageSharingRequest.call()
     }
 
     fun publishRecord() {
@@ -403,9 +377,11 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getSharesSize(): MutableLiveData<Int> = allSharesSize
 
+    fun getShowViewAllBtn(): MutableLiveData<Boolean> = showViewAllBtn
+
     fun getRecordPermission(): MutableLiveData<String> = recordPermission
 
-    fun getSharedWithBtnTxt(): MutableLiveData<String> = sharedWithBtnTxt
+    fun getSharedWithLabelTxt(): MutableLiveData<String> = sharedWithLabelTxt
 
     fun getShareableLink(): MutableLiveData<String> = shareableLink
 
@@ -421,15 +397,13 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnPublishRequest(): MutableLiveData<Void> = onPublishRequest
 
+    fun getOnShareLinkRequest(): MutableLiveData<String> = onShareLinkRequest
+
     fun getOnDeleteRequest(): MutableLiveData<Void> = onDeleteRequest
 
     fun getOnRenameRequest(): MutableLiveData<Void> = onRenameRequest
 
-    fun getOnShareManagementRequest(): MutableLiveData<Void> = onShareManagementRequest
+    fun getOnManageSharingRequest(): MutableLiveData<Void> = onManageSharingRequest
 
     fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
-
-    companion object {
-        const val DEFAULT_NR_OF_VISIBLE_SHARES = 2
-    }
 }
