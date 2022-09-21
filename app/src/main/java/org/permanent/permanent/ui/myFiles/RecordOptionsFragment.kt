@@ -29,7 +29,6 @@ import org.permanent.permanent.ui.MenuSharesAdapter
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.viewmodels.RecordOptionsViewModel
-import org.permanent.permanent.viewmodels.RecordOptionsViewModel.Companion.DEFAULT_NR_OF_VISIBLE_SHARES
 
 const val SHOWN_IN_WHICH_WORKSPACE = "shown_in_which_workspace_key"
 const val IS_SHOWN_IN_SHARED_WITH_ME = "is_shown_in_shared_with_me_key"
@@ -44,10 +43,14 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onFileDownloadRequest = MutableLiveData<Record>()
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val onRecordRenameRequest = MutableLiveData<Record>()
-    private val onRecordShareManagementRequest = MutableLiveData<Record>()
+    private val onRecordManageSharingRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
 
-    fun setBundleArguments(record: Record, workspace: Workspace, isShownInSharedWithMe: Boolean = false) {
+    fun setBundleArguments(
+        record: Record,
+        workspace: Workspace,
+        isShownInSharedWithMe: Boolean = false
+    ) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
         bundle.putParcelable(SHOWN_IN_WHICH_WORKSPACE, workspace)
@@ -94,7 +97,6 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     private val onSharesRetrieved = Observer<List<Share>> {
         sharesAdapter.set(it)
-        if (it.size > DEFAULT_NR_OF_VISIBLE_SHARES) binding.btnSharedWith.visibility = View.GONE
     }
 
     private val onRequestWritePermission = Observer<Void> {
@@ -116,9 +118,9 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         onRecordRenameRequest.value = record
     }
 
-    private val onShareManagementObserver = Observer<Void> {
+    private val onManageSharingObserver = Observer<Void> {
         dismiss()
-        onRecordShareManagementRequest.value = record
+        onRecordManageSharingRequest.value = record
     }
 
     private val onShareToAnotherAppObserver = Observer<String> { contentType ->
@@ -172,6 +174,17 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         onRecordRelocateRequest.value = Pair(record, it)
     }
 
+    private val onShareLinkObserver = Observer<String> {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, it)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
+
     private val onPublishRequestObserver = Observer<Void> {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
         val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
@@ -222,8 +235,8 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
 
-    fun getOnRecordShareManagementRequest(): MutableLiveData<Record> =
-        onRecordShareManagementRequest
+    fun getOnRecordManageSharingRequest(): MutableLiveData<Record> =
+        onRecordManageSharingRequest
 
     fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, RelocationType>> =
         onRecordRelocateRequest
@@ -234,9 +247,10 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnDeleteRequest().observe(this, onDeleteObserver)
         viewModel.getOnRenameRequest().observe(this, onRenameObserver)
-        viewModel.getOnShareManagementRequest().observe(this, onShareManagementObserver)
+        viewModel.getOnManageSharingRequest().observe(this, onManageSharingObserver)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
         viewModel.getOnRelocateRequest().observe(this, onRelocateRequestObserver)
+        viewModel.getOnShareLinkRequest().observe(this, onShareLinkObserver)
         viewModel.getOnPublishRequest().observe(this, onPublishRequestObserver)
         viewModel.getOnFileDownloadedForSharing().observe(this, onFileDownloadedForSharing)
         viewModel.getShowSnackbar().observe(this, showSnackbar)
@@ -249,9 +263,10 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
         viewModel.getOnDeleteRequest().removeObserver(onDeleteObserver)
         viewModel.getOnRenameRequest().removeObserver(onRenameObserver)
-        viewModel.getOnShareManagementRequest().removeObserver(onShareManagementObserver)
+        viewModel.getOnManageSharingRequest().removeObserver(onManageSharingObserver)
         viewModel.getOnShareToAnotherAppRequest().removeObserver(onShareToAnotherAppObserver)
         viewModel.getOnRelocateRequest().removeObserver(onRelocateRequestObserver)
+        viewModel.getOnShareLinkRequest().removeObserver(onShareLinkObserver)
         viewModel.getOnPublishRequest().removeObserver(onPublishRequestObserver)
         viewModel.getOnFileDownloadedForSharing().removeObserver(onFileDownloadedForSharing)
         viewModel.getShowSnackbar().observe(this, showSnackbar)

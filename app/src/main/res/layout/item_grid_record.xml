@@ -50,6 +50,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
             android:scaleType="centerCrop"
             android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 0 ? View.VISIBLE : View.GONE}"
             app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 0 ? record.shares.get(0).archive.thumbURL200 : null}"
@@ -79,49 +80,16 @@
             android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 2 ? View.VISIBLE : View.GONE}"
             app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 2 ? record.shares.get(2).archive.thumbURL200 : null}" />
 
-        <ImageView
-            android:id="@+id/ivArchive4Thumb"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="2dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toEndOf="@+id/ivArchive3Thumb"
-            app:layout_constraintTop_toTopOf="@+id/ivArchive3Thumb"
-            android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 3 ? View.VISIBLE : View.GONE}"
-            app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 3 ? record.shares.get(3).archive.thumbURL200 : null}" />
-
-        <ImageView
-            android:id="@+id/ivArchive5Thumb"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="2dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toEndOf="@+id/ivArchive4Thumb"
-            app:layout_constraintTop_toTopOf="@+id/ivArchive4Thumb"
-            android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 4 ? View.VISIBLE : View.GONE}"
-            app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 4 ? record.shares.get(4).archive.thumbURL200 : null}" />
-
-        <ImageView
-            android:id="@+id/ivArchive6Thumb"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="2dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toEndOf="@+id/ivArchive5Thumb"
-            app:layout_constraintTop_toTopOf="@+id/ivArchive5Thumb"
-            android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 5 ? View.VISIBLE : View.GONE}"
-            app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 5 ? record.shares.get(5).archive.thumbURL200 : null}" />
-
         <TextView
             android:id="@+id/tvExtraArchivesNr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:fontFamily="@font/open_sans_semibold"
-            android:text="@{'+' + Integer.toString(record.shares.size() - 6)}"
-            android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 6 ? View.VISIBLE : View.GONE}"
-            app:layout_constraintStart_toEndOf="@+id/ivArchive6Thumb"
-            app:layout_constraintTop_toTopOf="@+id/ivArchive6Thumb" />
+            android:text="@{'+' + Integer.toString(record.shares.size() - 3)}"
+            android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 3 ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toEndOf="@+id/ivArchive3Thumb"
+            app:layout_constraintTop_toTopOf="@+id/ivArchive3Thumb" />
 
         <TextView
             android:id="@+id/tvArchiveName"
