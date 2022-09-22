@@ -38,6 +38,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
             android:text="@{viewModel.confirmationText}"
             android:textAlignment="viewStart"
             android:textColor="@color/black"

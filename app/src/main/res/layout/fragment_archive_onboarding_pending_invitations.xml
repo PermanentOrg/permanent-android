@@ -38,6 +38,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
             android:text="@string/archive_onboarding_pending_invitations_text"
             android:textAlignment="viewStart"
             android:textColor="@color/black"

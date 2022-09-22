@@ -28,6 +28,7 @@
             android:afterTextChanged="@{(editable)->viewModel.onOnlinePresenceTextChanged(editable)}"
             android:ellipsize="end"
             android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
             android:hint="@{viewModel.isOnAddEmail ? R.string.edit_add_email_hint : R.string.edit_add_social_media_hint}"
             android:includeFontPadding="true"
             android:maxLength="120"

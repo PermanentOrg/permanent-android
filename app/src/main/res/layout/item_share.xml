@@ -25,6 +25,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
+            android:scaleType="centerCrop"
             app:imageUrl="@{share.archive.thumbURL200}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

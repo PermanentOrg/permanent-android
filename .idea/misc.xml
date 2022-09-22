@@ -36,6 +36,10 @@
         <entry key="app/src/main/res/drawable/share_link_background_color.xml" value="0.2585" />
         <entry key="app/src/main/res/drawable/storage_tab_background_color.xml" value="0.2585" />
         <entry key="app/src/main/res/drawable/white_image_frame.xml" value="0.2585" />
+        <entry key="app/src/main/res/font/open_sans.xml" value="0.40370370370370373" />
+        <entry key="app/src/main/res/font/open_sans_bold.xml" value="0.40370370370370373" />
+        <entry key="app/src/main/res/font/open_sans_italic.xml" value="0.40370370370370373" />
+        <entry key="app/src/main/res/font/open_sans_semibold.xml" value="0.40370370370370373" />
         <entry key="app/src/main/res/layout/activity_archive_onboarding.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.30512820512820515" />
         <entry key="app/src/main/res/layout/activity_onboarding.xml" value="0.4036458333333333" />
@@ -67,6 +71,7 @@
         <entry key="app/src/main/res/layout/fragment_archive_onboarding_start.xml" value="0.4010416666666667" />
         <entry key="app/src/main/res/layout/fragment_archive_onboarding_type_selection.xml" value="0.3974358974358974" />
         <entry key="app/src/main/res/layout/fragment_archive_onboarding_welcome.xml" value="0.4036458333333333" />
+        <entry key="app/src/main/res/layout/fragment_archive_options.xml" value="0.362962962962963" />
         <entry key="app/src/main/res/layout/fragment_archive_search.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archives.xml" value="0.4036458333333333" />
         <entry key="app/src/main/res/layout/fragment_archives_container.xml" value="0.4036458333333333" />
