@@ -55,7 +55,7 @@ class ItemOptionsViewModel(application: Application) : ObservableAndroidViewMode
         }
     }
 
-    fun onRemoveBtnClick() {
+    fun onDeleteBtnClick() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
