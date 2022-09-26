@@ -36,6 +36,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginBottom="8dp"
             android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
             android:text="@{invitation.email}"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"

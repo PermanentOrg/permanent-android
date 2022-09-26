@@ -23,6 +23,7 @@
             android:afterTextChanged="@{(editable) -> viewModel.onNewTagNameTextChanged(editable)}"
             android:background="@drawable/rounded_border_grey_background"
             android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
             android:hint="@string/file_info_add_new_tag"
             android:maxLength="16"
             android:padding="8dp"

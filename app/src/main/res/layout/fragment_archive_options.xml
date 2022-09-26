@@ -15,35 +15,105 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clBottomMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMakeDefault"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:layout_marginBottom="24dp"
-            android:text="@string/archive_options_menu_item_make_default"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+        <View
+            android:id="@+id/viewDragSheet"
+            android:layout_width="24dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/whiteSuperTransparent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ImageView
+            android:id="@+id/ivArchiveThumb"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@+id/clContent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:imageUrl="@{viewModel.archiveThumb}" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteArchive"
-            style="@style/customButtonBottomSheetStyle"
+        <TextView
+            android:id="@+id/tvArchiveName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/open_sans_semibold"
+            android:maxLines="1"
+            android:text="@{viewModel.archiveName}"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@id/ivArchiveThumb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/ivArchiveThumb"
+            app:layout_constraintTop_toTopOf="@id/ivArchiveThumb" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/deepRed"
-            android:text="@string/archive_options_menu_item_delete_archive"
-            android:visibility="@{viewModel.isCurrentArchive || viewModel.accessRole != AccessRole.OWNER ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="16dp"
+            android:background="@color/white"
+            android:paddingBottom="16dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnMakeDefault" />
+            app:layout_constraintTop_toBottomOf="@id/tvArchiveName">
+
+            <Button
+                android:id="@+id/btnMakeDefault"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/open_sans"
+                android:paddingStart="0dp"
+                android:letterSpacing="-0.01"
+                android:text="@string/archive_options_menu_item_make_default"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                app:icon="@drawable/ic_star_outline"
+                app:iconPadding="16dp"
+                app:iconTint="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btnDeleteArchive"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/open_sans"
+                android:paddingStart="2dp"
+                android:letterSpacing="-0.01"
+                android:text="@string/archive_options_menu_item_delete_archive"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textColor="@color/deepRed"
+                app:icon="@drawable/ic_delete"
+                app:iconPadding="16dp"
+                app:iconTint="@color/deepRed"
+                android:visibility="@{viewModel.isCurrentArchive || viewModel.accessRole != AccessRole.OWNER ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnMakeDefault" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

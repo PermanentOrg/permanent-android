@@ -168,6 +168,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="5dp"
                 android:fontFamily="@font/open_sans"
+                android:letterSpacing="-0.01"
                 android:text="@string/share_preview_tap_to_change_archive"
                 android:textColor="@color/colorPrimary"
                 android:textSize="14sp"

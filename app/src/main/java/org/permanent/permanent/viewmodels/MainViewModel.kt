@@ -136,6 +136,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                         isBusy.value = false
                         error?.let { errorMessage.value = it }
                         Log.e(TAG, "Deleting Device FCM token failed: $error")
+                        logout()
                     }
                 })
             })

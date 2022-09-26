@@ -86,6 +86,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:fontFamily="@font/open_sans"
+                    android:letterSpacing="-0.01"
                     android:hint="@string/public_profile_milestone_description_hint"
                     android:text="@{profileItem.string2}"
                     android:textColor="@color/black"
