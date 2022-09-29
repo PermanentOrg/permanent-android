@@ -8,8 +8,6 @@ import org.permanent.permanent.ui.PreferencesHelper
 class CurrentArchivePermissionsManager private constructor() {
 
     private var accessRole: AccessRole
-    private var currentArchivePermissions = mutableListOf<ArchivePermission>()
-
     companion object {
         val instance = CurrentArchivePermissionsManager()
     }
@@ -27,87 +25,31 @@ class CurrentArchivePermissionsManager private constructor() {
 
     fun onAccessRoleChanged(accessRole: AccessRole) {
         this.accessRole = accessRole
-        when (accessRole) {
-            AccessRole.OWNER -> {
-                currentArchivePermissions = mutableListOf(
-                    ArchivePermission.READ,
-                    ArchivePermission.CREATE,
-                    ArchivePermission.EDIT,
-                    ArchivePermission.DELETE,
-                    ArchivePermission.MOVE,
-                    ArchivePermission.PUBLISH,
-                    ArchivePermission.SHARE,
-                    ArchivePermission.ARCHIVE_SHARE,
-                    ArchivePermission.OWNERSHIP
-                )
-            }
-            AccessRole.MANAGER -> {
-                currentArchivePermissions = mutableListOf(
-                    ArchivePermission.READ,
-                    ArchivePermission.CREATE,
-                    ArchivePermission.EDIT,
-                    ArchivePermission.DELETE,
-                    ArchivePermission.MOVE,
-                    ArchivePermission.PUBLISH,
-                    ArchivePermission.SHARE,
-                    ArchivePermission.ARCHIVE_SHARE
-                )
-            }
-            AccessRole.CURATOR -> {
-                currentArchivePermissions = mutableListOf(
-                    ArchivePermission.READ,
-                    ArchivePermission.CREATE,
-                    ArchivePermission.EDIT,
-                    ArchivePermission.DELETE,
-                    ArchivePermission.MOVE,
-                    ArchivePermission.PUBLISH,
-                    ArchivePermission.SHARE
-                )
-            }
-            AccessRole.EDITOR -> {
-                currentArchivePermissions = mutableListOf(
-                    ArchivePermission.READ,
-                    ArchivePermission.CREATE,
-                    ArchivePermission.EDIT
-                )
-            }
-            AccessRole.CONTRIBUTOR -> {
-                currentArchivePermissions = mutableListOf(
-                    ArchivePermission.READ,
-                    ArchivePermission.CREATE
-                )
-            }
-            AccessRole.VIEWER -> {
-                currentArchivePermissions = mutableListOf(
-                    ArchivePermission.READ
-                )
-            }
-        }
     }
 
     fun getAccessRole(): AccessRole = accessRole
 
-    fun isReadAvailable() = currentArchivePermissions.contains(ArchivePermission.READ)
+    fun isReadAvailable() = accessRole.isReadAvailable()
 
-    fun isCreateAvailable() = currentArchivePermissions.contains(ArchivePermission.CREATE)
+    fun isCreateAvailable() = accessRole.isCreateAvailable()
 
-    fun isEditAvailable() = currentArchivePermissions.contains(ArchivePermission.EDIT)
+    fun isEditAvailable() = accessRole.isEditAvailable()
 
-    fun isDeleteAvailable() = currentArchivePermissions.contains(ArchivePermission.DELETE)
+    fun isDeleteAvailable() = accessRole.isDeleteAvailable()
 
-    fun isMoveAvailable() = currentArchivePermissions.contains(ArchivePermission.MOVE)
+    fun isMoveAvailable() = accessRole.isMoveAvailable()
 
-    fun isPublishAvailable() = currentArchivePermissions.contains(ArchivePermission.PUBLISH)
+    fun isPublishAvailable() = accessRole.isPublishAvailable()
 
-    fun isShareAvailable() = currentArchivePermissions.contains(ArchivePermission.SHARE)
+    fun isShareAvailable() = accessRole.isShareAvailable()
 
-    fun isArchiveShareAvailable() =
-        currentArchivePermissions.contains(ArchivePermission.ARCHIVE_SHARE)
+    fun isArchiveShareAvailable() = accessRole.isArchiveShareAvailable()
 
-    fun isOwnershipAvailable() = currentArchivePermissions.contains(ArchivePermission.OWNERSHIP)
+    fun isOwnershipAvailable() = accessRole.isOwnershipAvailable()
 
     fun getPermissionsEnumerated(): String {
         var enumeratedPermissions = ""
+        val currentArchivePermissions = accessRole.getPermissions().toMutableList()
         currentArchivePermissions.remove(ArchivePermission.ARCHIVE_SHARE)
         currentArchivePermissions.map { it.toLowerCase() }
         currentArchivePermissions.forEachIndexed { index, permission ->

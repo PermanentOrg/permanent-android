@@ -231,12 +231,15 @@ class RequestContainer {
             val folderVO = FolderVO()
             folderVO.folderId = record.id
             folderVO.folder_linkId = record.folderLinkId
+            folderVO.archiveNbr = record.archiveNr
             folderVO.displayName = newName
             RequestVO.data?.get(0)?.FolderVO = folderVO
             this
         } else {
             val recordVO = RecordVO()
             recordVO.recordId = record.id
+            recordVO.archiveNbr = record.archiveNr
+            recordVO.folder_linkId = record.folderLinkId
             recordVO.displayName = newName
             RequestVO.data?.get(0)?.RecordVO = recordVO
             this

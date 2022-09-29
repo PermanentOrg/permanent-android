@@ -18,6 +18,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -254,7 +255,11 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun refreshCurrentFolder() {
         refreshJob?.cancel()
-        loadFilesOf(currentFolder.value, currentSortType.value)
+        if (folderPathStack.isEmpty()) {
+            onRootSharesNeeded.call()
+        } else {
+            loadFilesOf(currentFolder.value, currentSortType.value)
+        }
     }
 
     override fun onCancelClick(download: Download) {
@@ -276,6 +281,24 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     override fun onQuotaExceeded() {
         showQuotaExceeded.call()
+    }
+
+    fun delete(record: Record) {
+        isBusy.value = true
+        fileRepository.deleteRecord(record, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                refreshCurrentFolder()
+                if (record.type == RecordType.FOLDER)
+                    showMessage.value = appContext.getString(R.string.my_files_folder_deleted)
+                else showMessage.value = appContext.getString(R.string.my_files_file_deleted)
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
     }
 
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
