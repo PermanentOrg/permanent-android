@@ -2,6 +2,7 @@ package org.permanent.permanent.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import org.permanent.permanent.ArchivePermission
 import java.util.*
 
 enum class AccessRole(val backendString: String) : Parcelable {
@@ -31,6 +32,83 @@ enum class AccessRole(val backendString: String) : Parcelable {
     };
 
     abstract fun inferiors(): List<AccessRole>
+
+    fun getPermissions(): List<ArchivePermission> {
+        when (this) {
+            AccessRole.OWNER -> {
+                return listOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT,
+                    ArchivePermission.DELETE,
+                    ArchivePermission.MOVE,
+                    ArchivePermission.PUBLISH,
+                    ArchivePermission.SHARE,
+                    ArchivePermission.ARCHIVE_SHARE,
+                    ArchivePermission.OWNERSHIP
+                )
+            }
+            AccessRole.MANAGER -> {
+                return listOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT,
+                    ArchivePermission.DELETE,
+                    ArchivePermission.MOVE,
+                    ArchivePermission.PUBLISH,
+                    ArchivePermission.SHARE,
+                    ArchivePermission.ARCHIVE_SHARE
+                )
+            }
+            AccessRole.CURATOR -> {
+                return listOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT,
+                    ArchivePermission.DELETE,
+                    ArchivePermission.MOVE,
+                    ArchivePermission.PUBLISH,
+                    ArchivePermission.SHARE
+                )
+            }
+            AccessRole.EDITOR -> {
+                return listOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE,
+                    ArchivePermission.EDIT
+                )
+            }
+            AccessRole.CONTRIBUTOR -> {
+                return listOf(
+                    ArchivePermission.READ,
+                    ArchivePermission.CREATE
+                )
+            }
+            AccessRole.VIEWER -> {
+                return listOf(
+                    ArchivePermission.READ
+                )
+            }
+        }
+    }
+
+    fun isReadAvailable() = getPermissions().contains(ArchivePermission.READ)
+
+    fun isCreateAvailable() = getPermissions().contains(ArchivePermission.CREATE)
+
+    fun isEditAvailable() = getPermissions().contains(ArchivePermission.EDIT)
+
+    fun isDeleteAvailable() = getPermissions().contains(ArchivePermission.DELETE)
+
+    fun isMoveAvailable() = getPermissions().contains(ArchivePermission.MOVE)
+
+    fun isPublishAvailable() = getPermissions().contains(ArchivePermission.PUBLISH)
+
+    fun isShareAvailable() = getPermissions().contains(ArchivePermission.SHARE)
+
+    fun isArchiveShareAvailable() = getPermissions().contains(ArchivePermission.ARCHIVE_SHARE)
+
+    fun isOwnershipAvailable() = getPermissions().contains(ArchivePermission.OWNERSHIP)
 
     fun toTitleCase(): String = this.name.lowercase(Locale.getDefault())
         .replaceFirstChar { it.titlecase(Locale.getDefault()) }

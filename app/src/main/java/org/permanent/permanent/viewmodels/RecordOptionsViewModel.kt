@@ -44,6 +44,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private lateinit var record: Record
+    private lateinit var actualAccessRole: AccessRole
     private lateinit var workspace: Workspace
     private val isFragmentShownInSharedWithMe = MutableLiveData(false)
     private var fileData: FileData? = null
@@ -79,9 +80,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         this.workspace = workspace
         this.isFragmentShownInSharedWithMe.value = isShownInSharedWithMe
         recordName.value = record.displayName
-        recordPermission.value =
-            record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole())
-                ?.toTitleCase()
+        actualAccessRole = record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole()) ?: AccessRole.VIEWER
+        recordPermission.value = actualAccessRole.toTitleCase()
         initShares(record)
         updateSharedWithBtnTxt(allShares.size)
         if (workspace == Workspace.PRIVATE_FILES) {
@@ -126,12 +126,14 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         } else if (workspace == Workspace.SHARES) {
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.COPY_LINK)
-            hiddenOptions.value?.add(RecordOption.DELETE)
             hiddenOptions.value?.add(RecordOption.MOVE)
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
             hiddenOptions.value?.add(RecordOption.COPY)
-            hiddenOptions.value?.add(RecordOption.RENAME)
+            if (!actualAccessRole.isDeleteAvailable() || isFragmentShownInSharedWithMe.value == true)
+                hiddenOptions.value?.add(RecordOption.DELETE)
+            if (!actualAccessRole.isEditAvailable())
+                hiddenOptions.value?.add(RecordOption.RENAME)
         } else { // Public Archive
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.DOWNLOAD)
