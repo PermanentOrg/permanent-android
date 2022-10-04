@@ -2,6 +2,7 @@ package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.net.Uri
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
@@ -16,6 +17,7 @@ import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.Notification
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.ui.myFiles.saveToPermanent.ResizeTransformation
 
 
 @BindingAdapter("imageResourceId")
@@ -76,10 +78,19 @@ fun loadImage(view: ImageView, record: Record?) {
 }
 
 @BindingAdapter("imageUrl")
-fun loadSimpleImage(view: ImageView, url: String?) {
+fun loadUrl(view: ImageView, url: String?) {
     Picasso.get()
         .load(url)
         .placeholder(R.drawable.ic_stop_light_grey)
+        .into(view)
+}
+
+@BindingAdapter("imageUri")
+fun loadUri(view: ImageView, uri: Uri) {
+    Picasso.get()
+        .load(uri)
+        .placeholder(R.drawable.ic_stop_light_grey)
+        .transform(ResizeTransformation(1024))
         .into(view)
 }
 

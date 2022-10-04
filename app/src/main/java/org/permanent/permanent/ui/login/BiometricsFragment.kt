@@ -81,7 +81,7 @@ class BiometricsFragment : PermanentBaseFragment() {
             setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
             setPositiveButton(R.string.yes_button) { _, _ ->
                 startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) }
-            setNegativeButton(R.string.cancel_button) { _, _ -> }
+            setNegativeButton(R.string.button_cancel) { _, _ -> }
             create()
             show()
         }

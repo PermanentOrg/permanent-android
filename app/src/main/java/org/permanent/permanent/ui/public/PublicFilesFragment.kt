@@ -102,7 +102,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
     private val onFilesSelectedToUpload = Observer<MutableList<Uri>> { fileUriList ->
         if (fileUriList.isNotEmpty()) {
-            viewModel.upload(fileUriList)
+            viewModel.uploadToCurrentFolder(fileUriList)
             fileUriList.clear()
         }
     }

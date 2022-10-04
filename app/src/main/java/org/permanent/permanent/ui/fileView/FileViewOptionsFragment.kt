@@ -66,7 +66,7 @@ class FileViewOptionsFragment : PermanentBottomSheetFragment() {
                 AlertDialog.Builder(it)
                     .setTitle(getString(R.string.downloading_file_in_progress))
                     .setNegativeButton(
-                        getString(R.string.cancel_button)
+                        getString(R.string.button_cancel)
                     ) { _, _ -> viewModel.cancelDownload() }
                     .create()
             }

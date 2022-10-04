@@ -73,7 +73,7 @@
             android:backgroundTint="@color/deepRed"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            android:text="@string/cancel_all_button"
+            android:text="@string/button_cancel_all"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

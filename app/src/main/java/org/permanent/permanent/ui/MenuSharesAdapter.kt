@@ -23,11 +23,6 @@ class MenuSharesAdapter : RecyclerView.Adapter<MenuShareViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun remove(share: Share?) {
-        shares.remove(share)
-        notifyDataSetChanged()
-    }
-
     override fun getItemCount() = shares.size
 
     override fun onBindViewHolder(holder: MenuShareViewHolder, position: Int) {

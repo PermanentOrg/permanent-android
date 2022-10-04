@@ -55,7 +55,7 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
             .title(R.string.login_biometric_title)
             .description(R.string.login_biometric_message)
             .deviceCredentialsAllowed(true)
-            .negativeButtonText(R.string.cancel_button)
+            .negativeButtonText(R.string.button_cancel)
             .build()
     }
 
