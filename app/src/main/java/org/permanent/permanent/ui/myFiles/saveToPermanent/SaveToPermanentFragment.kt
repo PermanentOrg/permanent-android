@@ -1,22 +1,28 @@
 package org.permanent.permanent.ui.myFiles.saveToPermanent
 
+import android.app.Dialog
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.databinding.FragmentSaveToPermanentBinding
 import org.permanent.permanent.models.File
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.viewmodels.SaveToPermanentViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
+
 
 class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentSaveToPermanentBinding
@@ -48,6 +54,18 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         }
 
         return binding.root
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val bottomSheetDialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        bottomSheetDialog.setOnShowListener { dialog: DialogInterface ->
+            val dialogc = dialog as BottomSheetDialog
+            val bottomSheet =
+                dialogc.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            BottomSheetBehavior.from(bottomSheet as FrameLayout)
+                .setState(BottomSheetBehavior.STATE_EXPANDED)
+        }
+        return bottomSheetDialog
     }
 
     private fun initFilesRecyclerView(rvFiles: RecyclerView, files: ArrayList<File>) {
