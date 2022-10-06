@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -20,8 +21,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_cancel_uploads.view.*
+import kotlinx.android.synthetic.main.dialog_cancel_uploads.view.tvTitle
+import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -32,6 +36,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
@@ -45,6 +50,9 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
+    private lateinit var renameDialogViewModel: RenameRecordViewModel
+    private lateinit var renameDialogBinding: DialogRenameRecordBinding
+    private var alertDialog: androidx.appcompat.app.AlertDialog? = null
     private lateinit var record: Record
     private lateinit var prefsHelper: PreferencesHelper
     private var isSharedWithMeFragment = false
@@ -58,6 +66,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        renameDialogViewModel = ViewModelProvider(this).get(RenameRecordViewModel::class.java)
         viewModel = ViewModelProvider(requireActivity())[SharedXMeViewModel::class.java]
         binding = FragmentSharedXMeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
@@ -159,6 +168,51 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         }
     }
 
+    private val onRecordDeleteRequest = Observer<Record> { record ->
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
+        val alert = AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
+        viewDialog.btnDelete.setOnClickListener {
+            viewModel.delete(record)
+            alert.dismiss()
+        }
+        viewDialog.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
+    private val onRecordRenameRequest = Observer<Record> { record ->
+        renameDialogBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context),
+            R.layout.dialog_rename_record, null, false
+        )
+        renameDialogBinding.executePendingBindings()
+        renameDialogBinding.lifecycleOwner = this
+        renameDialogBinding.viewModel = renameDialogViewModel
+        renameDialogViewModel.setRecordName(record.displayName)
+
+        alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(renameDialogBinding.root)
+            .create()
+        renameDialogBinding.tvTitle.text =
+            getString(R.string.rename_record_title, record.displayName)
+        renameDialogBinding.btnRename.setOnClickListener {
+            renameDialogViewModel.renameRecord(record)
+        }
+        renameDialogBinding.btnCancel.setOnClickListener {
+            alertDialog?.dismiss()
+        }
+        alertDialog?.show()
+    }
+
+    private val onRecordRenamed = Observer<Void> {
+        viewModel.refreshCurrentFolder()
+        alertDialog?.dismiss()
+    }
+
     private val onCancelAllUploads = Observer<Void> {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_cancel_uploads, null)
         val alert = AlertDialog.Builder(context)
@@ -253,6 +307,8 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.setBundleArguments(record, Workspace.SHARES, isSharedWithMeFragment)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
+        recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
+        recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
@@ -280,6 +336,8 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
+        renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
+        renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
@@ -296,6 +354,10 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
+        recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
+        recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
+        renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
+        renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
     }
