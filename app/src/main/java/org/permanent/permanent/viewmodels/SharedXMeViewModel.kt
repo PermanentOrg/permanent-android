@@ -2,6 +2,7 @@ package org.permanent.permanent.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -22,6 +23,8 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.SortType
@@ -292,6 +295,29 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
                 if (record.type == RecordType.FOLDER)
                     showMessage.value = appContext.getString(R.string.my_files_folder_deleted)
                 else showMessage.value = appContext.getString(R.string.my_files_file_deleted)
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    fun unshare(record: Record) {
+        val currentArchiveId = PreferencesHelper(
+            appContext
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        ).getCurrentArchiveId()
+
+        isBusy.value = true
+        fileRepository.unshareRecord(record, currentArchiveId, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                refreshCurrentFolder()
+                if (record.type == RecordType.FOLDER)
+                    showMessage.value = appContext.getString(R.string.my_files_folder_unshared)
+                else showMessage.value = appContext.getString(R.string.my_files_file_unshared)
             }
 
             override fun onFailed(error: String?) {

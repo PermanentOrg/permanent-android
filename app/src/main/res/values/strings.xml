@@ -197,6 +197,7 @@
     <string name="file_options_menu_item_copy">Copy to another location</string>
     <string name="file_options_menu_item_move">Move to another location</string>
     <string name="file_options_menu_item_delete">Delete</string>
+    <string name="file_options_menu_item_unshare">Unshare</string>
     <string name="file_options_menu_item_rename">Rename</string>
     <string name="file_options_menu_item_publish">Publish to public archive</string>
     <string name="file_options_menu_item_copy_link">Copy Link</string>
@@ -256,12 +257,15 @@
     <string name="upload_no_permissions_error">Cannot select files to upload without read permissions.</string>
     <string name="upload_record_not_created_error">Record could not be created</string>
     <string name="my_files_file_deleted">File has been deleted.</string>
+    <string name="my_files_file_unshared">File has been unshared.</string>
     <string name="my_files_folder_not_deleted_error">Folder could not be deleted.</string>
     <string name="my_files_folder_deleted">Folder has been deleted.</string>
+    <string name="my_files_folder_unshared">Folder has been unshared.</string>
     <string name="dialog_cancel_uploads_title">Cancel all uploads</string>
     <string name="dialog_cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
     <string name="new_folder_title">Create New Folder</string>
     <string name="delete_record_title">Delete \"%s\"?</string>
+    <string name="unshare_record_title">Unshare \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
     <string name="my_files_uploads_title">Uploads</string>
     <string name="my_files_downloads_title">Downloads</string>
@@ -489,4 +493,5 @@
     <string name="archive_onboarding_name_hint">Name</string>
     <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
+    <string name="unshare_btn_text">Unshare</string>
 </resources>

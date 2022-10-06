@@ -47,6 +47,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private lateinit var actualAccessRole: AccessRole
     private lateinit var workspace: Workspace
     private val isFragmentShownInSharedWithMe = MutableLiveData(false)
+    private val isFragmentShownInRootFolder = MutableLiveData(false)
     private var fileData: FileData? = null
     private var download: Download? = null
     private val recordName = MutableLiveData<String>()
@@ -62,6 +63,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onFileDownloadRequest = SingleLiveEvent<Void>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
     private val onDeleteRequest = SingleLiveEvent<Void>()
+    private val onUnshareRequest = SingleLiveEvent<Void>()
     private val onRenameRequest = SingleLiveEvent<Void>()
     private val onManageSharingRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
@@ -74,11 +76,13 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun initWith(
         record: Record,
         workspace: Workspace,
-        isShownInSharedWithMe: Boolean
+        isShownInSharedWithMe: Boolean,
+        isFragmentShownInRootFolder: Boolean
     ) {
         this.record = record
         this.workspace = workspace
         this.isFragmentShownInSharedWithMe.value = isShownInSharedWithMe
+        this.isFragmentShownInRootFolder.value = isFragmentShownInRootFolder
         recordName.value = record.displayName
         actualAccessRole = record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole()) ?: AccessRole.VIEWER
         recordPermission.value = actualAccessRole.toTitleCase()
@@ -130,8 +134,12 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
             hiddenOptions.value?.add(RecordOption.COPY)
-            if (!actualAccessRole.isDeleteAvailable() || isFragmentShownInSharedWithMe.value == true)
+            if (!actualAccessRole.isDeleteAvailable() || isFragmentShownInSharedWithMe.value == true) {
                 hiddenOptions.value?.add(RecordOption.DELETE)
+            }
+            if ( isFragmentShownInSharedWithMe.value == false) {
+                    hiddenOptions.value?.add(RecordOption.UNSHARE)
+            }
             if (!actualAccessRole.isEditAvailable())
                 hiddenOptions.value?.add(RecordOption.RENAME)
         } else { // Public Archive
@@ -210,6 +218,10 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun onDeleteBtnClick() {
         onDeleteRequest.call()
+    }
+
+    fun onUnshareBtnClick() {
+        onUnshareRequest.call()
     }
 
     fun onRenameBtnClick() {
@@ -402,6 +414,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun getOnShareLinkRequest(): MutableLiveData<String> = onShareLinkRequest
 
     fun getOnDeleteRequest(): MutableLiveData<Void> = onDeleteRequest
+
+    fun getOnUnshareRequest(): MutableLiveData<Void> = onUnshareRequest
 
     fun getOnRenameRequest(): MutableLiveData<Void> = onRenameRequest
 

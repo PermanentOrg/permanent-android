@@ -8,6 +8,7 @@ import org.permanent.permanent.network.models.*
 open class Record : Parcelable {
     var id: Int? = null
     var archiveNr: String? = null
+    var archiveId: Int? = null
     var recordId: Int? = null
     var folderId: Int? = null
     var folderLinkId: Int? = null
@@ -32,6 +33,7 @@ open class Record : Parcelable {
     constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
         archiveNr = parcel.readString()
+        archiveId = parcel.readValue(Int::class.java.classLoader) as? Int
         recordId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderId = parcel.readValue(Int::class.java.classLoader) as? Int
         folderLinkId = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -56,6 +58,7 @@ open class Record : Parcelable {
     constructor(recordInfo: RecordVO) {
         id = if (recordInfo.folderId != null) recordInfo.folderId else recordInfo.recordId
         archiveNr = recordInfo.archiveNbr
+        archiveId = recordInfo.archiveId
         recordId = recordInfo.recordId
         folderId = recordInfo.folderId
         folderLinkId = recordInfo.folder_linkId
@@ -77,6 +80,7 @@ open class Record : Parcelable {
     constructor(recordInfo: FolderVO) {
         id = recordInfo.folderId
         archiveNr = recordInfo.archiveNbr
+        archiveId = recordInfo.archiveId
         folderId = recordInfo.folderId
         folderLinkId = recordInfo.folder_linkId
         parentFolderLinkId = recordInfo.parentFolder_linkId
@@ -96,6 +100,7 @@ open class Record : Parcelable {
 
     constructor(itemVO: ItemVO, archiveVO: ArchiveVO, showArchiveThumbnail: Boolean) {
         id = if (itemVO.folderId != null) itemVO.folderId else itemVO.recordId
+        archiveId = itemVO.archiveId
         archiveNr = itemVO.archiveNbr
         recordId = itemVO.recordId
         folderId = itemVO.folderId
@@ -166,6 +171,7 @@ open class Record : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)
         parcel.writeString(archiveNr)
+        parcel.writeValue(archiveId)
         parcel.writeValue(recordId)
         parcel.writeValue(folderId)
         parcel.writeValue(folderLinkId)

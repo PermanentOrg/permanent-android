@@ -32,6 +32,7 @@ import org.permanent.permanent.viewmodels.RecordOptionsViewModel
 
 const val SHOWN_IN_WHICH_WORKSPACE = "shown_in_which_workspace_key"
 const val IS_SHOWN_IN_SHARED_WITH_ME = "is_shown_in_shared_with_me_key"
+const val IS_SHOWN_IN_ROOT_FOLDER = "is_shown_in_root_folder_key"
 
 class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentRecordOptionsBinding
@@ -42,6 +43,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private var downloadingAlert: AlertDialog? = null
     private val onFileDownloadRequest = MutableLiveData<Record>()
     private val onRecordDeleteRequest = MutableLiveData<Record>()
+    private val onRecordUnshareRequest = MutableLiveData<Record>()
     private val onRecordRenameRequest = MutableLiveData<Record>()
     private val onRecordManageSharingRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
@@ -49,12 +51,14 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     fun setBundleArguments(
         record: Record,
         workspace: Workspace,
-        isShownInSharedWithMe: Boolean = false
+        isShownInSharedWithMe: Boolean = false,
+        isShownInRootFolder: Boolean = false
     ) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
         bundle.putParcelable(SHOWN_IN_WHICH_WORKSPACE, workspace)
         bundle.putBoolean(IS_SHOWN_IN_SHARED_WITH_ME, isShownInSharedWithMe)
+        bundle.putBoolean(IS_SHOWN_IN_ROOT_FOLDER, isShownInRootFolder)
         this.arguments = bundle
     }
 
@@ -74,9 +78,11 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
                 arguments?.getParcelable<Workspace?>(SHOWN_IN_WHICH_WORKSPACE)
             val isShownInSharedWithMe =
                 arguments?.getBoolean(IS_SHOWN_IN_SHARED_WITH_ME)
+            val isShownInRootFolder =
+                arguments?.getBoolean(IS_SHOWN_IN_ROOT_FOLDER) ?: false
 
             if (shownInWorkspace != null && isShownInSharedWithMe != null) {
-                viewModel.initWith(it, shownInWorkspace, isShownInSharedWithMe)
+                viewModel.initWith(it, shownInWorkspace, isShownInSharedWithMe, isShownInRootFolder)
             }
         }
 
@@ -111,6 +117,11 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onDeleteObserver = Observer<Void> {
         dismiss()
         onRecordDeleteRequest.value = record
+    }
+
+    private val onUnshareObserver = Observer<Void> {
+        dismiss()
+        onRecordUnshareRequest.value = record
     }
 
     private val onRenameObserver = Observer<Void> {
@@ -233,6 +244,8 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
 
+    fun getOnRecordUnshareRequest(): MutableLiveData<Record> = onRecordUnshareRequest
+
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
 
     fun getOnRecordManageSharingRequest(): MutableLiveData<Record> =
@@ -246,6 +259,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnDeleteRequest().observe(this, onDeleteObserver)
+        viewModel.getOnUnshareRequest().observe(this, onUnshareObserver)
         viewModel.getOnRenameRequest().observe(this, onRenameObserver)
         viewModel.getOnManageSharingRequest().observe(this, onManageSharingObserver)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
