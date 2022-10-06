@@ -415,6 +415,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.searchRecord(requestBody)
     }
 
+    fun unshareRecord(record: Record, archiveId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addShare(record, archiveId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return shareService.deleteShare(requestBody)
+    }
+
     fun requestShareLink(
         record: Record, shareRequestType: ShareRequestType
     ): Call<ResponseVO> {

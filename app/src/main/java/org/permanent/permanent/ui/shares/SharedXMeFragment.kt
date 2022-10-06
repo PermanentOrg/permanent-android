@@ -184,6 +184,23 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         alert.show()
     }
 
+    private val onRecordUnshareRequest = Observer<Record> { record ->
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
+        val alert = AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.unshare_record_title, record.displayName)
+        viewDialog.btnDelete.text = getString(R.string.unshare_btn_text)
+        viewDialog.btnDelete.setOnClickListener {
+            viewModel.unshare(record)
+            alert.dismiss()
+        }
+        viewDialog.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
     private val onRecordRenameRequest = Observer<Record> { record ->
         renameDialogBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
@@ -308,6 +325,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
+        recordOptionsFragment?.getOnRecordUnshareRequest()?.observe(this, onRecordUnshareRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
     }
 

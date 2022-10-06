@@ -35,8 +35,7 @@ class RecordGridViewHolder(
         binding.root.setOnClickListener { recordListener.onRecordClick(record) }
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.btnOptions.visibility =
-            if ((CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
-                        isForSharesScreen) && record.type == RecordType.FOLDER ||
+            if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER ||
                 isForSharePreviewScreen || showMyFilesSimplified) View.GONE else View.VISIBLE
 
         if (record.isThumbBlurred != null
