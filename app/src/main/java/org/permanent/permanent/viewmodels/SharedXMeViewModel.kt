@@ -236,7 +236,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         if (uploadsAdapter.itemCount == 0) {
             refreshJob?.cancel()
             refreshJob = viewModelScope.launch {
-                delay(MyFilesViewModel.MILLIS_UNTIL_REFRESH)
+                delay(MyFilesViewModel.MILLIS_UNTIL_REFRESH_AFTER_UPLOAD)
                 refreshCurrentFolder()
             }
         }
@@ -291,10 +291,13 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         fileRepository.deleteRecord(record, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                refreshCurrentFolder()
                 if (record.type == RecordType.FOLDER)
                     showMessage.value = appContext.getString(R.string.my_files_folder_deleted)
                 else showMessage.value = appContext.getString(R.string.my_files_file_deleted)
+                refreshJob = viewModelScope.launch {
+                    delay(MyFilesViewModel.MILLIS_UNTIL_REFRESH_AFTER_DELETE)
+                    refreshCurrentFolder()
+                }
             }
 
             override fun onFailed(error: String?) {
