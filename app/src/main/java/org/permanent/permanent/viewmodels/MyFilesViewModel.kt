@@ -363,7 +363,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
             existsFiles.value = true
             refreshJob?.cancel()
             refreshJob = viewModelScope.launch {
-                delay(MILLIS_UNTIL_REFRESH)
+                delay(MILLIS_UNTIL_REFRESH_AFTER_UPLOAD)
                 refreshCurrentFolder()
             }
         }
@@ -543,7 +543,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
 
     companion object {
-        const val MILLIS_UNTIL_REFRESH = 9000L
+        const val MILLIS_UNTIL_REFRESH_AFTER_UPLOAD = 9000L
+        const val MILLIS_UNTIL_REFRESH_AFTER_DELETE = 1000L
         const val MOBILE_UPLOADS_FOLDER_NAME = "Mobile Uploads"
     }
 }
