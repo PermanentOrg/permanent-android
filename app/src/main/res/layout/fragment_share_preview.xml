@@ -236,7 +236,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="24dp"
                 android:onClick="@{() -> viewModel.onOkBtnClick()}"
-                android:text="@string/ok_button"
+                android:text="@string/button_ok"
                 android:visibility="@{viewModel.currentState == PreviewState.ERROR ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

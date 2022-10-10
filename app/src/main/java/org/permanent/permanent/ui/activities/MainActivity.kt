@@ -5,12 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
@@ -140,16 +142,29 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         // Toolbar Settings menu click listener
         binding.toolbar.setOnMenuItemClickListener(this)
 
-        // Custom start destination fragment from notification
-        val intentExtras = intent.extras
-        val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
-        if (startDestFragmentId != null && startDestFragmentId != 0) {
-            val recipientArchiveNr = intentExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
-            if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
-                showArchiveSwitchDialog(recipientArchiveNr)
-                startWithCustomDestination(true)
-            } else {
-                startWithCustomDestination(false)
+        when {
+            intent?.action == Intent.ACTION_SEND -> {
+                if (intent.type?.startsWith("image/") == true) {
+                    handleSendImage(intent) // Handle single image being sent
+                }
+            }
+            intent?.action == Intent.ACTION_SEND_MULTIPLE
+                    && intent.type?.startsWith("image/") == true -> {
+                handleSendMultipleImages(intent) // Handle multiple images being sent
+            }
+            else -> {
+                // Custom start destination fragment from notification
+                val intentExtras = intent.extras
+                val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
+                if (startDestFragmentId != null && startDestFragmentId != 0) {
+                    val recipientArchiveNr = intentExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
+                    if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
+                        showArchiveSwitchDialog(recipientArchiveNr)
+                        startWithCustomDestination(true)
+                    } else {
+                        startWithCustomDestination(false)
+                    }
+                }
             }
         }
 
@@ -201,6 +216,34 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
     }
 
+    private fun handleSendImage(intent: Intent) {
+        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
+            startDestinationWithArgs(listOf(it))
+        }
+    }
+
+    private fun handleSendMultipleImages(intent: Intent) {
+        intent.getParcelableArrayListExtra<Parcelable>(Intent.EXTRA_STREAM)?.let {
+            startDestinationWithArgs(it)
+        }
+    }
+
+    private fun startDestinationWithArgs(it: List<Parcelable>) {
+        val bundle = bundleOf(SAVE_TO_PERMANENT_FILE_URIS_KEY to it)
+        navController.setGraph(navController.graph, bundle)
+    }
+
+    private fun startWithCustomDestination(removeRecordId: Boolean) {
+        val intentExtras = intent.extras
+        val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
+        if (startDestFragmentId != null && startDestFragmentId != 0) {
+            if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
+            val navGraph = navController.graph
+            navGraph.startDestination = startDestFragmentId
+            navController.setGraph(navGraph, intentExtras)
+        }
+    }
+
     private fun showArchiveSwitchDialog(recipientArchiveNr: String?) {
         val archiveName = intent.extras?.getString(RECIPIENT_ARCHIVE_NAME_KEY)
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
@@ -216,17 +259,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             alert.dismiss()
         }
         alert.show()
-    }
-
-    private fun startWithCustomDestination(removeRecordId: Boolean) {
-        val intentExtras = intent.extras
-        val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
-        if (startDestFragmentId != null && startDestFragmentId != 0) {
-            if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
-            val navGraph = navController.graph
-            navGraph.startDestination = startDestFragmentId
-            navController.setGraph(navGraph, intentExtras)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -336,5 +368,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    companion object {
+        const val SAVE_TO_PERMANENT_FILE_URIS_KEY = "save_to_permanent_file_uris_key"
     }
 }

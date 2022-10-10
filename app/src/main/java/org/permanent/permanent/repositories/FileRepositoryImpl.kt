@@ -164,7 +164,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     override fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier,
         name: String,
-        listener: IResponseListener
+        listener: IRecordListener
     ) {
         NetworkClient.instance().createFolder(
             name, parentFolderIdentifier.folderId,
@@ -175,9 +175,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 val responseVO = response.body()
                 val firstMessage = responseVO?.getMessages()?.get(0)
 
-                if (firstMessage != null && firstMessage.startsWith("New folder"))
-                    listener.onSuccess(null)
-                else listener.onFailed(firstMessage)
+                if (firstMessage != null && firstMessage.startsWith("New folder")) {
+                    val record = responseVO.getFolderRecord()
+                    if (record != null) listener.onSuccess(record)
+                } else listener.onFailed(firstMessage)
             }
 
             override fun onFailure(call: Call<ResponseVO>, t: Throwable) {

@@ -28,7 +28,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/ivFileThumb"
+                android:id="@+id/ivArchiveThumb"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="16dp"
@@ -54,8 +54,8 @@
                 android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@+id/tvSubtitle"
                 app:layout_constraintEnd_toStartOf="@+id/btnCurrentArchiveOptions"
-                app:layout_constraintStart_toEndOf="@id/ivFileThumb"
-                app:layout_constraintTop_toTopOf="@+id/ivFileThumb" />
+                app:layout_constraintStart_toEndOf="@id/ivArchiveThumb"
+                app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
 
             <TextView
                 android:id="@+id/tvSubtitle"
@@ -70,9 +70,9 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/ivFileThumb"
+                app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
                 app:layout_constraintEnd_toStartOf="@+id/btnCurrentArchiveOptions"
-                app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
+                app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
                 app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
             <Button

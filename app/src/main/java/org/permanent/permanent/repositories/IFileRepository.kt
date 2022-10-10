@@ -41,7 +41,7 @@ interface IFileRepository {
     fun createFolder(
         parentFolderIdentifier: NavigationFolderIdentifier,
         name: String,
-        listener: IResponseListener
+        listener: IRecordListener
     )
 
     fun getFolder(

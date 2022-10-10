@@ -226,8 +226,8 @@
 
     <string name="reset_button">Reset</string>
     <string name="no_button">No</string>
-    <string name="cancel_button">Cancel</string>
-    <string name="switch_button">Switch</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_switch">Switch</string>
     <string name="yes_button">Yes</string>
     <string name="button_transfer">Transfer</string>
     <string name="button_upload">Upload</string>
@@ -235,7 +235,7 @@
     <string name="button_retry">Retry</string>
     <string name="button_publish">Publish</string>
     <string name="create_button">Create</string>
-    <string name="cancel_all_button">Cancel all</string>
+    <string name="button_cancel_all">Cancel all</string>
     <string name="delete_button">Delete</string>
     <string name="share_button">Share</string>
     <string name="more_button">More</string>
@@ -245,10 +245,10 @@
     <string name="share_link_link_settings_button">Link Settings</string>
     <string name="share_link_revoke_link_button">Revoke Link</string>
     <string name="share_link_revoke_button">Revoke</string>
-    <string name="ok_button">OK</string>
-    <string name="send_button">Send</string>
-    <string name="approve_button">Approve</string>
-    <string name="deny_button">Deny</string>
+    <string name="button_ok">OK</string>
+    <string name="button_send">Send</string>
+    <string name="button_approve">Approve</string>
+    <string name="button_deny">Deny</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -493,5 +493,11 @@
     <string name="archive_onboarding_name_hint">Name</string>
     <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
+
     <string name="unshare_btn_text">Unshare</string>
+
+    <string name="save_to_permanent_selected_files">Selected files:</string>
+    <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>
+    <string name="save_to_permanent_mobile_uploads">Mobile Uploads</string>
+
 </resources>

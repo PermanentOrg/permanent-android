@@ -49,6 +49,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
     private var currentFolder = MutableLiveData<NavigationFolder>()
+    private var mobileUploadsFolder = MutableLiveData<NavigationFolder>()
     private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     private var showEmptyFolder = MutableLiveData(false)
@@ -116,7 +117,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                showMessage.value = error
+                error?.let { showMessage.value = it }
             }
         })
     }
@@ -153,7 +154,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                         folderName.value = when {
                             parentName.equals(Constants.MY_FILES_FOLDER) -> Constants.PRIVATE_FILES
                             parentName.equals(
-                                Constants.PUBLIC_FILES_FOLDER) -> Constants.PUBLIC_FILES
+                                Constants.PUBLIC_FILES_FOLDER
+                            ) -> Constants.PUBLIC_FILES
                             else -> parentName
                         }
 
@@ -165,7 +167,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
                     override fun onFailed(error: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        showMessage.value = error
+                        error?.let { showMessage.value = it }
                     }
                 })
         }
@@ -212,6 +214,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         when {
             record.type == RecordType.FOLDER -> {
                 currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
+                mobileUploadsFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
                 folderPathStack.push(record)
                 loadFilesAndUploadsOf(record)
             }
@@ -267,8 +270,69 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         }
     }
 
-    fun upload(uris: List<Uri>) {
-        currentFolder.value?.getUploadQueue()?.upload(uris)
+    fun uploadToCurrentFolder(uris: List<Uri>) {
+        currentFolder.value?.let { uploadTo(it, uris) }
+    }
+
+    private fun uploadTo(folder: NavigationFolder, uris: List<Uri>) {
+        folder.getUploadQueue()?.upload(uris)
+    }
+
+    fun uploadToMobileUploads(uris: ArrayList<Uri>) {
+        val mobileUploadsRecord: Record? = getMobileUploadsRecord()
+
+        if (mobileUploadsRecord == null) {
+            createMobileUploadsFolderAndUpload(uris)
+        } else {
+            onFolderCreated(mobileUploadsRecord, uris)
+        }
+    }
+
+    private fun getMobileUploadsRecord(): Record? {
+        val currentRecords = onRecordsRetrieved.value
+
+        if (currentRecords != null && currentRecords.isNotEmpty()) {
+            for (record in currentRecords) {
+                if (record.displayName?.lowercase(Locale.getDefault()).equals(
+                        MOBILE_UPLOADS_FOLDER_NAME.lowercase(Locale.getDefault())
+                    )
+                ) {
+                    return record
+                }
+            }
+        }
+        return null
+    }
+
+    private fun createMobileUploadsFolderAndUpload(urisToUpload: List<Uri>) {
+        val parentFolderIdentifier = currentFolder.value?.getFolderIdentifier()
+
+        if (swipeRefreshLayout.isRefreshing) return
+
+        if (parentFolderIdentifier != null) {
+            swipeRefreshLayout.isRefreshing = true
+            fileRepository.createFolder(
+                parentFolderIdentifier,
+                MOBILE_UPLOADS_FOLDER_NAME,
+                object : IRecordListener {
+                    override fun onSuccess(record: Record) {
+                        swipeRefreshLayout.isRefreshing = false
+                        onFolderCreated(record, urisToUpload)
+                        refreshCurrentFolder()
+                    }
+
+                    override fun onFailed(error: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        error?.let { showMessage.value = it }
+                    }
+                })
+        }
+    }
+
+    private fun onFolderCreated(mobileUploadsFolderRecord: Record, urisToUpload: List<Uri>) {
+        mobileUploadsFolder.value = NavigationFolder(appContext, mobileUploadsFolderRecord)
+        mobileUploadsFolder.value?.newUploadQueue(lifecycleOwner, this)
+        mobileUploadsFolder.value?.let { uploadTo(it, urisToUpload) }
     }
 
     fun download(record: Record) {
@@ -296,6 +360,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
         if (succeeded) addFakeItemToFilesList(upload)
         if (uploadsAdapter.itemCount == 0) {
+            existsFiles.value = true
             refreshJob?.cancel()
             refreshJob = viewModelScope.launch {
                 delay(MILLIS_UNTIL_REFRESH)
@@ -360,14 +425,14 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        showMessage.value = message
+                        message?.let { showMessage.value = it }
                         onNewTemporaryFile.value = recordToRelocate.value
                         existsFiles.value = true
                     }
 
                     override fun onFailed(error: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        showMessage.value = error
+                        error?.let { showMessage.value = it }
                     }
                 })
         }
@@ -390,7 +455,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                showMessage.value = error
+                error?.let { showMessage.value = it }
             }
         })
     }
@@ -479,5 +544,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     companion object {
         const val MILLIS_UNTIL_REFRESH = 9000L
+        const val MOBILE_UPLOADS_FOLDER_NAME = "Mobile Uploads"
     }
 }

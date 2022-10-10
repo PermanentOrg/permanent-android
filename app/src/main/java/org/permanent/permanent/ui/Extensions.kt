@@ -139,10 +139,7 @@ fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String 
 @SuppressLint("SimpleDateFormat")
 fun Uri.getDisplayName(context: Context): String {
     var displayName = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(Date())
-    val cursor = context.contentResolver.query(
-        this, null, null,
-        null, null
-    )
+    val cursor = context.contentResolver.query(this, null, null, null, null)
     try {
         val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         cursor?.moveToFirst()
@@ -153,6 +150,23 @@ fun Uri.getDisplayName(context: Context): String {
         cursor?.close()
     }
     return displayName
+}
+
+fun Uri.getSize(context: Context): String {
+    var displaySize = -1L
+    val cursor = context.contentResolver.query(
+        this, null, null, null, null
+    )
+    try {
+        val sizeIndex = cursor?.getColumnIndex(OpenableColumns.SIZE)
+        cursor?.moveToFirst()
+        sizeIndex?.let { displaySize = cursor.getLong(it) }
+    } catch (e: IOException) {
+        e.printStackTrace()
+    } finally {
+        cursor?.close()
+    }
+    return bytesToHumanReadableString(displaySize)
 }
 
 fun Uri.getFile(context: Context, displayName: String): File? {

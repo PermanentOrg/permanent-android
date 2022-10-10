@@ -104,6 +104,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
         }
         if (workspace == Workspace.PRIVATE_FILES) {
+            hiddenOptions.value?.add(RecordOption.UNSHARE)
             if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
             if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
@@ -119,6 +120,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         } else if (workspace == Workspace.PUBLIC_FILES) {
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
+            hiddenOptions.value?.add(RecordOption.UNSHARE)
             if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
             if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
@@ -137,8 +139,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             if (!actualAccessRole.isDeleteAvailable() || isFragmentShownInSharedWithMe.value == true) {
                 hiddenOptions.value?.add(RecordOption.DELETE)
             }
-            if ( isFragmentShownInSharedWithMe.value == false) {
-                    hiddenOptions.value?.add(RecordOption.UNSHARE)
+            if (isFragmentShownInSharedWithMe.value == false) {
+                hiddenOptions.value?.add(RecordOption.UNSHARE)
             }
             if (!actualAccessRole.isEditAvailable())
                 hiddenOptions.value?.add(RecordOption.RENAME)
@@ -150,6 +152,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.COPY)
             hiddenOptions.value?.add(RecordOption.RENAME)
+            hiddenOptions.value?.add(RecordOption.UNSHARE)
         }
     }
 

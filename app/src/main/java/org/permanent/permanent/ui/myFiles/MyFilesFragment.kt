@@ -29,7 +29,9 @@ import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.*
+import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragment
 import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
@@ -56,6 +58,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var prefsHelper: PreferencesHelper
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
+    private var saveToPermanentFragment: SaveToPermanentFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
     private val onPhotoSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
@@ -67,8 +70,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(MyFilesViewModel::class.java)
-        renameDialogViewModel = ViewModelProvider(this).get(RenameRecordViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MyFilesViewModel::class.java]
+        renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
 
         val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         if (record != null) {
@@ -105,6 +108,10 @@ class MyFilesFragment : PermanentBaseFragment() {
                     showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
                     if (showScreenSimplified) viewModel.setShowScreenSimplified()
                 }
+                arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)
+                    ?.let {
+                        showSaveToPermanentFragment(it)
+                    }
             }
         }
         return binding.root
@@ -145,7 +152,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onFilesSelectedToUpload = Observer<MutableList<Uri>> { fileUriList ->
         if (fileUriList.isNotEmpty()) {
-            viewModel.upload(fileUriList)
+            viewModel.uploadToCurrentFolder(fileUriList)
             fileUriList.clear()
         }
     }
@@ -168,6 +175,12 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onShowRecordSearchFragment = Observer<Void> {
         findNavController().navigate(R.id.action_myFilesFragment_to_recordSearchFragment)
+    }
+
+    private fun showSaveToPermanentFragment(uris: ArrayList<Uri>) {
+        saveToPermanentFragment = SaveToPermanentFragment()
+        saveToPermanentFragment?.setBundleArguments(uris)
+        saveToPermanentFragment?.show(parentFragmentManager, saveToPermanentFragment?.tag)
     }
 
     private val onShowAddOptionsFragment = Observer<NavigationFolderIdentifier> {
@@ -306,6 +319,14 @@ class MyFilesFragment : PermanentBaseFragment() {
         alertDialog?.dismiss()
     }
 
+    private val onFilesUploadRequest = Observer<Void> {
+        arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)?.let {
+            if (it.isNotEmpty()) {
+                viewModel.uploadToMobileUploads(it)
+            }
+        }
+    }
+
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {
         downloadsRecyclerView = rvDownloads
         downloadsAdapter = DownloadsAdapter(this, viewModel)
@@ -372,6 +393,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
+        saveToPermanentFragment?.getOnFilesUploadRequest()?.observe(this, onFilesUploadRequest)
     }
 
     override fun disconnectViewModelEvents() {
@@ -394,6 +416,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
+        saveToPermanentFragment?.getOnFilesUploadRequest()?.removeObserver(onFilesUploadRequest)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)

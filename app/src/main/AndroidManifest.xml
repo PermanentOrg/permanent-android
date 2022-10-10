@@ -12,8 +12,8 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
-<!-- This is why the AD_ID permission is here: https://support.google.com/googleplay/android-developer/answer/6048248?hl=en-->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <!-- This is why the AD_ID permission is here: https://support.google.com/googleplay/android-developer/answer/6048248?hl=en-->
 
     <application
         android:name=".PermanentApplication"
@@ -71,6 +71,17 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
             <nav-graph android:value="@navigation/main_navigation_graph" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.fileView.FileActivity"
@@ -91,8 +102,8 @@
         <activity
             android:name=".ui.archiveOnboarding.ArchiveOnboardingActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activities.UpdateAppActivity"
             android:exported="false"
