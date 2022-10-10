@@ -71,6 +71,8 @@ interface IFileRepository {
 
     fun deleteRecord(record: Record, listener: IResponseListener)
 
+    fun unshareRecord(record: Record, archiveId: Int, listener: IResponseListener)
+
     fun relocateRecord(
         recordToRelocate: Record, destFolderLinkId: Int,
         relocationType: RelocationType, listener: IResponseListener

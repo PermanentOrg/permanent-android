@@ -12,7 +12,8 @@ enum class RecordOption : Parcelable {
     DELETE,
     RENAME,
     SHARE_VIA_PERMANENT,
-    SHARE_TO_ANOTHER_APP;
+    SHARE_TO_ANOTHER_APP,
+    UNSHARE;
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(ordinal)

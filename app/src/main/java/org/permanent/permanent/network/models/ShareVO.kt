@@ -17,4 +17,9 @@ class ShareVO private constructor() {
         accessRole = share.accessRole?.backendString
         status = share.status.value?.toBackendString()
     }
+
+    constructor(folderLinkId: Int, archiveId: Int) : this() {
+        this.folder_linkId = folderLinkId
+        this.archiveId = archiveId
+    }
 }

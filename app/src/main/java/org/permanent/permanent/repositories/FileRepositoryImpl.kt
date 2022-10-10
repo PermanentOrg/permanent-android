@@ -270,6 +270,30 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             })
     }
 
+    override fun unshareRecord(
+        record: Record,
+        archiveId: Int,
+        listener: IResponseListener
+    ) {
+        NetworkClient.instance().unshareRecord(record, archiveId)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    val isSuccessful = responseVO?.isSuccessful
+
+                    if (isSuccessful == true) {
+                        listener.onSuccess(null)
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
     override fun relocateRecord(
         recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType,
         listener: IResponseListener

@@ -494,8 +494,31 @@
                         app:iconPadding="16dp"
                         app:iconTint="@color/deepRed"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/btnShareToAnotherApp" />
+                        app:layout_constraintTop_toBottomOf="@+id/btnShareToAnotherApp" />
+
+                    <Button
+                        android:id="@+id/btnUnshare"
+                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/open_sans"
+                        android:onClick="@{() -> viewModel.onUnshareBtnClick()}"
+                        android:paddingStart="2dp"
+                        android:text="@string/file_options_menu_item_unshare"
+                        android:textAlignment="textStart"
+                        android:textAllCaps="false"
+                        android:textColor="@color/deepRed"
+                        android:visibility="@{viewModel.hiddenOptions.contains(RecordOption.UNSHARE)? View.GONE : View.VISIBLE}"
+                        app:icon="@drawable/ic_delete"
+                        app:iconPadding="16dp"
+                        app:iconTint="@color/deepRed"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/btnDelete" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

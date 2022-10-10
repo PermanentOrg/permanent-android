@@ -24,8 +24,7 @@ class RecordListViewHolder(
         binding.executePendingBindings()
         binding.lifecycleOwner = lifecycleOwner
         binding.btnOptions.visibility =
-            if ((CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER ||
-                        isForSharesScreen) && record.type == RecordType.FOLDER || isForSearchScreen || showMyFilesSimplified
+            if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER || isForSearchScreen || showMyFilesSimplified
             ) View.INVISIBLE else View.VISIBLE
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }
