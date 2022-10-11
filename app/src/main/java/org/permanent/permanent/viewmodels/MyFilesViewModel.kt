@@ -355,10 +355,11 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {
-        currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
+        val wasInCurrentFolderQueue = currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
+        mobileUploadsFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
 
-        if (succeeded) addFakeItemToFilesList(upload)
+        if (succeeded && wasInCurrentFolderQueue == true) addFakeItemToFilesList(upload)
         if (uploadsAdapter.itemCount == 0) {
             existsFiles.value = true
             refreshJob?.cancel()
