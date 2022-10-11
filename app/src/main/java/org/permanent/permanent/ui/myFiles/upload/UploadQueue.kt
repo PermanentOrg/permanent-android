@@ -126,11 +126,13 @@ class UploadQueue(
         }
     }
 
-    fun removeFinishedUpload(upload: Upload) {
+    fun removeFinishedUpload(upload: Upload): Boolean {
         val enqueuedUploadsValue = enqueuedUploads.value
         if (!enqueuedUploadsValue.isNullOrEmpty()) {
             enqueuedUploadsValue.remove(upload)
+            return true
         }
+        return false
     }
 
     fun clear() {
