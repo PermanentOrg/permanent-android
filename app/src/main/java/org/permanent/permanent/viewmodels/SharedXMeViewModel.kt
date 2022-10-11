@@ -37,12 +37,15 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     CancelListener, OnFinishedListener {
 
     private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private lateinit var lifecycleOwner: LifecycleOwner
     private var refreshJob: Job? = null
 
     val isRoot = MutableLiveData(true)
     private val isCreateAvailable = MutableLiveData(true)
-    private val isListViewMode = MutableLiveData(true)
+    private val isListViewMode = MutableLiveData(prefsHelper.isListViewMode())
     var existsShares = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     var showEmptyFolder = MutableLiveData(false)
@@ -202,6 +205,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun onViewModeBtnClick() {
         isListViewMode.value = !isListViewMode.value!!
+        prefsHelper.saveIsListViewMode(isListViewMode.value!!)
         onChangeViewMode.value = isListViewMode.value
     }
 

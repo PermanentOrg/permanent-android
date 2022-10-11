@@ -65,14 +65,13 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        renameDialogViewModel = ViewModelProvider(this).get(RenameRecordViewModel::class.java)
-        viewModel = ViewModelProvider(requireActivity())[SharedXMeViewModel::class.java]
+        renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
+        viewModel = ViewModelProvider(this)[SharedXMeViewModel::class.java]
         binding = FragmentSharedXMeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         viewModel.setLifecycleOwner(this)
-        viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
@@ -152,7 +151,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private val onRootSharesNeeded = Observer<Void> { getRootRecords.call() }
 
     private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
-        prefsHelper.saveIsListViewMode(isListViewMode)
         val records = recordsAdapter.getRecords()
         recordsRecyclerView.apply {
             if (isListViewMode) {
@@ -341,6 +339,12 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
 
     override fun onRecordDeleteClick(record: Record) {}
 
+    private fun checkForViewModeChange() {
+        val isListViewMode = prefsHelper.isListViewMode()
+        viewModel.getIsListViewMode().value = isListViewMode
+        onChangeViewMode.onChanged(isListViewMode)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getOnShowQuotaExceeded().observe(this, onShowQuotaExceeded)
@@ -353,6 +357,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
+        viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -370,6 +375,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
+        viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
@@ -382,15 +388,11 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
+        checkForViewModeChange()
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
     }
 }
