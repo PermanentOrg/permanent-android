@@ -89,7 +89,7 @@ fun loadUrl(view: ImageView, url: String?) {
 fun loadUri(view: ImageView, uri: Uri) {
     Picasso.get()
         .load(uri)
-        .placeholder(R.drawable.ic_stop_light_grey)
+        .placeholder(R.drawable.ic_file_light_grey)
         .transform(ResizeTransformation(1024))
         .into(view)
 }
