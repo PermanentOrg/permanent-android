@@ -26,6 +26,7 @@ import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 fun Context.hideKeyboardFrom(windowToken: IBinder) {
     (getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             ).hideSoftInputFromWindow(windowToken, 0)
@@ -167,6 +168,10 @@ fun Uri.getSize(context: Context): String {
         cursor?.close()
     }
     return bytesToHumanReadableString(displaySize)
+}
+
+fun Uri.getMimeType(context: Context): String? {
+    return context.contentResolver.getType(this)
 }
 
 fun Uri.getFile(context: Context, displayName: String): File? {

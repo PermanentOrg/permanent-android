@@ -72,6 +72,7 @@ class OnlinePresenceListViewModel(application: Application) :
                         socialMedias.add(profileItem)
                     }
                 }
+                else -> {}
             }
         }
         onlinePresences.addAll(emails)

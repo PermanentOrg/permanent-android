@@ -72,7 +72,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private val onDestinationChangedListener =
-        NavController.OnDestinationChangedListener { controller, destination, arguments ->
+        NavController.OnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.editAboutFragment, R.id.editArchiveInformationFragment,
                 R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
@@ -142,15 +142,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         // Toolbar Settings menu click listener
         binding.toolbar.setOnMenuItemClickListener(this)
 
-        when {
-            intent?.action == Intent.ACTION_SEND -> {
-                if (intent.type?.startsWith("image/") == true) {
-                    handleSendImage(intent) // Handle single image being sent
-                }
+        when (intent?.action) {
+            Intent.ACTION_SEND -> {
+                handleSendFile(intent) // Handle single file being sent
             }
-            intent?.action == Intent.ACTION_SEND_MULTIPLE
-                    && intent.type?.startsWith("image/") == true -> {
-                handleSendMultipleImages(intent) // Handle multiple images being sent
+            Intent.ACTION_SEND_MULTIPLE -> {
+                handleSendMultipleFiles(intent) // Handle multiple files being sent
             }
             else -> {
                 // Custom start destination fragment from notification
@@ -216,13 +213,13 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
     }
 
-    private fun handleSendImage(intent: Intent) {
+    private fun handleSendFile(intent: Intent) {
         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
-            startDestinationWithArgs(listOf(it))
+            startDestinationWithArgs(arrayListOf(it))
         }
     }
 
-    private fun handleSendMultipleImages(intent: Intent) {
+    private fun handleSendMultipleFiles(intent: Intent) {
         intent.getParcelableArrayListExtra<Parcelable>(Intent.EXTRA_STREAM)?.let {
             startDestinationWithArgs(it)
         }
