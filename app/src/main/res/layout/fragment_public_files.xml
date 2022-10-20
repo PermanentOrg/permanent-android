@@ -286,7 +286,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
-                android:onClick="@{() -> viewModel.onRelocateBtnClick()}"
+                android:onClick="@{() -> viewModel.onPasteBtnClick()}"
                 android:text="@{viewModel.relocationType.name()}"
                 android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/colorPrimary : @color/lightGrey}"
                 app:layout_constraintBottom_toBottomOf="parent"

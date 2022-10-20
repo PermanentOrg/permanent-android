@@ -280,14 +280,14 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <Button
-                android:id="@+id/btnRelocate"
+                android:id="@+id/btnPaste"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
-                android:onClick="@{() -> viewModel.onRelocateBtnClick()}"
-                android:text="@{viewModel.relocationType.name()}"
+                android:onClick="@{() -> viewModel.onPasteBtnClick()}"
+                android:text="@string/button_paste"
                 android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/colorPrimary : @color/lightGrey}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -305,7 +305,7 @@
                 android:text="@string/button_cancel"
                 android:textColor="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btnRelocate"
+                app:layout_constraintEnd_toStartOf="@+id/btnPaste"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

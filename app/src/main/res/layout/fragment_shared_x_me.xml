@@ -6,6 +6,8 @@
 
         <import type="android.view.View" />
 
+        <import type="org.permanent.permanent.ui.myFiles.RelocationType" />
+
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.SharedXMeViewModel" />
@@ -257,6 +259,48 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clRelocationBtns"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@color/white"
+            android:visibility="@{viewModel.isRelocationMode ? View.VISIBLE: View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/btnPaste"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
+                android:onClick="@{() -> viewModel.onPasteBtnClick()}"
+                android:text="@string/button_paste"
+                android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/colorPrimary : @color/lightGrey}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btnCancel"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{() -> viewModel.onCancelRelocationBtnClick()}"
+                android:text="@string/button_cancel"
+                android:textColor="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnPaste"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar"

@@ -46,6 +46,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val isCreateAvailable = CurrentArchivePermissionsManager.instance.isCreateAvailable()
     private val isRelocationMode = MutableLiveData(false)
     private val relocationType = MutableLiveData<RelocationType>()
+    private val recordToRelocate = MutableLiveData<Record>()
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
     private var currentFolder = MutableLiveData<NavigationFolder>()
@@ -53,7 +54,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     private var showEmptyFolder = MutableLiveData(false)
-    private val recordToRelocate = MutableLiveData<Record>()
     protected val showMessage = SingleLiveEvent<String>()
     private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
@@ -415,7 +415,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         isRelocationMode.value = true
     }
 
-    fun onRelocateBtnClick() {
+    fun onPasteBtnClick() {
         isRelocationMode.value = false
         val recordValue = recordToRelocate.value
         val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
@@ -504,9 +504,9 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
 
-    fun getIsCreateAvailable(): Boolean = isCreateAvailable
-
     fun getRelocationType(): MutableLiveData<RelocationType> = relocationType
+
+    fun getIsCreateAvailable(): Boolean = isCreateAvailable
 
     fun getCurrentFolder(): MutableLiveData<NavigationFolder> = currentFolder
 

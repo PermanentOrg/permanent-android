@@ -27,6 +27,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
+import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -56,6 +57,9 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
     private var folderPathStack: Stack<Record> = Stack()
     private var currentFolder = MutableLiveData<NavigationFolder>()
+    private val recordToRelocate = MutableLiveData<Record>()
+    private val isRelocationMode = MutableLiveData(false)
+    private val relocationType = MutableLiveData<RelocationType>()
 
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
@@ -70,6 +74,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     private val onCancelAllUploads = SingleLiveEvent<Void>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onFileViewRequest = SingleLiveEvent<Record>()
+    private val showRelocationCancellationDialog = SingleLiveEvent<Void>()
 
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsAdapter: UploadsAdapter
@@ -124,6 +129,14 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     }
 
     fun onBackBtnClick() {
+        if (isRelocationMode.value == true && folderPathStack.size == 1) { // There is only the root
+            showRelocationCancellationDialog.call()
+        } else {
+            navigateBack()
+        }
+    }
+
+    internal fun navigateBack() {
         currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
         // Popping the record of the current folder
         folderPathStack.pop()
@@ -334,6 +347,44 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         })
     }
 
+    fun setRelocationMode(relocationPair: Pair<Record, RelocationType>) {
+        recordToRelocate.value = relocationPair.first
+        relocationType.value = relocationPair.second
+        isRelocationMode.value = true
+    }
+
+    fun onPasteBtnClick() {
+        isRelocationMode.value = false
+        val recordValue = recordToRelocate.value
+        val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
+        val relocationTypeValue = relocationType.value
+        if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
+            isBusy.value = true
+            fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        isBusy.value = false
+                        message?.let { showMessage.value = it }
+                        onNewTemporaryFile.value = recordToRelocate.value
+                        existsShares.value = true
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        error?.let { showMessage.value = it }
+                    }
+                })
+        }
+    }
+
+    fun onCancelRelocationBtnClick() {
+        cancelRelocationMode()
+    }
+
+    fun cancelRelocationMode() {
+        isRelocationMode.value = false
+    }
+
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
 
     fun getExistsUploads(): MutableLiveData<Boolean> = uploadsAdapter.getExistsUploads()
@@ -371,5 +422,15 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun getOnFileViewRequest(): LiveData<Record> = onFileViewRequest
 
+    fun getShowRelocationCancellationDialog(): LiveData<Void> = showRelocationCancellationDialog
+
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
+
+    fun getRecordToRelocate(): MutableLiveData<Record> = recordToRelocate
+
+    fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
+
+    fun getRelocationType(): MutableLiveData<RelocationType> = relocationType
+
+    fun getCurrentFolder(): MutableLiveData<NavigationFolder> = currentFolder
 }

@@ -227,6 +227,7 @@
     <string name="reset_button">Reset</string>
     <string name="no_button">No</string>
     <string name="button_cancel">Cancel</string>
+    <string name="button_paste">Paste</string>
     <string name="button_switch">Switch</string>
     <string name="yes_button">Yes</string>
     <string name="button_transfer">Transfer</string>
@@ -494,10 +495,14 @@
     <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
 
-    <string name="unshare_btn_text">Unshare</string>
+    <string name="button_unshare">Unshare</string>
+    <string name="button_discard">Yes, discard selected file</string>
 
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>
     <string name="save_to_permanent_mobile_uploads">Mobile Uploads</string>
+
+    <string name="dialog_shared_files_discard_title">Discard selection</string>
+    <string name="dialog_shared_files_discard_text">Are you sure you want to discard selection and navigate back?</string>
 
 </resources>

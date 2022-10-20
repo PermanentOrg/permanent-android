@@ -77,12 +77,12 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         record: Record,
         workspace: Workspace,
         isShownInSharedWithMe: Boolean,
-        isFragmentShownInRootFolder: Boolean
+        isShownInRootFolder: Boolean
     ) {
         this.record = record
         this.workspace = workspace
         this.isFragmentShownInSharedWithMe.value = isShownInSharedWithMe
-        this.isFragmentShownInRootFolder.value = isFragmentShownInRootFolder
+        this.isFragmentShownInRootFolder.value = isShownInRootFolder
         recordName.value = record.displayName
         actualAccessRole = record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole()) ?: AccessRole.VIEWER
         recordPermission.value = actualAccessRole.toTitleCase()
@@ -132,10 +132,12 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         } else if (workspace == Workspace.SHARES) {
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.COPY_LINK)
-            hiddenOptions.value?.add(RecordOption.MOVE)
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
             hiddenOptions.value?.add(RecordOption.COPY)
+            if (!actualAccessRole.isMoveAvailable() || isFragmentShownInRootFolder.value == true) {
+                hiddenOptions.value?.add(RecordOption.MOVE)
+            }
             if (!actualAccessRole.isDeleteAvailable() || isFragmentShownInSharedWithMe.value == true) {
                 hiddenOptions.value?.add(RecordOption.DELETE)
             }
@@ -389,6 +391,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun getWorkspace(): Workspace = workspace
 
     fun getIsFragmentShownInSharedWithMe(): MutableLiveData<Boolean> = isFragmentShownInSharedWithMe
+
+    fun getIsFragmentShownInRootFolder(): MutableLiveData<Boolean> = isFragmentShownInRootFolder
 
     fun getRecordName(): MutableLiveData<String> = recordName
 
