@@ -26,7 +26,7 @@ class SharesFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(SharesViewModel::class.java)
+        viewModel = ViewModelProvider(this)[SharesViewModel::class.java]
         binding = FragmentSharesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

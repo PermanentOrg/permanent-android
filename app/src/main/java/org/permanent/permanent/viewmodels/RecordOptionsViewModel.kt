@@ -132,9 +132,11 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         } else if (workspace == Workspace.SHARES) {
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.COPY_LINK)
-            hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
             hiddenOptions.value?.add(RecordOption.COPY)
+            if (!actualAccessRole.isOwnershipAvailable() || isFragmentShownInSharedWithMe.value == true) {
+                hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
+            }
             if (!actualAccessRole.isMoveAvailable() || isFragmentShownInRootFolder.value == true) {
                 hiddenOptions.value?.add(RecordOption.MOVE)
             }
