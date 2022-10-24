@@ -47,7 +47,9 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
                                 val shareItem: Record
                                 if (currentArchiveId == archive.archiveId) {
                                     shareItem = Record(item, archive, false)
-                                    sharesByMe.add(shareItem)
+                                    if (shareItem.shares != null && shareItem.shares!!.isNotEmpty()) {
+                                        sharesByMe.add(shareItem)
+                                    }
                                 } else {
                                     shareItem = Record(item, archive, true)
                                     sharesWithMe.add(shareItem)
