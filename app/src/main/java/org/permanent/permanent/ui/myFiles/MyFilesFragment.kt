@@ -198,7 +198,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.observe(this, onRecordShareManagementObserver)
+            ?.observe(this, onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
 
@@ -277,7 +277,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         onPhotoSelectedEvent.value = it
     }
 
-    private val onRecordShareManagementObserver = Observer<Record> {
+    private val onRecordManageSharingObserver = Observer<Record> {
         navigateToShareLinkFragment(it)
     }
 
@@ -421,7 +421,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.removeObserver(onRecordShareManagementObserver)
+            ?.removeObserver(onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }

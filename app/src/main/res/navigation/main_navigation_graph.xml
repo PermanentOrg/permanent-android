@@ -87,6 +87,9 @@
         <action
             android:id="@+id/action_sharesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
+        <action
+            android:id="@+id/action_sharesFragment_to_shareLinkFragment"
+            app:destination="@id/shareLinkFragment" />
     </fragment>
 
     <fragment
