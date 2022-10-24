@@ -2,7 +2,6 @@ package org.permanent.permanent.ui.fileView
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.ActionBar
@@ -20,7 +19,6 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.FileViewViewModel
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -82,47 +80,29 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
 
         if (it != null && it.contentType?.contains(FileType.PDF.toString()) == true) {
-            val file = File(
-                Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS
-                ), it.fileName
-            )
 
-            if (file.exists()) {
-                binding.pdfView.fromFile(file)
-                    .enableSwipe(false)
-                    .onError { error ->
-                        error.message?.let { errorMsg ->
-                            Log.e(FileViewFragment::class.java.simpleName, errorMsg)
-                        }
-                    }
-                    .enableAnnotationRendering(false)
-                    .password(null)
-                    .load()
-            } else {
-                Thread {
-                    try {
-                        val inputStream: InputStream = URL(it.fileURL).openStream()
-                        activity?.runOnUiThread {
-                            binding.pdfView.recycle()
-                            binding.pdfView.fromStream(inputStream)
-                                .enableSwipe(false)
-                                .onError { error ->
-                                    error.message?.let { errorMsg ->
-                                        Log.e(FileViewFragment::class.java.simpleName, errorMsg)
-                                    }
+            Thread {
+                try {
+                    val inputStream: InputStream = URL(it.fileURL).openStream()
+                    activity?.runOnUiThread {
+                        binding.pdfView.recycle()
+                        binding.pdfView.fromStream(inputStream)
+                            .enableSwipe(false)
+                            .onError { error ->
+                                error.message?.let { errorMsg ->
+                                    Log.e(FileViewFragment::class.java.simpleName, errorMsg)
                                 }
-                                .enableAnnotationRendering(false)
-                                .password(null)
-                                .load()
-                        }
-                    } catch (e: IOException) {
-                        e.message?.let { errorMsg ->
-                            Log.e(FileViewFragment::class.java.simpleName, errorMsg)
-                        }
+                            }
+                            .enableAnnotationRendering(false)
+                            .password(null)
+                            .load()
                     }
-                }.start()
-            }
+                } catch (e: IOException) {
+                    e.message?.let { errorMsg ->
+                        Log.e(FileViewFragment::class.java.simpleName, errorMsg)
+                    }
+                }
+            }.start()
         }
     }
 
