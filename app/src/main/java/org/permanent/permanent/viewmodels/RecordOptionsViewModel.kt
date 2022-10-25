@@ -63,7 +63,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onFileDownloadRequest = SingleLiveEvent<Void>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
     private val onDeleteRequest = SingleLiveEvent<Void>()
-    private val onUnshareRequest = SingleLiveEvent<Void>()
+    private val onLeaveShareRequest = SingleLiveEvent<Void>()
     private val onRenameRequest = SingleLiveEvent<Void>()
     private val onManageSharingRequest = SingleLiveEvent<Void>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
@@ -84,7 +84,9 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         this.isFragmentShownInSharedWithMe.value = isShownInSharedWithMe
         this.isFragmentShownInRootFolder.value = isShownInRootFolder
         recordName.value = record.displayName
-        actualAccessRole = record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole()) ?: AccessRole.VIEWER
+        actualAccessRole =
+            record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole())
+                ?: AccessRole.VIEWER
         recordPermission.value = actualAccessRole.toTitleCase()
         initShares(record)
         updateSharedWithBtnTxt(allShares.size)
@@ -104,7 +106,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_TO_ANOTHER_APP)
         }
         if (workspace == Workspace.PRIVATE_FILES) {
-            hiddenOptions.value?.add(RecordOption.UNSHARE)
+            hiddenOptions.value?.add(RecordOption.LEAVE_SHARE)
             if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
             if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
@@ -120,7 +122,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         } else if (workspace == Workspace.PUBLIC_FILES) {
             hiddenOptions.value?.add(RecordOption.PUBLISH)
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
-            hiddenOptions.value?.add(RecordOption.UNSHARE)
+            hiddenOptions.value?.add(RecordOption.LEAVE_SHARE)
             if (!CurrentArchivePermissionsManager.instance.isCreateAvailable())
                 hiddenOptions.value?.add(RecordOption.COPY)
             if (!CurrentArchivePermissionsManager.instance.isDeleteAvailable())
@@ -140,11 +142,11 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             if (!actualAccessRole.isMoveAvailable() || isFragmentShownInRootFolder.value == true) {
                 hiddenOptions.value?.add(RecordOption.MOVE)
             }
-            if (!actualAccessRole.isDeleteAvailable() || isFragmentShownInSharedWithMe.value == true) {
+            if (!actualAccessRole.isDeleteAvailable() || isFragmentShownInSharedWithMe.value == true && isFragmentShownInRootFolder.value == true) {
                 hiddenOptions.value?.add(RecordOption.DELETE)
             }
-            if (isFragmentShownInSharedWithMe.value == false) {
-                hiddenOptions.value?.add(RecordOption.UNSHARE)
+            if (isFragmentShownInSharedWithMe.value == false || isFragmentShownInRootFolder.value == false) {
+                hiddenOptions.value?.add(RecordOption.LEAVE_SHARE)
             }
             if (!actualAccessRole.isEditAvailable())
                 hiddenOptions.value?.add(RecordOption.RENAME)
@@ -156,7 +158,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             hiddenOptions.value?.add(RecordOption.SHARE_VIA_PERMANENT)
             hiddenOptions.value?.add(RecordOption.COPY)
             hiddenOptions.value?.add(RecordOption.RENAME)
-            hiddenOptions.value?.add(RecordOption.UNSHARE)
+            hiddenOptions.value?.add(RecordOption.LEAVE_SHARE)
         }
     }
 
@@ -227,8 +229,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         onDeleteRequest.call()
     }
 
-    fun onUnshareBtnClick() {
-        onUnshareRequest.call()
+    fun onLeaveShareBtnClick() {
+        onLeaveShareRequest.call()
     }
 
     fun onRenameBtnClick() {
@@ -424,7 +426,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnDeleteRequest(): MutableLiveData<Void> = onDeleteRequest
 
-    fun getOnUnshareRequest(): MutableLiveData<Void> = onUnshareRequest
+    fun getOnLeaveShareRequest(): MutableLiveData<Void> = onLeaveShareRequest
 
     fun getOnRenameRequest(): MutableLiveData<Void> = onRenameRequest
 

@@ -197,7 +197,7 @@
     <string name="record_options_menu_item_copy">Copy to another location</string>
     <string name="record_options_menu_item_move">Move to another location</string>
     <string name="record_options_menu_item_delete">Delete</string>
-    <string name="record_options_menu_item_unshare">Unshare</string>
+    <string name="record_options_menu_item_leave_share">Leave share</string>
     <string name="record_options_menu_item_rename">Rename</string>
     <string name="record_options_menu_item_publish">Publish to public archive</string>
     <string name="record_options_menu_item_copy_link">Copy Link</string>
@@ -268,7 +268,7 @@
     <string name="dialog_cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
     <string name="new_folder_title">Create New Folder</string>
     <string name="delete_record_title">Delete \"%s\"?</string>
-    <string name="unshare_record_title">Unshare \"%s\"?</string>
+    <string name="leave_share_record_title">Leave share \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
     <string name="my_files_uploads_title">Uploads</string>
     <string name="my_files_downloads_title">Downloads</string>
@@ -497,7 +497,7 @@
     <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
 
-    <string name="button_unshare">Unshare</string>
+    <string name="button_leave_share">Leave share</string>
     <string name="button_discard">Yes, discard selected file</string>
 
     <string name="save_to_permanent_selected_files">Selected files:</string>

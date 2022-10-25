@@ -43,7 +43,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private var downloadingAlert: AlertDialog? = null
     private val onFileDownloadRequest = MutableLiveData<Record>()
     private val onRecordDeleteRequest = MutableLiveData<Record>()
-    private val onRecordUnshareRequest = MutableLiveData<Record>()
+    private val onRecordLeaveShareRequest = MutableLiveData<Record>()
     private val onRecordRenameRequest = MutableLiveData<Record>()
     private val onRecordManageSharingRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
@@ -119,9 +119,9 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         onRecordDeleteRequest.value = record
     }
 
-    private val onUnshareObserver = Observer<Void> {
+    private val onLeaveShareObserver = Observer<Void> {
         dismiss()
-        onRecordUnshareRequest.value = record
+        onRecordLeaveShareRequest.value = record
     }
 
     private val onRenameObserver = Observer<Void> {
@@ -244,7 +244,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
 
-    fun getOnRecordUnshareRequest(): MutableLiveData<Record> = onRecordUnshareRequest
+    fun getOnRecordLeaveShareRequest(): MutableLiveData<Record> = onRecordLeaveShareRequest
 
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
 
@@ -259,7 +259,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnDeleteRequest().observe(this, onDeleteObserver)
-        viewModel.getOnUnshareRequest().observe(this, onUnshareObserver)
+        viewModel.getOnLeaveShareRequest().observe(this, onLeaveShareObserver)
         viewModel.getOnRenameRequest().observe(this, onRenameObserver)
         viewModel.getOnManageSharingRequest().observe(this, onManageSharingObserver)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
