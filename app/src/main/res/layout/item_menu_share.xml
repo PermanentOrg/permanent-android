@@ -34,32 +34,60 @@
             android:layout_marginStart="12dp"
             android:ellipsize="end"
             android:fontFamily="@font/open_sans"
-            android:maxLines="1"
             android:letterSpacing="-0.01"
+            android:maxLines="1"
             android:text="@{share.archive.fullName}"
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@+id/ivShareArchiveThumb"
-            app:layout_constraintEnd_toStartOf="@+id/tvAccessLevel"
+            app:layout_constraintEnd_toStartOf="@+id/clAccess"
             app:layout_constraintStart_toEndOf="@id/ivShareArchiveThumb"
             app:layout_constraintTop_toTopOf="@+id/ivShareArchiveThumb" />
 
-        <TextView
-            android:id="@+id/tvAccessLevel"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAccess"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/access_role_background_color"
-            android:ellipsize="end"
-            android:fontFamily="@font/open_sans"
-            android:letterSpacing="-0.01"
-            android:maxLines="1"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:text="@{share.accessRole.name()}"
-            android:textColor="@color/black"
-            android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvAccessLevel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/access_role_background_color"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans"
+                android:letterSpacing="-0.01"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="@{share.accessRole.name()}"
+                android:textColor="@color/black"
+                android:textSize="10sp"
+                android:visibility="@{share.status == Status.PENDING ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvPendingAccess"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans"
+                android:letterSpacing="-0.01"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="@string/record_options_pending"
+                android:textColor="@color/black"
+                android:textSize="10sp"
+                android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

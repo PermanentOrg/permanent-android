@@ -162,7 +162,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     private fun updateSharedWithBtnTxt(sharesSize: Int?) {
         sharesSize?.let {
-            sharedWithLabelTxt.value = appContext.getString(R.string.file_options_shared_with, it)
+            sharedWithLabelTxt.value = appContext.getString(R.string.record_options_shared_with, it)
         }
     }
 
