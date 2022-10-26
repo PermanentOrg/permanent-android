@@ -264,14 +264,15 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
         val alert = AlertDialog.Builder(context).setView(viewDialog).create()
 
-        viewDialog.tvTitle.text = getString(R.string.dialog_shared_files_discard_title)
-        viewDialog.tvText.text = getString(R.string.dialog_shared_files_discard_text)
-        viewDialog.btnPositive.text = getString(R.string.button_discard)
+        viewDialog.tvTitle.text = getString(R.string.dialog_shared_files_cancel_move_title)
+        viewDialog.tvText.text = getString(R.string.dialog_shared_files_cancel_move_text)
+        viewDialog.btnPositive.text = getString(R.string.button_cancel_move)
         viewDialog.btnPositive.setOnClickListener {
             viewModel.cancelRelocationMode()
             viewModel.navigateBack()
             alert.dismiss()
         }
+        viewDialog.btnNegative.text = getString(R.string.button_continue)
         viewDialog.btnNegative.setOnClickListener {
             alert.dismiss()
         }
