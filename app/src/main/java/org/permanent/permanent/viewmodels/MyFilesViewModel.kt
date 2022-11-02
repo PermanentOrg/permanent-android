@@ -68,7 +68,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
-    private val onPhotoSelected = SingleLiveEvent<Record>()
+    private val onRecordSelected = SingleLiveEvent<Record>()
     private var showScreenSimplified = MutableLiveData(false)
 
     protected var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -211,19 +211,21 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
             return
         }
 
-        when {
-            record.type == RecordType.FOLDER -> {
+        if (showScreenSimplified.value == true) onRecordSelected.value = record
+
+        when (record.type) {
+            RecordType.FOLDER -> {
                 currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
-                mobileUploadsFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
+                mobileUploadsFolder.value?.getUploadQueue()
+                    ?.clearEnqueuedUploadsAndRemoveTheirObservers()
                 folderPathStack.push(record)
                 loadFilesAndUploadsOf(record)
             }
-            showScreenSimplified.value == true -> {
-                onPhotoSelected.value = record
-            }
             else -> {
-                record.displayFirstInCarousel = true
-                onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
+                if (showScreenSimplified.value == false) {
+                    record.displayFirstInCarousel = true
+                    onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
+                }
             }
         }
     }
@@ -278,13 +280,14 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         folder.getUploadQueue()?.upload(uris)
     }
 
-    fun uploadToMobileUploads(uris: ArrayList<Uri>) {
-        val mobileUploadsRecord: Record? = getMobileUploadsRecord()
+    fun uploadFilesToFolder(uris: ArrayList<Uri>, folder: Record?) {
+        var record: Record? = folder
+        if (record == null) record = getMobileUploadsRecord()
 
-        if (mobileUploadsRecord == null) {
+        if (record == null) {
             createMobileUploadsFolderAndUpload(uris)
         } else {
-            onFolderCreated(mobileUploadsRecord, uris)
+            onDestinationFolderReady(record, uris)
         }
     }
 
@@ -317,7 +320,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
                 object : IRecordListener {
                     override fun onSuccess(record: Record) {
                         swipeRefreshLayout.isRefreshing = false
-                        onFolderCreated(record, urisToUpload)
+                        onDestinationFolderReady(record, urisToUpload)
                         refreshCurrentFolder()
                     }
 
@@ -329,7 +332,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         }
     }
 
-    private fun onFolderCreated(mobileUploadsFolderRecord: Record, urisToUpload: List<Uri>) {
+    private fun onDestinationFolderReady(mobileUploadsFolderRecord: Record, urisToUpload: List<Uri>) {
         mobileUploadsFolder.value = NavigationFolder(appContext, mobileUploadsFolderRecord)
         mobileUploadsFolder.value?.newUploadQueue(lifecycleOwner, this)
         mobileUploadsFolder.value?.let { uploadTo(it, urisToUpload) }
@@ -355,7 +358,8 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {
-        val wasInCurrentFolderQueue = currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
+        val wasInCurrentFolderQueue =
+            currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         mobileUploadsFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
 
@@ -530,7 +534,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 
-    fun getOnPhotoSelected(): MutableLiveData<Record> = onPhotoSelected
+    fun getOnRecordSelected(): MutableLiveData<Record> = onRecordSelected
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 

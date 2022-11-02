@@ -18,8 +18,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.databinding.FragmentSaveToPermanentBinding
 import org.permanent.permanent.models.File
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.MainActivity
+import org.permanent.permanent.ui.public.MyFilesContainerFragment
 import org.permanent.permanent.viewmodels.SaveToPermanentViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
@@ -29,7 +32,9 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     private lateinit var viewModel: SaveToPermanentViewModel
     private lateinit var filesRecyclerView: RecyclerView
     private lateinit var filesAdapter: FilesAdapter
-    private val onFilesUploadRequest = SingleLiveEvent<Void>()
+    private var destinationFolder: Record? = null
+    private var myFilesContainerFragment: MyFilesContainerFragment? = null
+    private val onFilesUploadToFolderRequest = SingleLiveEvent<Record>()
 
     fun setBundleArguments(
         uris: ArrayList<Uri>
@@ -80,23 +85,37 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
 
     private val onUploadRequestObserver = Observer<Void> {
         dismiss()
-        onFilesUploadRequest.call()
+        onFilesUploadToFolderRequest.value = destinationFolder
+    }
+
+    private val onChangeDestinationFolderObserver = Observer<Void> {
+        myFilesContainerFragment = MyFilesContainerFragment()
+        myFilesContainerFragment?.setBundleArguments(Workspace.PRIVATE_FILES)
+        myFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
+        myFilesContainerFragment?.show(parentFragmentManager, myFilesContainerFragment?.tag)
     }
 
     private val onCancelRequestObserver = Observer<Void> {
         dismiss()
     }
 
-    fun getOnFilesUploadRequest(): MutableLiveData<Void> = onFilesUploadRequest
+    fun getOnFilesUploadRequest(): MutableLiveData<Record> = onFilesUploadToFolderRequest
+
+    private val onFolderChangedObserver = Observer<Record?> {
+        destinationFolder = it
+        viewModel.changeDestinationFolderTo(it)
+    }
 
     override fun connectViewModelEvents() {
         viewModel.getOnUploadRequest().observe(this, onUploadRequestObserver)
+        viewModel.getOnChangeDestinationFolderRequest().observe(this, onChangeDestinationFolderObserver)
         viewModel.getOnCancelRequest().observe(this, onCancelRequestObserver)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnUploadRequest().removeObserver(onUploadRequestObserver)
         viewModel.getOnCancelRequest().removeObserver(onCancelRequestObserver)
+        myFilesContainerFragment?.getOnSaveFolderEvent()?.removeObserver(onFolderChangedObserver)
     }
 
     override fun onResume() {
