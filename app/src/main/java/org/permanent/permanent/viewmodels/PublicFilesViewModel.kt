@@ -3,6 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.Context
 import org.permanent.permanent.Constants
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.ui.PREFS_NAME
@@ -16,6 +17,10 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
 
     init {
         getFolderName().value = Constants.PUBLIC_FILES
+
+        PermanentApplication.instance.relocateData?.let {
+            setRelocationMode(it)
+        }
     }
 
     override fun loadRootFiles() {

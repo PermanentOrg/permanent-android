@@ -8,6 +8,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.myFiles.RelocationType
 
 
 class PermanentApplication : Application(), LifecycleObserver {
@@ -34,6 +36,8 @@ class PermanentApplication : Application(), LifecycleObserver {
 
     var currentActivity: Activity? = null
     var isAppInForeground: Boolean = false
+
+    var relocateData: Pair<Record, RelocationType>? = null
 
     override fun onCreate() {
         super.onCreate()

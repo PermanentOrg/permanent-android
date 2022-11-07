@@ -20,6 +20,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.IRecordListener
@@ -80,6 +81,12 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     protected lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
     protected lateinit var lifecycleOwner: LifecycleOwner
+
+    init {
+        PermanentApplication.instance.relocateData?.let {
+            setRelocationMode(it)
+        }
+    }
 
     fun set(fragmentManager: FragmentManager) {
         this.fragmentManager = fragmentManager
@@ -410,12 +417,15 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun setRelocationMode(relocationPair: Pair<Record, RelocationType>) {
+        PermanentApplication.instance.relocateData = relocationPair
+
         recordToRelocate.value = relocationPair.first
         relocationType.value = relocationPair.second
         isRelocationMode.value = true
     }
 
     fun onPasteBtnClick() {
+        PermanentApplication.instance.relocateData = null
         isRelocationMode.value = false
         val recordValue = recordToRelocate.value
         val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
