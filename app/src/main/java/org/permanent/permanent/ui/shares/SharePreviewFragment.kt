@@ -19,6 +19,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.SignUpActivity
+import org.permanent.permanent.ui.archives.ArchivesContainerFragment
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
@@ -81,12 +82,11 @@ class SharePreviewFragment : PermanentBaseFragment() {
             prefsHelper.saveShareLinkUrlToken(token)
             archivesContainerFragment = ArchivesContainerFragment()
             archivesContainerFragment?.show(parentFragmentManager, archivesContainerFragment?.tag)
-            archivesContainerFragment?.getOnArchiveChanged()?.observe(this, onArchiveChanged)
+            archivesContainerFragment?.getOnCurrentArchiveChanged()?.observe(this, onArchiveChanged)
         }
     }
 
     private val onArchiveChanged = Observer<Void> {
-        archivesContainerFragment?.dismiss()
         val token = prefsHelper.getShareLinkUrlToken()
         if (!token.isNullOrEmpty()) {
             prefsHelper.saveShareLinkUrlToken("")
@@ -135,7 +135,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
         viewModel.getOnChangeArchive().removeObserver(onChangeArchive)
         viewModel.getOnViewInArchive().removeObserver(onViewInArchive)
         viewModel.getOnNavigateUp().removeObserver(onNavigateUp)
-        archivesContainerFragment?.getOnArchiveChanged()?.removeObserver(onArchiveChanged)
+        archivesContainerFragment?.getOnCurrentArchiveChanged()?.removeObserver(onArchiveChanged)
     }
 
     override fun onResume() {

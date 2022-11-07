@@ -23,7 +23,13 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
         MutableLiveData(appContext.getString(R.string.save_to_permanent_mobile_uploads))
     private val onUploadRequest = SingleLiveEvent<Void>()
     private val onChangeDestinationFolderRequest = SingleLiveEvent<Void>()
+    private val onChangeDestinationArchiveRequest = SingleLiveEvent<Void>()
     private val onCancelRequest = SingleLiveEvent<Void>()
+
+    fun updateCurrentArchive() {
+        currentArchiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
+        currentArchiveName.value = prefsHelper.getCurrentArchiveFullName()
+    }
 
     fun onCancelBtnClick() {
         onCancelRequest.call()
@@ -34,6 +40,7 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
     }
 
     fun onDestinationArchiveClick() {
+        onChangeDestinationArchiveRequest.call()
     }
 
     fun onDestinationFolderClick() {
@@ -42,7 +49,8 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
 
     fun changeDestinationFolderTo(record: Record?) {
         if (record != null) destinationFolderName.value = record.displayName
-        else destinationFolderName.value = appContext.getString(R.string.save_to_permanent_mobile_uploads)
+        else destinationFolderName.value =
+            appContext.getString(R.string.save_to_permanent_mobile_uploads)
     }
 
     fun getFiles(uris: ArrayList<Uri>): ArrayList<File> {
@@ -61,6 +69,9 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
 
     fun getOnChangeDestinationFolderRequest(): MutableLiveData<Void> =
         onChangeDestinationFolderRequest
+
+    fun getOnChangeDestinationArchiveRequest(): MutableLiveData<Void> =
+        onChangeDestinationArchiveRequest
 
     fun getOnCancelRequest(): MutableLiveData<Void> = onCancelRequest
 }

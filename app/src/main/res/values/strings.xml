@@ -511,4 +511,6 @@
 
     <string name="private_files_container_select_folder_title">Select Folder</string>
     <string name="private_files_container_select_file_title">Select File</string>
+
+    <string name="archives_container_change_archive">Change Archive</string>
 </resources>

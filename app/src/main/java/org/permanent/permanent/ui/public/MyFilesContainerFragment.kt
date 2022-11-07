@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentContainerBinding
+import org.permanent.permanent.databinding.FragmentContainerPrivateFilesBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
@@ -27,7 +27,7 @@ import org.permanent.permanent.viewmodels.MyFilesContainerViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class MyFilesContainerFragment : PermanentBottomSheetFragment() {
-    private lateinit var binding: FragmentContainerBinding
+    private lateinit var binding: FragmentContainerPrivateFilesBinding
     private lateinit var viewModel: MyFilesContainerViewModel
     private var shownInWorkspace: Workspace? = Workspace.PUBLIC_ARCHIVES
     private var myFilesFragment: MyFilesFragment? = null
@@ -60,7 +60,7 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[MyFilesContainerViewModel::class.java]
-        binding = FragmentContainerBinding.inflate(inflater, container, false)
+        binding = FragmentContainerPrivateFilesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
