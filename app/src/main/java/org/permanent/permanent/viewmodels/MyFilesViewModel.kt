@@ -450,6 +450,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun onCancelRelocationBtnClick() {
+        PermanentApplication.instance.relocateData = null
         isRelocationMode.value = false
     }
 
