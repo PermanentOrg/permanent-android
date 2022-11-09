@@ -321,6 +321,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.uploadFilesToFolder(it.first, it.second)
     }
 
+    private val onCurrentArchiveChangedObserver = Observer<Void> {
+        viewModel.loadRootFiles()
+    }
+
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {
         downloadsRecyclerView = rvDownloads
         downloadsAdapter = DownloadsAdapter(this, viewModel)
@@ -388,6 +392,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.observe(this, onFilesUploadRequest)
+        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()?.observe(this, onCurrentArchiveChangedObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -411,6 +416,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.removeObserver(onFilesUploadRequest)
+        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()?.removeObserver(onCurrentArchiveChangedObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)

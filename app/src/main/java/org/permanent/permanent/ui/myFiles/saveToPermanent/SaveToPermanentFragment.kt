@@ -37,6 +37,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var archivesContainerFragment: ArchivesContainerFragment? = null
     private val onFilesUploadToFolderRequest = SingleLiveEvent<Pair<Record?, List<Uri>>>()
+    private val onCurrentArchiveChangedEvent = SingleLiveEvent<Void>()
 
     fun setBundleArguments(
         uris: ArrayList<Uri>
@@ -108,14 +109,13 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    fun getOnFilesUploadRequest(): MutableLiveData<Pair<Record?, List<Uri>>> = onFilesUploadToFolderRequest
-
     private val onFolderChangedObserver = Observer<Record?> {
         destinationFolder = it
         viewModel.changeDestinationFolderTo(it)
     }
 
     private val onCurrentArchiveChangedObserver = Observer<Void> {
+        onCurrentArchiveChangedEvent.call()
         viewModel.updateCurrentArchive()
     }
 
@@ -149,4 +149,8 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         super.onPause()
         disconnectViewModelEvents()
     }
+
+    fun getOnFilesUploadRequest(): MutableLiveData<Pair<Record?, List<Uri>>> = onFilesUploadToFolderRequest
+
+    fun getOnCurrentArchiveChangedEvent(): MutableLiveData<Void> = onCurrentArchiveChangedEvent
 }
