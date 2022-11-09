@@ -280,7 +280,7 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         folder.getUploadQueue()?.upload(uris)
     }
 
-    fun uploadFilesToFolder(uris: ArrayList<Uri>, folder: Record?) {
+    fun uploadFilesToFolder(folder: Record?, uris: List<Uri>) {
         var record: Record? = folder
         if (record == null) record = getMobileUploadsRecord()
 

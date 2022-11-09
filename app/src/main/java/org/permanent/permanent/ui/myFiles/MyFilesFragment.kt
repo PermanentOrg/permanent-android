@@ -109,9 +109,7 @@ class MyFilesFragment : PermanentBaseFragment() {
                     if (showScreenSimplified) viewModel.setShowScreenSimplified()
                 }
                 arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)
-                    ?.let {
-                        showSaveToPermanentFragment(it)
-                    }
+                    ?.let { showSaveToPermanentFragment(it) }
             }
         }
         return binding.root
@@ -319,12 +317,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         alertDialog?.dismiss()
     }
 
-    private val onFilesUploadRequest = Observer<Record?> { destinationFolder ->
-        arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)?.let {
-            if (it.isNotEmpty()) {
-                viewModel.uploadFilesToFolder(it, destinationFolder)
-            }
-        }
+    private val onFilesUploadRequest = Observer<Pair<Record?, List<Uri>>> {
+        viewModel.uploadFilesToFolder(it.first, it.second)
     }
 
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {

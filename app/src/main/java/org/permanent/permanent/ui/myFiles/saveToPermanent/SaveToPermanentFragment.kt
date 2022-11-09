@@ -36,7 +36,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     private var destinationFolder: Record? = null
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var archivesContainerFragment: ArchivesContainerFragment? = null
-    private val onFilesUploadToFolderRequest = SingleLiveEvent<Record>()
+    private val onFilesUploadToFolderRequest = SingleLiveEvent<Pair<Record?, List<Uri>>>()
 
     fun setBundleArguments(
         uris: ArrayList<Uri>
@@ -87,7 +87,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
 
     private val onUploadRequestObserver = Observer<Void> {
         dismiss()
-        onFilesUploadToFolderRequest.value = destinationFolder
+        onFilesUploadToFolderRequest.value = Pair(destinationFolder, filesAdapter.getUriList())
     }
 
     private val onChangeDestinationFolderObserver = Observer<Void> {
@@ -108,7 +108,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    fun getOnFilesUploadRequest(): MutableLiveData<Record> = onFilesUploadToFolderRequest
+    fun getOnFilesUploadRequest(): MutableLiveData<Pair<Record?, List<Uri>>> = onFilesUploadToFolderRequest
 
     private val onFolderChangedObserver = Observer<Record?> {
         destinationFolder = it

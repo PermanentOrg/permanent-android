@@ -47,7 +47,7 @@
             android:maxLines="1"
             android:text="@{file.displayName}"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnRemove"
             app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
@@ -63,5 +63,15 @@
             app:layout_constraintTop_toTopOf="@+id/guideline"
             app:layout_constraintVertical_bias="0.0" />
 
+        <Button
+            android:id="@+id/btnRemove"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="38dp"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_close_middle_grey"
+            app:iconTint="@color/middleGrey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
