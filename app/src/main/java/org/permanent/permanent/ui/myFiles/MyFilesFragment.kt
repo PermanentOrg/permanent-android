@@ -60,7 +60,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var saveToPermanentFragment: SaveToPermanentFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
-    private val onPhotoSelectedEvent = SingleLiveEvent<Record>()
+    private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
 
@@ -109,9 +109,7 @@ class MyFilesFragment : PermanentBaseFragment() {
                     if (showScreenSimplified) viewModel.setShowScreenSimplified()
                 }
                 arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)
-                    ?.let {
-                        showSaveToPermanentFragment(it)
-                    }
+                    ?.let { showSaveToPermanentFragment(it) }
             }
         }
         return binding.root
@@ -273,8 +271,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity, bundle)
     }
 
-    private val onPhotoSelectedObserver = Observer<Record> {
-        onPhotoSelectedEvent.value = it
+    private val onRecordSelectedObserver = Observer<Record> {
+        onRecordSelectedEvent.value = it
     }
 
     private val onRecordManageSharingObserver = Observer<Record> {
@@ -319,12 +317,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         alertDialog?.dismiss()
     }
 
-    private val onFilesUploadRequest = Observer<Void> {
-        arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)?.let {
-            if (it.isNotEmpty()) {
-                viewModel.uploadToMobileUploads(it)
-            }
-        }
+    private val onFilesUploadRequest = Observer<Pair<Record?, List<Uri>>> {
+        viewModel.uploadFilesToFolder(it.first, it.second)
+    }
+
+    private val onCurrentArchiveChangedObserver = Observer<Void> {
+        viewModel.loadRootFiles()
     }
 
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {
@@ -372,7 +370,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         }
     }
 
-    fun getOnPhotoSelected(): MutableLiveData<Record> = onPhotoSelectedEvent
+    fun getOnRecordSelected(): MutableLiveData<Record> = onRecordSelectedEvent
 
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
@@ -389,11 +387,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
-        viewModel.getOnPhotoSelected().observe(this, onPhotoSelectedObserver)
+        viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.observe(this, onFilesUploadRequest)
+        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()?.observe(this, onCurrentArchiveChangedObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -411,12 +410,13 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
-        viewModel.getOnPhotoSelected().removeObserver(onPhotoSelectedObserver)
+        viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.removeObserver(onFilesUploadRequest)
+        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()?.removeObserver(onCurrentArchiveChangedObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)

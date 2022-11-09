@@ -23,6 +23,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.viewmodels.PublicViewModel
 
@@ -42,7 +43,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         (activity as AppCompatActivity?)?.supportActionBar?.title = it
     }
 
-    private val onPhotoSelectedObserver = Observer<Record> {
+    private val onRecordSelectedObserver = Observer<Record> {
         viewModel.updateBannerOrProfilePhoto(isFileForProfileBanner, it)
     }
 
@@ -135,7 +136,8 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     override fun onClick(view: View) {
         isFileForProfileBanner = view.id == R.id.fabProfileBanner
         myFilesContainerFragment = MyFilesContainerFragment()
-        myFilesContainerFragment?.getOnPhotoSelected()?.observe(this, onPhotoSelectedObserver)
+        myFilesContainerFragment?.setBundleArguments(Workspace.PUBLIC_ARCHIVES)
+        myFilesContainerFragment?.getOnRecordSelected()?.observe(this, onRecordSelectedObserver)
         myFilesContainerFragment?.show(parentFragmentManager, myFilesContainerFragment?.tag)
     }
 
@@ -150,7 +152,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getShowError().removeObserver(onShowError)
         viewModel.getCurrentArchiveName().removeObserver(onArchiveName)
-        myFilesContainerFragment?.getOnPhotoSelected()?.removeObserver(onPhotoSelectedObserver)
+        myFilesContainerFragment?.getOnRecordSelected()?.removeObserver(onRecordSelectedObserver)
     }
 
     override fun onResume() {

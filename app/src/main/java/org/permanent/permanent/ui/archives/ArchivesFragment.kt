@@ -53,7 +53,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         ArchiveType.FAMILY.toTitleCase(),
         ArchiveType.ORGANIZATION.toTitleCase()
     )
-    private val onCurrentArchiveChanged = SingleLiveEvent<Void>()
+    private val onCurrentArchiveChangedEvent = SingleLiveEvent<Void>()
 
     private val onShowMessage = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
@@ -95,6 +95,10 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         viewModel.changeDefaultArchiveTo(it)
     }
 
+    private val onCurrentArchiveChangedObserver = Observer<Void> {
+        onCurrentArchiveChangedEvent.call()
+    }
+
     private val onDefaultArchiveChanged = Observer<Int> {
         archivesAdapter.onDefaultArchiveChanged(it)
     }
@@ -120,7 +124,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(ArchivesViewModel::class.java)
+        viewModel = ViewModelProvider(this)[ArchivesViewModel::class.java]
         binding = FragmentArchivesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -129,7 +133,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         initPendingArchivesRecyclerView(binding.rvPendingArchives)
         initArchivesRecyclerView(binding.rvArchives)
         dialogCreateArchiveViewModel =
-            ViewModelProvider(this).get(CreateNewArchiveViewModel::class.java)
+            ViewModelProvider(this)[CreateNewArchiveViewModel::class.java]
         archiveTypeAdapter = ArrayAdapter(
             requireContext(),
             R.layout.menu_item_dropdown_access_level,
@@ -180,7 +184,6 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
 
     override fun onArchiveClick(archive: Archive) {
         viewModel.switchCurrentArchiveTo(archive)
-        if (showScreenSimplified) onCurrentArchiveChanged.call()
     }
 
     override fun onOptionsBtnClick(archive: Archive) {
@@ -240,6 +243,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         viewModel.getShowError().observe(this, onShowError)
         viewModel.getOnPendingArchivesRetrieved().observe(this, onPendingArchivesRetrieved)
         viewModel.getOnArchivesRetrieved().observe(this, onArchivesRetrieved)
+        viewModel.getOnCurrentArchiveChanged().observe(this, onCurrentArchiveChangedObserver)
         viewModel.getOnDefaultArchiveChanged().observe(this, onDefaultArchiveChanged)
         viewModel.getShowCreateArchiveDialog().observe(this, onShowCreateArchiveDialog)
         dialogCreateArchiveViewModel.getShowMessage().observe(this, onShowMessage)
@@ -252,6 +256,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         viewModel.getShowError().removeObserver(onShowError)
         viewModel.getOnPendingArchivesRetrieved().removeObserver(onPendingArchivesRetrieved)
         viewModel.getOnArchivesRetrieved().removeObserver(onArchivesRetrieved)
+        viewModel.getOnCurrentArchiveChanged().removeObserver(onCurrentArchiveChangedObserver)
         viewModel.getOnDefaultArchiveChanged().removeObserver(onDefaultArchiveChanged)
         viewModel.getShowCreateArchiveDialog().removeObserver(onShowCreateArchiveDialog)
         archiveOptionsFragment?.getOnChangeDefaultArchiveRequest()
@@ -273,5 +278,5 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         disconnectViewModelEvents()
     }
 
-    fun getOnCurrentArchiveChanged(): MutableLiveData<Void> = onCurrentArchiveChanged
+    fun getOnCurrentArchiveChanged(): MutableLiveData<Void> = onCurrentArchiveChangedEvent
 }

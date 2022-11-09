@@ -252,6 +252,7 @@
     <string name="button_send">Send</string>
     <string name="button_approve">Approve</string>
     <string name="button_deny">Deny</string>
+    <string name="button_save">Save</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -508,4 +509,8 @@
     <string name="button_cancel_move">Cancel Move</string>
     <string name="button_continue">Continue</string>
 
+    <string name="private_files_container_select_folder_title">Select Folder</string>
+    <string name="private_files_container_select_file_title">Select File</string>
+
+    <string name="archives_container_change_archive">Change Archive</string>
 </resources>

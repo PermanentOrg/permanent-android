@@ -40,6 +40,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
     private val existsArchives = MutableLiveData(false)
     private val onArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val onDefaultArchiveChanged = MutableLiveData<Int>()
+    private val onCurrentArchiveChanged = SingleLiveEvent<Void>()
     private val onShowCreateArchiveDialog = SingleLiveEvent<Void>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -186,6 +187,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                     currentArchiveThumb.value = archive.thumbURL200
                     currentArchiveName.value = archive.fullName
                     showMessage.value = appContext.getString(R.string.archive_current_archive_switch_success)
+                    if (showScreenSimplified.value == true) onCurrentArchiveChanged.call()
                 }
 
                 override fun onFailed(error: String?) {
@@ -272,6 +274,8 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
     fun getOnArchivesRetrieved(): LiveData<List<Archive>> = onArchivesRetrieved
 
     fun getOnDefaultArchiveChanged(): LiveData<Int> = onDefaultArchiveChanged
+
+    fun getOnCurrentArchiveChanged(): LiveData<Void> = onCurrentArchiveChanged
 
     fun getShowCreateArchiveDialog(): LiveData<Void> = onShowCreateArchiveDialog
 }
