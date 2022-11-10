@@ -160,18 +160,29 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:layout_marginEnd="16dp"
                 android:ellipsize="end"
                 android:fontFamily="@font/open_sans"
                 android:letterSpacing="-0.01"
                 android:maxLines="1"
+                android:onClick="@{() -> viewModel.onDestinationArchiveClick()}"
                 android:text="@{viewModel.currentArchiveName}"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                android:onClick="@{() -> viewModel.onDestinationArchiveClick()}"
+                app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
+                app:layout_constraintEnd_toStartOf="@+id/btnArchiveMore"
+                app:layout_constraintStart_toEndOf="@id/ivArchiveThumb"
+                app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
+
+            <Button
+                android:id="@+id/btnArchiveMore"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="38dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_more_horizontal_black"
+                app:iconTint="@color/middleGrey"
                 app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/ivArchiveThumb"
                 app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
 
             <View
@@ -200,18 +211,29 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:layout_marginEnd="16dp"
                 android:ellipsize="end"
                 android:fontFamily="@font/open_sans"
                 android:letterSpacing="-0.01"
                 android:maxLines="1"
+                android:onClick="@{() -> viewModel.onDestinationFolderClick()}"
                 android:text="@{viewModel.destinationFolderName}"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                android:onClick="@{() -> viewModel.onDestinationFolderClick()}"
+                app:layout_constraintBottom_toBottomOf="@+id/ivFolderThumb"
+                app:layout_constraintEnd_toStartOf="@+id/btnFolderMore"
+                app:layout_constraintStart_toEndOf="@id/ivFolderThumb"
+                app:layout_constraintTop_toTopOf="@+id/ivFolderThumb" />
+
+            <Button
+                android:id="@+id/btnFolderMore"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="38dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_more_horizontal_black"
+                app:iconTint="@color/middleGrey"
                 app:layout_constraintBottom_toBottomOf="@+id/ivFolderThumb"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/ivFolderThumb"
                 app:layout_constraintTop_toTopOf="@+id/ivFolderThumb" />
 
             <View

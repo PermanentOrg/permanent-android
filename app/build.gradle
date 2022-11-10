@@ -16,7 +16,7 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 32
-        versionCode 39
+        versionCode 40
         versionName "1.5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
