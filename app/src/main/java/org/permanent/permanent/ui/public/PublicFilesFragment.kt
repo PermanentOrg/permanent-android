@@ -31,6 +31,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.*
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
@@ -52,6 +53,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private var shareManagementFragment: ShareManagementFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -218,12 +220,13 @@ class PublicFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordManageSharingObserver = Observer<Record> {
-        navigateToShareLinkFragment(it)
+        showShareManagementFragment(it)
     }
 
-    private fun navigateToShareLinkFragment(record: Record?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
-        findNavController().navigate(R.id.action_publicFilesFragment_to_shareLinkFragment, bundle)
+    private fun showShareManagementFragment(record: Record?) {
+        shareManagementFragment = ShareManagementFragment()
+        shareManagementFragment?.setBundleArguments(record)
+        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {

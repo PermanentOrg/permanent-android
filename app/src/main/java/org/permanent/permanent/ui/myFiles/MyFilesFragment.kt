@@ -33,6 +33,7 @@ import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragment
 import org.permanent.permanent.ui.public.PublicFragment
+import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
@@ -59,6 +60,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var saveToPermanentFragment: SaveToPermanentFragment? = null
+    private var shareManagementFragment: ShareManagementFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
@@ -76,7 +78,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         if (record != null) {
             // notification deeplink
-            navigateToShareLinkFragment(record)
+            showShareManagementFragment(record)
             arguments?.clear()
         } else {
             prefsHelper = PreferencesHelper(
@@ -276,12 +278,13 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordManageSharingObserver = Observer<Record> {
-        navigateToShareLinkFragment(it)
+        showShareManagementFragment(it)
     }
 
-    private fun navigateToShareLinkFragment(record: Record?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
-        findNavController().navigate(R.id.action_myFilesFragment_to_shareLinkFragment, bundle)
+    private fun showShareManagementFragment(record: Record?) {
+        shareManagementFragment = ShareManagementFragment()
+        shareManagementFragment?.setBundleArguments(record)
+        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {

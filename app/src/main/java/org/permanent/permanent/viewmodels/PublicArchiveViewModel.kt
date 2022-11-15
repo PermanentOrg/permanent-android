@@ -103,10 +103,10 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
                 "/" + currentFolder?.archiveNr + "/" + currentFolder?.folderLinkId
         val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_link_share_link_title), sharableLink
+            appContext.getString(R.string.share_management_share_link_title), sharableLink
         )
         clipboard.setPrimaryClip(clip)
-        showMessage.value = appContext.getString(R.string.share_link_link_copied)
+        showMessage.value = appContext.getString(R.string.share_management_link_copied)
     }
 
     fun onRecordClick(record: Record) {

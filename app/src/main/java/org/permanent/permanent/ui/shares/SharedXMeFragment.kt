@@ -37,6 +37,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -61,6 +62,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private var shareManagementFragment: ShareManagementFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -229,7 +231,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     }
 
     private val onRecordManageSharingObserver = Observer<Record> {
-        navigateToShareLinkFragment(it)
+        showShareManagementFragment(it)
     }
 
     private val onRecordRenamed = Observer<Void> {
@@ -333,10 +335,10 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.showEmptyFolder.value = false
     }
 
-    private fun navigateToShareLinkFragment(record: Record?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
-        requireParentFragment().findNavController()
-            .navigate(R.id.action_sharesFragment_to_shareLinkFragment, bundle)
+    private fun showShareManagementFragment(record: Record?) {
+        shareManagementFragment = ShareManagementFragment()
+        shareManagementFragment?.setBundleArguments(record)
+        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
     }
 
     fun navigateToRecord(recordIdToNavigateTo: Int) {

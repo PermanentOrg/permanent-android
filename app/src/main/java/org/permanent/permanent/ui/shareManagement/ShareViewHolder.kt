@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.myFiles.linkshare
+package org.permanent.permanent.ui.shareManagement
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView

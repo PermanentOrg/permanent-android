@@ -20,9 +20,6 @@
             android:id="@+id/action_myFilesFragment_to_recordSearchFragment"
             app:destination="@id/recordSearchFragment" />
         <action
-            android:id="@+id/action_myFilesFragment_to_shareLinkFragment"
-            app:destination="@id/shareLinkFragment" />
-        <action
             android:id="@+id/action_myFilesFragment_to_sharePreviewFragment"
             app:destination="@id/sharePreviewFragment" />
         <action
@@ -41,9 +38,9 @@
 
     <fragment
         android:id="@+id/shareLinkFragment"
-        android:name="org.permanent.permanent.ui.myFiles.linkshare.ShareLinkFragment"
+        android:name="org.permanent.permanent.ui.shareManagement.ShareManagementFragment"
         android:label="@string/main_navigation_title_share_link"
-        tools:layout="@layout/fragment_share_link">
+        tools:layout="@layout/fragment_share_management">
         <action
             android:id="@+id/action_shareLinkFragment_to_linkSettingsFragment"
             app:destination="@id/linkSettingsFragment"
@@ -53,14 +50,14 @@
 
     <fragment
         android:id="@+id/linkSettingsFragment"
-        android:name="org.permanent.permanent.ui.myFiles.linkshare.LinkSettingsFragment"
-        android:label="@string/share_link_link_settings_button"
+        android:name="org.permanent.permanent.ui.shareManagement.LinkSettingsFragment"
+        android:label="@string/share_management_link_settings_button"
         tools:layout="@layout/fragment_link_settings" />
 
     <fragment
         android:id="@+id/sharePreviewFragment"
         android:name="org.permanent.permanent.ui.shares.SharePreviewFragment"
-        android:label="@string/share_link_share_preview"
+        android:label="@string/share_management_share_preview"
         tools:layout="@layout/fragment_share_preview">
         <argument
             android:name="url_token"
@@ -87,9 +84,6 @@
         <action
             android:id="@+id/action_sharesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
-        <action
-            android:id="@+id/action_sharesFragment_to_shareLinkFragment"
-            app:destination="@id/shareLinkFragment" />
     </fragment>
 
     <fragment
@@ -145,9 +139,6 @@
         <action
             android:id="@+id/action_publicFilesFragment_to_recordSearchFragment"
             app:destination="@id/recordSearchFragment" />
-        <action
-            android:id="@+id/action_publicFilesFragment_to_shareLinkFragment"
-            app:destination="@id/shareLinkFragment" />
         <action
             android:id="@+id/action_publicFilesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />

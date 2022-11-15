@@ -16,10 +16,10 @@ import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
-import org.permanent.permanent.ui.myFiles.linkshare.ShareListener
+import org.permanent.permanent.ui.shareManagement.ShareListener
 
 
-class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(application),
+class ShareManagementViewModel(application: Application) : ObservableAndroidViewModel(application),
     ShareListener {
 
     private val appContext = application.applicationContext
@@ -56,7 +56,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                     isBusy.value = false
                     existsLink.value = shareByUrlVO?.shareUrl != null
-                    this@ShareLinkViewModel.shareByUrlVO = shareByUrlVO
+                    this@ShareManagementViewModel.shareByUrlVO = shareByUrlVO
                     shareByUrlVO?.shareUrl?.let {
                         sharableLink.value = it
                     }
@@ -69,7 +69,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
             })
     }
 
-    fun onGetLinkBtnClick() {
+    fun onCreateLinkBtnClick() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -80,7 +80,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                     isBusy.value = false
                     existsLink.value = shareByUrlVO?.shareUrl != null
-                    this@ShareLinkViewModel.shareByUrlVO = shareByUrlVO
+                    this@ShareManagementViewModel.shareByUrlVO = shareByUrlVO
                     shareByUrlVO?.shareUrl?.let {
                         sharableLink.value = it
                     }
@@ -96,10 +96,10 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
     fun onCopyLinkBtnClick() {
         val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_link_share_link_title), sharableLink.value
+            appContext.getString(R.string.share_management_share_link_title), sharableLink.value
         )
         clipboard.setPrimaryClip(clip)
-        showSnackbarSuccess.value = appContext.getString(R.string.share_link_link_copied)
+        showSnackbarSuccess.value = appContext.getString(R.string.share_management_link_copied)
     }
 
     fun onLinkSettingsBtnClick() {
@@ -124,7 +124,7 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
                         existsLink.value = false
-                        this@ShareLinkViewModel.shareByUrlVO = null
+                        this@ShareManagementViewModel.shareByUrlVO = null
                         sharableLink.value = ""
                     }
 
@@ -180,7 +180,9 @@ class ShareLinkViewModel(application: Application) : ObservableAndroidViewModel(
         })
     }
 
-    fun getName(): MutableLiveData<String> = recordName
+    fun getRecord(): Record = record
+
+    fun getRecordName(): MutableLiveData<String> = recordName
 
     fun getExistsLink(): MutableLiveData<Boolean> = existsLink
 

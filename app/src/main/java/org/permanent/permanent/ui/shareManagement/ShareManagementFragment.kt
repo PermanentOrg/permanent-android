@@ -1,6 +1,8 @@
-package org.permanent.permanent.ui.myFiles.linkshare
+package org.permanent.permanent.ui.shareManagement
 
 import android.app.AlertDialog
+import android.app.Dialog
+import android.content.DialogInterface
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
@@ -19,30 +22,32 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogEditAccessLevelBinding
-import org.permanent.permanent.databinding.FragmentShareLinkBinding
+import org.permanent.permanent.databinding.FragmentShareManagementBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.ShareByUrl
-import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.members.ItemOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.EditAccessLevelViewModel
-import org.permanent.permanent.viewmodels.ShareLinkViewModel
+import org.permanent.permanent.viewmodels.ShareManagementViewModel
 import java.util.*
 
 const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
 
-class ShareLinkFragment : PermanentBaseFragment() {
+class ShareManagementFragment : PermanentBottomSheetFragment() {
 
-    private lateinit var viewModel: ShareLinkViewModel
-    private lateinit var binding: FragmentShareLinkBinding
+    private lateinit var viewModel: ShareManagementViewModel
+    private lateinit var binding: FragmentShareManagementBinding
     private lateinit var sharesRecyclerView: RecyclerView
     private lateinit var sharesAdapter: SharesAdapter
     private var record: Record? = null
@@ -59,20 +64,25 @@ class ShareLinkFragment : PermanentBaseFragment() {
         AccessRole.VIEWER.toTitleCase()
     )
 
+    fun setBundleArguments(record: Record?) {
+        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
+        this.arguments = bundle
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[ShareLinkViewModel::class.java]
-        binding = FragmentShareLinkBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this)[ShareManagementViewModel::class.java]
+        binding = FragmentShareManagementBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         record?.let {
             viewModel.setRecord(it)
-            initSharesRecyclerView(binding.rvShares, it)
+//            initSharesRecyclerView(binding.rvShares, it)
         }
         editDialogViewModel = ViewModelProvider(this)[EditAccessLevelViewModel::class.java]
         accessLevelAdapter = ArrayAdapter(
@@ -84,6 +94,18 @@ class ShareLinkFragment : PermanentBaseFragment() {
             (activity as FileActivity).setToolbarAndStatusBarColor(R.color.colorPrimary)
         }
         return binding.root
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val bottomSheetDialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        bottomSheetDialog.setOnShowListener { dialog: DialogInterface ->
+            val dialogc = dialog as BottomSheetDialog
+            val bottomSheet =
+                dialogc.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            BottomSheetBehavior.from(bottomSheet as FrameLayout)
+                .setState(BottomSheetBehavior.STATE_EXPANDED)
+        }
+        return bottomSheetDialog
     }
 
     private fun initSharesRecyclerView(rvShares: RecyclerView, record: Record) {
@@ -147,8 +169,8 @@ class ShareLinkFragment : PermanentBaseFragment() {
         val alert = AlertDialog.Builder(context)
             .setView(viewDialog)
             .create()
-        viewDialog.tvTitle.text = getString(R.string.share_link_revoke_title)
-        viewDialog.btnDelete.text = getString(R.string.share_link_revoke_button)
+        viewDialog.tvTitle.text = getString(R.string.share_management_revoke_title)
+        viewDialog.btnDelete.text = getString(R.string.share_management_revoke_button)
         viewDialog.btnDelete.setOnClickListener {
             viewModel.deleteShareLink()
             alert.dismiss()

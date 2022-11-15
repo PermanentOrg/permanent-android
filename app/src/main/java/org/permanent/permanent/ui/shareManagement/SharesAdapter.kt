@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.myFiles.linkshare
+package org.permanent.permanent.ui.shareManagement
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

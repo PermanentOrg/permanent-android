@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.myFiles.linkshare
+package org.permanent.permanent.ui.shareManagement
 
 import android.app.DatePickerDialog
 import android.os.Bundle

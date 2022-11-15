@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.myFiles.linkshare
+package org.permanent.permanent.ui.shareManagement
 
 import org.permanent.permanent.models.Share
 
