@@ -114,13 +114,63 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
+                <TextView
+                    android:id="@+id/tvLink"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:padding="12dp"
+                    android:paddingStart="46dp"
+                    android:text="@{viewModel.shareLink}"
+                    android:textColor="@color/barneyPurple"
+                    android:textSize="14sp"
+                    android:textStyle="normal"
+                    android:onClick="@{() -> viewModel.onShareLinkBtnClick()}"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintEnd_toStartOf="@+id/ivShare"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/viewDividerTitle" />
+
+                <ImageView
+                    android:id="@+id/ivLink"
+                    android:layout_width="24dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:padding="2dp"
+                    android:scaleType="centerInside"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvLink"
+                    app:layout_constraintStart_toStartOf="@+id/tvLink"
+                    app:layout_constraintTop_toTopOf="@+id/tvLink"
+                    app:srcCompat="@drawable/ic_link_black"
+                    app:tint="@color/lightGrey" />
+
+                <ImageView
+                    android:id="@+id/ivShare"
+                    android:layout_width="40dp"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:onClick="@{() -> viewModel.onShareLinkBtnClick()}"
+                    android:padding="2dp"
+                    android:scaleType="centerInside"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvLink"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tvLink"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:srcCompat="@drawable/ic_share"
+                    app:tint="@color/black" />
+
                 <ImageView
                     android:id="@+id/ivNoLink"
                     android:layout_width="wrap_content"
                     android:layout_height="160dp"
                     android:layout_marginTop="48dp"
                     android:src="@drawable/img_share_management"
-                    android:visibility="@{viewModel.existsLink ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -138,7 +188,7 @@
                     android:onClick="@{() -> viewModel.onCreateLinkBtnClick()}"
                     android:text="@string/share_management_create_share_link_button"
                     android:textColor="@color/white"
-                    android:visibility="@{viewModel.existsLink ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/ivNoLink" />

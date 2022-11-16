@@ -143,8 +143,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.observe(this, onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
 
@@ -217,16 +215,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private val onFileViewRequest = Observer<ArrayList<Record>> {
         val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
         findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity, bundle)
-    }
-
-    private val onRecordManageSharingObserver = Observer<Record> {
-        showShareManagementFragment(it)
-    }
-
-    private fun showShareManagementFragment(record: Record?) {
-        shareManagementFragment = ShareManagementFragment()
-        shareManagementFragment?.setBundleArguments(record)
-        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
@@ -346,8 +334,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.removeObserver(onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }

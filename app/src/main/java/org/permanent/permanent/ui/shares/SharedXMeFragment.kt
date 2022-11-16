@@ -230,10 +230,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.setRelocationMode(it)
     }
 
-    private val onRecordManageSharingObserver = Observer<Record> {
-        showShareManagementFragment(it)
-    }
-
     private val onRecordRenamed = Observer<Void> {
         viewModel.refreshCurrentFolder()
         alertDialog?.dismiss()
@@ -335,12 +331,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.showEmptyFolder.value = false
     }
 
-    private fun showShareManagementFragment(record: Record?) {
-        shareManagementFragment = ShareManagementFragment()
-        shareManagementFragment?.setBundleArguments(record)
-        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
-    }
-
     fun navigateToRecord(recordIdToNavigateTo: Int) {
         recordsAdapter.getItemById(recordIdToNavigateTo)?.let { record ->
             viewModel.onRecordClick(record)
@@ -368,8 +358,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.getOnRecordLeaveShareRequest()?.observe(this, onRecordLeaveShareRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.observe(this, onRecordManageSharingObserver)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
@@ -430,8 +418,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.removeObserver(onRecordManageSharingObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)

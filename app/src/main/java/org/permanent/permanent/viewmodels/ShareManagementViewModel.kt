@@ -25,13 +25,13 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val appContext = application.applicationContext
     private lateinit var record: Record
     private val recordName = MutableLiveData<String>()
-    private val existsLink = MutableLiveData(false)
     private var shareByUrlVO: Shareby_urlVO? = null
-    private val sharableLink = MutableLiveData<String>()
+    private val shareLink = MutableLiveData("")
     private val existsShares = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
+    private val onShareLinkRequest = SingleLiveEvent<String>()
     private val onLinkSettingsRequest = MutableLiveData<ShareByUrl>()
     private val onRevokeLinkRequest = SingleLiveEvent<Void>()
     private val onShowShareOptionsRequest = SingleLiveEvent<Share>()
@@ -40,9 +40,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun setRecord(record: Record) {
         this.record = record
-        checkForExistingLink(record)
         recordName.value = record.displayName
         existsShares.value = !record.shares.isNullOrEmpty()
+    }
+
+    fun setShareLink(shareLink: String?) {
+        if (shareLink == null) {
+            checkForExistingLink(record)
+        } else this.shareLink.value = shareLink
     }
 
     private fun checkForExistingLink(record: Record) {
@@ -55,10 +60,9 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             object : IShareRepository.IShareByUrlListener {
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                     isBusy.value = false
-                    existsLink.value = shareByUrlVO?.shareUrl != null
                     this@ShareManagementViewModel.shareByUrlVO = shareByUrlVO
                     shareByUrlVO?.shareUrl?.let {
-                        sharableLink.value = it
+                        shareLink.value = it
                     }
                 }
 
@@ -79,10 +83,9 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             object : IShareRepository.IShareByUrlListener {
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                     isBusy.value = false
-                    existsLink.value = shareByUrlVO?.shareUrl != null
                     this@ShareManagementViewModel.shareByUrlVO = shareByUrlVO
                     shareByUrlVO?.shareUrl?.let {
-                        sharableLink.value = it
+                        shareLink.value = it
                     }
                 }
 
@@ -93,10 +96,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             })
     }
 
+    fun onShareLinkBtnClick() {
+        onShareLinkRequest.value = shareLink.value.toString()
+    }
+
     fun onCopyLinkBtnClick() {
         val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_management_share_link_title), sharableLink.value
+            appContext.getString(R.string.share_management_share_link_title), shareLink.value
         )
         clipboard.setPrimaryClip(clip)
         showSnackbarSuccess.value = appContext.getString(R.string.share_management_link_copied)
@@ -123,9 +130,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
-                        existsLink.value = false
                         this@ShareManagementViewModel.shareByUrlVO = null
-                        sharableLink.value = ""
+                        shareLink.value = ""
                     }
 
                     override fun onFailed(error: String?) {
@@ -184,9 +190,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun getRecordName(): MutableLiveData<String> = recordName
 
-    fun getExistsLink(): MutableLiveData<Boolean> = existsLink
-
-    fun getSharableLink(): MutableLiveData<String> = sharableLink
+    fun getShareLink(): MutableLiveData<String> = shareLink
 
     fun getExistsShares(): MutableLiveData<Boolean> = existsShares
 
@@ -195,6 +199,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     fun getShowSnackbar(): LiveData<String> = showSnackbar
 
     fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
+
+    fun getOnShareLinkRequest(): LiveData<String> = onShareLinkRequest
 
     fun getOnLinkSettingsRequest(): LiveData<ShareByUrl> = onLinkSettingsRequest
 

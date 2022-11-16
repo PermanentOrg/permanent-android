@@ -13,8 +13,8 @@ import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.ui.shareManagement.PARCELABLE_SHARE_KEY
 import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
+import org.permanent.permanent.ui.shareManagement.ShareManagementFragment.Companion.PARCELABLE_SHARE_KEY
 import org.permanent.permanent.viewmodels.ItemOptionsViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 

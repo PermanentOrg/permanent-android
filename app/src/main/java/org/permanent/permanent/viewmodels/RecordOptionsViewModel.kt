@@ -55,7 +55,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val showViewAllBtn = MutableLiveData(false)
     private val recordPermission = MutableLiveData<String>()
     private val sharedWithLabelTxt = MutableLiveData<String>()
-    private val shareableLink = MutableLiveData("")
+    private val shareLink = MutableLiveData("")
     private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
     private val allShares = mutableListOf<Share>()
     private val onSharesRetrieved = SingleLiveEvent<MutableList<Share>>()
@@ -93,7 +93,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
         if (workspace == Workspace.PRIVATE_FILES) {
             checkForExistingLink(record)
         } else {
-            shareableLink.value =
+            shareLink.value =
                 if (record.type == RecordType.FILE) BuildConfig.BASE_URL + "p/archive/" +
                         prefsHelper.getCurrentArchiveNr() + "/" + record.parentFolderArchiveNr + "/" +
                         record.parentFolderLinkId + "/record/" + record.archiveNr
@@ -217,7 +217,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onShareLinkBtnClick() {
-        onShareLinkRequest.value = shareableLink.value.toString()
+        onShareLinkRequest.value = shareLink.value.toString()
     }
 
     fun onViewAllBtnClick() {
@@ -247,7 +247,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             object : IShareRepository.IShareByUrlListener {
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                     isBusy.value = false
-                    shareByUrlVO?.shareUrl?.let { shareableLink.value = it }
+                    shareByUrlVO?.shareUrl?.let { shareLink.value = it }
                 }
 
                 override fun onFailed(error: String?) {
@@ -408,7 +408,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getSharedWithLabelTxt(): MutableLiveData<String> = sharedWithLabelTxt
 
-    fun getShareableLink(): MutableLiveData<String> = shareableLink
+    fun getShareLink(): MutableLiveData<String> = shareLink
 
     fun getHiddenOptions(): MutableLiveData<MutableList<RecordOption>> = hiddenOptions
 

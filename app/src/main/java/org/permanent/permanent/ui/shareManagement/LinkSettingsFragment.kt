@@ -39,7 +39,7 @@ class LinkSettingsFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
-        shareByUrl = arguments?.getParcelable(PARCELABLE_SHARE_KEY)
+        shareByUrl = arguments?.getParcelable(ShareManagementFragment.PARCELABLE_SHARE_KEY)
         record?.let {
             viewModel.setRecord(it)
         }

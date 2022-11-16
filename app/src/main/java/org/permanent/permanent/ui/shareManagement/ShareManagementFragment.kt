@@ -3,6 +3,7 @@ package org.permanent.permanent.ui.shareManagement
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -42,8 +43,6 @@ import org.permanent.permanent.viewmodels.EditAccessLevelViewModel
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 import java.util.*
 
-const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
-
 class ShareManagementFragment : PermanentBottomSheetFragment() {
 
     private lateinit var viewModel: ShareManagementViewModel
@@ -64,8 +63,8 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         AccessRole.VIEWER.toTitleCase()
     )
 
-    fun setBundleArguments(record: Record?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
+    fun setBundleArguments(record: Record?, shareLink: String?) {
+        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, SHARE_LINK_KEY to shareLink)
         this.arguments = bundle
     }
 
@@ -84,6 +83,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
             viewModel.setRecord(it)
 //            initSharesRecyclerView(binding.rvShares, it)
         }
+        viewModel.setShareLink(arguments?.getString(SHARE_LINK_KEY))
         editDialogViewModel = ViewModelProvider(this)[EditAccessLevelViewModel::class.java]
         accessLevelAdapter = ArrayAdapter(
             requireContext(),
@@ -147,6 +147,17 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
 
     private val showSnackbar = Observer<String> { message ->
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private val onShareLinkObserver = Observer<String> {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, it)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
     }
 
     private val onLinkSettingsRequest = Observer<ShareByUrl> {
@@ -227,6 +238,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
     override fun connectViewModelEvents() {
         viewModel.getShowSnackbar().observe(this, showSnackbar)
         viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
+        viewModel.getOnShareLinkRequest().observe(this, onShareLinkObserver)
         viewModel.getOnLinkSettingsRequest().observe(this, onLinkSettingsRequest)
         viewModel.getOnShowShareOptionsRequest().observe(this, onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
@@ -240,6 +252,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         viewModel.getShowSnackbar().removeObserver(showSnackbar)
         viewModel.getShowSnackbarSuccess().removeObserver(showSnackbarSuccess)
         viewModel.getOnLinkSettingsRequest().removeObserver(onLinkSettingsRequest)
+        viewModel.getOnShareLinkRequest().removeObserver(onShareLinkObserver)
         viewModel.getOnShowShareOptionsRequest().removeObserver(onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
         viewModel.getOnShareDenied().removeObserver(onShareRemoved)
@@ -258,5 +271,10 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    companion object {
+        const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
+        const val SHARE_LINK_KEY = "share_link_key"
     }
 }
