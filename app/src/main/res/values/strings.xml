@@ -276,7 +276,7 @@
     <string name="relocation_type_moved">moved</string>
     <string name="relocation_type_published">published</string>
 
-    <string name="share_management_share_link_title">Share Link</string>
+    <string name="share_management_share_link">Share Link</string>
     <string name="share_management_share_link_message">Send this link via text, email, or other message service to invite people to share this content.</string>
     <string name="share_management_sharing_with">Sharing With</string>
     <string name="share_management_item_not_shared">This item is not shared with any archives</string>

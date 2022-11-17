@@ -44,10 +44,13 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         existsShares.value = !record.shares.isNullOrEmpty()
     }
 
-    fun setShareLink(shareLink: String?) {
-        if (shareLink == null) {
+    fun setShareLink(shareByUrlVO: Shareby_urlVO?) {
+        if (shareByUrlVO == null) {
             checkForExistingLink(record)
-        } else this.shareLink.value = shareLink
+        } else {
+            this.shareByUrlVO = shareByUrlVO
+            this.shareLink.value = shareByUrlVO.shareUrl ?: ""
+        }
     }
 
     private fun checkForExistingLink(record: Record) {
@@ -103,7 +106,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     fun onCopyLinkBtnClick() {
         val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_management_share_link_title), shareLink.value
+            appContext.getString(R.string.share_management_share_link), shareLink.value
         )
         clipboard.setPrimaryClip(clip)
         showSnackbarSuccess.value = appContext.getString(R.string.share_management_link_copied)

@@ -132,8 +132,9 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     private val onManageSharingObserver = Observer<Void> {
         shareManagementFragment = ShareManagementFragment()
-        shareManagementFragment?.setBundleArguments(record, viewModel.getShareLink().value)
+        shareManagementFragment?.setBundleArguments(record, viewModel.getShareByUrlVO())
         shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
+        dismiss()
     }
 
     private val onShareToAnotherAppObserver = Observer<String> { contentType ->

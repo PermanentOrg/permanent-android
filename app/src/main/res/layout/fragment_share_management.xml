@@ -122,13 +122,13 @@
                     android:layout_marginTop="16dp"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:onClick="@{() -> viewModel.onShareLinkBtnClick()}"
                     android:padding="12dp"
                     android:paddingStart="46dp"
                     android:text="@{viewModel.shareLink}"
                     android:textColor="@color/barneyPurple"
                     android:textSize="14sp"
                     android:textStyle="normal"
-                    android:onClick="@{() -> viewModel.onShareLinkBtnClick()}"
                     android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
                     app:layout_constraintEnd_toStartOf="@+id/ivShare"
                     app:layout_constraintStart_toStartOf="parent"
@@ -163,6 +163,62 @@
                     app:layout_constraintVertical_bias="0.0"
                     app:srcCompat="@drawable/ic_share"
                     app:tint="@color/black" />
+
+                <View
+                    android:id="@+id/viewDividerLink"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/lighterGrey"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvLink" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/viewDividerLink">
+
+                    <Button
+                        android:id="@+id/btnShareLink"
+                        style="@style/customIconButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:onClick="@{() -> viewModel.onShareLinkBtnClick()}"
+                        android:text="@string/share_management_share_link"
+                        android:textAlignment="textStart"
+                        app:icon="@drawable/ic_share"
+                        app:iconPadding="10dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Button
+                        android:id="@+id/btnRevokeLink"
+                        style="@style/customIconButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:onClick="@{() -> viewModel.onRevokeLinkBtnClick()}"
+                        android:text="@string/share_management_revoke_link_button"
+                        android:textAlignment="textStart"
+                        android:textColor="@color/red"
+                        app:icon="@drawable/ic_link_leave_share"
+                        app:iconPadding="10dp"
+                        app:iconTint="@color/red"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/btnShareLink" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <ImageView
                     android:id="@+id/ivNoLink"
@@ -226,17 +282,6 @@
                 <!--                    app:layout_constraintEnd_toEndOf="parent"-->
                 <!--                    app:layout_constraintStart_toStartOf="parent"-->
                 <!--                    app:layout_constraintTop_toBottomOf="@+id/tvOr" />-->
-
-                <!--                <androidx.constraintlayout.widget.ConstraintLayout-->
-                <!--                    android:id="@+id/layoutButtons"-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-                <!--                    app:layout_constraintHorizontal_bias="0.0"-->
-                <!--                    app:layout_constraintStart_toStartOf="parent"-->
-                <!--                    app:layout_constraintTop_toBottomOf="@+id/viewDividerTitle">-->
-
-                <!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
 
                 <androidx.core.widget.ContentLoadingProgressBar
                     android:id="@+id/progressBar"

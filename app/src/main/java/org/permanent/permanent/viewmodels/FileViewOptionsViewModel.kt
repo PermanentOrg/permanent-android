@@ -60,7 +60,7 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
                     record?.archiveNr + "/" + record?.folderLinkId
         val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_management_share_link_title), sharableLink
+            appContext.getString(R.string.share_management_share_link), sharableLink
         )
         clipboard.setPrimaryClip(clip)
         showMessage.value = appContext.getString(R.string.share_management_link_copied)

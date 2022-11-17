@@ -34,6 +34,7 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.ShareByUrl
+import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
@@ -63,8 +64,8 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         AccessRole.VIEWER.toTitleCase()
     )
 
-    fun setBundleArguments(record: Record?, shareLink: String?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, SHARE_LINK_KEY to shareLink)
+    fun setBundleArguments(record: Record?, shareByUrlVO: Shareby_urlVO?) {
+        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, SHARE_BY_URL_VO_KEY to shareByUrlVO)
         this.arguments = bundle
     }
 
@@ -83,7 +84,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
             viewModel.setRecord(it)
 //            initSharesRecyclerView(binding.rvShares, it)
         }
-        viewModel.setShareLink(arguments?.getString(SHARE_LINK_KEY))
+        viewModel.setShareLink(arguments?.getParcelable(SHARE_BY_URL_VO_KEY))
         editDialogViewModel = ViewModelProvider(this)[EditAccessLevelViewModel::class.java]
         accessLevelAdapter = ArrayAdapter(
             requireContext(),
@@ -275,6 +276,6 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
 
     companion object {
         const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
-        const val SHARE_LINK_KEY = "share_link_key"
+        const val SHARE_BY_URL_VO_KEY = "share_by_url_vo_key"
     }
 }

@@ -55,6 +55,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val showViewAllBtn = MutableLiveData(false)
     private val recordPermission = MutableLiveData<String>()
     private val sharedWithLabelTxt = MutableLiveData<String>()
+    private var shareByUrlVO : Shareby_urlVO? = null
     private val shareLink = MutableLiveData("")
     private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
     private val allShares = mutableListOf<Share>()
@@ -247,6 +248,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             object : IShareRepository.IShareByUrlListener {
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                     isBusy.value = false
+                    this@RecordOptionsViewModel.shareByUrlVO = shareByUrlVO
                     shareByUrlVO?.shareUrl?.let { shareLink.value = it }
                 }
 
@@ -407,6 +409,8 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     fun getRecordPermission(): MutableLiveData<String> = recordPermission
 
     fun getSharedWithLabelTxt(): MutableLiveData<String> = sharedWithLabelTxt
+
+    fun getShareByUrlVO(): Shareby_urlVO? = shareByUrlVO
 
     fun getShareLink(): MutableLiveData<String> = shareLink
 
