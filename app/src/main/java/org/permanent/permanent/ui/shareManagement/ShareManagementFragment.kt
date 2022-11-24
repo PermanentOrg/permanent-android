@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui.shareManagement
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -203,6 +204,16 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         alertDialog?.dismiss()
     }
 
+    private val onShowDatePicker = Observer<Void> {
+        context?.let { context ->
+            val c = Calendar.getInstance()
+            val year = c.get(Calendar.YEAR)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
+            DatePickerDialog(context, viewModel, year, month, day).show()
+        }
+    }
+
     private val onShowEditShareDialog = Observer<Share> {
         editDialogViewModel.setShare(it)
         editDialogBinding = DataBindingUtil.inflate(
@@ -244,6 +255,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         viewModel.getOnShowShareOptionsRequest().observe(this, onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
         viewModel.getOnShareDenied().observe(this, onShareRemoved)
+        viewModel.getShowDatePicker().observe(this, onShowDatePicker)
         editDialogViewModel.getOnItemEdited().observe(this, onItemUpdated)
         editDialogViewModel.getShowSuccessSnackbar().observe(this, showSnackbarSuccess)
         editDialogViewModel.getShowSnackbar().observe(this, showSnackbar)
@@ -257,6 +269,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         viewModel.getOnShowShareOptionsRequest().removeObserver(onShowShareOptionsObserver)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
         viewModel.getOnShareDenied().removeObserver(onShareRemoved)
+        viewModel.getShowDatePicker().removeObserver(onShowDatePicker)
         itemOptionsFragment?.getShowEditShareDialogRequest()?.removeObserver(onShowEditShareDialog)
         itemOptionsFragment?.getOnShareRemoved()?.removeObserver(onShareRemoved)
         itemOptionsFragment?.getShowSnackbar()?.removeObserver(showSnackbar)

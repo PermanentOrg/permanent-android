@@ -1,16 +1,20 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.app.DatePickerDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.text.Editable
+import android.view.KeyEvent
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import okhttp3.internal.trimSubstring
 import org.permanent.permanent.R
-import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.Share
-import org.permanent.permanent.models.ShareByUrl
-import org.permanent.permanent.models.Status
+import org.permanent.permanent.models.*
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.Shareby_urlVO
@@ -20,7 +24,7 @@ import org.permanent.permanent.ui.shareManagement.ShareListener
 
 
 class ShareManagementViewModel(application: Application) : ObservableAndroidViewModel(application),
-    ShareListener {
+    ShareListener, DatePickerDialog.OnDateSetListener {
 
     private val appContext = application.applicationContext
     private lateinit var record: Record
@@ -28,6 +32,13 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private var shareByUrlVO: Shareby_urlVO? = null
     private val shareLink = MutableLiveData("")
     private val existsShares = MutableLiveData(false)
+    private val sharePreview = MutableLiveData(false)
+    private val autoApprove = MutableLiveData(false)
+    private val maxUses = MutableLiveData("0")
+    private val defaultAccessRole = MutableLiveData(AccessRole.VIEWER)
+    private val expirationDate = MutableLiveData<String>()
+    private val showDatePicker = SingleLiveEvent<Void>()
+    private val areLinkSettingsVisible = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
@@ -48,9 +59,18 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         if (shareByUrlVO == null) {
             checkForExistingLink(record)
         } else {
-            this.shareByUrlVO = shareByUrlVO
-            this.shareLink.value = shareByUrlVO.shareUrl ?: ""
+            init(shareByUrlVO)
         }
+    }
+
+    private fun init(shareByUrlVO: Shareby_urlVO) {
+        this.shareByUrlVO = shareByUrlVO
+        this.shareLink.value = shareByUrlVO.shareUrl ?: ""
+        sharePreview.value = shareByUrlVO.previewToggle == 1
+        autoApprove.value = shareByUrlVO.autoApproveToggle == 1
+        maxUses.value = shareByUrlVO.maxUses.toString()
+        defaultAccessRole.value = AccessRole.createFromBackendString(shareByUrlVO.defaultAccessRole)
+        shareByUrlVO.expiresDT.let { expirationDate.value = it?.trimSubstring() }
     }
 
     private fun checkForExistingLink(record: Record) {
@@ -63,10 +83,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             object : IShareRepository.IShareByUrlListener {
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
                     isBusy.value = false
-                    this@ShareManagementViewModel.shareByUrlVO = shareByUrlVO
-                    shareByUrlVO?.shareUrl?.let {
-                        shareLink.value = it
-                    }
+                    shareByUrlVO?.let { init(it) }
                 }
 
                 override fun onFailed(error: String?) {
@@ -89,6 +106,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                     this@ShareManagementViewModel.shareByUrlVO = shareByUrlVO
                     shareByUrlVO?.shareUrl?.let {
                         shareLink.value = it
+                        onShowLinkSettingsBtnClick()
                     }
                 }
 
@@ -101,6 +119,50 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun onShareLinkBtnClick() {
         onShareLinkRequest.value = shareLink.value.toString()
+    }
+
+    fun onShowLinkSettingsBtnClick() {
+        areLinkSettingsVisible.value = true
+    }
+
+    fun onHideLinkSettingsBtnClick() {
+        areLinkSettingsVisible.value = false
+    }
+
+    fun onAccessRoleBtnClick() {
+
+    }
+
+    fun onSharePreviewChanged(checked: Boolean) {
+        this.sharePreview.value = checked
+        saveChanges()
+    }
+
+    fun onAutoApproveChanged(checked: Boolean) {
+        this.autoApprove.value = checked
+        saveChanges()
+    }
+
+    fun onMaxUsesChanged(maxUses: Editable) {
+        this.maxUses.value = maxUses.toString().trim { it <= ' ' }
+    }
+
+    fun onKeyboardDoneBtnClick(view: View, actionId: Int, event: KeyEvent?): Boolean {
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            saveChanges()
+            return false
+        }
+        return false
+    }
+
+    fun onExpirationDateClick() {
+        saveChanges()
+        showDatePicker.call()
+    }
+
+    override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
+        expirationDate.value = "$year-${month + 1}-$day"
+        saveChanges()
     }
 
     fun onCopyLinkBtnClick() {
@@ -116,7 +178,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         shareByUrlVO?.let { onLinkSettingsRequest.value = ShareByUrl(it) }
     }
 
-    fun onRevokeLinkBtnClick() {
+    fun onRemoveLinkBtnClick() {
         onRevokeLinkRequest.call()
     }
 
@@ -135,6 +197,32 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                         isBusy.value = false
                         this@ShareManagementViewModel.shareByUrlVO = null
                         shareLink.value = ""
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        showSnackbar.value = error
+                    }
+                })
+        }
+    }
+
+    private fun saveChanges() {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+        shareByUrlVO?.let {
+            it.previewToggle = if (sharePreview.value == false) 0 else 1
+            it.autoApproveToggle = if (autoApprove.value == false) 0 else 1
+            it.maxUses = if (maxUses.value.isNullOrBlank()) 0 else maxUses.value!!.toInt()
+            it.expiresDT = expirationDate.value
+
+            isBusy.value = true
+            shareRepository.modifyShareLink(it, ShareRequestType.UPDATE,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        isBusy.value = false
+                        showSnackbar.value = message
                     }
 
                     override fun onFailed(error: String?) {
@@ -198,6 +286,20 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     fun getExistsShares(): MutableLiveData<Boolean> = existsShares
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getAreLinkSettingsVisible(): MutableLiveData<Boolean> = areLinkSettingsVisible
+
+    fun getSharePreview(): MutableLiveData<Boolean> = sharePreview
+
+    fun getAutoApprove(): MutableLiveData<Boolean> = autoApprove
+
+    fun getMaxUses(): MutableLiveData<String> = maxUses
+
+    fun getAccessRole(): MutableLiveData<AccessRole> = defaultAccessRole
+
+    fun getExpirationDate(): MutableLiveData<String> = expirationDate
+
+    fun getShowDatePicker(): LiveData<Void> = showDatePicker
 
     fun getShowSnackbar(): LiveData<String> = showSnackbar
 

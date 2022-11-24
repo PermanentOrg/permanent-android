@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -67,7 +68,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clContent"
                 android:layout_width="match_parent"
-                android:layout_height="676dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:background="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -127,8 +128,7 @@
                     android:paddingStart="46dp"
                     android:text="@{viewModel.shareLink}"
                     android:textColor="@color/barneyPurple"
-                    android:textSize="14sp"
-                    android:textStyle="normal"
+                    android:textSize="16sp"
                     android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
                     app:layout_constraintEnd_toStartOf="@+id/ivShare"
                     app:layout_constraintStart_toStartOf="parent"
@@ -138,7 +138,7 @@
                     android:id="@+id/ivLink"
                     android:layout_width="24dp"
                     android:layout_height="0dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="12dp"
                     android:padding="2dp"
                     android:scaleType="centerInside"
                     android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
@@ -164,22 +164,336 @@
                     app:srcCompat="@drawable/ic_share"
                     app:tint="@color/black" />
 
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clLinkSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/white"
+                    android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvLink">
+
+                <Button
+                    android:id="@+id/btnShowLinkSettings"
+                    style="@style/customIconButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:onClick="@{() -> viewModel.areLinkSettingsVisible ? viewModel.onHideLinkSettingsBtnClick() : viewModel.onShowLinkSettingsBtnClick()}"
+                    android:paddingLeft="12dp"
+                    android:text="@{viewModel.areLinkSettingsVisible ? @string/share_management_hide_link_settings : @string/share_management_show_link_settings}"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_arrow_drop_down_primary"
+                    app:iconPadding="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchSharePreview"
+                        android:layout_width="0dp"
+                        android:layout_height="64dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:checked="@{viewModel.sharePreview}"
+                        android:fontFamily="@font/open_sans"
+                        android:letterSpacing="-0.01"
+                        android:onCheckedChanged="@{(switch, checked) -> viewModel.onSharePreviewChanged(checked)}"
+                        android:paddingStart="12dp"
+                        android:paddingLeft="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingRight="12dp"
+                        android:text="@string/share_management_share_preview"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/btnShowLinkSettings"
+                        app:theme="@style/colorSwitchStyle" />
+
+                    <TextView
+                        android:id="@+id/tvSharePreview"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="28dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="@string/share_management_share_preview_description"
+                        android:textColor="@color/middleGrey"
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        android:fontFamily="@font/open_sans_italic"
+                        android:letterSpacing="-0.01"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="@+id/switchSharePreview"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchAutoApprove"
+                        android:layout_width="0dp"
+                        android:layout_height="64dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:checked="@{viewModel.autoApprove}"
+                        android:fontFamily="@font/open_sans"
+                        android:letterSpacing="-0.01"
+                        android:onCheckedChanged="@{(switch, checked) -> viewModel.onAutoApproveChanged(checked)}"
+                        android:paddingStart="12dp"
+                        android:paddingLeft="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingRight="12dp"
+                        android:text="@string/share_management_auto_approve"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/switchSharePreview"
+                        app:theme="@style/colorSwitchStyle" />
+
+                    <TextView
+                        android:id="@+id/tvAutoApprove"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="28dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="@string/share_management_auto_approve_description"
+                        android:textColor="@color/middleGrey"
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        android:fontFamily="@font/open_sans_italic"
+                        android:letterSpacing="-0.01"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="@+id/switchAutoApprove"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvAccessRoleTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="64dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="24dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:onClick="@{() -> viewModel.onAccessRoleBtnClick()}"
+                        android:paddingStart="12dp"
+                        android:paddingTop="20dp"
+                        android:text="@string/share_management_default_access_role"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toTopOf="@+id/layoutMaxUses"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvAutoApprove" />
+
+                    <TextView
+                        android:id="@+id/tvAccessRoleDescription"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="28dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/open_sans_italic"
+                        android:letterSpacing="-0.01"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        android:text="@string/share_management_access_role_description"
+                        android:textColor="@color/middleGrey"
+                        android:textStyle="normal"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvAccessRoleTitle"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvAccessRole"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/access_role_background_color"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/open_sans"
+                        android:letterSpacing="-0.01"
+                        android:maxLines="1"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:text="@{viewModel.accessRole.name()}"
+                        android:textColor="@color/black"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvAccessRoleDescription"
+                        app:layout_constraintEnd_toStartOf="@+id/ivEditAccessRole"
+                        app:layout_constraintTop_toTopOf="@+id/tvAccessRoleTitle" />
+
+                    <ImageView
+                        android:id="@+id/ivEditAccessRole"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:onClick="@{() -> viewModel.onShareLinkBtnClick()}"
+                        android:scaleType="centerInside"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvAccessRole"
+                        app:layout_constraintEnd_toEndOf="@+id/tvAccessRoleTitle"
+                        app:layout_constraintTop_toTopOf="@+id/tvAccessRole"
+                        app:srcCompat="@drawable/ic_edit_primary"
+                        app:tint="@color/black" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutMaxUses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginEnd="24dp"
+                        android:textColorHint="@color/colorPrimary"
+                        app:boxBackgroundColor="@color/superLightBlue"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="4dp"
+                        app:boxCornerRadiusBottomStart="4dp"
+                        app:boxCornerRadiusTopEnd="4dp"
+                        app:boxCornerRadiusTopStart="4dp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:boxStrokeColor="@color/lightGrey"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvAccessRoleDescription">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etMaxUses"
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:afterTextChanged="@{(editable) -> viewModel.onMaxUsesChanged(editable)}"
+                            android:fontFamily="@font/open_sans"
+                            android:hint="@string/share_management_max_uses"
+                            android:inputType="number"
+                            android:letterSpacing="-0.01"
+                            android:text="@{viewModel.maxUses}"
+                            android:onEditorAction="@{(view, actionId, event) -> viewModel.onKeyboardDoneBtnClick(view, actionId, event)}"
+                            android:textColor="@color/colorPrimary"
+                            android:textColorHint="@color/colorPrimary"
+                            android:textSize="16sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/tvMaxUses"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="24dp"
+                        android:text="@string/share_management_max_uses_description"
+                        android:textColor="@color/middleGrey"
+                        android:fontFamily="@font/open_sans_italic"
+                        android:letterSpacing="-0.01"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/layoutMaxUses" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutExpDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginEnd="24dp"
+                        android:textColorHint="@color/colorPrimary"
+                        app:boxBackgroundColor="@color/superLightBlue"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="4dp"
+                        app:boxCornerRadiusBottomStart="4dp"
+                        app:boxCornerRadiusTopEnd="4dp"
+                        app:boxCornerRadiusTopStart="4dp"
+                        app:boxStrokeColor="@color/lightGrey"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvMaxUses"
+                        app:layout_constraintVertical_bias="0.0">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etExpDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:focusable="false"
+                            android:fontFamily="@font/open_sans"
+                            android:hint="@string/share_management_expiration_date"
+                            android:letterSpacing="-0.01"
+                            android:onClick="@{() -> viewModel.onExpirationDateClick()}"
+                            android:text="@{viewModel.expirationDate}"
+                            android:textColor="@color/colorPrimary"
+                            android:textColorHint="@color/colorPrimary"
+                            android:textSize="16sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageView
+                        android:id="@+id/ivExpDate"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="4dp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        android:onClick="@{() -> viewModel.onShareLinkBtnClick()}"
+                        android:scaleType="centerInside"
+                        app:layout_constraintBottom_toBottomOf="@+id/layoutExpDate"
+                        app:layout_constraintEnd_toEndOf="@+id/layoutExpDate"
+                        app:layout_constraintTop_toTopOf="@+id/layoutExpDate"
+                        app:srcCompat="@drawable/ic_arrow_drop_down_primary"
+                        app:tint="@color/black" />
+
+                    <TextView
+                        android:id="@+id/tvExpDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="24dp"
+                        android:text="@string/share_management_expiration_date_description"
+                        android:textColor="@color/middleGrey"
+                        android:fontFamily="@font/open_sans_italic"
+                        android:letterSpacing="-0.01"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.areLinkSettingsVisible ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/layoutExpDate" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
                 <View
                     android:id="@+id/viewDividerLink"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="24dp"
                     android:background="@color/lighterGrey"
                     android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvLink" />
+                    app:layout_constraintTop_toBottomOf="@+id/clLinkSettings" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/layoutButtons"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="24dp"
                     android:visibility="@{viewModel.shareLink.isEmpty ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -208,14 +522,15 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
-                        android:onClick="@{() -> viewModel.onRevokeLinkBtnClick()}"
-                        android:text="@string/share_management_revoke_link_button"
+                        android:onClick="@{() -> viewModel.onRemoveLinkBtnClick()}"
+                        android:text="@string/share_management_remove_link_button"
                         android:textAlignment="textStart"
                         android:textColor="@color/red"
                         app:icon="@drawable/ic_link_leave_share"
                         app:iconPadding="10dp"
                         app:iconTint="@color/red"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/btnShareLink" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -240,14 +555,17 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="48dp"
                     android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="64dp"
                     android:backgroundTint="@color/colorPrimary"
                     android:onClick="@{() -> viewModel.onCreateLinkBtnClick()}"
                     android:text="@string/share_management_create_share_link_button"
                     android:textColor="@color/white"
                     android:visibility="@{viewModel.shareLink.isEmpty ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ivNoLink" />
+                    app:layout_constraintTop_toBottomOf="@+id/ivNoLink"
+                    app:layout_constraintVertical_bias="0.0" />
 
                 <!--                <TextView-->
                 <!--                    android:id="@+id/tvOr"-->
