@@ -3,6 +3,7 @@ package org.permanent.permanent.models
 import android.os.Parcel
 import android.os.Parcelable
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.models.AccessRole
 
 class ShareByUrl() : Parcelable {
     var shareUrl: String? = null
@@ -11,6 +12,7 @@ class ShareByUrl() : Parcelable {
     var previewToggle: Int? = null // boolean (0 or 1)
     var expiresDT: String? = null // can be null for no expiration
     var maxUses: Int? = null // can be 0 for unlimited uses
+    var defaultAccessRole: AccessRole? = null
     var byAccountId: Int? = null
     var byArchiveId: Int? = null
 
@@ -21,6 +23,7 @@ class ShareByUrl() : Parcelable {
         previewToggle = shareByUrlVO.previewToggle
         expiresDT = shareByUrlVO.expiresDT
         maxUses = shareByUrlVO.maxUses
+        defaultAccessRole = AccessRole.createFromBackendString(shareByUrlVO.defaultAccessRole)
         byAccountId = shareByUrlVO.byAccountId
         byArchiveId = shareByUrlVO.byArchiveId
     }
@@ -32,6 +35,7 @@ class ShareByUrl() : Parcelable {
         previewToggle = parcel.readValue(Int::class.java.classLoader) as? Int
         expiresDT = parcel.readString()
         maxUses = parcel.readValue(Int::class.java.classLoader) as? Int
+        defaultAccessRole = parcel.readValue(AccessRole::class.java.classLoader) as? AccessRole
         byAccountId = parcel.readValue(Int::class.java.classLoader) as? Int
         byArchiveId = parcel.readValue(Int::class.java.classLoader) as? Int
     }
@@ -43,6 +47,7 @@ class ShareByUrl() : Parcelable {
         parcel.writeValue(previewToggle)
         parcel.writeString(expiresDT)
         parcel.writeValue(maxUses)
+        parcel.writeValue(defaultAccessRole)
         parcel.writeValue(byAccountId)
         parcel.writeValue(byArchiveId)
     }
