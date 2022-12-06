@@ -15,97 +15,111 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white">
+        android:layout_height="64dp">
 
         <ImageView
-            android:id="@+id/ivArchiveThumb"
+            android:id="@+id/ivShareArchiveThumb"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
             android:scaleType="centerCrop"
             app:imageUrl="@{share.archive.thumbURL200}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tvFullName"
+            android:id="@+id/tvName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:maxLines="2"
             android:text="@{share.archive.fullName}"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/btnOptions"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
-            app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivShareArchiveThumb"
+            app:layout_constraintEnd_toStartOf="@+id/clAccess"
+            app:layout_constraintStart_toEndOf="@id/ivShareArchiveThumb"
+            app:layout_constraintTop_toTopOf="@+id/ivShareArchiveThumb" />
 
-        <TextView
-            android:id="@+id/tvRelationship"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAccess"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="8dp"
-            android:text="Friend"
-            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
-            app:layout_constraintEnd_toStartOf="@+id/btnOptions"
-            app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb" />
-
-        <Button
-            android:id="@+id/btnOptions"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="38dp"
-            android:layout_height="wrap_content"
-            android:visibility="@{share.status == Status.PENDING ? View.GONE : View.VISIBLE}"
-            app:icon="@drawable/ic_more_white"
-            app:iconTint="@color/middleGrey"
-            app:layout_constraintBottom_toBottomOf="@+id/ivArchiveThumb"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnApprove"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="112dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="12dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:text="@string/button_approve"
-            android:textSize="18sp"
-            android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivArchiveThumb" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeny"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="112dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="12dp"
-            android:backgroundTint="@color/deepRed"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:text="@string/button_deny"
-            android:textSize="18sp"
-            android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/btnApprove"
-            app:layout_constraintTop_toBottomOf="@+id/ivArchiveThumb" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvAccessRole"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/access_role_background_color"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans"
+                android:letterSpacing="-0.01"
+                android:maxLines="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="@{share.accessRole.name()}"
+                android:textColor="@color/black"
+                android:textSize="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/clButtons"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clButtons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <Button
+                    android:id="@+id/btnEdit"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="12dp"
+                    android:visibility="@{share.status == Status.PENDING ? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_edit_primary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/btnApprove"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="12dp"
+                    android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
+                    app:icon="@drawable/ic_approve_primary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/btnDeny"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="12dp"
+                    android:visibility="@{share.status == Status.PENDING ? View.VISIBLE : View.GONE}"
+                    app:icon="@drawable/ic_deny_red"
+                    app:iconTint="@color/red"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnApprove"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

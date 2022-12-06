@@ -307,6 +307,7 @@
     <string name="share_management_show_link_settings">Show link settings</string>
     <string name="share_management_hide_link_settings">Hide link settings</string>
     <string name="share_management_default_access_role">Default access role</string>
+    <string name="share_management_pending_requests">Pending requests</string>
 
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>

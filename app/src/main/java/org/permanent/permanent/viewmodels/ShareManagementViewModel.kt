@@ -2,9 +2,6 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.app.DatePickerDialog
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.text.Editable
 import android.view.KeyEvent
 import android.view.View
@@ -14,7 +11,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import okhttp3.internal.trimSubstring
 import org.permanent.permanent.R
-import org.permanent.permanent.models.*
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Share
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.Shareby_urlVO
@@ -31,28 +31,34 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val recordName = MutableLiveData<String>()
     private var shareByUrlVO: Shareby_urlVO? = null
     private val shareLink = MutableLiveData("")
-    private val existsShares = MutableLiveData(false)
+    private var shares = mutableListOf<Share>()
+    private var pendingShares = mutableListOf<Share>()
+    private val sharesSize = MutableLiveData(0)
+    private val pendingSharesSize = MutableLiveData(0)
     private val sharePreview = MutableLiveData(false)
     private val autoApprove = MutableLiveData(false)
     private val maxUses = MutableLiveData("0")
     private val defaultAccessRole = MutableLiveData(AccessRole.VIEWER)
     private val expirationDate = MutableLiveData<String>()
     private val showDatePicker = SingleLiveEvent<Void>()
+    private val sharedWithLabelTxt = MutableLiveData<String>()
     private val areLinkSettingsVisible = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
-    private val onLinkSettingsRequest = MutableLiveData<ShareByUrl>()
     private val onRevokeLinkRequest = SingleLiveEvent<Void>()
     private val onShowShareOptionsRequest = SingleLiveEvent<Share>()
+    private val onShareApproved = SingleLiveEvent<Share>()
     private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     fun setRecord(record: Record) {
         this.record = record
         recordName.value = record.displayName
-        existsShares.value = !record.shares.isNullOrEmpty()
+        initShares(record.shares)
+        sharedWithLabelTxt.value =
+            appContext.getString(R.string.record_options_shared_with, shares.size)
     }
 
     fun setShareLink(shareByUrlVO: Shareby_urlVO?) {
@@ -61,6 +67,15 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         } else {
             init(shareByUrlVO)
         }
+    }
+
+    private fun initShares(shares: MutableList<Share>?) {
+        this.shares =
+            shares?.filter { it.status.value != Status.PENDING }?.toMutableList() ?: mutableListOf()
+        this.pendingShares =
+            shares?.filter { it.status.value == Status.PENDING }?.toMutableList() ?: mutableListOf()
+        sharesSize.value = this.shares.size
+        pendingSharesSize.value = this.pendingShares.size
     }
 
     private fun init(shareByUrlVO: Shareby_urlVO) {
@@ -165,19 +180,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         saveChanges()
     }
 
-    fun onCopyLinkBtnClick() {
-        val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData = ClipData.newPlainText(
-            appContext.getString(R.string.share_management_share_link), shareLink.value
-        )
-        clipboard.setPrimaryClip(clip)
-        showSnackbarSuccess.value = appContext.getString(R.string.share_management_link_copied)
-    }
-
-    fun onLinkSettingsBtnClick() {
-        shareByUrlVO?.let { onLinkSettingsRequest.value = ShareByUrl(it) }
-    }
-
     fun onRemoveLinkBtnClick() {
         onRevokeLinkRequest.call()
     }
@@ -233,7 +235,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         }
     }
 
-    override fun onOptionsClick(share: Share) {
+    override fun onEditClick(share: Share) {
         onShowShareOptionsRequest.value = share
     }
 
@@ -246,8 +248,15 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         shareRepository.updateShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                showSnackbarSuccess.value = message
                 share.status.value = Status.OK // This hides the Approve and Deny buttons
+                pendingShares.remove(share)
+                shares.add(share)
+                pendingSharesSize.value = pendingShares.size
+                sharesSize.value = shares.size
+                sharedWithLabelTxt.value =
+                    appContext.getString(R.string.record_options_shared_with, shares.size)
+                onShareApproved.value = share
+                showSnackbarSuccess.value = message
             }
 
             override fun onFailed(error: String?) {
@@ -266,6 +275,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         shareRepository.deleteShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
+                pendingShares.remove(share)
+                pendingSharesSize.value = pendingShares.size
                 showSnackbarSuccess.value = message
                 onShareDenied.value = share // Removes share from adapter
             }
@@ -277,13 +288,26 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         })
     }
 
+    fun onShareRemoved(share: Share) {
+        shares.remove(share)
+        sharesSize.value = shares.size
+        sharedWithLabelTxt.value =
+            appContext.getString(R.string.record_options_shared_with, shares.size)
+    }
+
+    fun getShares(): List<Share> = shares
+
+    fun getPendingShares(): List<Share> = pendingShares
+
     fun getRecord(): Record = record
 
     fun getRecordName(): MutableLiveData<String> = recordName
 
     fun getShareLink(): MutableLiveData<String> = shareLink
 
-    fun getExistsShares(): MutableLiveData<Boolean> = existsShares
+    fun getSharesSize(): MutableLiveData<Int> = sharesSize
+
+    fun getPendingSharesSize(): MutableLiveData<Int> = pendingSharesSize
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
@@ -307,11 +331,13 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun getOnShareLinkRequest(): LiveData<String> = onShareLinkRequest
 
-    fun getOnLinkSettingsRequest(): LiveData<ShareByUrl> = onLinkSettingsRequest
+    fun getSharedWithLabelTxt(): MutableLiveData<String> = sharedWithLabelTxt
 
     fun getOnRevokeLinkRequest(): LiveData<Void> = onRevokeLinkRequest
 
     fun getOnShowShareOptionsRequest(): LiveData<Share> = onShowShareOptionsRequest
+
+    fun getOnShareApproved(): MutableLiveData<Share> = onShareApproved
 
     fun getOnShareDenied(): MutableLiveData<Share> = onShareDenied
 }
