@@ -49,12 +49,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/linkSettingsFragment"
-        android:name="org.permanent.permanent.ui.shareManagement.LinkSettingsFragment"
-        android:label="@string/share_management_link_settings_button"
-        tools:layout="@layout/fragment_link_settings" />
-
-    <fragment
         android:id="@+id/sharePreviewFragment"
         android:name="org.permanent.permanent.ui.shares.SharePreviewFragment"
         android:label="@string/share_management_share_preview"
