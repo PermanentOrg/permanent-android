@@ -75,11 +75,11 @@ class ShareRepositoryImpl(val context: Context) : IShareRepository {
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         val messageAction =
                             if (share.status.value == Status.PENDING)
-                                context.getString(R.string.share_link_share_update_type_approved)
-                            else context.getString(R.string.share_link_share_update_type_edited)
+                                context.getString(R.string.share_management_share_update_type_approved)
+                            else context.getString(R.string.share_management_share_update_type_edited)
                         listener.onSuccess(
                             context.getString(
-                                R.string.share_link_share_update_success,
+                                R.string.share_management_share_update_success,
                                 messageAction
                             )
                         )
@@ -102,11 +102,11 @@ class ShareRepositoryImpl(val context: Context) : IShareRepository {
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                         val messageAction =
                             if (share.status.value == Status.PENDING)
-                                context.getString(R.string.share_link_share_update_type_denied)
-                            else context.getString(R.string.share_link_share_update_type_removed)
+                                context.getString(R.string.share_management_share_update_type_denied)
+                            else context.getString(R.string.share_management_share_update_type_removed)
                         listener.onSuccess(
                             context.getString(
-                                R.string.share_link_share_update_success,
+                                R.string.share_management_share_update_success,
                                 messageAction
                             )
                         )

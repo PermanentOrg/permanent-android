@@ -35,7 +35,7 @@ enum class AccessRole(val backendString: String) : Parcelable {
 
     fun getPermissions(): List<ArchivePermission> {
         when (this) {
-            AccessRole.OWNER -> {
+            OWNER -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
@@ -48,7 +48,7 @@ enum class AccessRole(val backendString: String) : Parcelable {
                     ArchivePermission.OWNERSHIP
                 )
             }
-            AccessRole.MANAGER -> {
+            MANAGER -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
@@ -60,7 +60,7 @@ enum class AccessRole(val backendString: String) : Parcelable {
                     ArchivePermission.ARCHIVE_SHARE
                 )
             }
-            AccessRole.CURATOR -> {
+            CURATOR -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
@@ -71,20 +71,20 @@ enum class AccessRole(val backendString: String) : Parcelable {
                     ArchivePermission.SHARE
                 )
             }
-            AccessRole.EDITOR -> {
+            EDITOR -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
                     ArchivePermission.EDIT
                 )
             }
-            AccessRole.CONTRIBUTOR -> {
+            CONTRIBUTOR -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE
                 )
             }
-            AccessRole.VIEWER -> {
+            VIEWER -> {
                 return listOf(
                     ArchivePermission.READ
                 )

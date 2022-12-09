@@ -28,6 +28,7 @@ import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.MenuSharesAdapter
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.RecordOptionsViewModel
 
 const val SHOWN_IN_WHICH_WORKSPACE = "shown_in_which_workspace_key"
@@ -45,8 +46,8 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val onRecordLeaveShareRequest = MutableLiveData<Record>()
     private val onRecordRenameRequest = MutableLiveData<Record>()
-    private val onRecordManageSharingRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
+    private var shareManagementFragment: ShareManagementFragment? = null
 
     fun setBundleArguments(
         record: Record,
@@ -130,8 +131,10 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     }
 
     private val onManageSharingObserver = Observer<Void> {
+        shareManagementFragment = ShareManagementFragment()
+        shareManagementFragment?.setBundleArguments(record, viewModel.getShareByUrlVO())
+        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
         dismiss()
-        onRecordManageSharingRequest.value = record
     }
 
     private val onShareToAnotherAppObserver = Observer<String> { contentType ->
@@ -247,9 +250,6 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     fun getOnRecordLeaveShareRequest(): MutableLiveData<Record> = onRecordLeaveShareRequest
 
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
-
-    fun getOnRecordManageSharingRequest(): MutableLiveData<Record> =
-        onRecordManageSharingRequest
 
     fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, RelocationType>> =
         onRecordRelocateRequest

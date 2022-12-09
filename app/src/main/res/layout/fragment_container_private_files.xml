@@ -21,7 +21,7 @@
             android:id="@+id/viewDragSheet"
             android:layout_width="24dp"
             android:layout_height="2dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:background="@color/whiteSuperTransparent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
