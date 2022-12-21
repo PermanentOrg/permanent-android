@@ -119,6 +119,27 @@ enum class AccessRole(val backendString: String) : Parcelable {
         return if (otherAccessRole in inferiors()) otherAccessRole else this
     }
 
+    fun getPermissionsEnumerated(): String {
+        var enumeratedPermissions = ""
+        val currentArchivePermissions = getPermissions().toMutableList()
+        currentArchivePermissions.remove(ArchivePermission.ARCHIVE_SHARE)
+        currentArchivePermissions.map { it.toLowerCase() }
+        currentArchivePermissions.forEachIndexed { index, permission ->
+            enumeratedPermissions += when {
+                currentArchivePermissions.size == 1 -> {
+                    permission.toUIString()
+                }
+                index != currentArchivePermissions.size - 1 -> {
+                    "${permission.toUIString()}, "
+                }
+                else -> {
+                    "and ${permission.toUIString()}"
+                }
+            }
+        }
+        return enumeratedPermissions
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(ordinal)
     }

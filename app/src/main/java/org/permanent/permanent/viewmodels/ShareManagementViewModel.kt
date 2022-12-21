@@ -40,6 +40,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val maxUses = MutableLiveData("0")
     private val defaultAccessRole = MutableLiveData(AccessRole.VIEWER)
     private val expirationDate = MutableLiveData<String>()
+    private val showAccessRoles = SingleLiveEvent<Shareby_urlVO>()
     private val showDatePicker = SingleLiveEvent<Void>()
     private val sharedWithLabelTxt = MutableLiveData<String>()
     private val areLinkSettingsVisible = MutableLiveData(false)
@@ -144,8 +145,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         areLinkSettingsVisible.value = false
     }
 
-    fun onAccessRoleBtnClick() {
-
+    fun onDefaultAccessRoleBtnClick() {
+        showAccessRoles.value = shareByUrlVO
     }
 
     fun onSharePreviewChanged(checked: Boolean) {
@@ -180,7 +181,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         saveChanges()
     }
 
-    fun onRemoveLinkBtnClick() {
+    fun onRevokeLinkBtnClick() {
         onRevokeLinkRequest.call()
     }
 
@@ -295,6 +296,10 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             appContext.getString(R.string.record_options_shared_with, shares.size)
     }
 
+    fun onAccessRoleUpdated(accessRole: AccessRole) {
+        defaultAccessRole.value = accessRole
+    }
+
     fun getShares(): List<Share> = shares
 
     fun getPendingShares(): List<Share> = pendingShares
@@ -322,6 +327,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     fun getAccessRole(): MutableLiveData<AccessRole> = defaultAccessRole
 
     fun getExpirationDate(): MutableLiveData<String> = expirationDate
+
+    fun getShowAccessRoles(): LiveData<Shareby_urlVO> = showAccessRoles
 
     fun getShowDatePicker(): LiveData<Void> = showDatePicker
 

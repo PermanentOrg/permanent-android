@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimaryDark">@color/colorPrimary</item>
@@ -84,5 +84,15 @@
 
     <style name="colorSwitchStyle" parent="Theme.AppCompat.Light">
         <item name="colorControlActivated">@color/green</item>
+    </style>
+
+    <style name="radioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:textColor">@drawable/button_radio_text_color</item>
+        <item name="android:background">@drawable/button_radio_background_color</item>
+        <item name="buttonTint">@drawable/button_radio_text_color</item>
+    </style>
+
+    <style name="redRadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:background">@drawable/button_radio_background_color</item>
     </style>
 </resources>

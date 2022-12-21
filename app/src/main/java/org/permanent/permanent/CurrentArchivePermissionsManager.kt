@@ -8,6 +8,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 class CurrentArchivePermissionsManager private constructor() {
 
     private var accessRole: AccessRole
+
     companion object {
         val instance = CurrentArchivePermissionsManager()
     }
@@ -47,24 +48,5 @@ class CurrentArchivePermissionsManager private constructor() {
 
     fun isOwnershipAvailable() = accessRole.isOwnershipAvailable()
 
-    fun getPermissionsEnumerated(): String {
-        var enumeratedPermissions = ""
-        val currentArchivePermissions = accessRole.getPermissions().toMutableList()
-        currentArchivePermissions.remove(ArchivePermission.ARCHIVE_SHARE)
-        currentArchivePermissions.map { it.toLowerCase() }
-        currentArchivePermissions.forEachIndexed { index, permission ->
-            enumeratedPermissions += when {
-                currentArchivePermissions.size == 1 -> {
-                    permission.toUIString()
-                }
-                index != currentArchivePermissions.size - 1 -> {
-                    "${permission.toUIString()}, "
-                }
-                else -> {
-                    "and ${permission.toUIString()}"
-                }
-            }
-        }
-        return enumeratedPermissions
-    }
+    fun getPermissionsEnumerated(): String = accessRole.getPermissionsEnumerated()
 }

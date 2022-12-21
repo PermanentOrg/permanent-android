@@ -34,6 +34,7 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.ui.AccessRolesFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
@@ -53,6 +54,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
     private lateinit var sharesAdapter: SharesAdapter
     private var record: Record? = null
     private var itemOptionsFragment: ItemOptionsFragment? = null
+    private var accessRolesFragment: AccessRolesFragment? = null
     private lateinit var editDialogViewModel: EditAccessLevelViewModel
     private lateinit var editDialogBinding: DialogEditAccessLevelBinding
     private lateinit var accessLevelAdapter: ArrayAdapter<String>
@@ -214,6 +216,17 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         alertDialog?.dismiss()
     }
 
+    private val onAccessRoleUpdatedObserver = Observer<AccessRole> {
+        viewModel.onAccessRoleUpdated(it)
+    }
+
+    private val onShowAccessRoles = Observer<Shareby_urlVO> {
+        accessRolesFragment = AccessRolesFragment()
+        accessRolesFragment?.setBundleArguments(it)
+        accessRolesFragment?.getOnAccessRoleUpdated()?.observe(this, onAccessRoleUpdatedObserver)
+        accessRolesFragment?.show(parentFragmentManager, accessRolesFragment?.tag)
+    }
+
     private val onShowDatePicker = Observer<Void> {
         context?.let { context ->
             val c = Calendar.getInstance()
@@ -265,6 +278,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
         viewModel.getOnShareApproved().observe(this, onShareApproved)
         viewModel.getOnShareDenied().observe(this, onShareRemoved)
+        viewModel.getShowAccessRoles().observe(this, onShowAccessRoles)
         viewModel.getShowDatePicker().observe(this, onShowDatePicker)
         editDialogViewModel.getOnItemEdited().observe(this, onItemUpdated)
         editDialogViewModel.getShowSuccessSnackbar().observe(this, showSnackbarSuccess)
@@ -279,12 +293,14 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
         viewModel.getOnShareApproved().removeObserver(onShareApproved)
         viewModel.getOnShareDenied().removeObserver(onShareRemoved)
+        viewModel.getShowAccessRoles().removeObserver(onShowAccessRoles)
         viewModel.getShowDatePicker().removeObserver(onShowDatePicker)
         itemOptionsFragment?.getShowEditShareDialogRequest()?.removeObserver(onShowEditShareDialog)
         itemOptionsFragment?.getOnShareRemoved()?.removeObserver(onShareRemoved)
         itemOptionsFragment?.getShowSnackbar()?.removeObserver(showSnackbar)
         itemOptionsFragment?.getShowSnackbarSuccess()?.removeObserver(showSnackbarSuccess)
         editDialogViewModel.getOnItemEdited().removeObserver(onItemUpdated)
+        accessRolesFragment?.getOnAccessRoleUpdated()?.removeObserver(onAccessRoleUpdatedObserver)
     }
 
     override fun onResume() {
