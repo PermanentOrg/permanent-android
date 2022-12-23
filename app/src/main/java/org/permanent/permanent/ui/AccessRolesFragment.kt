@@ -2,7 +2,9 @@ package org.permanent.permanent.ui
 
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,9 +18,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentAccessRolesBinding
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.AccessRolesViewModel
@@ -27,13 +31,21 @@ import org.permanent.permanent.viewmodels.SingleLiveEvent
 class AccessRolesFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentAccessRolesBinding
     private lateinit var viewModel: AccessRolesViewModel
-    private val onAccessRoleUpdated = SingleLiveEvent<AccessRole>()
+    private val onAccessRoleUpdated = SingleLiveEvent<AccessRole?>()
 
     fun setBundleArguments(
         shareByUrlVo: Shareby_urlVO,
     ) {
         val bundle = Bundle()
         bundle.putParcelable(ShareManagementFragment.SHARE_BY_URL_VO_KEY, shareByUrlVo)
+        this.arguments = bundle
+    }
+
+    fun setBundleArguments(
+        share: Share,
+    ) {
+        val bundle = Bundle()
+        bundle.putParcelable(ShareManagementFragment.PARCELABLE_SHARE_KEY, share)
         this.arguments = bundle
     }
 
@@ -48,6 +60,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         viewModel.setShareLink(arguments?.getParcelable(ShareManagementFragment.SHARE_BY_URL_VO_KEY))
+        viewModel.setShare(arguments?.getParcelable(ShareManagementFragment.PARCELABLE_SHARE_KEY))
         initCurrentAccessRole()
 
         return binding.root
@@ -58,7 +71,6 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
             AccessRole.CONTRIBUTOR -> binding.radioGroup.check(R.id.rbContributor)
             AccessRole.EDITOR -> binding.radioGroup.check(R.id.rbEditor)
             AccessRole.CURATOR -> binding.radioGroup.check(R.id.rbCurator)
-            AccessRole.MANAGER -> binding.radioGroup.check(R.id.rbManager)
             AccessRole.OWNER -> binding.radioGroup.check(R.id.rbOwner)
             else -> {
                 binding.radioGroup.check(R.id.rbViewer)
@@ -102,14 +114,21 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    private val onAccessRoleUpdatedObserver = Observer<AccessRole> {
+    private val onAccessRoleUpdatedObserver = Observer<AccessRole?> {
         onAccessRoleUpdated.value = it
         dismiss()
     }
 
-    fun getOnAccessRoleUpdated(): MutableLiveData<AccessRole> = onAccessRoleUpdated
+    private val showAccessRolesDocObserver = Observer<Void> {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(BuildConfig.ACCESS_ROLES_URL)
+        startActivity(intent)
+    }
+
+    fun getOnAccessRoleUpdated(): MutableLiveData<AccessRole?> = onAccessRoleUpdated
 
     override fun connectViewModelEvents() {
+        viewModel.getShowAccessRolesDocumentation().observe(this, showAccessRolesDocObserver)
         viewModel.getOnAccessRoleUpdated().observe(this, onAccessRoleUpdatedObserver)
         viewModel.getOnCloseSheetRequest().observe(this, onCloseSheetObserver)
         viewModel.getShowSnackbar().observe(this, showSnackbar)
@@ -117,6 +136,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getShowAccessRolesDocumentation().removeObserver(showAccessRolesDocObserver)
         viewModel.getOnAccessRoleUpdated().removeObserver(onAccessRoleUpdatedObserver)
         viewModel.getOnCloseSheetRequest().removeObserver(onCloseSheetObserver)
         viewModel.getShowSnackbar().observe(this, showSnackbar)
