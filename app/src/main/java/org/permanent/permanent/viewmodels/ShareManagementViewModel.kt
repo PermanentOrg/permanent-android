@@ -48,7 +48,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
     private val onRevokeLinkRequest = SingleLiveEvent<Void>()
-    private val onShowShareOptionsRequest = SingleLiveEvent<Share>()
+    private val showAccessRolesForLink = SingleLiveEvent<Shareby_urlVO>()
+    private val showAccessRolesForShare = SingleLiveEvent<Share>()
     private val onShareApproved = SingleLiveEvent<Share>()
     private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
@@ -144,8 +145,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         areLinkSettingsVisible.value = false
     }
 
-    fun onAccessRoleBtnClick() {
-
+    fun onDefaultAccessRoleBtnClick() {
+        showAccessRolesForLink.value = shareByUrlVO
     }
 
     fun onSharePreviewChanged(checked: Boolean) {
@@ -180,7 +181,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         saveChanges()
     }
 
-    fun onRemoveLinkBtnClick() {
+    fun onRevokeLinkBtnClick() {
         onRevokeLinkRequest.call()
     }
 
@@ -236,7 +237,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     override fun onEditClick(share: Share) {
-        onShowShareOptionsRequest.value = share
+        showAccessRolesForShare.value = share
     }
 
     override fun onApproveClick(share: Share) {
@@ -295,6 +296,10 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             appContext.getString(R.string.record_options_shared_with, shares.size)
     }
 
+    fun onAccessRoleUpdated(accessRole: AccessRole) {
+        defaultAccessRole.value = accessRole
+    }
+
     fun getShares(): List<Share> = shares
 
     fun getPendingShares(): List<Share> = pendingShares
@@ -323,6 +328,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun getExpirationDate(): MutableLiveData<String> = expirationDate
 
+    fun getShowAccessRolesForLink(): LiveData<Shareby_urlVO> = showAccessRolesForLink
+
     fun getShowDatePicker(): LiveData<Void> = showDatePicker
 
     fun getShowSnackbar(): LiveData<String> = showSnackbar
@@ -335,7 +342,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun getOnRevokeLinkRequest(): LiveData<Void> = onRevokeLinkRequest
 
-    fun getOnShowShareOptionsRequest(): LiveData<Share> = onShowShareOptionsRequest
+    fun getShowAccessRolesForShare(): LiveData<Share> = showAccessRolesForShare
 
     fun getOnShareApproved(): MutableLiveData<Share> = onShareApproved
 

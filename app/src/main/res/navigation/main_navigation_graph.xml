@@ -41,11 +41,6 @@
         android:name="org.permanent.permanent.ui.shareManagement.ShareManagementFragment"
         android:label="@string/main_navigation_title_share_link"
         tools:layout="@layout/fragment_share_management">
-        <action
-            android:id="@+id/action_shareLinkFragment_to_linkSettingsFragment"
-            app:destination="@id/linkSettingsFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 
     <fragment

@@ -283,10 +283,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     // Toolbar back press
     override fun onSupportNavigateUp(): Boolean {
         return when (navController.currentDestination?.id) {
-            R.id.linkSettingsFragment -> {
-                navController.popBackStack(R.id.shareLinkFragment, true)
-                true
-            }
             R.id.publicFolderFragment -> {
                 val publicFolderFragment =
                     supportFragmentManager.primaryNavigationFragment?.childFragmentManager

@@ -9,7 +9,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
-import kotlinx.android.synthetic.main.activity_file.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
@@ -50,11 +49,6 @@ class FileActivity : PermanentBaseActivity() {
         return when(navController.currentDestination?.id) {
             R.id.filesContainerFragment, R.id.fileMetadataFragment -> {
                 this@FileActivity.finish()
-                true
-            }
-            R.id.linkSettingsFragment -> {
-                navController.popBackStack(R.id.shareLinkFragment, true)
-                setToolbarAndStatusBarColor(R.color.black)
                 true
             }
             R.id.shareLinkFragment -> {

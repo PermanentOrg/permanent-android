@@ -298,8 +298,7 @@
     <string name="share_management_share_update_type_removed">removed</string>
     <string name="share_management_create_share_link_button">Create share link</string>
     <string name="share_management_copy_link_button">Copy Link</string>
-    <string name="share_management_link_settings_button">Link Settings</string>
-    <string name="share_management_remove_link_button">Remove Link</string>
+    <string name="share_management_revoke_link_button">Revoke Link</string>
     <string name="share_management_revoke_button">Revoke</string>
     <string name="share_management_share_management_title">Share Management</string>
     <string name="share_management_or">or</string>
@@ -308,6 +307,18 @@
     <string name="share_management_hide_link_settings">Hide link settings</string>
     <string name="share_management_default_access_role">Default access role</string>
     <string name="share_management_pending_requests">Pending requests</string>
+
+    <string name="access_roles_title">Access Roles</string>
+    <string name="access_roles_link_settings_title">Link Settings</string>
+    <string name="access_roles_whats_this">What\'s this</string>
+    <string name="access_roles_viewer">Viewer</string>
+    <string name="access_roles_contributor">Contributor</string>
+    <string name="access_roles_editor">Editor</string>
+    <string name="access_roles_curator">Curator</string>
+    <string name="access_roles_manager">Manager</string>
+    <string name="access_roles_owner">Owner</string>
+    <string name="access_roles_remove_from_share">Remove from share</string>
+    <string name="access_roles_update_role_button">Update Role</string>
 
     <string name="shares_by_me_no_items">You haven\'t shared any items</string>
     <string name="shares_with_me_no_items">You have no shared items</string>

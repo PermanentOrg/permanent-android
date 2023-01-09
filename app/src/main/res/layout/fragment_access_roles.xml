@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="org.permanent.permanent.R" />
+
+        <import type="org.permanent.permanent.models.AccessRole" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.AccessRolesViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <View
+                    android:id="@+id/viewDragSheet"
+                    android:layout_width="24dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@color/whiteSuperTransparent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/ivLinkSettings"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:visibility="@{viewModel.shareByUrlVO != null ? View.VISIBLE : View.INVISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_link_settings"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:id="@+id/tvLinkSettings"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:maxLines="1"
+                    android:text="@string/access_roles_link_settings_title"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:visibility="@{viewModel.shareByUrlVO != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@id/ivLinkSettings"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@id/ivLinkSettings"
+                    app:layout_constraintTop_toTopOf="@id/ivLinkSettings" />
+
+                <ImageView
+                    android:id="@+id/ivShareThumb"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:scaleType="centerCrop"
+                    android:visibility="@{viewModel.share != null ? View.VISIBLE : View.GONE}"
+                    app:imageUrl="@{viewModel.share.archive.thumbURL200}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvFileName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:maxLines="2"
+                    android:text="@{viewModel.share.archive.fullName}"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:visibility="@{viewModel.share != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@id/ivShareThumb"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@id/ivShareThumb"
+                    app:layout_constraintTop_toTopOf="@id/ivShareThumb" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/clHeader">
+
+                <ImageView
+                    android:id="@+id/ivShareManagement"
+                    android:layout_width="24dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="24dp"
+                    android:padding="2dp"
+                    android:scaleType="centerInside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_share_management_grey"
+                    app:tint="@color/lightGrey" />
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:singleLine="true"
+                    android:text="@string/access_roles_title"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toEndOf="@+id/ivShareManagement"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvWhatsThis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/open_sans"
+                    android:letterSpacing="-0.01"
+                    android:singleLine="true"
+                    android:text="@string/access_roles_whats_this"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="16sp"
+                    android:onClick="@{() -> viewModel.onWhatsThisBtnClick()}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
+                    app:layout_constraintEnd_toStartOf="@+id/ivWhatsThis"
+                    app:layout_constraintTop_toTopOf="@+id/tvTitle" />
+
+                <ImageView
+                    android:id="@+id/ivWhatsThis"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="20dp"
+                    android:padding="2dp"
+                    android:scaleType="centerInside"
+                    android:onClick="@{() -> viewModel.onWhatsThisBtnClick()}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvWhatsThis"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tvWhatsThis"
+                    app:srcCompat="@drawable/ic_whats_this"
+                    app:tint="@color/lightGrey" />
+
+                <View
+                    android:id="@+id/viewDividerTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="24dp"
+                    android:background="@color/lighterGrey"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:onCheckedChanged="@{(group, checkedId) -> viewModel.onAccessRoleChanged(group, checkedId)}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/viewDividerTitle">
+
+                    <RadioButton
+                        android:id="@+id/rbViewer"
+                        style="@style/radioButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:button="@null"
+                        android:drawableRight="@drawable/button_radio_color"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:paddingStart="48dp"
+                        android:paddingEnd="12dp"
+                        android:text="@string/access_roles_viewer"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbContributor"
+                        style="@style/radioButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:button="@null"
+                        android:drawableRight="@drawable/button_radio_color"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:paddingStart="48dp"
+                        android:paddingEnd="12dp"
+                        android:text="@string/access_roles_contributor"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbEditor"
+                        style="@style/radioButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:button="@null"
+                        android:drawableRight="@drawable/button_radio_color"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:paddingStart="48dp"
+                        android:paddingEnd="12dp"
+                        android:text="@string/access_roles_editor"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbCurator"
+                        style="@style/radioButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:button="@null"
+                        android:drawableRight="@drawable/button_radio_color"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:paddingStart="48dp"
+                        android:paddingEnd="12dp"
+                        android:text="@string/access_roles_curator"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbOwner"
+                        style="@style/radioButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:button="@null"
+                        android:drawableRight="@drawable/button_radio_color"
+                        android:fontFamily="@font/open_sans_semibold"
+                        android:paddingStart="48dp"
+                        android:paddingEnd="12dp"
+                        android:text="@string/access_roles_owner"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbRemoveFromShare"
+                        style="@style/redRadioButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:button="@null"
+                        android:drawableRight="@drawable/button_radio_color"
+                        android:fontFamily="@font/open_sans"
+                        android:letterSpacing="-0.01"
+                        android:paddingStart="48dp"
+                        android:paddingEnd="12dp"
+                        android:text="@string/access_roles_remove_from_share"
+                        android:textColor="@color/red"
+                        android:textSize="16sp"
+                        android:visibility="@{viewModel.shareByUrlVO != null ? View.GONE : View.VISIBLE}" />
+                </RadioGroup>
+
+                <ImageView
+                    android:id="@+id/ivViewer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="22dp"
+                    android:padding="2dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup"
+                    app:srcCompat="@drawable/ic_viewer"
+                    app:tint="@color/colorPrimary" />
+
+                <ImageView
+                    android:id="@+id/ivContributor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="44dp"
+                    android:padding="2dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivViewer"
+                    app:srcCompat="@drawable/ic_contributor"
+                    app:tint="@color/colorPrimary" />
+
+                <ImageView
+                    android:id="@+id/ivEditor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="44dp"
+                    android:padding="2dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivContributor"
+                    app:srcCompat="@drawable/ic_editor"
+                    app:tint="@color/colorPrimary" />
+
+                <ImageView
+                    android:id="@+id/ivCurator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="44dp"
+                    android:padding="2dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivEditor"
+                    app:srcCompat="@drawable/ic_curator"
+                    app:tint="@color/colorPrimary" />
+
+                <ImageView
+                    android:id="@+id/ivOwner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="44dp"
+                    android:padding="2dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivCurator"
+                    app:srcCompat="@drawable/ic_owner"
+                    app:tint="@color/colorPrimary" />
+
+                <ImageView
+                    android:id="@+id/ivRemoveFromShare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="44dp"
+                    android:padding="2dp"
+                    android:visibility="@{viewModel.shareByUrlVO != null ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivOwner"
+                    app:srcCompat="@drawable/ic_link_leave_share"
+                    app:tint="@color/red" />
+
+                <TextView
+                    android:id="@+id/tvViewer"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginTop="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/open_sans_italic"
+                    android:letterSpacing="-0.01"
+                    android:text="@{viewModel.checkedAccessRole.getPermissionsEnumerated()}"
+                    android:textColor="@color/middleGrey"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:visibility="@{viewModel.checkedAccessRole == AccessRole.VIEWER ? View.VISIBLE : View.INVISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+                    app:layout_constraintStart_toStartOf="@+id/radioGroup"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup" />
+
+                <TextView
+                    android:id="@+id/tvContributor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginTop="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/open_sans_italic"
+                    android:letterSpacing="-0.01"
+                    android:text="@{viewModel.checkedAccessRole.getPermissionsEnumerated()}"
+                    android:textColor="@color/middleGrey"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:visibility="@{viewModel.checkedAccessRole == AccessRole.CONTRIBUTOR ? View.VISIBLE : View.INVISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+                    app:layout_constraintStart_toStartOf="@+id/radioGroup"
+                    app:layout_constraintTop_toBottomOf="@+id/tvViewer" />
+
+                <TextView
+                    android:id="@+id/tvEditor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginTop="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/open_sans_italic"
+                    android:letterSpacing="-0.01"
+                    android:text="@{viewModel.checkedAccessRole.getPermissionsEnumerated()}"
+                    android:textColor="@color/middleGrey"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:visibility="@{viewModel.checkedAccessRole == AccessRole.EDITOR ? View.VISIBLE : View.INVISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+                    app:layout_constraintStart_toStartOf="@+id/radioGroup"
+                    app:layout_constraintTop_toBottomOf="@+id/tvContributor" />
+
+                <TextView
+                    android:id="@+id/tvCurator"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginTop="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/open_sans_italic"
+                    android:letterSpacing="-0.01"
+                    android:text="@{viewModel.checkedAccessRole.getPermissionsEnumerated()}"
+                    android:textColor="@color/middleGrey"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:visibility="@{viewModel.checkedAccessRole == AccessRole.CURATOR ? View.VISIBLE : View.INVISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+                    app:layout_constraintStart_toStartOf="@+id/radioGroup"
+                    app:layout_constraintTop_toBottomOf="@+id/tvEditor" />
+
+                <TextView
+                    android:id="@+id/tvOwner"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/open_sans_italic"
+                    android:letterSpacing="-0.01"
+                    android:text="@{viewModel.checkedAccessRole.getPermissionsEnumerated()}"
+                    android:textColor="@color/middleGrey"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:visibility="@{viewModel.checkedAccessRole == AccessRole.OWNER ? View.VISIBLE : View.INVISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+                    app:layout_constraintStart_toStartOf="@+id/radioGroup"
+                    app:layout_constraintTop_toBottomOf="@+id/ivOwner" />
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    style="@style/customIconTextButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@color/superLightBlue"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:onClick="@{() -> viewModel.onCancelBtnClick()}"
+                    android:text="@string/button_cancel"
+                    android:textColor="@color/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.50" />
+
+                <Button
+                    android:id="@+id/btnUpdateRole"
+                    style="@style/customIconTextButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:onClick="@{() -> viewModel.onUpdateRoleBtnClick()}"
+                    android:text="@string/access_roles_update_role_button"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+                <androidx.core.widget.ContentLoadingProgressBar
+                    android:id="@+id/progressBar"
+                    style="@style/Widget.AppCompat.ProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

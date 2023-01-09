@@ -10,14 +10,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -28,18 +25,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.DialogEditAccessLevelBinding
 import org.permanent.permanent.databinding.FragmentShareManagementBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.ui.AccessRolesFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.fileView.FileActivity
-import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.ui.members.ItemOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
-import org.permanent.permanent.viewmodels.EditAccessLevelViewModel
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 import java.util.*
 
@@ -52,18 +46,8 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
     private lateinit var sharesRecyclerView: RecyclerView
     private lateinit var sharesAdapter: SharesAdapter
     private var record: Record? = null
-    private var itemOptionsFragment: ItemOptionsFragment? = null
-    private lateinit var editDialogViewModel: EditAccessLevelViewModel
-    private lateinit var editDialogBinding: DialogEditAccessLevelBinding
-    private lateinit var accessLevelAdapter: ArrayAdapter<String>
-    private var alertDialog: androidx.appcompat.app.AlertDialog? = null
-    private val accessRoleList = listOf(
-        AccessRole.OWNER.toTitleCase(),
-        AccessRole.CURATOR.toTitleCase(),
-        AccessRole.EDITOR.toTitleCase(),
-        AccessRole.CONTRIBUTOR.toTitleCase(),
-        AccessRole.VIEWER.toTitleCase()
-    )
+    private var shareToEdit: Share? = null
+    private var accessRolesFragment: AccessRolesFragment? = null
 
     fun setBundleArguments(record: Record?, shareByUrlVO: Shareby_urlVO?) {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, SHARE_BY_URL_VO_KEY to shareByUrlVO)
@@ -87,12 +71,6 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
             initSharesRecyclerView(binding.rvShares)
         }
         viewModel.setShareLink(arguments?.getParcelable(SHARE_BY_URL_VO_KEY))
-        editDialogViewModel = ViewModelProvider(this)[EditAccessLevelViewModel::class.java]
-        accessLevelAdapter = ArrayAdapter(
-            requireContext(),
-            R.layout.menu_item_dropdown_access_level,
-            accessRoleList
-        )
         if (activity is FileActivity) {
             (activity as FileActivity).setToolbarAndStatusBarColor(R.color.colorPrimary)
         }
@@ -172,16 +150,6 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         startActivity(shareIntent)
     }
 
-    private val onShowShareOptionsObserver = Observer<Share> { share ->
-        itemOptionsFragment = ItemOptionsFragment()
-        itemOptionsFragment?.setBundleArguments(share)
-        itemOptionsFragment?.show(parentFragmentManager, itemOptionsFragment?.tag)
-        itemOptionsFragment?.getShowEditShareDialogRequest()?.observe(this, onShowEditShareDialog)
-        itemOptionsFragment?.getOnShareRemoved()?.observe(this, onShareRemoved)
-        itemOptionsFragment?.getShowSnackbar()?.observe(this, showSnackbar)
-        itemOptionsFragment?.getShowSnackbarSuccess()?.observe(this, showSnackbarSuccess)
-    }
-
     private val onRevokeLinkRequest = Observer<Void> {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
         val alert = AlertDialog.Builder(context)
@@ -210,8 +178,34 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         record?.shares?.remove(it)
     }
 
-    private val onItemUpdated = Observer<Void> {
-        alertDialog?.dismiss()
+    private val showAccessRolesForShareObserver = Observer<Share> { share ->
+        shareToEdit = share
+        accessRolesFragment = AccessRolesFragment()
+        accessRolesFragment?.setBundleArguments(share)
+        accessRolesFragment?.getOnAccessRoleUpdated()
+            ?.observe(this, onAccessRoleForShareUpdatedObserver)
+        accessRolesFragment?.show(parentFragmentManager, accessRolesFragment?.tag)
+    }
+
+    private val showAccessRolesForLinkObserver = Observer<Shareby_urlVO> {
+        accessRolesFragment = AccessRolesFragment()
+        accessRolesFragment?.setBundleArguments(it)
+        accessRolesFragment?.getOnAccessRoleUpdated()
+            ?.observe(this, onAccessRoleForLinkUpdatedObserver)
+        accessRolesFragment?.show(parentFragmentManager, accessRolesFragment?.tag)
+    }
+
+    private val onAccessRoleForLinkUpdatedObserver = Observer<AccessRole?> {
+        viewModel.onAccessRoleUpdated(it)
+    }
+
+    private val onAccessRoleForShareUpdatedObserver = Observer<AccessRole?> {
+        if (it == null) {
+            shareToEdit?.let { share -> onShareRemoved.onChanged(share) }
+        } else {
+            shareToEdit?.accessRole = it
+            shareToEdit?.let { share -> sharesAdapter.update(share) }
+        }
     }
 
     private val onShowDatePicker = Observer<Void> {
@@ -224,67 +218,32 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onShowEditShareDialog = Observer<Share> {
-        editDialogViewModel.setShare(it)
-        editDialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context),
-            R.layout.dialog_edit_access_level, null, false
-        )
-        editDialogBinding.executePendingBindings()
-        editDialogBinding.lifecycleOwner = this
-        editDialogBinding.viewModel = editDialogViewModel
-        editDialogBinding.actvAccessLevel.setText(it.accessRole?.toTitleCase())
-        // setAdapter after setText in order to work properly
-        editDialogBinding.actvAccessLevel.setAdapter(accessLevelAdapter)
-        editDialogBinding.actvAccessLevel.setOnClickListener {
-            context?.hideKeyboardFrom(editDialogBinding.root.windowToken)
-        }
-        editDialogBinding.actvAccessLevel.onItemClickListener =
-            AdapterView.OnItemClickListener { _, _, position, _ ->
-                val selectedRole = accessLevelAdapter.getItem(position) as String
-                editDialogViewModel.setAccessLevel(
-                    AccessRole.valueOf(selectedRole.uppercase(Locale.getDefault()))
-                )
-            }
-        context?.let { ctx ->
-            alertDialog = androidx.appcompat.app.AlertDialog.Builder(ctx)
-                .setView(editDialogBinding.root)
-                .create()
-            editDialogBinding.btnCancel.setOnClickListener {
-                alertDialog?.dismiss()
-            }
-            alertDialog?.show()
-        }
-    }
-
     override fun connectViewModelEvents() {
         viewModel.getShowSnackbar().observe(this, showSnackbar)
         viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
         viewModel.getOnShareLinkRequest().observe(this, onShareLinkObserver)
-        viewModel.getOnShowShareOptionsRequest().observe(this, onShowShareOptionsObserver)
+        viewModel.getShowAccessRolesForShare().observe(this, showAccessRolesForShareObserver)
         viewModel.getOnRevokeLinkRequest().observe(this, onRevokeLinkRequest)
         viewModel.getOnShareApproved().observe(this, onShareApproved)
         viewModel.getOnShareDenied().observe(this, onShareRemoved)
+        viewModel.getShowAccessRolesForLink().observe(this, showAccessRolesForLinkObserver)
         viewModel.getShowDatePicker().observe(this, onShowDatePicker)
-        editDialogViewModel.getOnItemEdited().observe(this, onItemUpdated)
-        editDialogViewModel.getShowSuccessSnackbar().observe(this, showSnackbarSuccess)
-        editDialogViewModel.getShowSnackbar().observe(this, showSnackbar)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getShowSnackbar().removeObserver(showSnackbar)
         viewModel.getShowSnackbarSuccess().removeObserver(showSnackbarSuccess)
         viewModel.getOnShareLinkRequest().removeObserver(onShareLinkObserver)
-        viewModel.getOnShowShareOptionsRequest().removeObserver(onShowShareOptionsObserver)
+        viewModel.getShowAccessRolesForShare().removeObserver(showAccessRolesForShareObserver)
         viewModel.getOnRevokeLinkRequest().removeObserver(onRevokeLinkRequest)
         viewModel.getOnShareApproved().removeObserver(onShareApproved)
         viewModel.getOnShareDenied().removeObserver(onShareRemoved)
+        viewModel.getShowAccessRolesForLink().removeObserver(showAccessRolesForLinkObserver)
         viewModel.getShowDatePicker().removeObserver(onShowDatePicker)
-        itemOptionsFragment?.getShowEditShareDialogRequest()?.removeObserver(onShowEditShareDialog)
-        itemOptionsFragment?.getOnShareRemoved()?.removeObserver(onShareRemoved)
-        itemOptionsFragment?.getShowSnackbar()?.removeObserver(showSnackbar)
-        itemOptionsFragment?.getShowSnackbarSuccess()?.removeObserver(showSnackbarSuccess)
-        editDialogViewModel.getOnItemEdited().removeObserver(onItemUpdated)
+        accessRolesFragment?.getOnAccessRoleUpdated()
+            ?.removeObserver(onAccessRoleForLinkUpdatedObserver)
+        accessRolesFragment?.getOnAccessRoleUpdated()
+            ?.removeObserver(onAccessRoleForShareUpdatedObserver)
     }
 
     override fun onResume() {

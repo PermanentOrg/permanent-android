@@ -30,6 +30,12 @@ class SharesAdapter(shares: List<Share>?, val listener: ShareListener) :
         notifyDataSetChanged()
     }
 
+    fun update(share: Share) {
+        shares.remove(share)
+        shares.add(share)
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount() = shares.size
 
     override fun onBindViewHolder(holder: ShareViewHolder, position: Int) {

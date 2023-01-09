@@ -42,18 +42,6 @@
         android:name="org.permanent.permanent.ui.shareManagement.ShareManagementFragment"
         android:label="@string/main_navigation_title_share_link"
         tools:layout="@layout/fragment_share_management">
-        <action
-            android:id="@+id/action_shareLinkFragment_to_linkSettingsFragment"
-            app:destination="@id/linkSettingsFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/linkSettingsFragment"
-        android:name="org.permanent.permanent.ui.shareManagement.LinkSettingsFragment"
-        android:label="@string/share_management_link_settings_button"
-        tools:layout="@layout/fragment_link_settings">
     </fragment>
 
     <fragment
