@@ -16,8 +16,8 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 32
-        versionCode 40
-        versionName "1.5.0"
+        versionCode 41
+        versionName "1.6.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,6 +45,7 @@ android {
             buildConfigField "String", "BASE_API_URL", "\"https://www.permanent.org/api/\""
             buildConfigField "String", "PAYMENT_INTENT_URL", "\"https://us-central1-prpledgeprod.cloudfunctions.net/donation/payment-sheet\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://www.permanent.org/add-storage/\""
+            buildConfigField "String", "ACCESS_ROLES_URL", "\"https://desk.zoho.com/portal/permanent/en/kb/articles/roles-for-collaboration-and-sharing/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
             manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId.toLowerCase()}"]
@@ -56,6 +57,7 @@ android {
             buildConfigField "String", "BASE_API_URL", "\"https://staging.permanent.org/api/\""
             buildConfigField "String", "PAYMENT_INTENT_URL", "\"https://us-central1-prpledgestaging.cloudfunctions.net/donation/payment-sheet\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
+            buildConfigField "String", "ACCESS_ROLES_URL", "\"https://desk.zoho.com/portal/permanent/en/kb/articles/roles-for-collaboration-and-sharing/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://www.permanent.org/terms/\""
             manifestPlaceholders = ['appAuthRedirectScheme': "${applicationId}"]

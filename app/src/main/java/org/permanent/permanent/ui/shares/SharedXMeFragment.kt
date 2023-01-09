@@ -37,6 +37,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -61,6 +62,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private var shareManagementFragment: ShareManagementFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -228,10 +230,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.setRelocationMode(it)
     }
 
-    private val onRecordManageSharingObserver = Observer<Record> {
-        navigateToShareLinkFragment(it)
-    }
-
     private val onRecordRenamed = Observer<Void> {
         viewModel.refreshCurrentFolder()
         alertDialog?.dismiss()
@@ -333,12 +331,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.showEmptyFolder.value = false
     }
 
-    private fun navigateToShareLinkFragment(record: Record?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
-        requireParentFragment().findNavController()
-            .navigate(R.id.action_sharesFragment_to_shareLinkFragment, bundle)
-    }
-
     fun navigateToRecord(recordIdToNavigateTo: Int) {
         recordsAdapter.getItemById(recordIdToNavigateTo)?.let { record ->
             viewModel.onRecordClick(record)
@@ -366,8 +358,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.getOnRecordLeaveShareRequest()?.observe(this, onRecordLeaveShareRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.observe(this, onRecordManageSharingObserver)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
@@ -428,8 +418,6 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.removeObserver(onRecordManageSharingObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)

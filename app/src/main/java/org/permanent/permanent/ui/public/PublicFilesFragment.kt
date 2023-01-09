@@ -31,6 +31,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.*
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
+import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
@@ -52,6 +53,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private var shareManagementFragment: ShareManagementFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -141,8 +143,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.observe(this, onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
     }
 
@@ -215,15 +215,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private val onFileViewRequest = Observer<ArrayList<Record>> {
         val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
         findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity, bundle)
-    }
-
-    private val onRecordManageSharingObserver = Observer<Record> {
-        navigateToShareLinkFragment(it)
-    }
-
-    private fun navigateToShareLinkFragment(record: Record?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
-        findNavController().navigate(R.id.action_publicFilesFragment_to_shareLinkFragment, bundle)
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
@@ -343,8 +334,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordManageSharingRequest()
-            ?.removeObserver(onRecordManageSharingObserver)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
     }

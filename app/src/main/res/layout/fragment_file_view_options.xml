@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
             android:onClick="@{() -> viewModel.onCopyLinkBtnClick()}"
-            android:text="@string/share_link_copy_link_button"
+            android:text="@string/share_management_copy_link_button"
             android:visibility="@{viewModel.shouldHideCopyLinkButton ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@+id/btnShareToAnotherApp"
             app:layout_constraintEnd_toEndOf="parent"

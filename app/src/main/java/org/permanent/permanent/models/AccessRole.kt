@@ -35,7 +35,7 @@ enum class AccessRole(val backendString: String) : Parcelable {
 
     fun getPermissions(): List<ArchivePermission> {
         when (this) {
-            AccessRole.OWNER -> {
+            OWNER -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
@@ -48,7 +48,7 @@ enum class AccessRole(val backendString: String) : Parcelable {
                     ArchivePermission.OWNERSHIP
                 )
             }
-            AccessRole.MANAGER -> {
+            MANAGER -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
@@ -60,7 +60,7 @@ enum class AccessRole(val backendString: String) : Parcelable {
                     ArchivePermission.ARCHIVE_SHARE
                 )
             }
-            AccessRole.CURATOR -> {
+            CURATOR -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
@@ -71,20 +71,20 @@ enum class AccessRole(val backendString: String) : Parcelable {
                     ArchivePermission.SHARE
                 )
             }
-            AccessRole.EDITOR -> {
+            EDITOR -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE,
                     ArchivePermission.EDIT
                 )
             }
-            AccessRole.CONTRIBUTOR -> {
+            CONTRIBUTOR -> {
                 return listOf(
                     ArchivePermission.READ,
                     ArchivePermission.CREATE
                 )
             }
-            AccessRole.VIEWER -> {
+            VIEWER -> {
                 return listOf(
                     ArchivePermission.READ
                 )
@@ -117,6 +117,27 @@ enum class AccessRole(val backendString: String) : Parcelable {
 
     fun getInferior(otherAccessRole: AccessRole): AccessRole {
         return if (otherAccessRole in inferiors()) otherAccessRole else this
+    }
+
+    fun getPermissionsEnumerated(): String {
+        var enumeratedPermissions = ""
+        val currentArchivePermissions = getPermissions().toMutableList()
+        currentArchivePermissions.remove(ArchivePermission.ARCHIVE_SHARE)
+        currentArchivePermissions.map { it.toLowerCase() }
+        currentArchivePermissions.forEachIndexed { index, permission ->
+            enumeratedPermissions += when {
+                currentArchivePermissions.size == 1 -> {
+                    permission.toUIString()
+                }
+                index != currentArchivePermissions.size - 1 -> {
+                    "${permission.toUIString()}, "
+                }
+                else -> {
+                    "and ${permission.toUIString()}"
+                }
+            }
+        }
+        return enumeratedPermissions
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
