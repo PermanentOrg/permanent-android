@@ -129,8 +129,6 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = getString(tabArray[position])
         }.attach()
-
-        viewPager.setCurrentItem(1, false)
     }
 
     override fun onClick(view: View) {
