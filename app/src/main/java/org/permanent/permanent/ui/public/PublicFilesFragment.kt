@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.public
 
+import android.animation.ValueAnimator
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -8,12 +9,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_cancel_uploads.view.*
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import kotlinx.android.synthetic.main.dialog_delete.view.tvTitle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
@@ -30,8 +35,11 @@ import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.*
 import org.permanent.permanent.ui.myFiles.*
+import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.DELAY_TO_RESIZE_MILLIS
+import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH_LARGE
+import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH_SMALL
+import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.RESIZE_DURATION_MILLIS
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
-import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
@@ -53,16 +61,13 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
-    private var shareManagementFragment: ShareManagementFragment? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentPublicFilesBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(PublicFilesViewModel::class.java)
-        renameDialogViewModel = ViewModelProvider(this).get(RenameRecordViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicFilesViewModel::class.java]
+        renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
@@ -76,6 +81,10 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.loadRootFiles()
         initDownloadsRecyclerView(binding.rvDownloads)
         initFilesRecyclerView(binding.rvFiles)
+        if (viewModel.isRelocationMode.value == true) resizeIslandWidthAnimated(
+            binding.flFloatingActionIsland.width,
+            ISLAND_WIDTH_LARGE
+        )
         return binding.root
     }
 
@@ -159,9 +168,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
     private val onRecordDeleteRequest = Observer<Record> { record ->
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
-        val alert = AlertDialog.Builder(context)
-            .setView(viewDialog)
-            .create()
+        val alert = AlertDialog.Builder(context).setView(viewDialog).create()
         viewDialog.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
         viewDialog.btnDelete.setOnClickListener {
             viewModel.delete(record)
@@ -175,8 +182,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
     private val onRecordRenameRequest = Observer<Record> { record ->
         renameDialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context),
-            R.layout.dialog_rename_record, null, false
+            LayoutInflater.from(context), R.layout.dialog_rename_record, null, false
         )
         renameDialogBinding.executePendingBindings()
         renameDialogBinding.lifecycleOwner = this
@@ -184,8 +190,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         renameDialogViewModel.setRecordName(record.displayName)
 
         alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setView(renameDialogBinding.root)
-            .create()
+            .setView(renameDialogBinding.root).create()
         renameDialogBinding.tvTitle.text =
             getString(R.string.rename_record_title, record.displayName)
         renameDialogBinding.btnRename.setOnClickListener {
@@ -199,9 +204,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
     private val onCancelAllUploads = Observer<Void> {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_cancel_uploads, null)
-        val alert = AlertDialog.Builder(context)
-            .setView(viewDialog)
-            .create()
+        val alert = AlertDialog.Builder(context).setView(viewDialog).create()
         viewDialog.btnCancelAll.setOnClickListener {
             viewModel.cancelAllUploads()
             alert.dismiss()
@@ -217,8 +220,27 @@ class PublicFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity, bundle)
     }
 
+    private val shrinkIslandRequestObserver = Observer<Void> {
+        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_SMALL)
+    }
+
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
         viewModel.setRelocationMode(it)
+        lifecycleScope.launch {
+            delay(DELAY_TO_RESIZE_MILLIS)
+            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+        }
+    }
+
+    private fun resizeIslandWidthAnimated(currentWidth: Int, newWidth: Int) {
+        val widthAnimator = ValueAnimator.ofInt(currentWidth, newWidth)
+        widthAnimator.duration = RESIZE_DURATION_MILLIS
+        widthAnimator.interpolator = DecelerateInterpolator()
+        widthAnimator.addUpdateListener { animation ->
+            binding.flFloatingActionIsland.layoutParams.width = animation.animatedValue as Int
+            binding.flFloatingActionIsland.requestLayout()
+        }
+        widthAnimator.start()
     }
 
     private val onSortRequest = Observer<SortType> {
@@ -264,13 +286,16 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private fun initFilesRecyclerView(rvFiles: RecyclerView) {
         recordsRecyclerView = rvFiles
         recordsListAdapter = RecordsListAdapter(
-            this, false, viewModel.getIsRelocationMode(),
+            this,
+            false,
+            viewModel.getIsRelocationMode(),
             isForSharesScreen = false,
             isForSearchScreen = false,
             recordListener = viewModel
         )
         recordsGridAdapter = RecordsGridAdapter(
-            this, false,
+            this,
+            false,
             viewModel.getIsRelocationMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
@@ -307,6 +332,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
+        viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -327,6 +353,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
+        viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)

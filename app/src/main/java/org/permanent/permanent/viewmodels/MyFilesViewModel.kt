@@ -33,7 +33,7 @@ import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
-open class MyFilesViewModel(application: Application) : ObservableAndroidViewModel(application),
+open class MyFilesViewModel(application: Application) : RelocationViewModel(application),
     RecordListener, CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
@@ -45,24 +45,17 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
     private val isListViewMode = MutableLiveData(true)
     private val isCreateAvailable = CurrentArchivePermissionsManager.instance.isCreateAvailable()
-    private val isRelocationMode = MutableLiveData(false)
-    private val relocationType = MutableLiveData<RelocationType>()
-    private val recordToRelocate = MutableLiveData<Record>()
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
-    private var currentFolder = MutableLiveData<NavigationFolder>()
     private var mobileUploadsFolder = MutableLiveData<NavigationFolder>()
-    private val existsFiles = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
     private var showEmptyFolder = MutableLiveData(false)
-    protected val showMessage = SingleLiveEvent<String>()
     private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
-    private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onShowRecordSearchFragment = SingleLiveEvent<Void>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
     private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
@@ -72,7 +65,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
     private val onRecordSelected = SingleLiveEvent<Record>()
     private var showScreenSimplified = MutableLiveData(false)
 
-    protected var fileRepository: IFileRepository = FileRepositoryImpl(application)
     protected var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     protected var folderPathStack: Stack<Record> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
@@ -339,7 +331,10 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         }
     }
 
-    private fun onDestinationFolderReady(mobileUploadsFolderRecord: Record, urisToUpload: List<Uri>) {
+    private fun onDestinationFolderReady(
+        mobileUploadsFolderRecord: Record,
+        urisToUpload: List<Uri>
+    ) {
         mobileUploadsFolder.value = NavigationFolder(appContext, mobileUploadsFolderRecord)
         mobileUploadsFolder.value?.newUploadQueue(lifecycleOwner, this)
         mobileUploadsFolder.value?.let { uploadTo(it, urisToUpload) }
@@ -420,44 +415,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
-    fun setRelocationMode(relocationPair: Pair<Record, RelocationType>) {
-        PermanentApplication.instance.relocateData = relocationPair
-
-        recordToRelocate.value = relocationPair.first
-        relocationType.value = relocationPair.second
-        isRelocationMode.value = true
-    }
-
-    fun onPasteBtnClick() {
-        PermanentApplication.instance.relocateData = null
-        isRelocationMode.value = false
-        val recordValue = recordToRelocate.value
-        val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
-        val relocationTypeValue = relocationType.value
-        if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
-            swipeRefreshLayout.isRefreshing = true
-            fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
-                object : IResponseListener {
-                    override fun onSuccess(message: String?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        message?.let { showMessage.value = it }
-                        onNewTemporaryFile.value = recordToRelocate.value
-                        existsFiles.value = true
-                    }
-
-                    override fun onFailed(error: String?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        error?.let { showMessage.value = it }
-                    }
-                })
-        }
-    }
-
-    fun onCancelRelocationBtnClick() {
-        PermanentApplication.instance.relocateData = null
-        isRelocationMode.value = false
-    }
-
     fun delete(record: Record) {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.deleteRecord(record, object : IResponseListener {
@@ -505,8 +462,6 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getExistsUploads(): MutableLiveData<Boolean> = uploadsAdapter.getExistsUploads()
 
-    fun getExistsFiles(): MutableLiveData<Boolean> = existsFiles
-
     fun getShowEmptyFolder(): MutableLiveData<Boolean> = showEmptyFolder
 
     fun getIsRoot(): MutableLiveData<Boolean> = isRoot
@@ -515,15 +470,9 @@ open class MyFilesViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getSortName(): MutableLiveData<String> = sortName
 
-    fun getRecordToRelocate(): MutableLiveData<Record> = recordToRelocate
-
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
 
-    fun getRelocationType(): MutableLiveData<RelocationType> = relocationType
-
     fun getIsCreateAvailable(): Boolean = isCreateAvailable
-
-    fun getCurrentFolder(): MutableLiveData<NavigationFolder> = currentFolder
 
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
 
