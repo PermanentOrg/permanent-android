@@ -21,20 +21,18 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(application),
+class SharedXMeViewModel(application: Application) : RelocationViewModel(application),
     CancelListener, OnFinishedListener {
 
     private val appContext = application.applicationContext
@@ -47,28 +45,20 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     val isRoot = MutableLiveData(true)
     private val isCreateAvailable = MutableLiveData(true)
     private val isListViewMode = MutableLiveData(prefsHelper.isListViewMode())
-    var existsShares = MutableLiveData(false)
     private var existsDownloads = MutableLiveData(false)
-    var showEmptyFolder = MutableLiveData(false)
     private val folderName = MutableLiveData(Constants.MY_FILES_FOLDER)
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
     private var folderPathStack: Stack<Record> = Stack()
-    private var currentFolder = MutableLiveData<NavigationFolder>()
-    private val recordToRelocate = MutableLiveData<Record>()
-    private val isRelocationMode = MutableLiveData(false)
-    private val relocationType = MutableLiveData<RelocationType>()
 
     private val isBusy = MutableLiveData(false)
-    private val showMessage = SingleLiveEvent<String>()
     private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
-    private val onNewTemporaryFile = SingleLiveEvent<Record>()
     private val onRootSharesNeeded = SingleLiveEvent<Void>()
     private val onChangeViewMode = MutableLiveData<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void>()
@@ -79,7 +69,6 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var uploadsRecyclerView: RecyclerView
-    private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setLifecycleOwner(lifecycleOwner: LifecycleOwner) {
         this.lifecycleOwner = lifecycleOwner
@@ -160,15 +149,15 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             isBusy.value = true
-            fileRepository.getChildRecordsOf(archiveNr, folderLinkId, sortType?.toBackendString(),
+            fileRepository.getChildRecordsOf(archiveNr,
+                folderLinkId,
+                sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
                     override fun onSuccess(recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         isRoot.value = false
                         folderName.value = folder.getDisplayName()
-                        existsShares.value = !recordVOs.isNullOrEmpty()
-                        showEmptyFolder.value =
-                            isRoot.value == false && existsShares.value == false && getExistsUploads().value == false
+                        existsFiles.value = !recordVOs.isNullOrEmpty()
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
@@ -181,8 +170,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
     }
 
     private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {
-        folder?.newUploadQueue(lifecycleOwner, this)
-            ?.getEnqueuedUploadsLiveData()?.let { enqueuedUploadsLiveData ->
+        folder?.newUploadQueue(lifecycleOwner, this)?.getEnqueuedUploadsLiveData()
+            ?.let { enqueuedUploadsLiveData ->
                 enqueuedUploadsLiveData.observe(lifecycleOwner) { enqueuedUploads ->
                     uploadsAdapter.set(enqueuedUploads)
                 }
@@ -269,8 +258,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         val fakeRecord = Record(fakeRecordInfo)
         fakeRecord.type = RecordType.FILE
         onNewTemporaryFile.value = fakeRecord
-        existsShares.value = true
-        showEmptyFolder.value = false
+        existsFiles.value = true
     }
 
     fun refreshCurrentFolder() {
@@ -289,10 +277,10 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     override fun onFinished(download: Download, state: WorkInfo.State) {
         onDownloadFinished.value = download
-        if (state == WorkInfo.State.SUCCEEDED)
-            showMessage.value = "Downloaded ${download.getDisplayName()}"
-        else if (state == WorkInfo.State.FAILED)
-            showMessage.value = appContext.getString(R.string.generic_error)
+        if (state == WorkInfo.State.SUCCEEDED) showMessage.value =
+            "Downloaded ${download.getDisplayName()}"
+        else if (state == WorkInfo.State.FAILED) showMessage.value =
+            appContext.getString(R.string.generic_error)
     }
 
     override fun onFailedUpload(message: String) {
@@ -308,8 +296,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         fileRepository.deleteRecord(record, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                if (record.type == RecordType.FOLDER)
-                    showMessage.value = appContext.getString(R.string.my_files_folder_deleted)
+                if (record.type == RecordType.FOLDER) showMessage.value =
+                    appContext.getString(R.string.my_files_folder_deleted)
                 else showMessage.value = appContext.getString(R.string.my_files_file_deleted)
                 refreshJob = viewModelScope.launch {
                     delay(MyFilesViewModel.MILLIS_UNTIL_REFRESH_AFTER_DELETE)
@@ -326,8 +314,7 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun unshare(record: Record) {
         val currentArchiveId = PreferencesHelper(
-            appContext
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         ).getCurrentArchiveId()
 
         isBusy.value = true
@@ -335,8 +322,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
             override fun onSuccess(message: String?) {
                 isBusy.value = false
                 refreshCurrentFolder()
-                if (record.type == RecordType.FOLDER)
-                    showMessage.value = appContext.getString(R.string.my_files_folder_unshared)
+                if (record.type == RecordType.FOLDER) showMessage.value =
+                    appContext.getString(R.string.my_files_folder_unshared)
                 else showMessage.value = appContext.getString(R.string.my_files_file_unshared)
             }
 
@@ -347,42 +334,8 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
         })
     }
 
-    fun setRelocationMode(relocationPair: Pair<Record, RelocationType>) {
-        recordToRelocate.value = relocationPair.first
-        relocationType.value = relocationPair.second
-        isRelocationMode.value = true
-    }
-
-    fun onPasteBtnClick() {
-        isRelocationMode.value = false
-        val recordValue = recordToRelocate.value
-        val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
-        val relocationTypeValue = relocationType.value
-        if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
-            isBusy.value = true
-            fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
-                object : IResponseListener {
-                    override fun onSuccess(message: String?) {
-                        isBusy.value = false
-                        message?.let { showMessage.value = it }
-                        onNewTemporaryFile.value = recordToRelocate.value
-                        existsShares.value = true
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        error?.let { showMessage.value = it }
-                    }
-                })
-        }
-    }
-
-    fun onCancelRelocationBtnClick() {
-        cancelRelocationMode()
-    }
-
     fun cancelRelocationMode() {
-        isRelocationMode.value = false
+        onCancelRelocationBtnClick()
     }
 
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
@@ -426,11 +379,5 @@ class SharedXMeViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 
-    fun getRecordToRelocate(): MutableLiveData<Record> = recordToRelocate
-
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
-
-    fun getRelocationType(): MutableLiveData<RelocationType> = relocationType
-
-    fun getCurrentFolder(): MutableLiveData<NavigationFolder> = currentFolder
 }

@@ -210,6 +210,10 @@
     <string name="record_options_shared_with">Shared with (%d)</string>
     <string name="record_options_view_all">View all</string>
     <string name="record_options_pending">PENDING…</string>
+    <string name="record_options_copying">Copying</string>
+    <string name="record_options_moving">Moving</string>
+    <string name="record_options_paste_here">Paste here</string>
+    <string name="record_options_move_here">Move here</string>
 
     <string name="rename_record_name_hint">Name</string>
     <string name="rename_record_title">Rename \"%s\"</string>
