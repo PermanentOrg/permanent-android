@@ -49,7 +49,6 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         MutableLiveData(SortType.NAME_ASCENDING)
     private var mobileUploadsFolder = MutableLiveData<NavigationFolder>()
     private var existsDownloads = MutableLiveData(false)
-    private var showEmptyFolder = MutableLiveData(false)
     private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void>()
@@ -159,8 +158,6 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
                         }
 
                         existsFiles.value = !recordVOs.isNullOrEmpty()
-                        showEmptyFolder.value =
-                            existsFiles.value == false && getExistsUploads().value == false
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
 
@@ -461,8 +458,6 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     fun getExistsDownloads(): MutableLiveData<Boolean> = existsDownloads
 
     fun getExistsUploads(): MutableLiveData<Boolean> = uploadsAdapter.getExistsUploads()
-
-    fun getShowEmptyFolder(): MutableLiveData<Boolean> = showEmptyFolder
 
     fun getIsRoot(): MutableLiveData<Boolean> = isRoot
 
