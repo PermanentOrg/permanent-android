@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.animation.ValueAnimator
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -8,12 +9,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_cancel_uploads.view.*
 import kotlinx.android.synthetic.main.dialog_delete.view.*
 import kotlinx.android.synthetic.main.dialog_delete.view.tvTitle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
@@ -40,6 +45,7 @@ import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
+
 
 const val PARCELABLE_RECORD_KEY = "parcelable_record_key"
 const val PARCELABLE_FILES_KEY = "parcelable_files_key"
@@ -112,6 +118,10 @@ class MyFilesFragment : PermanentBaseFragment() {
                 }
                 arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)
                     ?.let { showSaveToPermanentFragment(it) }
+                if (viewModel.isRelocationMode.value == true) resizeIslandWidthAnimated(
+                    binding.flFloatingActionIsland.width,
+                    ISLAND_WIDTH_LARGE
+                )
             }
         }
         return binding.root
@@ -281,8 +291,27 @@ class MyFilesFragment : PermanentBaseFragment() {
         shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
     }
 
+    private val shrinkIslandRequestObserver = Observer<Void> {
+        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_SMALL)
+    }
+
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
         viewModel.setRelocationMode(it)
+        lifecycleScope.launch {
+            delay(DELAY_TO_RESIZE_MILLIS)
+            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+        }
+    }
+
+    private fun resizeIslandWidthAnimated(currentWidth: Int, newWidth: Int) {
+        val widthAnimator = ValueAnimator.ofInt(currentWidth, newWidth)
+        widthAnimator.duration = RESIZE_DURATION_MILLIS
+        widthAnimator.interpolator = DecelerateInterpolator()
+        widthAnimator.addUpdateListener { animation ->
+            binding.flFloatingActionIsland.layoutParams.width = animation.animatedValue as Int
+            binding.flFloatingActionIsland.requestLayout()
+        }
+        widthAnimator.start()
     }
 
     private val onSortRequest = Observer<SortType> {
@@ -385,11 +414,13 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
+        viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.observe(this, onFilesUploadRequest)
-        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()?.observe(this, onCurrentArchiveChangedObserver)
+        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()
+            ?.observe(this, onCurrentArchiveChangedObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -408,12 +439,14 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
+        viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.removeObserver(onFilesUploadRequest)
-        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()?.removeObserver(onCurrentArchiveChangedObserver)
+        saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()
+            ?.removeObserver(onCurrentArchiveChangedObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
@@ -432,5 +465,12 @@ class MyFilesFragment : PermanentBaseFragment() {
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    companion object {
+        const val ISLAND_WIDTH_SMALL = 160
+        const val ISLAND_WIDTH_LARGE = 960
+        const val RESIZE_DURATION_MILLIS = 500L
+        const val DELAY_TO_RESIZE_MILLIS = 500L
     }
 }
