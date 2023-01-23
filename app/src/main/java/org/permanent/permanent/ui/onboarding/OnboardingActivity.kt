@@ -9,10 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
+import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityOnboardingBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
-import org.permanent.permanent.ui.activities.SignUpActivity
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.viewmodels.OnboardingViewModel
 
 
@@ -26,7 +27,7 @@ class OnboardingActivity : PermanentBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_onboarding)
-        viewModel = ViewModelProvider(this).get(OnboardingViewModel::class.java)
+        viewModel = ViewModelProvider(this)[OnboardingViewModel::class.java]
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -34,7 +35,7 @@ class OnboardingActivity : PermanentBaseActivity() {
         setSupportActionBar(binding.toolbar)
         setupRecyclerView()
         binding.btnOnboarding.setOnClickListener {
-            if(viewModel.snapPosition.value == viewAdapter.itemCount - 1) {
+            if (viewModel.snapPosition.value == viewAdapter.itemCount - 1) {
                 onOnboardingCompleted()
             } else {
                 viewModel.snapPosition.value = viewModel.snapPosition.value?.plus(1)
@@ -77,11 +78,13 @@ class OnboardingActivity : PermanentBaseActivity() {
 
     private fun onOnboardingCompleted() {
         viewModel.setOnboardingCompleted(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
-        startSignUpActivity()
+        startSignUpFragment()
     }
 
-    private fun startSignUpActivity() {
-        startActivity(Intent(this@OnboardingActivity, SignUpActivity::class.java))
+    private fun startSignUpFragment() {
+        val intent = Intent(this@OnboardingActivity, LoginActivity::class.java)
+        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.signUpFragment)
+        startActivity(intent)
         finish()
     }
 

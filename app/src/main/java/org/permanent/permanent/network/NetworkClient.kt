@@ -10,7 +10,6 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -74,20 +73,20 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .cookieJar(cookieJar)
                 .addInterceptor(loggingInterceptor)
                 .addInterceptor(UnauthorizedInterceptor())
-                .addInterceptor(Interceptor { chain ->
-                    val request = chain.request()
-                    if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
-                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX) &&
-                        !request.url.toString().contains(Constants.STRIPE_URL)
-                    ) {
-                        val requestBuilder: Request.Builder = request.newBuilder()
-                        requestBuilder.header(
-                            "Authorization",
-                            "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
-                        )
-                        chain.proceed(requestBuilder.build())
-                    } else chain.proceed(request)
-                })
+//                .addInterceptor(Interceptor { chain ->
+//                    val request = chain.request()
+//                    if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
+//                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX) &&
+//                        !request.url.toString().contains(Constants.STRIPE_URL)
+//                    ) {
+//                        val requestBuilder: Request.Builder = request.newBuilder()
+//                        requestBuilder.header(
+//                            "Authorization",
+//                            "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
+//                        )
+//                        chain.proceed(requestBuilder.build())
+//                    } else chain.proceed(request)
+//                })
 //                .authenticator(TokenAuthenticator())
                 .build()
         }

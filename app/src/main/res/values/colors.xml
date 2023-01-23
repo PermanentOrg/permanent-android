@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#131B4A</color>
+    <color name="colorPrimaryLighter">#1c2451</color>
     <color name="superLightBlue">#F4F6FD</color>
     <color name="blueGrey">#465084</color>
     <color name="barneyPurple">#800080</color>

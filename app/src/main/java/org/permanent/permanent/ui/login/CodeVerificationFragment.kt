@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.twoStepVerification
+package org.permanent.permanent.ui.login
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -40,8 +40,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentVerificationCodeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
@@ -96,7 +95,6 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     private fun isSmsCodeFlow(): Boolean {
-        return findNavController().previousBackStackEntry?.destination?.id ==
-                R.id.phoneVerificationFragment
+        return findNavController().previousBackStackEntry?.destination?.id == R.id.phoneVerificationFragment
     }
 }

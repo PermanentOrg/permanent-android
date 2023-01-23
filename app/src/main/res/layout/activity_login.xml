@@ -5,10 +5,6 @@
     <data>
 
         <import type="android.view.View" />
-
-        <variable
-            name="viewModel"
-            type="org.permanent.permanent.viewmodels.LoginActivityViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,9 +19,11 @@
             app:defaultNavHost="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:navGraph="@navigation/login_navigation" />
+            app:layout_constraintVertical_bias="0.0"
+            app:navGraph="@navigation/login_navigation_graph" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

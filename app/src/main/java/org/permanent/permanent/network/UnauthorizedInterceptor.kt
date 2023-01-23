@@ -15,7 +15,7 @@ import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.activities.SignUpActivity
+import org.permanent.permanent.ui.login.LoginActivity
 import java.io.IOException
 
 class UnauthorizedInterceptor : Interceptor {
@@ -46,7 +46,7 @@ class UnauthorizedInterceptor : Interceptor {
                     prefsHelper.saveBiometricsLogIn(true) // Setting back to default
                     val currentActivity = PermanentApplication.instance.currentActivity
                     currentActivity?.let {
-                        it.startActivity(Intent(it, SignUpActivity::class.java))
+                        it.startActivity(Intent(it, LoginActivity::class.java))
                         it.runOnUiThread {
                             Toast.makeText(
                                 it,

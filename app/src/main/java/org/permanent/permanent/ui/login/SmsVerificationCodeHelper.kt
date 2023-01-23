@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.twoStepVerification
+package org.permanent.permanent.ui.login
 
 import android.content.BroadcastReceiver
 import android.content.Context

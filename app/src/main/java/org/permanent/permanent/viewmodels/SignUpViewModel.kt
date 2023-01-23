@@ -1,7 +1,6 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,17 +8,10 @@ import org.permanent.permanent.Validator
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.showLoginScreen
 
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    private val appContext = application.applicationContext
-    private var prefsHelper: PreferencesHelper = PreferencesHelper(
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    )
     private val nameError = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
@@ -27,6 +19,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val onErrorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onReadyToShowTermsDialog = SingleLiveEvent<Void>()
+    private val showLoginScreen = SingleLiveEvent<Void>()
     private val currentName = MutableLiveData<String>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
@@ -52,6 +45,8 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> = onReadyToShowTermsDialog
 
+    fun getShowLoginScreen(): MutableLiveData<Void> = showLoginScreen
+
     fun onNameTextChanged(name: Editable) {
         currentName.value = name.toString()
     }
@@ -65,7 +60,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     }
 
     fun alreadyHaveAccount() {
-        appContext.showLoginScreen()
+        showLoginScreen.call()
     }
 
     fun onSignUpBtnClick() {

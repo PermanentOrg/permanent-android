@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogForgotPasswordBinding
@@ -19,11 +20,10 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
-import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.viewmodels.ForgotPasswordViewModel
 import org.permanent.permanent.viewmodels.LoginFragmentViewModel
 
-class LoginFragment  : PermanentBaseFragment() {
+class LoginFragment : PermanentBaseFragment() {
     private lateinit var fragmentViewModel: LoginFragmentViewModel
     private lateinit var dialogViewModel: ForgotPasswordViewModel
     private lateinit var binding: FragmentLoginBinding
@@ -33,11 +33,11 @@ class LoginFragment  : PermanentBaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        fragmentViewModel = ViewModelProvider(this).get(LoginFragmentViewModel::class.java)
+        fragmentViewModel = ViewModelProvider(this)[LoginFragmentViewModel::class.java]
         binding.viewModel = fragmentViewModel
 
         return binding.root
@@ -58,16 +58,18 @@ class LoginFragment  : PermanentBaseFragment() {
     }
 
     private val onLoggedIn = Observer<Void> {
-        val prefsHelper = PreferencesHelper(requireContext().getSharedPreferences(
-            PREFS_NAME, Context.MODE_PRIVATE))
+        val prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(
+                PREFS_NAME, Context.MODE_PRIVATE
+            )
+        )
 //        prefsHelper.saveUserLoggedIn(true)
         startActivity(Intent(context, MainActivity::class.java))
         activity?.finish()
     }
 
     private val onStartSignUp = Observer<Void> {
-        startActivity(Intent(context, SignUpActivity::class.java))
-        activity?.finish()
+        findNavController().navigate(R.id.action_loginFragment_to_signUpFragment)
     }
 
     private val onPasswordReset = Observer<Void> {
@@ -92,7 +94,7 @@ class LoginFragment  : PermanentBaseFragment() {
         )
         dialogBinding.executePendingBindings()
         dialogBinding.lifecycleOwner = this
-        dialogViewModel = ViewModelProvider(this).get(ForgotPasswordViewModel::class.java)
+        dialogViewModel = ViewModelProvider(this)[ForgotPasswordViewModel::class.java]
         dialogBinding.viewModel = dialogViewModel
         val thisContext = context
 
@@ -120,8 +122,10 @@ class LoginFragment  : PermanentBaseFragment() {
         fragmentViewModel.getOnLoggedIn().observe(this, onLoggedIn)
         fragmentViewModel.getOnSignUp().observe(this, onStartSignUp)
         fragmentViewModel.getOnPasswordReset().observe(this, onPasswordReset)
-        fragmentViewModel.getOnReadyToShowForgotPassDialog().observe(this,
-            onReadyToShowForgotPassDialog)
+        fragmentViewModel.getOnReadyToShowForgotPassDialog().observe(
+            this,
+            onReadyToShowForgotPassDialog
+        )
         fragmentViewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
@@ -131,7 +135,8 @@ class LoginFragment  : PermanentBaseFragment() {
         fragmentViewModel.getOnSignUp().removeObserver(onStartSignUp)
         fragmentViewModel.getOnPasswordReset().removeObserver(onPasswordReset)
         fragmentViewModel.getOnReadyToShowForgotPassDialog().removeObserver(
-            onReadyToShowForgotPassDialog)
+            onReadyToShowForgotPassDialog
+        )
         fragmentViewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 
