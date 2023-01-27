@@ -349,6 +349,15 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.getRecord(requestBody)
     }
 
+    fun getRecord(
+        fileArchiveNr: String
+    ): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addRecord(fileArchiveNr))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return fileService.getRecord(requestBody)
+    }
+
     fun downloadFile(url: String): Call<ResponseBody> {
         return fileService.download(url)
     }

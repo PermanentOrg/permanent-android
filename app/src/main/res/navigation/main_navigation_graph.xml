@@ -40,8 +40,7 @@
         android:id="@+id/shareLinkFragment"
         android:name="org.permanent.permanent.ui.shareManagement.ShareManagementFragment"
         android:label="@string/main_navigation_title_share_link"
-        tools:layout="@layout/fragment_share_management">
-    </fragment>
+        tools:layout="@layout/fragment_share_management" />
 
     <fragment
         android:id="@+id/sharePreviewFragment"
@@ -121,19 +120,6 @@
     </activity>
 
     <fragment
-        android:id="@+id/publicFilesFragment"
-        android:name="org.permanent.permanent.ui.public.PublicFilesFragment"
-        android:label="@string/menu_drawer_public_files"
-        tools:layout="@layout/fragment_public_files">
-        <action
-            android:id="@+id/action_publicFilesFragment_to_recordSearchFragment"
-            app:destination="@id/recordSearchFragment" />
-        <action
-            android:id="@+id/action_publicFilesFragment_to_fileActivity"
-            app:destination="@id/fileActivity" />
-    </fragment>
-
-    <fragment
         android:id="@+id/publicFragment"
         android:name="org.permanent.permanent.ui.public.PublicFragment"
         tools:layout="@layout/fragment_public">
@@ -146,7 +132,19 @@
             app:uri="https://staging.permanent.org/p/archive/{archive_nr}/profile" />
         <deepLink
             app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
+        <deepLink
+            app:action="ACTION_VIEW"
             app:uri="https://www.permanent.org/p/archive/{archive_nr}/profile" />
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
         <action
             android:id="@+id/action_publicFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
@@ -169,6 +167,19 @@
         <action
             android:id="@+id/action_publicFragment_to_onlinePresenceListFragment"
             app:destination="@id/onlinePresenceListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/publicFilesFragment"
+        android:name="org.permanent.permanent.ui.public.PublicFilesFragment"
+        android:label="@string/menu_drawer_public_files"
+        tools:layout="@layout/fragment_public_files">
+        <action
+            android:id="@+id/action_publicFilesFragment_to_recordSearchFragment"
+            app:destination="@id/recordSearchFragment" />
+        <action
+            android:id="@+id/action_publicFilesFragment_to_fileActivity"
+            app:destination="@id/fileActivity" />
     </fragment>
 
     <fragment
