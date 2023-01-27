@@ -41,7 +41,7 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublicFolderViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicFolderViewModel::class.java]
         binding = FragmentPublicFolderBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

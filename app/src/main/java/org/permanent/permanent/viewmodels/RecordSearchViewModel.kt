@@ -24,7 +24,6 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
 import java.util.*
-import kotlin.collections.ArrayList
 
 class RecordSearchViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener {
@@ -115,7 +114,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
                 checkedTags,
                 object : IFileRepository.IOnRecordsRetrievedListener {
 
-                    override fun onSuccess(recordVOs: List<RecordVO>?) {
+                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         isRoot.value = true
                         existsRecords.value = !recordVOs.isNullOrEmpty()
@@ -196,7 +195,8 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
                 folderLinkId,
                 SortType.NAME_ASCENDING.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(recordVOs: List<RecordVO>?) {
+
+                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         isRoot.value = false
                         folderName.value = record.displayName

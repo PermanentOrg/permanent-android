@@ -3,6 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.FileType
@@ -67,7 +68,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                     isError.value = true
                 }
             })
-        }
+        } else Log.e("FileViewViewModel", "folderLinkId or recordId is null")
     }
 
     fun onRetryBtnClick() {

@@ -142,7 +142,8 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
             swipeRefreshLayout.isRefreshing = true
             fileRepository.getChildRecordsOf(archiveNr, folderLinkId, sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(recordVOs: List<RecordVO>?) {
+
+                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         swipeRefreshLayout.isRefreshing = false
                         val parentName = folder.getDisplayName()
                         isRoot.value =

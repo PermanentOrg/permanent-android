@@ -20,33 +20,32 @@ interface IFileRepository {
     fun getPublicRoot(archiveNr: String?, listener: IRecordListener)
 
     fun getChildRecordsOf(
-        folderArchiveNr: String, folderLinkId: Int, sort: String?,
-        listener: IOnRecordsRetrievedListener
-    )
-
-    fun navigateMin(
-        archiveNr: String,
+        folderArchiveNr: String,
         folderLinkId: Int,
         sort: String?,
         listener: IOnRecordsRetrievedListener
     )
 
+    fun navigateMin(
+        archiveNr: String, folderLinkId: Int, sort: String?, listener: IOnRecordsRetrievedListener
+    )
+
     fun getLeanItems(
-        archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
+        archiveNr: String,
+        folderLinkId: Int,
+        sort: String?,
+        childLinkIds: List<Int>,
         listener: IOnRecordsRetrievedListener
     )
 
     fun updateProfileBanner(thumbRecord: Record, listener: IResponseListener)
 
     fun createFolder(
-        parentFolderIdentifier: NavigationFolderIdentifier,
-        name: String,
-        listener: IRecordListener
+        parentFolderIdentifier: NavigationFolderIdentifier, name: String, listener: IRecordListener
     )
 
     fun getFolder(
-        folderLinkId: Int,
-        listener: IRecordListener
+        folderLinkId: Int, listener: IRecordListener
     )
 
     fun getPresignedUrlForUpload(
@@ -54,17 +53,28 @@ interface IFileRepository {
     ): Call<GetPresignedUrlResponse>
 
     fun uploadFile(
-        file: File, mediaType: MediaType, uploadDestination: UploadDestination,
+        file: File,
+        mediaType: MediaType,
+        uploadDestination: UploadDestination,
         listener: CountingRequestListener
     ): Call<ResponseBody>?
 
     fun registerRecord(
-        folderId: Int, folderLinkId: Int, file: File, displayName: String, createdDT: Date, s3Url: String
+        folderId: Int,
+        folderLinkId: Int,
+        file: File,
+        displayName: String,
+        createdDT: Date,
+        s3Url: String
     ): Call<ResponseVO>
 
     fun getRecord(
         folderLinkId: Int,
         recordId: Int?,
+    ): Call<ResponseVO>
+
+    fun getRecord(
+        fileArchiveNr: String,
     ): Call<ResponseVO>
 
     fun downloadFile(downloadUrl: String): Call<ResponseBody>
@@ -74,8 +84,10 @@ interface IFileRepository {
     fun unshareRecord(record: Record, archiveId: Int, listener: IResponseListener)
 
     fun relocateRecord(
-        recordToRelocate: Record, destFolderLinkId: Int,
-        relocationType: RelocationType, listener: IResponseListener
+        recordToRelocate: Record,
+        destFolderLinkId: Int,
+        relocationType: RelocationType,
+        listener: IResponseListener
     )
 
     fun updateRecord(fileData: FileData, listener: IResponseListener)
@@ -87,7 +99,7 @@ interface IFileRepository {
     fun searchRecords(query: String?, tags: List<Tag>, listener: IOnRecordsRetrievedListener)
 
     interface IOnRecordsRetrievedListener {
-        fun onSuccess(recordVOs: List<RecordVO>?)
+        fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?)
         fun onFailed(error: String?)
     }
 }

@@ -6,9 +6,19 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.ui.public.PublicFragment.Companion.ARCHIVE
 import org.permanent.permanent.ui.public.PublicFragment.Companion.ARCHIVE_NR
+import org.permanent.permanent.ui.public.PublicFragment.Companion.FILE_ARCHIVE_NR
+import org.permanent.permanent.ui.public.PublicFragment.Companion.FOLDER_ARCHIVE_NR
+import org.permanent.permanent.ui.public.PublicFragment.Companion.FOLDER_LINK_ID
 
 
-class PublicViewPagerAdapter(val isViewOnlyMode: Boolean, val archive: Archive, val fragment: Fragment) :
+class PublicViewPagerAdapter(
+    val isViewOnlyMode: Boolean,
+    val archive: Archive,
+    val fileArchiveNr: String?,
+    val folderLinkId: String? = null,
+    val folderArchiveNr: String? = null,
+    val fragment: Fragment
+) :
     FragmentStateAdapter(fragment) {
 
     override fun getItemCount(): Int {
@@ -19,7 +29,12 @@ class PublicViewPagerAdapter(val isViewOnlyMode: Boolean, val archive: Archive, 
         when (position) {
             0 -> {
                 return PublicArchiveFragment().apply {
-                    arguments = bundleOf(ARCHIVE_NR to archive.number)
+                    arguments = bundleOf(
+                        ARCHIVE_NR to archive.number,
+                        FILE_ARCHIVE_NR to fileArchiveNr,
+                        FOLDER_LINK_ID to folderLinkId,
+                        FOLDER_ARCHIVE_NR to folderArchiveNr
+                    )
                 }
             }
         }

@@ -12,11 +12,15 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.SortType
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class PublicArchiveViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -69,7 +73,8 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
                 folderLinkId,
                 SortType.NAME_ASCENDING?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(recordVOs: List<RecordVO>?) {
+
+                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         existsRecords.value = !recordVOs.isNullOrEmpty()
                         recordVOs?.let {
@@ -126,6 +131,23 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
             }
         }
         return files
+    }
+
+    fun getRecord(fileArchiveNr: String) {
+        fileRepository.getRecord(fileArchiveNr).enqueue(object : Callback<ResponseVO> {
+
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                isBusy.value = false
+                val record = response.body()?.getRecord()
+                if (record != null) {
+                    onFileViewRequest.value = arrayListOf(record)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                isBusy.value = false
+            }
+        })
     }
 
     fun getExistsRecords(): MutableLiveData<Boolean> = existsRecords

@@ -22,6 +22,9 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.*
+import org.permanent.permanent.ui.public.PublicFragment.Companion.FILE_ARCHIVE_NR
+import org.permanent.permanent.ui.public.PublicFragment.Companion.FOLDER_ARCHIVE_NR
+import org.permanent.permanent.ui.public.PublicFragment.Companion.FOLDER_LINK_ID
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicArchiveViewModel
 
@@ -39,7 +42,7 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublicArchiveViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublicArchiveViewModel::class.java]
         binding = FragmentPublicArchiveBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -49,6 +52,24 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
         )
         initRecordsRecyclerView(binding.rvRecords)
         arguments?.getString(PublicFragment.ARCHIVE_NR)?.let { viewModel.setArchiveNr(it) }
+
+        val fileArchiveNr = arguments?.getString(FILE_ARCHIVE_NR)
+
+        if (fileArchiveNr.isNullOrEmpty()) { // It's a Folder
+            val folderArchiveNr = arguments?.getString(FOLDER_ARCHIVE_NR)
+            val folderLinkId = arguments?.getString(FOLDER_LINK_ID)?.toInt()
+
+            if (!folderArchiveNr.isNullOrEmpty() && folderLinkId != null) {
+                val record = Record(folderArchiveNr, folderLinkId)
+                onFolderViewRequest.onChanged(record)
+            }
+        } else { // It's a File
+            viewModel.getRecord(fileArchiveNr)
+        }
+        // Removing these for the back navigation to work
+        arguments?.remove(FILE_ARCHIVE_NR)
+        arguments?.remove(FOLDER_ARCHIVE_NR)
+        arguments?.remove(FOLDER_LINK_ID)
 
         return binding.root
     }
