@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui.archives
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -27,6 +28,7 @@ import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.ArchivesViewModel
@@ -44,6 +46,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
     private lateinit var archivesAdapter: ArchivesAdapter
     private lateinit var dialogCreateArchiveViewModel: CreateNewArchiveViewModel
     private lateinit var dialogCreateArchiveBinding: DialogCreateNewArchiveBinding
+    private lateinit var prefsHelper: PreferencesHelper
     private var archiveOptionsFragment: ArchiveOptionsFragment? = null
     private var alertDialog: AlertDialog? = null
     private lateinit var archiveTypeAdapter: ArrayAdapter<String>
@@ -142,6 +145,15 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
             showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
             if (showScreenSimplified) viewModel.setShowScreenSimplified()
+        }
+
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
+        if (!prefsHelper.isUserLoggedIn()) {
+            prefsHelper.saveShowArchivesDeepLink(true)
+            startActivity(Intent(context, SignUpActivity::class.java))
+            activity?.finish()
         }
 
         return binding.root

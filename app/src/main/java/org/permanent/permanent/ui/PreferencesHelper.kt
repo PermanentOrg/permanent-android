@@ -14,6 +14,7 @@ const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val IS_ARCHIVE_ONBOARDING_DEFAULT_FLOW = "is_archive_onboarding_default_flow"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
+const val SHOW_ARCHIVES_SCREEN = "should_show_archives_screen"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_ID = "preferences_public_record_folder_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_LINK_ID = "preferences_public_record_folder_link_id"
@@ -324,5 +325,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isListViewMode(): Boolean {
         return sharedPreferences.getBoolean(IS_LIST_VIEW_MODE, true)
+    }
+
+    fun saveShowArchivesDeepLink(shouldShow: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(SHOW_ARCHIVES_SCREEN, shouldShow)
+            apply()
+        }
+    }
+
+    fun showArchivesScreen(): Boolean {
+        return sharedPreferences.getBoolean(SHOW_ARCHIVES_SCREEN, false)
     }
 }
