@@ -90,20 +90,35 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
+        // Can come either from direct deeplink, or unconsumed deeplink
         val archiveNr: String? = arguments?.getString(ARCHIVE_NR)
+
         if (!archiveNr.isNullOrEmpty()) {
+            fileArchiveNr = arguments?.getString(FILE_ARCHIVE_NR)
+            folderArchiveNr = arguments?.getString(FOLDER_ARCHIVE_NR)
+            folderLinkId = arguments?.getString(FOLDER_LINK_ID)
+
+            if (fileArchiveNr == null && folderArchiveNr == null && folderLinkId == null) {
+                fileArchiveNr = prefsHelper.getDeepLinkFileArchiveNr()
+                folderArchiveNr = prefsHelper.getDeepLinkFolderArchiveNr()
+                folderLinkId = prefsHelper.getDeepLinkFolderLinkId()
+            }
             if (prefsHelper.isUserLoggedIn()) {
-                prefsHelper.saveDeepLinkArchiveNr("") // marks the deeplink consumed
                 viewModel.getArchive(archiveNr) // a callback is set
 
-                fileArchiveNr = arguments?.getString(FILE_ARCHIVE_NR)
-                folderArchiveNr = arguments?.getString(FOLDER_ARCHIVE_NR)
-                folderLinkId = arguments?.getString(FOLDER_LINK_ID)
+                prefsHelper.saveDeepLinkArchiveNr("") // marks the deeplink consumed
+                prefsHelper.saveDeepLinkFileArchiveNr(null)
+                prefsHelper.saveDeepLinkFolderArchiveNr(null)
+                prefsHelper.saveDeepLinkFolderLinkId(null)
+
                 arguments?.remove(FILE_ARCHIVE_NR)
                 arguments?.remove(FOLDER_ARCHIVE_NR)
                 arguments?.remove(FOLDER_LINK_ID)
             } else {
                 prefsHelper.saveDeepLinkArchiveNr(archiveNr)
+                prefsHelper.saveDeepLinkFileArchiveNr(fileArchiveNr)
+                prefsHelper.saveDeepLinkFolderArchiveNr(folderArchiveNr)
+                prefsHelper.saveDeepLinkFolderLinkId(folderLinkId)
                 startActivity(Intent(context, SignUpActivity::class.java))
                 activity?.finish()
             }
