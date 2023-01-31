@@ -9,7 +9,14 @@
         android:id="@+id/archivesFragment"
         android:name="org.permanent.permanent.ui.archives.ArchivesFragment"
         android:label="@string/menu_settings_drawer_archives"
-        tools:layout="@layout/fragment_archives" />
+        tools:layout="@layout/fragment_archives">
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://www.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}"/>
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}"/>
+    </fragment>
 
     <fragment
         android:id="@+id/myFilesFragment"
@@ -28,6 +35,9 @@
         <action
             android:id="@+id/action_myFilesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_archivesFragment"
+            app:destination="@id/archivesFragment" />
     </fragment>
 
     <fragment
