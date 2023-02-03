@@ -96,6 +96,7 @@ class RecordSearchFragment : PermanentBaseFragment() {
 
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == FileInfoFragment.ACTIVITY_RESULT_REQUEST_CODE && resultCode == Activity.RESULT_OK) {

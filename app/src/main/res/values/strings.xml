@@ -252,6 +252,7 @@
     <string name="button_approve">Approve</string>
     <string name="button_deny">Deny</string>
     <string name="button_save">Save</string>
+    <string name="button_go_to_wallet">Go to wallet</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -492,6 +493,8 @@
     <string name="storage_anonymous_donation">Make my donation anonymous</string>
     <string name="storage_donation_successful_title">Thank you!</string>
     <string name="storage_donation_successful_text">Your donation was successful!</string>
+    <string name="storage_donation_no_card_title">Oops!</string>
+    <string name="storage_donation_no_card_text">You need to add a payment card first.</string>
     <string name="storage_donation_failed_title">Oops! Your donation failed</string>
     <string name="storage_dollar_sign">$</string>
 
