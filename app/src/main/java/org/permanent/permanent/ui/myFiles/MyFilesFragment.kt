@@ -92,6 +92,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             )
             val shareLinkUrlToken = prefsHelper.getShareLinkUrlToken()
             val deepLinkArchiveNr = prefsHelper.getDeepLinkArchiveNr()
+            val showArchivesScreen = prefsHelper.showArchivesScreen()
 
             if (!shareLinkUrlToken.isNullOrEmpty()) {
                 // click on shareLinkUrl wasn't consumed
@@ -99,6 +100,11 @@ class MyFilesFragment : PermanentBaseFragment() {
             } else if (!deepLinkArchiveNr.isNullOrEmpty()) {
                 // click on public profile link wasn't consumed
                 navigateToPublicFragment(deepLinkArchiveNr)
+            } else if (showArchivesScreen) {
+                // click on archive invitations link wasn't consumed
+                navigateToArchivesFragment()
+                // marking it consumed
+                prefsHelper.saveShowArchivesDeepLink(false)
             } else {
                 binding.executePendingBindings()
                 binding.lifecycleOwner = this
@@ -135,6 +141,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     private fun navigateToPublicFragment(deepLinkArchiveNr: String) {
         val bundle = bundleOf(PublicFragment.ARCHIVE_NR to deepLinkArchiveNr)
         findNavController().navigate(R.id.action_myFilesFragment_to_publicFragment, bundle)
+    }
+
+    private fun navigateToArchivesFragment() {
+        findNavController().navigate(R.id.action_myFilesFragment_to_archivesFragment)
     }
 
     private val onShowMessage = Observer<String> {

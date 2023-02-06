@@ -32,6 +32,9 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     private lateinit var binding: FragmentPublicBinding
     private lateinit var viewModel: PublicViewModel
     private lateinit var prefsHelper: PreferencesHelper
+    private var fileArchiveNr: String? = null
+    private var folderArchiveNr: String? = null
+    private var folderLinkId: String? = null
     private var myFilesContainerFragment: MyFilesContainerFragment? = null
     private var isFileForProfileBanner = true
 
@@ -87,13 +90,35 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
+        // Can come either from direct deeplink, or unconsumed deeplink
         val archiveNr: String? = arguments?.getString(ARCHIVE_NR)
+
         if (!archiveNr.isNullOrEmpty()) {
+            fileArchiveNr = arguments?.getString(FILE_ARCHIVE_NR)
+            folderArchiveNr = arguments?.getString(FOLDER_ARCHIVE_NR)
+            folderLinkId = arguments?.getString(FOLDER_LINK_ID)
+
+            if (fileArchiveNr == null && folderArchiveNr == null && folderLinkId == null) {
+                fileArchiveNr = prefsHelper.getDeepLinkFileArchiveNr()
+                folderArchiveNr = prefsHelper.getDeepLinkFolderArchiveNr()
+                folderLinkId = prefsHelper.getDeepLinkFolderLinkId()
+            }
             if (prefsHelper.isUserLoggedIn()) {
-                prefsHelper.saveDeepLinkArchiveNr("") // marks the deeplink consumed
                 viewModel.getArchive(archiveNr) // a callback is set
+
+                prefsHelper.saveDeepLinkArchiveNr("") // marks the deeplink consumed
+                prefsHelper.saveDeepLinkFileArchiveNr(null)
+                prefsHelper.saveDeepLinkFolderArchiveNr(null)
+                prefsHelper.saveDeepLinkFolderLinkId(null)
+
+                arguments?.remove(FILE_ARCHIVE_NR)
+                arguments?.remove(FOLDER_ARCHIVE_NR)
+                arguments?.remove(FOLDER_LINK_ID)
             } else {
                 prefsHelper.saveDeepLinkArchiveNr(archiveNr)
+                prefsHelper.saveDeepLinkFileArchiveNr(fileArchiveNr)
+                prefsHelper.saveDeepLinkFolderArchiveNr(folderArchiveNr)
+                prefsHelper.saveDeepLinkFolderLinkId(folderLinkId)
                 startActivity(Intent(context, SignUpActivity::class.java))
                 activity?.finish()
             }
@@ -106,7 +131,8 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
     private fun setArchive(archive: Archive) {
         viewModel.setArchive(archive)
-        val isViewOnlyMode = archive.accessRole != AccessRole.OWNER && archive.accessRole != AccessRole.MANAGER
+        val isViewOnlyMode =
+            archive.accessRole != AccessRole.OWNER && archive.accessRole != AccessRole.MANAGER
         if (isViewOnlyMode) {
             binding.fabProfileBanner.visibility = View.GONE
             binding.fabProfilePhoto.visibility = View.GONE
@@ -118,7 +144,14 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val viewPager = binding.vpPublic
         val tabLayout = binding.tlPublic
 
-        val adapter = PublicViewPagerAdapter(isViewOnlyMode, archive, this)
+        val adapter = PublicViewPagerAdapter(
+            isViewOnlyMode,
+            archive,
+            fileArchiveNr,
+            folderLinkId,
+            folderArchiveNr,
+            this
+        )
         viewPager.adapter = adapter
 
         val tabArray = arrayOf(
@@ -166,5 +199,8 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
     companion object {
         const val ARCHIVE = "archive"
         const val ARCHIVE_NR = "archive_nr"
+        const val FOLDER_ARCHIVE_NR = "folder_archive_nr"
+        const val FOLDER_LINK_ID = "folder_link_id"
+        const val FILE_ARCHIVE_NR = "file_archive_nr"
     }
 }

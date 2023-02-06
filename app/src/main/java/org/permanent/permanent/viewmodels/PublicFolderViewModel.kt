@@ -61,11 +61,14 @@ class PublicFolderViewModel(application: Application) : ObservableAndroidViewMod
                 folderLinkId,
                 SortType.NAME_ASCENDING?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(recordVOs: List<RecordVO>?) {
+
+                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         isBusy.value = false
-                        onFolderNameChanged.value = record.displayName
+                        onFolderNameChanged.value = parentFolderName
                         existsRecords.value = !recordVOs.isNullOrEmpty()
-                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs, archiveNr) }
+                        recordVOs?.let {
+                            onRecordsRetrieved.value = getRecords(recordVOs, archiveNr)
+                        }
                     }
 
                     override fun onFailed(error: String?) {
@@ -77,8 +80,7 @@ class PublicFolderViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     private fun getRecords(
-        recordVOs: List<RecordVO>,
-        parentFolderArchiveNr: String
+        recordVOs: List<RecordVO>, parentFolderArchiveNr: String
     ): MutableList<Record> {
         val records = ArrayList<Record>()
         for (recordVO in recordVOs) {
@@ -105,8 +107,6 @@ class PublicFolderViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun getCurrentFolder(): Record? = folderPathStack.peek()
-
-    fun getExistsRecords(): MutableLiveData<Boolean> = existsRecords
 
     fun getOnFolderNameChanged(): MutableLiveData<String> = onFolderNameChanged
 

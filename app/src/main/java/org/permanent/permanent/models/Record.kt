@@ -133,6 +133,16 @@ open class Record : Parcelable {
         displayInShares = false
     }
 
+    constructor(archiveNr: String, folderLinkId: Int) {
+        this.archiveNr = archiveNr
+        this.folderLinkId = folderLinkId
+        isThumbBlurred = false
+        type = RecordType.FOLDER
+        displayFirstInCarousel = false
+        isProcessing = false
+        displayInShares = false
+    }
+
     constructor(shareByUrlVO: Shareby_urlVO) {
         val recordInfo = shareByUrlVO.RecordVO
         id = if (recordInfo?.folderId != null) recordInfo.folderId else recordInfo?.recordId

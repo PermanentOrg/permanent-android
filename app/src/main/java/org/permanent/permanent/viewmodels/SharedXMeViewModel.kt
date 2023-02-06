@@ -153,7 +153,8 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
                 folderLinkId,
                 sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
-                    override fun onSuccess(recordVOs: List<RecordVO>?) {
+
+                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         isBusy.value = false
                         isRoot.value = false
                         folderName.value = folder.getDisplayName()
