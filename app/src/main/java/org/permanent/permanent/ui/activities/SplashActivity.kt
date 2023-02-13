@@ -58,9 +58,7 @@ class SplashActivity : PermanentBaseActivity() {
             if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
             else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
             else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
-            else if (prefsHelper.getDefaultArchiveId() == 0) userMissingDefaultArchiveObserver.onChanged(
-                null
-            )
+            else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
             else viewModel.switchArchiveToCurrent()
         }
     }
@@ -102,17 +100,8 @@ class SplashActivity : PermanentBaseActivity() {
         return remoteConfig
     }
 
-    private val userMissingDefaultArchiveObserver = Observer<Void> {
-        prefsHelper.saveArchiveOnboardingDoneInApp(true)
-        startArchiveOnboardingActivity()
-    }
-
-    private val userJustLoggedInObserver = Observer<Void> {
-        startMainActivity()
-    }
-
     private val onArchiveSwitchedToCurrentObserver = Observer<Void> {
-        startBiometrics()
+        startBiometricsFragment()
     }
 
     private fun startOnboardingActivity() {
@@ -125,17 +114,13 @@ class SplashActivity : PermanentBaseActivity() {
         finish()
     }
 
-    private fun startMainActivity() {
-        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-        finish()
-    }
-
     private fun startArchiveOnboardingActivity() {
+        prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(this@SplashActivity, ArchiveOnboardingActivity::class.java))
         finish()
     }
 
-    private fun startBiometrics() {
+    private fun startBiometricsFragment() {
         val intent = Intent(this@SplashActivity, LoginActivity::class.java)
         intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.biometricsFragment)
         startActivity(intent)
@@ -154,20 +139,16 @@ class SplashActivity : PermanentBaseActivity() {
             NotificationManager.IMPORTANCE_HIGH
         )
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(
-                channel
-            )
+            channel
+        )
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
-        viewModel.getOnUserLoggedIn().observe(this, userJustLoggedInObserver)
         viewModel.getOnArchiveSwitchedToCurrent().observe(this, onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().observe(this, errorObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
-        viewModel.getOnUserLoggedIn().removeObserver(userJustLoggedInObserver)
         viewModel.getOnArchiveSwitchedToCurrent().removeObserver(onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().removeObserver(errorObserver)
     }

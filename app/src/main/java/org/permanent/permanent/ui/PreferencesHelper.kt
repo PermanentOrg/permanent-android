@@ -30,6 +30,7 @@ const val PREFS_CURRENT_ARCHIVE_THUMB_URL = "preferences_current_archive_thumb_u
 const val PREFS_CURRENT_ARCHIVE_ACCESS_ROLE = "preferences_current_archive_access_role"
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 const val PREFS_DEEP_LINK_ARCHIVE_NR = "preferences_deep_link_archive_nr"
+const val PREFS_AUTH_TOKEN = "preferences_auth_token"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -324,5 +325,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isListViewMode(): Boolean {
         return sharedPreferences.getBoolean(IS_LIST_VIEW_MODE, true)
+    }
+
+    fun saveAuthToken(token: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_AUTH_TOKEN, token)
+            apply()
+        }
+    }
+
+    fun getAuthToken(): String? {
+        return sharedPreferences.getString(PREFS_AUTH_TOKEN, "")
     }
 }
