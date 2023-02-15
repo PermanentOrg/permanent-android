@@ -48,6 +48,10 @@ class ResponseVO {
         return getData()?.get(0)?.SimpleVO
     }
 
+    fun getAuthSimpleVO(): AuthSimpleVO? {
+        return getData()?.get(0)?.AuthSimpleVO
+    }
+
     fun getAccountVO(): AccountVO? {
         return getData()?.get(0)?.AccountVO
     }

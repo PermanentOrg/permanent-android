@@ -61,9 +61,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private val onLoggedOut = Observer<Void> {
-        prefsHelper.saveUserLoggedIn(false)
-        prefsHelper.saveDefaultArchiveId(0)
-        prefsHelper.saveBiometricsLogIn(true) // Setting back to default
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }

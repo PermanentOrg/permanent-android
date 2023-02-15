@@ -73,7 +73,10 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
                             appContext.getString(R.string.login_bad_credentials)
                         Constants.ERROR_SERVER_ERROR -> errorMessage.value =
                             appContext.getString(R.string.server_error)
-                        else -> errorMessage.value = error
+                        else -> {
+                            prefsHelper.saveAccountEmail(email) // We save this here for verifyCode
+                            errorMessage.value = error
+                        }
                     }
                 }
             })

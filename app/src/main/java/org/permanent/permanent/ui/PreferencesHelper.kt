@@ -114,6 +114,13 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
+    fun saveAccountEmail(email: String) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_ACCOUNT_EMAIL, email)
+            apply()
+        }
+    }
+
     fun getAccountId(): Int {
         return sharedPreferences.getInt(PREFS_ACCOUNT_ID, 0)
     }
@@ -127,11 +134,11 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
     }
 
     fun saveDefaultArchiveId(id: Int?) {
-        id?.let {
-            with(sharedPreferences.edit()) {
+        with(sharedPreferences.edit()) {
+            id?.let {
                 putInt(PREFS_DEFAULT_ARCHIVE_ID, id)
-                apply()
-            }
+            } ?: putInt(PREFS_DEFAULT_ARCHIVE_ID, 0)
+            apply()
         }
     }
 

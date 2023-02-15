@@ -3,6 +3,7 @@ package org.permanent.permanent.repositories
 import android.app.Application
 import android.content.Context
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
@@ -45,8 +46,6 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
         NetworkClient.instance().login(email, password).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                // We save this here for verifyCode
-//                prefsHelper.saveAccountEmail(email)
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     if (responseVO.getSimpleVO()?.key.equals("authToken")) {
@@ -75,6 +74,9 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 val responseVO = response.body()
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                    prefsHelper.saveAuthToken("")
+                    prefsHelper.saveUserLoggedIn(false)
+                    prefsHelper.saveDefaultArchiveId(0)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
@@ -155,9 +157,12 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     val responseVO = response.body()
 
                     if (response.isSuccessful && responseVO?.isSuccessful == true) {
-                        val account = responseVO.getAccountVO()
-//                        prefsHelper.saveAccountInfo(account?.accountId)
-                        prefsHelper.saveDefaultArchiveId(account?.defaultArchiveId)
+                        if (responseVO.getAuthSimpleVO()?.key.equals("authToken")) {
+                            prefsHelper.saveAuthToken(responseVO.getAuthSimpleVO()?.value)
+                        }
+                        val account = Account(responseVO.getAccountVO())
+                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                        prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
                         listener.onSuccess()
                     } else {
                         listener.onFailed(

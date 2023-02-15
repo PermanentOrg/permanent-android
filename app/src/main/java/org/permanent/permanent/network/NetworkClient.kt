@@ -75,10 +75,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 OkHttpClient.Builder().cookieJar(cookieJar).addInterceptor(loggingInterceptor)
                     .addInterceptor(UnauthorizedInterceptor()).addInterceptor(Interceptor { chain ->
                         val request = chain.request()
-                        if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
-                            !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX) &&
-                            !request.url.toString().contains(Constants.LOGIN_URL_SUFFIX) &&
-                            !request.url.toString().contains(Constants.STRIPE_URL)
+                        if (!request.url.toString()
+                                .contains(Constants.S3_BASE_URL) && !request.url.toString()
+                                .contains(Constants.SIGN_UP_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.LOGIN_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.VERIFY_2FA_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.STRIPE_URL)
                         ) {
                             val prefsHelper = PreferencesHelper(context.getSharedPreferences(
                                     PREFS_NAME, Context.MODE_PRIVATE))
@@ -88,15 +90,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                             )
                             chain.proceed(requestBuilder.build())
                         } else chain.proceed(request)
-                    })
-//                .authenticator(TokenAuthenticator())
-                    .build()
+                    }).build()
         }
-        retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .client(okHttpClient)
-            .build()
+        retrofit =
+            Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(MoshiConverterFactory.create())
+                .client(okHttpClient).build()
 
         authService = retrofit.create(IAuthService::class.java)
         accountService = retrofit.create(IAccountService::class.java)

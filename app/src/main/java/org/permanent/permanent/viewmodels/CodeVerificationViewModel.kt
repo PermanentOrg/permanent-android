@@ -106,7 +106,7 @@ class CodeVerificationViewModel(application: Application) :
         return Constants.AUTH_TYPE_MFA_VALIDATION
     }
 
-    fun getDefaultArchive() {
+    fun getDefaultArchive(defaultArchiveId: Int) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
@@ -116,24 +116,22 @@ class CodeVerificationViewModel(application: Application) :
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 if (!dataList.isNullOrEmpty()) {
-//                    val defaultArchiveId = prefsHelper.getDefaultArchiveId()
-//
-//                    for (data in dataList) {
-//                        val archive = Archive(data.ArchiveVO)
-//                        if (defaultArchiveId == archive.id) {
-//                            prefsHelper.saveCurrentArchiveInfo(
-//                                archive.id,
-//                                archive.number,
-//                                archive.type,
-//                                archive.fullName,
-//                                archive.thumbURL200,
-//                                archive.accessRole
-//                            )
-//                            prefsHelper.saveUserLoggedIn(true)
-//                            onLoggedIn.call()
-//                            return
-//                        }
-//                    }
+                    for (data in dataList) {
+                        val archive = Archive(data.ArchiveVO)
+                        if (defaultArchiveId == archive.id) {
+                            prefsHelper.saveCurrentArchiveInfo(
+                                archive.id,
+                                archive.number,
+                                archive.type,
+                                archive.fullName,
+                                archive.thumbURL200,
+                                archive.accessRole
+                            )
+                            prefsHelper.saveUserLoggedIn(true)
+                            onLoggedIn.call()
+                            return
+                        }
+                    }
                 }
                 errorMessage.value = appContext.getString(R.string.generic_error)
             }

@@ -11,6 +11,7 @@ class Datum {
     var RecordVO: RecordVO? = null
     var SearchVO: SearchVO? = null
     var SimpleVO: SimpleVO? = null
+    var AuthSimpleVO: AuthSimpleVO? = null
     var ShareVO: ShareVO? = null
     var Shareby_urlVO: Shareby_urlVO? = null
     var NotificationVO: NotificationVO? = null

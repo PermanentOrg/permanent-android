@@ -26,8 +26,8 @@
         android:label="BiometricsFragment"
         tools:layout="@layout/fragment_biometrics">
         <action
-            android:id="@+id/action_biometricsFragment_to_signUpActivity"
-            app:destination="@id/signUpFragment" />
+            android:id="@+id/action_biometricsFragment_to_LoginFragment"
+            app:destination="@id/loginFragment" />
         <action
             android:id="@+id/action_biometricsFragment_to_mainActivity"
             app:destination="@id/mainActivity" />

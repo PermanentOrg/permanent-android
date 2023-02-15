@@ -30,8 +30,9 @@
     <string name="sign_up_terms_declined">Declined Terms and Conditions</string>
     <string name="login_screen_password_reset_message">An email with instructions to change your password has been sent at %s.</string>
     <string name="verification_code_enter_verification_code">Enter verification code</string>
-    <string name="verification_code_enter_code_hint">Enter the second factor code</string>
+    <string name="verification_code_enter_code_hint">Code</string>
     <string name="no_notifications">No notifications</string>
+    <string name="button_verify">Verify</string>
     <string name="button_done">Done</string>
     <string name="button_update">Update</string>
 
