@@ -30,8 +30,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     private val prefsHelper = PreferencesHelper(sharedPreferences)
 
     override fun getMyFilesRecord(listener: IRecordListener) {
-        NetworkClient.instance().getRoot()
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().getRoot().enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     val publicRecord = responseVO?.getPublicRecord()
@@ -47,8 +46,8 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                         listener.onSuccess(myFilesRecord)
                     } else {
                         listener.onFailed(
-                            responseVO?.Results?.get(0)?.message?.get(0)
-                                ?: response.errorBody()?.toString()
+                            responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                                ?.toString()
                         )
                     }
                 }
@@ -60,8 +59,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun getPublicRoot(archiveNr: String?, listener: IRecordListener) {
-        NetworkClient.instance()
-            .getPublicRootForArchive(archiveNr)
+        NetworkClient.instance().getPublicRootForArchive(archiveNr)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -71,8 +69,8 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                         listener.onSuccess(publicRecord)
                     } else {
                         listener.onFailed(
-                            responseVO?.Results?.get(0)?.message?.get(0)
-                                ?: response.errorBody()?.toString()
+                            responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                                ?.toString()
                         )
                     }
                 }
@@ -101,8 +99,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         NetworkClient.instance().navigateMin(archiveNr, folderLinkId)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(
-                    call: Call<ResponseVO>,
-                    response: Response<ResponseVO>
+                    call: Call<ResponseVO>, response: Response<ResponseVO>
                 ) {
                     val folderLinkIds: MutableList<Int> = ArrayList()
                     val recordVOs: List<RecordVO?>? = response.body()?.getRecordVOs()
@@ -122,16 +119,20 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun getLeanItems(
-        archiveNr: String, folderLinkId: Int, sort: String?, childLinkIds: List<Int>,
+        archiveNr: String,
+        folderLinkId: Int,
+        sort: String?,
+        childLinkIds: List<Int>,
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        NetworkClient.instance()
-            .getLeanItems(archiveNr, folderLinkId, sort, childLinkIds)
+        NetworkClient.instance().getLeanItems(archiveNr, folderLinkId, sort, childLinkIds)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    listener.onSuccess(responseVO?.getRecordVOs())
+                    listener.onSuccess(
+                        responseVO?.getFolderRecord()?.displayName, responseVO?.getRecordVOs()
+                    )
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
@@ -162,13 +163,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun createFolder(
-        parentFolderIdentifier: NavigationFolderIdentifier,
-        name: String,
-        listener: IRecordListener
+        parentFolderIdentifier: NavigationFolderIdentifier, name: String, listener: IRecordListener
     ) {
         NetworkClient.instance().createFolder(
-            name, parentFolderIdentifier.folderId,
-            parentFolderIdentifier.folderLinkId
+            name, parentFolderIdentifier.folderId, parentFolderIdentifier.folderLinkId
         ).enqueue(object : Callback<ResponseVO> {
 
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -209,8 +207,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
     ): Call<GetPresignedUrlResponse> {
         return NetworkClient.instance().getPresignedUrlForUpload(
-            file, displayName,
-            folderId, folderLinkId, mediaType
+            file, displayName, folderId, folderLinkId, mediaType
         )
     }
 
@@ -232,8 +229,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         s3Url: String
     ): Call<ResponseVO> {
         return NetworkClient.instance().registerRecord(
-            file, displayName,
-            folderId, folderLinkId, createdDT, s3Url
+            file, displayName, folderId, folderLinkId, createdDT, s3Url
         )
     }
 
@@ -241,23 +237,23 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         return NetworkClient.instance().getRecord(folderLinkId, recordId)
     }
 
+    override fun getRecord(fileArchiveNr: String): Call<ResponseVO> {
+        return NetworkClient.instance().getRecord(fileArchiveNr)
+    }
+
     override fun downloadFile(downloadUrl: String): Call<ResponseBody> {
         return NetworkClient.instance().downloadFile(downloadUrl)
     }
 
     override fun deleteRecord(
-        record: Record,
-        listener: IResponseListener
+        record: Record, listener: IResponseListener
     ) {
-        NetworkClient.instance().deleteRecord(record)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().deleteRecord(record).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     val firstMessage = responseVO?.getMessages()?.get(0)
 
-                    if (firstMessage != null && (firstMessage == Constants.FILE_DELETED_SUCCESSFULLY
-                                || firstMessage == Constants.FOLDER_DELETED_SUCCESSFULLY)
-                    ) {
+                    if (firstMessage != null && (firstMessage == Constants.FILE_DELETED_SUCCESSFULLY || firstMessage == Constants.FOLDER_DELETED_SUCCESSFULLY)) {
                         listener.onSuccess(null)
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
@@ -271,9 +267,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun unshareRecord(
-        record: Record,
-        archiveId: Int,
-        listener: IResponseListener
+        record: Record, archiveId: Int, listener: IResponseListener
     ) {
         NetworkClient.instance().unshareRecord(record, archiveId)
             .enqueue(object : Callback<ResponseVO> {
@@ -295,13 +289,14 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun relocateRecord(
-        recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType,
+        recordToRelocate: Record,
+        destFolderLinkId: Int,
+        relocationType: RelocationType,
         listener: IResponseListener
     ) {
         NetworkClient.instance().relocateRecord(
             recordToRelocate, destFolderLinkId, relocationType
-        )
-            .enqueue(object : Callback<ResponseVO> {
+        ).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -313,7 +308,8 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                         listener.onSuccess(
                             context.getString(
                                 R.string.relocation_success,
-                                recordToRelocate.type?.name?.lowercase(Locale.getDefault())?.capitalize(),
+                                recordToRelocate.type?.name?.lowercase(Locale.getDefault())
+                                    ?.capitalize(),
                                 relocationVerb
                             )
                         )
@@ -329,8 +325,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecord(fileData: FileData, listener: IResponseListener) {
-        NetworkClient.instance().updateRecord(fileData)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().updateRecord(fileData).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
 
@@ -386,17 +381,16 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun searchRecords(
-        query: String?,
-        tags: List<Tag>,
-        listener: IFileRepository.IOnRecordsRetrievedListener
+        query: String?, tags: List<Tag>, listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
-        NetworkClient.instance().searchRecords(query, tags)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().searchRecords(query, tags).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
 
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(responseVO.getData()?.get(0)?.SearchVO?.ChildItemVOs)
+                        listener.onSuccess(
+                            null, responseVO.getData()?.get(0)?.SearchVO?.ChildItemVOs
+                        )
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }

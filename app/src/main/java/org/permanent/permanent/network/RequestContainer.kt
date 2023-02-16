@@ -189,6 +189,15 @@ class RequestContainer {
         return this
     }
 
+    fun addRecord(
+        fileArchiveNr: String,
+    ): RequestContainer {
+        val recordVO = RecordVO()
+        recordVO.archiveNbr = fileArchiveNr
+        RequestVO.data?.get(0)?.RecordVO = recordVO
+        return this
+    }
+
     fun addRecord(fileData: FileData): RequestContainer {
         val recordVO = RecordVO()
         recordVO.folder_linkId = fileData.folderLinkId

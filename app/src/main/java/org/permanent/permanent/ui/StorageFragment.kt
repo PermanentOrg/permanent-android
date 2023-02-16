@@ -1,7 +1,10 @@
 package org.permanent.permanent.ui
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -31,6 +34,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     private lateinit var viewModel: StorageViewModel
     private lateinit var googlePayButton: RelativeLayout
     private lateinit var googlePayLauncher: GooglePayLauncher
+    private var isGooglePayReady: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,7 +66,8 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
             resultCallback = ::onGooglePayResult
         )
         binding.buttonLayout.setOnClickListener {
-            viewModel.getPaymentIntent()
+            if (!isGooglePayReady) showDialogThatNavigatesToGoogleWallet()
+            else viewModel.getPaymentIntent()
         }
 
         return binding.root
@@ -99,7 +104,8 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     private val onMessageObserver = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
@@ -110,14 +116,15 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     private val onErrorObserver = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
         }
         snackBar.show()
     }
 
     private fun onGooglePayReady(isReady: Boolean) {
-        googlePayButton.isEnabled = isReady
+        isGooglePayReady = isReady
     }
 
     private fun onGooglePayResult(result: GooglePayLauncher.Result) {
@@ -150,6 +157,35 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
         alert.show()
     }
 
+    private fun showDialogThatNavigatesToGoogleWallet() {
+        val alertDialog: AlertDialog.Builder = AlertDialog.Builder(activity)
+        alertDialog.setTitle(R.string.storage_donation_no_card_title)
+        alertDialog.setMessage(R.string.storage_donation_no_card_text)
+        alertDialog.setPositiveButton(
+            R.string.button_go_to_wallet
+        ) { _, _ ->
+            try {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("market://details?id=$GOOGLE_WALLET_APP_ID")
+                    )
+                )
+            } catch (e: ActivityNotFoundException) {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=$GOOGLE_WALLET_APP_ID")
+                    )
+                )
+            }
+        }
+        alertDialog.setNegativeButton(R.string.button_cancel) { _, _ -> }
+        val alert: AlertDialog = alertDialog.create()
+        alert.setCanceledOnTouchOutside(false)
+        alert.show()
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getOnPaymentIntentRetrieved().observe(this, onPaymentIntentObserver)
         viewModel.getOnMessage().observe(this, onMessageObserver)
@@ -176,5 +212,6 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
         private val TAG = StorageFragment::class.java.simpleName
         private const val MERCHANT_COUNTRY_CODE = "US"
         private const val MERCHANT_NAME = "Permanent.org"
+        private const val GOOGLE_WALLET_APP_ID = "com.google.android.apps.walletnfcrel"
     }
 }

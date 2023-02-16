@@ -206,6 +206,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>,
         grantResults: IntArray
@@ -235,6 +236,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         startActivityForResult(intent, REQUEST_CODE_FILE_SELECT)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
         when (requestCode) {

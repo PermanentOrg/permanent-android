@@ -14,6 +14,7 @@ const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
 const val IS_ARCHIVE_ONBOARDING_DEFAULT_FLOW = "is_archive_onboarding_default_flow"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
+const val SHOW_ARCHIVES_SCREEN = "should_show_archives_screen"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_ID = "preferences_public_record_folder_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_LINK_ID = "preferences_public_record_folder_link_id"
@@ -31,6 +32,9 @@ const val PREFS_CURRENT_ARCHIVE_ACCESS_ROLE = "preferences_current_archive_acces
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 const val PREFS_DEEP_LINK_ARCHIVE_NR = "preferences_deep_link_archive_nr"
 const val PREFS_AUTH_TOKEN = "preferences_auth_token"
+const val PREFS_DEEP_LINK_FILE_ARCHIVE_NR = "preferences_deep_link_file_archive_nr"
+const val PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR = "preferences_deep_link_folder_archive_nr"
+const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -323,6 +327,39 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getString(PREFS_DEEP_LINK_ARCHIVE_NR, "")
     }
 
+    fun saveDeepLinkFileArchiveNr(fileArchiveNr: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_DEEP_LINK_FILE_ARCHIVE_NR, fileArchiveNr)
+            apply()
+        }
+    }
+
+    fun getDeepLinkFileArchiveNr(): String? {
+        return sharedPreferences.getString(PREFS_DEEP_LINK_FILE_ARCHIVE_NR, null)
+    }
+
+    fun saveDeepLinkFolderArchiveNr(folderArchiveNr: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR, folderArchiveNr)
+            apply()
+        }
+    }
+
+    fun getDeepLinkFolderArchiveNr(): String? {
+        return sharedPreferences.getString(PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR, null)
+    }
+
+    fun saveDeepLinkFolderLinkId(folderLinkId: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_DEEP_LINK_FOLDER_LINK_ID, folderLinkId)
+            apply()
+        }
+    }
+
+    fun getDeepLinkFolderLinkId(): String? {
+        return sharedPreferences.getString(PREFS_DEEP_LINK_FOLDER_LINK_ID, null)
+    }
+
     fun saveIsListViewMode(isListViewMode: Boolean) {
         with(sharedPreferences.edit()) {
             putBoolean(IS_LIST_VIEW_MODE, isListViewMode)
@@ -343,5 +380,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getAuthToken(): String? {
         return sharedPreferences.getString(PREFS_AUTH_TOKEN, "")
+    }
+
+    fun saveShowArchivesDeepLink(shouldShow: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(SHOW_ARCHIVES_SCREEN, shouldShow)
+            apply()
+        }
+    }
+
+    fun showArchivesScreen(): Boolean {
+        return sharedPreferences.getBoolean(SHOW_ARCHIVES_SCREEN, false)
     }
 }
