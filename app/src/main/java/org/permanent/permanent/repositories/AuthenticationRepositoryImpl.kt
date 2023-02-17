@@ -2,7 +2,8 @@ package org.permanent.permanent.repositories
 
 import android.app.Application
 import android.content.Context
-import org.permanent.permanent.models.Archive
+import org.permanent.permanent.R
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
@@ -21,13 +22,12 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     ) {
         NetworkClient.instance().verifyLoggedIn().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(
-                call: Call<ResponseVO>,
-                retrofitResponse: Response<ResponseVO>
+                call: Call<ResponseVO>, retrofitResponse: Response<ResponseVO>
             ) {
                 val responseVO = retrofitResponse.body()
 
                 if (retrofitResponse.isSuccessful) {
-                    responseVO?.isUserLoggedIn()?.let { listener.onResponse(it) }
+                    (responseVO?.getSimpleVO()?.value as Boolean?)?.let { listener.onResponse(it) }
                         ?: listener.onResponse(false)
                 } else {
                     listener.onResponse(false)
@@ -41,33 +41,23 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     }
 
     override fun login(
-        email: String,
-        password: String,
-        listener: IAuthenticationRepository.IOnLoginListener
+        email: String, password: String, listener: IAuthenticationRepository.IOnLoginListener
     ) {
         NetworkClient.instance().login(email, password).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                // We save this here for verifyCode
-//                prefsHelper.saveAccountEmail(email)
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
-//                    prefsHelper.saveAccountInfo(responseVO.getAccountVO()?.accountId)
-                    val archive = Archive(responseVO.getArchiveVO())
-//                    prefsHelper.saveCurrentArchiveInfo(
-//                        archive.id,
-//                        archive.number,
-//                        archive.type,
-//                        archive.fullName,
-//                        archive.thumbURL200,
-//                        archive.accessRole
-//                    )
-//                    prefsHelper.saveUserLoggedIn(true)
-                    listener.onSuccess()
+                    if (responseVO.getSimpleVO()?.key.equals("authToken")) {
+                        prefsHelper.saveAuthToken(responseVO.getSimpleVO()?.value as String?)
+                        listener.onSuccess()
+                    } else {
+                        listener.onFailed(application.getString(R.string.login_screen_missing_auth_token_error))
+                    }
                 } else {
                     listener.onFailed(
-                        responseVO?.Results?.get(0)?.message?.get(0)
-                            ?: response.errorBody()?.toString()
+                        responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                            ?.toString()
                     )
                 }
             }
@@ -84,11 +74,14 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 val responseVO = response.body()
 
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
+                    prefsHelper.saveAuthToken("")
+                    prefsHelper.saveUserLoggedIn(false)
+                    prefsHelper.saveDefaultArchiveId(0)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
-                        responseVO?.Results?.get(0)?.message?.get(0)
-                            ?: response.errorBody()?.toString()
+                        responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                            ?.toString()
                     )
                 }
             }
@@ -100,8 +93,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     }
 
     override fun forgotPassword(
-        email: String,
-        listener: IAuthenticationRepository.IOnResetPasswordListener
+        email: String, listener: IAuthenticationRepository.IOnResetPasswordListener
     ) {
         NetworkClient.instance().forgotPassword(email).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -111,8 +103,8 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     listener.onSuccess()
                 } else {
                     listener.onFailed(
-                        responseVO?.Results?.get(0)?.message?.get(0)
-                            ?: response.errorBody()?.toString()
+                        responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                            ?.toString()
                     )
                 }
             }
@@ -141,8 +133,8 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                         listener.onSuccess()
                     } else {
                         listener.onFailed(
-                            responseVO?.Results?.get(0)?.message?.get(0)
-                                ?: response.errorBody()?.toString()
+                            responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                                ?.toString()
                         )
                     }
                 }
@@ -155,28 +147,27 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
     }
 
     override fun verifyCode(
-        code: String,
-        authType: String,
-        listener: IAuthenticationRepository.IOnVerifyListener
+        code: String, authType: String, listener: IAuthenticationRepository.IOnVerifyListener
     ) {
         prefsHelper.getAccountEmail()?.let {
             NetworkClient.instance().verifyCode(
-                code,
-                authType,
-                it
+                code, authType, it
             ).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
 
                     if (response.isSuccessful && responseVO?.isSuccessful == true) {
-                        val account = responseVO.getAccountVO()
-//                        prefsHelper.saveAccountInfo(account?.accountId)
-                        prefsHelper.saveDefaultArchiveId(account?.defaultArchiveId)
+                        if (responseVO.getAuthSimpleVO()?.key.equals("authToken")) {
+                            prefsHelper.saveAuthToken(responseVO.getAuthSimpleVO()?.value)
+                        }
+                        val account = Account(responseVO.getAccountVO())
+                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                        prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
                         listener.onSuccess()
                     } else {
                         listener.onFailed(
-                            responseVO?.Results?.get(0)?.message?.get(0)
-                                ?: response.errorBody()?.toString()
+                            responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                                ?.toString()
                         )
                     }
                 }

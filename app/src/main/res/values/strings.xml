@@ -11,10 +11,12 @@
     <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
     <string name="email_hint">Email</string>
-    <string name="login_screen_password_hint">Password</string>
-    <string name="login_screen_login">Log In</string>
+    <string name="password_hint">Password</string>
+    <string name="login_screen_sign_in">Sign in</string>
     <string name="login_screen_forgot_password">Forgot Password?</string>
     <string name="login_screen_sign_up">Sign up</string>
+    <string name="login_screen_new_to_permanent">New to Permanent?</string>
+    <string name="login_screen_missing_auth_token_error">Missing authentication token. Please try again.</string>
     <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
     <string name="login_screen_use_touch_id">Use Touch ID</string>
     <string name="sign_up_screen_sign_up">Sign Up</string>
@@ -28,8 +30,9 @@
     <string name="sign_up_terms_declined">Declined Terms and Conditions</string>
     <string name="login_screen_password_reset_message">An email with instructions to change your password has been sent at %s.</string>
     <string name="verification_code_enter_verification_code">Enter verification code</string>
-    <string name="verification_code_enter_code_hint">Enter the second factor code</string>
+    <string name="verification_code_enter_code_hint">Code</string>
     <string name="no_notifications">No notifications</string>
+    <string name="button_verify">Verify</string>
     <string name="button_done">Done</string>
     <string name="button_update">Update</string>
 

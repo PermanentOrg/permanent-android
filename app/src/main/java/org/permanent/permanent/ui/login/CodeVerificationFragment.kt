@@ -1,5 +1,7 @@
-package org.permanent.permanent.ui.twoStepVerification
+package org.permanent.permanent.ui.login
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +12,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentVerificationCodeBinding
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
 import org.permanent.permanent.viewmodels.CodeVerificationViewModel
 
 class CodeVerificationFragment : PermanentBaseFragment() {
@@ -18,6 +23,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentVerificationCodeBinding
     private lateinit var viewModel: CodeVerificationViewModel
     private var smsVerificationCodeHelper: SmsVerificationCodeHelper? = null
+    private lateinit var prefsHelper: PreferencesHelper
 
     private val onErrorMessage = Observer<String> { errorMessage ->
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
@@ -25,7 +31,11 @@ class CodeVerificationFragment : PermanentBaseFragment() {
 
     private val onCodeVerified = Observer<Void> {
         when {
-            isLoginFlow() -> viewModel.getDefaultArchive()
+            isLoginFlow() -> {
+                val defaultArchiveId = prefsHelper.getDefaultArchiveId()
+                if (defaultArchiveId == 0) startArchiveOnboardingActivity()
+                else viewModel.getDefaultArchive(defaultArchiveId)
+            }
             viewModel.isSmsCodeFlow -> startMainActivity()
             else -> startPhoneVerificationFragment()
         }
@@ -40,20 +50,29 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentVerificationCodeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        viewModel = ViewModelProvider(this).get(CodeVerificationViewModel::class.java)
+        viewModel = ViewModelProvider(this)[CodeVerificationViewModel::class.java]
         binding.viewModel = viewModel
+
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
 
         return binding.root
     }
 
     private fun isLoginFlow(): Boolean {
         return findNavController().graph.id == R.id.login_navigation
+    }
+
+    private fun startArchiveOnboardingActivity() {
+        prefsHelper.saveArchiveOnboardingDoneInApp(true)
+        startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
+        activity?.finish()
     }
 
     private fun startMainActivity() {
@@ -96,7 +115,6 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     private fun isSmsCodeFlow(): Boolean {
-        return findNavController().previousBackStackEntry?.destination?.id ==
-                R.id.phoneVerificationFragment
+        return findNavController().previousBackStackEntry?.destination?.id == R.id.phoneVerificationFragment
     }
 }

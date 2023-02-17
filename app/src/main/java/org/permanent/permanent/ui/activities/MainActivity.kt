@@ -34,6 +34,7 @@ import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
@@ -60,10 +61,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private val onLoggedOut = Observer<Void> {
-        prefsHelper.saveUserLoggedIn(false)
-        prefsHelper.saveDefaultArchiveId(0)
-        prefsHelper.saveBiometricsLogIn(true) // Setting back to default
-        startActivity(Intent(this, SignUpActivity::class.java))
+        startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 
@@ -74,8 +72,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private val onDestinationChangedListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.editAboutFragment, R.id.editArchiveInformationFragment,
-                R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
+                R.id.editAboutFragment, R.id.editArchiveInformationFragment, R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
                     toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
                 }
@@ -94,7 +91,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         // MainActivity binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
@@ -102,8 +99,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.viewModel = viewModel
 
         // Left drawer header binding
-        headerMainBinding =
-            NavMainHeaderBinding.bind(binding.mainNavigationView.getHeaderView(0))
+        headerMainBinding = NavMainHeaderBinding.bind(binding.mainNavigationView.getHeaderView(0))
         headerMainBinding.executePendingBindings()
         headerMainBinding.lifecycleOwner = this
         headerMainBinding.viewModel = viewModel
@@ -209,8 +205,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             showWelcomeDialog()
         }
 
-        if (!isGooglePlayServicesAvailable(this))
-            GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
+        if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
+            .makeGooglePlayServicesAvailable(this)
     }
 
     private fun handleSendFile(intent: Intent) {
@@ -274,8 +270,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun sendEventToFragment() {
-        val currentFragment = supportFragmentManager.primaryNavigationFragment?.childFragmentManager
-            ?.fragments?.first()
+        val currentFragment =
+            supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.fragments?.first()
         if (currentFragment is PublicFolderFragment) currentFragment.onMoreItemClick()
         else if (currentFragment is LocationSearchFragment) currentFragment.onDoneItemClick()
     }
@@ -285,8 +281,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         return when (navController.currentDestination?.id) {
             R.id.publicFolderFragment -> {
                 val publicFolderFragment =
-                    supportFragmentManager.primaryNavigationFragment?.childFragmentManager
-                        ?.fragments?.first() as PublicFolderFragment
+                    supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.fragments?.first() as PublicFolderFragment
                 if (publicFolderFragment.onNavigateUp()) true
                 else navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
             }
@@ -297,17 +292,15 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private fun showWelcomeDialog() {
         val viewDialog: View = layoutInflater.inflate(R.layout.dialog_welcome, null)
 
-        val alert = AlertDialog.Builder(this)
-            .setView(viewDialog)
-            .create()
+        val alert = AlertDialog.Builder(this).setView(viewDialog).create()
 
         viewDialog.tvWelcomeTitleWelcomeDialog.text =
-            if (prefsHelper.isArchiveOnboardingDefaultFlow())
-                getString(R.string.welcome_title) else getString(R.string.archive_onboarding_invitation_welcome_title)
+            if (prefsHelper.isArchiveOnboardingDefaultFlow()) getString(R.string.welcome_title) else getString(
+                R.string.archive_onboarding_invitation_welcome_title
+            )
         viewDialog.tvWelcomeTextWelcomeDialog.text =
             if (prefsHelper.isArchiveOnboardingDefaultFlow()) getString(
-                R.string.welcome_text,
-                prefsHelper.getCurrentArchiveFullName()
+                R.string.welcome_text, prefsHelper.getCurrentArchiveFullName()
             ) else getString(
                 R.string.archive_onboarding_invitation_welcome_text,
                 prefsHelper.getCurrentArchiveFullName(),
@@ -327,9 +320,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         if (status != ConnectionResult.SUCCESS) {
             if (googleApiAvailability.isUserResolvableError(status)) {
                 googleApiAvailability.getErrorDialog(
-                    activity,
-                    status,
-                    REQUEST_CODE_GOOGLE_API_AVAILABILITY
+                    activity, status, REQUEST_CODE_GOOGLE_API_AVAILABILITY
                 )?.show()
             }
             return false
@@ -354,8 +345,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
-        if (!isGooglePlayServicesAvailable(this))
-            GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
+        if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
+            .makeGooglePlayServicesAvailable(this)
     }
 
     override fun onPause() {

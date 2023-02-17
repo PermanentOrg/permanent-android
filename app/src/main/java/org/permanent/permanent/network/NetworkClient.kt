@@ -19,6 +19,8 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.*
 import org.permanent.permanent.network.models.*
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.invitations.UpdateType
 import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
@@ -63,39 +65,36 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     init {
         if (okHttpClient == null) {
             val cookieJar: ClearableCookieJar = PersistentCookieJar(
-                SetCookieCache(),
-                SharedPrefsCookiePersistor(context)
+                SetCookieCache(), SharedPrefsCookiePersistor(context)
             )
 
             val loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
-            okHttpClient = OkHttpClient.Builder()
-                .cookieJar(cookieJar)
-                .addInterceptor(loggingInterceptor)
-                .addInterceptor(UnauthorizedInterceptor())
-                .addInterceptor(Interceptor { chain ->
-                    val request = chain.request()
-                    if (!request.url.toString().contains(Constants.S3_BASE_URL) &&
-                        !request.url.toString().contains(Constants.SIGN_UP_URL_SUFFIX) &&
-                        !request.url.toString().contains(Constants.STRIPE_URL)
-                    ) {
-                        val requestBuilder: Request.Builder = request.newBuilder()
-                        requestBuilder.header(
-                            "Authorization",
-                            "Bearer ${AuthStateManager.getInstance(context).current.accessToken}"
-                        )
-                        chain.proceed(requestBuilder.build())
-                    } else chain.proceed(request)
-                })
-//                .authenticator(TokenAuthenticator())
-                .build()
+            okHttpClient =
+                OkHttpClient.Builder().cookieJar(cookieJar).addInterceptor(loggingInterceptor)
+                    .addInterceptor(UnauthorizedInterceptor()).addInterceptor(Interceptor { chain ->
+                        val request = chain.request()
+                        if (!request.url.toString()
+                                .contains(Constants.S3_BASE_URL) && !request.url.toString()
+                                .contains(Constants.SIGN_UP_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.LOGIN_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.VERIFY_2FA_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.STRIPE_URL)
+                        ) {
+                            val prefsHelper = PreferencesHelper(context.getSharedPreferences(
+                                    PREFS_NAME, Context.MODE_PRIVATE))
+                            val requestBuilder: Request.Builder = request.newBuilder()
+                            requestBuilder.header(
+                                "Authorization", "Bearer ${prefsHelper.getAuthToken()}"
+                            )
+                            chain.proceed(requestBuilder.build())
+                        } else chain.proceed(request)
+                    }).build()
         }
-        retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .client(okHttpClient)
-            .build()
+        retrofit =
+            Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(MoshiConverterFactory.create())
+                .client(okHttpClient).build()
 
         authService = retrofit.create(IAuthService::class.java)
         accountService = retrofit.create(IAccountService::class.java)
@@ -161,8 +160,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun signUp(fullName: String, email: String, password: String): Call<ResponseVO> {
         val request = toJson(
-            RequestContainer()
-                .addAccountPassword(password, password)
+            RequestContainer().addAccountPassword(password, password)
                 .addAccount(fullName, email, optIn = false, agreed = true)
                 .addSimple("createArchive", false)
         )
@@ -192,9 +190,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun changeDefaultArchive(
-        accountId: Int,
-        accountEmail: String,
-        defaultArchiveId: Int
+        accountId: Int, accountEmail: String, defaultArchiveId: Int
     ): Call<ResponseVO> {
         val request =
             toJson(RequestContainer().addAccount(accountId, accountEmail, defaultArchiveId))
@@ -214,8 +210,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         accountId: Int, currentPassword: String, newPassword: String, retypedPassword: String
     ): Call<ResponseVO> {
         val request = toJson(
-            RequestContainer()
-                .addAccount(accountId)
+            RequestContainer().addAccount(accountId)
                 .addAccountPassword(currentPassword, newPassword, retypedPassword)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -245,14 +240,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun getLeanItems(
-        archiveNumber: String,
-        folderLinkId: Int,
-        sort: String?,
-        childItems: List<Int>
+        archiveNumber: String, folderLinkId: Int, sort: String?, childItems: List<Int>
     ): Call<ResponseVO> {
         val request = toJson(
-            RequestContainer()
-                .addFolder(archiveNumber, folderLinkId, sort, childItems)
+            RequestContainer().addFolder(archiveNumber, folderLinkId, sort, childItems)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
@@ -287,15 +278,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun getPresignedUrlForUpload(
-        file: File,
-        displayName: String,
-        folderId: Int,
-        folderLinkId: Int,
-        mediaType: MediaType
+        file: File, displayName: String, folderId: Int, folderLinkId: Int, mediaType: MediaType
     ): Call<GetPresignedUrlResponse> {
         val request = toJson(
-            RequestContainer()
-                .addRecord(displayName, file, folderId, folderLinkId)
+            RequestContainer().addRecord(displayName, file, folderId, folderLinkId)
                 .addSimple("type", mediaType.type + "/" + mediaType.subtype)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -330,8 +316,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         s3Url: String
     ): Call<ResponseVO> {
         val request = toJson(
-            SimpleRequestContainer()
-                .addRecord(displayName, file, folderId, folderLinkId, createdDT)
+            SimpleRequestContainer().addRecord(displayName, file, folderId, folderLinkId, createdDT)
                 .addSimple(s3Url)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -340,8 +325,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun getRecord(
-        folderLinkId: Int?,
-        recordId: Int?
+        folderLinkId: Int?, recordId: Int?
     ): Call<ResponseVO> {
         val request = toJson(RequestContainer().addRecord(folderLinkId, recordId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -373,9 +357,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun relocateRecord(
-        recordToRelocate: Record,
-        destFolderLinkId: Int,
-        relocationType: RelocationType
+        recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType
     ): Call<ResponseVO> {
         val request = toJson(
             RequestContainer().addRecord(recordToRelocate).addFolderDest(destFolderLinkId)
@@ -499,12 +481,9 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun updateProfilePhoto(
-        archiveNr: String?,
-        archiveId: Int,
-        thumbArchiveNr: String?
+        archiveNr: String?, archiveId: Int, thumbArchiveNr: String?
     ): Call<ResponseVO> {
-        val request =
-            toJson(RequestContainer().addArchive(archiveNr, archiveId, thumbArchiveNr))
+        val request = toJson(RequestContainer().addArchive(archiveNr, archiveId, thumbArchiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.updateProfilePhoto(requestBody)
     }
@@ -552,24 +531,17 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun addMember(
-        archiveNr: String?,
-        email: String,
-        accessRole: AccessRole
+        archiveNr: String?, email: String, accessRole: AccessRole
     ): Call<ResponseVO> {
         val request = toJson(
-            RequestContainer()
-                .addArchive(archiveNr)
-                .addAccount(email, accessRole)
+            RequestContainer().addArchive(archiveNr).addAccount(email, accessRole)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.addMember(requestBody)
     }
 
     fun updateMember(
-        archiveNr: String?,
-        id: Int,
-        email: String,
-        accessRole: AccessRole
+        archiveNr: String?, id: Int, email: String, accessRole: AccessRole
     ): Call<ResponseVO> {
         val request =
             toJson(RequestContainer().addArchive(archiveNr).addAccount(id, email, accessRole))
@@ -579,9 +551,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun transferOwnership(archiveNr: String?, email: String): Call<ResponseVO> {
         val request = toJson(
-            RequestContainer()
-                .addArchive(archiveNr)
-                .addAccount(email, AccessRole.OWNER)
+            RequestContainer().addArchive(archiveNr).addAccount(email, AccessRole.OWNER)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.transferOwnership(requestBody)
@@ -664,8 +634,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun safeAddUpdateProfileItems(
-        profileItems: List<ProfileItem>,
-        serializeNulls: Boolean
+        profileItems: List<ProfileItem>, serializeNulls: Boolean
     ): Call<ResponseVO> {
         val request = if (serializeNulls) profileItemsJsonAdapter.serializeNulls().toJson(
             ProfileItemsRequestContainer().addProfileItems(profileItems)

@@ -14,16 +14,14 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
-import net.openid.appauth.AuthorizationException
-import net.openid.appauth.AuthorizationResponse
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivitySplashBinding
-import org.permanent.permanent.network.AuthStateManager
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
-import org.permanent.permanent.ui.login.BiometricsActivity
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
 
@@ -51,34 +49,17 @@ class SplashActivity : PermanentBaseActivity() {
         createNotificationChannel()
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
-        val authResponse = AuthorizationResponse.fromIntent(intent)
-        val authException = AuthorizationException.fromIntent(intent)
+        // Clear deep links that weren't consumed
+        prefsHelper.saveShareLinkUrlToken("")
+        prefsHelper.saveDeepLinkArchiveNr("")
+        val remoteConfig = setupRemoteConfig()
 
-        when {
-            authResponse != null -> {
-                AuthStateManager.getInstance(this)
-                    .updateAfterAuthorization(authResponse, authException)
-                viewModel.requestTokens(authResponse)
-            }
-            authException != null -> {
-                AuthStateManager.getInstance(this)
-                    .updateAfterAuthorization(authResponse, authException)
-                errorObserver.onChanged(authException.errorDescription)
-            }
-            else -> {
-                // Clear deep links that weren't consumed
-                prefsHelper.saveShareLinkUrlToken("")
-                prefsHelper.saveDeepLinkArchiveNr("")
-                val remoteConfig = setupRemoteConfig()
-
-                remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
-                    if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
-                    else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
-                    else if (!prefsHelper.isUserLoggedIn()) startSignUpActivity()
-                    else if (prefsHelper.getDefaultArchiveId() == 0) userMissingDefaultArchiveObserver.onChanged(null)
-                    else viewModel.switchArchiveToCurrent()
-                }
-            }
+        remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
+            if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
+            else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
+            else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
+            else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
+            else viewModel.switchArchiveToCurrent()
         }
     }
 
@@ -119,17 +100,8 @@ class SplashActivity : PermanentBaseActivity() {
         return remoteConfig
     }
 
-    private val userMissingDefaultArchiveObserver = Observer<Void> {
-        prefsHelper.saveArchiveOnboardingDoneInApp(true)
-        startArchiveOnboardingActivity()
-    }
-
-    private val userJustLoggedInObserver = Observer<Void> {
-        startMainActivity()
-    }
-
     private val onArchiveSwitchedToCurrentObserver = Observer<Void> {
-        startBiometricsActivity()
+        startBiometricsFragment()
     }
 
     private fun startOnboardingActivity() {
@@ -142,23 +114,21 @@ class SplashActivity : PermanentBaseActivity() {
         finish()
     }
 
-    private fun startMainActivity() {
-        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-        finish()
-    }
-
     private fun startArchiveOnboardingActivity() {
+        prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(this@SplashActivity, ArchiveOnboardingActivity::class.java))
         finish()
     }
 
-    private fun startBiometricsActivity() {
-        startActivity(Intent(this@SplashActivity, BiometricsActivity::class.java))
+    private fun startBiometricsFragment() {
+        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
+        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.biometricsFragment)
+        startActivity(intent)
         finish()
     }
 
-    private fun startSignUpActivity() {
-        startActivity(Intent(this@SplashActivity, SignUpActivity::class.java))
+    private fun startLoginActivity() {
+        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
         finish()
     }
 
@@ -168,20 +138,17 @@ class SplashActivity : PermanentBaseActivity() {
             getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_HIGH
         )
-        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
-            .createNotificationChannel(channel)
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(
+            channel
+        )
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
-        viewModel.getOnUserLoggedIn().observe(this, userJustLoggedInObserver)
         viewModel.getOnArchiveSwitchedToCurrent().observe(this, onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().observe(this, errorObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
-        viewModel.getOnUserLoggedIn().removeObserver(userJustLoggedInObserver)
         viewModel.getOnArchiveSwitchedToCurrent().removeObserver(onArchiveSwitchedToCurrentObserver)
         viewModel.getShowError().removeObserver(errorObserver)
     }
