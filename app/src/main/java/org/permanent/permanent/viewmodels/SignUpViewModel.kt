@@ -59,7 +59,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
         currentPassword.value = password.toString()
     }
 
-    fun alreadyHaveAccount() {
+    fun onSignInBtnClick() {
         showLoginScreen.call()
     }
 

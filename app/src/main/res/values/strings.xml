@@ -21,8 +21,8 @@
     <string name="login_screen_use_touch_id">Use Touch ID</string>
     <string name="sign_up_screen_sign_up">Sign Up</string>
     <string name="sign_up_screen_full_name_hint">Full Name</string>
-    <string name="sign_up_screen_password_hint">Password (min. 8 chars)</string>
-    <string name="sign_up_screen_already_have_an_account">Already have an account?</string>
+    <string name="sign_up_screen_password_hint">Password</string>
+    <string name="sign_up_screen_already_registered">Already registered?</string>
     <string name="button_accept">Accept</string>
     <string name="button_decline">Decline</string>
     <string name="button_edit">Edit</string>
