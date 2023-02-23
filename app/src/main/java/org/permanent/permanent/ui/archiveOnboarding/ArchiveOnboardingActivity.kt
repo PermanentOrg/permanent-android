@@ -47,8 +47,8 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
     private val onShowMessage = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        view.setBackgroundColor(ContextCompat.getColor(this, R.color.paleGreen))
-        snackBar.setTextColor(ContextCompat.getColor(this, R.color.green))
+        view.setBackgroundColor(ContextCompat.getColor(this, R.color.deepGreen))
+        snackBar.setTextColor(ContextCompat.getColor(this, R.color.paleGreen))
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
         snackBar.show()
