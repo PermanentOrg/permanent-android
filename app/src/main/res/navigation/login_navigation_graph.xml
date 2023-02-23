@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_loginFragment_to_biometricsFragment"
             app:destination="@id/biometricsFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
     </fragment>
     <fragment
         android:id="@+id/biometricsFragment"
@@ -65,6 +68,16 @@
         <action
             android:id="@+id/action_codeVerificationFragment_to_mainActivity"
             app:destination="@id/mainActivity" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="org.permanent.permanent.ui.login.ForgotPasswordFragment"
+        android:label="ForgotPasswordFragment"
+        tools:layout="@layout/fragment_forgot_password">
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 
     <activity

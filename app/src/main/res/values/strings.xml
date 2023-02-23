@@ -17,8 +17,11 @@
     <string name="login_screen_sign_up">Sign up</string>
     <string name="login_screen_new_to_permanent">New to Permanent?</string>
     <string name="login_screen_missing_auth_token_error">Missing authentication token. Please try again.</string>
-    <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
     <string name="login_screen_use_touch_id">Use Touch ID</string>
+    <string name="forgot_password_screen_or">Or</string>
+    <string name="forgot_password_screen_back_to_sign_in">Back to Sign in</string>
+    <string name="button_recover_password">Recover password</string>
+    <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
     <string name="sign_up_screen_sign_up">Sign Up</string>
     <string name="sign_up_screen_full_name_hint">Full Name</string>
     <string name="sign_up_screen_password_hint">Password (min. 8 chars)</string>
