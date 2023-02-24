@@ -30,7 +30,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     private val onUserMissingDefaultArchive = SingleLiveEvent<Void>()
     private val onSignUp = SingleLiveEvent<Void>()
     private val onPasswordReset = SingleLiveEvent<Void>()
-    private val onReadyToShowForgotPassDialog = SingleLiveEvent<Void>()
+    private val onForgotPasswordRequest = SingleLiveEvent<Void>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     val versionName = MutableLiveData(
@@ -145,30 +145,7 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
             return
         }
 
-        onReadyToShowForgotPassDialog.call()
-    }
-
-    fun resetPassword(email: String) {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-        isBusy.value = true
-        authRepository.forgotPassword(email,
-            object : IAuthenticationRepository.IOnResetPasswordListener {
-                override fun onSuccess() {
-                    isBusy.value = false
-                    onPasswordReset.call()
-                }
-
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    when (error) {
-                        Constants.ERROR_SERVER_ERROR -> errorMessage.value =
-                            appContext.getString(R.string.server_error)
-                        else -> errorMessage.value = error
-                    }
-                }
-            })
+        onForgotPasswordRequest.call()
     }
 
     fun getCurrentEmail(): MutableLiveData<String> = currentEmail
@@ -199,5 +176,5 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnPasswordReset(): MutableLiveData<Void> = onPasswordReset
 
-    fun getOnReadyToShowForgotPassDialog(): MutableLiveData<Void> = onReadyToShowForgotPassDialog
+    fun getOnForgotPasswordRequest(): MutableLiveData<Void> = onForgotPasswordRequest
 }

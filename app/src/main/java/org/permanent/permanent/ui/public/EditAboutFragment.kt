@@ -41,8 +41,8 @@ class EditAboutFragment : PermanentBaseFragment() {
     private val onShowMessage = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
