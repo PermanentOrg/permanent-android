@@ -1,13 +1,16 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Validator
-import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 
 class SignUpViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -15,7 +18,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val nameError = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
-    private val onSuccessMessage = MutableLiveData<String>()
+    private val onAccountCreated = SingleLiveEvent<Void>()
     private val onErrorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onReadyToShowTermsDialog = SingleLiveEvent<Void>()
@@ -24,6 +27,9 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
 
     fun getCurrentName(): MutableLiveData<String> = currentName
 
@@ -37,7 +43,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun getPasswordError(): LiveData<Int> = passwordError
 
-    fun getOnSuccessMessage(): MutableLiveData<String> = onSuccessMessage
+    fun getOnAccountCreated(): SingleLiveEvent<Void> = onAccountCreated
 
     fun getOnErrorMessage(): MutableLiveData<String> = onErrorMessage
 
@@ -92,12 +98,17 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
         if (name != null && email != null && password != null) {
             isBusy.value = true
-            accountRepository.signUp(name, email, password, object : IResponseListener {
+            accountRepository.signUp(name, email, password, object : IAccountRepository.IAccountListener {
 
-                override fun onSuccess(message: String?) {
+                override fun onSuccess(account: Account) {
                     isBusy.value = false
-//                    prefsHelper.saveSkipTwoStepVerification(false)
-                    message?.let { onSuccessMessage.value = it }
+
+                    prefsHelper.saveAuthToken(account.token)
+
+                    prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                    prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
+
+                    onAccountCreated.call()
                 }
 
                 override fun onFailed(error: String?) {
