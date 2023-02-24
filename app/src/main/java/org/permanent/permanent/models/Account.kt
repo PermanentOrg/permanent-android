@@ -18,6 +18,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
     var status: Status? = null
     var spaceTotal: Long? = null
     var spaceLeft: Long? = null
+    var token: String? = null
 
     constructor(parcel: Parcel) : this(
         parcel.readValue(Int::class.java.classLoader) as? Int,
@@ -36,6 +37,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
         status = parcel.readParcelable(Status::class.java.classLoader)
         spaceTotal = parcel.readValue(Long::class.java.classLoader) as? Long
         spaceLeft = parcel.readValue(Long::class.java.classLoader) as? Long
+        token = parcel.readString()
     }
 
     constructor(accountVO: AccountVO?) : this() {
@@ -64,6 +66,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
         }
         spaceTotal = accountVO?.spaceTotal
         spaceLeft = accountVO?.spaceLeft
+        token = accountVO?.token
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -82,6 +85,7 @@ class Account(var id: Int? = null, var primaryEmail: String? = null) : Parcelabl
         parcel.writeParcelable(status, flags)
         parcel.writeValue(spaceTotal)
         parcel.writeValue(spaceLeft)
+        parcel.writeString(token)
     }
 
     override fun describeContents(): Int {

@@ -158,13 +158,20 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return authService.verifyCode(requestBody)
     }
 
-    fun signUp(fullName: String, email: String, password: String): Call<ResponseVO> {
-        val request = toJson(
-            RequestContainer().addAccountPassword(password, password)
-                .addAccount(fullName, email, optIn = false, agreed = true)
-                .addSimple("createArchive", false)
+    fun signUp(fullName: String, email: String, password: String): Call<AccountVO> {
+        val payload: SignUpPayload = SignUpPayload(
+            agreed = true,
+            createArchive = false,
+            fullName = fullName,
+            optIn = false,
+            primaryEmail = email,
+            password = password,
+            passwordVerify = password
         )
-        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        val adapter = Moshi.Builder().build().adapter(SignUpPayload::class.java)
+        val req = adapter.toJson(payload)
+
+        val requestBody: RequestBody = req.toRequestBody(jsonMediaType)
 
         return accountService.signUp(requestBody)
     }

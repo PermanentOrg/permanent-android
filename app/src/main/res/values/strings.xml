@@ -547,4 +547,5 @@
     <string name="private_files_container_select_file_title">Select File</string>
 
     <string name="archives_container_change_archive">Change Archive</string>
+    <string name="account_create_failed">Failed to sign up. Please try again!</string>
 </resources>

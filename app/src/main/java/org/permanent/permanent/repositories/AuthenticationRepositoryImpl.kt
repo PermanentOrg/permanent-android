@@ -50,6 +50,10 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 if (response.isSuccessful && responseVO?.isSuccessful!!) {
                     if (responseVO.getSimpleVO()?.key.equals("authToken")) {
                         prefsHelper.saveAuthToken(responseVO.getSimpleVO()?.value as String?)
+
+                        val account = Account(responseVO.getAccountVO())
+                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                        prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
                         listener.onSuccess()
                     } else {
                         listener.onFailed(application.getString(R.string.login_screen_missing_auth_token_error))
