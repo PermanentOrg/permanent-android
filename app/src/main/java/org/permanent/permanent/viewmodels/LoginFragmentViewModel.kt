@@ -63,7 +63,13 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
                 override fun onSuccess() {
                     isBusy.value = false
                     prefsHelper.saveUserLoggedIn(true)
-                    verifyLoggedIn()
+
+                    val defaultArchiveId = prefsHelper.getDefaultArchiveId()
+                    if (defaultArchiveId == 0) {
+                        onUserMissingDefaultArchive.call()
+                    } else {
+                        getArchive(defaultArchiveId)
+                    }
                 }
 
                 override fun onFailed(error: String?) {
@@ -80,31 +86,6 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
                     }
                 }
             })
-    }
-
-    private fun verifyLoggedIn() {
-        authRepository.verifyLoggedIn(object : IAuthenticationRepository.IOnLoggedInListener {
-            override fun onResponse(isLoggedIn: Boolean) {
-                getAccount()
-            }
-        })
-    }
-
-    fun getAccount() {
-        accountRepository.getSessionAccount(object : IAccountRepository.IAccountListener {
-
-            override fun onSuccess(account: Account) {
-                prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
-                prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
-
-                account.defaultArchiveId?.let { getArchive(it) }
-                    ?: run { onUserMissingDefaultArchive.call() }
-            }
-
-            override fun onFailed(error: String?) {
-                error?.let { errorMessage.value = it }
-            }
-        })
     }
 
     fun getArchive(defaultArchiveId: Int) {

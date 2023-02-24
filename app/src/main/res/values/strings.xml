@@ -24,8 +24,8 @@
     <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
     <string name="sign_up_screen_sign_up">Sign Up</string>
     <string name="sign_up_screen_full_name_hint">Full Name</string>
-    <string name="sign_up_screen_password_hint">Password (min. 8 chars)</string>
-    <string name="sign_up_screen_already_have_an_account">Already have an account?</string>
+    <string name="sign_up_screen_password_hint">Password</string>
+    <string name="sign_up_screen_already_registered">Already registered?</string>
     <string name="button_accept">Accept</string>
     <string name="button_decline">Decline</string>
     <string name="button_edit">Edit</string>
@@ -547,4 +547,5 @@
     <string name="private_files_container_select_file_title">Select File</string>
 
     <string name="archives_container_change_archive">Change Archive</string>
+    <string name="account_create_failed">Failed to sign up. Please try again!</string>
 </resources>

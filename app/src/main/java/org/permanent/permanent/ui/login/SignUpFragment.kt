@@ -1,6 +1,8 @@
 package org.permanent.permanent.ui.login
 
 import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,13 +20,17 @@ import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSignUpBinding
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.viewmodels.SignUpViewModel
 
 class SignUpFragment : PermanentBaseFragment() {
     private lateinit var viewModel: SignUpViewModel
     private lateinit var binding: FragmentSignUpBinding
+    private lateinit var prefsHelper: PreferencesHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -34,6 +40,9 @@ class SignUpFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this)[SignUpViewModel::class.java]
         binding.viewModel = viewModel
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
 
         return binding.root
     }
@@ -54,16 +63,10 @@ class SignUpFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onSuccessMessage = Observer<String> { message ->
-        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-        val view: View = snackBar.view
-        context?.let {
-            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
-            val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
-            snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
-            snackBar.show()
-        }
+    private val startArchiveOnboardingActivity = Observer<Void> {
+        prefsHelper.saveArchiveOnboardingDoneInApp(true)
+        startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
+        activity?.finish()
     }
 
     private fun showTermsDialog() {
@@ -85,14 +88,14 @@ class SignUpFragment : PermanentBaseFragment() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnSuccessMessage().observe(this, onSuccessMessage)
+        viewModel.getOnAccountCreated().observe(this, startArchiveOnboardingActivity)
         viewModel.getOnErrorMessage().observe(this, onErrorMessage)
         viewModel.getOnReadyToShowTermsDialog().observe(this, onReadyToShowTermsDialog)
         viewModel.getShowLoginScreen().observe(this, showLoginScreenObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnSuccessMessage().removeObserver(onSuccessMessage)
+        viewModel.getOnAccountCreated().removeObserver(startArchiveOnboardingActivity)
         viewModel.getOnErrorMessage().removeObserver(onErrorMessage)
         viewModel.getOnReadyToShowTermsDialog().removeObserver(onReadyToShowTermsDialog)
         viewModel.getShowLoginScreen().removeObserver(showLoginScreenObserver)

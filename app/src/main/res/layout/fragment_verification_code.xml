@@ -30,7 +30,7 @@
             app:srcCompat="@drawable/img_logo" />
 
         <TextView
-            android:id="@+id/tvTitleLogin"
+            android:id="@+id/tvTitleVerificationCode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -57,7 +57,7 @@
             app:hintTextColor="@color/lightGrey"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTitleLogin"
+            app:layout_constraintTop_toBottomOf="@id/tvTitleVerificationCode"
             app:setError="@{viewModel.getCodeError()}">
 
             <com.google.android.material.textfield.TextInputEditText
