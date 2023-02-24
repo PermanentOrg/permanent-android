@@ -7,14 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.DialogForgotPasswordBinding
 import org.permanent.permanent.databinding.FragmentLoginBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -28,7 +25,6 @@ class LoginFragment : PermanentBaseFragment() {
     private lateinit var viewModel: LoginFragmentViewModel
     private lateinit var dialogViewModel: ForgotPasswordViewModel
     private lateinit var binding: FragmentLoginBinding
-    private lateinit var dialogBinding: DialogForgotPasswordBinding
     private lateinit var prefsHelper: PreferencesHelper
 
     override fun onCreateView(
@@ -80,35 +76,8 @@ class LoginFragment : PermanentBaseFragment() {
         ).show()
     }
 
-    private val onReadyToShowForgotPassDialog = Observer<Void> {
-        showForgotPassDialog()
-    }
-
-    private fun showForgotPassDialog() {
-        dialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_forgot_password, null, false
-        )
-        dialogBinding.executePendingBindings()
-        dialogBinding.lifecycleOwner = this
-        dialogViewModel = ViewModelProvider(this)[ForgotPasswordViewModel::class.java]
-        dialogBinding.viewModel = dialogViewModel
-        val thisContext = context
-
-        if (thisContext != null) {
-            val alert = AlertDialog.Builder(thisContext).setView(dialogBinding.root).create()
-
-            dialogBinding.btnReset.setOnClickListener {
-                val email = dialogViewModel.getValidatedEmail()
-                if (email != null) {
-                    viewModel.resetPassword(email)
-                    alert.dismiss()
-                }
-            }
-            dialogBinding.btnCancel.setOnClickListener {
-                alert.dismiss()
-            }
-            alert.show()
-        }
+    private val onForgotPasswordRequest = Observer<Void> {
+        findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
     }
 
     override fun connectViewModelEvents() {
@@ -116,9 +85,7 @@ class LoginFragment : PermanentBaseFragment() {
         viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
         viewModel.getOnSignUp().observe(this, onStartSignUp)
         viewModel.getOnPasswordReset().observe(this, onPasswordReset)
-        viewModel.getOnReadyToShowForgotPassDialog().observe(
-            this, onReadyToShowForgotPassDialog
-        )
+        viewModel.getOnForgotPasswordRequest().observe(this, onForgotPasswordRequest)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
@@ -127,9 +94,7 @@ class LoginFragment : PermanentBaseFragment() {
         viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
         viewModel.getOnSignUp().removeObserver(onStartSignUp)
         viewModel.getOnPasswordReset().removeObserver(onPasswordReset)
-        viewModel.getOnReadyToShowForgotPassDialog().removeObserver(
-            onReadyToShowForgotPassDialog
-        )
+        viewModel.getOnForgotPasswordRequest().removeObserver(onForgotPasswordRequest)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 
