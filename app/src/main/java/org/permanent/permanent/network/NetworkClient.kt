@@ -159,7 +159,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun signUp(fullName: String, email: String, password: String): Call<AccountVO> {
-        val payload: SignUpPayload = SignUpPayload(
+        val payload = SignUpPayload(
             agreed = true,
             createArchive = false,
             fullName = fullName,

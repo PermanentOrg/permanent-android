@@ -21,7 +21,10 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     override fun signUp(
-        fullName: String, email: String, password: String, listener: IAccountRepository.IAccountListener
+        fullName: String,
+        email: String,
+        password: String,
+        listener: IAccountRepository.IAccountListener
     ) {
         NetworkClient.instance().signUp(fullName, email, password)
             .enqueue(object : Callback<AccountVO> {
@@ -32,8 +35,10 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                         listener.onSuccess(Account(accountVO))
                     } else {
                         listener.onFailed(
-                            response.errorBody()?.string()
-                                ?: appContext.getString(R.string.account_create_failed)
+                            if (response.errorBody()?.string()
+                                    ?.contains(Constants.ERROR_EMAIL_DUPLICATED) == true
+                            ) appContext.getString(R.string.sign_up_email_in_use_error)
+                            else appContext.getString(R.string.account_create_failed)
                         )
                     }
                 }

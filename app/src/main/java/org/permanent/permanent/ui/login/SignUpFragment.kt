@@ -3,12 +3,10 @@ package org.permanent.permanent.ui.login
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -17,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSignUpBinding
 import org.permanent.permanent.ui.PREFS_NAME
@@ -54,13 +51,13 @@ class SignUpFragment : PermanentBaseFragment() {
     }
 
     private val onErrorMessage = Observer<String> { errorMessage ->
-        when (errorMessage) {
-            //Sign up error
-            Constants.ERROR_ACCOUNT_DUPLICATE -> Toast.makeText(
-                context, R.string.sign_up_email_in_use_error, Toast.LENGTH_LONG
-            ).show()
-            else -> Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+        val snackBar = Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let {
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
         }
+        snackBar.show()
     }
 
     private val startArchiveOnboardingActivity = Observer<Void> {
