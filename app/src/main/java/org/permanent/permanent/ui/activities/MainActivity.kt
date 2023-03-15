@@ -124,7 +124,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.archivesFragment,
             R.id.myFilesFragment,
             R.id.sharesFragment,
-            R.id.membersFragment,
+            R.id.manageTagsFragment,
             R.id.storageFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment,

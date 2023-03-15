@@ -26,7 +26,7 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/membersFragment"
+            android:id="@+id/manageTagsFragment"
             android:icon="@drawable/img_manage_members_square"
             android:title="@string/menu_drawer_manage_members" />
 
