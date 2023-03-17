@@ -11,11 +11,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Tag
+import org.permanent.permanent.ui.AccessRolesFragment
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.addEditTag.AddEditTagFragment
 import org.permanent.permanent.viewmodels.ManageTagsViewModel
 
 class ManageTagsFragment : PermanentBaseFragment() {
     private lateinit var tagAdapter: ManageTagsAdapter
+
+    private var addTagFragment: AddEditTagFragment? = null
 
     companion object {
         fun newInstance() = ManageTagsFragment()
@@ -39,16 +43,24 @@ class ManageTagsFragment : PermanentBaseFragment() {
         tagAdapter = ManageTagsAdapter(emptyList())
         recyclerView?.adapter = tagAdapter
         recyclerView?.layoutManager = LinearLayoutManager(context)
+
+        val fab = view?.findViewById<View>(R.id.fabAdd2)
+        fab?.bringToFront()
+        fab?.setOnClickListener {
+            viewModel.onAddButtonPressed()
+        }
     }
 
     override fun connectViewModelEvents() {
         viewModel.getTags().observe(this, onTags)
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnAddButtonEvent().observe(this, onAddButtonEvent)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getTags().removeObserver(onTags)
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnAddButtonEvent().removeObserver(onAddButtonEvent)
     }
 
     override fun onResume() {
@@ -70,5 +82,21 @@ class ManageTagsFragment : PermanentBaseFragment() {
 
         val recyclerView = view?.findViewById<RecyclerView>(R.id.tagsRV)
         recyclerView?.adapter = tagAdapter
+    }
+
+    private val onAddButtonEvent = Observer<Void> {
+        addTagFragment = AddEditTagFragment()
+        addTagFragment?.show(parentFragmentManager, addTagFragment?.tag)
+        addTagFragment?.didUpdateTag?.observe(this, onDidUpdateTag)
+    }
+
+    private val onDidUpdateTag = Observer<Void> {
+        viewModel.reloadTags()
+
+        removeOnDidUpdateTagObserver()
+    }
+
+    private fun removeOnDidUpdateTagObserver() {
+        addTagFragment?.didUpdateTag?.removeObserver(onDidUpdateTag)
     }
 }

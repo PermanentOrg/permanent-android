@@ -24,8 +24,13 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
     private val tags = MutableLiveData<List<Tag>>()
+    private val onAddButtonEvent = SingleLiveEvent<Void>()
 
     init {
+        reloadTags()
+    }
+
+    fun reloadTags() {
         val defaultArchiveId = prefsHelper.getDefaultArchiveId()
 
         requestTagsFor(defaultArchiveId)
@@ -59,10 +64,15 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
         })
     }
 
+    fun onAddButtonPressed() {
+        onAddButtonEvent.call()
+    }
+
     override fun getFilter(): Filter {
         TODO("Not yet implemented")
     }
 
     fun getShowMessage(): LiveData<String> = showMessage
     fun getTags(): MutableLiveData<List<Tag>> = tags
+    fun getOnAddButtonEvent(): LiveData<Void> = onAddButtonEvent
 }
