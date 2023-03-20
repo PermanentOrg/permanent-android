@@ -549,4 +549,6 @@
 
     <string name="archives_container_change_archive">Change Archive</string>
     <string name="account_create_failed">Failed to sign up. Please try again!</string>
+    <string name="tag_name">TAG NAME</string>
+    <string name="add_tag">Add tag</string>
 </resources>
