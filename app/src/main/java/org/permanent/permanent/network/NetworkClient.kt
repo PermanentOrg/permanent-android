@@ -64,15 +64,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     init {
         if (okHttpClient == null) {
-            val cookieJar: ClearableCookieJar = PersistentCookieJar(
-                SetCookieCache(), SharedPrefsCookiePersistor(context)
-            )
-
             val loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
             okHttpClient =
-                OkHttpClient.Builder().cookieJar(cookieJar).addInterceptor(loggingInterceptor)
+                OkHttpClient.Builder().addInterceptor(loggingInterceptor)
                     .addInterceptor(UnauthorizedInterceptor()).addInterceptor(Interceptor { chain ->
                         val request = chain.request()
                         if (!request.url.toString()
