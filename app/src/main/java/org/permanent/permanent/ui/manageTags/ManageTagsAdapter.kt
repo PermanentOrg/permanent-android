@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.models.Tag
 
-class ManageTagsAdapter (private val mTags: List<Tag>) : RecyclerView.Adapter<ManageTagsViewHolder>()
+class ManageTagsAdapter (private val mTags: List<Tag>, var listener: ManageTagListener) : RecyclerView.Adapter<ManageTagsViewHolder>()
 {
     // ... constructor and member variables
     // Usually involves inflating a layout from XML and returning the holder
@@ -13,7 +13,7 @@ class ManageTagsAdapter (private val mTags: List<Tag>) : RecyclerView.Adapter<Ma
         val context = parent.context
         val inflater = LayoutInflater.from(context)
 
-        return ManageTagsViewHolder(inflater, parent)
+        return ManageTagsViewHolder(inflater, parent, listener)
     }
 
     // Involves populating data into the item through holder
