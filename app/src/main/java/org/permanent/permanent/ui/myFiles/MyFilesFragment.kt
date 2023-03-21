@@ -177,6 +177,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         }
     }
 
+    private val onFilesUploadRequest = Observer<Pair<Record?, List<Uri>>> {
+        viewModel.uploadFilesToFolder(it.first, it.second)
+    }
+
     private val onDownloadFinished = Observer<Download> { download ->
         downloadsAdapter.remove(download)
     }
@@ -351,10 +355,6 @@ class MyFilesFragment : PermanentBaseFragment() {
     private val onRecordRenamed = Observer<Void> {
         viewModel.refreshCurrentFolder()
         alertDialog?.dismiss()
-    }
-
-    private val onFilesUploadRequest = Observer<Pair<Record?, List<Uri>>> {
-        viewModel.uploadFilesToFolder(it.first, it.second)
     }
 
     private val onCurrentArchiveChangedObserver = Observer<Void> {

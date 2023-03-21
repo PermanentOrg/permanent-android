@@ -38,6 +38,12 @@
         <action
             android:id="@+id/action_myFilesFragment_to_archivesFragment"
             app:destination="@id/archivesFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_shares"
+            app:destination="@id/sharesFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_publicFilesFragment"
+            app:destination="@id/publicFilesFragment" />
     </fragment>
 
     <fragment

@@ -12,10 +12,12 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSaveToPermanentBinding
 import org.permanent.permanent.models.File
 import org.permanent.permanent.models.Record
@@ -23,7 +25,8 @@ import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.archives.ArchivesContainerFragment
-import org.permanent.permanent.ui.public.MyFilesContainerFragment
+import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
+import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.SaveToPermanentViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
@@ -33,8 +36,9 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     private lateinit var viewModel: SaveToPermanentViewModel
     private lateinit var filesRecyclerView: RecyclerView
     private lateinit var filesAdapter: FilesAdapter
+    private var workspace = Workspace.PRIVATE_FILES
     private var destinationFolder: Record? = null
-    private var myFilesContainerFragment: MyFilesContainerFragment? = null
+    private var chooseFolderFragment: ChooseFolderFragment? = null
     private var archivesContainerFragment: ArchivesContainerFragment? = null
     private val onFilesUploadToFolderRequest = SingleLiveEvent<Pair<Record?, List<Uri>>>()
     private val onCurrentArchiveChangedEvent = SingleLiveEvent<Void>()
@@ -47,9 +51,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[SaveToPermanentViewModel::class.java]
         binding = FragmentSaveToPermanentBinding.inflate(inflater, container, false)
@@ -87,15 +89,34 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     }
 
     private val onUploadRequestObserver = Observer<Void> {
+        when (workspace) {
+            Workspace.SHARED_BY_ME, Workspace.SHARED_WITH_ME -> {
+                val bundle = bundleOf(
+                    PARCELABLE_RECORD_KEY to destinationFolder,
+                    PARCELABLE_FILES_KEY to filesAdapter.getUriList(),
+                    WORKSPACE_KEY to workspace
+                )
+                requireParentFragment().findNavController()
+                    .navigate(R.id.action_myFilesFragment_to_shares, bundle)
+            }
+            Workspace.PUBLIC_FILES -> {
+                val bundle = bundleOf(
+                    PARCELABLE_RECORD_KEY to destinationFolder,
+                    PARCELABLE_FILES_KEY to filesAdapter.getUriList()
+                )
+                requireParentFragment().findNavController()
+                    .navigate(R.id.action_myFilesFragment_to_publicFilesFragment, bundle)
+            }
+            else -> onFilesUploadToFolderRequest.value =
+                Pair(destinationFolder, filesAdapter.getUriList())
+        }
         dismiss()
-        onFilesUploadToFolderRequest.value = Pair(destinationFolder, filesAdapter.getUriList())
     }
 
     private val onChangeDestinationFolderObserver = Observer<Void> {
-        myFilesContainerFragment = MyFilesContainerFragment()
-        myFilesContainerFragment?.setBundleArguments(Workspace.PRIVATE_FILES)
-        myFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
-        myFilesContainerFragment?.show(parentFragmentManager, myFilesContainerFragment?.tag)
+        chooseFolderFragment = ChooseFolderFragment()
+        chooseFolderFragment?.getOnFolderChangedEvent()?.observe(this, onFolderChangedObserver)
+        chooseFolderFragment?.show(parentFragmentManager, chooseFolderFragment?.tag)
     }
 
     private val onChangeDestinationArchiveObserver = Observer<Void> {
@@ -109,9 +130,10 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    private val onFolderChangedObserver = Observer<Record?> {
-        destinationFolder = it
-        viewModel.changeDestinationFolderTo(it)
+    private val onFolderChangedObserver = Observer<Pair<Workspace, Record?>> {
+        workspace = it.first
+        destinationFolder = it.second
+        viewModel.changeDestinationFolderTo(it.second)
     }
 
     private val onCurrentArchiveChangedObserver = Observer<Void> {
@@ -135,7 +157,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
             .removeObserver(onChangeDestinationFolderObserver)
         viewModel.getOnChangeDestinationArchiveRequest()
             .removeObserver(onChangeDestinationArchiveObserver)
-        myFilesContainerFragment?.getOnSaveFolderEvent()?.removeObserver(onFolderChangedObserver)
+        chooseFolderFragment?.getOnFolderChangedEvent()?.removeObserver(onFolderChangedObserver)
         archivesContainerFragment?.getOnCurrentArchiveChanged()
             ?.removeObserver(onCurrentArchiveChangedObserver)
     }
@@ -150,7 +172,12 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         disconnectViewModelEvents()
     }
 
-    fun getOnFilesUploadRequest(): MutableLiveData<Pair<Record?, List<Uri>>> = onFilesUploadToFolderRequest
+    fun getOnFilesUploadRequest(): MutableLiveData<Pair<Record?, List<Uri>>> =
+        onFilesUploadToFolderRequest
 
     fun getOnCurrentArchiveChangedEvent(): MutableLiveData<Void> = onCurrentArchiveChangedEvent
+
+    companion object {
+        const val WORKSPACE_KEY = "workspace_key"
+    }
 }
