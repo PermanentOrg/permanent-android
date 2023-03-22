@@ -12,9 +12,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
+import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentChooseFolderBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
+import org.permanent.permanent.ui.PublicFilesContainerFragment
 import org.permanent.permanent.ui.SharedFilesContainerFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.public.MyFilesContainerFragment
@@ -25,7 +28,8 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentChooseFolderBinding
     private lateinit var viewModel: ChooseFolderViewModel
     private var onDestinationFolderChangedEvent = SingleLiveEvent<Pair<Workspace, Record?>>()
-    private var myFilesContainerFragment: MyFilesContainerFragment? = null
+    private var privateFilesContainerFragment: MyFilesContainerFragment? = null
+    private var publicFilesContainerFragment: PublicFilesContainerFragment? = null
     private var sharedFilesContainerFragment: SharedFilesContainerFragment? = null
     private var workspace = Workspace.PRIVATE_FILES
 
@@ -57,25 +61,46 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
 
     private val onPrivateFilesSelectedObserver = Observer<Void> {
         workspace = Workspace.PRIVATE_FILES
-        myFilesContainerFragment = MyFilesContainerFragment()
-        myFilesContainerFragment?.setBundleArguments(Workspace.PRIVATE_FILES)
-        myFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
-        myFilesContainerFragment?.show(parentFragmentManager, myFilesContainerFragment?.tag)
+        privateFilesContainerFragment = MyFilesContainerFragment()
+        privateFilesContainerFragment?.setBundleArguments(Workspace.PRIVATE_FILES)
+        privateFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
+        privateFilesContainerFragment?.show(parentFragmentManager, privateFilesContainerFragment?.tag)
     }
 
     private val onSharedFilesSelectedObserver = Observer<Void> {
         workspace = Workspace.SHARES
         sharedFilesContainerFragment = SharedFilesContainerFragment()
         sharedFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
-        sharedFilesContainerFragment?.show(parentFragmentManager, myFilesContainerFragment?.tag)
+        sharedFilesContainerFragment?.show(parentFragmentManager, sharedFilesContainerFragment?.tag)
     }
 
     private val onPublicFilesSelectedObserver = Observer<Void> {
+        showConfirmationDialog()
+    }
+
+    private fun showConfirmationDialog() {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
+        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+
+        viewDialog.tvTitle.text = getString(R.string.menu_drawer_public_files)
+        viewDialog.tvText.text = getString(R.string.save_to_permanent_upload_to_public_files)
+        viewDialog.btnPositive.text = getString(R.string.button_continue)
+        viewDialog.btnPositive.setOnClickListener {
+            showPublicFilesContainer()
+            alert.dismiss()
+        }
+        viewDialog.btnNegative.text = getString(R.string.button_cancel)
+        viewDialog.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
+    private fun showPublicFilesContainer() {
         workspace = Workspace.PUBLIC_FILES
-//        myFilesContainerFragment = MyFilesContainerFragment()
-//        myFilesContainerFragment?.setBundleArguments(Workspace.PRIVATE_FILES)
-//        myFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
-//        myFilesContainerFragment?.show(parentFragmentManager, myFilesContainerFragment?.tag)
+        publicFilesContainerFragment = PublicFilesContainerFragment()
+        publicFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
+        publicFilesContainerFragment?.show(parentFragmentManager, publicFilesContainerFragment?.tag)
     }
 
     private val onCancelRequestObserver = Observer<Void> {
@@ -87,7 +112,8 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    fun getOnFolderChangedEvent(): MutableLiveData<Pair<Workspace, Record?>> = onDestinationFolderChangedEvent
+    fun getOnFolderChangedEvent(): MutableLiveData<Pair<Workspace, Record?>> =
+        onDestinationFolderChangedEvent
 
     override fun connectViewModelEvents() {
         viewModel.getOnCancelRequest().observe(this, onCancelRequestObserver)
@@ -101,8 +127,10 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
         viewModel.getOnPrivateFilesSelected().removeObserver(onPrivateFilesSelectedObserver)
         viewModel.getOnSharedFilesSelected().removeObserver(onSharedFilesSelectedObserver)
         viewModel.getOnPublicFilesSelected().removeObserver(onPublicFilesSelectedObserver)
-        myFilesContainerFragment?.getOnSaveFolderEvent()?.removeObserver(onFolderChangedObserver)
-        sharedFilesContainerFragment?.getOnSaveFolderEvent()?.removeObserver(onFolderChangedObserver)
+        privateFilesContainerFragment?.getOnSaveFolderEvent()
+            ?.removeObserver(onFolderChangedObserver)
+        sharedFilesContainerFragment?.getOnSaveFolderEvent()
+            ?.removeObserver(onFolderChangedObserver)
     }
 
     override fun onResume() {

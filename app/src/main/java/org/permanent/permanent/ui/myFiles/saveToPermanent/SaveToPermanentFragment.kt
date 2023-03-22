@@ -133,7 +133,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     private val onFolderChangedObserver = Observer<Pair<Workspace, Record?>> {
         workspace = it.first
         destinationFolder = it.second
-        viewModel.changeDestinationFolderTo(it.second)
+        viewModel.changeDestinationFolderTo(workspace, destinationFolder)
     }
 
     private val onCurrentArchiveChangedObserver = Observer<Void> {

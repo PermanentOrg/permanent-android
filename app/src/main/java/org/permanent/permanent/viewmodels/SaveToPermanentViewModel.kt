@@ -9,6 +9,7 @@ import org.permanent.permanent.models.File
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
 
 class SaveToPermanentViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val appContext = application.applicationContext
@@ -20,7 +21,7 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
     private val currentArchiveName =
         MutableLiveData<String>(prefsHelper.getCurrentArchiveFullName())
     private val destinationFolderName =
-        MutableLiveData(appContext.getString(R.string.save_to_permanent_mobile_uploads))
+        MutableLiveData(appContext.getString(R.string.menu_drawer_private_files))
     private val onUploadRequest = SingleLiveEvent<Void>()
     private val onChangeDestinationFolderRequest = SingleLiveEvent<Void>()
     private val onChangeDestinationArchiveRequest = SingleLiveEvent<Void>()
@@ -47,10 +48,12 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
         onChangeDestinationFolderRequest.call()
     }
 
-    fun changeDestinationFolderTo(record: Record?) {
+    fun changeDestinationFolderTo(workspace: Workspace, record: Record?) {
         if (record != null) destinationFolderName.value = record.displayName
-        else destinationFolderName.value =
-            appContext.getString(R.string.save_to_permanent_mobile_uploads)
+        else destinationFolderName.value = when (workspace) {
+            Workspace.PUBLIC_FILES -> appContext.getString(R.string.menu_drawer_public_files)
+            else -> appContext.getString(R.string.menu_drawer_private_files)
+        }
     }
 
     fun getFiles(uris: ArrayList<Uri>): ArrayList<File> {

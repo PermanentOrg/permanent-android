@@ -536,8 +536,9 @@
 
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>
-    <string name="save_to_permanent_mobile_uploads">Mobile Uploads</string>
     <string name="save_to_permanent_choose_folder">Choose Folder</string>
+    <string name="save_to_permanent_upload_to_public_files">Upload a publicly viewable copy of these items in your Public workspace and get a public link to share with anyone.</string>
+    <string name="save_to_permanent_choose_folder_error">Please select a folder first</string>
 
     <string name="dialog_shared_files_cancel_move_title">Cancel Move?</string>
     <string name="dialog_shared_files_cancel_move_text">Moving files or folders outside of the shared folder in which they are currently located is not permitted at this time. You can cancel this move action or continue to choose a destination for the selected item.</string>

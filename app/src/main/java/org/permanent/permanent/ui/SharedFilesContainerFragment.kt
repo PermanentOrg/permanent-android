@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentContainerSharedFilesBinding
 import org.permanent.permanent.models.Record
@@ -26,12 +27,22 @@ class SharedFilesContainerFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentContainerSharedFilesBinding
     private lateinit var viewModel: SharedFilesContainerViewModel
     private var sharesFragment: SharesFragment? = null
-    private lateinit var selectedDestinationRecord: Pair<Workspace, Record>
-    private val onSaveFolderEvent = SingleLiveEvent<Pair<Workspace, Record?>>()
+    private var selectedDestinationRecord: Pair<Workspace, Record>? = null
+    private val onSaveFolderEvent = SingleLiveEvent<Pair<Workspace, Record>>()
 
     private val onSaveFolderRequestObserver = Observer<Void> {
-        onSaveFolderEvent.value = selectedDestinationRecord
-        dismiss()
+        if (selectedDestinationRecord != null) {
+            onSaveFolderEvent.value = selectedDestinationRecord!!
+            dismiss()
+        } else {
+            dialog?.window?.decorView?.let {
+                Snackbar.make(
+                    it,
+                    getString(R.string.save_to_permanent_choose_folder_error),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
     private val onCancelRequestObserver = Observer<Void> {
@@ -74,7 +85,7 @@ class SharedFilesContainerFragment : PermanentBottomSheetFragment() {
         transaction.replace(R.id.frameLayoutContainer, sharesFragment!!).commit()
     }
 
-    fun getOnSaveFolderEvent(): MutableLiveData<Pair<Workspace, Record?>> = onSaveFolderEvent
+    fun getOnSaveFolderEvent(): MutableLiveData<Pair<Workspace, Record>> = onSaveFolderEvent
 
     override fun connectViewModelEvents() {
         viewModel.getOnSaveFolderRequest().observe(this, onSaveFolderRequestObserver)
