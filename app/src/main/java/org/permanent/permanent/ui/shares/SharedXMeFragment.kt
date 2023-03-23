@@ -62,6 +62,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private val onRecordSelectedEvent = SingleLiveEvent<Record>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -87,6 +88,10 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
             getParcelableArrayList<Record>(SHARED_WITH_ME_ITEM_LIST_KEY).also {
                 if (!it.isNullOrEmpty()) setShares(it)
             }
+        }
+        arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
+            val showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
+            if (showScreenSimplified) viewModel.setShowScreenSimplified()
         }
         return binding.root
     }
@@ -130,6 +135,10 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
             viewModel.upload(fileUriList)
             fileUriList.clear()
         }
+    }
+
+    fun uploadFilesToFolder(folder: Record?, uris: ArrayList<Uri>?) {
+        uris?.let { viewModel.uploadFilesToFolder(folder, it) }
     }
 
     private val onDownloadsRetrieved = Observer<MutableList<Download>> {
@@ -271,6 +280,10 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         )
     }
 
+    private val onRecordSelectedObserver = Observer<Record> {
+        onRecordSelectedEvent.value = it
+    }
+
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
         viewModel.setRelocationMode(it)
         lifecycleScope.launch {
@@ -389,6 +402,8 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         onChangeViewMode.onChanged(isListViewMode)
     }
 
+    fun getOnRecordSelected(): MutableLiveData<Record> = onRecordSelectedEvent
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getOnShowQuotaExceeded().observe(this, onShowQuotaExceeded)
@@ -405,6 +420,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
+        viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -426,6 +442,7 @@ class SharedXMeFragment : PermanentBaseFragment(), RecordListener {
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
+        viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)

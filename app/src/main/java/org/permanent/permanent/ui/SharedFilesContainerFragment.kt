@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.public
+package org.permanent.permanent.ui
 
 import android.app.Dialog
 import android.content.DialogInterface
@@ -14,57 +14,53 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentContainerPrivateFilesBinding
+import org.permanent.permanent.databinding.FragmentContainerSharedFilesBinding
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordType
-import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.myFiles.MyFilesFragment
-import org.permanent.permanent.ui.myFiles.SHOWN_IN_WHICH_WORKSPACE
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
-import org.permanent.permanent.viewmodels.MyFilesContainerViewModel
+import org.permanent.permanent.ui.shares.SharesFragment
+import org.permanent.permanent.viewmodels.SharedFilesContainerViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
-class MyFilesContainerFragment : PermanentBottomSheetFragment() {
-    private lateinit var binding: FragmentContainerPrivateFilesBinding
-    private lateinit var viewModel: MyFilesContainerViewModel
-    private var shownInWorkspace: Workspace? = Workspace.PUBLIC_ARCHIVES
-    private var myFilesFragment: MyFilesFragment? = null
-    private val onRecordSelectedEvent = SingleLiveEvent<Record>()
-    private val onSaveFolderEvent = SingleLiveEvent<Pair<Workspace, Record?>>()
+class SharedFilesContainerFragment : PermanentBottomSheetFragment() {
+    private lateinit var binding: FragmentContainerSharedFilesBinding
+    private lateinit var viewModel: SharedFilesContainerViewModel
+    private var sharesFragment: SharesFragment? = null
+    private var selectedDestinationRecord: Pair<Workspace, Record>? = null
+    private val onSaveFolderEvent = SingleLiveEvent<Pair<Workspace, Record>>()
 
     private val onSaveFolderRequestObserver = Observer<Void> {
-        onSaveFolderEvent.value = Pair(Workspace.PRIVATE_FILES, onRecordSelectedEvent.value)
-        dismiss()
+        if (selectedDestinationRecord != null) {
+            onSaveFolderEvent.value = selectedDestinationRecord!!
+            dismiss()
+        } else {
+            dialog?.window?.decorView?.let {
+                Snackbar.make(
+                    it,
+                    getString(R.string.save_to_permanent_choose_folder_error),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
     private val onCancelRequestObserver = Observer<Void> {
         dismiss()
     }
 
-    private val onRecordSelectedObserver = Observer<Record> {
-        onRecordSelectedEvent.value = it
-        if (shownInWorkspace == Workspace.PUBLIC_ARCHIVES && it.type == RecordType.FILE) dismiss()
-    }
-
-    fun setBundleArguments(workspace: Workspace) {
-        val bundle = Bundle()
-        bundle.putParcelable(SHOWN_IN_WHICH_WORKSPACE, workspace)
-        this.arguments = bundle
+    private val onRecordSelectedObserver = Observer<Pair<Workspace, Record>> {
+        selectedDestinationRecord = it
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[MyFilesContainerViewModel::class.java]
-        binding = FragmentContainerPrivateFilesBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this)[SharedFilesContainerViewModel::class.java]
+        binding = FragmentContainerSharedFilesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
-        shownInWorkspace = arguments?.getParcelable(SHOWN_IN_WHICH_WORKSPACE)
-        viewModel.setShownInWorkspace(shownInWorkspace)
 
         return binding.root
     }
@@ -82,16 +78,14 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        myFilesFragment = MyFilesFragment()
-        myFilesFragment?.getOnRecordSelected()?.observe(this, onRecordSelectedObserver)
-        myFilesFragment?.arguments = bundleOf(SHOW_SCREEN_SIMPLIFIED_KEY to true)
+        sharesFragment = SharesFragment()
+        sharesFragment?.getOnRecordSelected()?.observe(this, onRecordSelectedObserver)
+        sharesFragment?.arguments = bundleOf(SHOW_SCREEN_SIMPLIFIED_KEY to true)
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
-        transaction.replace(R.id.frameLayoutContainer, myFilesFragment!!).commit()
+        transaction.replace(R.id.frameLayoutContainer, sharesFragment!!).commit()
     }
 
-    fun getOnRecordSelected(): MutableLiveData<Record> = onRecordSelectedEvent
-
-    fun getOnSaveFolderEvent(): MutableLiveData<Pair<Workspace, Record?>> = onSaveFolderEvent
+    fun getOnSaveFolderEvent(): MutableLiveData<Pair<Workspace, Record>> = onSaveFolderEvent
 
     override fun connectViewModelEvents() {
         viewModel.getOnSaveFolderRequest().observe(this, onSaveFolderRequestObserver)
@@ -101,7 +95,7 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
     override fun disconnectViewModelEvents() {
         viewModel.getOnSaveFolderRequest().removeObserver(onSaveFolderRequestObserver)
         viewModel.getOnCancelRequest().removeObserver(onCancelRequestObserver)
-        myFilesFragment?.getOnRecordSelected()?.removeObserver(onRecordSelectedObserver)
+        sharesFragment?.getOnRecordSelected()?.removeObserver(onRecordSelectedObserver)
     }
 
     override fun onResume() {

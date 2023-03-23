@@ -73,8 +73,8 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showMessage.value = error
                         Log.e(TAG, "Deleting Device FCM token failed: $error")
+                        deleteAccount()
                     }
                 })
             })
