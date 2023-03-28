@@ -63,6 +63,23 @@ class Validator {
             }
         }
 
+        fun doPasswordsMatch(password: String?, passwordConfirmation: String?, passwordConfError: MutableLiveData<Int>): Boolean {
+            return when {
+                passwordConfirmation.isNullOrEmpty() -> {
+                    passwordConfError.value = R.string.password_confirmation_empty_error
+                    false
+                }
+                !password.equals(passwordConfirmation) -> {
+                    passwordConfError.value = R.string.security_error_password_no_match
+                    false
+                }
+                else -> {
+                    passwordConfError.value = null
+                    true
+                }
+            }
+        }
+
         fun isValidPhone(context: Context?, phone: String?, phoneError: MutableLiveData<String>): Boolean {
             return if (!phone.isNullOrEmpty()) {
                 if(!Pattern.matches("^[+]?[0-9]{8,13}\$", phone)) {

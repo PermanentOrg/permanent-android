@@ -80,6 +80,22 @@
             app:destination="@id/loginFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="org.permanent.permanent.ui.login.ResetPasswordFragment"
+        android:label="ResetPasswordFragment"
+        tools:layout="@layout/fragment_reset_password">
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/app/fa-reset/{url_token}?tenantId={tenantId}" />
+        <deepLink
+            app:action="ACTION_VIEW"
+            app:uri="https://www.permanent.org/app/fa-reset/{url_token}?tenantId={tenantId}" />
+        <action
+            android:id="@+id/action_resetPasswordFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
     <activity
         android:id="@+id/mainActivity"
         android:name="org.permanent.permanent.ui.activities.MainActivity"

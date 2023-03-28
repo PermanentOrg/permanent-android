@@ -14,6 +14,7 @@
     <string name="password_hint">Password</string>
     <string name="login_screen_sign_in">Sign in</string>
     <string name="login_screen_forgot_password">Forgot Password?</string>
+    <string name="login_screen_reset_password">Reset Password</string>
     <string name="login_screen_sign_up">Sign up</string>
     <string name="login_screen_new_to_permanent">New to Permanent?</string>
     <string name="login_screen_missing_auth_token_error">Missing authentication token. Please try again.</string>
@@ -21,6 +22,7 @@
     <string name="forgot_password_screen_or">Or</string>
     <string name="forgot_password_screen_back_to_sign_in">Back to Sign in</string>
     <string name="button_recover_password">Recover password</string>
+    <string name="button_reset_password">Reset password</string>
     <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
     <string name="sign_up_screen_sign_up">Sign Up</string>
     <string name="sign_up_screen_full_name_hint">Full Name</string>
@@ -45,6 +47,7 @@
     <string name="sign_up_email_in_use_error">This email is already in use</string>
     <string name="invalid_phone_error">Please enter a valid phone number</string>
     <string name="password_empty_error">Password can not be empty</string>
+    <string name="password_confirmation_empty_error">Password Confirmation can not be empty</string>
     <string name="login_password_error">Please enter your password</string>
     <string name="invalid_email_error">Please enter a valid email address</string>
     <string name="invalid_name_error">Please enter a valid name</string>
@@ -389,7 +392,7 @@
 
     <string name="security_current_password_hint">Current Password</string>
     <string name="security_new_password_hint">New Password</string>
-    <string name="security_retype_new_password_hint">Re-type New Password</string>
+    <string name="security_confirm_new_password_hint">Confirm New Password</string>
     <string name="security_update_password">Update Password</string>
     <string name="security_log_in_with_biometrics">Log in with biometrics?</string>
     <string name="security_error_incorrect_old_password">Current password is incorrect. Please try again.</string>

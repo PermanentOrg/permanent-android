@@ -52,7 +52,9 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                         prefsHelper.saveAuthToken(responseVO.getSimpleVO()?.value as String?)
 
                         val account = Account(responseVO.getAccountVO())
-                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                        prefsHelper.saveAccountInfo(
+                            account.id, account.primaryEmail, account.fullName
+                        )
                         prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
                         listener.onSuccess()
                     } else {
@@ -165,7 +167,9 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                             prefsHelper.saveAuthToken(responseVO.getAuthSimpleVO()?.value)
                         }
                         val account = Account(responseVO.getAccountVO())
-                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                        prefsHelper.saveAccountInfo(
+                            account.id, account.primaryEmail, account.fullName
+                        )
                         prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
                         listener.onSuccess()
                     } else {
@@ -181,5 +185,31 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                 }
             })
         }
+    }
+
+    override fun resetPassword(
+        password: String,
+        passwordConfirmation: String,
+        listener: IAuthenticationRepository.IOnResetPasswordListener
+    ) {
+        NetworkClient.instance().resetPassword(password, passwordConfirmation)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+
+                    if (response.isSuccessful && responseVO?.isSuccessful == true) {
+                        listener.onSuccess()
+                    } else {
+                        listener.onFailed(
+                            responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                                ?.toString()
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 }

@@ -8,6 +8,9 @@ interface IAuthenticationRepository {
     fun forgotPassword(email: String, listener: IOnResetPasswordListener)
     fun sendSMSVerificationCode(listener: IOnSMSCodeSentListener)
     fun verifyCode(code: String, authType: String, listener: IOnVerifyListener)
+    fun resetPassword(
+        password: String, passwordConfirmation: String, listener: IOnResetPasswordListener
+    )
 
     interface IOnLoggedInListener {
         fun onResponse(isLoggedIn: Boolean)

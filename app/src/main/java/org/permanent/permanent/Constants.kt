@@ -12,6 +12,8 @@ class Constants {
         const val REQUEST_CODE_GOOGLE_API_AVAILABILITY = 2404
         const val LOGIN_URL_SUFFIX = "auth/login"
         const val VERIFY_2FA_URL_SUFFIX = "auth/verify"
+        const val FORGOT_PASS_URL_SUFFIX = "/sendEmailForgotPassword"
+        const val RESET_PASS_URL_SUFFIX = "auth/reset"
         const val SIGN_UP_URL_SUFFIX = "account/post"
         const val S3_BASE_URL = "https://s3.us-west-2.amazonaws.com"
         const val HOW_TO_PUBLISH_ARCHIVE_URL = "https://permanent.zohodesk.com/portal/en/kb/articles/public-archives-mobile"

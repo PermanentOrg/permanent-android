@@ -26,4 +26,7 @@ interface IAuthService {
 
     @POST("auth/verify")
     fun verifyCode(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("auth/reset")
+    fun resetPassword(@Body requestBody: RequestBody): Call<ResponseVO>
 }

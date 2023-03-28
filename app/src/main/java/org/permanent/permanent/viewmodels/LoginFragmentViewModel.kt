@@ -40,7 +40,6 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     )
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
-    private val accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun login() {

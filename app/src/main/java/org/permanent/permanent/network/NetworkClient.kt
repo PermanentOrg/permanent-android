@@ -1,10 +1,6 @@
 package org.permanent.permanent.network
 
 import android.content.Context
-import com.franmontiel.persistentcookiejar.ClearableCookieJar
-import com.franmontiel.persistentcookiejar.PersistentCookieJar
-import com.franmontiel.persistentcookiejar.cache.SetCookieCache
-import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -76,6 +72,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                                 .contains(Constants.SIGN_UP_URL_SUFFIX) && !request.url.toString()
                                 .contains(Constants.LOGIN_URL_SUFFIX) && !request.url.toString()
                                 .contains(Constants.VERIFY_2FA_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.FORGOT_PASS_URL_SUFFIX) && !request.url.toString()
+                                .contains(Constants.RESET_PASS_URL_SUFFIX) && !request.url.toString()
                                 .contains(Constants.STRIPE_URL)
                         ) {
                             val prefsHelper = PreferencesHelper(context.getSharedPreferences(
@@ -152,6 +150,14 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
         return authService.verifyCode(requestBody)
+    }
+
+    fun resetPassword(newPassword: String, passwordConfirmation: String
+    ): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addAccountPassword(newPassword, passwordConfirmation))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+
+        return authService.resetPassword(requestBody)
     }
 
     fun signUp(fullName: String, email: String, password: String): Call<AccountVO> {

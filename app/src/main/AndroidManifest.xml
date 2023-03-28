@@ -87,9 +87,11 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
+            android:exported="true"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" >
+        <nav-graph android:value="@navigation/login_navigation_graph" />
+        </activity>
         <activity
             android:name=".ui.onboarding.OnboardingActivity"
             android:configChanges="orientation|keyboardHidden"
