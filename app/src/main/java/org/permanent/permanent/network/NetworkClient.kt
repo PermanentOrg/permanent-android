@@ -634,6 +634,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return tagService.unlinkTags(requestBody)
     }
 
+    fun deleteTags(tags: List<Tag>): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addTagIds(tags))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return tagService.unlinkTags(requestBody)
+    }
+
     fun getProfileItemsByArchive(archiveNr: String?): Call<ResponseVO> {
         val request = toJson(RequestContainer().addProfileItem(archiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)

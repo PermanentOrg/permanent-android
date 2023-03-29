@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
@@ -43,7 +44,6 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
 
         isBusy.value = true
         tagRepository.getTagsByArchive(archiveId, object : IDataListener {
-
             override fun onSuccess(dataList: List<Datum>?) {
                 isBusy.value = false
                 var newTags: MutableList<Tag> = mutableListOf()
@@ -55,6 +55,28 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
                     }
                 }
                 tags.value = newTags
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    // A function to call tagRepository.deleteTags() and handle the response.
+    // This function is called from the fragment. And it's being passed a Tag object.
+    fun deleteTag(tag: Tag) {
+        if (isBusy.value != null && isBusy.value!!) {
+            return
+        }
+
+        isBusy.value = true
+        tagRepository.deleteTags(listOf(tag), object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                showMessage.value = message
+                reloadTags()
             }
 
             override fun onFailed(error: String?) {
