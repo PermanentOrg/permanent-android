@@ -16,13 +16,13 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.addEditTag.AddEditTagFragment
 import org.permanent.permanent.viewmodels.ManageTagsViewModel
 
-class ManageTagsFragment : PermanentBaseFragment() {
+class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
     private lateinit var tagAdapter: ManageTagsAdapter
 
     private var addTagFragment: AddEditTagFragment? = null
 
     companion object {
-        fun newInstance() = ManageTagsFragment()
+        const val PARCELABLE_TAG_KEY = "parcelable_tag_key"
     }
 
     private lateinit var viewModel: ManageTagsViewModel
@@ -40,7 +40,7 @@ class ManageTagsFragment : PermanentBaseFragment() {
         viewModel = ViewModelProvider(this).get(ManageTagsViewModel::class.java)
 
         val recyclerView = view?.findViewById<RecyclerView>(R.id.tagsRV)
-        tagAdapter = ManageTagsAdapter(emptyList())
+        tagAdapter = ManageTagsAdapter(emptyList(), this)
         recyclerView?.adapter = tagAdapter
         recyclerView?.layoutManager = LinearLayoutManager(context)
 
@@ -78,7 +78,7 @@ class ManageTagsFragment : PermanentBaseFragment() {
     }
 
     private val onTags = Observer<List<Tag>> {
-        tagAdapter = ManageTagsAdapter(it)
+        tagAdapter = ManageTagsAdapter(it, this)
 
         val recyclerView = view?.findViewById<RecyclerView>(R.id.tagsRV)
         recyclerView?.adapter = tagAdapter
@@ -98,5 +98,15 @@ class ManageTagsFragment : PermanentBaseFragment() {
 
     private fun removeOnDidUpdateTagObserver() {
         addTagFragment?.didUpdateTag?.removeObserver(onDidUpdateTag)
+    }
+
+    override fun onTagEditClicked(tag: Tag) {
+        addTagFragment = AddEditTagFragment()
+        addTagFragment?.show(parentFragmentManager, addTagFragment?.tag)
+        addTagFragment?.setBundleArguments(tag)
+        addTagFragment?.didUpdateTag?.observe(this, onDidUpdateTag)
+    }
+
+    override fun onTagDeleteClicked(tag: Tag) {
     }
 }

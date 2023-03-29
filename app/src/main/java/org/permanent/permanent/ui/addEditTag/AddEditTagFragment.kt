@@ -2,25 +2,16 @@ package org.permanent.permanent.ui.addEditTag
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.TextInputEditText
-import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentAddEditMilestoneBinding
 import org.permanent.permanent.databinding.FragmentAddEditTagBinding
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.ui.manageTags.ManageTagsAdapter
-import org.permanent.permanent.viewmodels.AddEditMilestoneViewModel
+import org.permanent.permanent.ui.manageTags.ManageTagsFragment
 import org.permanent.permanent.viewmodels.AddEditTagViewModel
-import org.permanent.permanent.viewmodels.ManageTagsViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class AddEditTagFragment : PermanentBottomSheetFragment() {
@@ -33,6 +24,14 @@ class AddEditTagFragment : PermanentBottomSheetFragment() {
 
     private lateinit var viewModel: AddEditTagViewModel
 
+    fun setBundleArguments(
+        tag: Tag,
+    ) {
+        val bundle = Bundle()
+        bundle.putParcelable(ManageTagsFragment.PARCELABLE_TAG_KEY, tag)
+        this.arguments = bundle
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,6 +41,8 @@ class AddEditTagFragment : PermanentBottomSheetFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
+        viewModel.setTag(arguments?.getParcelable(ManageTagsFragment.PARCELABLE_TAG_KEY))
 
         return binding.root
     }

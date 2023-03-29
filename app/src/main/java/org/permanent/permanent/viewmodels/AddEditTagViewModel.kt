@@ -12,9 +12,21 @@ class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel
     private val onDismissEvent = SingleLiveEvent<Void>()
     private val onUpdateSuccessEvent = SingleLiveEvent<Void>()
     private val onUpdateFailedEvent = MutableLiveData<String>()
+    private var tag: Tag? = null
 
     val tagName = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
+
+    fun setTag(tag: Tag?) {
+        this.tag = tag
+        if (tag != null) {
+            tagName.value = tag.name
+        }
+    }
+
+    fun getTag(): Tag? {
+        return tag
+    }
 
     fun onCancelBtnClick() {
         onDismissEvent.call()
@@ -25,7 +37,13 @@ class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel
             return
         }
 
-        val newTag = Tag(null, tagName.value!!)
+        var newTag: Tag? = null
+        if (tag != null) {
+            newTag = Tag(tag!!.tagId, tagName.value!!)
+        } else {
+            newTag = Tag(null, tagName.value!!)
+        }
+
         val tags: List<Tag> = listOf(newTag)
 
         isBusy.value = true
