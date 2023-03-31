@@ -1,11 +1,15 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
@@ -16,6 +20,13 @@ class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel
 
     val tagName = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
+
+    val prefsHelper = PreferencesHelper(
+        PermanentApplication.instance.applicationContext.getSharedPreferences(
+            PREFS_NAME,
+            Context.MODE_PRIVATE
+        )
+    )
 
     fun setTag(tag: Tag?) {
         this.tag = tag
@@ -37,17 +48,37 @@ class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel
             return
         }
 
-        var newTag: Tag? = null
         if (tag != null) {
-            newTag = Tag(tag!!.tagId, tagName.value!!)
+            tag!!.name = tagName.value!!
+            updateTag(tag!!)
         } else {
-            newTag = Tag(null, tagName.value!!)
+            val newTag = Tag(null, tagName.value!!)
+            createTag(newTag)
         }
+    }
 
+    fun createTag(newTag: Tag) {
         val tags: List<Tag> = listOf(newTag)
 
         isBusy.value = true
         tagRepository.createOrLinkTags(tags, 0, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                isBusy.value = false
+                onUpdateSuccessEvent.call()
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                onUpdateFailedEvent.value = error
+            }
+        })
+    }
+
+    fun updateTag(newTag: Tag) {
+        val defaultArchiveId = prefsHelper.getDefaultArchiveId()
+
+        isBusy.value = true
+        tagRepository.updateTag(newTag, defaultArchiveId, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
                 onUpdateSuccessEvent.call()

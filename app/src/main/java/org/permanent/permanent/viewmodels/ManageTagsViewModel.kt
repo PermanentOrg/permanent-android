@@ -26,6 +26,8 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
     private val showMessage = SingleLiveEvent<String>()
     private val tags = MutableLiveData<List<Tag>>()
     private val onAddButtonEvent = SingleLiveEvent<Void>()
+    private val count = MutableLiveData<String>()
+    private val archiveName = MutableLiveData((prefsHelper.getCurrentArchiveFullName() ?: "") + " Tags")
 
     init {
         reloadTags()
@@ -35,6 +37,14 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
         val defaultArchiveId = prefsHelper.getDefaultArchiveId()
 
         requestTagsFor(defaultArchiveId)
+    }
+
+    fun getTagsCount(): LiveData<String> {
+        return count
+    }
+
+    fun getArchiveName(): LiveData<String> {
+        return archiveName
     }
 
     private fun requestTagsFor(archiveId: Int) {
@@ -55,6 +65,7 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
                     }
                 }
                 tags.value = newTags
+                count.value = "(" + newTags.size.toString() + ")"
             }
 
             override fun onFailed(error: String?) {
