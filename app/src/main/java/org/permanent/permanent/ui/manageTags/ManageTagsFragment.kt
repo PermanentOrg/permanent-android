@@ -108,5 +108,6 @@ class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
     }
 
     override fun onTagDeleteClicked(tag: Tag) {
+        viewModel.deleteTag(tag)
     }
 }
