@@ -35,12 +35,12 @@
     </style>
 
     <style name="customDrawerStyle">
-        <item name="android:listDivider">@color/white</item>
+        <item name="android:listDivider">@color/whiteSuperExtraTransparent</item>
     </style>
 
     <style name="customDrawerTextStyle">
-        <item name="android:textSize">18sp</item>
-        <item name="android:fontFamily">@font/open_sans_bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
     </style>
 
     <style name="storageTabTextStyle">

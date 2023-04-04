@@ -65,6 +65,8 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onFileViewRequest = SingleLiveEvent<Record>()
     private val showRelocationCancellationDialog = SingleLiveEvent<Void>()
+    private val onRecordSelected = SingleLiveEvent<Record>()
+    private var showScreenSimplified = MutableLiveData(false)
 
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsAdapter: UploadsAdapter
@@ -89,6 +91,10 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
+    fun setShowScreenSimplified() {
+        showScreenSimplified.value = true
+    }
+
     fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
         uploadsRecyclerView = rvUploads
         this.lifecycleOwner = lifecycleOwner
@@ -105,6 +111,7 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
             return
         }
         if (record.type == RecordType.FOLDER) {
+            if (showScreenSimplified.value == true) onRecordSelected.value = record
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
             currentFolder.value = NavigationFolder(appContext, record)
@@ -113,7 +120,9 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
             loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
             loadFilesOf(currentFolder.value, currentSortType.value)
         } else {
-            onFileViewRequest.value = record
+            if (showScreenSimplified.value == false) {
+                onFileViewRequest.value = record
+            }
         }
     }
 
@@ -339,6 +348,13 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
         onCancelRelocationBtnClick()
     }
 
+    fun uploadFilesToFolder(folder: Record?, uris: ArrayList<Uri>) {
+        folder?.let {
+            onRecordClick(it)
+            upload(uris)
+        }
+    }
+
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
 
     fun getExistsUploads(): MutableLiveData<Boolean> = uploadsAdapter.getExistsUploads()
@@ -373,6 +389,10 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
     fun getOnRootSharesNeeded(): LiveData<Void> = onRootSharesNeeded
 
     fun getOnChangeViewMode(): MutableLiveData<Boolean> = onChangeViewMode
+
+    fun getOnRecordSelected(): MutableLiveData<Record> = onRecordSelected
+
+    fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
 
     fun getOnFileViewRequest(): LiveData<Record> = onFileViewRequest
 

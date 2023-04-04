@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="org.permanent.permanent.ui.Workspace" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.ChooseFolderViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clBottomMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+        <View
+            android:id="@+id/viewDragSheet"
+            android:layout_width="24dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/whiteSuperTransparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:onClick="@{() -> viewModel.onCancelBtnClick()}"
+            android:text="@string/button_cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/whiteTransparent"
+            app:layout_constraintBottom_toTopOf="@+id/clContent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/open_sans_semibold"
+            android:text="@string/save_to_permanent_choose_folder"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@id/btnCancel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btnCancel" />
+
+        <Button
+            android:id="@+id/btnSave"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:text="@string/button_save"
+            android:textAllCaps="false"
+            android:textColor="@color/whiteTransparent"
+            android:enabled="false"
+            app:layout_constraintBottom_toTopOf="@+id/clContent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clContent"
+            android:layout_width="match_parent"
+            android:layout_height="664dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle">
+
+            <ImageView
+                android:id="@+id/ivPrivateFiles"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_private_files_save_to_perm" />
+
+            <TextView
+                android:id="@+id/tvPrivateFiles"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="12dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans"
+                android:gravity="center_vertical"
+                android:letterSpacing="-0.01"
+                android:maxLines="1"
+                android:onClick="@{() -> viewModel.onWorkspaceClick(Workspace.PRIVATE_FILES)}"
+                android:text="@string/menu_drawer_private_files"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/ivPrivateFiles"
+                app:layout_constraintEnd_toStartOf="@+id/btnSelectPrivate"
+                app:layout_constraintStart_toEndOf="@+id/ivPrivateFiles"
+                app:layout_constraintTop_toTopOf="@+id/ivPrivateFiles" />
+
+            <Button
+                android:id="@+id/btnSelectPrivate"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="38dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{() -> viewModel.onWorkspaceClick(Workspace.PRIVATE_FILES)}"
+                app:icon="@drawable/ic_arrow_select_grey"
+                app:iconTint="@color/middleGrey"
+                app:layout_constraintBottom_toBottomOf="@+id/ivPrivateFiles"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ivPrivateFiles" />
+
+            <ImageView
+                android:id="@+id/ivSharedFiles"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivPrivateFiles"
+                app:srcCompat="@drawable/ic_shared_files_save_to_perm" />
+
+            <TextView
+                android:id="@+id/tvSharedFiles"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="12dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans"
+                android:gravity="center_vertical"
+                android:letterSpacing="-0.01"
+                android:maxLines="1"
+                android:onClick="@{() -> viewModel.onWorkspaceClick(Workspace.SHARES)}"
+                android:text="@string/menu_drawer_shared_files"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/ivSharedFiles"
+                app:layout_constraintEnd_toStartOf="@+id/btnSelectShared"
+                app:layout_constraintStart_toEndOf="@+id/ivSharedFiles"
+                app:layout_constraintTop_toTopOf="@+id/ivSharedFiles" />
+
+            <Button
+                android:id="@+id/btnSelectShared"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="38dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{() -> viewModel.onWorkspaceClick(Workspace.SHARES)}"
+                app:icon="@drawable/ic_arrow_select_grey"
+                app:iconTint="@color/middleGrey"
+                app:layout_constraintBottom_toBottomOf="@+id/ivSharedFiles"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ivSharedFiles" />
+
+            <ImageView
+                android:id="@+id/ivPublicFiles"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivSharedFiles"
+                app:srcCompat="@drawable/ic_public_files_save_to_perm" />
+
+            <TextView
+                android:id="@+id/tvPublicFiles"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="12dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/open_sans"
+                android:gravity="center_vertical"
+                android:letterSpacing="-0.01"
+                android:maxLines="1"
+                android:onClick="@{() -> viewModel.onWorkspaceClick(Workspace.PUBLIC_FILES)}"
+                android:text="@string/menu_drawer_public_files"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/ivPublicFiles"
+                app:layout_constraintEnd_toStartOf="@+id/btnSelectPublic"
+                app:layout_constraintStart_toEndOf="@+id/ivPublicFiles"
+                app:layout_constraintTop_toTopOf="@+id/ivPublicFiles" />
+
+            <Button
+                android:id="@+id/btnSelectPublic"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="38dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{() -> viewModel.onWorkspaceClick(Workspace.PUBLIC_FILES)}"
+                app:icon="@drawable/ic_arrow_select_grey"
+                app:iconTint="@color/middleGrey"
+                app:layout_constraintBottom_toBottomOf="@+id/ivPublicFiles"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ivPublicFiles" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,10 +1,6 @@
 package org.permanent.permanent.network
 
 import android.content.Context
-import com.franmontiel.persistentcookiejar.ClearableCookieJar
-import com.franmontiel.persistentcookiejar.PersistentCookieJar
-import com.franmontiel.persistentcookiejar.cache.SetCookieCache
-import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -64,15 +60,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     init {
         if (okHttpClient == null) {
-            val cookieJar: ClearableCookieJar = PersistentCookieJar(
-                SetCookieCache(), SharedPrefsCookiePersistor(context)
-            )
-
             val loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
             okHttpClient =
-                OkHttpClient.Builder().cookieJar(cookieJar).addInterceptor(loggingInterceptor)
+                OkHttpClient.Builder().addInterceptor(loggingInterceptor)
                     .addInterceptor(UnauthorizedInterceptor()).addInterceptor(Interceptor { chain ->
                         val request = chain.request()
                         if (!request.url.toString()

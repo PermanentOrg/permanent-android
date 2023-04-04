@@ -87,6 +87,7 @@
     <string name="menu_drawer_public_files">Public Files</string>
     <string name="menu_drawer_manage_members">Manage Members</string>
     <string name="menu_drawer_manage_tags">Manage Tags</string>
+    <string name="menu_drawer_archive_settings">Archive Settings</string>
     <string name="menu_drawer_public_gallery">Public Gallery</string>
 
     <string name="menu_toolbar_settings">Settings</string>
@@ -537,7 +538,9 @@
 
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>
-    <string name="save_to_permanent_mobile_uploads">Mobile Uploads</string>
+    <string name="save_to_permanent_choose_folder">Choose Folder</string>
+    <string name="save_to_permanent_upload_to_public_files">Upload a publicly viewable copy of these items in your Public workspace and get a public link to share with anyone.</string>
+    <string name="save_to_permanent_choose_folder_error">Please select a folder first</string>
 
     <string name="dialog_shared_files_cancel_move_title">Cancel Move?</string>
     <string name="dialog_shared_files_cancel_move_text">Moving files or folders outside of the shared folder in which they are currently located is not permitted at this time. You can cancel this move action or continue to choose a destination for the selected item.</string>
@@ -549,6 +552,7 @@
 
     <string name="archives_container_change_archive">Change Archive</string>
     <string name="account_create_failed">Failed to sign up. Please try again!</string>
+
     <string name="tag_name">TAG NAME</string>
     <string name="add_tag">Add tag</string>
     <string name="update_tag">Update tag</string>

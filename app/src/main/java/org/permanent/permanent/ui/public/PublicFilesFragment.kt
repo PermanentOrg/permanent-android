@@ -41,8 +41,10 @@ import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.RESIZE_DURATION_MILLIS
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.shares.PreviewState
+import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
+import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class PublicFilesFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentPublicFilesBinding
@@ -61,6 +63,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private val onRecordSelectedEvent = SingleLiveEvent<Pair<Workspace, Record>>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -81,10 +84,15 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.loadRootFiles()
         initDownloadsRecyclerView(binding.rvDownloads)
         initFilesRecyclerView(binding.rvFiles)
+
         if (viewModel.isRelocationMode.value == true) resizeIslandWidthAnimated(
-            binding.flFloatingActionIsland.width,
-            ISLAND_WIDTH_LARGE
+            binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE
         )
+        arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
+            val showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
+            if (showScreenSimplified) viewModel.setShowScreenSimplified()
+        }
+
         return binding.root
     }
 
@@ -272,6 +280,21 @@ class PublicFilesFragment : PermanentBaseFragment() {
         alertDialog?.dismiss()
     }
 
+    private val onRecordSelectedObserver = Observer<Record> {
+        onRecordSelectedEvent.value = Pair(Workspace.PUBLIC_FILES, it)
+    }
+
+    private val onRootFolderReadyObserver = Observer<Void> {
+        arguments?.let { args ->
+            args.getParcelable<Record>(PARCELABLE_RECORD_KEY)?.let { folderRecord ->
+                viewModel.onRecordClick(folderRecord)
+            }
+            args.getParcelableArrayList<Uri>(PARCELABLE_FILES_KEY)?.toList()?.let { uris ->
+                viewModel.uploadToCurrentFolder(uris)
+            }
+        }
+    }
+
     private fun initDownloadsRecyclerView(rvDownloads: RecyclerView) {
         downloadsRecyclerView = rvDownloads
         downloadsAdapter = DownloadsAdapter(this, viewModel)
@@ -317,6 +340,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
         }
     }
 
+    fun getOnRecordSelected(): MutableLiveData<Pair<Workspace, Record>> = onRecordSelectedEvent
+
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
         viewModel.getOnShowQuotaExceeded().observe(this, onShowQuotaExceeded)
@@ -333,6 +358,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
+        viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
+        viewModel.getOnRootFolderReady().observe(this, onRootFolderReadyObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -354,6 +381,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
+        viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
+        viewModel.getOnRootFolderReady().removeObserver(onRootFolderReadyObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
