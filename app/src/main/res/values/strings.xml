@@ -452,7 +452,7 @@
     <string name="notification_body_share_link_request">%s has requested access to %s</string>
     <string name="notification_body_share_invitation_acceptance">%s has joined Permanent to access %s</string>
 
-    <string name="version_text">v. %s [%s]</string>
+    <string name="version_text">Version %s (%s)</string>
     <string name="warning_auth_mfa_token_message">Session expired. Please re-authenticate</string>
     <string name="button_delete_account">Delete Account</string>
     <string name="dialog_delete_account_message">Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.\n\nThe account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives. Any archives you own that are not deleted prior to deleting your account will become orphaned archives. Archives can only be deleted by logging in to your account on Permanent.org.\n\n(Learn more here.)[https://desk.zoho.com/portal/permanent/en/kb/articles/how-to-delete-an-archive]\n\nWhen you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.</string>
@@ -552,4 +552,9 @@
 
     <string name="archives_container_change_archive">Change Archive</string>
     <string name="account_create_failed">Failed to sign up. Please try again!</string>
+
+    <string name="tag_name">TAG NAME</string>
+    <string name="add_tag">Add tag</string>
+    <string name="update_tag">Update tag</string>
+    <string name="new_tag">New tag</string>
 </resources>
