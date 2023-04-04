@@ -86,6 +86,8 @@
     <string name="menu_drawer_shared_files">Shared Files</string>
     <string name="menu_drawer_public_files">Public Files</string>
     <string name="menu_drawer_manage_members">Manage Members</string>
+    <string name="menu_drawer_manage_tags">Manage Tags</string>
+    <string name="menu_drawer_archive_settings">Archive Settings</string>
     <string name="menu_drawer_public_gallery">Public Gallery</string>
 
     <string name="menu_toolbar_settings">Settings</string>
@@ -450,7 +452,7 @@
     <string name="notification_body_share_link_request">%s has requested access to %s</string>
     <string name="notification_body_share_invitation_acceptance">%s has joined Permanent to access %s</string>
 
-    <string name="version_text">Version %s (%s)</string>
+    <string name="version_text">v. %s [%s]</string>
     <string name="warning_auth_mfa_token_message">Session expired. Please re-authenticate</string>
     <string name="button_delete_account">Delete Account</string>
     <string name="dialog_delete_account_message">Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.\n\nThe account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives. Any archives you own that are not deleted prior to deleting your account will become orphaned archives. Archives can only be deleted by logging in to your account on Permanent.org.\n\n(Learn more here.)[https://desk.zoho.com/portal/permanent/en/kb/articles/how-to-delete-an-archive]\n\nWhen you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.</string>

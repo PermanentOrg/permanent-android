@@ -1,10 +1,6 @@
 package org.permanent.permanent.network
 
 import android.content.Context
-import com.franmontiel.persistentcookiejar.ClearableCookieJar
-import com.franmontiel.persistentcookiejar.PersistentCookieJar
-import com.franmontiel.persistentcookiejar.cache.SetCookieCache
-import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi

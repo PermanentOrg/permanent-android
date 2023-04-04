@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group
         android:id="@+id/group1"
         android:checkableBehavior="single">
         <item
             android:id="@+id/myFilesFragment"
-            android:icon="@drawable/ic_private_files"
+            android:icon="@drawable/ic_files_main_drawer_white"
             android:title="@string/menu_drawer_private_files" />
 
         <item
             android:id="@+id/sharesFragment"
-            android:icon="@drawable/ic_shared_files"
+            android:icon="@drawable/ic_files_main_drawer_white"
             android:title="@string/menu_drawer_shared_files" />
 
         <item
             android:id="@+id/publicFilesFragment"
-            android:icon="@drawable/ic_public_files"
+            android:icon="@drawable/ic_files_main_drawer_white"
             android:title="@string/menu_drawer_public_files" />
-
     </group>
 
     <group
@@ -26,10 +26,22 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/membersFragment"
-            android:icon="@drawable/img_manage_members_square"
-            android:title="@string/menu_drawer_manage_members" />
+            android:id="@+id/archiveSettings"
+            android:icon="@drawable/ic_settings_main_drawer_white"
+            android:title="@string/menu_drawer_archive_settings"
+            app:actionLayout="@layout/menu_item_archive_settings"/>
 
+        <item
+            android:id="@+id/manageTagsFragment"
+            android:icon="@drawable/ic_manage_tags_main_drawer_white"
+            android:title="@string/menu_drawer_manage_tags"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/membersFragment"
+            android:icon="@drawable/ic_manage_members_main_drawer_white"
+            android:title="@string/menu_drawer_manage_members"
+            android:visible="false" />
     </group>
 
     <group
@@ -38,8 +50,7 @@
 
         <item
             android:id="@+id/publicGalleryFragment"
-            android:icon="@drawable/ic_public_gallery"
+            android:icon="@drawable/ic_public_gallery_main_drawer_white"
             android:title="@string/menu_drawer_public_gallery" />
-
     </group>
 </menu>
