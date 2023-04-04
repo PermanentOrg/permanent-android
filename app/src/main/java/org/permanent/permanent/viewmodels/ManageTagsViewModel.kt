@@ -24,13 +24,22 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
 
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
+    private val unfilteredTags = MutableLiveData<List<Tag>>()
     private val tags = MutableLiveData<List<Tag>>()
     private val onAddButtonEvent = SingleLiveEvent<Void>()
     private val count = MutableLiveData<String>()
     private val archiveName = MutableLiveData((prefsHelper.getCurrentArchiveFullName() ?: "") + " Tags")
 
+    val searchString = MutableLiveData<String>()
+
     init {
         reloadTags()
+
+        searchString.observeForever {
+            tags.value = unfilteredTags.value?.filter { tag ->
+                tag.name.contains(it, true)
+            }
+        }
     }
 
     fun reloadTags() {
@@ -64,8 +73,12 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
                         }
                     }
                 }
-                tags.value = newTags
-                count.value = "(" + newTags.size.toString() + ")"
+                unfilteredTags.value = newTags
+
+                tags.value = unfilteredTags.value?.filter { tag: Tag ->
+                    tag.name.contains(searchString.value ?: "", true)
+                }
+                count.value = "(" + tags.value?.size.toString() + ")"
             }
 
             override fun onFailed(error: String?) {
