@@ -1,10 +1,6 @@
 package org.permanent.permanent.network
 
 import android.content.Context
-import com.franmontiel.persistentcookiejar.ClearableCookieJar
-import com.franmontiel.persistentcookiejar.PersistentCookieJar
-import com.franmontiel.persistentcookiejar.cache.SetCookieCache
-import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -628,6 +624,19 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer().addTagIds(tags).addTagLink(recordId))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return tagService.unlinkTags(requestBody)
+    }
+
+    fun deleteTags(tags: List<Tag>): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addTagIds(tags))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return tagService.unlinkTags(requestBody)
+    }
+
+    fun updateTag(tag: Tag, archiveId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addTag(tag, archiveId))
+
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return tagService.updateTag(requestBody)
     }
 
     fun getProfileItemsByArchive(archiveNr: String?): Call<ResponseVO> {

@@ -97,6 +97,12 @@
         tools:layout="@layout/fragment_members" />
 
     <fragment
+        android:id="@+id/manageTagsFragment"
+        android:name="org.permanent.permanent.ui.manageTags.ManageTagsFragment"
+        android:label="@string/menu_drawer_manage_tags"
+        tools:layout="@layout/fragment_manage_tags" />
+
+    <fragment
         android:id="@+id/activityFeedFragment"
         android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
         android:label="@string/menu_settings_drawer_activity_feed"

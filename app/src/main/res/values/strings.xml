@@ -86,6 +86,8 @@
     <string name="menu_drawer_shared_files">Shared Files</string>
     <string name="menu_drawer_public_files">Public Files</string>
     <string name="menu_drawer_manage_members">Manage Members</string>
+    <string name="menu_drawer_manage_tags">Manage Tags</string>
+    <string name="menu_drawer_archive_settings">Archive Settings</string>
     <string name="menu_drawer_public_gallery">Public Gallery</string>
 
     <string name="menu_toolbar_settings">Settings</string>
@@ -550,4 +552,10 @@
 
     <string name="archives_container_change_archive">Change Archive</string>
     <string name="account_create_failed">Failed to sign up. Please try again!</string>
+
+    <string name="tag_name">TAG NAME</string>
+    <string name="add_tag">Add tag</string>
+    <string name="update_tag">Update tag</string>
+    <string name="new_tag">New tag</string>
+    <string name="search_tags">Search tags...</string>
 </resources>

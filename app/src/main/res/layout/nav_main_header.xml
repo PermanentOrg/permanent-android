@@ -14,17 +14,18 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
+        android:background="@color/colorPrimaryDarker"
         android:onClick="@{() -> viewModel.onViewProfileClick()}">
 
         <ImageView
             android:id="@+id/ivArchiveThumb"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="32dp"
             android:scaleType="centerCrop"
             app:imageUrl="@{viewModel.archiveThumb}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,11 +35,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/open_sans_bold"
+            android:fontFamily="@font/open_sans"
             android:text="@{viewModel.archiveName}"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
             app:layout_constraintTop_toTopOf="@+id/ivArchiveThumb" />
@@ -52,21 +52,10 @@
             android:fontFamily="@font/open_sans"
             android:letterSpacing="-0.01"
             android:text="@string/nav_main_header_view_profile"
-            android:textColor="@color/white"
+            android:textColor="@color/whiteSuperTransparent"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
             app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle" />
-
-        <View
-            android:id="@+id/view"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:background="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvHeaderSubtitle" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

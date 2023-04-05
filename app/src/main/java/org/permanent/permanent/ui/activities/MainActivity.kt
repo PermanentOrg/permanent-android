@@ -9,6 +9,7 @@ import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
@@ -40,6 +41,7 @@ import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
+
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private lateinit var prefsHelper: PreferencesHelper
@@ -49,6 +51,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+    private var isSubmenuVisible = false
 
     private val onArchiveSwitched = Observer<Void> {
         startWithCustomDestination(false)
@@ -124,6 +127,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.archivesFragment,
             R.id.myFilesFragment,
             R.id.sharesFragment,
+            R.id.archiveSettings,
+            R.id.manageTagsFragment,
             R.id.membersFragment,
             R.id.storageFragment,
             R.id.activityFeedFragment,
@@ -163,6 +168,23 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         // NavViews setup
         binding.mainNavigationView.setupWithNavController(navController)
+        binding.mainNavigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.archiveSettings -> {
+                    isSubmenuVisible = !isSubmenuVisible
+                    setSubmenuVisibility(isSubmenuVisible)
+                    setArchiveSettingsIcon(menuItem, isSubmenuVisible)
+                    true
+                }
+                // Handle other menu items here, if necessary
+                else -> {
+                    menuItem.onNavDestinationSelected(navController)
+                    binding.drawerLayout.closeDrawers()
+                }
+            }
+            true
+        }
+
         binding.settingsNavigationView.setupWithNavController(navController)
         binding.settingsNavigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -207,6 +229,22 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
+    }
+
+    private fun setSubmenuVisibility(visible: Boolean) {
+        val manageTagsItem = binding.mainNavigationView.menu.findItem(R.id.manageTagsFragment)
+        val manageMembersItem = binding.mainNavigationView.menu.findItem(R.id.membersFragment)
+
+        manageTagsItem.isVisible = visible
+        manageMembersItem.isVisible = visible
+    }
+
+    private fun setArchiveSettingsIcon(menuItem: MenuItem, submenuVisible: Boolean) {
+        val archiveSettingsRightIcon =
+            menuItem.actionView.findViewById<ImageView>(R.id.ivRightIcon)
+        val icon =
+            if (submenuVisible) R.drawable.ic_drop_up_white else R.drawable.ic_drop_down_white
+        archiveSettingsRightIcon.setImageResource(icon)
     }
 
     private fun handleSendFile(intent: Intent) {

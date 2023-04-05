@@ -11,4 +11,8 @@ interface ITagRepository {
     fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener)
 
     fun unlinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener)
+
+    fun deleteTags(tags: List<Tag>, listener: IResponseListener)
+
+    fun updateTag(tag: Tag, archiveId: Int, listener: IResponseListener)
 }
