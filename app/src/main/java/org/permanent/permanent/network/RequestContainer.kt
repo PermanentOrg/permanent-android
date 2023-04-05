@@ -466,4 +466,19 @@ class RequestContainer {
         }
         return this
     }
+
+    fun addTag(tag: Tag, archiveId: Int): RequestContainer {
+        val dataList = RequestVO.data
+
+        val tagVO = TagVO(tag)
+        tagVO.archiveId = archiveId
+
+        if (dataList != null) {
+            for (data in dataList) {
+                data.TagVO = tagVO
+            }
+        }
+
+        return this
+    }
 }

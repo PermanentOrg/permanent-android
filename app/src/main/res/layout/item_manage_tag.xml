@@ -14,9 +14,9 @@
             android:id="@+id/tagChip"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="0dp"
             android:layout_weight="1"
-            android:textColor="#131B4A"
+            android:textColor="@color/colorPrimary"
             android:background="@drawable/custom_text_background"
             android:gravity="center"
             android:paddingStart="12dp"
@@ -30,13 +30,12 @@
             android:id="@+id/editButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_edit"
             app:layout_constraintBottom_toBottomOf="@id/tagChip"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tagChip"
-            app:tint="#131B4A"
+            app:tint="@color/colorPrimary"
             android:contentDescription="Edit Tag" />
 
         <ImageButton
@@ -50,7 +49,7 @@
             app:layout_constraintBottom_toBottomOf="@id/tagChip"
             app:layout_constraintEnd_toStartOf="@id/editButton"
             app:layout_constraintTop_toTopOf="@id/tagChip"
-            app:tint="#131B4A" />
+            app:tint="@color/deepRed" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

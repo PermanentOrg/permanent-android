@@ -16,4 +16,7 @@ interface ITagService {
 
     @POST("tag/delete")
     fun unlinkTags(@Body requestBody: RequestBody): Call<ResponseVO>
+
+    @POST("tag/updateTag")
+    fun updateTag(@Body requestBody: RequestBody): Call<ResponseVO>
 }

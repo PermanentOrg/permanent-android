@@ -557,4 +557,5 @@
     <string name="add_tag">Add tag</string>
     <string name="update_tag">Update tag</string>
     <string name="new_tag">New tag</string>
+    <string name="search_tags">Search tags...</string>
 </resources>

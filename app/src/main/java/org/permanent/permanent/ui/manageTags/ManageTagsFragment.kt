@@ -10,13 +10,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.FragmentAddEditTagBinding
+import org.permanent.permanent.databinding.FragmentManageTagsBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.addEditTag.AddEditTagFragment
+import org.permanent.permanent.viewmodels.AddEditTagViewModel
 import org.permanent.permanent.viewmodels.ManageTagsViewModel
 
 class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
+    private lateinit var binding: FragmentManageTagsBinding
     private lateinit var tagAdapter: ManageTagsAdapter
+    private lateinit var viewModel: ManageTagsViewModel
 
     private var addTagFragment: AddEditTagFragment? = null
 
@@ -24,19 +29,21 @@ class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
         const val PARCELABLE_TAG_KEY = "parcelable_tag_key"
     }
 
-    private lateinit var viewModel: ManageTagsViewModel
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_manage_tags, container, false)
+        binding = FragmentManageTagsBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(ManageTagsViewModel::class.java)
+        binding.executePendingBindings()
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel = ViewModelProvider(this).get(ManageTagsViewModel::class.java)
 
         val recyclerView = view?.findViewById<RecyclerView>(R.id.tagsRV)
         tagAdapter = ManageTagsAdapter(emptyList(), this)
