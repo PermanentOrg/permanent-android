@@ -3,7 +3,6 @@ package org.permanent.permanent.ui.fileView
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -12,22 +11,18 @@ import androidx.navigation.ui.navigateUp
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
-import org.permanent.permanent.viewmodels.FileViewModel
 
 class FileActivity : PermanentBaseActivity() {
 
-    private lateinit var viewModel: FileViewModel
     private lateinit var binding: ActivityFileBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(FileViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_file)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
-        binding.viewModel = viewModel
 
         // ActionBar & appBarConfig setup
         setSupportActionBar(binding.fileToolbar)
