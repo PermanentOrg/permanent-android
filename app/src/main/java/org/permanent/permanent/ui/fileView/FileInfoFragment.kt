@@ -44,7 +44,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(FileInfoViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FileInfoViewModel::class.java]
         binding = FragmentFileInfoBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

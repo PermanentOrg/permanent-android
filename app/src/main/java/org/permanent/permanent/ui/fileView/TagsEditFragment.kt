@@ -28,7 +28,7 @@ class TagsEditFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(TagsEditViewModel::class.java)
+        viewModel = ViewModelProvider(this)[TagsEditViewModel::class.java]
         binding = FragmentTagsEditBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

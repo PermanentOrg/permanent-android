@@ -241,10 +241,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private fun setArchiveSettingsIcon(menuItem: MenuItem, submenuVisible: Boolean) {
         val archiveSettingsRightIcon =
-            menuItem.actionView.findViewById<ImageView>(R.id.ivRightIcon)
+            menuItem.actionView?.findViewById<ImageView>(R.id.ivRightIcon)
         val icon =
             if (submenuVisible) R.drawable.ic_drop_up_white else R.drawable.ic_drop_down_white
-        archiveSettingsRightIcon.setImageResource(icon)
+        archiveSettingsRightIcon?.setImageResource(icon)
     }
 
     private fun handleSendFile(intent: Intent) {
