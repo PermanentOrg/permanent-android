@@ -188,6 +188,47 @@
                     app:layout_constraintTop_toBottomOf="@+id/clUploads"
                     app:layout_constraintVertical_bias="0.0" />
 
+                <Button
+                    android:id="@+id/btnClear"
+                    style="@style/customTextButtonStyle"
+                    android:layout_width="72dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:letterSpacing="-0.01"
+                    android:onClick="@{() -> viewModel.onClearBtnClick()}"
+                    android:text="@string/button_clear"
+                    android:textColor="@color/red"
+                    android:visibility="@{viewModel.isSelectionMode ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/btnSelect"
+                    app:layout_constraintEnd_toStartOf="@+id/btnSelect"
+                    app:layout_constraintTop_toTopOf="@+id/btnSelect" />
+
+                <Button
+                    android:id="@+id/btnSelect"
+                    style="@style/customTextButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="-10dp"
+                    android:fontFamily="@font/open_sans"
+                    android:letterSpacing="-0.01"
+                    android:onClick="@{() -> viewModel.isSelectionMode ? viewModel.onSelectAllBtnClick() : viewModel.onSelectBtnClick()}"
+                    android:text="@{viewModel.selectBtnText}"
+                    android:visibility="@{viewModel.isRelocationMode || viewModel.isRoot ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvSortCriteria"
+                    app:layout_constraintEnd_toStartOf="@+id/btnCheckBox"
+                    app:layout_constraintTop_toTopOf="@+id/tvSortCriteria" />
+
+                <Button
+                    android:id="@+id/btnCheckBox"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.isSelectionMode ? View.VISIBLE : View.GONE}"
+                    app:icon="@{viewModel.selectedRecordsSize != 0 ? (viewModel.areAllSelected ? @drawable/ic_checkbox_full : @drawable/ic_checkbox_half_full) : @drawable/ic_checkbox_empty}"
+                    app:layout_constraintBottom_toBottomOf="@+id/btnSelect"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/btnSelect" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvShares"
                     android:layout_width="match_parent"

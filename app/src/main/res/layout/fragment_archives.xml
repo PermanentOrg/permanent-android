@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:visibility="@{viewModel.isCurrentArchiveDefault || viewModel.showScreenSimplified ? View.INVISIBLE : View.VISIBLE}"
-                app:icon="@drawable/ic_more_white"
+                app:icon="@drawable/ic_more_middle_grey"
                 app:iconTint="@color/middleGrey"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

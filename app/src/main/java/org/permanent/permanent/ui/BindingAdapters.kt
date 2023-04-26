@@ -2,12 +2,14 @@ package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.TextInputLayout
@@ -19,6 +21,10 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.myFiles.saveToPermanent.ResizeTransformation
 
+@BindingAdapter("app:icon")
+fun setButtonIcon(button: Button, drawableRes: Drawable) {
+    button.setCompoundDrawablesWithIntrinsicBounds(drawableRes, null, null, null)
+}
 
 @BindingAdapter("imageResourceId")
 fun setImageDrawable(view: ImageView, imageDrawableId: Int) {

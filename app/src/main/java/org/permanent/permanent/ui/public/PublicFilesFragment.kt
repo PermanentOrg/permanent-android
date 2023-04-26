@@ -312,6 +312,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
             this,
             false,
             viewModel.getIsRelocationMode(),
+            viewModel.getIsSelectionMode(),
             isForSharesScreen = false,
             isForSearchScreen = false,
             recordListener = viewModel
@@ -320,6 +321,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
             this,
             false,
             viewModel.getIsRelocationMode(),
+            viewModel.getIsSelectionMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
             isForSharesScreen = false,

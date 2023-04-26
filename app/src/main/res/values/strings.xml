@@ -261,6 +261,9 @@
     <string name="button_deny">Deny</string>
     <string name="button_save">Save</string>
     <string name="button_go_to_wallet">Go to wallet</string>
+    <string name="button_select">Select</string>
+    <string name="button_select_all">Select all</string>
+    <string name="button_clear">Clear</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>

@@ -379,6 +379,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             this,
             showScreenSimplified,
             viewModel.getIsRelocationMode(),
+            viewModel.getIsSelectionMode(),
             isForSharesScreen = false,
             isForSearchScreen = false,
             recordListener = viewModel
@@ -387,6 +388,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             this,
             showScreenSimplified,
             viewModel.getIsRelocationMode(),
+            viewModel.getIsSelectionMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
             isForSharesScreen = false,

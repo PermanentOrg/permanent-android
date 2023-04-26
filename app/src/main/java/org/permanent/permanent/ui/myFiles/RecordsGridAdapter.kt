@@ -13,6 +13,7 @@ class RecordsGridAdapter(
     private val lifecycleOwner: LifecycleOwner,
     private val showMyFilesSimplified: Boolean,
     private val isRelocateMode: MutableLiveData<Boolean>,
+    private val isSelectMode: MutableLiveData<Boolean>,
     private val previewState: MutableLiveData<PreviewState>,
     private val isForSharePreviewScreen: Boolean,
     private val isForSharesScreen: Boolean,
@@ -45,7 +46,11 @@ class RecordsGridAdapter(
 
     override fun setRecords(records: List<Record>) {
         this.records = records.toMutableList()
-        for (record in this.records) record.isRelocateMode = isRelocateMode
+        for (record in this.records) {
+            record.isRelocateMode = isRelocateMode
+            record.isSelectMode = isSelectMode
+            record.isChecked = MutableLiveData<Boolean>(false)
+        }
         notifyDataSetChanged()
     }
 
@@ -61,6 +66,8 @@ class RecordsGridAdapter(
     override fun addRecord(fakeFile: Record) {
         records.add(0, fakeFile)
         fakeFile.isRelocateMode = isRelocateMode
+        fakeFile.isSelectMode = isSelectMode
+        fakeFile.isChecked = MutableLiveData<Boolean>(false)
         notifyDataSetChanged()
     }
 }

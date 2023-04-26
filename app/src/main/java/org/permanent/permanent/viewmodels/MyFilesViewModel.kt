@@ -33,7 +33,7 @@ import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
-open class MyFilesViewModel(application: Application) : RelocationViewModel(application),
+open class MyFilesViewModel(application: Application) : SelectionViewModel(application),
     RecordListener, CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
@@ -189,6 +189,47 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
 
     override fun onRecordOptionsClick(record: Record) {
         onShowRecordOptionsFragment.value = record
+    }
+
+    override fun onRecordCheckBoxClick(record: Record) {
+        if (record.isChecked?.value == true) {
+            selectedRecords.value?.add(record)
+            selectedRecordsSize.value = selectedRecordsSize.value!! + 1
+        } else {
+            selectedRecords.value?.remove(record)
+            selectedRecordsSize.value = selectedRecordsSize.value!! - 1
+            areAllSelected.value = false
+        }
+    }
+
+    fun onSelectAllBtnClick() {
+        if (selectedRecordsSize.value == onRecordsRetrieved.value?.size) {
+            // If there are all selected, we deselect
+            deselectAllRecords()
+        } else { // If there are none selected, we select them all
+            areAllSelected.value = true
+            for (record in onRecordsRetrieved.value!!) {
+                record.isChecked?.value = true
+            }
+            selectedRecords.value?.clear() // We remove those selected one by one first
+            selectedRecords.value?.addAll(onRecordsRetrieved.value!!)
+            selectedRecordsSize.value = selectedRecords.value!!.size
+        }
+    }
+
+    fun onClearBtnClick() {
+        isSelectionMode.value = false
+        selectBtnText.value = appContext.getString(R.string.button_select)
+        deselectAllRecords()
+    }
+
+    private fun deselectAllRecords() {
+        areAllSelected.value = false
+        for (record in onRecordsRetrieved.value!!) {
+            record.isChecked?.value = false
+        }
+        selectedRecords.value?.clear()
+        selectedRecordsSize.value = selectedRecords.value!!.size
     }
 
     override fun onRecordDeleteClick(record: Record) {
@@ -372,20 +413,20 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
             NotificationRepositoryImpl(appContext)
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
-                    return@OnCompleteListener
+            if (!task.isSuccessful) {
+                Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
+                return@OnCompleteListener
+            }
+            notificationsRepository.registerDevice(task.result, object : IResponseListener {
+
+                override fun onSuccess(message: String?) {
                 }
-                notificationsRepository.registerDevice(task.result, object : IResponseListener {
 
-                    override fun onSuccess(message: String?) {
-                    }
-
-                    override fun onFailed(error: String?) {
-                        Log.e(TAG, "Registering Device FCM token failed: $error")
-                    }
-                })
+                override fun onFailed(error: String?) {
+                    Log.e(TAG, "Registering Device FCM token failed: $error")
+                }
             })
+        })
     }
 
     fun getFolderName(): MutableLiveData<String> = folderName
@@ -401,6 +442,8 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     fun getSortName(): MutableLiveData<String> = sortName
 
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
+
+    fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
 
     fun getIsCreateAvailable(): Boolean = isCreateAvailable
 

@@ -74,8 +74,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                                 .contains(Constants.VERIFY_2FA_URL_SUFFIX) && !request.url.toString()
                                 .contains(Constants.STRIPE_URL)
                         ) {
-                            val prefsHelper = PreferencesHelper(context.getSharedPreferences(
-                                    PREFS_NAME, Context.MODE_PRIVATE))
+                            val prefsHelper = PreferencesHelper(
+                                context.getSharedPreferences(
+                                    PREFS_NAME, Context.MODE_PRIVATE
+                                )
+                            )
                             val requestBuilder: Request.Builder = request.newBuilder()
                             requestBuilder.header(
                                 "Authorization", "Bearer ${prefsHelper.getAuthToken()}"

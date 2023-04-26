@@ -162,8 +162,7 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                     android:layout_width="38dp"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_more_white"
-                    app:iconTint="@color/middleGrey"
+                    app:icon="@{record.isSelectMode ? (record.isChecked ? @drawable/ic_checkbox_full : @drawable/ic_checkbox_empty) : @drawable/ic_more_middle_grey}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -173,7 +172,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:background="@color/whiteTransparent"
-                    android:visibility="@{record.isRelocateMode &amp;&amp; record.type == RecordType.FILE ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{record.isSelectMode &amp;&amp; record.isChecked == false || (record.isRelocateMode &amp;&amp; record.type == RecordType.FILE) ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
