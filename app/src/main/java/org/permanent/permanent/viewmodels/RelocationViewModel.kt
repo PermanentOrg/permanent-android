@@ -36,7 +36,7 @@ abstract class RelocationViewModel(application: Application) :
         isRelocationMode.value = true
         viewModelScope.launch {
             delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
-            relocationIslandState.value = RelocationIslandState.POPULATED
+            relocationIslandState.value = RelocationIslandState.CONFIRMATION
         }
     }
 
@@ -75,6 +75,18 @@ abstract class RelocationViewModel(application: Application) :
         shrinkIslandRequest.call()
         isRelocationMode.value = false
         relocationIslandState.value = RelocationIslandState.BLANK
+    }
+
+    fun onSelectionCopyBtnClick() {
+
+    }
+
+    fun onSelectionMoveBtnClick() {
+
+    }
+
+    fun onSelectionOptionsBtnClick() {
+
     }
 
     fun getShrinkIslandRequest(): SingleLiveEvent<Void> = shrinkIslandRequest

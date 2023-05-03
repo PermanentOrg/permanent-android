@@ -563,4 +563,6 @@
     <string name="search_tags">Search tags…</string>
     <string name="delete_tags_title">Delete Tags</string>
     <string name="delete_tags_text">Are you sure you want to delete the tags from all items in the current archive?</string>
+
+    <string name="items">&#160;Items</string>
 </resources>

@@ -295,6 +295,13 @@ class SharedXMeFragment : PermanentBaseFragment() {
         )
     }
 
+    private val expandIslandRequestObserver = Observer<Void> {
+        resizeIslandWidthAnimated(
+            binding.flFloatingActionIsland.width,
+            MyFilesFragment.ISLAND_WIDTH_LARGE
+        )
+    }
+
     private val onRecordSelectedObserver = Observer<Record> {
         onRecordSelectedEvent.value = it
     }
@@ -416,8 +423,9 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
-        viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
+        viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
+        viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -439,8 +447,9 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
-        viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
+        viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
+        viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)

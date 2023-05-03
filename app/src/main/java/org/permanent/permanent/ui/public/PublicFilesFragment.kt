@@ -232,6 +232,10 @@ class PublicFilesFragment : PermanentBaseFragment() {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_SMALL)
     }
 
+    private val expandIslandRequestObserver = Observer<Void> {
+        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+    }
+
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
         viewModel.setRelocationMode(it)
         lifecycleScope.launch {
@@ -362,6 +366,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         viewModel.getOnRootFolderReady().observe(this, onRootFolderReadyObserver)
+        viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -385,6 +390,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         viewModel.getOnRootFolderReady().removeObserver(onRootFolderReadyObserver)
+        viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)

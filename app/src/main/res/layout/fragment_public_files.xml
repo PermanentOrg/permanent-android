@@ -338,7 +338,7 @@
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{()-> viewModel.onAddFabClick()}"
-            android:visibility="@{viewModel.isCreateAvailable == false || viewModel.isRelocationMode || viewModel.showScreenSimplified ? View.GONE: View.VISIBLE}"
+            android:visibility="@{viewModel.isCreateAvailable == false || viewModel.isRelocationMode || viewModel.isSelectionMode || viewModel.showScreenSimplified ? View.GONE: View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"

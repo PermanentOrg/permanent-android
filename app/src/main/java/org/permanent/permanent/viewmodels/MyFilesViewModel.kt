@@ -27,6 +27,7 @@ import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.*
+import org.permanent.permanent.ui.RelocationIslandState
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -195,10 +196,12 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         if (record.isChecked?.value == true) {
             selectedRecords.value?.add(record)
             selectedRecordsSize.value = selectedRecordsSize.value!! + 1
+            if (selectedRecordsSize.value == 1) showActionIsland()
         } else {
             selectedRecords.value?.remove(record)
             selectedRecordsSize.value = selectedRecordsSize.value!! - 1
             areAllSelected.value = false
+            if (selectedRecordsSize.value == 0) hideActionIsland()
         }
     }
 
@@ -206,8 +209,10 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         if (selectedRecordsSize.value == onRecordsRetrieved.value?.size) {
             // If there are all selected, we deselect
             deselectAllRecords()
+            hideActionIsland()
         } else { // If there are none selected, we select them all
             areAllSelected.value = true
+            showActionIsland()
             for (record in onRecordsRetrieved.value!!) {
                 record.isChecked?.value = true
             }
@@ -217,10 +222,29 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         }
     }
 
+    private fun showActionIsland() {
+        showActionIsland.value = true
+        getExpandIslandRequest().call()
+        viewModelScope.launch {
+            delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
+            relocationIslandState.value = RelocationIslandState.SELECTION
+        }
+    }
+
     fun onClearBtnClick() {
         isSelectionMode.value = false
         selectBtnText.value = appContext.getString(R.string.button_select)
         deselectAllRecords()
+        hideActionIsland()
+    }
+
+    private fun hideActionIsland() {
+        getShrinkIslandRequest().call()
+        viewModelScope.launch {
+            delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
+            relocationIslandState.value = RelocationIslandState.BLANK
+            showActionIsland.value = false
+        }
     }
 
     private fun deselectAllRecords() {

@@ -34,7 +34,14 @@ class RecordListViewHolder(
                 recordListener.onRecordOptionsClick(record)
             }
         }
-        binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }
+        binding.layoutOverlay.setOnClickListener {
+            if (record.isSelectMode?.value == true) {
+                record.isChecked?.value = !record.isChecked?.value!!
+                recordListener.onRecordCheckBoxClick(record)
+            } else {
+                recordListener.onRecordClick(record)
+            }
+        }
         binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnDelete
             .setOnClickListener {
                 recordListener.onRecordDeleteClick(record)
