@@ -358,14 +358,16 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
     }
 
-    fun relocateRecord(
-        recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType
+    fun relocateFilesOrFolders(
+        records: MutableList<Record>, destFolderLinkId: Int, relocationType: RelocationType
     ): Call<ResponseVO> {
+        val isFolderRecordType = records[0].type == RecordType.FOLDER
         val request = toJson(
-            RequestContainer().addRecord(recordToRelocate).addFolderDest(destFolderLinkId)
+            RequestContainer().addRecords(records, isFolderRecordType)
+                .addFolderDest(destFolderLinkId, records.size)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return if (recordToRelocate.type == RecordType.FOLDER) {
+        return if (isFolderRecordType) {
             if (relocationType == RelocationType.MOVE) {
                 fileService.moveFolder(requestBody)
             } else {

@@ -83,8 +83,8 @@ interface IFileRepository {
 
     fun unshareRecord(record: Record, archiveId: Int, listener: IResponseListener)
 
-    fun relocateRecord(
-        recordToRelocate: Record,
+    fun relocateRecords(
+        records: MutableList<Record>,
         destFolderLinkId: Int,
         relocationType: RelocationType,
         listener: IResponseListener

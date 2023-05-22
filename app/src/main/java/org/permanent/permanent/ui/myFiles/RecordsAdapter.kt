@@ -5,7 +5,7 @@ import org.permanent.permanent.models.Record
 
 abstract class RecordsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    abstract fun addRecord(fakeFile: Record)
+    abstract fun addRecords(fakeFiles: MutableList<Record>)
 
     abstract fun setRecords(records: List<Record>)
 

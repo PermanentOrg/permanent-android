@@ -63,11 +63,13 @@ class RecordsGridAdapter(
         return null
     }
 
-    override fun addRecord(fakeFile: Record) {
-        records.add(0, fakeFile)
-        fakeFile.isRelocateMode = isRelocateMode
-        fakeFile.isSelectMode = isSelectMode
-        fakeFile.isChecked = MutableLiveData<Boolean>(false)
+    override fun addRecords(fakeFiles: MutableList<Record>) {
+        for ((index, fakeFile) in fakeFiles.withIndex()) {
+            fakeFile.isRelocateMode = isRelocateMode
+            fakeFile.isSelectMode = isSelectMode
+            fakeFile.isChecked = MutableLiveData<Boolean>(false)
+            records.add(index, fakeFile)
+        }
         notifyDataSetChanged()
     }
 }

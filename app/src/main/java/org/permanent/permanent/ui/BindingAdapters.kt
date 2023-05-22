@@ -73,12 +73,16 @@ fun loadImage(view: ImageView, record: Record?) {
         rotate.interpolator = LinearInterpolator()
         view.startAnimation(rotate)
     } else {
-        when (record?.type) {
-            RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
-            else -> Picasso.get()
-                .load(record?.thumbURL200)
-                .placeholder(R.drawable.ic_stop_light_grey)
-                .into(view)
+        if (record == null) {
+            view.setImageResource(R.drawable.ic_copy)
+        } else {
+            when (record.type) {
+                RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
+                else -> Picasso.get()
+                    .load(record.thumbURL200)
+                    .placeholder(R.drawable.ic_stop_light_grey)
+                    .into(view)
+            }
         }
     }
 }

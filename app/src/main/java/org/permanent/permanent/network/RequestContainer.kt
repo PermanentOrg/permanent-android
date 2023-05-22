@@ -30,16 +30,6 @@ class RequestContainer {
         return this
     }
 
-    fun addAccount(fullName: String, email: String, optIn: Boolean, agreed: Boolean): RequestContainer {
-        val accountVO = AccountVO()
-        accountVO.fullName = fullName
-        accountVO.primaryEmail = email
-        accountVO.optIn = optIn
-        accountVO.agreed = agreed
-        RequestVO.data?.get(0)?.AccountVO = accountVO
-        return this
-    }
-
     fun addAccount(email: String, accessRole: AccessRole): RequestContainer {
         val accountVO = AccountVO()
         accountVO.primaryEmail = email
@@ -235,6 +225,32 @@ class RequestContainer {
         }
     }
 
+    fun addRecords(records: MutableList<Record>, isFolderRecordType: Boolean): RequestContainer {
+        for ((index, record) in records.withIndex()) {
+            if (isFolderRecordType) {
+                val folderVO = FolderVO()
+                folderVO.folder_linkId = record.folderLinkId
+                if (index == 0) RequestVO.data?.get(0)?.FolderVO = folderVO
+                else {
+                    val newData = Datum()
+                    newData.FolderVO = folderVO
+                    (RequestVO.data as ArrayList).add(newData)
+                }
+            } else {
+                val recordVO = RecordVO()
+                recordVO.folder_linkId = record.folderLinkId
+                recordVO.parentFolder_linkId = record.parentFolderLinkId
+                if (index == 0) RequestVO.data?.get(0)?.RecordVO = recordVO
+                else {
+                    val newData = Datum()
+                    newData.RecordVO = recordVO
+                    (RequestVO.data as ArrayList).add(newData)
+                }
+            }
+        }
+        return this
+    }
+
     fun addRecord(record: Record, newName: String): RequestContainer {
         return if (record.type == RecordType.FOLDER) {
             val folderVO = FolderVO()
@@ -277,10 +293,12 @@ class RequestContainer {
         return this
     }
 
-    fun addFolderDest(folderLinkId: Int): RequestContainer {
+    fun addFolderDest(folderLinkId: Int, size: Int): RequestContainer {
         val folderDestVO = FolderDestVO()
         folderDestVO.folder_linkId = folderLinkId
-        RequestVO.data?.get(0)?.FolderDestVO = folderDestVO
+        for (i in 0 until size) {
+            RequestVO.data?.get(i)?.FolderDestVO = folderDestVO
+        }
         return this
     }
 
@@ -403,14 +421,6 @@ class RequestContainer {
     }
 
     fun addSimple(key: String, value: String): RequestContainer {
-        val simpleVO = SimpleVO()
-        simpleVO.key = key
-        simpleVO.value = value
-        RequestVO.data?.get(0)?.SimpleVO = simpleVO
-        return this
-    }
-
-    fun addSimple(key: String, value: Boolean): RequestContainer {
         val simpleVO = SimpleVO()
         simpleVO.key = key
         simpleVO.value = value

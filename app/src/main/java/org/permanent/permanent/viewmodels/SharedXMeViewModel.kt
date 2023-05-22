@@ -24,7 +24,6 @@ import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.RelocationIslandState
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.RecordListener
@@ -274,7 +273,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         fakeRecordInfo.displayName = upload?.getDisplayName()
         val fakeRecord = Record(fakeRecordInfo)
         fakeRecord.type = RecordType.FILE
-        onNewTemporaryFile.value = fakeRecord
+        onNewTemporaryFiles.value = mutableListOf(fakeRecord)
         existsFiles.value = true
     }
 
@@ -364,71 +363,14 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
 
     override fun onRecordCheckBoxClick(record: Record) {
-        if (record.isChecked?.value == true) {
-            selectedRecords.value?.add(record)
-            selectedRecordsSize.value = selectedRecordsSize.value!! + 1
-            if (selectedRecordsSize.value == 1) showActionIsland()
-        } else {
-            selectedRecords.value?.remove(record)
-            selectedRecordsSize.value = selectedRecordsSize.value!! - 1
-            areAllSelected.value = false
-            if (selectedRecordsSize.value == 0) hideActionIsland()
-        }
+        super.onRecordChecked(record)
+    }
+
+    fun onSelectAllBtnClick() {
+        super.onSelectAllRecords(onRecordsRetrieved.value!!)
     }
 
     override fun onRecordDeleteClick(record: Record) {}
-
-    fun onSelectAllBtnClick() {
-        if (selectedRecordsSize.value == onRecordsRetrieved.value?.size) {
-            // If there are all selected, we deselect
-            deselectAllRecords()
-            hideActionIsland()
-        } else { // If there are none selected, we select them all
-            areAllSelected.value = true
-            showActionIsland()
-            for (record in onRecordsRetrieved.value!!) {
-                record.isChecked?.value = true
-            }
-            selectedRecords.value?.clear() // We remove those selected one by one first
-            selectedRecords.value?.addAll(onRecordsRetrieved.value!!)
-            selectedRecordsSize.value = selectedRecords.value!!.size
-        }
-    }
-
-    private fun showActionIsland() {
-        showActionIsland.value = true
-        getExpandIslandRequest().call()
-        viewModelScope.launch {
-            delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
-            relocationIslandState.value = RelocationIslandState.SELECTION
-        }
-    }
-
-    fun onClearBtnClick() {
-        isSelectionMode.value = false
-        selectBtnText.value = appContext.getString(R.string.button_select)
-        deselectAllRecords()
-        hideActionIsland()
-    }
-
-    private fun hideActionIsland() {
-        getShrinkIslandRequest().call()
-        viewModelScope.launch {
-            delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
-            relocationIslandState.value = RelocationIslandState.BLANK
-            showActionIsland.value = false
-        }
-    }
-
-    private fun deselectAllRecords() {
-        areAllSelected.value = false
-        for (record in onRecordsRetrieved.value!!) {
-            record.isChecked?.value = false
-        }
-        selectedRecords.value?.clear()
-        selectedRecordsSize.value = selectedRecords.value!!.size
-    }
-
 
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
 
@@ -448,7 +390,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
 
-    fun getOnNewTemporaryFile(): MutableLiveData<Record> = onNewTemporaryFile
+    fun getOnNewTemporaryFiles(): MutableLiveData<MutableList<Record>> = onNewTemporaryFiles
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment

@@ -213,7 +213,7 @@
                     android:letterSpacing="-0.01"
                     android:onClick="@{() -> viewModel.isSelectionMode ? viewModel.onSelectAllBtnClick() : viewModel.onSelectBtnClick()}"
                     android:text="@{viewModel.selectBtnText}"
-                    android:visibility="@{viewModel.isRelocationMode || viewModel.isRoot ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{viewModel.isRoot || viewModel.isRelocationMode || viewModel.isCreateAvailable == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="@+id/tvSortCriteria"
                     app:layout_constraintEnd_toStartOf="@+id/btnCheckBox"
                     app:layout_constraintTop_toTopOf="@+id/tvSortCriteria" />

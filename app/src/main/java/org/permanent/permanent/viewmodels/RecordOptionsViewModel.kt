@@ -55,7 +55,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val showViewAllBtn = MutableLiveData(false)
     private val recordPermission = MutableLiveData<String>()
     private val sharedWithLabelTxt = MutableLiveData<String>()
-    private var shareByUrlVO : Shareby_urlVO? = null
+    private var shareByUrlVO: Shareby_urlVO? = null
     private val shareLink = MutableLiveData("")
     private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
     private val allShares = mutableListOf<Share>()
@@ -267,7 +267,9 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
         if (folderLinkId != 0) {
             isBusy.value = true
-            fileRepository.relocateRecord(record, folderLinkId, RelocationType.PUBLISH,
+            fileRepository.relocateRecords(mutableListOf(record),
+                folderLinkId,
+                RelocationType.PUBLISH,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false

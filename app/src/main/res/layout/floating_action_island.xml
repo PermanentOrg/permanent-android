@@ -48,7 +48,7 @@
                     android:textSize="11sp"
                     android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toTopOf="@+id/guideline"
-                    app:layout_constraintEnd_toStartOf="@+id/btnPaste"
+                    app:layout_constraintEnd_toStartOf="@+id/btnPasteAndMove"
                     app:layout_constraintStart_toEndOf="@id/ivRecordThumb" />
 
                 <androidx.constraintlayout.widget.Guideline
@@ -67,21 +67,21 @@
                     android:fontFamily="@font/open_sans"
                     android:letterSpacing="-0.01"
                     android:maxLines="1"
-                    android:text="@{viewModel.recordToRelocate.displayName}"
+                    android:text="@{viewModel.recordToRelocate == null ? viewModel.selectedRecordsSize + @string/items : viewModel.recordToRelocate.displayName}"
                     android:textColor="@color/middleGrey"
                     android:textSize="14sp"
                     android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
-                    app:layout_constraintEnd_toStartOf="@+id/btnPaste"
+                    app:layout_constraintEnd_toStartOf="@+id/btnPasteAndMove"
                     app:layout_constraintStart_toEndOf="@id/ivRecordThumb"
                     app:layout_constraintTop_toTopOf="@+id/guideline" />
 
                 <Button
-                    android:id="@+id/btnPaste"
+                    android:id="@+id/btnPasteAndMove"
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
-                    android:onClick="@{() -> viewModel.onPasteBtnClick()}"
+                    android:onClick="@{() -> viewModel.onPasteOrMoveBtnClick()}"
                     android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_paste_here : @string/record_options_move_here}"
                     android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/black : @color/lightGrey}"
                     android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"

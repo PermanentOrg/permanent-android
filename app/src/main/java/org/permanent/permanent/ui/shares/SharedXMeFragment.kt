@@ -168,8 +168,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordsAdapter.setRecords(it)
     }
 
-    private val onNewTemporaryFile = Observer<Record> {
-        recordsAdapter.addRecord(it)
+    private val onNewTemporaryFiles = Observer<MutableList<Record>> {
+        recordsAdapter.addRecords(it)
     }
 
     private val onRootSharesNeeded = Observer<Void> { getRootRecords.call() }
@@ -415,7 +415,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
-        viewModel.getOnNewTemporaryFile().observe(this, onNewTemporaryFile)
+        viewModel.getOnNewTemporaryFiles().observe(this, onNewTemporaryFiles)
         viewModel.getOnRootSharesNeeded().observe(this, onRootSharesNeeded)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getShowRelocationCancellationDialog()
@@ -439,7 +439,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
-        viewModel.getOnNewTemporaryFile().removeObserver(onNewTemporaryFile)
+        viewModel.getOnNewTemporaryFiles().removeObserver(onNewTemporaryFiles)
         viewModel.getOnRootSharesNeeded().removeObserver(onRootSharesNeeded)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getShowRelocationCancellationDialog()
