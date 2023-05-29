@@ -18,9 +18,11 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     val isSelectionMode = MutableLiveData(false)
     val areAllSelected = MutableLiveData(false)
     val selectBtnText = MutableLiveData(application.getString(R.string.button_select))
-    val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
     val selectedRecordsSize = MutableLiveData(0)
+    private val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
     private val expandIslandRequest = SingleLiveEvent<Void>()
+    private val deleteRecordsRequest = SingleLiveEvent<Void>()
+    private val refreshCurrentFolderRequest = SingleLiveEvent<Void>()
 
     fun onSelectBtnClick() {
         isSelectionMode.value = true
@@ -107,7 +109,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     }
 
     fun onSelectionOptionsBtnClick() {
-
+        deleteRecordsRequest.call()
     }
 
     fun onPasteOrMoveBtnClick() {
@@ -132,6 +134,10 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
                             selectBtnText.value = appContext.getString(R.string.button_select)
                             deselectAllRecords()
                         }
+                        viewModelScope.launch {
+                            delay(DELAY_TO_REFRESH_MILLIS)
+                            refreshCurrentFolderRequest.call()
+                        }
                     }
 
                     override fun onFailed(error: String?) {
@@ -148,9 +154,47 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         }
     }
 
+    fun deleteSelectedRecords() {
+        isSelectionMode.value = false
+        getShrinkIslandRequest().call()
+        relocationIslandState.value = RelocationIslandState.PROCESSING
+        val recordsToRelocate = selectedRecords.value
+        if (!recordsToRelocate.isNullOrEmpty()) {
+            fileRepository.deleteRecords(recordsToRelocate, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    relocationIslandState.value = RelocationIslandState.DONE
+                    waitAndHideActionIsland()
+                    viewModelScope.launch {
+                        delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
+                        isRelocationMode.value = false
+                        selectBtnText.value = appContext.getString(R.string.button_select)
+                        deselectAllRecords()
+                        refreshCurrentFolderRequest.call()
+                    }
+                }
+
+                override fun onFailed(error: String?) {
+                    waitAndHideActionIsland()
+                    viewModelScope.launch {
+                        delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
+                        isRelocationMode.value = false
+                        selectBtnText.value = appContext.getString(R.string.button_select)
+                        deselectAllRecords()
+                        error?.let { showMessage.value = it }
+                    }
+                }
+            })
+        }
+    }
+
     fun getExpandIslandRequest(): SingleLiveEvent<Void> = expandIslandRequest
+
+    fun getDeleteRecordsRequest(): SingleLiveEvent<Void> = deleteRecordsRequest
+
+    fun getRefreshCurrentFolderRequest(): SingleLiveEvent<Void> = refreshCurrentFolderRequest
 
     companion object {
         const val DELAY_TO_POPULATE_ISLAND_MILLIS = 400L
+        const val DELAY_TO_REFRESH_MILLIS = 3000L
     }
 }

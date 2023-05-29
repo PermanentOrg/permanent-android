@@ -348,10 +348,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.download(url)
     }
 
-    fun deleteRecord(record: Record): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addRecord(record))
+    fun deleteFilesOrFolders(records: MutableList<Record>): Call<ResponseVO> {
+        val isFolderRecordType = records[0].type == RecordType.FOLDER
+        val request = toJson(RequestContainer().addRecords(records, isFolderRecordType))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return if (record.type == RecordType.FOLDER) {
+        return if (isFolderRecordType) {
             fileService.deleteFolder(requestBody)
         } else {
             fileService.deleteRecord(requestBody)

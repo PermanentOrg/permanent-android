@@ -148,6 +148,7 @@
                         android:onClick="@{() -> viewModel.onViewModeBtnClick()}"
                         app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
                         app:layout_constraintEnd_toEndOf="parent"
+                        android:visibility="@{viewModel.existsFiles == false ? View.GONE : View.VISIBLE}"
                         app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
                         app:viewModeIcon="@{viewModel.isListViewMode}" />
 
@@ -280,10 +281,11 @@
                         android:letterSpacing="-0.01"
                         android:onClick="@{() -> viewModel.isSelectionMode ? viewModel.onSelectAllBtnClick() : viewModel.onSelectBtnClick()}"
                         android:text="@{viewModel.selectBtnText}"
-                        android:visibility="@{viewModel.isRelocationMode ? View.GONE : View.VISIBLE}"
+                        android:visibility="@{viewModel.isRelocationMode || viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
                         app:layout_constraintBottom_toBottomOf="@+id/tvSortCriteria"
                         app:layout_constraintEnd_toStartOf="@+id/btnCheckBox"
-                        app:layout_constraintTop_toTopOf="@+id/tvSortCriteria" />
+                        app:layout_constraintTop_toBottomOf="@+id/ivViewModeIcon"
+                        app:layout_constraintVertical_bias="1.0" />
 
                     <Button
                         android:id="@+id/btnCheckBox"

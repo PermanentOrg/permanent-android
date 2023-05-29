@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import okhttp3.MediaType
 import okhttp3.ResponseBody
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
@@ -246,27 +245,6 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         return NetworkClient.instance().downloadFile(downloadUrl)
     }
 
-    override fun deleteRecord(
-        record: Record, listener: IResponseListener
-    ) {
-        NetworkClient.instance().deleteRecord(record).enqueue(object : Callback<ResponseVO> {
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                val responseVO = response.body()
-                val firstMessage = responseVO?.getMessages()?.get(0)
-
-                if (firstMessage != null && (firstMessage == Constants.FILE_DELETED_SUCCESSFULLY || firstMessage == Constants.FOLDER_DELETED_SUCCESSFULLY)) {
-                    listener.onSuccess(null)
-                } else {
-                    listener.onFailed(context.getString(R.string.generic_error))
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                listener.onFailed(t.message)
-            }
-        })
-    }
-
     override fun unshareRecord(
         record: Record, archiveId: Int, listener: IResponseListener
     ) {
@@ -287,6 +265,69 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                     listener.onFailed(t.message)
                 }
             })
+    }
+
+    override fun deleteRecords(
+        records: MutableList<Record>, listener: IResponseListener
+    ) {
+        var areFilesReady = false
+        var areFoldersReady = false
+        val folders = getToRelocate(RecordType.FOLDER, records)
+        val files = getToRelocate(RecordType.FILE, records)
+
+        if (folders.isNullOrEmpty()) {
+            areFoldersReady = true
+        } else {
+            deleteFilesOrFolders(
+                folders,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        areFoldersReady = true
+                        if (areFilesReady) listener.onSuccess(message)
+                    }
+
+                    override fun onFailed(error: String?) {
+                        listener.onFailed(error)
+                    }
+                }
+            )
+        }
+
+        if (files.isNullOrEmpty()) {
+            areFilesReady = true
+        } else {
+            deleteFilesOrFolders(
+                files,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        areFilesReady = true
+                        if (areFoldersReady) listener.onSuccess(message)
+                    }
+
+                    override fun onFailed(error: String?) {
+                        listener.onFailed(error)
+                    }
+                }
+            )
+        }
+    }
+
+    private fun deleteFilesOrFolders(records: MutableList<Record>, listener: IResponseListener) {
+        NetworkClient.instance().deleteFilesOrFolders(records).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(null)
+                } else {
+                    listener.onFailed(context.getString(R.string.generic_error))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
     }
 
     override fun relocateRecords(

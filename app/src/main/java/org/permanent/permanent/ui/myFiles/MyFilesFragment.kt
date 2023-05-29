@@ -314,6 +314,26 @@ class MyFilesFragment : PermanentBaseFragment() {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
     }
 
+    private val deleteRecordsObserver = Observer<Void> {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
+        val alert = AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.delete_records_title)
+        viewDialog.btnDelete.setOnClickListener {
+            viewModel.deleteSelectedRecords()
+            alert.dismiss()
+        }
+        viewDialog.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
+    private val refreshCurrentFolderObserver = Observer<Void> {
+        viewModel.refreshCurrentFolder()
+    }
+
     private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
         viewModel.setRelocationMode(it)
         lifecycleScope.launch {
@@ -433,6 +453,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
+        viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
+        viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -459,6 +481,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
+        viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
+        viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)

@@ -79,7 +79,7 @@ interface IFileRepository {
 
     fun downloadFile(downloadUrl: String): Call<ResponseBody>
 
-    fun deleteRecord(record: Record, listener: IResponseListener)
+    fun deleteRecords(records: MutableList<Record>, listener: IResponseListener)
 
     fun unshareRecord(record: Record, archiveId: Int, listener: IResponseListener)
 

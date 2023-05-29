@@ -302,6 +302,26 @@ class SharedXMeFragment : PermanentBaseFragment() {
         )
     }
 
+    private val deleteRecordsObserver = Observer<Void> {
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
+        val alert = AlertDialog.Builder(context)
+            .setView(viewDialog)
+            .create()
+        viewDialog.tvTitle.text = getString(R.string.delete_records_title)
+        viewDialog.btnDelete.setOnClickListener {
+            viewModel.deleteSelectedRecords()
+            alert.dismiss()
+        }
+        viewDialog.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
+    private val refreshCurrentFolderObserver = Observer<Void> {
+        viewModel.refreshCurrentFolder()
+    }
+
     private val onRecordSelectedObserver = Observer<Record> {
         onRecordSelectedEvent.value = it
     }
@@ -426,6 +446,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
+        viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
+        viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -450,6 +472,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
+        viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
+        viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)

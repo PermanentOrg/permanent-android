@@ -359,7 +359,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     fun delete(record: Record) {
         swipeRefreshLayout.isRefreshing = true
-        fileRepository.deleteRecord(record, object : IResponseListener {
+        fileRepository.deleteRecords(mutableListOf(record), object : IResponseListener {
             override fun onSuccess(message: String?) {
                 swipeRefreshLayout.isRefreshing = false
                 refreshCurrentFolder()

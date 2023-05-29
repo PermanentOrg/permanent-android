@@ -309,7 +309,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     fun delete(record: Record) {
         isBusy.value = true
-        fileRepository.deleteRecord(record, object : IResponseListener {
+        fileRepository.deleteRecords(mutableListOf(record), object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
                 if (record.type == RecordType.FOLDER) showMessage.value =
