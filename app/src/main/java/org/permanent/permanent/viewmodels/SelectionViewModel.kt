@@ -22,6 +22,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     private val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
     private val expandIslandRequest = SingleLiveEvent<Void>()
     private val deleteRecordsRequest = SingleLiveEvent<Void>()
+    private val showSelectionOptionsRequest = SingleLiveEvent<Int>()
     private val refreshCurrentFolderRequest = SingleLiveEvent<Void>()
 
     fun onSelectBtnClick() {
@@ -81,7 +82,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         deselectAllRecords()
     }
 
-    protected fun showActionIsland() {
+    private fun showActionIsland() {
         showActionIsland.value = true
         getExpandIslandRequest().call()
         viewModelScope.launch {
@@ -90,12 +91,12 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         }
     }
 
-    fun onSelectionCopyBtnClick() {
-        setRelocationModeForMultipleRecords(RelocationType.COPY)
-    }
-
-    fun onSelectionMoveBtnClick() {
-        setRelocationModeForMultipleRecords(RelocationType.MOVE)
+    fun onSelectionRelocationBtnClick(type: RelocationType) {
+        if (type == RelocationType.DELETE) {
+            deleteSelectedRecords()
+        } else {
+            setRelocationModeForMultipleRecords(type)
+        }
     }
 
     private fun setRelocationModeForMultipleRecords(type: RelocationType) {
@@ -109,7 +110,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     }
 
     fun onSelectionOptionsBtnClick() {
-        deleteRecordsRequest.call()
+        showSelectionOptionsRequest.value = selectedRecordsSize.value
     }
 
     fun onPasteOrMoveBtnClick() {
@@ -190,6 +191,8 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     fun getExpandIslandRequest(): SingleLiveEvent<Void> = expandIslandRequest
 
     fun getDeleteRecordsRequest(): SingleLiveEvent<Void> = deleteRecordsRequest
+
+    fun getShowSelectionOptionsRequest(): SingleLiveEvent<Int> = showSelectionOptionsRequest
 
     fun getRefreshCurrentFolderRequest(): SingleLiveEvent<Void> = refreshCurrentFolderRequest
 

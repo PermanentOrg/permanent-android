@@ -68,6 +68,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var saveToPermanentFragment: SaveToPermanentFragment? = null
     private var shareManagementFragment: ShareManagementFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private var selectionOptionsFragment: SelectionOptionsFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
@@ -222,7 +223,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
+        recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateObserver)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
@@ -334,7 +335,18 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.refreshCurrentFolder()
     }
 
-    private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
+    private val showSelectionOptionsObserver = Observer<Int> {
+        selectionOptionsFragment = SelectionOptionsFragment()
+        selectionOptionsFragment?.setBundleArguments(it)
+        selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
+        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.observe(this, onSelectionRelocateObserver)
+    }
+
+    private val onSelectionRelocateObserver = Observer<RelocationType> {
+        viewModel.onSelectionRelocationBtnClick(it)
+    }
+
+    private val onRecordRelocateObserver = Observer<Pair<Record, RelocationType>> {
         viewModel.setRelocationMode(it)
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
@@ -455,6 +467,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
         viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
+        viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -483,6 +496,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
         viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
+        viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
@@ -493,8 +507,9 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
+        recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
+        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.removeObserver(onSelectionRelocateObserver)
     }
 
     override fun onResume() {

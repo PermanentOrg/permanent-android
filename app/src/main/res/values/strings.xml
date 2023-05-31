@@ -566,4 +566,5 @@
     <string name="delete_tags_text">Are you sure you want to delete the tags from all items in the current archive?</string>
 
     <string name="items">&#160;Items</string>
+    <string name="items_selected">%d Items selected</string>
 </resources>
