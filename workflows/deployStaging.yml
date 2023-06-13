@@ -3,6 +3,11 @@ name: Deploy to Staging
 on:
   push:
     branches: [ "feature/VSP-1192-Implement-CI-Server" ]
+  pull_request:
+    branches:
+      - "develop" 
+    paths:
+      - ".github/workflows/deployStaging.yaml"
 
 jobs:
   build:
