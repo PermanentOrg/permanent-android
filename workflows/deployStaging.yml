@@ -1,5 +1,9 @@
 name: Deploy to Staging 
 
+on:
+  push:
+    branches: [ "feature/VSP-1192-Implement-CI-Server" ]
+
 jobs:
   build:
 
