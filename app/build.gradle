@@ -20,6 +20,15 @@ android {
         versionName "1.6.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def GMP_KEY = System.getenv('GMP_KEY')
+        buildConfigField 'String', 'GMP_KEY', "\"$GMP_KEY\""
+        def AUTH_CLIENT_ID = System.getenv('AUTH_CLIENT_ID')
+        buildConfigField 'String', 'AUTH_CLIENT_ID', "\"$AUTH_CLIENT_ID\""
+        def AUTH_CLIENT_SECRET = System.getenv('AUTH_CLIENT_SECRET')
+        buildConfigField 'String', 'AUTH_CLIENT_SECRET', "\"$AUTH_CLIENT_SECRET\""
+        def PUBLISHABLE_KEY = System.getenv('PUBLISHABLE_KEY')
+        buildConfigField 'String', 'PUBLISHABLE_KEY', "\"$PUBLISHABLE_KEY\""
     }
 
     buildTypes {

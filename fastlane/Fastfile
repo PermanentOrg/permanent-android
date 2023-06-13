@@ -29,10 +29,10 @@ platform :android do
   desc "Submit a new Beta Build to Firebase"
   lane :firebase do
     gradle(task: "clean bundleStagingRelease")
-    firebase_app_distribution(
-      app: "1:1071143441498:android:75fd393c7bb8ea75dd7463",
-      android_artifact_type: "AAB"
-      )
+    # firebase_app_distribution(
+    #   app: "1:1071143441498:android:75fd393c7bb8ea75dd7463",
+    #   android_artifact_type: "AAB"
+    #   )
   end
 
   desc "Submit a new Beta Build to Playstore"
