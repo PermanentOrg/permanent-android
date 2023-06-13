@@ -13,6 +13,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    environment: staging
 
     steps:
     - uses: actions/checkout@v3
@@ -22,18 +23,28 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: gradle
-
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Update Bundler
       uses: ruby/setup-ruby@v1
       with: 
           ruby-version: '2.6.8'
-          bundler-cache: true
+          bundler-cache: false
+    - name: Install bundle gems
+      run: bundle install
     - name: Run Fastlane Firebase
       env:
           GMP_KEY: ${{ secrets.GMP_KEY }}
           AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
           AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
           PUBLISHABLE_KEY: ${{ secrets.PUBLISHABLE_KEY }}
-      run: bundler exec fastlane firebase
+      run: |
+        touch local.properties
+        echo GMP_KEY="$GMP_KEY" >> local.properties
+        echo AUTH_CLIENT_ID="$AUTH_CLIENT_ID" >> local.properties
+        echo AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" >> local.properties
+        echo PUBLISHABLE_KEY="$PUBLISHABLE_KEY" >> local.properties
+        bundle exec fastlane firebase
+      shell: bash
