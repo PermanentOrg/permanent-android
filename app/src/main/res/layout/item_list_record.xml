@@ -25,7 +25,52 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <include layout="@layout/item_record_underlay" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <Button
+                    android:id="@+id/btnDelete"
+                    android:layout_width="60dp"
+                    android:layout_height="0dp"
+                    android:backgroundTint="@color/deepRed"
+                    android:drawableTop="@drawable/ic_delete_white"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingLeft="0dp"
+                    android:paddingTop="8dp"
+                    android:paddingRight="0dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/delete_button"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    app:cornerRadius="0dp"
+                    app:iconPadding="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/btnMore"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/btnMore"
+                    android:layout_width="60dp"
+                    android:layout_height="0dp"
+                    android:backgroundTint="@color/middleGrey"
+                    android:drawableTop="@drawable/ic_more_file_white"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingLeft="0dp"
+                    android:paddingTop="8dp"
+                    android:paddingRight="0dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/more_button"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    app:cornerRadius="0dp"
+                    app:iconPadding="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
 

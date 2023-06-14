@@ -1,7 +1,9 @@
 package org.permanent.permanent.ui.public
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
@@ -18,13 +20,13 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLocationSearchBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
 import org.permanent.permanent.viewmodels.LocationSearchViewModel
 
@@ -41,7 +43,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(LocationSearchViewModel::class.java)
+        viewModel = ViewModelProvider(this)[LocationSearchViewModel::class.java]
         binding = FragmentLocationSearchBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -69,7 +71,8 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     override fun onPlaceSelected(place: Place) {
         place.latLng?.let {
             viewModel.onLatLngSelected(it)
-            activity?.toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = true
+            (requireActivity() as MainActivity).binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible =
+                true
         }
     }
 
@@ -89,7 +92,8 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
             .setOnClickListener {
                 autocompleteFragment.setText("")
                 it.visibility = View.GONE
-                activity?.toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
+                (requireActivity() as MainActivity).binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible =
+                    false
             }
         profileItem?.let {
             val lat = it.locationVO?.latitude
@@ -102,7 +106,8 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     override fun onMapLongClick(latLng: LatLng) {
         viewModel.onLatLngSelected(latLng)
         autocompleteFragment.setText("${latLng.latitude}, ${latLng.longitude}")
-        activity?.toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = true
+        (requireActivity() as MainActivity).binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible =
+            true
     }
 
     private fun initDeviceBackPressCallback() {

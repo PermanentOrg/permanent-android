@@ -19,7 +19,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.Constants.Companion.FILE_PROVIDER_NAME
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_FILE_SELECT
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_IMAGE_CAPTURE
@@ -29,6 +28,7 @@ import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogCreateNewFolderBinding
+import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
@@ -152,17 +152,19 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     }
 
     private fun showConfirmationDialog() {
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
-        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
 
-        viewDialog.tvTitle.text = getString(R.string.dialog_public_files_upload_title)
-        viewDialog.tvText.text = getString(R.string.dialog_public_files_upload_text)
-        viewDialog.btnPositive.text = getString(R.string.button_upload)
-        viewDialog.btnPositive.setOnClickListener {
+        dialogBinding.tvTitle.text = getString(R.string.dialog_public_files_upload_title)
+        dialogBinding.tvText.text = getString(R.string.dialog_public_files_upload_text)
+        dialogBinding.btnPositive.text = getString(R.string.button_upload)
+        dialogBinding.btnPositive.setOnClickListener {
             startFileSelectionActivity()
             alert.dismiss()
         }
-        viewDialog.btnNegative.setOnClickListener {
+        dialogBinding.btnNegative.setOnClickListener {
             alert.dismiss()
         }
         alert.show()

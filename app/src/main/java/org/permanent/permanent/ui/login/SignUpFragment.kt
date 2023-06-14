@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.login
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -9,13 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.dialog_terms_of_service.view.*
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogTermsOfServiceBinding
 import org.permanent.permanent.databinding.FragmentSignUpBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -68,16 +68,17 @@ class SignUpFragment : PermanentBaseFragment() {
 
     private fun showTermsDialog() {
         context?.hideKeyboardFrom(binding.root.windowToken)
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_terms_of_service, null)
+        val dialogBinding: DialogTermsOfServiceBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_terms_of_service, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
 
-        val alert = AlertDialog.Builder(context).setView(viewDialog).create()
-
-        viewDialog.webviewtermsOfService.loadUrl(BuildConfig.TERMS_URL)
-        viewDialog.btnAccept.setOnClickListener {
+        dialogBinding.webviewtermsOfService.loadUrl(BuildConfig.TERMS_URL)
+        dialogBinding.btnAccept.setOnClickListener {
             viewModel.makeAccount()
             alert.dismiss()
         }
-        viewDialog.btnDecline.setOnClickListener {
+        dialogBinding.btnDecline.setOnClickListener {
             Toast.makeText(context, R.string.sign_up_terms_declined, Toast.LENGTH_SHORT).show()
             alert.dismiss()
         }
