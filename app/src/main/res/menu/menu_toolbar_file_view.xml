@@ -12,7 +12,8 @@
 
     <item
         android:id="@+id/moreItem"
-        android:icon="@drawable/ic_more_white"
+        android:icon="@drawable/ic_more_middle_grey"
+        android:iconTint="@color/white"
         android:title="@string/menu_toolbar_more"
         app:showAsAction="always" />
 </menu>

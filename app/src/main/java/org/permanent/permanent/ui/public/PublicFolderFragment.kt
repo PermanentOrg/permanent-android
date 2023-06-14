@@ -79,6 +79,7 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
         recordsAdapter = RecordsGridAdapter(
             this, false,
             MutableLiveData(false),
+            MutableLiveData(false),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
             isForSharesScreen = false,
@@ -110,6 +111,8 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
         recordOptionsFragment?.setBundleArguments(record, Workspace.PUBLIC_ARCHIVES)
         recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
     }
+
+    override fun onRecordCheckBoxClick(record: Record) {}
 
     override fun onRecordDeleteClick(record: Record) {}
 

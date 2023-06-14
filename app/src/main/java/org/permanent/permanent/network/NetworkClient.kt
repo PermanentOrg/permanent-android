@@ -74,8 +74,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                                 .contains(Constants.VERIFY_2FA_URL_SUFFIX) && !request.url.toString()
                                 .contains(Constants.STRIPE_URL)
                         ) {
-                            val prefsHelper = PreferencesHelper(context.getSharedPreferences(
-                                    PREFS_NAME, Context.MODE_PRIVATE))
+                            val prefsHelper = PreferencesHelper(
+                                context.getSharedPreferences(
+                                    PREFS_NAME, Context.MODE_PRIVATE
+                                )
+                            )
                             val requestBuilder: Request.Builder = request.newBuilder()
                             requestBuilder.header(
                                 "Authorization", "Bearer ${prefsHelper.getAuthToken()}"
@@ -345,24 +348,27 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return fileService.download(url)
     }
 
-    fun deleteRecord(record: Record): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addRecord(record))
+    fun deleteFilesOrFolders(records: MutableList<Record>): Call<ResponseVO> {
+        val isFolderRecordType = records[0].type == RecordType.FOLDER
+        val request = toJson(RequestContainer().addRecords(records, isFolderRecordType))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return if (record.type == RecordType.FOLDER) {
+        return if (isFolderRecordType) {
             fileService.deleteFolder(requestBody)
         } else {
             fileService.deleteRecord(requestBody)
         }
     }
 
-    fun relocateRecord(
-        recordToRelocate: Record, destFolderLinkId: Int, relocationType: RelocationType
+    fun relocateFilesOrFolders(
+        records: MutableList<Record>, destFolderLinkId: Int, relocationType: RelocationType
     ): Call<ResponseVO> {
+        val isFolderRecordType = records[0].type == RecordType.FOLDER
         val request = toJson(
-            RequestContainer().addRecord(recordToRelocate).addFolderDest(destFolderLinkId)
+            RequestContainer().addRecords(records, isFolderRecordType)
+                .addFolderDest(destFolderLinkId, records.size)
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return if (recordToRelocate.type == RecordType.FOLDER) {
+        return if (isFolderRecordType) {
             if (relocationType == RelocationType.MOVE) {
                 fileService.moveFolder(requestBody)
             } else {

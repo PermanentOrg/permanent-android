@@ -111,6 +111,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
         recordsAdapter = RecordsGridAdapter(
             this, false,
             MutableLiveData(false),
+            MutableLiveData(false),
             viewModel.getCurrentState(),
             isForSharePreviewScreen = true,
             isForSharesScreen = false,

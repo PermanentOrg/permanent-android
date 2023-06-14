@@ -26,8 +26,22 @@ class RecordListViewHolder(
         binding.btnOptions.visibility =
             if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER || isForSearchScreen || showMyFilesSimplified
             ) View.INVISIBLE else View.VISIBLE
-        binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
-        binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }
+        binding.btnOptions.setOnClickListener {
+            if (record.isSelectMode?.value == true) {
+                record.isChecked?.value = !record.isChecked?.value!!
+                recordListener.onRecordCheckBoxClick(record)
+            } else {
+                recordListener.onRecordOptionsClick(record)
+            }
+        }
+        binding.layoutOverlay.setOnClickListener {
+            if (record.isSelectMode?.value == true) {
+                record.isChecked?.value = !record.isChecked?.value!!
+                recordListener.onRecordCheckBoxClick(record)
+            } else {
+                recordListener.onRecordClick(record)
+            }
+        }
         binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnDelete
             .setOnClickListener {
                 recordListener.onRecordDeleteClick(record)

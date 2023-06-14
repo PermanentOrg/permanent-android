@@ -9,13 +9,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentAddEditTagBinding
 import org.permanent.permanent.databinding.FragmentManageTagsBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.addEditTag.AddEditTagFragment
-import org.permanent.permanent.viewmodels.AddEditTagViewModel
 import org.permanent.permanent.viewmodels.ManageTagsViewModel
 
 class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
@@ -114,6 +113,21 @@ class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
     }
 
     override fun onTagDeleteClicked(tag: Tag) {
-        viewModel.deleteTag(tag)
+        // Showing confirmationDialog
+        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
+        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+
+        viewDialog.tvTitle.text = getString(R.string.delete_tags_title)
+        viewDialog.tvText.text = getString(R.string.delete_tags_text)
+        viewDialog.btnPositive.text = getString(R.string.delete_button)
+        viewDialog.btnPositive.setOnClickListener {
+            viewModel.deleteTag(tag)
+            alert.dismiss()
+        }
+        viewDialog.btnNegative.text = getString(R.string.button_cancel)
+        viewDialog.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
     }
 }

@@ -13,6 +13,7 @@ class RecordsListAdapter(
     private val lifecycleOwner: LifecycleOwner,
     private val showMyFilesSimplified: Boolean,
     private val isRelocateMode: MutableLiveData<Boolean>,
+    private val isSelectMode: MutableLiveData<Boolean>,
     private val isForSharesScreen: Boolean,
     private val isForSearchScreen: Boolean,
     private val recordListener: RecordListener
@@ -40,7 +41,11 @@ class RecordsListAdapter(
 
     override fun setRecords(records: List<Record>) {
         this.records = records.toMutableList()
-        for (record in this.records) record.isRelocateMode = isRelocateMode
+        for (record in this.records) {
+            record.isRelocateMode = isRelocateMode
+            record.isSelectMode = isSelectMode
+            record.isChecked = MutableLiveData<Boolean>(false)
+        }
         notifyDataSetChanged()
     }
 
@@ -53,9 +58,13 @@ class RecordsListAdapter(
         return null
     }
 
-    override fun addRecord(fakeFile: Record) {
-        records.add(0, fakeFile)
-        fakeFile.isRelocateMode = isRelocateMode
+    override fun addRecords(fakeFiles: MutableList<Record>) {
+        for ((index, fakeFile) in fakeFiles.withIndex()) {
+            fakeFile.isRelocateMode = isRelocateMode
+            fakeFile.isSelectMode = isSelectMode
+            fakeFile.isChecked = MutableLiveData<Boolean>(false)
+            records.add(index, fakeFile)
+        }
         notifyDataSetChanged()
     }
 
