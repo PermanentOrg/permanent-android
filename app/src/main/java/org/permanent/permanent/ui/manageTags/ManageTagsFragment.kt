@@ -5,12 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentManageTagsBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -114,18 +115,20 @@ class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
 
     override fun onTagDeleteClicked(tag: Tag) {
         // Showing confirmationDialog
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
-        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
 
-        viewDialog.tvTitle.text = getString(R.string.delete_tags_title)
-        viewDialog.tvText.text = getString(R.string.delete_tags_text)
-        viewDialog.btnPositive.text = getString(R.string.delete_button)
-        viewDialog.btnPositive.setOnClickListener {
+        dialogBinding.tvTitle.text = getString(R.string.delete_tags_title)
+        dialogBinding.tvText.text = getString(R.string.delete_tags_text)
+        dialogBinding.btnPositive.text = getString(R.string.delete_button)
+        dialogBinding.btnPositive.setOnClickListener {
             viewModel.deleteTag(tag)
             alert.dismiss()
         }
-        viewDialog.btnNegative.text = getString(R.string.button_cancel)
-        viewDialog.btnNegative.setOnClickListener {
+        dialogBinding.btnNegative.text = getString(R.string.button_cancel)
+        dialogBinding.btnNegative.setOnClickListener {
             alert.dismiss()
         }
         alert.show()

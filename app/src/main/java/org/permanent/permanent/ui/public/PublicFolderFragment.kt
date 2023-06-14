@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicFolderBinding
 import org.permanent.permanent.models.Record
@@ -23,7 +22,11 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.fileView.FileViewOptionsFragment
-import org.permanent.permanent.ui.myFiles.*
+import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
+import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.myFiles.RecordListener
+import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
+import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicFolderViewModel
 
@@ -51,8 +54,6 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
         initRecordsRecyclerView(binding.rvRecords)
-        activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-        activity?.toolbar?.menu?.findItem(R.id.moreItem)?.isVisible = true
         return binding.root
     }
 
