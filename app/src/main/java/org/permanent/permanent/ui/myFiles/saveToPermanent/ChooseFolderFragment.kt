@@ -7,13 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentChooseFolderBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
@@ -79,18 +80,20 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
     }
 
     private fun showConfirmationDialog() {
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
-        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
 
-        viewDialog.tvTitle.text = getString(R.string.menu_drawer_public_files)
-        viewDialog.tvText.text = getString(R.string.save_to_permanent_upload_to_public_files)
-        viewDialog.btnPositive.text = getString(R.string.button_continue)
-        viewDialog.btnPositive.setOnClickListener {
+        dialogBinding.tvTitle.text = getString(R.string.menu_drawer_public_files)
+        dialogBinding.tvText.text = getString(R.string.save_to_permanent_upload_to_public_files)
+        dialogBinding.btnPositive.text = getString(R.string.button_continue)
+        dialogBinding.btnPositive.setOnClickListener {
             showPublicFilesContainer()
             alert.dismiss()
         }
-        viewDialog.btnNegative.text = getString(R.string.button_cancel)
-        viewDialog.btnNegative.setOnClickListener {
+        dialogBinding.btnNegative.text = getString(R.string.button_cancel)
+        dialogBinding.btnNegative.setOnClickListener {
             alert.dismiss()
         }
         alert.show()

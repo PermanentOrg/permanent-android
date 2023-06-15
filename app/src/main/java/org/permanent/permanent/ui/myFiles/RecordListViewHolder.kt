@@ -3,8 +3,6 @@ package org.permanent.permanent.ui.myFiles
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.item_list_record.view.*
-import kotlinx.android.synthetic.main.item_record_underlay.view.*
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.databinding.ItemListRecordBinding
 import org.permanent.permanent.models.AccessRole
@@ -24,20 +22,31 @@ class RecordListViewHolder(
         binding.executePendingBindings()
         binding.lifecycleOwner = lifecycleOwner
         binding.btnOptions.visibility =
-            if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER || isForSearchScreen || showMyFilesSimplified
-            ) View.INVISIBLE else View.VISIBLE
-        binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
-        binding.layoutOverlay.setOnClickListener { recordListener.onRecordClick(record) }
-        binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnDelete
-            .setOnClickListener {
-                recordListener.onRecordDeleteClick(record)
-                binding.layoutSwipeReveal.close(true)
-            }
-        binding.layoutSwipeReveal.setLockDrag(record.isProcessing || isForSharesScreen || isForSearchScreen)
-        binding.layoutSwipeReveal.layoutUnderlay.getChildAt(0).btnMore
-            .setOnClickListener {
+            if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER || isForSearchScreen || showMyFilesSimplified) View.INVISIBLE else View.VISIBLE
+        binding.btnOptions.setOnClickListener {
+            if (record.isSelectMode?.value == true) {
+                record.isChecked?.value = !record.isChecked?.value!!
+                recordListener.onRecordCheckBoxClick(record)
+            } else {
                 recordListener.onRecordOptionsClick(record)
-                binding.layoutSwipeReveal.close(true)
             }
+        }
+        binding.layoutOverlay.setOnClickListener {
+            if (record.isSelectMode?.value == true) {
+                record.isChecked?.value = !record.isChecked?.value!!
+                recordListener.onRecordCheckBoxClick(record)
+            } else {
+                recordListener.onRecordClick(record)
+            }
+        }
+        binding.layoutSwipeReveal.setLockDrag(record.isProcessing || isForSharesScreen || isForSearchScreen)
+        binding.btnDelete.setOnClickListener {
+            recordListener.onRecordDeleteClick(record)
+            binding.layoutSwipeReveal.close(true)
+        }
+        binding.btnMore.setOnClickListener {
+            recordListener.onRecordOptionsClick(record)
+            binding.layoutSwipeReveal.close(true)
+        }
     }
 }

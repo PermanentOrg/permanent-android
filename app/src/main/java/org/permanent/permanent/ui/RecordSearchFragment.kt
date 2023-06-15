@@ -32,9 +32,7 @@ class RecordSearchFragment : PermanentBaseFragment() {
     private var recordToView: Record? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentRecordSearchBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(RecordSearchViewModel::class.java)
@@ -108,7 +106,10 @@ class RecordSearchFragment : PermanentBaseFragment() {
     private fun initRecordsRecyclerView(rvFiles: RecyclerView) {
         recordsRecyclerView = rvFiles
         recordsListAdapter = RecordsListAdapter(
-            this, false, MutableLiveData(false),
+            this,
+            false,
+            MutableLiveData(false),
+            MutableLiveData(false),
             isForSharesScreen = false,
             isForSearchScreen = true,
             recordListener = viewModel

@@ -33,7 +33,7 @@ import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
-open class MyFilesViewModel(application: Application) : RelocationViewModel(application),
+open class MyFilesViewModel(application: Application) : SelectionViewModel(application),
     RecordListener, CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
@@ -191,6 +191,14 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         onShowRecordOptionsFragment.value = record
     }
 
+    override fun onRecordCheckBoxClick(record: Record) {
+        super.onRecordChecked(record)
+    }
+
+    fun onSelectAllBtnClick() {
+        super.onSelectAllRecords(onRecordsRetrieved.value!!)
+    }
+
     override fun onRecordDeleteClick(record: Record) {
         onRecordDeleteRequest.value = record
     }
@@ -340,7 +348,7 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         fakeRecordInfo.displayName = upload?.getDisplayName()
         val fakeRecord = Record(fakeRecordInfo)
         fakeRecord.type = RecordType.FILE
-        onNewTemporaryFile.value = fakeRecord
+        onNewTemporaryFiles.value = mutableListOf(fakeRecord)
     }
 
     fun setSortType(sortType: SortType) {
@@ -351,7 +359,7 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
 
     fun delete(record: Record) {
         swipeRefreshLayout.isRefreshing = true
-        fileRepository.deleteRecord(record, object : IResponseListener {
+        fileRepository.deleteRecords(mutableListOf(record), object : IResponseListener {
             override fun onSuccess(message: String?) {
                 swipeRefreshLayout.isRefreshing = false
                 refreshCurrentFolder()
@@ -372,20 +380,20 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
             NotificationRepositoryImpl(appContext)
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
-                    return@OnCompleteListener
+            if (!task.isSuccessful) {
+                Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
+                return@OnCompleteListener
+            }
+            notificationsRepository.registerDevice(task.result, object : IResponseListener {
+
+                override fun onSuccess(message: String?) {
                 }
-                notificationsRepository.registerDevice(task.result, object : IResponseListener {
 
-                    override fun onSuccess(message: String?) {
-                    }
-
-                    override fun onFailed(error: String?) {
-                        Log.e(TAG, "Registering Device FCM token failed: $error")
-                    }
-                })
+                override fun onFailed(error: String?) {
+                    Log.e(TAG, "Registering Device FCM token failed: $error")
+                }
             })
+        })
     }
 
     fun getFolderName(): MutableLiveData<String> = folderName
@@ -401,6 +409,8 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     fun getSortName(): MutableLiveData<String> = sortName
 
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
+
+    fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
 
     fun getIsCreateAvailable(): Boolean = isCreateAvailable
 
@@ -418,7 +428,7 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
 
-    fun getOnNewTemporaryFile(): MutableLiveData<Record> = onNewTemporaryFile
+    fun getOnNewTemporaryFiles(): MutableLiveData<MutableList<Record>> = onNewTemporaryFiles
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
 

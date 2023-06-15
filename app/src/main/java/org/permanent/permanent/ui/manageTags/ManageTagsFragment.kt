@@ -5,17 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentAddEditTagBinding
+import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentManageTagsBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.addEditTag.AddEditTagFragment
-import org.permanent.permanent.viewmodels.AddEditTagViewModel
 import org.permanent.permanent.viewmodels.ManageTagsViewModel
 
 class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
@@ -114,6 +114,23 @@ class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
     }
 
     override fun onTagDeleteClicked(tag: Tag) {
-        viewModel.deleteTag(tag)
+        // Showing confirmationDialog
+        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+        dialogBinding.tvTitle.text = getString(R.string.delete_tags_title)
+        dialogBinding.tvText.text = getString(R.string.delete_tags_text)
+        dialogBinding.btnPositive.text = getString(R.string.delete_button)
+        dialogBinding.btnPositive.setOnClickListener {
+            viewModel.deleteTag(tag)
+            alert.dismiss()
+        }
+        dialogBinding.btnNegative.text = getString(R.string.button_cancel)
+        dialogBinding.btnNegative.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
     }
 }

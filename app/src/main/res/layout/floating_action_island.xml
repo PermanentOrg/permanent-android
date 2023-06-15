@@ -12,123 +12,179 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.RelocationViewModel" />
+            type="org.permanent.permanent.viewmodels.SelectionViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:visibility="@{viewModel.isRelocationMode ? View.VISIBLE: View.GONE}">
+        android:visibility="@{viewModel.isRelocationMode || viewModel.showActionIsland ? View.VISIBLE: View.GONE}">
 
-        <ImageView
-            android:id="@+id/ivRecordThumb"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:scaleType="centerCrop"
-            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.POPULATED ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:record="@{viewModel.recordToRelocate}" />
+                <ImageView
+                    android:id="@+id/ivRecordThumb"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:scaleType="centerCrop"
+                    android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:record="@{viewModel.recordToRelocate}" />
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/open_sans_semibold"
+                    android:maxLines="1"
+                    android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_copying : @string/record_options_moving}"
+                    android:textAllCaps="true"
+                    android:textColor="@color/lightGrey"
+                    android:textSize="11sp"
+                    android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline"
+                    app:layout_constraintEnd_toStartOf="@+id/btnPasteAndMove"
+                    app:layout_constraintStart_toEndOf="@id/ivRecordThumb" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.50" />
+
+                <TextView
+                    android:id="@+id/tvFileName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/open_sans"
+                    android:letterSpacing="-0.01"
+                    android:maxLines="1"
+                    android:text="@{viewModel.recordToRelocate == null ? viewModel.selectedRecordsSize + @string/items : viewModel.recordToRelocate.displayName}"
+                    android:textColor="@color/middleGrey"
+                    android:textSize="14sp"
+                    android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toStartOf="@+id/btnPasteAndMove"
+                    app:layout_constraintStart_toEndOf="@id/ivRecordThumb"
+                    app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+                <Button
+                    android:id="@+id/btnPasteAndMove"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
+                    android:onClick="@{() -> viewModel.onPasteOrMoveBtnClick()}"
+                    android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_paste_here : @string/record_options_move_here}"
+                    android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/black : @color/lightGrey}"
+                    android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
+                    app:icon="@drawable/ic_copy_move"
+                    app:iconTint="@color/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/btnCancel"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:onClick="@{() -> viewModel.onCancelRelocationBtnClick()}"
+                    android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
+                    app:icon="@drawable/ic_close_middle_grey"
+                    app:iconTint="@color/middleGrey"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.core.widget.ContentLoadingProgressBar
+                    android:id="@+id/progressBar"
+                    style="@style/Widget.AppCompat.ProgressBar"
+                    android:layout_width="57dp"
+                    android:layout_height="59dp"
+                    android:indeterminate="true"
+                    android:padding="16dp"
+                    android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.PROCESSING ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/ivDone"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.DONE ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_done_white"
+                    app:tint="@color/green" />
 
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/tvText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/open_sans_semibold"
-            android:maxLines="1"
-            android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_copying : @string/record_options_moving}"
-            android:textAllCaps="true"
-            android:textColor="@color/lightGrey"
-            android:textSize="11sp"
-            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.POPULATED ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintEnd_toStartOf="@+id/btnCopy"
-            app:layout_constraintStart_toEndOf="@id/ivRecordThumb" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.50" />
-
-        <TextView
-            android:id="@+id/tvFileName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="32dp"
             android:ellipsize="end"
             android:fontFamily="@font/open_sans"
-            android:letterSpacing="-0.01"
             android:maxLines="1"
-            android:text="@{viewModel.recordToRelocate.displayName}"
+            android:text="@{viewModel.selectedRecordsSize + @string/items}"
             android:textColor="@color/middleGrey"
             android:textSize="14sp"
-            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.POPULATED ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.SELECTION ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnCopy"
-            app:layout_constraintStart_toEndOf="@id/ivRecordThumb"
-            app:layout_constraintTop_toTopOf="@+id/guideline" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/btnCopy"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
-            android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
-            android:onClick="@{() -> viewModel.onPasteBtnClick()}"
-            android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_paste_here : @string/record_options_move_here}"
-            android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/black : @color/lightGrey}"
-            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.POPULATED ? View.VISIBLE : View.GONE}"
-            app:icon="@drawable/ic_copy_move"
+            android:onClick="@{() -> viewModel.onSelectionRelocationBtnClick(RelocationType.COPY)}"
+            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.SELECTION ? View.VISIBLE : View.GONE}"
+            app:icon="@drawable/ic_copy"
             app:iconTint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnCancel"
-            app:layout_constraintTop_toTopOf="parent"
-            app:textAllCaps="false" />
+            app:layout_constraintEnd_toStartOf="@+id/btnMove"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/btnCancel"
+            android:id="@+id/btnMove"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="38dp"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:onClick="@{() -> viewModel.onCancelRelocationBtnClick()}"
-            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.POPULATED ? View.VISIBLE : View.GONE}"
-            app:icon="@drawable/ic_close_middle_grey"
-            app:iconTint="@color/middleGrey"
+            android:onClick="@{() -> viewModel.onSelectionRelocationBtnClick(RelocationType.MOVE)}"
+            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.SELECTION ? View.VISIBLE : View.GONE}"
+            app:icon="@drawable/ic_move"
+            app:iconTint="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnOptions"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnOptions"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="@{() -> viewModel.onSelectionOptionsBtnClick()}"
+            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.SELECTION ? View.VISIBLE : View.GONE}"
+            app:icon="@drawable/ic_more_middle_grey"
+            app:iconTint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/progressBar"
-            style="@style/Widget.AppCompat.ProgressBar"
-            android:layout_width="57dp"
-            android:layout_height="59dp"
-            android:indeterminate="true"
-            android:padding="16dp"
-            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.PROCESSING ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/ivShareManagement"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.DONE ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_done_white"
-            app:tint="@color/green" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

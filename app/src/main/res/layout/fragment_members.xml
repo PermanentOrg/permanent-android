@@ -154,7 +154,7 @@
                     android:layout_height="wrap_content"
                     android:onClick="@{() -> viewModel.onPendingOwnerOptionsBtnClick()}"
                     android:visibility="@{viewModel.isArchiveShareAvailable &amp;&amp; viewModel.pendingOwner != null ? View.VISIBLE : View.INVISIBLE}"
-                    app:icon="@drawable/ic_more_white"
+                    app:icon="@drawable/ic_more_middle_grey"
                     app:iconTint="@color/middleGrey"
                     app:layout_constraintBottom_toBottomOf="@+id/tvPendingOwnerEmail"
                     app:layout_constraintEnd_toEndOf="parent"

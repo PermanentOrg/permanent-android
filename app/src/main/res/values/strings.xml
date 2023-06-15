@@ -261,6 +261,9 @@
     <string name="button_deny">Deny</string>
     <string name="button_save">Save</string>
     <string name="button_go_to_wallet">Go to wallet</string>
+    <string name="button_select">Select</string>
+    <string name="button_select_all">Select all</string>
+    <string name="button_clear">Clear</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -277,6 +280,7 @@
     <string name="dialog_cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
     <string name="new_folder_title">Create New Folder</string>
     <string name="delete_record_title">Delete \"%s\"?</string>
+    <string name="delete_records_title">Delete selected items?</string>
     <string name="leave_share_record_title">Leave share \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
     <string name="my_files_uploads_title">Uploads</string>
@@ -557,5 +561,10 @@
     <string name="add_tag">Add tag</string>
     <string name="update_tag">Update tag</string>
     <string name="new_tag">New tag</string>
-    <string name="search_tags">Search tags...</string>
+    <string name="search_tags">Search tags…</string>
+    <string name="delete_tags_title">Delete Tags</string>
+    <string name="delete_tags_text">Are you sure you want to delete the tags from all items in the current archive?</string>
+
+    <string name="items">&#160;Items</string>
+    <string name="items_selected">%d Items selected</string>
 </resources>

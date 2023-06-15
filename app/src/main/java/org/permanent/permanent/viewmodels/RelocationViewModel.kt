@@ -19,12 +19,13 @@ abstract class RelocationViewModel(application: Application) :
 
     val relocationIslandState = MutableLiveData(RelocationIslandState.BLANK)
     val isRelocationMode = MutableLiveData(false)
+    val showActionIsland = MutableLiveData(false)
     val relocationType = MutableLiveData<RelocationType>()
-    val recordToRelocate = MutableLiveData<Record>()
+    val recordToRelocate = MutableLiveData<Record?>()
     var currentFolder = MutableLiveData<NavigationFolder>()
     val existsFiles = MutableLiveData(false)
     private val shrinkIslandRequest = SingleLiveEvent<Void>()
-    val onNewTemporaryFile = SingleLiveEvent<Record>()
+    val onNewTemporaryFiles = SingleLiveEvent<MutableList<Record>>()
     protected val showMessage = SingleLiveEvent<String>()
     var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
@@ -36,51 +37,32 @@ abstract class RelocationViewModel(application: Application) :
         isRelocationMode.value = true
         viewModelScope.launch {
             delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
-            relocationIslandState.value = RelocationIslandState.POPULATED
+            relocationIslandState.value = RelocationIslandState.CONFIRMATION
         }
     }
 
-    fun onPasteBtnClick() {
+    open fun onCancelRelocationBtnClick() {
         PermanentApplication.instance.relocateData = null
-        shrinkIslandRequest.call()
-        relocationIslandState.value = RelocationIslandState.PROCESSING
-        val recordValue = recordToRelocate.value
-        val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
-        val relocationTypeValue = relocationType.value
-        if (recordValue != null && folderLinkId != null && relocationTypeValue != null) {
-            fileRepository.relocateRecord(recordValue, folderLinkId, relocationTypeValue,
-                object : IResponseListener {
-                    override fun onSuccess(message: String?) {
-                        relocationIslandState.value = RelocationIslandState.DONE
-                        onNewTemporaryFile.value = recordToRelocate.value
-                        existsFiles.value = true
-                        viewModelScope.launch {
-                            delay(MILLIS_TO_SHOW_RELOCATION_DONE)
-                            isRelocationMode.value = false
-                            relocationIslandState.value = RelocationIslandState.BLANK
-                        }
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isRelocationMode.value = false
-                        relocationIslandState.value = RelocationIslandState.BLANK
-                        error?.let { showMessage.value = it }
-                    }
-                })
-        }
-    }
-
-    fun onCancelRelocationBtnClick() {
-        PermanentApplication.instance.relocateData = null
-        shrinkIslandRequest.call()
         isRelocationMode.value = false
-        relocationIslandState.value = RelocationIslandState.BLANK
+        shrinkAndHideActionIsland()
+    }
+
+    protected fun shrinkAndHideActionIsland() {
+        shrinkIslandRequest.call()
+        waitAndHideActionIsland()
+    }
+
+    protected fun waitAndHideActionIsland() {
+        viewModelScope.launch {
+            delay(SelectionViewModel.DELAY_TO_POPULATE_ISLAND_MILLIS)
+            relocationIslandState.value = RelocationIslandState.BLANK
+            showActionIsland.value = false
+        }
     }
 
     fun getShrinkIslandRequest(): SingleLiveEvent<Void> = shrinkIslandRequest
 
     companion object {
-        const val MILLIS_TO_SHOW_RELOCATION_DONE = 1000L
         const val DELAY_TO_POPULATE_ISLAND_MILLIS = 1000L
     }
 }

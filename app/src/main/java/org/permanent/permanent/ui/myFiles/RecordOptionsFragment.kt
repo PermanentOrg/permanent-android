@@ -12,16 +12,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
+import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentRecordOptionsBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
@@ -200,18 +201,20 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     }
 
     private val onPublishRequestObserver = Observer<Void> {
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
-        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
 
-        viewDialog.tvTitle.text =
+        dialogBinding.tvTitle.text =
             getString(R.string.dialog_record_publish_confirmation_title, record.displayName)
-        viewDialog.tvText.text = getString(R.string.dialog_record_publish_confirmation_text)
-        viewDialog.btnPositive.text = getString(R.string.button_publish)
-        viewDialog.btnPositive.setOnClickListener {
+        dialogBinding.tvText.text = getString(R.string.dialog_record_publish_confirmation_text)
+        dialogBinding.btnPositive.text = getString(R.string.button_publish)
+        dialogBinding.btnPositive.setOnClickListener {
             viewModel.publishRecord()
             alert.dismiss()
         }
-        viewDialog.btnNegative.setOnClickListener {
+        dialogBinding.btnNegative.setOnClickListener {
             alert.dismiss()
         }
         alert.show()

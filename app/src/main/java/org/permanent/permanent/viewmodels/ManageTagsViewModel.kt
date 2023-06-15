@@ -48,14 +48,6 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
         requestTagsFor(defaultArchiveId)
     }
 
-    fun getTagsCount(): LiveData<String> {
-        return count
-    }
-
-    fun getArchiveName(): LiveData<String> {
-        return archiveName
-    }
-
     private fun requestTagsFor(archiveId: Int) {
         if (isBusy.value != null && isBusy.value!!) {
             return
@@ -119,6 +111,14 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
     }
 
     fun getShowMessage(): LiveData<String> = showMessage
+
     fun getTags(): MutableLiveData<List<Tag>> = tags
+
     fun getOnAddButtonEvent(): LiveData<Void> = onAddButtonEvent
+
+    fun getTagsCount(): LiveData<String> = count
+
+    fun getArchiveName(): LiveData<String> = archiveName
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 }

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.SelectionOptionsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clBottomMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+        <View
+            android:id="@+id/viewDragSheet"
+            android:layout_width="24dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/whiteSuperTransparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/open_sans_semibold"
+            android:maxLines="1"
+            android:text="@{viewModel.title}"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/clContent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/white"
+            android:paddingBottom="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle">
+
+            <Button
+                android:id="@+id/btnCopy"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/open_sans"
+                android:letterSpacing="-0.01"
+                android:paddingStart="0dp"
+                android:text="@string/record_options_menu_item_copy"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                app:icon="@drawable/ic_copy"
+                app:iconPadding="16dp"
+                app:iconTint="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btnMove"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/open_sans"
+                android:letterSpacing="-0.01"
+                android:paddingStart="0dp"
+                android:text="@string/record_options_menu_item_move"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                app:icon="@drawable/ic_move"
+                app:iconPadding="16dp"
+                app:iconTint="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnCopy" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/open_sans"
+                android:letterSpacing="-0.01"
+                android:paddingStart="0dp"
+                android:text="@string/delete_button"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textColor="@color/red"
+                app:icon="@drawable/ic_delete"
+                app:iconPadding="16dp"
+                app:iconTint="@color/red"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnMove" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.shareManagement
 
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.DialogInterface
@@ -15,6 +14,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -23,8 +23,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.FragmentShareManagementBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
@@ -35,7 +35,7 @@ import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
-import java.util.*
+import java.util.Calendar
 
 class ShareManagementFragment : PermanentBottomSheetFragment() {
 
@@ -151,17 +151,18 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
     }
 
     private val onRevokeLinkRequest = Observer<Void> {
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
-        val alert = AlertDialog.Builder(context)
-            .setView(viewDialog)
-            .create()
-        viewDialog.tvTitle.text = getString(R.string.share_management_revoke_title)
-        viewDialog.btnDelete.text = getString(R.string.share_management_revoke_button)
-        viewDialog.btnDelete.setOnClickListener {
+        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_delete, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+        dialogBinding.tvTitle.text = getString(R.string.share_management_revoke_title)
+        dialogBinding.btnDelete.text = getString(R.string.share_management_revoke_button)
+        dialogBinding.btnDelete.setOnClickListener {
             viewModel.deleteShareLink()
             alert.dismiss()
         }
-        viewDialog.btnCancel.setOnClickListener {
+        dialogBinding.btnCancel.setOnClickListener {
             alert.dismiss()
         }
         alert.show()

@@ -1,5 +1,5 @@
 package org.permanent.permanent.ui.myFiles
 
 enum class RelocationType {
-    COPY, MOVE, PUBLISH
+    COPY, MOVE, PUBLISH, DELETE
 }

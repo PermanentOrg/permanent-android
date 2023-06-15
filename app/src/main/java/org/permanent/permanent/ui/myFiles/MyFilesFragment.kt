@@ -21,20 +21,24 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.dialog_cancel_uploads.view.*
-import kotlinx.android.synthetic.main.dialog_delete.view.*
-import kotlinx.android.synthetic.main.dialog_delete.view.tvTitle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.databinding.DialogCancelUploadsBinding
+import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.ui.*
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.SelectionOptionsFragment
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.MainActivity
+import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragment
 import org.permanent.permanent.ui.public.PublicFragment
@@ -68,6 +72,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var saveToPermanentFragment: SaveToPermanentFragment? = null
     private var shareManagementFragment: ShareManagementFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
+    private var selectionOptionsFragment: SelectionOptionsFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
@@ -194,8 +199,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordsAdapter.setRecords(it)
     }
 
-    private val onNewTemporaryFile = Observer<Record> {
-        recordsAdapter.addRecord(it)
+    private val onNewTemporaryFiles = Observer<MutableList<Record>> {
+        recordsAdapter.addRecords(it)
     }
 
     private val onShowRecordSearchFragment = Observer<Void> {
@@ -222,7 +227,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
+        recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateObserver)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
@@ -237,16 +242,17 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordDeleteRequest = Observer<Record> { record ->
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
-        val alert = AlertDialog.Builder(context)
-            .setView(viewDialog)
-            .create()
-        viewDialog.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
-        viewDialog.btnDelete.setOnClickListener {
+        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_delete, null, false
+        )
+        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+        dialogBinding.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
+        dialogBinding.btnDelete.setOnClickListener {
             viewModel.delete(record)
             alert.dismiss()
         }
-        viewDialog.btnCancel.setOnClickListener {
+        dialogBinding.btnCancel.setOnClickListener {
             alert.dismiss()
         }
         alert.show()
@@ -277,15 +283,16 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onCancelAllUploads = Observer<Void> {
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_cancel_uploads, null)
-        val alert = AlertDialog.Builder(context)
-            .setView(viewDialog)
-            .create()
-        viewDialog.btnCancelAll.setOnClickListener {
+        val dialogBinding: DialogCancelUploadsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_cancel_uploads, null, false
+        )
+        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+        dialogBinding.btnCancelAll.setOnClickListener {
             viewModel.cancelAllUploads()
             alert.dismiss()
         }
-        viewDialog.btnNo.setOnClickListener {
+        dialogBinding.btnNo.setOnClickListener {
             alert.dismiss()
         }
         alert.show()
@@ -310,7 +317,43 @@ class MyFilesFragment : PermanentBaseFragment() {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_SMALL)
     }
 
-    private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
+    private val expandIslandRequestObserver = Observer<Void> {
+        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+    }
+
+    private val deleteRecordsObserver = Observer<Void> {
+        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_delete, null, false
+        )
+        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+        dialogBinding.tvTitle.text = getString(R.string.delete_records_title)
+        dialogBinding.btnDelete.setOnClickListener {
+            viewModel.deleteSelectedRecords()
+            alert.dismiss()
+        }
+        dialogBinding.btnCancel.setOnClickListener {
+            alert.dismiss()
+        }
+        alert.show()
+    }
+
+    private val refreshCurrentFolderObserver = Observer<Void> {
+        viewModel.refreshCurrentFolder()
+    }
+
+    private val showSelectionOptionsObserver = Observer<Int> {
+        selectionOptionsFragment = SelectionOptionsFragment()
+        selectionOptionsFragment?.setBundleArguments(it)
+        selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
+        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.observe(this, onSelectionRelocateObserver)
+    }
+
+    private val onSelectionRelocateObserver = Observer<RelocationType> {
+        viewModel.onSelectionRelocationBtnClick(it)
+    }
+
+    private val onRecordRelocateObserver = Observer<Pair<Record, RelocationType>> {
         viewModel.setRelocationMode(it)
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
@@ -379,6 +422,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             this,
             showScreenSimplified,
             viewModel.getIsRelocationMode(),
+            viewModel.getIsSelectionMode(),
             isForSharesScreen = false,
             isForSearchScreen = false,
             recordListener = viewModel
@@ -387,6 +431,7 @@ class MyFilesFragment : PermanentBaseFragment() {
             this,
             showScreenSimplified,
             viewModel.getIsRelocationMode(),
+            viewModel.getIsSelectionMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
             isForSharesScreen = false,
@@ -416,7 +461,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
-        viewModel.getOnNewTemporaryFile().observe(this, onNewTemporaryFile)
+        viewModel.getOnNewTemporaryFiles().observe(this, onNewTemporaryFiles)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
         viewModel.getOnShowRecordOptionsFragment().observe(this, onShowRecordOptionsFragment)
         viewModel.getOnShowRecordSearchFragment().observe(this, onShowRecordSearchFragment)
@@ -426,6 +471,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
+        viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
+        viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
+        viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
+        viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -441,7 +490,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
-        viewModel.getOnNewTemporaryFile().removeObserver(onNewTemporaryFile)
+        viewModel.getOnNewTemporaryFiles().removeObserver(onNewTemporaryFiles)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
         viewModel.getOnShowRecordOptionsFragment().removeObserver(onShowRecordOptionsFragment)
         viewModel.getOnShowRecordSearchFragment().removeObserver(onShowRecordSearchFragment)
@@ -451,6 +500,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
+        viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
+        viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
+        viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
+        viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
@@ -461,8 +514,9 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
+        recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
+        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.removeObserver(onSelectionRelocateObserver)
     }
 
     override fun onResume() {
