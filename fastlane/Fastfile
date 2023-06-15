@@ -28,19 +28,38 @@ platform :android do
 
   desc "Submit a new Beta Build to Firebase"
   lane :firebase do
-    gradle(task: "clean bundleStagingRelease")
-    # firebase_app_distribution(
-    #   app: "1:1071143441498:android:75fd393c7bb8ea75dd7463",
-    #   android_artifact_type: "AAB"
-    #   )
+    latest_release = firebase_app_distribution_get_latest_release(
+      app: ENV['APP_ID'],
+      firebase_cli_token: ENV['FIREBASEAPPDISTRO_CLI_TOKEN']
+    )
+    
+    if latest_release
+      increment_version_code({ version_code: latest_release[:buildVersion].to_i + 1 })
+    end
+    
+    gradle(task: "clean assembleStagingRelease")
+
+    firebase_app_distribution(
+      app: ENV['APP_ID'],
+      android_artifact_type: "APK",
+      firebase_cli_token: ENV['FIREBASEAPPDISTRO_CLI_TOKEN']
+      )
   end
 
   desc "Submit a new Beta Build to Playstore"
-  lane :beta do
-    gradle(task: "clean bundleStagingRelease")
+  lane :playStore do
+    gradle(
+      task: "bundleProductionRelease",
+      properties: {
+        "android.injected.signing.store.file" => ENV['KEYSTORE_FILE'],
+        "android.injected.signing.store.password" => ENV['KEYSTORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEYSTORE_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEYSTORE_PASSWORD'],
+      })
     upload_to_play_store(
-      track: 'beta',
+      track: 'internal',
       skip_upload_apk: true
       )
   end
+
 end
