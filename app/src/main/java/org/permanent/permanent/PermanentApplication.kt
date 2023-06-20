@@ -14,6 +14,7 @@ import org.permanent.permanent.ui.myFiles.RelocationType
 
 class PermanentApplication : Application(), LifecycleObserver {
     companion object {
+        @JvmStatic
         lateinit var instance: PermanentApplication
             private set
 
@@ -37,7 +38,7 @@ class PermanentApplication : Application(), LifecycleObserver {
     var currentActivity: Activity? = null
     var isAppInForeground: Boolean = false
 
-    var relocateData: Pair<Record, RelocationType>? = null
+    var relocateData: Pair<MutableList<Record>, RelocationType>? = null
 
     override fun onCreate() {
         super.onCreate()
