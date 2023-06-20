@@ -8,7 +8,6 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.NavigationFolder
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.RelocationIslandState
@@ -20,8 +19,8 @@ abstract class RelocationViewModel(application: Application) :
     val relocationIslandState = MutableLiveData(RelocationIslandState.BLANK)
     val isRelocationMode = MutableLiveData(false)
     val showActionIsland = MutableLiveData(false)
+    val recordsToRelocate = MutableLiveData<MutableList<Record>>()
     val relocationType = MutableLiveData<RelocationType>()
-    val recordToRelocate = MutableLiveData<Record?>()
     var currentFolder = MutableLiveData<NavigationFolder>()
     val existsFiles = MutableLiveData(false)
     private val shrinkIslandRequest = SingleLiveEvent<Void>()
@@ -29,10 +28,10 @@ abstract class RelocationViewModel(application: Application) :
     protected val showMessage = SingleLiveEvent<String>()
     var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun setRelocationMode(relocationPair: Pair<Record, RelocationType>) {
+    fun setRelocationMode(relocationPair: Pair<MutableList<Record>, RelocationType>) {
         PermanentApplication.instance.relocateData = relocationPair
 
-        recordToRelocate.value = relocationPair.first
+        recordsToRelocate.value = relocationPair.first
         relocationType.value = relocationPair.second
         isRelocationMode.value = true
         viewModelScope.launch {

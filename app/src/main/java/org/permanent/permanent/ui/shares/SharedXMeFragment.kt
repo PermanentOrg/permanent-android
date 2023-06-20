@@ -363,7 +363,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     private val onRecordRelocateObserver = Observer<Pair<Record, RelocationType>> {
-        viewModel.setRelocationMode(it)
+        viewModel.setRelocationMode(Pair(mutableListOf(it.first), it.second))
         lifecycleScope.launch {
             delay(MyFilesFragment.DELAY_TO_RESIZE_MILLIS)
             resizeIslandWidthAnimated(
