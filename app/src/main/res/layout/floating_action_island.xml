@@ -10,6 +10,8 @@
 
         <import type="org.permanent.permanent.ui.RelocationIslandState" />
 
+        <import type="org.permanent.permanent.PermanentApplication" />
+
         <variable
             name="viewModel"
             type="org.permanent.permanent.viewmodels.SelectionViewModel" />
@@ -32,7 +34,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:record="@{viewModel.recordToRelocate}" />
+                    app:record="@{viewModel.recordsToRelocate.size() == 1 ? viewModel.recordsToRelocate.get(0) : null}" />
 
                 <TextView
                     android:id="@+id/tvTitle"
@@ -67,7 +69,7 @@
                     android:fontFamily="@font/open_sans"
                     android:letterSpacing="-0.01"
                     android:maxLines="1"
-                    android:text="@{viewModel.recordToRelocate == null ? viewModel.selectedRecordsSize + @string/items : viewModel.recordToRelocate.displayName}"
+                    android:text="@{viewModel.recordsToRelocate.size() == 1 ? viewModel.recordsToRelocate.get(0).displayName : PermanentApplication.getInstance().relocateData.first.size() + @string/items}"
                     android:textColor="@color/middleGrey"
                     android:textSize="14sp"
                     android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
@@ -80,10 +82,10 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:enabled="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)}"
+                    android:enabled="@{viewModel.recordsToRelocate.get(0) != null &amp;&amp; (viewModel.recordsToRelocate.get(0).parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordsToRelocate.get(0).parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY))}"
                     android:onClick="@{() -> viewModel.onPasteOrMoveBtnClick()}"
                     android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_paste_here : @string/record_options_move_here}"
-                    android:textColor="@{viewModel.recordToRelocate.parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordToRelocate.parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY) ? @color/black : @color/lightGrey}"
+                    android:textColor="@{viewModel.recordsToRelocate.get(0) != null &amp;&amp; (viewModel.recordsToRelocate.get(0).parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordsToRelocate.get(0).parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)) ? @color/black : @color/lightGrey}"
                     android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
                     app:icon="@drawable/ic_copy_move"
                     app:iconTint="@color/colorPrimary"

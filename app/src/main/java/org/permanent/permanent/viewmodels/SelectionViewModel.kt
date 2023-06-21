@@ -80,6 +80,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         super.onCancelRelocationBtnClick()
         selectBtnText.value = appContext.getString(R.string.button_select)
         deselectAllRecords()
+        PermanentApplication.instance.relocateData = null
     }
 
     private fun showActionIsland() {
@@ -104,9 +105,8 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         isRelocationMode.value = true
         relocationType.value = type
         relocationIslandState.value = RelocationIslandState.CONFIRMATION
-        // This is how it is the icon determined
-        if (selectedRecordsSize.value == 1) recordToRelocate.value = selectedRecords.value?.get(0)
-        else recordToRelocate.value = null
+        recordsToRelocate.value = selectedRecords.value
+        selectedRecords.value?.let { PermanentApplication.instance.relocateData = Pair(it, type) }
     }
 
     fun onSelectionOptionsBtnClick() {
@@ -117,12 +117,14 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         PermanentApplication.instance.relocateData = null
         getShrinkIslandRequest().call()
         relocationIslandState.value = RelocationIslandState.PROCESSING
-        val recordsToRelocate =
-            if (recordToRelocate.value != null) mutableListOf(recordToRelocate.value!!) else selectedRecords.value
+        val recordsToRelocate = recordsToRelocate.value
         val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
         val relocationTypeValue = relocationType.value
         if (!recordsToRelocate.isNullOrEmpty() && folderLinkId != null && relocationTypeValue != null) {
-            fileRepository.relocateRecords(recordsToRelocate, folderLinkId, relocationTypeValue,
+            fileRepository.relocateRecords(
+                recordsToRelocate,
+                folderLinkId,
+                relocationTypeValue,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         relocationIslandState.value = RelocationIslandState.DONE
