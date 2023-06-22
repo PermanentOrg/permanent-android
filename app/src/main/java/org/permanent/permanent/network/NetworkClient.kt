@@ -4,17 +4,38 @@ import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import okhttp3.*
+import okhttp3.Interceptor
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
-import org.permanent.permanent.models.*
-import org.permanent.permanent.network.models.*
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Share
+import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.models.AccountVO
+import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.network.models.ProfileItemsRequestContainer
+import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.network.models.SimpleRequestContainer
+import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.invitations.UpdateType
@@ -25,7 +46,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
-import java.util.*
+import java.util.Date
 
 
 class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {

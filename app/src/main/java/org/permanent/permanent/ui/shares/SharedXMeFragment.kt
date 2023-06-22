@@ -91,6 +91,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
         viewModel.initUploadsRecyclerView(binding.rvUploads, this)
+        viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
         initDownloadsRecyclerView(binding.rvDownloads)
         initRecordsRecyclerView(binding.rvShares)
         arguments?.takeIf { it.containsKey(SHARED_X_ME_NO_ITEMS_MESSAGE_KEY) }?.apply {
