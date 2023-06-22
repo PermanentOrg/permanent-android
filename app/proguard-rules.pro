@@ -99,6 +99,52 @@
 # platform version. We know about them, and they are safe.
 -dontwarn android.support.**
 -dontwarn com.google.ads.**
+-dontwarn com.google.crypto.tink.subtle.Ed25519Sign$KeyPair
+-dontwarn com.google.crypto.tink.subtle.Ed25519Sign
+-dontwarn com.google.crypto.tink.subtle.Ed25519Verify
+-dontwarn com.google.crypto.tink.subtle.X25519
+-dontwarn com.google.crypto.tink.subtle.XChaCha20Poly1305
+-dontwarn com.google.firebase.messaging.TopicOperation$TopicOperations
+-dontwarn javax.naming.InvalidNameException
+-dontwarn javax.naming.NamingEnumeration
+-dontwarn javax.naming.NamingException
+-dontwarn javax.naming.directory.Attribute
+-dontwarn javax.naming.directory.Attributes
+-dontwarn javax.naming.directory.DirContext
+-dontwarn javax.naming.directory.InitialDirContext
+-dontwarn javax.naming.directory.SearchControls
+-dontwarn javax.naming.directory.SearchResult
+-dontwarn javax.naming.ldap.LdapName
+-dontwarn javax.naming.ldap.Rdn
+-dontwarn javax.servlet.ServletContextEvent
+-dontwarn javax.servlet.ServletContextListener
+-dontwarn org.apache.avalon.framework.logger.Logger
+-dontwarn org.apache.log.Hierarchy
+-dontwarn org.apache.log.Logger
+-dontwarn org.apache.log4j.Level
+-dontwarn org.apache.log4j.Logger
+-dontwarn org.apache.log4j.Priority
+-dontwarn org.bouncycastle.cert.X509CertificateHolder
+-dontwarn org.bouncycastle.cert.jcajce.JcaX509CertificateHolder
+-dontwarn org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.bouncycastle.openssl.PEMKeyPair
+-dontwarn org.bouncycastle.openssl.PEMParser
+-dontwarn org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.ConscryptHostnameVerifier
+-dontwarn org.ietf.jgss.GSSContext
+-dontwarn org.ietf.jgss.GSSCredential
+-dontwarn org.ietf.jgss.GSSException
+-dontwarn org.ietf.jgss.GSSManager
+-dontwarn org.ietf.jgss.GSSName
+-dontwarn org.ietf.jgss.Oid
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE
 ##---------------End: proguard configuration for Gson  ----------
 
 ##---------------Begin: proguard configuration for Gson  ----------
