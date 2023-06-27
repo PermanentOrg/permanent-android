@@ -32,12 +32,10 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
     private var shownInWorkspace: Workspace? = Workspace.PUBLIC_ARCHIVES
     private var myFilesFragment: MyFilesFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
-    private val onSaveFolderEvent = SingleLiveEvent<Record>()
+    private val onSaveFolderEvent = SingleLiveEvent<Pair<Workspace, Record?>>()
 
     private val onSaveFolderRequestObserver = Observer<Void> {
-        val record = onRecordSelectedEvent.value
-        val destinationFolder = if (record?.type == RecordType.FOLDER) record else null
-        onSaveFolderEvent.value = destinationFolder
+        onSaveFolderEvent.value = Pair(Workspace.PRIVATE_FILES, onRecordSelectedEvent.value)
         dismiss()
     }
 
@@ -93,7 +91,7 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordSelected(): MutableLiveData<Record> = onRecordSelectedEvent
 
-    fun getOnSaveFolderEvent(): MutableLiveData<Record> = onSaveFolderEvent
+    fun getOnSaveFolderEvent(): MutableLiveData<Pair<Workspace, Record?>> = onSaveFolderEvent
 
     override fun connectViewModelEvents() {
         viewModel.getOnSaveFolderRequest().observe(this, onSaveFolderRequestObserver)

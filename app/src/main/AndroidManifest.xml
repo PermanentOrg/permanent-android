@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.permanent.permanent">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -62,10 +61,6 @@
         </service>
 
         <activity
-            android:name=".ui.activities.SignUpActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".ui.activities.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
@@ -89,7 +84,7 @@
             <nav-graph android:value="@navigation/file_navigation_graph" />
         </activity>
         <activity
-            android:name=".ui.login.BiometricsActivity"
+            android:name=".ui.login.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="false"
             android:launchMode="singleTask"
@@ -106,10 +101,6 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activities.UpdateAppActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.twoStepVerification.TwoStepVerificationActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity

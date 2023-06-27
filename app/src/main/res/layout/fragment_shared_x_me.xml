@@ -17,6 +17,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -82,6 +87,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
+                    android:visibility="@{viewModel.existsFiles == false ? View.GONE : View.VISIBLE}"
                     app:viewModeIcon="@{viewModel.isListViewMode}" />
 
                 <TextView
@@ -188,6 +194,48 @@
                     app:layout_constraintTop_toBottomOf="@+id/clUploads"
                     app:layout_constraintVertical_bias="0.0" />
 
+                <Button
+                    android:id="@+id/btnClear"
+                    style="@style/customTextButtonStyle"
+                    android:layout_width="72dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/open_sans"
+                    android:letterSpacing="-0.01"
+                    android:onClick="@{() -> viewModel.onClearBtnClick()}"
+                    android:text="@string/button_clear"
+                    android:textColor="@color/red"
+                    android:visibility="@{viewModel.isSelectionMode ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/btnSelect"
+                    app:layout_constraintEnd_toStartOf="@+id/btnSelect"
+                    app:layout_constraintTop_toTopOf="@+id/btnSelect" />
+
+                <Button
+                    android:id="@+id/btnSelect"
+                    style="@style/customTextButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="-10dp"
+                    android:fontFamily="@font/open_sans"
+                    android:letterSpacing="-0.01"
+                    android:onClick="@{() -> viewModel.isSelectionMode ? viewModel.onSelectAllBtnClick() : viewModel.onSelectBtnClick()}"
+                    android:text="@{viewModel.selectBtnText}"
+                    android:visibility="@{viewModel.isRoot || viewModel.isRelocationMode || viewModel.isCreateAvailable == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvSortCriteria"
+                    app:layout_constraintEnd_toStartOf="@+id/btnCheckBox"
+                    app:layout_constraintTop_toBottomOf="@+id/ivViewModeIcon"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <Button
+                    android:id="@+id/btnCheckBox"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.isSelectionMode ? View.VISIBLE : View.GONE}"
+                    app:icon="@{viewModel.selectedRecordsSize != 0 ? (viewModel.areAllSelected ? @drawable/ic_checkbox_full : @drawable/ic_checkbox_half_full) : @drawable/ic_checkbox_empty}"
+                    app:layout_constraintBottom_toBottomOf="@+id/btnSelect"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/btnSelect" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvShares"
                     android:layout_width="match_parent"
@@ -258,6 +306,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <FrameLayout
             android:id="@+id/flFloatingActionIsland"
@@ -275,21 +324,7 @@
             <include
                 layout="@layout/floating_action_island"
                 app:viewModel="@{viewModel}" />
-
         </FrameLayout>
-
-        <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/progressBar"
-            style="@style/Widget.AppCompat.ProgressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.54" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAdd"
@@ -300,7 +335,7 @@
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{()-> viewModel.onAddFabClick()}"
-            android:visibility="@{viewModel.isRoot || viewModel.isRelocationMode || viewModel.isCreateAvailable == false ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.isRoot || viewModel.isRelocationMode || viewModel.isSelectionMode || viewModel.isCreateAvailable == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
             app:backgroundTint="@color/colorAccent"
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"

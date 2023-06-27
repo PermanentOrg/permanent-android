@@ -18,7 +18,7 @@ class Archive() : Parcelable {
     var isPopular: Boolean = false
 
     constructor(parcel: Parcel) : this() {
-        id = parcel.readInt()
+        id = parcel.readValue(Int::class.java.classLoader) as Int
         number = parcel.readString()
         thumbArchiveNr = parcel.readString()
         type = parcel.readParcelable(ArchiveType::class.java.classLoader)
@@ -27,7 +27,7 @@ class Archive() : Parcelable {
         accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         accessRoleText = parcel.readString()
         status = parcel.readParcelable(Status::class.java.classLoader)
-        isPublic = parcel.readInt()
+        isPublic = parcel.readValue(Int::class.java.classLoader) as? Int
         isPopular = parcel.readValue(Boolean::class.java.classLoader) as Boolean
     }
 
@@ -79,7 +79,7 @@ class Archive() : Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
+        parcel.writeValue(id)
         parcel.writeString(number)
         parcel.writeString(thumbArchiveNr)
         parcel.writeParcelable(type, flags)

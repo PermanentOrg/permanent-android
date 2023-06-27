@@ -14,7 +14,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_main.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicBinding
 import org.permanent.permanent.models.AccessRole
@@ -24,7 +23,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.activities.SignUpActivity
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
@@ -54,8 +53,8 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
-            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
@@ -85,7 +84,6 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
 
         binding.fabProfileBanner.setOnClickListener(this)
         binding.fabProfilePhoto.setOnClickListener(this)
-        activity?.toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
 
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -119,7 +117,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
                 prefsHelper.saveDeepLinkFileArchiveNr(fileArchiveNr)
                 prefsHelper.saveDeepLinkFolderArchiveNr(folderArchiveNr)
                 prefsHelper.saveDeepLinkFolderLinkId(folderLinkId)
-                startActivity(Intent(context, SignUpActivity::class.java))
+                startActivity(Intent(context, LoginActivity::class.java))
                 activity?.finish()
             }
         } else {

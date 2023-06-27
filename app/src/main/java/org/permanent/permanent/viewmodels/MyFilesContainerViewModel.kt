@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.Workspace.PRIVATE_FILES
 
 class MyFilesContainerViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
@@ -17,10 +16,10 @@ class MyFilesContainerViewModel(application: Application) :
 
     fun setShownInWorkspace(workspace: Workspace?) {
         shownInWorkspace.value = workspace
-        if (shownInWorkspace.value == PRIVATE_FILES) {
-            title.value = appContext.getString(R.string.private_files_container_select_folder_title)
-        } else {
+        if (shownInWorkspace.value == Workspace.PUBLIC_ARCHIVES) {
             title.value = appContext.getString(R.string.private_files_container_select_file_title)
+        } else {
+            title.value = appContext.getString(R.string.private_files_container_select_folder_title)
         }
     }
 

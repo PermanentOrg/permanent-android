@@ -144,8 +144,8 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
 
                         override fun onFailed(error: String?) {
                             isBusy.value = false
-                            errorMessage.value = error
                             Log.e(TAG, "Deleting Device FCM token failed: $error")
+                            logout()
                         }
                     })
             })

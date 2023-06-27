@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_navigation"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="org.permanent.permanent.ui.login.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_codeVerificationFragment"
+            app:destination="@id/codeVerificationFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_biometricsFragment"
+            app:destination="@id/biometricsFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/biometricsFragment"
+        android:name="org.permanent.permanent.ui.login.BiometricsFragment"
+        android:label="BiometricsFragment"
+        tools:layout="@layout/fragment_biometrics">
+        <action
+            android:id="@+id/action_biometricsFragment_to_LoginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_biometricsFragment_to_mainActivity"
+            app:destination="@id/mainActivity" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="org.permanent.permanent.ui.login.SignUpFragment"
+        android:label="SignUpFragment"
+        tools:layout="@layout/fragment_sign_up">
+        <action
+            android:id="@+id/action_signUpFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/phoneVerificationFragment"
+        android:name="org.permanent.permanent.ui.login.PhoneVerificationFragment"
+        android:label="PhoneVerificationFragment"
+        tools:layout="@layout/fragment_verification_phone">
+        <action
+            android:id="@+id/action_phoneVerificationFragment_to_codeVerificationFragment"
+            app:destination="@id/codeVerificationFragment" />
+        <action
+            android:id="@+id/action_phoneVerificationFragment_to_mainActivity"
+            app:destination="@id/mainActivity" />
+    </fragment>
+    <fragment
+        android:id="@+id/codeVerificationFragment"
+        android:name="org.permanent.permanent.ui.login.CodeVerificationFragment"
+        android:label="CodeVerificationFragment"
+        tools:layout="@layout/fragment_verification_code">
+        <action
+            android:id="@+id/action_codeVerificationFragment_to_phoneVerificationFragment"
+            app:destination="@id/phoneVerificationFragment" />
+        <action
+            android:id="@+id/action_codeVerificationFragment_to_mainActivity"
+            app:destination="@id/mainActivity" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="org.permanent.permanent.ui.login.ForgotPasswordFragment"
+        android:label="ForgotPasswordFragment"
+        tools:layout="@layout/fragment_forgot_password">
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="org.permanent.permanent.ui.activities.MainActivity"
+        android:label="MainActivity"
+        tools:layout="@layout/activity_main" />
+</navigation>

@@ -6,6 +6,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
+import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -20,26 +21,29 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     override fun signUp(
-        fullName: String, email: String, password: String, listener: IResponseListener
+        fullName: String,
+        email: String,
+        password: String,
+        listener: IAccountRepository.IAccountListener
     ) {
         NetworkClient.instance().signUp(fullName, email, password)
-            .enqueue(object : Callback<ResponseVO> {
+            .enqueue(object : Callback<AccountVO> {
 
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        prefsHelper.saveWelcomeDialogSeen(false)
-                        prefsHelper.saveArchiveOnboardingDoneInApp(false)
-                        listener.onSuccess(appContext.getString(R.string.account_create_success))
+                override fun onResponse(call: Call<AccountVO>, response: Response<AccountVO>) {
+                    val accountVO = response.body()
+                    if (accountVO != null) {
+                        listener.onSuccess(Account(accountVO))
                     } else {
                         listener.onFailed(
-                            responseVO?.getMessages()?.get(0)
-                                ?: response.errorBody()?.toString()
+                            if (response.errorBody()?.string()
+                                    ?.contains(Constants.ERROR_EMAIL_DUPLICATED) == true
+                            ) appContext.getString(R.string.sign_up_email_in_use_error)
+                            else appContext.getString(R.string.account_create_failed)
                         )
                     }
                 }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                override fun onFailure(call: Call<AccountVO>, t: Throwable) {
                     listener.onFailed(t.message)
                 }
             })

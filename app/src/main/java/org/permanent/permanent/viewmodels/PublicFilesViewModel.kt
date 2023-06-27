@@ -2,6 +2,7 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.Record
@@ -14,6 +15,7 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
+    private val onRootFolderReady = SingleLiveEvent<Void>()
 
     init {
         getFolderName().value = Constants.PUBLIC_FILES
@@ -31,6 +33,7 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
                 folderPathStack.push(record)
                 loadFilesAndUploadsOf(record)
                 loadEnqueuedDownloads(lifecycleOwner)
+                onRootFolderReady.call()
             }
 
             override fun onFailed(error: String?) {
@@ -39,4 +42,6 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
             }
         })
     }
+
+    fun getOnRootFolderReady(): MutableLiveData<Void> = onRootFolderReady
 }

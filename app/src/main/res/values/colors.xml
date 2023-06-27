@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#131B4A</color>
+    <color name="colorPrimaryDarker">#0f163b</color>
+    <color name="colorPrimaryLighter">#1c2451</color>
     <color name="superLightBlue">#F4F6FD</color>
     <color name="blueGrey">#465084</color>
     <color name="barneyPurple">#800080</color>
@@ -11,12 +13,14 @@
     <color name="colorAccent">#FF9933</color>
     <color name="colorAccentDark">#ff8000</color>
     <color name="green">#34C759</color>
+    <color name="deepGreen">#167D14</color>
     <color name="dotGreen">#1BC917</color>
     <color name="dullGreen">#82B15F</color>
     <color name="paleGreen">#CAE5C9</color>
     <color name="white">#FFFFFF</color>
     <color name="whiteTransparent">#80FFFFFF</color>
     <color name="whiteSuperTransparent">#50FFFFFF</color>
+    <color name="whiteSuperExtraTransparent">#20FFFFFF</color>
     <color name="superLightGrey">#EBEBEB</color>
     <color name="lightGrey">#B4B4B4</color>
     <color name="lighterGrey">#DADADA</color>

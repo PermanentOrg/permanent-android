@@ -19,22 +19,22 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.dialog_delete.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCreateNewArchiveBinding
+import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.FragmentArchivesBinding
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.ArchivesViewModel
 import org.permanent.permanent.viewmodels.CreateNewArchiveViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
-import java.util.*
+import java.util.Locale
 
 class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickListener {
 
@@ -62,8 +62,8 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
-            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
@@ -107,16 +107,17 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
     }
 
     private val onDeleteArchiveObserver = Observer<Archive> { archive ->
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_delete, null)
-        val alert = android.app.AlertDialog.Builder(context)
-            .setView(viewDialog)
-            .create()
-        viewDialog.tvTitle.text = getString(R.string.dialog_delete_archive_title)
-        viewDialog.btnDelete.setOnClickListener {
+        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_delete, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+        dialogBinding.tvTitle.text = getString(R.string.dialog_delete_archive_title)
+        dialogBinding.btnDelete.setOnClickListener {
             viewModel.deleteArchive(archive)
             alert.dismiss()
         }
-        viewDialog.btnCancel.setOnClickListener {
+        dialogBinding.btnCancel.setOnClickListener {
             alert.dismiss()
         }
         alert.show()
@@ -152,7 +153,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         )
         if (!prefsHelper.isUserLoggedIn()) {
             prefsHelper.saveShowArchivesDeepLink(true)
-            startActivity(Intent(context, SignUpActivity::class.java))
+            startActivity(Intent(context, LoginActivity::class.java))
             activity?.finish()
         }
 

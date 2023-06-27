@@ -214,6 +214,8 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
 
     override fun onRecordOptionsClick(record: Record) {}
 
+    override fun onRecordCheckBoxClick(record: Record) {}
+
     override fun onRecordDeleteClick(record: Record) {}
 
     private fun getFilesForViewing(

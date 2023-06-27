@@ -38,6 +38,12 @@
         <action
             android:id="@+id/action_myFilesFragment_to_archivesFragment"
             app:destination="@id/archivesFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_shares"
+            app:destination="@id/sharesFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_publicFilesFragment"
+            app:destination="@id/publicFilesFragment" />
     </fragment>
 
     <fragment
@@ -89,6 +95,12 @@
         android:name="org.permanent.permanent.ui.members.MembersFragment"
         android:label="@string/menu_drawer_manage_members"
         tools:layout="@layout/fragment_members" />
+
+    <fragment
+        android:id="@+id/manageTagsFragment"
+        android:name="org.permanent.permanent.ui.manageTags.ManageTagsFragment"
+        android:label="@string/menu_drawer_manage_tags"
+        tools:layout="@layout/fragment_manage_tags" />
 
     <fragment
         android:id="@+id/activityFeedFragment"

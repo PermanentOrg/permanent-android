@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import kotlinx.coroutines.Job
@@ -26,14 +27,15 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
+import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SharedXMeViewModel(application: Application) : RelocationViewModel(application),
-    CancelListener, OnFinishedListener {
+class SharedXMeViewModel(application: Application) : SelectionViewModel(application),
+    CancelListener, OnFinishedListener, RecordListener {
 
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
@@ -53,9 +55,9 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
     private var folderPathStack: Stack<Record> = Stack()
 
-    private val isBusy = MutableLiveData(false)
     private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
+    private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
@@ -65,10 +67,18 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onFileViewRequest = SingleLiveEvent<Record>()
     private val showRelocationCancellationDialog = SingleLiveEvent<Void>()
+    private val onRecordSelected = SingleLiveEvent<Record>()
+    private var showScreenSimplified = MutableLiveData(false)
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var uploadsRecyclerView: RecyclerView
+
+    fun initSwipeRefreshLayout(refreshLayout: SwipeRefreshLayout) {
+        this.swipeRefreshLayout = refreshLayout
+        swipeRefreshLayout.setOnRefreshListener { refreshCurrentFolder() }
+    }
 
     fun setLifecycleOwner(lifecycleOwner: LifecycleOwner) {
         this.lifecycleOwner = lifecycleOwner
@@ -89,6 +99,10 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
+    fun setShowScreenSimplified() {
+        showScreenSimplified.value = true
+    }
+
     fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
         uploadsRecyclerView = rvUploads
         this.lifecycleOwner = lifecycleOwner
@@ -100,11 +114,12 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
         }
     }
 
-    fun onRecordClick(record: Record) {
+    override fun onRecordClick(record: Record) {
         if (record.isProcessing) {
             return
         }
         if (record.type == RecordType.FOLDER) {
+            if (showScreenSimplified.value == true) onRecordSelected.value = record
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
             currentFolder.value = NavigationFolder(appContext, record)
@@ -113,8 +128,14 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
             loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
             loadFilesOf(currentFolder.value, currentSortType.value)
         } else {
-            onFileViewRequest.value = record
+            if (showScreenSimplified.value == false) {
+                onFileViewRequest.value = record
+            }
         }
+    }
+
+    override fun onRecordOptionsClick(record: Record) {
+        onShowRecordOptionsFragment.value = record
     }
 
     fun onBackBtnClick() {
@@ -142,20 +163,17 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
     }
 
     private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
         val archiveNr = folder?.getArchiveNr()
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
-            isBusy.value = true
+            swipeRefreshLayout.isRefreshing = true
             fileRepository.getChildRecordsOf(archiveNr,
                 folderLinkId,
                 sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
 
                     override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
-                        isBusy.value = false
+                        swipeRefreshLayout.isRefreshing = false
                         isRoot.value = false
                         folderName.value = folder.getDisplayName()
                         existsFiles.value = !recordVOs.isNullOrEmpty()
@@ -163,7 +181,7 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
                     }
 
                     override fun onFailed(error: String?) {
-                        isBusy.value = false
+                        swipeRefreshLayout.isRefreshing = false
                         error?.let { showMessage.value = it }
                     }
                 })
@@ -258,7 +276,7 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
         fakeRecordInfo.displayName = upload?.getDisplayName()
         val fakeRecord = Record(fakeRecordInfo)
         fakeRecord.type = RecordType.FILE
-        onNewTemporaryFile.value = fakeRecord
+        onNewTemporaryFiles.value = mutableListOf(fakeRecord)
         existsFiles.value = true
     }
 
@@ -266,6 +284,7 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
         refreshJob?.cancel()
         if (folderPathStack.isEmpty()) {
             onRootSharesNeeded.call()
+            swipeRefreshLayout.isRefreshing = false
         } else {
             loadFilesOf(currentFolder.value, currentSortType.value)
         }
@@ -293,10 +312,10 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
     }
 
     fun delete(record: Record) {
-        isBusy.value = true
-        fileRepository.deleteRecord(record, object : IResponseListener {
+        swipeRefreshLayout.isRefreshing = true
+        fileRepository.deleteRecords(mutableListOf(record), object : IResponseListener {
             override fun onSuccess(message: String?) {
-                isBusy.value = false
+                swipeRefreshLayout.isRefreshing = false
                 if (record.type == RecordType.FOLDER) showMessage.value =
                     appContext.getString(R.string.my_files_folder_deleted)
                 else showMessage.value = appContext.getString(R.string.my_files_file_deleted)
@@ -307,7 +326,7 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
+                swipeRefreshLayout.isRefreshing = false
                 showMessage.value = error
             }
         })
@@ -318,10 +337,10 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
             appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         ).getCurrentArchiveId()
 
-        isBusy.value = true
+        swipeRefreshLayout.isRefreshing = true
         fileRepository.unshareRecord(record, currentArchiveId, object : IResponseListener {
             override fun onSuccess(message: String?) {
-                isBusy.value = false
+                swipeRefreshLayout.isRefreshing = false
                 refreshCurrentFolder()
                 if (record.type == RecordType.FOLDER) showMessage.value =
                     appContext.getString(R.string.my_files_folder_unshared)
@@ -329,7 +348,7 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
+                swipeRefreshLayout.isRefreshing = false
                 showMessage.value = error
             }
         })
@@ -338,6 +357,24 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
     fun cancelRelocationMode() {
         onCancelRelocationBtnClick()
     }
+
+    fun uploadFilesToFolder(folder: Record?, uris: ArrayList<Uri>) {
+        folder?.let {
+            onRecordClick(it)
+            upload(uris)
+        }
+    }
+
+
+    override fun onRecordCheckBoxClick(record: Record) {
+        super.onRecordChecked(record)
+    }
+
+    fun onSelectAllBtnClick() {
+        super.onSelectAllRecords(onRecordsRetrieved.value!!)
+    }
+
+    override fun onRecordDeleteClick(record: Record) {}
 
     fun getIsListViewMode(): MutableLiveData<Boolean> = isListViewMode
 
@@ -349,15 +386,13 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
 
     fun getSortName(): MutableLiveData<String> = sortName
 
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
     fun getShowMessage(): LiveData<String> = showMessage
 
     fun getIsCreateAvailable(): LiveData<Boolean> = isCreateAvailable
 
     fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
 
-    fun getOnNewTemporaryFile(): MutableLiveData<Record> = onNewTemporaryFile
+    fun getOnNewTemporaryFiles(): MutableLiveData<MutableList<Record>> = onNewTemporaryFiles
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment
@@ -374,6 +409,10 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
 
     fun getOnChangeViewMode(): MutableLiveData<Boolean> = onChangeViewMode
 
+    fun getOnRecordSelected(): MutableLiveData<Record> = onRecordSelected
+
+    fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
+
     fun getOnFileViewRequest(): LiveData<Record> = onFileViewRequest
 
     fun getShowRelocationCancellationDialog(): LiveData<Void> = showRelocationCancellationDialog
@@ -381,4 +420,8 @@ class SharedXMeViewModel(application: Application) : RelocationViewModel(applica
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
+
+    fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
+
+    fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 }

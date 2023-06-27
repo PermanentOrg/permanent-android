@@ -11,16 +11,21 @@
     <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
     <string name="email_hint">Email</string>
-    <string name="login_screen_password_hint">Password</string>
-    <string name="login_screen_login">Log In</string>
+    <string name="password_hint">Password</string>
+    <string name="login_screen_sign_in">Sign in</string>
     <string name="login_screen_forgot_password">Forgot Password?</string>
     <string name="login_screen_sign_up">Sign up</string>
-    <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
+    <string name="login_screen_new_to_permanent">New to Permanent?</string>
+    <string name="login_screen_missing_auth_token_error">Missing authentication token. Please try again.</string>
     <string name="login_screen_use_touch_id">Use Touch ID</string>
+    <string name="forgot_password_screen_or">Or</string>
+    <string name="forgot_password_screen_back_to_sign_in">Back to Sign in</string>
+    <string name="button_recover_password">Recover password</string>
+    <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
     <string name="sign_up_screen_sign_up">Sign Up</string>
     <string name="sign_up_screen_full_name_hint">Full Name</string>
-    <string name="sign_up_screen_password_hint">Password (min. 8 chars)</string>
-    <string name="sign_up_screen_already_have_an_account">Already have an account?</string>
+    <string name="sign_up_screen_password_hint">Password</string>
+    <string name="sign_up_screen_already_registered">Already registered?</string>
     <string name="button_accept">Accept</string>
     <string name="button_decline">Decline</string>
     <string name="button_edit">Edit</string>
@@ -28,8 +33,9 @@
     <string name="sign_up_terms_declined">Declined Terms and Conditions</string>
     <string name="login_screen_password_reset_message">An email with instructions to change your password has been sent at %s.</string>
     <string name="verification_code_enter_verification_code">Enter verification code</string>
-    <string name="verification_code_enter_code_hint">Enter the second factor code</string>
+    <string name="verification_code_enter_code_hint">Code</string>
     <string name="no_notifications">No notifications</string>
+    <string name="button_verify">Verify</string>
     <string name="button_done">Done</string>
     <string name="button_update">Update</string>
 
@@ -80,6 +86,8 @@
     <string name="menu_drawer_shared_files">Shared Files</string>
     <string name="menu_drawer_public_files">Public Files</string>
     <string name="menu_drawer_manage_members">Manage Members</string>
+    <string name="menu_drawer_manage_tags">Manage Tags</string>
+    <string name="menu_drawer_archive_settings">Archive Settings</string>
     <string name="menu_drawer_public_gallery">Public Gallery</string>
 
     <string name="menu_toolbar_settings">Settings</string>
@@ -253,6 +261,9 @@
     <string name="button_deny">Deny</string>
     <string name="button_save">Save</string>
     <string name="button_go_to_wallet">Go to wallet</string>
+    <string name="button_select">Select</string>
+    <string name="button_select_all">Select all</string>
+    <string name="button_clear">Clear</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -269,6 +280,7 @@
     <string name="dialog_cancel_uploads_text">Are you sure you want to cancel all uploads?</string>
     <string name="new_folder_title">Create New Folder</string>
     <string name="delete_record_title">Delete \"%s\"?</string>
+    <string name="delete_records_title">Delete selected items?</string>
     <string name="leave_share_record_title">Leave share \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
     <string name="my_files_uploads_title">Uploads</string>
@@ -444,7 +456,7 @@
     <string name="notification_body_share_link_request">%s has requested access to %s</string>
     <string name="notification_body_share_invitation_acceptance">%s has joined Permanent to access %s</string>
 
-    <string name="version_text">Version %s (%s)</string>
+    <string name="version_text">v. %s [%s]</string>
     <string name="warning_auth_mfa_token_message">Session expired. Please re-authenticate</string>
     <string name="button_delete_account">Delete Account</string>
     <string name="dialog_delete_account_message">Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.\n\nThe account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives. Any archives you own that are not deleted prior to deleting your account will become orphaned archives. Archives can only be deleted by logging in to your account on Permanent.org.\n\n(Learn more here.)[https://desk.zoho.com/portal/permanent/en/kb/articles/how-to-delete-an-archive]\n\nWhen you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.</string>
@@ -530,7 +542,9 @@
 
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>
-    <string name="save_to_permanent_mobile_uploads">Mobile Uploads</string>
+    <string name="save_to_permanent_choose_folder">Choose Folder</string>
+    <string name="save_to_permanent_upload_to_public_files">Upload a publicly viewable copy of these items in your Public workspace and get a public link to share with anyone.</string>
+    <string name="save_to_permanent_choose_folder_error">Please select a folder first</string>
 
     <string name="dialog_shared_files_cancel_move_title">Cancel Move?</string>
     <string name="dialog_shared_files_cancel_move_text">Moving files or folders outside of the shared folder in which they are currently located is not permitted at this time. You can cancel this move action or continue to choose a destination for the selected item.</string>
@@ -541,4 +555,16 @@
     <string name="private_files_container_select_file_title">Select File</string>
 
     <string name="archives_container_change_archive">Change Archive</string>
+    <string name="account_create_failed">Failed to sign up. Please try again!</string>
+
+    <string name="tag_name">TAG NAME</string>
+    <string name="add_tag">Add tag</string>
+    <string name="update_tag">Update tag</string>
+    <string name="new_tag">New tag</string>
+    <string name="search_tags">Search tags…</string>
+    <string name="delete_tags_title">Delete Tags</string>
+    <string name="delete_tags_text">Are you sure you want to delete the tags from all items in the current archive?</string>
+
+    <string name="items">&#160;Items</string>
+    <string name="items_selected">%d Items selected</string>
 </resources>

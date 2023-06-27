@@ -33,7 +33,7 @@ import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
-open class MyFilesViewModel(application: Application) : RelocationViewModel(application),
+open class MyFilesViewModel(application: Application) : SelectionViewModel(application),
     RecordListener, CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
@@ -47,7 +47,6 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     private val isCreateAvailable = CurrentArchivePermissionsManager.instance.isCreateAvailable()
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
-    private var mobileUploadsFolder = MutableLiveData<NavigationFolder>()
     private var existsDownloads = MutableLiveData(false)
     private val showQuotaExceeded = SingleLiveEvent<Void>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
@@ -140,7 +139,9 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
-            fileRepository.getChildRecordsOf(archiveNr, folderLinkId, sortType?.toBackendString(),
+            fileRepository.getChildRecordsOf(archiveNr,
+                folderLinkId,
+                sortType?.toBackendString(),
                 object : IFileRepository.IOnRecordsRetrievedListener {
 
                     override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
@@ -190,6 +191,14 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         onShowRecordOptionsFragment.value = record
     }
 
+    override fun onRecordCheckBoxClick(record: Record) {
+        super.onRecordChecked(record)
+    }
+
+    fun onSelectAllBtnClick() {
+        super.onSelectAllRecords(onRecordsRetrieved.value!!)
+    }
+
     override fun onRecordDeleteClick(record: Record) {
         onRecordDeleteRequest.value = record
     }
@@ -213,8 +222,6 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         when (record.type) {
             RecordType.FOLDER -> {
                 currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
-                mobileUploadsFolder.value?.getUploadQueue()
-                    ?.clearEnqueuedUploadsAndRemoveTheirObservers()
                 folderPathStack.push(record)
                 loadFilesAndUploadsOf(record)
             }
@@ -252,8 +259,8 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     }
 
     private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {
-        folder?.newUploadQueue(lifecycleOwner, this)
-            ?.getEnqueuedUploadsLiveData()?.let { enqueuedUploadsLiveData ->
+        folder?.newUploadQueue(lifecycleOwner, this)?.getEnqueuedUploadsLiveData()
+            ?.let { enqueuedUploadsLiveData ->
                 enqueuedUploadsLiveData.observe(lifecycleOwner) { enqueuedUploads ->
                     uploadsAdapter.set(enqueuedUploads)
                 }
@@ -277,67 +284,6 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         folder.getUploadQueue()?.upload(uris)
     }
 
-    fun uploadFilesToFolder(folder: Record?, uris: List<Uri>) {
-        var record: Record? = folder
-        if (record == null) record = getMobileUploadsRecord()
-
-        if (record == null) {
-            createMobileUploadsFolderAndUpload(uris)
-        } else {
-            onDestinationFolderReady(record, uris)
-        }
-    }
-
-    private fun getMobileUploadsRecord(): Record? {
-        val currentRecords = onRecordsRetrieved.value
-
-        if (currentRecords != null && currentRecords.isNotEmpty()) {
-            for (record in currentRecords) {
-                if (record.displayName?.lowercase(Locale.getDefault()).equals(
-                        MOBILE_UPLOADS_FOLDER_NAME.lowercase(Locale.getDefault())
-                    )
-                ) {
-                    return record
-                }
-            }
-        }
-        return null
-    }
-
-    private fun createMobileUploadsFolderAndUpload(urisToUpload: List<Uri>) {
-        val parentFolderIdentifier = currentFolder.value?.getFolderIdentifier()
-
-        if (swipeRefreshLayout.isRefreshing) return
-
-        if (parentFolderIdentifier != null) {
-            swipeRefreshLayout.isRefreshing = true
-            fileRepository.createFolder(
-                parentFolderIdentifier,
-                MOBILE_UPLOADS_FOLDER_NAME,
-                object : IRecordListener {
-                    override fun onSuccess(record: Record) {
-                        swipeRefreshLayout.isRefreshing = false
-                        onDestinationFolderReady(record, urisToUpload)
-                        refreshCurrentFolder()
-                    }
-
-                    override fun onFailed(error: String?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        error?.let { showMessage.value = it }
-                    }
-                })
-        }
-    }
-
-    private fun onDestinationFolderReady(
-        mobileUploadsFolderRecord: Record,
-        urisToUpload: List<Uri>
-    ) {
-        mobileUploadsFolder.value = NavigationFolder(appContext, mobileUploadsFolderRecord)
-        mobileUploadsFolder.value?.newUploadQueue(lifecycleOwner, this)
-        mobileUploadsFolder.value?.let { uploadTo(it, urisToUpload) }
-    }
-
     fun download(record: Record) {
         downloadQueue.enqueueNewDownloadFor(record)
     }
@@ -358,12 +304,10 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {
-        val wasInCurrentFolderQueue =
-            currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
-        mobileUploadsFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
+        currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
 
-        if (succeeded && wasInCurrentFolderQueue == true) addFakeItemToFilesList(upload)
+        if (succeeded) addFakeItemToFilesList(upload)
         if (uploadsAdapter.itemCount == 0) {
             existsFiles.value = true
             refreshJob?.cancel()
@@ -381,10 +325,10 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
 
     override fun onFinished(download: Download, state: WorkInfo.State) {
         onDownloadFinished.value = download
-        if (state == WorkInfo.State.SUCCEEDED)
-            showMessage.value = "Downloaded ${download.getDisplayName()}"
-        else if (state == WorkInfo.State.FAILED)
-            showMessage.value = appContext.getString(R.string.generic_error)
+        if (state == WorkInfo.State.SUCCEEDED) showMessage.value =
+            "Downloaded ${download.getDisplayName()}"
+        else if (state == WorkInfo.State.FAILED) showMessage.value =
+            appContext.getString(R.string.generic_error)
     }
 
     override fun onFailedUpload(message: String) {
@@ -404,7 +348,7 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         fakeRecordInfo.displayName = upload?.getDisplayName()
         val fakeRecord = Record(fakeRecordInfo)
         fakeRecord.type = RecordType.FILE
-        onNewTemporaryFile.value = fakeRecord
+        onNewTemporaryFiles.value = mutableListOf(fakeRecord)
     }
 
     fun setSortType(sortType: SortType) {
@@ -415,12 +359,12 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
 
     fun delete(record: Record) {
         swipeRefreshLayout.isRefreshing = true
-        fileRepository.deleteRecord(record, object : IResponseListener {
+        fileRepository.deleteRecords(mutableListOf(record), object : IResponseListener {
             override fun onSuccess(message: String?) {
                 swipeRefreshLayout.isRefreshing = false
                 refreshCurrentFolder()
-                if (record.type == RecordType.FOLDER)
-                    showMessage.value = appContext.getString(R.string.my_files_folder_deleted)
+                if (record.type == RecordType.FOLDER) showMessage.value =
+                    appContext.getString(R.string.my_files_folder_deleted)
                 else showMessage.value = appContext.getString(R.string.my_files_file_deleted)
             }
 
@@ -435,23 +379,21 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
         val notificationsRepository: INotificationRepository =
             NotificationRepositoryImpl(appContext)
 
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
-                    return@OnCompleteListener
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
+                return@OnCompleteListener
+            }
+            notificationsRepository.registerDevice(task.result, object : IResponseListener {
+
+                override fun onSuccess(message: String?) {
                 }
-                notificationsRepository.registerDevice(task.result,
-                    object : IResponseListener {
 
-                        override fun onSuccess(message: String?) {
-                        }
-
-                        override fun onFailed(error: String?) {
-                            Log.e(TAG, "Registering Device FCM token failed: $error")
-                        }
-                    })
+                override fun onFailed(error: String?) {
+                    Log.e(TAG, "Registering Device FCM token failed: $error")
+                }
             })
+        })
     }
 
     fun getFolderName(): MutableLiveData<String> = folderName
@@ -467,6 +409,8 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     fun getSortName(): MutableLiveData<String> = sortName
 
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
+
+    fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
 
     fun getIsCreateAvailable(): Boolean = isCreateAvailable
 
@@ -484,7 +428,7 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
 
-    fun getOnNewTemporaryFile(): MutableLiveData<Record> = onNewTemporaryFile
+    fun getOnNewTemporaryFiles(): MutableLiveData<MutableList<Record>> = onNewTemporaryFiles
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
 
@@ -506,6 +450,5 @@ open class MyFilesViewModel(application: Application) : RelocationViewModel(appl
     companion object {
         const val MILLIS_UNTIL_REFRESH_AFTER_UPLOAD = 9000L
         const val MILLIS_UNTIL_REFRESH_AFTER_DELETE = 1000L
-        const val MOBILE_UPLOADS_FOLDER_NAME = "Mobile Uploads"
     }
 }

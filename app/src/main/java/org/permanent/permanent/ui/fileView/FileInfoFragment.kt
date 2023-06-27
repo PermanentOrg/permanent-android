@@ -44,7 +44,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(FileInfoViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FileInfoViewModel::class.java]
         binding = FragmentFileInfoBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -137,8 +137,8 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     private val onShowMessage = Observer<String?> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
-        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)

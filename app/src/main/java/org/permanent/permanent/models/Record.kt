@@ -25,6 +25,8 @@ open class Record : Parcelable {
     var type: RecordType? = null
     var accessRole: AccessRole? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
+    var isSelectMode: MutableLiveData<Boolean>? = null
+    var isChecked: MutableLiveData<Boolean>? = null
     var shares: MutableList<Share>? = null
     var displayFirstInCarousel = false
     var isProcessing = false

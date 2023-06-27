@@ -17,10 +17,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogAddMemberBinding
 import org.permanent.permanent.databinding.DialogEditAccessLevelBinding
+import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentMembersBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
@@ -164,8 +164,8 @@ class MembersFragment : PermanentBaseFragment() {
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
-            view.setBackgroundColor(ContextCompat.getColor(it, R.color.paleGreen))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.green))
+            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
         }
         val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
@@ -266,18 +266,20 @@ class MembersFragment : PermanentBaseFragment() {
     }
 
     private val onOwnershipTransferRequest = Observer<Boolean> { isFromAddMemberDialog ->
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
-        val alert = android.app.AlertDialog.Builder(context).setView(viewDialog).create()
+        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
 
-        viewDialog.tvTitle.text = getString(R.string.dialog_transfer_ownership_title)
-        viewDialog.tvText.text = getString(R.string.dialog_transfer_ownership_text)
-        viewDialog.btnPositive.text = getString(R.string.button_transfer)
-        viewDialog.btnPositive.setOnClickListener {
+        dialogBinding.tvTitle.text = getString(R.string.dialog_transfer_ownership_title)
+        dialogBinding.tvText.text = getString(R.string.dialog_transfer_ownership_text)
+        dialogBinding.btnPositive.text = getString(R.string.button_transfer)
+        dialogBinding.btnPositive.setOnClickListener {
             if (isFromAddMemberDialog) addDialogViewModel.transferOwnership()
             else editDialogViewModel.transferOwnership()
             alert.dismiss()
         }
-        viewDialog.btnNegative.setOnClickListener {
+        dialogBinding.btnNegative.setOnClickListener {
             alert.dismiss()
         }
         alert.show()

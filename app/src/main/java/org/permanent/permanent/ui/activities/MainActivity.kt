@@ -6,9 +6,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
@@ -20,34 +22,44 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.*
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.onNavDestinationSelected
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.dialog_title_text_two_buttons.view.*
-import kotlinx.android.synthetic.main.dialog_welcome.view.*
-import org.permanent.permanent.*
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
+import org.permanent.permanent.RECIPIENT_ARCHIVE_NAME_KEY
+import org.permanent.permanent.RECIPIENT_ARCHIVE_NR_KEY
+import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
+import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
+import org.permanent.permanent.databinding.DialogWelcomeBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
+
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var viewModel: MainViewModel
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     private lateinit var headerMainBinding: NavMainHeaderBinding
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+    private var isSubmenuVisible = false
 
     private val onArchiveSwitched = Observer<Void> {
         startWithCustomDestination(false)
@@ -60,10 +72,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private val onLoggedOut = Observer<Void> {
-        prefsHelper.saveUserLoggedIn(false)
-        prefsHelper.saveDefaultArchiveId(0)
-        prefsHelper.saveBiometricsLogIn(true) // Setting back to default
-        startActivity(Intent(this, SignUpActivity::class.java))
+        startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 
@@ -74,19 +83,26 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private val onDestinationChangedListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.editAboutFragment, R.id.editArchiveInformationFragment,
-                R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
-                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
+                R.id.editAboutFragment, R.id.editArchiveInformationFragment, R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible = false
                 }
+
                 R.id.addEditOnlinePresenceFragment, R.id.addEditMilestoneFragment -> {
-                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
-                    toolbar?.menu?.findItem(R.id.doneItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.plusItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible = false
                 }
+
                 R.id.publicFragment -> {
-                    toolbar?.menu?.findItem(R.id.settingsItem)?.isVisible = true
-                    toolbar?.menu?.findItem(R.id.plusItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = true
+                    binding.toolbar.menu?.findItem(R.id.plusItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = false
+                }
+
+                R.id.publicFolderFragment -> {
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
             }
         }
@@ -94,7 +110,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         // MainActivity binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
@@ -102,8 +118,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.viewModel = viewModel
 
         // Left drawer header binding
-        headerMainBinding =
-            NavMainHeaderBinding.bind(binding.mainNavigationView.getHeaderView(0))
+        headerMainBinding = NavMainHeaderBinding.bind(binding.mainNavigationView.getHeaderView(0))
         headerMainBinding.executePendingBindings()
         headerMainBinding.lifecycleOwner = this
         headerMainBinding.viewModel = viewModel
@@ -128,6 +143,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.archivesFragment,
             R.id.myFilesFragment,
             R.id.sharesFragment,
+            R.id.archiveSettings,
+            R.id.manageTagsFragment,
             R.id.membersFragment,
             R.id.storageFragment,
             R.id.activityFeedFragment,
@@ -146,9 +163,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             Intent.ACTION_SEND -> {
                 handleSendFile(intent) // Handle single file being sent
             }
+
             Intent.ACTION_SEND_MULTIPLE -> {
                 handleSendMultipleFiles(intent) // Handle multiple files being sent
             }
+
             else -> {
                 // Custom start destination fragment from notification
                 val intentExtras = intent.extras
@@ -167,6 +186,23 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         // NavViews setup
         binding.mainNavigationView.setupWithNavController(navController)
+        binding.mainNavigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.archiveSettings -> {
+                    isSubmenuVisible = !isSubmenuVisible
+                    setSubmenuVisibility(isSubmenuVisible)
+                    setArchiveSettingsIcon(menuItem, isSubmenuVisible)
+                    true
+                }
+                // Handle other menu items here, if necessary
+                else -> {
+                    menuItem.onNavDestinationSelected(navController)
+                    binding.drawerLayout.closeDrawers()
+                }
+            }
+            true
+        }
+
         binding.settingsNavigationView.setupWithNavController(navController)
         binding.settingsNavigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -178,6 +214,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     // Returning 'false' to not remain the item selected on resuming
                     return@setNavigationItemSelectedListener false
                 }
+
                 R.id.logOut -> viewModel.deleteDeviceToken()
                 else -> {
                     menuItem.onNavDestinationSelected(navController)
@@ -209,8 +246,24 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             showWelcomeDialog()
         }
 
-        if (!isGooglePlayServicesAvailable(this))
-            GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
+        if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
+            .makeGooglePlayServicesAvailable(this)
+    }
+
+    private fun setSubmenuVisibility(visible: Boolean) {
+        val manageTagsItem = binding.mainNavigationView.menu.findItem(R.id.manageTagsFragment)
+        val manageMembersItem = binding.mainNavigationView.menu.findItem(R.id.membersFragment)
+
+        manageTagsItem.isVisible = visible
+        manageMembersItem.isVisible = visible
+    }
+
+    private fun setArchiveSettingsIcon(menuItem: MenuItem, submenuVisible: Boolean) {
+        val archiveSettingsRightIcon =
+            menuItem.actionView?.findViewById<ImageView>(R.id.ivRightIcon)
+        val icon =
+            if (submenuVisible) R.drawable.ic_drop_up_white else R.drawable.ic_drop_down_white
+        archiveSettingsRightIcon?.setImageResource(icon)
     }
 
     private fun handleSendFile(intent: Intent) {
@@ -243,16 +296,20 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private fun showArchiveSwitchDialog(recipientArchiveNr: String?) {
         val archiveName = intent.extras?.getString(RECIPIENT_ARCHIVE_NAME_KEY)
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_title_text_two_buttons, null)
-        val alert = android.app.AlertDialog.Builder(this).setView(viewDialog).create()
+        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(this), R.layout.dialog_title_text_two_buttons, null, false
+        )
+        val alert = android.app.AlertDialog.Builder(this).setView(dialogBinding.root).create()
 
-        viewDialog.tvTitle.text = getString(R.string.dialog_switch_archive_title, archiveName)
-        viewDialog.tvText.text = getString(R.string.dialog_switch_archive_text, archiveName)
-        viewDialog.btnPositive.setOnClickListener {
+        dialogBinding.tvTitle.text =
+            getString(R.string.dialog_switch_archive_title, archiveName)
+        dialogBinding.tvText.text =
+            getString(R.string.dialog_switch_archive_text, archiveName)
+        dialogBinding.btnPositive.setOnClickListener {
             viewModel.switchCurrentArchiveTo(recipientArchiveNr)
             alert.dismiss()
         }
-        viewDialog.btnNegative.setOnClickListener {
+        dialogBinding.btnNegative.setOnClickListener {
             alert.dismiss()
         }
         alert.show()
@@ -274,8 +331,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun sendEventToFragment() {
-        val currentFragment = supportFragmentManager.primaryNavigationFragment?.childFragmentManager
-            ?.fragments?.first()
+        val currentFragment =
+            supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.fragments?.first()
         if (currentFragment is PublicFolderFragment) currentFragment.onMoreItemClick()
         else if (currentFragment is LocationSearchFragment) currentFragment.onDoneItemClick()
     }
@@ -285,36 +342,35 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         return when (navController.currentDestination?.id) {
             R.id.publicFolderFragment -> {
                 val publicFolderFragment =
-                    supportFragmentManager.primaryNavigationFragment?.childFragmentManager
-                        ?.fragments?.first() as PublicFolderFragment
+                    supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.fragments?.first() as PublicFolderFragment
                 if (publicFolderFragment.onNavigateUp()) true
                 else navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
             }
+
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
     }
 
     private fun showWelcomeDialog() {
-        val viewDialog: View = layoutInflater.inflate(R.layout.dialog_welcome, null)
+        val dialogBinding: DialogWelcomeBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(this), R.layout.dialog_welcome, null, false
+        )
+        val alert = AlertDialog.Builder(this).setView(dialogBinding.root).create()
 
-        val alert = AlertDialog.Builder(this)
-            .setView(viewDialog)
-            .create()
-
-        viewDialog.tvWelcomeTitleWelcomeDialog.text =
-            if (prefsHelper.isArchiveOnboardingDefaultFlow())
-                getString(R.string.welcome_title) else getString(R.string.archive_onboarding_invitation_welcome_title)
-        viewDialog.tvWelcomeTextWelcomeDialog.text =
+        dialogBinding.tvWelcomeTitleWelcomeDialog.text =
+            if (prefsHelper.isArchiveOnboardingDefaultFlow()) getString(R.string.welcome_title) else getString(
+                R.string.archive_onboarding_invitation_welcome_title
+            )
+        dialogBinding.tvWelcomeTextWelcomeDialog.text =
             if (prefsHelper.isArchiveOnboardingDefaultFlow()) getString(
-                R.string.welcome_text,
-                prefsHelper.getCurrentArchiveFullName()
+                R.string.welcome_text, prefsHelper.getCurrentArchiveFullName()
             ) else getString(
                 R.string.archive_onboarding_invitation_welcome_text,
                 prefsHelper.getCurrentArchiveFullName(),
                 prefsHelper.getCurrentArchiveAccessRole().toTitleCase(),
                 CurrentArchivePermissionsManager.instance.getPermissionsEnumerated()
             )
-        viewDialog.btnGetStartedWelcomeDialog.setOnClickListener {
+        dialogBinding.btnGetStartedWelcomeDialog.setOnClickListener {
             prefsHelper.saveWelcomeDialogSeen(true)
             alert.dismiss()
         }
@@ -327,9 +383,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         if (status != ConnectionResult.SUCCESS) {
             if (googleApiAvailability.isUserResolvableError(status)) {
                 googleApiAvailability.getErrorDialog(
-                    activity,
-                    status,
-                    REQUEST_CODE_GOOGLE_API_AVAILABILITY
+                    activity, status, REQUEST_CODE_GOOGLE_API_AVAILABILITY
                 )?.show()
             }
             return false
@@ -354,8 +408,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onResume() {
         super.onResume()
         connectViewModelEvents()
-        if (!isGooglePlayServicesAvailable(this))
-            GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
+        if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
+            .makeGooglePlayServicesAvailable(this)
     }
 
     override fun onPause() {

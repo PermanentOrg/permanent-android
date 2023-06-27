@@ -11,6 +11,7 @@ class Constants {
         const val REQUEST_CODE_VIDEO_CAPTURE = 203
         const val REQUEST_CODE_GOOGLE_API_AVAILABILITY = 2404
         const val LOGIN_URL_SUFFIX = "auth/login"
+        const val VERIFY_2FA_URL_SUFFIX = "auth/verify"
         const val SIGN_UP_URL_SUFFIX = "account/post"
         const val S3_BASE_URL = "https://s3.us-west-2.amazonaws.com"
         const val HOW_TO_PUBLISH_ARCHIVE_URL = "https://permanent.zohodesk.com/portal/en/kb/articles/public-archives-mobile"
@@ -33,8 +34,8 @@ class Constants {
         const val ERROR_PENDING_OWNER_NOT_EDITABLE = "error.pr.update_share_owner"
         const val ERROR_MEMBER_ALREADY_ADDED = "error.pr.duplicate_share"
         const val ERROR_NO_API_KEY = "error.api.no_key"
-        const val ERROR_ACCOUNT_DUPLICATE = "warning.registration.duplicate_email"
         const val ERROR_PHONE_INVALID = "warning.validation.phone"
+        const val ERROR_EMAIL_DUPLICATED = "[duplicate]user.email"
         const val ERROR_PASSWORD_COMPLEXITY_LOW = "warning.registration.password_complexity"
         const val ERROR_PASSWORD_NO_MATCH = "warning.registration.password_match"
         const val ERROR_PASSWORD_OLD_INCORRECT = "warning.auth.bad_old_password"

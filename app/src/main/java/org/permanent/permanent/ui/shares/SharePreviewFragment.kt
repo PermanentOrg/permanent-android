@@ -18,8 +18,8 @@ import org.permanent.permanent.databinding.FragmentSharePreviewBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.activities.SignUpActivity
 import org.permanent.permanent.ui.archives.ArchivesContainerFragment
+import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
@@ -65,7 +65,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
                     viewModel.checkShareLink(urlToken!!)
                 } else {
                     prefsHelper.saveShareLinkUrlToken(urlToken!!)
-                    startActivity(Intent(context, SignUpActivity::class.java))
+                    startActivity(Intent(context, LoginActivity::class.java))
                     activity?.finish()
                 }
             }
@@ -110,6 +110,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
         recordsRecyclerView = rvRecords
         recordsAdapter = RecordsGridAdapter(
             this, false,
+            MutableLiveData(false),
             MutableLiveData(false),
             viewModel.getCurrentState(),
             isForSharePreviewScreen = true,

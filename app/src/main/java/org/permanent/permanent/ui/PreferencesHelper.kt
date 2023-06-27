@@ -31,6 +31,7 @@ const val PREFS_CURRENT_ARCHIVE_THUMB_URL = "preferences_current_archive_thumb_u
 const val PREFS_CURRENT_ARCHIVE_ACCESS_ROLE = "preferences_current_archive_access_role"
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 const val PREFS_DEEP_LINK_ARCHIVE_NR = "preferences_deep_link_archive_nr"
+const val PREFS_AUTH_TOKEN = "preferences_auth_token"
 const val PREFS_DEEP_LINK_FILE_ARCHIVE_NR = "preferences_deep_link_file_archive_nr"
 const val PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR = "preferences_deep_link_folder_archive_nr"
 const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id"
@@ -117,6 +118,13 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
+    fun saveAccountEmail(email: String) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_ACCOUNT_EMAIL, email)
+            apply()
+        }
+    }
+
     fun getAccountId(): Int {
         return sharedPreferences.getInt(PREFS_ACCOUNT_ID, 0)
     }
@@ -130,11 +138,11 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
     }
 
     fun saveDefaultArchiveId(id: Int?) {
-        id?.let {
-            with(sharedPreferences.edit()) {
+        with(sharedPreferences.edit()) {
+            id?.let {
                 putInt(PREFS_DEFAULT_ARCHIVE_ID, id)
-                apply()
-            }
+            } ?: putInt(PREFS_DEFAULT_ARCHIVE_ID, 0)
+            apply()
         }
     }
 
@@ -361,6 +369,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isListViewMode(): Boolean {
         return sharedPreferences.getBoolean(IS_LIST_VIEW_MODE, true)
+    }
+
+    fun saveAuthToken(token: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_AUTH_TOKEN, token)
+            apply()
+        }
+    }
+
+    fun getAuthToken(): String? {
+        return sharedPreferences.getString(PREFS_AUTH_TOKEN, "")
     }
 
     fun saveShowArchivesDeepLink(shouldShow: Boolean) {

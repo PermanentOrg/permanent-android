@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import okhttp3.MediaType
 import okhttp3.ResponseBody
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
@@ -31,31 +31,31 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
 
     override fun getMyFilesRecord(listener: IRecordListener) {
         NetworkClient.instance().getRoot().enqueue(object : Callback<ResponseVO> {
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    val publicRecord = responseVO?.getPublicRecord()
-                    prefsHelper.savePublicRecordInfo(
-                        publicRecord?.folderId,
-                        publicRecord?.folderLinkId,
-                        publicRecord?.archiveNr,
-                        publicRecord?.thumbURL2000
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                val publicRecord = responseVO?.getPublicRecord()
+                prefsHelper.savePublicRecordInfo(
+                    publicRecord?.folderId,
+                    publicRecord?.folderLinkId,
+                    publicRecord?.archiveNr,
+                    publicRecord?.thumbURL2000
+                )
+                val myFilesRecord = responseVO?.getMyFilesRecord()
+
+                if (myFilesRecord != null) {
+                    listener.onSuccess(myFilesRecord)
+                } else {
+                    listener.onFailed(
+                        responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
+                            ?.toString()
                     )
-                    val myFilesRecord = responseVO?.getMyFilesRecord()
-
-                    if (myFilesRecord != null) {
-                        listener.onSuccess(myFilesRecord)
-                    } else {
-                        listener.onFailed(
-                            responseVO?.Results?.get(0)?.message?.get(0) ?: response.errorBody()
-                                ?.toString()
-                        )
-                    }
                 }
+            }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
-                }
-            })
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
     }
 
     override fun getPublicRoot(archiveNr: String?, listener: IRecordListener) {
@@ -245,27 +245,6 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         return NetworkClient.instance().downloadFile(downloadUrl)
     }
 
-    override fun deleteRecord(
-        record: Record, listener: IResponseListener
-    ) {
-        NetworkClient.instance().deleteRecord(record).enqueue(object : Callback<ResponseVO> {
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    val firstMessage = responseVO?.getMessages()?.get(0)
-
-                    if (firstMessage != null && (firstMessage == Constants.FILE_DELETED_SUCCESSFULLY || firstMessage == Constants.FOLDER_DELETED_SUCCESSFULLY)) {
-                        listener.onSuccess(null)
-                    } else {
-                        listener.onFailed(context.getString(R.string.generic_error))
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
-                }
-            })
-    }
-
     override fun unshareRecord(
         record: Record, archiveId: Int, listener: IResponseListener
     ) {
@@ -288,58 +267,183 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             })
     }
 
-    override fun relocateRecord(
-        recordToRelocate: Record,
+    override fun deleteRecords(
+        records: MutableList<Record>, listener: IResponseListener
+    ) {
+        var areFilesReady = false
+        var areFoldersReady = false
+        val folders = getToRelocate(RecordType.FOLDER, records)
+        val files = getToRelocate(RecordType.FILE, records)
+
+        if (folders.isNullOrEmpty()) {
+            areFoldersReady = true
+        } else {
+            deleteFilesOrFolders(
+                folders,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        areFoldersReady = true
+                        if (areFilesReady) listener.onSuccess(message)
+                    }
+
+                    override fun onFailed(error: String?) {
+                        listener.onFailed(error)
+                    }
+                }
+            )
+        }
+
+        if (files.isNullOrEmpty()) {
+            areFilesReady = true
+        } else {
+            deleteFilesOrFolders(
+                files,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        areFilesReady = true
+                        if (areFoldersReady) listener.onSuccess(message)
+                    }
+
+                    override fun onFailed(error: String?) {
+                        listener.onFailed(error)
+                    }
+                }
+            )
+        }
+    }
+
+    private fun deleteFilesOrFolders(records: MutableList<Record>, listener: IResponseListener) {
+        NetworkClient.instance().deleteFilesOrFolders(records).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(null)
+                } else {
+                    listener.onFailed(context.getString(R.string.generic_error))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun relocateRecords(
+        records: MutableList<Record>,
         destFolderLinkId: Int,
         relocationType: RelocationType,
         listener: IResponseListener
     ) {
-        NetworkClient.instance().relocateRecord(
-            recordToRelocate, destFolderLinkId, relocationType
-        ).enqueue(object : Callback<ResponseVO> {
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        val relocationVerb = when (relocationType) {
-                            RelocationType.MOVE -> context.getString(R.string.relocation_type_moved)
-                            RelocationType.PUBLISH -> context.getString(R.string.relocation_type_published)
-                            else -> context.getString(R.string.relocation_type_copied)
-                        }
-                        listener.onSuccess(
-                            context.getString(
-                                R.string.relocation_success,
-                                recordToRelocate.type?.name?.lowercase(Locale.getDefault())
-                                    ?.capitalize(),
-                                relocationVerb
-                            )
-                        )
-                    } else {
-                        listener.onFailed(context.getString(R.string.generic_error))
+        var areFilesReady = false
+        var areFoldersReady = false
+        val folders = getToRelocate(RecordType.FOLDER, records)
+        val files = getToRelocate(RecordType.FILE, records)
+
+        if (folders.isNullOrEmpty()) {
+            areFoldersReady = true
+        } else {
+            relocateFilesOrFolders(
+                folders,
+                destFolderLinkId,
+                relocationType,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        areFoldersReady = true
+                        if (areFilesReady) listener.onSuccess(message)
+                    }
+
+                    override fun onFailed(error: String?) {
+                        listener.onFailed(error)
                     }
                 }
+            )
+        }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
+        if (files.isNullOrEmpty()) {
+            areFilesReady = true
+        } else {
+            relocateFilesOrFolders(
+                files,
+                destFolderLinkId,
+                relocationType,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        areFilesReady = true
+                        if (areFoldersReady) listener.onSuccess(message)
+                    }
+
+                    override fun onFailed(error: String?) {
+                        listener.onFailed(error)
+                    }
                 }
-            })
+            )
+        }
+    }
+
+    private fun getToRelocate(
+        recordType: RecordType, records: MutableList<Record>
+    ): MutableList<Record> {
+        return records.filter { it.type == recordType }.toMutableList()
+    }
+
+    private fun relocateFilesOrFolders(
+        recordsToRelocate: MutableList<Record>,
+        destFolderLinkId: Int,
+        relocationType: RelocationType,
+        listener: IResponseListener
+    ) {
+        NetworkClient.instance().relocateFilesOrFolders(
+            recordsToRelocate, destFolderLinkId, relocationType
+        ).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    val relocationVerb = when (relocationType) {
+                        RelocationType.MOVE -> context.getString(R.string.relocation_type_moved)
+                        RelocationType.PUBLISH -> context.getString(R.string.relocation_type_published)
+                        else -> context.getString(R.string.relocation_type_copied)
+                    }
+                    listener.onSuccess(
+                        context.getString(
+                            R.string.relocation_success,
+                            recordsToRelocate[0].type?.name?.lowercase(Locale.getDefault())
+                                ?.replaceFirstChar {
+                                    if (it.isLowerCase()) it.titlecase(
+                                        Locale.getDefault()
+                                    ) else it.toString()
+                                },
+                            relocationVerb
+                        )
+                    )
+                } else {
+                    listener.onFailed(context.getString(R.string.generic_error))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
     }
 
     override fun updateRecord(fileData: FileData, listener: IResponseListener) {
         NetworkClient.instance().updateRecord(fileData).enqueue(object : Callback<ResponseVO> {
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
 
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(context.getString(R.string.file_info_update_success))
-                    } else {
-                        listener.onFailed(context.getString(R.string.generic_error))
-                    }
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(context.getString(R.string.file_info_update_success))
+                } else {
+                    listener.onFailed(context.getString(R.string.generic_error))
                 }
+            }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
-                }
-            })
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
     }
 
     override fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener) {
@@ -384,21 +488,21 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         query: String?, tags: List<Tag>, listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
         NetworkClient.instance().searchRecords(query, tags).enqueue(object : Callback<ResponseVO> {
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val responseVO = response.body()
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
 
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(
-                            null, responseVO.getData()?.get(0)?.SearchVO?.ChildItemVOs
-                        )
-                    } else {
-                        listener.onFailed(context.getString(R.string.generic_error))
-                    }
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(
+                        null, responseVO.getData()?.get(0)?.SearchVO?.ChildItemVOs
+                    )
+                } else {
+                    listener.onFailed(context.getString(R.string.generic_error))
                 }
+            }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
-                }
-            })
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
     }
 }

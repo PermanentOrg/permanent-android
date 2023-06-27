@@ -44,8 +44,12 @@ class ResponseVO {
         return Results?.map { it.data }?.flatMap { it!! }
     }
 
-    fun isUserLoggedIn(): Boolean? {
-        return getData()?.get(0)?.SimpleVO?.value as Boolean?
+    fun getSimpleVO(): SimpleVO? {
+        return getData()?.get(0)?.SimpleVO
+    }
+
+    fun getAuthSimpleVO(): AuthSimpleVO? {
+        return getData()?.get(0)?.AuthSimpleVO
     }
 
     fun getAccountVO(): AccountVO? {
