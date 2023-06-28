@@ -38,3 +38,5 @@ hs_err_pid*
 /build
 /captures
 .externalNativeBuild
+fastlane/.env.staging
+fastlane/.env.production

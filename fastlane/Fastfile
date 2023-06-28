@@ -1,0 +1,65 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Make a new debug build"
+  lane :build do
+    gradle(task: "clean assembleStagingDebug")
+  end
+
+  desc "Submit a new Beta Build to Firebase"
+  lane :firebase do
+    latest_release = firebase_app_distribution_get_latest_release(
+      app: ENV['APP_ID'],
+      firebase_cli_token: ENV['FIREBASEAPPDISTRO_CLI_TOKEN']
+    )
+    
+    if latest_release
+      increment_version_code({ version_code: latest_release[:buildVersion].to_i + 1 })
+    end
+    
+    gradle(task: "clean assembleStagingRelease")
+
+    firebase_app_distribution(
+      app: ENV['APP_ID'],
+      android_artifact_type: "APK",
+      firebase_cli_token: ENV['FIREBASEAPPDISTRO_CLI_TOKEN']
+      )
+  end
+
+  desc "Submit a new Beta Build to Playstore"
+  lane :playStore do
+    gradle(
+      task: "bundleProductionRelease",
+      properties: {
+        "android.injected.signing.store.file" => ENV['KEYSTORE_FILE'],
+        "android.injected.signing.store.password" => ENV['KEYSTORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEYSTORE_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEYSTORE_PASSWORD'],
+      })
+    upload_to_play_store(
+      track: 'internal',
+      skip_upload_apk: true
+      )
+  end
+
+end
