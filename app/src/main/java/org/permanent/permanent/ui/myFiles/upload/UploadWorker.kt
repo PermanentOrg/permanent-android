@@ -19,7 +19,7 @@ import org.permanent.permanent.ui.getFile
 import retrofit2.Call
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
-import java.util.*
+import java.util.Date
 
 /**
  * Worker class responsible for handling record uploads
@@ -69,6 +69,7 @@ class UploadWorker(val context: Context, workerParams: WorkerParameters)
                     file.delete()
                     Result.failure()
                 }
+                prefsHelper.saveUploadURL(uploadDestination?.presignedPost?.url)
                 // #2 CALL: uploadFile
                 callUpload = fileRepository.uploadFile(file, mediaType, uploadDestination!!,
                     object : CountingRequestListener {
