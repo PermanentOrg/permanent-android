@@ -32,6 +32,7 @@ const val PREFS_CURRENT_ARCHIVE_ACCESS_ROLE = "preferences_current_archive_acces
 const val PREFS_SHARE_LINK_URL_TOKEN = "preferences_share_link_url_token"
 const val PREFS_DEEP_LINK_ARCHIVE_NR = "preferences_deep_link_archive_nr"
 const val PREFS_AUTH_TOKEN = "preferences_auth_token"
+const val PREFS_UPLOAD_URL = "preferences_upload_url"
 const val PREFS_DEEP_LINK_FILE_ARCHIVE_NR = "preferences_deep_link_file_archive_nr"
 const val PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR = "preferences_deep_link_folder_archive_nr"
 const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id"
@@ -380,6 +381,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getAuthToken(): String? {
         return sharedPreferences.getString(PREFS_AUTH_TOKEN, "")
+    }
+
+    fun getUploadURL(): String? {
+        return sharedPreferences.getString(PREFS_UPLOAD_URL, "")
+    }
+
+    fun saveUploadURL(url: String?) {
+        with(sharedPreferences.edit()) {
+            putString(PREFS_UPLOAD_URL, url)
+            apply()
+        }
     }
 
     fun saveShowArchivesDeepLink(shouldShow: Boolean) {

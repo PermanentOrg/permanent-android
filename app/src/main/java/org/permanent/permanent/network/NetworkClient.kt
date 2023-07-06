@@ -81,32 +81,32 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     init {
         if (okHttpClient == null) {
+            val prefsHelper =
+                PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+
             val loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
 
-            okHttpClient =
-                OkHttpClient.Builder().addInterceptor(loggingInterceptor)
-                    .addInterceptor(UnauthorizedInterceptor()).addInterceptor(Interceptor { chain ->
-                        val request = chain.request()
-                        if (!request.url.toString()
-                                .contains(Constants.S3_BASE_URL) && !request.url.toString()
-                                .contains(Constants.SIGN_UP_URL_SUFFIX) && !request.url.toString()
-                                .contains(Constants.LOGIN_URL_SUFFIX) && !request.url.toString()
-                                .contains(Constants.VERIFY_2FA_URL_SUFFIX) && !request.url.toString()
-                                .contains(Constants.STRIPE_URL)
-                        ) {
-                            val prefsHelper = PreferencesHelper(
-                                context.getSharedPreferences(
-                                    PREFS_NAME, Context.MODE_PRIVATE
-                                )
-                            )
-                            val requestBuilder: Request.Builder = request.newBuilder()
-                            requestBuilder.header(
-                                "Authorization", "Bearer ${prefsHelper.getAuthToken()}"
-                            )
-                            chain.proceed(requestBuilder.build())
-                        } else chain.proceed(request)
-                    }).build()
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(UnauthorizedInterceptor())
+                .addInterceptor(Interceptor { chain ->
+                    val request = chain.request()
+                    val uploadURL = prefsHelper.getUploadURL()
+                    val requestURL = request.url.toString()
+                    if ((uploadURL.isNullOrEmpty() || !requestURL.contains(uploadURL)) &&
+                        !requestURL.contains(Constants.SIGN_UP_URL_SUFFIX) &&
+                        !requestURL.contains(Constants.LOGIN_URL_SUFFIX) &&
+                        !requestURL.contains(Constants.VERIFY_2FA_URL_SUFFIX) &&
+                        !requestURL.contains(Constants.STRIPE_URL)
+                    ) {
+                        val requestBuilder: Request.Builder = request.newBuilder()
+                        requestBuilder.header(
+                            "Authorization", "Bearer ${prefsHelper.getAuthToken()}"
+                        )
+                        chain.proceed(requestBuilder.build())
+                    } else chain.proceed(request)
+                }).build()
         }
         retrofit =
             Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(MoshiConverterFactory.create())
