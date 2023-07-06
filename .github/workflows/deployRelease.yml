@@ -17,8 +17,8 @@ jobs:
       env:
         GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
       run: |
-        rm app/google-services.json
-        echo $GOOGLE_SERVICES | base64 --decode > app/google-services.json
+        rm app/src/production/google-services.json
+        echo $GOOGLE_SERVICES | base64 --decode > app/src/production/google-services.json
     - name: Write the play store json
       env:
         JSON_KEY: ${{ secrets.JSON_KEY }}
