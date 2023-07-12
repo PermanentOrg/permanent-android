@@ -16,7 +16,7 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val onArchiveSwitchedToCurrent = SingleLiveEvent<Void>()
+    private val onArchiveSwitchedToCurrent = SingleLiveEvent<Void?>()
     private val showError = MutableLiveData<String>()
     private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
@@ -34,6 +34,6 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
         }
     }
 
-    fun getOnArchiveSwitchedToCurrent(): MutableLiveData<Void> = onArchiveSwitchedToCurrent
+    fun getOnArchiveSwitchedToCurrent(): MutableLiveData<Void?> = onArchiveSwitchedToCurrent
     fun getShowError(): LiveData<String> = showError
 }

@@ -52,22 +52,22 @@ class LoginFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onLoggedIn = Observer<Void> {
+    private val onLoggedIn = Observer<Void?> {
         startActivity(Intent(context, MainActivity::class.java))
         activity?.finish()
     }
 
-    private val userMissingDefaultArchiveObserver = Observer<Void> {
+    private val userMissingDefaultArchiveObserver = Observer<Void?> {
         prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
     }
 
-    private val onStartSignUp = Observer<Void> {
+    private val onStartSignUp = Observer<Void?> {
         findNavController().navigate(R.id.action_loginFragment_to_signUpFragment)
     }
 
-    private val onPasswordReset = Observer<Void> {
+    private val onPasswordReset = Observer<Void?> {
         Toast.makeText(
             context, getString(
                 R.string.login_screen_password_reset_message,
@@ -76,7 +76,7 @@ class LoginFragment : PermanentBaseFragment() {
         ).show()
     }
 
-    private val onForgotPasswordRequest = Observer<Void> {
+    private val onForgotPasswordRequest = Observer<Void?> {
         findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
     }
 

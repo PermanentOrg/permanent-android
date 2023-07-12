@@ -22,7 +22,6 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
     val amount = MutableLiveData(DONATION_AMOUNT_DEFAULT_VALUE)
     val gbEndowed = MutableLiveData(appContext.getString(R.string.storage_gb_endowed, GB_ENDOWED_DEFAULT_VALUE))
     private val isDonationAnonymous = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String>()
     private val showError = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onPaymentIntentRetrieved = SingleLiveEvent<String>()
@@ -71,7 +70,6 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getOnPaymentIntentRetrieved(): LiveData<String> = onPaymentIntentRetrieved
     fun getIsDonationAnonymous(): LiveData<Boolean> = isDonationAnonymous
-    fun getOnMessage(): LiveData<String> = showMessage
     fun getOnError(): LiveData<String> = showError
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

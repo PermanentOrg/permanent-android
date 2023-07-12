@@ -29,7 +29,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
     }
 
-    private val onCodeVerified = Observer<Void> {
+    private val onCodeVerified = Observer<Void?> {
         when {
             isLoginFlow() -> {
                 val defaultArchiveId = prefsHelper.getDefaultArchiveId()
@@ -41,7 +41,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onLoggedIn = Observer<Void> {
+    private val onLoggedIn = Observer<Void?> {
         startMainActivity()
     }
 

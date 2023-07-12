@@ -11,8 +11,8 @@ class MyFilesContainerViewModel(application: Application) :
     private val appContext = application.applicationContext
     private val title = MutableLiveData<String>()
     private val shownInWorkspace = MutableLiveData(Workspace.PUBLIC_ARCHIVES)
-    private val onSaveFolderRequest = SingleLiveEvent<Void>()
-    private val onCancelRequest = SingleLiveEvent<Void>()
+    private val onSaveFolderRequest = SingleLiveEvent<Void?>()
+    private val onCancelRequest = SingleLiveEvent<Void?>()
 
     fun setShownInWorkspace(workspace: Workspace?) {
         shownInWorkspace.value = workspace
@@ -33,6 +33,6 @@ class MyFilesContainerViewModel(application: Application) :
 
     fun getTitle(): MutableLiveData<String> = title
     fun getShownInWorkspace(): MutableLiveData<Workspace> = shownInWorkspace
-    fun getOnSaveFolderRequest(): MutableLiveData<Void> = onSaveFolderRequest
-    fun getOnCancelRequest(): MutableLiveData<Void> = onCancelRequest
+    fun getOnSaveFolderRequest(): MutableLiveData<Void?> = onSaveFolderRequest
+    fun getOnCancelRequest(): MutableLiveData<Void?> = onCancelRequest
 }

@@ -41,7 +41,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     private var chooseFolderFragment: ChooseFolderFragment? = null
     private var archivesContainerFragment: ArchivesContainerFragment? = null
     private val onFilesUploadToFolderRequest = SingleLiveEvent<Pair<Record?, List<Uri>>>()
-    private val onCurrentArchiveChangedEvent = SingleLiveEvent<Void>()
+    private val onCurrentArchiveChangedEvent = SingleLiveEvent<Void?>()
 
     fun setBundleArguments(
         uris: ArrayList<Uri>
@@ -88,7 +88,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onUploadRequestObserver = Observer<Void> {
+    private val onUploadRequestObserver = Observer<Void?> {
         when (workspace) {
             Workspace.SHARED_BY_ME, Workspace.SHARED_WITH_ME -> {
                 val bundle = bundleOf(
@@ -113,20 +113,20 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    private val onChangeDestinationFolderObserver = Observer<Void> {
+    private val onChangeDestinationFolderObserver = Observer<Void?> {
         chooseFolderFragment = ChooseFolderFragment()
         chooseFolderFragment?.getOnFolderChangedEvent()?.observe(this, onFolderChangedObserver)
         chooseFolderFragment?.show(parentFragmentManager, chooseFolderFragment?.tag)
     }
 
-    private val onChangeDestinationArchiveObserver = Observer<Void> {
+    private val onChangeDestinationArchiveObserver = Observer<Void?> {
         archivesContainerFragment = ArchivesContainerFragment()
         archivesContainerFragment?.show(parentFragmentManager, archivesContainerFragment?.tag)
         archivesContainerFragment?.getOnCurrentArchiveChanged()
             ?.observe(this, onCurrentArchiveChangedObserver)
     }
 
-    private val onCancelRequestObserver = Observer<Void> {
+    private val onCancelRequestObserver = Observer<Void?> {
         dismiss()
     }
 
@@ -136,7 +136,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
         viewModel.changeDestinationFolderTo(workspace, destinationFolder)
     }
 
-    private val onCurrentArchiveChangedObserver = Observer<Void> {
+    private val onCurrentArchiveChangedObserver = Observer<Void?> {
         onCurrentArchiveChangedEvent.call()
         viewModel.updateCurrentArchive()
     }
@@ -175,7 +175,7 @@ class SaveToPermanentFragment : PermanentBottomSheetFragment() {
     fun getOnFilesUploadRequest(): MutableLiveData<Pair<Record?, List<Uri>>> =
         onFilesUploadToFolderRequest
 
-    fun getOnCurrentArchiveChangedEvent(): MutableLiveData<Void> = onCurrentArchiveChangedEvent
+    fun getOnCurrentArchiveChangedEvent(): SingleLiveEvent<Void?> = onCurrentArchiveChangedEvent
 
     companion object {
         const val WORKSPACE_KEY = "workspace_key"

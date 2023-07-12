@@ -44,7 +44,7 @@ class ArchiveSearchFragment : PermanentBaseFragment(), PublicArchiveListener {
         return binding.root
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -56,7 +56,7 @@ class ArchiveSearchFragment : PermanentBaseFragment(), PublicArchiveListener {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {

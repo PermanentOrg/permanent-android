@@ -150,7 +150,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         startActivity(shareIntent)
     }
 
-    private val onRevokeLinkRequest = Observer<Void> {
+    private val onRevokeLinkRequest = Observer<Void?> {
         val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_delete, null, false
         )
@@ -196,7 +196,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         accessRolesFragment?.show(parentFragmentManager, accessRolesFragment?.tag)
     }
 
-    private val onAccessRoleForLinkUpdatedObserver = Observer<AccessRole?> {
+    private val onAccessRoleForLinkUpdatedObserver = Observer<AccessRole> {
         viewModel.onAccessRoleUpdated(it)
     }
 
@@ -209,7 +209,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onShowDatePicker = Observer<Void> {
+    private val onShowDatePicker = Observer<Void?> {
         context?.let { context ->
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)

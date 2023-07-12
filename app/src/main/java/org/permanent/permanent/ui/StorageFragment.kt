@@ -3,7 +3,6 @@ package org.permanent.permanent.ui
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -101,20 +99,8 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
         googlePayLauncher.presentForPaymentIntent(it)
     }
 
-    private val onMessageObserver = Observer<String?> { message ->
-        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-        val view: View = snackBar.view
-        context?.let {
-            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
-        }
-        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
-        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
-        snackBar.show()
-    }
-
     private val onErrorObserver = Observer<String?> { message ->
-        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val snackBar = Snackbar.make(binding.root, message.toString(), Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
             view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
@@ -188,13 +174,11 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
 
     override fun connectViewModelEvents() {
         viewModel.getOnPaymentIntentRetrieved().observe(this, onPaymentIntentObserver)
-        viewModel.getOnMessage().observe(this, onMessageObserver)
         viewModel.getOnError().observe(this, onErrorObserver)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnPaymentIntentRetrieved().removeObserver(onPaymentIntentObserver)
-        viewModel.getOnMessage().removeObserver(onMessageObserver)
         viewModel.getOnError().removeObserver(onErrorObserver)
     }
 

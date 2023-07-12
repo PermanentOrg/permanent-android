@@ -44,9 +44,9 @@ class SignUpFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onReadyToShowTermsDialog = Observer<Void> { showTermsDialog() }
+    private val onReadyToShowTermsDialog = Observer<Void?> { showTermsDialog() }
 
-    private val showLoginScreenObserver = Observer<Void> {
+    private val showLoginScreenObserver = Observer<Void?> {
         findNavController().navigate(R.id.action_signUpFragment_to_loginFragment)
     }
 
@@ -60,7 +60,7 @@ class SignUpFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val startArchiveOnboardingActivity = Observer<Void> {
+    private val startArchiveOnboardingActivity = Observer<Void?> {
         prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()

@@ -49,7 +49,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         viewModel.updateBannerOrProfilePhoto(isFileForProfileBanner, it)
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -61,7 +61,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {

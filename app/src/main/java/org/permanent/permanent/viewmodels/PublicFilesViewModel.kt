@@ -15,7 +15,7 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val onRootFolderReady = SingleLiveEvent<Void>()
+    private val onRootFolderReady = SingleLiveEvent<Void?>()
 
     init {
         getFolderName().value = Constants.PUBLIC_FILES
@@ -43,5 +43,5 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
         })
     }
 
-    fun getOnRootFolderReady(): MutableLiveData<Void> = onRootFolderReady
+    fun getOnRootFolderReady(): MutableLiveData<Void?> = onRootFolderReady
 }

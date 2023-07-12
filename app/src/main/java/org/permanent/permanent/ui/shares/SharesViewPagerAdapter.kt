@@ -2,7 +2,6 @@ package org.permanent.permanent.ui.shares
 
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
@@ -19,8 +18,8 @@ class SharesViewPagerAdapter(val fragment: Fragment, val showScreenSimplified: B
     private var recordIdToNavigateTo: Int? = null
     var sharedByMeFragment: SharedXMeFragment? = null
     var sharedWithMeFragment: SharedXMeFragment? = null
-    private val onShareByMeFragmentReady = SingleLiveEvent<Void>()
-    private val onShareWithMeFragmentReady = SingleLiveEvent<Void>()
+    private val onShareByMeFragmentReady = SingleLiveEvent<Void?>()
+    private val onShareWithMeFragmentReady = SingleLiveEvent<Void?>()
     private var sharesWithMe: MutableList<Record> = ArrayList()
 
     override fun getItemCount(): Int = NUMBER_OF_FRAGMENTS
@@ -70,11 +69,11 @@ class SharesViewPagerAdapter(val fragment: Fragment, val showScreenSimplified: B
         recordIdToNavigateTo = recordId
     }
 
-    fun getOnShareByMeFragmentReady(): LiveData<Void> {
+    fun getOnShareByMeFragmentReady(): SingleLiveEvent<Void?> {
         return onShareByMeFragmentReady
     }
 
-    fun getOnShareWithMeFragmentReady(): LiveData<Void> {
+    fun getOnShareWithMeFragmentReady(): SingleLiveEvent<Void?> {
         return onShareWithMeFragmentReady
     }
 }

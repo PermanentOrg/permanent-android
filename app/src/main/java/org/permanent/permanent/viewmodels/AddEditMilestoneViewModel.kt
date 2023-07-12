@@ -32,10 +32,10 @@ class AddEditMilestoneViewModel(application: Application) :
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = SingleLiveEvent<String?>()
-    private val showError = SingleLiveEvent<String?>()
-    private val backRequest = SingleLiveEvent<Void>()
-    private val showDatePickerRequest = SingleLiveEvent<Void>()
+    private val showMessage = SingleLiveEvent<String>()
+    private val showError = SingleLiveEvent<String>()
+    private val backRequest = SingleLiveEvent<Void?>()
+    private val showDatePickerRequest = SingleLiveEvent<Void?>()
     private val showLocationSearchRequest = SingleLiveEvent<ProfileItem?>()
     private val title = MutableLiveData<String>()
     private val startDate = MutableLiveData<String>()
@@ -192,18 +192,18 @@ class AddEditMilestoneViewModel(application: Application) :
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = error
+                    error?.let { showError.value = it }
                 }
             })
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String?> = showMessage
-    fun getShowError(): LiveData<String?> = showError
+    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowError(): LiveData<String> = showError
 
-    fun getOnBackRequest(): LiveData<Void> = backRequest
-    fun getShowDatePicker(): LiveData<Void> = showDatePickerRequest
+    fun getOnBackRequest(): SingleLiveEvent<Void?> = backRequest
+    fun getShowDatePicker(): SingleLiveEvent<Void?> = showDatePickerRequest
     fun getShowLocationSearch(): LiveData<ProfileItem?> = showLocationSearchRequest
 
     fun getTitle(): LiveData<String> = title

@@ -50,8 +50,8 @@ import java.util.Date
 
 
 class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
-    private val baseUrl: String = BuildConfig.BASE_API_URL
     private val retrofit: Retrofit
+    private val retrofitNewBaseUrl: Retrofit
     private val authService: IAuthService
     private val accountService: IAccountService
     private val fileService: IFileService
@@ -63,6 +63,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val tagService: ITagService
     private val profileService: IProfileService
     private val storageService: IStorageService
+    private val legacyPlanningService: ILegacyPlanningService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val profileItemsJsonAdapter: JsonAdapter<ProfileItemsRequestContainer>
@@ -108,9 +109,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                     } else chain.proceed(request)
                 }).build()
         }
-        retrofit =
-            Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(MoshiConverterFactory.create())
+        retrofit = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL).addConverterFactory(MoshiConverterFactory.create())
                 .client(okHttpClient).build()
+        retrofitNewBaseUrl = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL_NEW).addConverterFactory(MoshiConverterFactory.create())
+            .client(okHttpClient).build()
 
         authService = retrofit.create(IAuthService::class.java)
         accountService = retrofit.create(IAccountService::class.java)
@@ -123,6 +125,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         tagService = retrofit.create(ITagService::class.java)
         profileService = retrofit.create(IProfileService::class.java)
         storageService = retrofit.create(IStorageService::class.java)
+        legacyPlanningService = retrofitNewBaseUrl.create(ILegacyPlanningService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
         profileItemsJsonAdapter =
@@ -687,6 +690,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return profileService.delete(requestBody)
     }
+
+    fun getLegacyContact(): Call<List<ResponseVO>> = legacyPlanningService.getLegacyContact()
 
     fun getPaymentIntent(
         accountId: Int,

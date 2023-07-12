@@ -13,7 +13,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -70,7 +69,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private lateinit var record: Record
     private lateinit var prefsHelper: PreferencesHelper
     private var isSharedWithMeFragment = false
-    private val getRootRecords = SingleLiveEvent<Void>()
+    private val getRootRecords = SingleLiveEvent<Void?>()
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
@@ -114,7 +113,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    private val onShowQuotaExceeded = Observer<Void> {
+    private val onShowQuotaExceeded = Observer<Void?> {
         val alertDialog: AlertDialog.Builder = AlertDialog.Builder(activity)
         alertDialog.setTitle(R.string.my_files_quota_exceeded_title)
         alertDialog.setMessage(R.string.my_files_quota_exceeded_message)
@@ -155,7 +154,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateObserver)
     }
 
-    private val onRefreshFolder = Observer<Void> {
+    private val onRefreshFolder = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
 
@@ -186,7 +185,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordsAdapter.addRecords(it)
     }
 
-    private val onRootSharesNeeded = Observer<Void> { getRootRecords.call() }
+    private val onRootSharesNeeded = Observer<Void?> { getRootRecords.call() }
 
     private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
         val records = recordsAdapter.getRecords()
@@ -226,7 +225,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         )
         val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
 
-        dialogBinding.tvTitle.text = getString(R.string.leave_share_record_title, record.displayName)
+        dialogBinding.tvTitle.text =
+            getString(R.string.leave_share_record_title, record.displayName)
         dialogBinding.btnDelete.text = getString(R.string.button_leave_share)
         dialogBinding.btnDelete.setOnClickListener {
             viewModel.unshare(record)
@@ -260,12 +260,12 @@ class SharedXMeFragment : PermanentBaseFragment() {
         alertDialog?.show()
     }
 
-    private val onRecordRenamed = Observer<Void> {
+    private val onRecordRenamed = Observer<Void?> {
         viewModel.refreshCurrentFolder()
         alertDialog?.dismiss()
     }
 
-    private val onCancelAllUploads = Observer<Void> {
+    private val onCancelAllUploads = Observer<Void?> {
         val dialogBinding: DialogCancelUploadsBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_cancel_uploads, null, false
         )
@@ -289,7 +289,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
             .navigate(R.id.action_sharesFragment_to_fileActivity, bundle)
     }
 
-    private val relocationCancellationObserver = Observer<Void> {
+    private val relocationCancellationObserver = Observer<Void?> {
         val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
         )
@@ -314,20 +314,20 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.download(it)
     }
 
-    private val shrinkIslandRequestObserver = Observer<Void> {
+    private val shrinkIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(
             binding.flFloatingActionIsland.width, MyFilesFragment.ISLAND_WIDTH_SMALL
         )
     }
 
-    private val expandIslandRequestObserver = Observer<Void> {
+    private val expandIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(
             binding.flFloatingActionIsland.width,
             MyFilesFragment.ISLAND_WIDTH_LARGE
         )
     }
 
-    private val deleteRecordsObserver = Observer<Void> {
+    private val deleteRecordsObserver = Observer<Void?> {
         val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_delete, null, false
         )
@@ -344,7 +344,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         alert.show()
     }
 
-    private val refreshCurrentFolderObserver = Observer<Void> {
+    private val refreshCurrentFolderObserver = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
 
@@ -356,7 +356,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         selectionOptionsFragment = SelectionOptionsFragment()
         selectionOptionsFragment?.setBundleArguments(it)
         selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
-        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.observe(this, onSelectionRelocateObserver)
+        selectionOptionsFragment?.getOnSelectionRelocateRequest()
+            ?.observe(this, onSelectionRelocateObserver)
     }
 
     private val onSelectionRelocateObserver = Observer<RelocationType> {
@@ -443,7 +444,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         }
     }
 
-    fun getRootShares(): LiveData<Void> = getRootRecords
+    fun getRootShares(): SingleLiveEvent<Void?> = getRootRecords
 
     private val onShowSortOptionsFragment = Observer<SortType> {
         sortOptionsFragment = SortOptionsFragment()
@@ -516,12 +517,14 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
-        recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
+        recordOptionsFragment?.getOnRecordRelocateRequest()
+            ?.removeObserver(onRecordRelocateObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
-        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.removeObserver(onSelectionRelocateObserver)
+        selectionOptionsFragment?.getOnSelectionRelocateRequest()
+            ?.removeObserver(onSelectionRelocateObserver)
     }
 
     override fun onResume() {

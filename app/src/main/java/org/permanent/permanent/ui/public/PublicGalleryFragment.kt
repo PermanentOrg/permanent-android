@@ -40,7 +40,7 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         popularArchivesAdapter.set(it as MutableList<Archive>)
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -52,7 +52,7 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {

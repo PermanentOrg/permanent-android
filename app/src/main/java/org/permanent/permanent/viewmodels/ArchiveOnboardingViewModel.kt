@@ -20,7 +20,13 @@ import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.archiveOnboarding.*
+import org.permanent.permanent.ui.archiveOnboarding.DefaultSelectionFragment
+import org.permanent.permanent.ui.archiveOnboarding.NameSettingFragment
+import org.permanent.permanent.ui.archiveOnboarding.OnboardingArchiveListener
+import org.permanent.permanent.ui.archiveOnboarding.OnboardingPage
+import org.permanent.permanent.ui.archiveOnboarding.PendingInvitationsFragment
+import org.permanent.permanent.ui.archiveOnboarding.TypeSelectionFragment
+import org.permanent.permanent.ui.archiveOnboarding.WelcomeFragment
 
 class ArchiveOnboardingViewModel(application: Application) :
     ObservableAndroidViewModel(application), OnboardingArchiveListener {
@@ -39,7 +45,7 @@ class ArchiveOnboardingViewModel(application: Application) :
     private val name = MutableLiveData<String>()
     private val onPendingArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val onShowNextFragment = SingleLiveEvent<Fragment>()
-    private val onArchiveOnboardingDone = SingleLiveEvent<Void>()
+    private val onArchiveOnboardingDone = SingleLiveEvent<Void?>()
     private val currentPage = MutableLiveData(OnboardingPage.WELCOME)
     val progress = MutableLiveData(1)
     private val confirmationText = MutableLiveData<String>()
@@ -298,5 +304,5 @@ class ArchiveOnboardingViewModel(application: Application) :
 
     fun getOnArchivesRetrieved(): LiveData<List<Archive>> = onPendingArchivesRetrieved
     fun getOnShowNextFragment(): LiveData<Fragment> = onShowNextFragment
-    fun getOnArchiveOnboardingDone(): LiveData<Void> = onArchiveOnboardingDone
+    fun getOnArchiveOnboardingDone(): LiveData<Void?> = onArchiveOnboardingDone
 }

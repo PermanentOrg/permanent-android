@@ -21,9 +21,9 @@ class AddEditOnlinePresenceViewModel(application: Application) :
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String?>()
-    private val showError = MutableLiveData<String?>()
-    private val onBackRequest = SingleLiveEvent<Void>()
+    private val showMessage = MutableLiveData<String>()
+    private val showError = MutableLiveData<String>()
+    private val onBackRequest = SingleLiveEvent<Void?>()
     private val onlinePresence = MutableLiveData("")
     private var socialMediaProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
@@ -89,10 +89,10 @@ class AddEditOnlinePresenceViewModel(application: Application) :
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String?> = showMessage
-    fun getShowError(): LiveData<String?> = showError
+    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowError(): LiveData<String> = showError
 
-    fun getOnBackRequest(): LiveData<Void> = onBackRequest
+    fun getOnBackRequest(): LiveData<Void?> = onBackRequest
 
     fun getIsOnAddEmail(): Boolean? = isAddEmail
 

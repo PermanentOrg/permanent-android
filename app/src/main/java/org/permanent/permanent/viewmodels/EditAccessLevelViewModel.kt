@@ -14,7 +14,7 @@ class EditAccessLevelViewModel(application: Application) : ObservableAndroidView
     private val fullName = MutableLiveData<String>()
     private val email = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onItemEdited = SingleLiveEvent<Void>()
+    private val onItemEdited = SingleLiveEvent<Void?>()
     private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
@@ -97,7 +97,7 @@ class EditAccessLevelViewModel(application: Application) : ObservableAndroidView
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnItemEdited(): LiveData<Void> = onItemEdited
+    fun getOnItemEdited(): LiveData<Void?> = onItemEdited
 
     fun getOnOwnershipTransferRequest(): LiveData<Boolean> = onOwnershipTransferRequest
 

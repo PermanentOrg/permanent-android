@@ -14,7 +14,7 @@ class RenameRecordViewModel(application: Application) : ObservableAndroidViewMod
     private val currentRecordName = MutableLiveData<String>()
     private val nameError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onRecordRenamed = SingleLiveEvent<Void>()
+    private val onRecordRenamed = SingleLiveEvent<Void?>()
     private val showMessage = SingleLiveEvent<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
@@ -22,25 +22,15 @@ class RenameRecordViewModel(application: Application) : ObservableAndroidViewMod
         currentRecordName.value = displayName
     }
 
-    fun getCurrentRecordName(): MutableLiveData<String> {
-        return currentRecordName
-    }
+    fun getCurrentRecordName(): MutableLiveData<String> = currentRecordName
 
-    fun getNameError(): LiveData<Int> {
-        return nameError
-    }
+    fun getNameError(): LiveData<Int> = nameError
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnRecordRenamed(): MutableLiveData<Void> {
-        return onRecordRenamed
-    }
+    fun getOnRecordRenamed(): MutableLiveData<Void?> = onRecordRenamed
 
-    fun getOnShowMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getOnShowMessage(): LiveData<String> = showMessage
 
     fun onNameTextChanged(name: Editable) {
         currentRecordName.value = name.toString()

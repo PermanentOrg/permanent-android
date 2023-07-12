@@ -22,10 +22,10 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
         MutableLiveData<String>(prefsHelper.getCurrentArchiveFullName())
     private val destinationFolderName =
         MutableLiveData(appContext.getString(R.string.menu_drawer_private_files))
-    private val onUploadRequest = SingleLiveEvent<Void>()
-    private val onChangeDestinationFolderRequest = SingleLiveEvent<Void>()
-    private val onChangeDestinationArchiveRequest = SingleLiveEvent<Void>()
-    private val onCancelRequest = SingleLiveEvent<Void>()
+    private val onUploadRequest = SingleLiveEvent<Void?>()
+    private val onChangeDestinationFolderRequest = SingleLiveEvent<Void?>()
+    private val onChangeDestinationArchiveRequest = SingleLiveEvent<Void?>()
+    private val onCancelRequest = SingleLiveEvent<Void?>()
 
     fun updateCurrentArchive() {
         currentArchiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
@@ -68,13 +68,13 @@ class SaveToPermanentViewModel(application: Application) : ObservableAndroidView
 
     fun getDestinationFolderName(): MutableLiveData<String> = destinationFolderName
 
-    fun getOnUploadRequest(): MutableLiveData<Void> = onUploadRequest
+    fun getOnUploadRequest(): MutableLiveData<Void?> = onUploadRequest
 
-    fun getOnChangeDestinationFolderRequest(): MutableLiveData<Void> =
+    fun getOnChangeDestinationFolderRequest(): MutableLiveData<Void?> =
         onChangeDestinationFolderRequest
 
-    fun getOnChangeDestinationArchiveRequest(): MutableLiveData<Void> =
+    fun getOnChangeDestinationArchiveRequest(): MutableLiveData<Void?> =
         onChangeDestinationArchiveRequest
 
-    fun getOnCancelRequest(): MutableLiveData<Void> = onCancelRequest
+    fun getOnCancelRequest(): MutableLiveData<Void?> = onCancelRequest
 }

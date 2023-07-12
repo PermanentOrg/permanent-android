@@ -77,7 +77,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
         recordsAdapter.setRecords(it)
     }
 
-    private val onChangeArchive = Observer<Void> {
+    private val onChangeArchive = Observer<Void?> {
         urlToken?.let { token ->
             prefsHelper.saveShareLinkUrlToken(token)
             archivesContainerFragment = ArchivesContainerFragment()
@@ -86,7 +86,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onArchiveChanged = Observer<Void> {
+    private val onArchiveChanged = Observer<Void?> {
         val token = prefsHelper.getShareLinkUrlToken()
         if (!token.isNullOrEmpty()) {
             prefsHelper.saveShareLinkUrlToken("")
@@ -102,7 +102,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_sharePreviewFragment_to_sharesFragment, bundle)
     }
 
-    private val onNavigateUp = Observer<Void> {
+    private val onNavigateUp = Observer<Void?> {
         findNavController().navigateUp()
     }
 

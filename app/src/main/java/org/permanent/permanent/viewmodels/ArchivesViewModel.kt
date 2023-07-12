@@ -40,8 +40,8 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
     private val existsArchives = MutableLiveData(false)
     private val onArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val onDefaultArchiveChanged = MutableLiveData<Int>()
-    private val onCurrentArchiveChanged = SingleLiveEvent<Void>()
-    private val onShowCreateArchiveDialog = SingleLiveEvent<Void>()
+    private val onCurrentArchiveChanged = SingleLiveEvent<Void?>()
+    private val onShowCreateArchiveDialog = SingleLiveEvent<Void?>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
@@ -67,7 +67,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showError.value = error
+                error?.let { errorMsg -> showError.value = errorMsg }
             }
         })
     }
@@ -108,7 +108,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showError.value = error
+                error?.let { errorMsg -> showError.value = errorMsg }
             }
         })
     }
@@ -153,13 +153,13 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
         archiveRepository.declineArchive(archive, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 isBusy.value = false
-                showMessage.value = message
+                message?.let { showMessage.value = it }
                 refreshArchives()
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showError.value = error
+                error?.let { errorMsg -> showError.value = errorMsg }
             }
         })
     }
@@ -192,7 +192,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = error
+                    error?.let { errorMsg -> showError.value = errorMsg }
                 }
             })
         }
@@ -217,12 +217,12 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                     isCurrentArchiveDefault.value = false
                     onDefaultArchiveChanged.value = newDefaultArchiveId
                 }
-                showMessage.value = message
+                message?.let { showMessage.value = it }
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showError.value = error
+                error?.let { errorMsg -> showError.value = errorMsg }
             }
         })
     }
@@ -237,13 +237,13 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
             archiveRepository.deleteArchive(it, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    showMessage.value = message
+                    message?.let { showMessage.value = it }
                     refreshArchives()
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = error
+                    error?.let { errorMsg -> showError.value = errorMsg }
                 }
             })
         }
@@ -275,7 +275,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getOnDefaultArchiveChanged(): LiveData<Int> = onDefaultArchiveChanged
 
-    fun getOnCurrentArchiveChanged(): LiveData<Void> = onCurrentArchiveChanged
+    fun getOnCurrentArchiveChanged(): SingleLiveEvent<Void?> = onCurrentArchiveChanged
 
-    fun getShowCreateArchiveDialog(): LiveData<Void> = onShowCreateArchiveDialog
+    fun getShowCreateArchiveDialog(): SingleLiveEvent<Void?> = onShowCreateArchiveDialog
 }

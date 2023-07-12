@@ -156,7 +156,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
-    private val onShowQuotaExceeded = Observer<Void> {
+    private val onShowQuotaExceeded = Observer<Void?> {
         val alertDialog: AlertDialog.Builder = AlertDialog.Builder(activity)
         alertDialog.setTitle(R.string.my_files_quota_exceeded_title)
         alertDialog.setMessage(R.string.my_files_quota_exceeded_message)
@@ -203,7 +203,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordsAdapter.addRecords(it)
     }
 
-    private val onShowRecordSearchFragment = Observer<Void> {
+    private val onShowRecordSearchFragment = Observer<Void?> {
         findNavController().navigate(R.id.action_myFilesFragment_to_recordSearchFragment)
     }
 
@@ -282,7 +282,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         alertDialog?.show()
     }
 
-    private val onCancelAllUploads = Observer<Void> {
+    private val onCancelAllUploads = Observer<Void?> {
         val dialogBinding: DialogCancelUploadsBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_cancel_uploads, null, false
         )
@@ -313,15 +313,15 @@ class MyFilesFragment : PermanentBaseFragment() {
         shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
     }
 
-    private val shrinkIslandRequestObserver = Observer<Void> {
+    private val shrinkIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_SMALL)
     }
 
-    private val expandIslandRequestObserver = Observer<Void> {
+    private val expandIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
     }
 
-    private val deleteRecordsObserver = Observer<Void> {
+    private val deleteRecordsObserver = Observer<Void?> {
         val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_delete, null, false
         )
@@ -338,7 +338,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         alert.show()
     }
 
-    private val refreshCurrentFolderObserver = Observer<Void> {
+    private val refreshCurrentFolderObserver = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
 
@@ -376,7 +376,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.setSortType(it)
     }
 
-    private val onRefreshFolder = Observer<Void> {
+    private val onRefreshFolder = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
 
@@ -396,12 +396,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onRecordRenamed = Observer<Void> {
+    private val onRecordRenamed = Observer<Void?> {
         viewModel.refreshCurrentFolder()
         alertDialog?.dismiss()
     }
 
-    private val onCurrentArchiveChangedObserver = Observer<Void> {
+    private val onCurrentArchiveChangedObserver = Observer<Void?> {
         viewModel.loadRootFiles()
     }
 

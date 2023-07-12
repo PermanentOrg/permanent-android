@@ -19,7 +19,7 @@ class CreateNewArchiveViewModel(application: Application) :
     private val nameError = MutableLiveData<Int?>()
     private val archiveTypeError = MutableLiveData<Int?>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onArchiveCreatedResult = SingleLiveEvent<Void>()
+    private val onArchiveCreatedResult = SingleLiveEvent<Void?>()
     private val showMessage = MutableLiveData<String>()
     private val showError = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
@@ -36,7 +36,7 @@ class CreateNewArchiveViewModel(application: Application) :
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnArchiveCreatedResult(): LiveData<Void> = onArchiveCreatedResult
+    fun getOnArchiveCreatedResult(): LiveData<Void?> = onArchiveCreatedResult
 
     fun getShowMessage(): LiveData<String> = showMessage
 

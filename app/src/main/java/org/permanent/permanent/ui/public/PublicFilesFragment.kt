@@ -114,7 +114,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
-    private val onShowQuotaExceeded = Observer<Void> {
+    private val onShowQuotaExceeded = Observer<Void?> {
         val alertDialog: AlertDialog.Builder = AlertDialog.Builder(activity)
         alertDialog.setTitle(R.string.my_files_quota_exceeded_title)
         alertDialog.setMessage(R.string.my_files_quota_exceeded_message)
@@ -156,7 +156,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordsAdapter.addRecords(it)
     }
 
-    private val onShowRecordSearchFragment = Observer<Void> {
+    private val onShowRecordSearchFragment = Observer<Void?> {
         findNavController().navigate(R.id.action_publicFilesFragment_to_recordSearchFragment)
     }
 
@@ -227,7 +227,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         alertDialog?.show()
     }
 
-    private val onCancelAllUploads = Observer<Void> {
+    private val onCancelAllUploads = Observer<Void?> {
         val dialogBinding: DialogCancelUploadsBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_cancel_uploads, null, false
         )
@@ -248,15 +248,15 @@ class PublicFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity, bundle)
     }
 
-    private val shrinkIslandRequestObserver = Observer<Void> {
+    private val shrinkIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_SMALL)
     }
 
-    private val expandIslandRequestObserver = Observer<Void> {
+    private val expandIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
     }
 
-    private val deleteRecordsObserver = Observer<Void> {
+    private val deleteRecordsObserver = Observer<Void?> {
         val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_delete, null, false
         )
@@ -273,7 +273,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         alert.show()
     }
 
-    private val refreshCurrentFolderObserver = Observer<Void> {
+    private val refreshCurrentFolderObserver = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
 
@@ -311,7 +311,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.setSortType(it)
     }
 
-    private val onRefreshFolder = Observer<Void> {
+    private val onRefreshFolder = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
 
@@ -331,7 +331,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onRecordRenamed = Observer<Void> {
+    private val onRecordRenamed = Observer<Void?> {
         viewModel.refreshCurrentFolder()
         alertDialog?.dismiss()
     }
@@ -340,7 +340,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         onRecordSelectedEvent.value = Pair(Workspace.PUBLIC_FILES, it)
     }
 
-    private val onRootFolderReadyObserver = Observer<Void> {
+    private val onRootFolderReadyObserver = Observer<Void?> {
         arguments?.let { args ->
             args.getParcelable<Record>(PARCELABLE_RECORD_KEY)?.let { folderRecord ->
                 viewModel.onRecordClick(folderRecord)

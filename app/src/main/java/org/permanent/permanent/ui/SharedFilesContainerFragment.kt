@@ -30,7 +30,7 @@ class SharedFilesContainerFragment : PermanentBottomSheetFragment() {
     private var selectedDestinationRecord: Pair<Workspace, Record>? = null
     private val onSaveFolderEvent = SingleLiveEvent<Pair<Workspace, Record>>()
 
-    private val onSaveFolderRequestObserver = Observer<Void> {
+    private val onSaveFolderRequestObserver = Observer<Void?> {
         if (selectedDestinationRecord != null) {
             onSaveFolderEvent.value = selectedDestinationRecord!!
             dismiss()
@@ -45,7 +45,7 @@ class SharedFilesContainerFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onCancelRequestObserver = Observer<Void> {
+    private val onCancelRequestObserver = Observer<Void?> {
         dismiss()
     }
 

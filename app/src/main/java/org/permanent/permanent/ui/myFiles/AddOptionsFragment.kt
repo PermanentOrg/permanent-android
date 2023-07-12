@@ -52,7 +52,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     private lateinit var photoURI: Uri
     private var alertDialog: AlertDialog? = null
     private val filesToUpload = MutableLiveData<MutableList<Uri>>()
-    private val onRefreshFolder = SingleLiveEvent<Void>()
+    private val onRefreshFolder = SingleLiveEvent<Void?>()
 
     private val onErrorStringId = Observer<Int> { errorId ->
         val errorMessage = this.resources.getString(errorId)
@@ -63,7 +63,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
     }
 
-    private val onFolderCreated = Observer<Void> {
+    private val onFolderCreated = Observer<Void?> {
         onRefreshFolder.call()
         alertDialog?.dismiss()
         dismiss()
@@ -295,7 +295,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         return filesToUpload
     }
 
-    fun getOnRefreshFolder(): MutableLiveData<Void> {
+    fun getOnRefreshFolder(): MutableLiveData<Void?> {
         return onRefreshFolder
     }
 

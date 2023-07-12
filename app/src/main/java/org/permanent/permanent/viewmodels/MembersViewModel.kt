@@ -37,7 +37,7 @@ class MembersViewModel(application: Application
         CurrentArchivePermissionsManager.instance.isArchiveShareAvailable()
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarLong = MutableLiveData<Int>()
-    private val showAddMemberDialogRequest = SingleLiveEvent<Void>()
+    private val showAddMemberDialogRequest = SingleLiveEvent<Void?>()
     private val showMemberOptionsFragmentRequest = MutableLiveData<Account>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(appContext)
 
@@ -157,7 +157,7 @@ class MembersViewModel(application: Application
 
     fun getShowSnackbar(): LiveData<String> = showSnackbar
 
-    fun getShowAddMemberDialogRequest(): LiveData<Void> = showAddMemberDialogRequest
+    fun getShowAddMemberDialogRequest(): LiveData<Void?> = showAddMemberDialogRequest
 
     fun getShowMemberOptionsFragmentRequest(): LiveData<Account> = showMemberOptionsFragmentRequest
 

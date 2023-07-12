@@ -59,7 +59,7 @@ class AccountFragment : PermanentBaseFragment() {
         Toast.makeText(requireActivity(), it, Toast.LENGTH_LONG).show()
     }
 
-    private val onShowDeleteAccountDialog = Observer<Void> {
+    private val onShowDeleteAccountDialog = Observer<Void?> {
         dialog.show()
         val window: Window = dialog.window!!
         window.setLayout(
@@ -68,7 +68,7 @@ class AccountFragment : PermanentBaseFragment() {
         )
     }
 
-    private val onAccountDeleted = Observer<Void> {
+    private val onAccountDeleted = Observer<Void?> {
         dialog.dismiss()
         val currentActivity = PermanentApplication.instance.currentActivity
         val intent = Intent(currentActivity, LoginActivity::class.java)

@@ -20,10 +20,10 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     val selectBtnText = MutableLiveData(application.getString(R.string.button_select))
     val selectedRecordsSize = MutableLiveData(0)
     private val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
-    private val expandIslandRequest = SingleLiveEvent<Void>()
-    private val deleteRecordsRequest = SingleLiveEvent<Void>()
+    private val expandIslandRequest = SingleLiveEvent<Void?>()
+    private val deleteRecordsRequest = SingleLiveEvent<Void?>()
     private val showSelectionOptionsRequest = SingleLiveEvent<Int>()
-    private val refreshCurrentFolderRequest = SingleLiveEvent<Void>()
+    private val refreshCurrentFolderRequest = SingleLiveEvent<Void?>()
 
     fun onSelectBtnClick() {
         isSelectionMode.value = true
@@ -190,13 +190,13 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         }
     }
 
-    fun getExpandIslandRequest(): SingleLiveEvent<Void> = expandIslandRequest
+    fun getExpandIslandRequest(): SingleLiveEvent<Void?> = expandIslandRequest
 
-    fun getDeleteRecordsRequest(): SingleLiveEvent<Void> = deleteRecordsRequest
+    fun getDeleteRecordsRequest(): SingleLiveEvent<Void?> = deleteRecordsRequest
 
     fun getShowSelectionOptionsRequest(): SingleLiveEvent<Int> = showSelectionOptionsRequest
 
-    fun getRefreshCurrentFolderRequest(): SingleLiveEvent<Void> = refreshCurrentFolderRequest
+    fun getRefreshCurrentFolderRequest(): SingleLiveEvent<Void?> = refreshCurrentFolderRequest
 
     companion object {
         const val DELAY_TO_POPULATE_ISLAND_MILLIS = 400L

@@ -18,11 +18,11 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val nameError = MutableLiveData<Int>()
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
-    private val onAccountCreated = SingleLiveEvent<Void>()
+    private val onAccountCreated = SingleLiveEvent<Void?>()
     private val onErrorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onReadyToShowTermsDialog = SingleLiveEvent<Void>()
-    private val showLoginScreen = SingleLiveEvent<Void>()
+    private val onReadyToShowTermsDialog = SingleLiveEvent<Void?>()
+    private val showLoginScreen = SingleLiveEvent<Void?>()
     private val currentName = MutableLiveData<String>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
@@ -30,28 +30,6 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-
-    fun getCurrentName(): MutableLiveData<String> = currentName
-
-    fun getCurrentEmail(): MutableLiveData<String> = currentEmail
-
-    fun getCurrentPassword(): MutableLiveData<String> = currentPassword
-
-    fun getNameError(): LiveData<Int> = nameError
-
-    fun getEmailError(): LiveData<Int> = emailError
-
-    fun getPasswordError(): LiveData<Int> = passwordError
-
-    fun getOnAccountCreated(): SingleLiveEvent<Void> = onAccountCreated
-
-    fun getOnErrorMessage(): MutableLiveData<String> = onErrorMessage
-
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
-    fun getOnReadyToShowTermsDialog(): MutableLiveData<Void> = onReadyToShowTermsDialog
-
-    fun getShowLoginScreen(): MutableLiveData<Void> = showLoginScreen
 
     fun onNameTextChanged(name: Editable) {
         currentName.value = name.toString()
@@ -118,4 +96,26 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
             })
         }
     }
+
+    fun getCurrentName(): MutableLiveData<String> = currentName
+
+    fun getCurrentEmail(): MutableLiveData<String> = currentEmail
+
+    fun getCurrentPassword(): MutableLiveData<String> = currentPassword
+
+    fun getNameError(): LiveData<Int> = nameError
+
+    fun getEmailError(): LiveData<Int> = emailError
+
+    fun getPasswordError(): LiveData<Int> = passwordError
+
+    fun getOnAccountCreated(): SingleLiveEvent<Void?> = onAccountCreated
+
+    fun getOnErrorMessage(): MutableLiveData<String> = onErrorMessage
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnReadyToShowTermsDialog(): MutableLiveData<Void?> = onReadyToShowTermsDialog
+
+    fun getShowLoginScreen(): MutableLiveData<Void?> = showLoginScreen
 }

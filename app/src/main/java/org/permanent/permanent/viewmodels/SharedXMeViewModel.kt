@@ -55,18 +55,18 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
     private var folderPathStack: Stack<Record> = Stack()
 
-    private val showQuotaExceeded = SingleLiveEvent<Void>()
+    private val showQuotaExceeded = SingleLiveEvent<Void?>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
     private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
-    private val onRootSharesNeeded = SingleLiveEvent<Void>()
+    private val onRootSharesNeeded = SingleLiveEvent<Void?>()
     private val onChangeViewMode = MutableLiveData<Boolean>()
-    private val onCancelAllUploads = SingleLiveEvent<Void>()
+    private val onCancelAllUploads = SingleLiveEvent<Void?>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onFileViewRequest = SingleLiveEvent<Record>()
-    private val showRelocationCancellationDialog = SingleLiveEvent<Void>()
+    private val showRelocationCancellationDialog = SingleLiveEvent<Void?>()
     private val onRecordSelected = SingleLiveEvent<Record>()
     private var showScreenSimplified = MutableLiveData(false)
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -390,14 +390,14 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     fun getIsCreateAvailable(): LiveData<Boolean> = isCreateAvailable
 
-    fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
+    fun getOnShowQuotaExceeded(): SingleLiveEvent<Void?> = showQuotaExceeded
 
     fun getOnNewTemporaryFiles(): MutableLiveData<MutableList<Record>> = onNewTemporaryFiles
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment
 
-    fun getOnCancelAllUploads(): SingleLiveEvent<Void> = onCancelAllUploads
+    fun getOnCancelAllUploads(): SingleLiveEvent<Void?> = onCancelAllUploads
 
     fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> = onDownloadsRetrieved
 
@@ -405,7 +405,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     fun getOnRecordsRetrieved(): LiveData<MutableList<Record>> = onRecordsRetrieved
 
-    fun getOnRootSharesNeeded(): LiveData<Void> = onRootSharesNeeded
+    fun getOnRootSharesNeeded(): LiveData<Void?> = onRootSharesNeeded
 
     fun getOnChangeViewMode(): MutableLiveData<Boolean> = onChangeViewMode
 
@@ -415,7 +415,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     fun getOnFileViewRequest(): LiveData<Record> = onFileViewRequest
 
-    fun getShowRelocationCancellationDialog(): LiveData<Void> = showRelocationCancellationDialog
+    fun getShowRelocationCancellationDialog(): LiveData<Void?> = showRelocationCancellationDialog
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 

@@ -6,10 +6,10 @@ import org.permanent.permanent.ui.Workspace
 
 class ChooseFolderViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    private val onPrivateFilesSelected = SingleLiveEvent<Void>()
-    private val onSharedFilesSelected = SingleLiveEvent<Void>()
-    private val onPublicFilesSelected = SingleLiveEvent<Void>()
-    private val onCancelRequest = SingleLiveEvent<Void>()
+    private val onPrivateFilesSelected = SingleLiveEvent<Void?>()
+    private val onSharedFilesSelected = SingleLiveEvent<Void?>()
+    private val onPublicFilesSelected = SingleLiveEvent<Void?>()
+    private val onCancelRequest = SingleLiveEvent<Void?>()
 
     fun onCancelBtnClick() {
         onCancelRequest.call()
@@ -23,8 +23,8 @@ class ChooseFolderViewModel(application: Application) : ObservableAndroidViewMod
         }
     }
 
-    fun getOnPrivateFilesSelected(): MutableLiveData<Void> = onPrivateFilesSelected
-    fun getOnSharedFilesSelected(): MutableLiveData<Void> = onSharedFilesSelected
-    fun getOnPublicFilesSelected(): MutableLiveData<Void> = onPublicFilesSelected
-    fun getOnCancelRequest(): MutableLiveData<Void> = onCancelRequest
+    fun getOnPrivateFilesSelected(): MutableLiveData<Void?> = onPrivateFilesSelected
+    fun getOnSharedFilesSelected(): MutableLiveData<Void?> = onSharedFilesSelected
+    fun getOnPublicFilesSelected(): MutableLiveData<Void?> = onPublicFilesSelected
+    fun getOnCancelRequest(): MutableLiveData<Void?> = onCancelRequest
 }

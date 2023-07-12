@@ -53,7 +53,7 @@ class OnlinePresenceListFragment : PermanentBaseFragment(), ProfileItemListener 
             )
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -65,7 +65,7 @@ class OnlinePresenceListFragment : PermanentBaseFragment(), ProfileItemListener 
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -80,7 +80,7 @@ class OnlinePresenceListFragment : PermanentBaseFragment(), ProfileItemListener 
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(OnlinePresenceListViewModel::class.java)
+        viewModel = ViewModelProvider(this)[OnlinePresenceListViewModel::class.java]
         binding = FragmentOnlinePresenceListBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

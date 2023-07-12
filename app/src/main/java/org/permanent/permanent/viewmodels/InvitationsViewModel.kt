@@ -19,7 +19,7 @@ class InvitationsViewModel(application: Application
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private val onInvitesRetrieved = SingleLiveEvent<MutableList<Invitation>>()
-    private val showSendInvitationDialog = SingleLiveEvent<Void>()
+    private val showSendInvitationDialog = SingleLiveEvent<Void?>()
     private var invitationRepository: IInvitationRepository = InvitationRepositoryImpl(appContext)
 
     init {
@@ -55,21 +55,13 @@ class InvitationsViewModel(application: Application
         })
     }
 
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowSnackbarMessage(): LiveData<String> {
-        return showMessage
-    }
+    fun getShowSnackbarMessage(): LiveData<String> = showMessage
 
-    fun getOnInvitesRetrieved(): LiveData<MutableList<Invitation>> {
-        return onInvitesRetrieved
-    }
+    fun getOnInvitesRetrieved(): LiveData<MutableList<Invitation>> = onInvitesRetrieved
 
-    fun getShowSendInvitationDialog(): LiveData<Void> {
-        return showSendInvitationDialog
-    }
+    fun getShowSendInvitationDialog(): LiveData<Void?> = showSendInvitationDialog
 
     fun onSendNewInviteBtnClick() {
         showSendInvitationDialog.call()

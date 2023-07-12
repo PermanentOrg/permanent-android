@@ -16,7 +16,7 @@ import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class AddEditTagFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentAddEditTagBinding
-    val didUpdateTag = SingleLiveEvent<Void>()
+    val didUpdateTag = SingleLiveEvent<Void?>()
 
     companion object {
         fun newInstance() = AddEditTagFragment()
@@ -69,11 +69,11 @@ class AddEditTagFragment : PermanentBottomSheetFragment() {
         disconnectViewModelEvents()
     }
 
-    private val onDismissEvent = Observer<Void> {
+    private val onDismissEvent = Observer<Void?> {
         dismiss()
     }
 
-    private val onUpdateSuccessEvent = Observer<Void> {
+    private val onUpdateSuccessEvent = Observer<Void?> {
         didUpdateTag.call()
         dismiss()
     }

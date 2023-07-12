@@ -64,7 +64,7 @@ class EditArchiveInformationFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -76,7 +76,7 @@ class EditArchiveInformationFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -86,7 +86,7 @@ class EditArchiveInformationFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val onShowDatePicker = Observer<Void> {
+    private val onShowDatePicker = Observer<Void?> {
         context?.let { context ->
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)

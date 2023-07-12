@@ -12,8 +12,8 @@ class ForgotPasswordViewModel(application: Application) : ObservableAndroidViewM
     private val currentEmail = MutableLiveData<String>()
     private val emailError = MutableLiveData<Int>()
     private val errorMessage = MutableLiveData<String>()
-    private val onPasswordReset = SingleLiveEvent<Void>()
-    private val onBackToSignIn = SingleLiveEvent<Void>()
+    private val onPasswordReset = SingleLiveEvent<Void?>()
+    private val onBackToSignIn = SingleLiveEvent<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
@@ -55,9 +55,9 @@ class ForgotPasswordViewModel(application: Application) : ObservableAndroidViewM
 
     fun getEmailError(): LiveData<Int> = emailError
 
-    fun getOnPasswordReset(): MutableLiveData<Void> = onPasswordReset
+    fun getOnPasswordReset(): MutableLiveData<Void?> = onPasswordReset
 
-    fun getOnBackToSignIn(): MutableLiveData<Void> = onBackToSignIn
+    fun getOnBackToSignIn(): MutableLiveData<String> = onBackToSignIn
 
     fun onEmailTextChanged(email: Editable) {
         currentEmail.value = email.toString().trim { it <= ' ' }

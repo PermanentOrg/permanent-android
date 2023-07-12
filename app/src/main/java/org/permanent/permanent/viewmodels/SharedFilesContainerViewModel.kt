@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 class SharedFilesContainerViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
 
-    private val onSaveFolderRequest = SingleLiveEvent<Void>()
-    private val onCancelRequest = SingleLiveEvent<Void>()
+    private val onSaveFolderRequest = SingleLiveEvent<Void?>()
+    private val onCancelRequest = SingleLiveEvent<Void?>()
 
     fun onCancelBtnClick() {
         onCancelRequest.call()
@@ -17,6 +17,7 @@ class SharedFilesContainerViewModel(application: Application) :
         onSaveFolderRequest.call()
     }
 
-    fun getOnSaveFolderRequest(): MutableLiveData<Void> = onSaveFolderRequest
-    fun getOnCancelRequest(): MutableLiveData<Void> = onCancelRequest
+    fun getOnSaveFolderRequest(): MutableLiveData<Void?> = onSaveFolderRequest
+
+    fun getOnCancelRequest(): MutableLiveData<Void?> = onCancelRequest
 }

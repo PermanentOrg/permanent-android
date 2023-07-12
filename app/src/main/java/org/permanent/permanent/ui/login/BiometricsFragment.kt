@@ -24,13 +24,13 @@ class BiometricsFragment : PermanentBaseFragment() {
     private lateinit var viewModel: BiometricsViewModel
     private lateinit var binding: FragmentBiometricsBinding
 
-    private val onNavigateToMainActivity = Observer<Void> {
+    private val onNavigateToMainActivity = Observer<Void?> {
         navigateToMainActivity()
     }
-    private val onLoggedOut = Observer<Void> {
+    private val onLoggedOut = Observer<Void?> {
         findNavController().navigate(R.id.action_biometricsFragment_to_LoginFragment)
     }
-    private val onShowOpenSettingsQuestionDialog = Observer<Void> {
+    private val onShowOpenSettingsQuestionDialog = Observer<Void?> {
         showOpenSettingsQuestionDialog()
     }
     private val onErrorMessage = Observer<String> { errorMessage ->

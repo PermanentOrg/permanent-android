@@ -182,7 +182,7 @@ class MembersFragment : PermanentBaseFragment() {
         Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
     }
 
-    private val onShowAddMemberDialog = Observer<Void> {
+    private val onShowAddMemberDialog = Observer<Void?> {
         addDialogBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
             R.layout.dialog_add_member, null, false
@@ -255,7 +255,7 @@ class MembersFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onMembersUpdated = Observer<Void> {
+    private val onMembersUpdated = Observer<Void?> {
         viewModel.refreshMembers()
         alertDialog?.dismiss()
     }

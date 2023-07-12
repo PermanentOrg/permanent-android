@@ -57,11 +57,11 @@ class PublicProfileFragment : PermanentBaseFragment() {
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editArchiveInformationFragment, bundle)
     }
 
-    private val onEditMilestonesRequest = Observer<Void> {
+    private val onEditMilestonesRequest = Observer<Void?> {
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_milestoneListFragment)
     }
 
-    private val onEditOnlinePresenceRequest = Observer<Void> {
+    private val onEditOnlinePresenceRequest = Observer<Void?> {
         requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_onlinePresenceListFragment)
     }
 

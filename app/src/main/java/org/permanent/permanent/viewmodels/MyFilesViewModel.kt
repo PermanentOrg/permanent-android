@@ -48,13 +48,13 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
     private var existsDownloads = MutableLiveData(false)
-    private val showQuotaExceeded = SingleLiveEvent<Void>()
+    private val showQuotaExceeded = SingleLiveEvent<Void?>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
-    private val onCancelAllUploads = SingleLiveEvent<Void>()
+    private val onCancelAllUploads = SingleLiveEvent<Void?>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
-    private val onShowRecordSearchFragment = SingleLiveEvent<Void>()
+    private val onShowRecordSearchFragment = SingleLiveEvent<Void?>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
     private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
@@ -416,11 +416,11 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
 
-    fun getOnShowQuotaExceeded(): SingleLiveEvent<Void> = showQuotaExceeded
+    fun getOnShowQuotaExceeded(): SingleLiveEvent<Void?> = showQuotaExceeded
 
     fun getOnChangeViewMode(): SingleLiveEvent<Boolean> = onChangeViewMode
 
-    fun getOnCancelAllUploads(): SingleLiveEvent<Void> = onCancelAllUploads
+    fun getOnCancelAllUploads(): SingleLiveEvent<Void?> = onCancelAllUploads
 
     fun getOnDownloadsRetrieved(): MutableLiveData<MutableList<Download>> = onDownloadsRetrieved
 
@@ -438,7 +438,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 
-    fun getOnShowRecordSearchFragment(): MutableLiveData<Void> = onShowRecordSearchFragment
+    fun getOnShowRecordSearchFragment(): MutableLiveData<Void?> = onShowRecordSearchFragment
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment
