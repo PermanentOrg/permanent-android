@@ -42,7 +42,7 @@ class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
@@ -53,7 +53,7 @@ class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
@@ -62,7 +62,7 @@ class AddEditOnlinePresenceFragment: PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val onBackToListFragment = Observer<Void>{
+    private val onBackToListFragment = Observer<Void?>{
         requireParentFragment().findNavController().popBackStack()
     }
 

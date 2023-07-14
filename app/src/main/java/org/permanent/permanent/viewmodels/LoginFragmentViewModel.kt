@@ -9,11 +9,13 @@ import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
-import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.repositories.*
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
+import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
@@ -26,11 +28,11 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     private val emailError = MutableLiveData<Int>()
     private val passwordError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onLoggedIn = SingleLiveEvent<Void>()
-    private val onUserMissingDefaultArchive = SingleLiveEvent<Void>()
-    private val onSignUp = SingleLiveEvent<Void>()
-    private val onPasswordReset = SingleLiveEvent<Void>()
-    private val onForgotPasswordRequest = SingleLiveEvent<Void>()
+    private val onLoggedIn = SingleLiveEvent<Void?>()
+    private val onUserMissingDefaultArchive = SingleLiveEvent<Void?>()
+    private val onSignUp = SingleLiveEvent<Void?>()
+    private val onPasswordReset = SingleLiveEvent<Void?>()
+    private val onForgotPasswordRequest = SingleLiveEvent<Void?>()
     private val currentEmail = MutableLiveData<String>()
     private val currentPassword = MutableLiveData<String>()
     val versionName = MutableLiveData(
@@ -40,7 +42,6 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
     )
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
-    private val accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun login() {
@@ -149,13 +150,13 @@ class LoginFragmentViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnUserMissingDefaultArchive(): MutableLiveData<Void> = onUserMissingDefaultArchive
+    fun getOnUserMissingDefaultArchive(): MutableLiveData<Void?> = onUserMissingDefaultArchive
 
-    fun getOnLoggedIn(): MutableLiveData<Void> = onLoggedIn
+    fun getOnLoggedIn(): MutableLiveData<Void?> = onLoggedIn
 
-    fun getOnSignUp(): MutableLiveData<Void> = onSignUp
+    fun getOnSignUp(): MutableLiveData<Void?> = onSignUp
 
-    fun getOnPasswordReset(): MutableLiveData<Void> = onPasswordReset
+    fun getOnPasswordReset(): MutableLiveData<Void?> = onPasswordReset
 
-    fun getOnForgotPasswordRequest(): MutableLiveData<Void> = onForgotPasswordRequest
+    fun getOnForgotPasswordRequest(): MutableLiveData<Void?> = onForgotPasswordRequest
 }

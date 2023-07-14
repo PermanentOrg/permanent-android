@@ -26,7 +26,7 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
     private val showMessage = SingleLiveEvent<String>()
     private val unfilteredTags = MutableLiveData<List<Tag>>()
     private val tags = MutableLiveData<List<Tag>>()
-    private val onAddButtonEvent = SingleLiveEvent<Void>()
+    private val onAddButtonEvent = SingleLiveEvent<Void?>()
     private val count = MutableLiveData<String>()
     private val archiveName = MutableLiveData((prefsHelper.getCurrentArchiveFullName() ?: "") + " Tags")
 
@@ -114,7 +114,7 @@ class ManageTagsViewModel(application: Application) : ObservableAndroidViewModel
 
     fun getTags(): MutableLiveData<List<Tag>> = tags
 
-    fun getOnAddButtonEvent(): LiveData<Void> = onAddButtonEvent
+    fun getOnAddButtonEvent(): LiveData<Void?> = onAddButtonEvent
 
     fun getTagsCount(): LiveData<String> = count
 

@@ -61,17 +61,17 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var appBarConfig: AppBarConfiguration
     private var isSubmenuVisible = false
 
-    private val onArchiveSwitched = Observer<Void> {
+    private val onArchiveSwitched = Observer<Void?> {
         startWithCustomDestination(false)
     }
 
-    private val onViewProfile = Observer<Void> {
+    private val onViewProfile = Observer<Void?> {
         navController.navigateUp()
         navController.navigate(R.id.publicFragment)
         binding.drawerLayout.closeDrawers()
     }
 
-    private val onLoggedOut = Observer<Void> {
+    private val onLoggedOut = Observer<Void?> {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
@@ -103,6 +103,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 R.id.publicFolderFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
+                }
+
+                R.id.loadingFragment, R.id.introFragment -> {
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                }
+
+                else -> {
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = true
                 }
             }
         }

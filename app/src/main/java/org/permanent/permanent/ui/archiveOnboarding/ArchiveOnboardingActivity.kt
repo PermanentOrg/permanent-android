@@ -44,7 +44,7 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
         transaction.replace(R.id.frameLayoutContainer, fragment).commit()
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         view.setBackgroundColor(ContextCompat.getColor(this, R.color.deepGreen))
@@ -54,7 +54,7 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         view.setBackgroundColor(ContextCompat.getColor(this, R.color.deepRed))
@@ -66,7 +66,7 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
         showFragment(it)
     }
 
-    private val onArchiveOnboardingDone = Observer<Void> {
+    private val onArchiveOnboardingDone = Observer<Void?> {
         startActivity(Intent(this@ArchiveOnboardingActivity, MainActivity::class.java))
         finish()
     }

@@ -14,7 +14,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
     private var appContext = application.applicationContext
     private val isBusy = MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
-    private val showDeleteAccountDialog = SingleLiveEvent<Void>()
+    private val showDeleteAccountDialog = SingleLiveEvent<Void?>()
     private var account: Account? = null
     private val name = MutableLiveData<String>()
     private val email = MutableLiveData<String>()
@@ -64,7 +64,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
         account?.country?.let { country.value = it }
     }
 
-    fun getOnShowDeleteAccountDialog(): SingleLiveEvent<Void> = showDeleteAccountDialog
+    fun getOnShowDeleteAccountDialog(): SingleLiveEvent<Void?> = showDeleteAccountDialog
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

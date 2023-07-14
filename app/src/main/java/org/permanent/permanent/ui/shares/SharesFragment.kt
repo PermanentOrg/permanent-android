@@ -101,19 +101,19 @@ class SharesFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onShareByMeFragmentReady = Observer<Void> {
+    private val onShareByMeFragmentReady = Observer<Void?> {
         viewPagerAdapter.sharedByMeFragment?.getRootShares()?.observe(this, onGetRootShares)
         viewPagerAdapter.sharedByMeFragment?.getOnRecordSelected()
             ?.observe(this, onRecordSelectedObserver)
     }
 
-    private val onShareWithMeFragmentReady = Observer<Void> {
+    private val onShareWithMeFragmentReady = Observer<Void?> {
         viewPagerAdapter.sharedWithMeFragment?.getRootShares()?.observe(this, onGetRootShares)
         viewPagerAdapter.sharedWithMeFragment?.getOnRecordSelected()
             ?.observe(this, onRecordSelectedObserver)
     }
 
-    private val onGetRootShares = Observer<Void> {
+    private val onGetRootShares = Observer<Void?> {
         viewModel.requestShares()
     }
 

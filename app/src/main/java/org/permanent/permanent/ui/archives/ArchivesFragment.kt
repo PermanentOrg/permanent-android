@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -56,9 +55,9 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         ArchiveType.FAMILY.toTitleCase(),
         ArchiveType.ORGANIZATION.toTitleCase()
     )
-    private val onCurrentArchiveChangedEvent = SingleLiveEvent<Void>()
+    private val onCurrentArchiveChangedEvent = SingleLiveEvent<Void?>()
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -70,7 +69,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -98,7 +97,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         viewModel.changeDefaultArchiveTo(it)
     }
 
-    private val onCurrentArchiveChangedObserver = Observer<Void> {
+    private val onCurrentArchiveChangedObserver = Observer<Void?> {
         onCurrentArchiveChangedEvent.call()
     }
 
@@ -203,7 +202,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         showArchiveOptions(archive)
     }
 
-    private val onShowCreateArchiveDialog = Observer<Void> {
+    private val onShowCreateArchiveDialog = Observer<Void?> {
         dialogCreateArchiveBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
             R.layout.dialog_create_new_archive, null, false
@@ -236,7 +235,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         }
     }
 
-    private val onArchiveCreated = Observer<Void> {
+    private val onArchiveCreated = Observer<Void?> {
         viewModel.refreshArchives()
         alertDialog?.dismiss()
     }
@@ -291,5 +290,5 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         disconnectViewModelEvents()
     }
 
-    fun getOnCurrentArchiveChanged(): MutableLiveData<Void> = onCurrentArchiveChangedEvent
+    fun getOnCurrentArchiveChanged(): SingleLiveEvent<Void?> = onCurrentArchiveChangedEvent
 }

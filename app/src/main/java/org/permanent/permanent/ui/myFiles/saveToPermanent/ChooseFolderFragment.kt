@@ -60,7 +60,7 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
         return bottomSheetDialog
     }
 
-    private val onPrivateFilesSelectedObserver = Observer<Void> {
+    private val onPrivateFilesSelectedObserver = Observer<Void?> {
         workspace = Workspace.PRIVATE_FILES
         privateFilesContainerFragment = MyFilesContainerFragment()
         privateFilesContainerFragment?.setBundleArguments(Workspace.PRIVATE_FILES)
@@ -68,14 +68,14 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
         privateFilesContainerFragment?.show(parentFragmentManager, privateFilesContainerFragment?.tag)
     }
 
-    private val onSharedFilesSelectedObserver = Observer<Void> {
+    private val onSharedFilesSelectedObserver = Observer<Void?> {
         workspace = Workspace.SHARES
         sharedFilesContainerFragment = SharedFilesContainerFragment()
         sharedFilesContainerFragment?.getOnSaveFolderEvent()?.observe(this, onFolderChangedObserver)
         sharedFilesContainerFragment?.show(parentFragmentManager, sharedFilesContainerFragment?.tag)
     }
 
-    private val onPublicFilesSelectedObserver = Observer<Void> {
+    private val onPublicFilesSelectedObserver = Observer<Void?> {
         showConfirmationDialog()
     }
 
@@ -106,7 +106,7 @@ class ChooseFolderFragment : PermanentBottomSheetFragment() {
         publicFilesContainerFragment?.show(parentFragmentManager, publicFilesContainerFragment?.tag)
     }
 
-    private val onCancelRequestObserver = Observer<Void> {
+    private val onCancelRequestObserver = Observer<Void?> {
         dismiss()
     }
 

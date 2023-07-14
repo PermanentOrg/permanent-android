@@ -31,7 +31,7 @@ import org.permanent.permanent.viewmodels.SingleLiveEvent
 class AccessRolesFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentAccessRolesBinding
     private lateinit var viewModel: AccessRolesViewModel
-    private val onAccessRoleUpdated = SingleLiveEvent<AccessRole?>()
+    private val onAccessRoleUpdated = SingleLiveEvent<AccessRole>()
 
     fun setBundleArguments(
         shareByUrlVo: Shareby_urlVO,
@@ -110,7 +110,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onCloseSheetObserver = Observer<Void> {
+    private val onCloseSheetObserver = Observer<Void?> {
         dismiss()
     }
 
@@ -119,13 +119,13 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         dismiss()
     }
 
-    private val showAccessRolesDocObserver = Observer<Void> {
+    private val showAccessRolesDocObserver = Observer<Void?> {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse(BuildConfig.ACCESS_ROLES_URL)
         startActivity(intent)
     }
 
-    fun getOnAccessRoleUpdated(): MutableLiveData<AccessRole?> = onAccessRoleUpdated
+    fun getOnAccessRoleUpdated(): MutableLiveData<AccessRole> = onAccessRoleUpdated
 
     override fun connectViewModelEvents() {
         viewModel.getShowAccessRolesDocumentation().observe(this, showAccessRolesDocObserver)

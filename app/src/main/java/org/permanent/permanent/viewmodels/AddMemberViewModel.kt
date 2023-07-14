@@ -19,7 +19,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
     private val accessRoleError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
-    private val onMemberAddedConclusion = SingleLiveEvent<Void>()
+    private val onMemberAddedConclusion = SingleLiveEvent<Void?>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showSnackbar = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
@@ -126,7 +126,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun getOnOwnershipTransferRequest(): LiveData<Boolean> = onOwnershipTransferRequest
 
-    fun getOnMemberAddedConclusion(): LiveData<Void> = onMemberAddedConclusion
+    fun getOnMemberAddedConclusion(): LiveData<Void?> = onMemberAddedConclusion
 
     fun getShowSuccessSnackbar(): LiveData<String> = showSnackbarSuccess
 

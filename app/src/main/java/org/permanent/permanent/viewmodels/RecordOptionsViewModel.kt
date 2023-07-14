@@ -12,8 +12,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import org.permanent.permanent.*
-import org.permanent.permanent.models.*
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.Constants
+import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.DevicePermissionsHelper
+import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.FileType
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordOption
+import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Share
+import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.FileData
@@ -60,17 +72,17 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
     private val allShares = mutableListOf<Share>()
     private val onSharesRetrieved = SingleLiveEvent<MutableList<Share>>()
-    private val onRequestWritePermission = SingleLiveEvent<Void>()
-    private val onFileDownloadRequest = SingleLiveEvent<Void>()
+    private val onRequestWritePermission = SingleLiveEvent<Void?>()
+    private val onFileDownloadRequest = SingleLiveEvent<Void?>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
-    private val onDeleteRequest = SingleLiveEvent<Void>()
-    private val onLeaveShareRequest = SingleLiveEvent<Void>()
-    private val onRenameRequest = SingleLiveEvent<Void>()
-    private val onManageSharingRequest = SingleLiveEvent<Void>()
+    private val onDeleteRequest = SingleLiveEvent<Void?>()
+    private val onLeaveShareRequest = SingleLiveEvent<Void?>()
+    private val onRenameRequest = SingleLiveEvent<Void?>()
+    private val onManageSharingRequest = SingleLiveEvent<Void?>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
     private val onRelocateRequest = MutableLiveData<RelocationType>()
-    private val onPublishRequest = SingleLiveEvent<Void>()
+    private val onPublishRequest = SingleLiveEvent<Void?>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
@@ -422,23 +434,23 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnSharesRetrieved(): MutableLiveData<MutableList<Share>> = onSharesRetrieved
 
-    fun getOnRequestWritePermission(): MutableLiveData<Void> = onRequestWritePermission
+    fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission
 
-    fun getOnFileDownloadRequest(): MutableLiveData<Void> = onFileDownloadRequest
+    fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
 
     fun getOnRelocateRequest(): MutableLiveData<RelocationType> = onRelocateRequest
 
-    fun getOnPublishRequest(): MutableLiveData<Void> = onPublishRequest
+    fun getOnPublishRequest(): MutableLiveData<Void?> = onPublishRequest
 
     fun getOnShareLinkRequest(): MutableLiveData<String> = onShareLinkRequest
 
-    fun getOnDeleteRequest(): MutableLiveData<Void> = onDeleteRequest
+    fun getOnDeleteRequest(): MutableLiveData<Void?> = onDeleteRequest
 
-    fun getOnLeaveShareRequest(): MutableLiveData<Void> = onLeaveShareRequest
+    fun getOnLeaveShareRequest(): MutableLiveData<Void?> = onLeaveShareRequest
 
-    fun getOnRenameRequest(): MutableLiveData<Void> = onRenameRequest
+    fun getOnRenameRequest(): MutableLiveData<Void?> = onRenameRequest
 
-    fun getOnManageSharingRequest(): MutableLiveData<Void> = onManageSharingRequest
+    fun getOnManageSharingRequest(): MutableLiveData<Void?> = onManageSharingRequest
 
     fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
 

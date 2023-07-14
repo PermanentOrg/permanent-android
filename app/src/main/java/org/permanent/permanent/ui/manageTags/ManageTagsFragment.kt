@@ -90,13 +90,13 @@ class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
         recyclerView?.adapter = tagAdapter
     }
 
-    private val onAddButtonEvent = Observer<Void> {
+    private val onAddButtonEvent = Observer<Void?> {
         addTagFragment = AddEditTagFragment()
         addTagFragment?.show(parentFragmentManager, addTagFragment?.tag)
         addTagFragment?.didUpdateTag?.observe(this, onDidUpdateTag)
     }
 
-    private val onDidUpdateTag = Observer<Void> {
+    private val onDidUpdateTag = Observer<Void?> {
         viewModel.reloadTags()
 
         removeOnDidUpdateTagObserver()

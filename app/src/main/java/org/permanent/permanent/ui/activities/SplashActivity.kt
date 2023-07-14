@@ -100,7 +100,7 @@ class SplashActivity : PermanentBaseActivity() {
         return remoteConfig
     }
 
-    private val onArchiveSwitchedToCurrentObserver = Observer<Void> {
+    private val onArchiveSwitchedToCurrentObserver = Observer<Void?> {
         startBiometricsFragment()
     }
 

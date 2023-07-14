@@ -41,7 +41,7 @@ class ForgotPasswordFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onPasswordReset = Observer<Void> {
+    private val onPasswordReset = Observer<Void?> {
         val message = getString(
             R.string.login_screen_password_reset_message, viewModel.getCurrentEmail().value
         )
@@ -55,10 +55,10 @@ class ForgotPasswordFragment : PermanentBaseFragment() {
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
         snackBar.show()
 
-        onBackToSignIn.onChanged(null)
+        onBackToSignIn.onChanged("")
     }
 
-    private val onBackToSignIn = Observer<Void> {
+    private val onBackToSignIn = Observer<String> {
         findNavController().popBackStack()
     }
 

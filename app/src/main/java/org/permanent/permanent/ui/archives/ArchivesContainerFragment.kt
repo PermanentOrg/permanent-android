@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -27,14 +26,14 @@ class ArchivesContainerFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentContainerArchivesBinding
     private lateinit var viewModel: ArchivesContainerViewModel
     private var archivesFragment: ArchivesFragment? = null
-    private val onArchiveChanged = SingleLiveEvent<Void>()
+    private val onArchiveChanged = SingleLiveEvent<Void?>()
 
-    private val onCurrentArchiveChanged = Observer<Void> {
+    private val onCurrentArchiveChanged = Observer<Void?> {
         onArchiveChanged.call()
         dismiss()
     }
 
-    private val onDismissObserver = Observer<Void> {
+    private val onDismissObserver = Observer<Void?> {
         dismiss()
     }
 
@@ -89,5 +88,5 @@ class ArchivesContainerFragment : PermanentBottomSheetFragment() {
         disconnectViewModelEvents()
     }
 
-    fun getOnCurrentArchiveChanged(): MutableLiveData<Void> = onArchiveChanged
+    fun getOnCurrentArchiveChanged(): SingleLiveEvent<Void?> = onArchiveChanged
 }

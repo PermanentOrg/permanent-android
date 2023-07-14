@@ -34,12 +34,12 @@ class MyFilesContainerFragment : PermanentBottomSheetFragment() {
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private val onSaveFolderEvent = SingleLiveEvent<Pair<Workspace, Record?>>()
 
-    private val onSaveFolderRequestObserver = Observer<Void> {
+    private val onSaveFolderRequestObserver = Observer<Void?> {
         onSaveFolderEvent.value = Pair(Workspace.PRIVATE_FILES, onRecordSelectedEvent.value)
         dismiss()
     }
 
-    private val onCancelRequestObserver = Observer<Void> {
+    private val onCancelRequestObserver = Observer<Void?> {
         dismiss()
     }
 

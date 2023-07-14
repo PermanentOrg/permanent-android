@@ -14,7 +14,14 @@ import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.repositories.*
+import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.repositories.IArchiveRepository
+import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.INotificationRepository
+import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
@@ -32,9 +39,9 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onViewProfile = SingleLiveEvent<Void>()
-    private val onArchiveSwitched = SingleLiveEvent<Void>()
-    private val onLoggedOut = SingleLiveEvent<Void>()
+    private val onViewProfile = SingleLiveEvent<Void?>()
+    private val onArchiveSwitched = SingleLiveEvent<Void?>()
+    private val onLoggedOut = SingleLiveEvent<Void?>()
     val versionName = MutableLiveData(
         application.getString(
             R.string.version_text, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE.toString()
@@ -175,9 +182,9 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnArchiveSwitched(): LiveData<Void> = onArchiveSwitched
+    fun getOnArchiveSwitched(): LiveData<Void?> = onArchiveSwitched
 
-    fun getOnViewProfile(): LiveData<Void> = onViewProfile
+    fun getOnViewProfile(): LiveData<Void?> = onViewProfile
 
-    fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
+    fun getOnLoggedOut(): LiveData<Void?> = onLoggedOut
 }

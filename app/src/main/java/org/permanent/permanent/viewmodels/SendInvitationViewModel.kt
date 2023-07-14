@@ -17,7 +17,7 @@ class SendInvitationViewModel(application: Application) : ObservableAndroidViewM
     private val emailError = MutableLiveData<Int>()
     private val nameError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onInvitationSent = SingleLiveEvent<Void>()
+    private val onInvitationSent = SingleLiveEvent<Void?>()
     private val showSnackbar = MutableLiveData<String>()
     private var invitationRepository: IInvitationRepository = InvitationRepositoryImpl(application)
 
@@ -43,18 +43,6 @@ class SendInvitationViewModel(application: Application) : ObservableAndroidViewM
 
     fun onNameTextChanged(name: Editable) {
         currentName.value = name.toString()
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getOnInvitationSent(): LiveData<Void> {
-        return onInvitationSent
-    }
-
-    fun getShowSnackbar(): LiveData<String> {
-        return showSnackbar
     }
 
     fun sendInvitation() {
@@ -102,4 +90,10 @@ class SendInvitationViewModel(application: Application) : ObservableAndroidViewM
         nameError.value = null
         return name
     }
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnInvitationSent(): LiveData<Void?> = onInvitationSent
+
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
 }

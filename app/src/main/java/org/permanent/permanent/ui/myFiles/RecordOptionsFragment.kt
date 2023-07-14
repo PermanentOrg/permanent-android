@@ -107,31 +107,31 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         sharesAdapter.set(it)
     }
 
-    private val onRequestWritePermission = Observer<Void> {
+    private val onRequestWritePermission = Observer<Void?> {
         DevicePermissionsHelper().requestWriteStoragePermission(this)
     }
 
-    private val onFileDownloadRequestObserver = Observer<Void> {
+    private val onFileDownloadRequestObserver = Observer<Void?> {
         dismiss()
         onFileDownloadRequest.value = record
     }
 
-    private val onDeleteObserver = Observer<Void> {
+    private val onDeleteObserver = Observer<Void?> {
         dismiss()
         onRecordDeleteRequest.value = record
     }
 
-    private val onLeaveShareObserver = Observer<Void> {
+    private val onLeaveShareObserver = Observer<Void?> {
         dismiss()
         onRecordLeaveShareRequest.value = record
     }
 
-    private val onRenameObserver = Observer<Void> {
+    private val onRenameObserver = Observer<Void?> {
         dismiss()
         onRecordRenameRequest.value = record
     }
 
-    private val onManageSharingObserver = Observer<Void> {
+    private val onManageSharingObserver = Observer<Void?> {
         shareManagementFragment = ShareManagementFragment()
         shareManagementFragment?.setBundleArguments(record, viewModel.getShareByUrlVO())
         shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
@@ -200,7 +200,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         startActivity(shareIntent)
     }
 
-    private val onPublishRequestObserver = Observer<Void> {
+    private val onPublishRequestObserver = Observer<Void?> {
         val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
         )

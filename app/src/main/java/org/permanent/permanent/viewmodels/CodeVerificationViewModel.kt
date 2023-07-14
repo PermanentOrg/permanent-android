@@ -29,8 +29,8 @@ class CodeVerificationViewModel(application: Application) :
     private val currentCode = MutableLiveData<String>()
     private val codeError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onCodeVerified = SingleLiveEvent<Void>()
-    private val onLoggedIn = SingleLiveEvent<Void>()
+    private val onCodeVerified = SingleLiveEvent<Void?>()
+    private val onLoggedIn = SingleLiveEvent<Void?>()
     private val errorMessage = MutableLiveData<String>()
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
@@ -52,9 +52,9 @@ class CodeVerificationViewModel(application: Application) :
         return isBusy
     }
 
-    fun getOnCodeVerified(): MutableLiveData<Void> = onCodeVerified
+    fun getOnCodeVerified(): MutableLiveData<Void?> = onCodeVerified
 
-    fun getOnLoggedIn(): MutableLiveData<Void> = onLoggedIn
+    fun getOnLoggedIn(): MutableLiveData<Void?> = onLoggedIn
 
     fun getErrorMessage(): LiveData<String> {
         return errorMessage

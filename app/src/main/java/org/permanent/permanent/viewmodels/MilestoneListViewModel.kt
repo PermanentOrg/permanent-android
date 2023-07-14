@@ -26,7 +26,7 @@ class MilestoneListViewModel(application: Application) : ObservableAndroidViewMo
     private var existsMilestones = MutableLiveData(false)
     private var milestoneProfileItems: MutableList<ProfileItem> = ArrayList()
     private var onMilestonesRetrieved = MutableLiveData<List<ProfileItem>>()
-    private var addMilestoneRequest = SingleLiveEvent<Void>()
+    private var addMilestoneRequest = SingleLiveEvent<Void?>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
 
     fun getProfileItems() {
@@ -90,7 +90,7 @@ class MilestoneListViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnMilestonesRetrieved(): LiveData<List<ProfileItem>> = onMilestonesRetrieved
 
-    fun getOnAddMilestoneRequest(): LiveData<Void> = addMilestoneRequest
+    fun getOnAddMilestoneRequest(): LiveData<Void?> = addMilestoneRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

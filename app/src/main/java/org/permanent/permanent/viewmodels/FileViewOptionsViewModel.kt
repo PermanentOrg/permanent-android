@@ -14,8 +14,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import org.permanent.permanent.*
-import org.permanent.permanent.models.*
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.Constants
+import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.FileType
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -35,9 +44,9 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
     private val shouldHideCopyLinkButton = MutableLiveData(false)
     private val shouldHideShareViaPermanentButton = MutableLiveData(false)
     private val shouldHideShareToAnotherAppButton = MutableLiveData(false)
-    private val onFileDownloaded = SingleLiveEvent<Void>()
-    private val onShareViaPermanentRequest = SingleLiveEvent<Void>()
-    private val onShareToAnotherAppRequest = SingleLiveEvent<Void>()
+    private val onFileDownloaded = SingleLiveEvent<Void?>()
+    private val onShareViaPermanentRequest = SingleLiveEvent<Void?>()
+    private val onShareToAnotherAppRequest = SingleLiveEvent<Void?>()
 
     fun setArguments(record: Record?, fileData: FileData?) {
         this.record = record
@@ -165,9 +174,9 @@ class FileViewOptionsViewModel(application: Application) : ObservableAndroidView
     fun getShouldHideShareToAnotherAppButton(): LiveData<Boolean> =
         shouldHideShareToAnotherAppButton
 
-    fun getOnFileDownloaded(): LiveData<Void> = onFileDownloaded
+    fun getOnFileDownloaded(): LiveData<Void?> = onFileDownloaded
 
-    fun getOnShareViaPermanentRequest(): MutableLiveData<Void> = onShareViaPermanentRequest
+    fun getOnShareViaPermanentRequest(): MutableLiveData<Void?> = onShareViaPermanentRequest
 
-    fun getOnShareToAnotherAppRequest(): MutableLiveData<Void> = onShareToAnotherAppRequest
+    fun getOnShareToAnotherAppRequest(): MutableLiveData<Void?> = onShareToAnotherAppRequest
 }

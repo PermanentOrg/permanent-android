@@ -33,8 +33,8 @@ class EditArchiveInformationViewModel(application: Application) :
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData(false)
-    private val showMessage = MutableLiveData<String?>()
-    private val showError = MutableLiveData<String?>()
+    private val showMessage = MutableLiveData<String>()
+    private val showError = MutableLiveData<String>()
 
     private val currentArchiveType = prefsHelper.getCurrentArchiveType()
     private val nameLabel = MutableLiveData(
@@ -73,7 +73,7 @@ class EditArchiveInformationViewModel(application: Application) :
     private val date = MutableLiveData("")
     private val location = MutableLiveData("")
     private var isNewLocation = false
-    private val showDatePickerRequest = SingleLiveEvent<Void>()
+    private val showDatePickerRequest = SingleLiveEvent<Void?>()
     private val showLocationSearchRequest = SingleLiveEvent<ProfileItem?>()
     private var nameAndAliasesProfileItem: ProfileItem? = null
     private var genderProfileItem: ProfileItem? = null
@@ -88,15 +88,18 @@ class EditArchiveInformationViewModel(application: Application) :
                     profileItem.string2?.let { name.value = it }
                     profileItem.string3?.let { aliases.value = it }
                 }
+
                 ProfileItemName.GENDER -> {
                     genderProfileItem = profileItem
                     profileItem.string1?.let { gender.value = it }
                 }
+
                 ProfileItemName.BIRTH_INFO, ProfileItemName.ESTABLISHED_INFO -> {
                     dateAndLocationProfileItem = profileItem
                     profileItem.day1?.let { date.value = it }
                     profileItem.locationVO?.getUIAddress()?.let { location.value = it }
                 }
+
                 else -> {}
             }
         }
@@ -251,7 +254,7 @@ class EditArchiveInformationViewModel(application: Application) :
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = error
+                    error?.let { showError.value = it }
                 }
             })
     }
@@ -275,9 +278,9 @@ class EditArchiveInformationViewModel(application: Application) :
     fun getLocation(): LiveData<String> = location
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-    fun getShowMessage(): LiveData<String?> = showMessage
-    fun getShowError(): LiveData<String?> = showError
+    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowError(): LiveData<String> = showError
 
-    fun getShowDatePicker(): LiveData<Void> = showDatePickerRequest
+    fun getShowDatePicker(): LiveData<Void?> = showDatePickerRequest
     fun getShowLocationSearch(): LiveData<ProfileItem?> = showLocationSearchRequest
 }

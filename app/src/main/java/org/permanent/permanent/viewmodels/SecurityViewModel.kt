@@ -19,40 +19,12 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
 
     private val isBusy = MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
-    private val onPasswordChanged = SingleLiveEvent<Void>()
+    private val onPasswordChanged = SingleLiveEvent<Void?>()
     private val currentPassword = MutableLiveData<String>()
     private val newPassword = MutableLiveData<String>()
     private val retypeNewPassword = MutableLiveData<String>()
     private val biometricsLogin = MutableLiveData(prefsHelper.isBiometricsLogIn())
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getShowMessage(): LiveData<String> {
-        return showMessage
-    }
-
-    fun getOnPasswordChanged(): LiveData<Void> {
-        return onPasswordChanged
-    }
-
-    fun getCurrentPassword(): MutableLiveData<String> {
-        return currentPassword
-    }
-
-    fun getNewPassword(): MutableLiveData<String> {
-        return newPassword
-    }
-
-    fun getRetypeNewPassword(): MutableLiveData<String> {
-        return retypeNewPassword
-    }
-
-    fun getBiometricsLogin(): MutableLiveData<Boolean> {
-        return biometricsLogin
-    }
 
     fun onCurrentPasswordTextChanged(password: Editable) {
         currentPassword.value = password.toString().trim { it <= ' ' }
@@ -114,4 +86,18 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
             }
         )
     }
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getShowMessage(): LiveData<String> = showMessage
+
+    fun getOnPasswordChanged(): LiveData<Void?> = onPasswordChanged
+
+    fun getCurrentPassword(): MutableLiveData<String> = currentPassword
+
+    fun getNewPassword(): MutableLiveData<String> = newPassword
+
+    fun getRetypeNewPassword(): MutableLiveData<String> = retypeNewPassword
+
+    fun getBiometricsLogin(): MutableLiveData<Boolean> = biometricsLogin
 }

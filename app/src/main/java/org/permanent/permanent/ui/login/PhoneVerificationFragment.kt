@@ -33,12 +33,12 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onVerificationSkipped = Observer<Void> {
+    private val onVerificationSkipped = Observer<Void?> {
         findNavController().navigate(R.id.action_phoneVerificationFragment_to_mainActivity)
         activity?.finish()
     }
 
-    private val onSMSCodeSent = Observer<Void> {
+    private val onSMSCodeSent = Observer<Void?> {
         findNavController().navigate(R.id.action_phoneVerificationFragment_to_codeVerificationFragment)
     }
 

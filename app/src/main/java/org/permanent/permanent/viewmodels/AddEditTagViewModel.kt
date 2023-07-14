@@ -13,8 +13,8 @@ import org.permanent.permanent.ui.PreferencesHelper
 
 class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
-    private val onDismissEvent = SingleLiveEvent<Void>()
-    private val onUpdateSuccessEvent = SingleLiveEvent<Void>()
+    private val onDismissEvent = SingleLiveEvent<Void?>()
+    private val onUpdateSuccessEvent = SingleLiveEvent<Void?>()
     private val onUpdateFailedEvent = MutableLiveData<String>()
     private var tag: Tag? = null
 
@@ -91,11 +91,11 @@ class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel
         })
     }
 
-    fun getOnDismissEvent(): SingleLiveEvent<Void> {
+    fun getOnDismissEvent(): SingleLiveEvent<Void?> {
         return onDismissEvent
     }
 
-    fun getOnUpdateSuccessEvent(): SingleLiveEvent<Void> {
+    fun getOnUpdateSuccessEvent(): SingleLiveEvent<Void?> {
         return onUpdateSuccessEvent
     }
 

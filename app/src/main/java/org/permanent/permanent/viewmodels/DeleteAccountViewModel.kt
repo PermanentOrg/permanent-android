@@ -25,7 +25,7 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
         PermanentApplication.instance.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
     private val isBusy = MutableLiveData<Boolean>()
     private val isDeleteAccountEnabled = MutableLiveData(false)
-    private val onAccountDeleted = SingleLiveEvent<Void>()
+    private val onAccountDeleted = SingleLiveEvent<Void?>()
     private val showMessage = MutableLiveData<String>()
     private val text = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -34,7 +34,7 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnAccountDeleted(): SingleLiveEvent<Void> = onAccountDeleted
+    fun getOnAccountDeleted(): SingleLiveEvent<Void?> = onAccountDeleted
 
     fun getShowMessage(): LiveData<String> = showMessage
 

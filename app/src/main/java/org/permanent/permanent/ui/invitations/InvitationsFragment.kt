@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -55,7 +54,7 @@ class InvitationsFragment : PermanentBaseFragment() {
         invitationsAdapter.set(it)
     }
 
-    private val onShowSendInvitationDialog = Observer<Void> {
+    private val onShowSendInvitationDialog = Observer<Void?> {
         sendInvitationBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context),
             R.layout.dialog_send_invitation, null, false
@@ -72,7 +71,7 @@ class InvitationsFragment : PermanentBaseFragment() {
         alertDialog?.show()
     }
 
-    private val onInvitationSent = Observer<Void> {
+    private val onInvitationSent = Observer<Void?> {
         viewModel.refreshInvitations()
         alertDialog?.dismiss()
     }

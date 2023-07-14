@@ -23,7 +23,7 @@ abstract class RelocationViewModel(application: Application) :
     val relocationType = MutableLiveData<RelocationType>()
     var currentFolder = MutableLiveData<NavigationFolder>()
     val existsFiles = MutableLiveData(false)
-    private val shrinkIslandRequest = SingleLiveEvent<Void>()
+    private val shrinkIslandRequest = SingleLiveEvent<Void?>()
     val onNewTemporaryFiles = SingleLiveEvent<MutableList<Record>>()
     protected val showMessage = SingleLiveEvent<String>()
     var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -59,7 +59,7 @@ abstract class RelocationViewModel(application: Application) :
         }
     }
 
-    fun getShrinkIslandRequest(): SingleLiveEvent<Void> = shrinkIslandRequest
+    fun getShrinkIslandRequest(): SingleLiveEvent<Void?> = shrinkIslandRequest
 
     companion object {
         const val DELAY_TO_POPULATE_ISLAND_MILLIS = 1000L

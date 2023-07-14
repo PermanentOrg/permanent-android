@@ -27,9 +27,9 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
     private var prefsHelper = PreferencesHelper(appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
     private var goldFinger = Goldfinger.Builder(appContext).build()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onNavigateToMainActivity = SingleLiveEvent<Void>()
-    private val onLoggedOut = SingleLiveEvent<Void>()
-    private val onShowOpenSettingsQuestionDialog = SingleLiveEvent<Void>()
+    private val onNavigateToMainActivity = SingleLiveEvent<Void?>()
+    private val onLoggedOut = SingleLiveEvent<Void?>()
+    private val onShowOpenSettingsQuestionDialog = SingleLiveEvent<Void?>()
     private val errorMessage = MutableLiveData<String>()
     private val errorStringId = MutableLiveData<Int>()
     private var authRepository: IAuthenticationRepository = AuthenticationRepositoryImpl(application)
@@ -61,11 +61,11 @@ class BiometricsViewModel(application: Application) : ObservableAndroidViewModel
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getOnNavigateToMainActivity(): LiveData<Void> = onNavigateToMainActivity
+    fun getOnNavigateToMainActivity(): LiveData<Void?> = onNavigateToMainActivity
 
-    fun getOnLoggedOut(): LiveData<Void> = onLoggedOut
+    fun getOnLoggedOut(): LiveData<Void?> = onLoggedOut
 
-    fun getOnShowOpenSettingsQuestionDialog(): LiveData<Void> = onShowOpenSettingsQuestionDialog
+    fun getOnShowOpenSettingsQuestionDialog(): LiveData<Void?> = onShowOpenSettingsQuestionDialog
 
     fun getErrorMessage(): LiveData<String> = errorMessage
 

@@ -30,7 +30,7 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileInfoViewModel
-import java.util.*
+import java.util.Calendar
 
 class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
@@ -104,7 +104,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         viewModel.onShowLocationSearchRequest.call()
     }
 
-    private val onShowDatePicker = Observer<Void> {
+    private val onShowDatePicker = Observer<Void?> {
         viewModel.saveChanges()
         context?.let { context ->
             val c = Calendar.getInstance()
@@ -115,7 +115,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         }
     }
 
-    private val onShowLocationSearch = Observer<Void> {
+    private val onShowLocationSearch = Observer<Void?> {
         val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
         findNavController()
             .navigate(R.id.action_fileMetadataFragment_to_locationSearchFragment, bundle)
@@ -128,13 +128,13 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         activity?.setResult(Activity.RESULT_OK, resultIntent)
     }
 
-    private val onShowTagsEdit = Observer<Void> {
+    private val onShowTagsEdit = Observer<Void?> {
         val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
         findNavController()
             .navigate(R.id.action_fileMetadataFragment_to_tagsEditFragment, bundle)
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
@@ -145,7 +145,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))

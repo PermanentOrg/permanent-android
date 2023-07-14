@@ -8,7 +8,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
     defaultConfig {
@@ -42,6 +42,7 @@ android {
             buildConfigField "String", "LOGIN_BASE_URL", "\"https://auth.permanent.org/oauth2/\""
             buildConfigField "String", "BASE_URL", "\"https://www.permanent.org/\""
             buildConfigField "String", "BASE_API_URL", "\"https://www.permanent.org/api/\""
+            buildConfigField "String", "BASE_API_URL_NEW", "\"https://api.permanent.org/\""
             buildConfigField "String", "PAYMENT_INTENT_URL", "\"https://us-central1-prpledgeprod.cloudfunctions.net/donation/payment-sheet\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://www.permanent.org/add-storage/\""
             buildConfigField "String", "ACCESS_ROLES_URL", "\"https://desk.zoho.com/portal/permanent/en/kb/articles/roles-for-collaboration-and-sharing/\""
@@ -54,6 +55,7 @@ android {
             buildConfigField "String", "LOGIN_BASE_URL", "\"https://permanent-dev.fusionauth.io/oauth2/\""
             buildConfigField "String", "BASE_URL", "\"https://staging.permanent.org/\""
             buildConfigField "String", "BASE_API_URL", "\"https://staging.permanent.org/api/\""
+            buildConfigField "String", "BASE_API_URL_NEW", "\"https://api.staging.permanent.org/\""
             buildConfigField "String", "PAYMENT_INTENT_URL", "\"https://us-central1-prpledgestaging.cloudfunctions.net/donation/payment-sheet\""
             buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
             buildConfigField "String", "ACCESS_ROLES_URL", "\"https://desk.zoho.com/portal/permanent/en/kb/articles/roles-for-collaboration-and-sharing/\""
@@ -74,12 +76,12 @@ android {
 
     buildFeatures {
         dataBinding true
-//        compose true
+        compose true
     }
-//
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.4.7"
-//    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.6" // this has to be compatible with Kotlin version
+    }
 
     lintOptions {
         abortOnError false
@@ -110,22 +112,24 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     implementation 'androidx.fragment:fragment-ktx:1.4.1'
     //==============================================================================================
-//
-//    //====================================== JETPACK COMPOSE =======================================
-//    implementation 'androidx.compose.material3:material3:1.1.0'
-//    // Android Studio Preview support
-//    implementation 'androidx.compose.ui:ui-tooling-preview:1.4.3'
-//    implementation 'androidx.compose.ui:ui-tooling:1.4.3'
-//    // Integration with activities
-//    implementation 'androidx.activity:activity-compose:1.7.2'
-//    // Integration with ViewModels
-//    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
-//    // Integration with LiveData
-//    implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
-//    // UI Tests
-////    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
-////    debugImplementation 'androidx.compose.ui:ui-test-manifest'
-//    //==============================================================================================
+
+    //====================================== JETPACK COMPOSE =======================================
+    implementation 'androidx.compose.material3:material3:1.1.1'
+    // Android Studio Preview support
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.4.3'
+    implementation 'androidx.compose.ui:ui-tooling:1.4.3'
+    // For embedding xml code in compose
+//    implementation 'androidx.compose.ui:ui-viewbinding:1.4.3'
+    // Integration with activities
+    implementation 'androidx.activity:activity-compose:1.7.2'
+    // Integration with ViewModels
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    // Integration with LiveData
+    implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
+    // UI Tests
+//    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+//    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+    //==============================================================================================
 
     //====================================== MATERIAL COMPONENTS ===================================
     implementation 'com.google.android.material:material:1.5.0'

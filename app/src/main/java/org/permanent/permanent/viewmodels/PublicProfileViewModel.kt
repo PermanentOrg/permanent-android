@@ -14,7 +14,8 @@ import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
 
 class PublicProfileViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -47,8 +48,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onShowOnlinePresence = SingleLiveEvent<Boolean>()
     private val onEditAboutRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditArchiveInformationRequest = SingleLiveEvent<MutableList<ProfileItem>>()
-    private val onEditMilestonesRequest = SingleLiveEvent<Void>()
-    private val onEditOnlinePresenceRequest = SingleLiveEvent<Void>()
+    private val onEditMilestonesRequest = SingleLiveEvent<Void?>()
+    private val onEditOnlinePresenceRequest = SingleLiveEvent<Void?>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
     private var archive: Archive? = null
 
@@ -240,9 +241,9 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     fun getOnEditArchiveInformationRequest(): LiveData<MutableList<ProfileItem>> =
         onEditArchiveInformationRequest
 
-    fun getOnEditMilestonesRequest(): LiveData<Void> = onEditMilestonesRequest
+    fun getOnEditMilestonesRequest(): LiveData<Void?> = onEditMilestonesRequest
 
-    fun getOnEditOnlinePresenceRequest(): LiveData<Void> = onEditOnlinePresenceRequest
+    fun getOnEditOnlinePresenceRequest(): LiveData<Void?> = onEditOnlinePresenceRequest
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

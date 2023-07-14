@@ -35,7 +35,7 @@ class SecurityFragment : PermanentBaseFragment() {
         Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
     }
 
-    private val onPasswordChanged = Observer<Void> {
+    private val onPasswordChanged = Observer<Void?> {
         context?.hideKeyboardFrom(binding.root.windowToken)
     }
 

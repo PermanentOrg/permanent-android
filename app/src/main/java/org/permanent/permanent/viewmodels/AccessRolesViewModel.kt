@@ -23,9 +23,9 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
     private val isBusy = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
-    private val showAccessRolesDocumentation = SingleLiveEvent<Void>()
-    private val onCloseSheetRequest = SingleLiveEvent<Void>()
-    private val onAccessRoleUpdated = SingleLiveEvent<AccessRole>()
+    private val showAccessRolesDocumentation = SingleLiveEvent<Void?>()
+    private val onCloseSheetRequest = SingleLiveEvent<Void?>()
+    private val onAccessRoleUpdated = SingleLiveEvent<AccessRole?>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
     fun setShareLink(shareByUrlVO: Shareby_urlVO?) {
@@ -72,11 +72,11 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
             return
         }
 
-        shareByUrlVO?.let {
-            it.defaultAccessRole = checkedAccessRole.value?.backendString
+        shareByUrlVO?.let { shareByUrlVo ->
+            shareByUrlVo.defaultAccessRole = checkedAccessRole.value?.backendString
 
             isBusy.value = true
-            shareRepository.modifyShareLink(it, ShareRequestType.UPDATE,
+            shareRepository.modifyShareLink(shareByUrlVo, ShareRequestType.UPDATE,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
@@ -85,7 +85,7 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showSnackbar.value = error
+                        error?.let { showSnackbar.value = it }
                     }
                 })
         }
@@ -108,7 +108,7 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showSnackbar.value = error
+                    error?.let { errorMsg -> showSnackbar.value = errorMsg }
                 }
             })
         }
@@ -150,7 +150,7 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
 
-    fun getOnCloseSheetRequest(): LiveData<Void> = onCloseSheetRequest
+    fun getOnCloseSheetRequest(): SingleLiveEvent<Void?> = onCloseSheetRequest
 
-    fun getShowAccessRolesDocumentation(): LiveData<Void> = showAccessRolesDocumentation
+    fun getShowAccessRolesDocumentation(): SingleLiveEvent<Void?> = showAccessRolesDocumentation
 }

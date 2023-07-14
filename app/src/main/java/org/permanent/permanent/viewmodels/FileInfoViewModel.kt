@@ -23,12 +23,12 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     private val description = MutableLiveData<String>()
     private val date = MutableLiveData<String>()
     private val address = MutableLiveData<String>()
-    private val onShowDatePickerRequest = SingleLiveEvent<Void>()
-    val onShowLocationSearchRequest = SingleLiveEvent<Void>()
-    val onShowTagsEdit = SingleLiveEvent<Void>()
+    private val onShowDatePickerRequest = SingleLiveEvent<Void?>()
+    val onShowLocationSearchRequest = SingleLiveEvent<Void?>()
+    val onShowTagsEdit = SingleLiveEvent<Void?>()
     private val onFileInfoUpdated = SingleLiveEvent<String>()
-    private val showMessage = SingleLiveEvent<String?>()
-    private val showError = SingleLiveEvent<String?>()
+    private val showMessage = SingleLiveEvent<String>()
+    private val showError = SingleLiveEvent<String>()
     private val existsTags = MutableLiveData(false)
     private val isEditable = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
@@ -101,13 +101,13 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
             fileRepository.updateRecord(fileData, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    showMessage.value = message
+                    message?.let { showMessage.value = it }
                     onFileInfoUpdated.value = nameValue
                 }
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = error
+                    error?.let { showError.value = it }
                 }
             })
         }
@@ -121,17 +121,17 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getAddress(): LiveData<String> = address
 
-    fun getShowDatePicker(): LiveData<Void> = onShowDatePickerRequest
+    fun getShowDatePicker(): LiveData<Void?> = onShowDatePickerRequest
 
-    fun getShowLocationSearch(): LiveData<Void> = onShowLocationSearchRequest
+    fun getShowLocationSearch(): LiveData<Void?> = onShowLocationSearchRequest
 
     fun getOnFileInfoUpdated(): LiveData<String> = onFileInfoUpdated
 
-    fun getShowTagsEdit(): LiveData<Void> = onShowTagsEdit
+    fun getShowTagsEdit(): LiveData<Void?> = onShowTagsEdit
 
-    fun getShowError(): LiveData<String?> = showError
+    fun getShowError(): LiveData<String> = showError
 
-    fun getShowMessage(): LiveData<String?> = showMessage
+    fun getShowMessage(): LiveData<String> = showMessage
 
     fun getExistsTags(): LiveData<Boolean> = existsTags
 

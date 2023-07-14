@@ -14,36 +14,12 @@ import org.permanent.permanent.repositories.IFileRepository
 
 class NewFolderViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val currentFolderName = MutableLiveData<String>()
-    private val nameError = MutableLiveData<Int>()
+    private val nameError = MutableLiveData<Int?>()
     private val isBusy = MutableLiveData<Boolean>()
-    private val onFolderCreated = SingleLiveEvent<Void>()
+    private val onFolderCreated = SingleLiveEvent<Void?>()
     private val errorMessage = MutableLiveData<String>()
     val errorStringId = MutableLiveData<Int>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
-
-    fun getCurrentFolderName(): MutableLiveData<String> {
-        return currentFolderName
-    }
-
-    fun getNameError(): LiveData<Int> {
-        return nameError
-    }
-
-    fun getIsBusy(): MutableLiveData<Boolean> {
-        return isBusy
-    }
-
-    fun getOnFolderCreated(): MutableLiveData<Void> {
-        return onFolderCreated
-    }
-
-    fun getErrorStringId(): LiveData<Int> {
-        return errorStringId
-    }
-
-    fun getErrorMessage(): LiveData<String> {
-        return errorMessage
-    }
 
     fun onNameTextChanged(email: Editable) {
         currentFolderName.value = email.toString()
@@ -88,4 +64,16 @@ class NewFolderViewModel(application: Application) : ObservableAndroidViewModel(
                 })
         }
     }
+
+    fun getCurrentFolderName(): MutableLiveData<String> = currentFolderName
+
+    fun getNameError(): LiveData<Int?> = nameError
+
+    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+
+    fun getOnFolderCreated(): MutableLiveData<Void?> = onFolderCreated
+
+    fun getErrorStringId(): LiveData<Int> = errorStringId
+
+    fun getErrorMessage(): LiveData<String> = errorMessage
 }

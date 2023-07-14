@@ -22,8 +22,8 @@ class PhoneVerificationViewModel(application: Application) : ObservableAndroidVi
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
     private val currentPhoneNumber = MutableLiveData<String>()
-    private val onVerificationSkipped = SingleLiveEvent<Void>()
-    private val onSMSCodeSent = SingleLiveEvent<Void>()
+    private val onVerificationSkipped = SingleLiveEvent<Void?>()
+    private val onSMSCodeSent = SingleLiveEvent<Void?>()
     private val phoneError = MutableLiveData<Int>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onErrorMessage = MutableLiveData<String>()
@@ -46,13 +46,9 @@ class PhoneVerificationViewModel(application: Application) : ObservableAndroidVi
         return isBusy
     }
 
-    fun getOnVerificationSkipped(): MutableLiveData<Void> {
-        return onVerificationSkipped
-    }
+    fun getOnVerificationSkipped(): MutableLiveData<Void?> = onVerificationSkipped
 
-    fun getOnSMSCodeSent(): MutableLiveData<Void> {
-        return onSMSCodeSent
-    }
+    fun getOnSMSCodeSent(): MutableLiveData<Void?> = onSMSCodeSent
 
     fun getOnErrorMessage(): LiveData<String> {
         return onErrorMessage

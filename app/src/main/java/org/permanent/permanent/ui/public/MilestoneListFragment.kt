@@ -42,13 +42,13 @@ class MilestoneListFragment : PermanentBaseFragment(), ProfileItemListener {
         onDeleteClick(it)
     }
 
-    private val onAddMilestoneRequest = Observer<Void> {
+    private val onAddMilestoneRequest = Observer<Void?> {
         requireParentFragment().findNavController().navigate(
             R.id.action_milestoneListFragment_to_addEditMilestoneFragment
         )
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
@@ -59,7 +59,7 @@ class MilestoneListFragment : PermanentBaseFragment(), ProfileItemListener {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
@@ -73,7 +73,7 @@ class MilestoneListFragment : PermanentBaseFragment(), ProfileItemListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(MilestoneListViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MilestoneListViewModel::class.java]
         binding = FragmentMilestoneListBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

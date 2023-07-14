@@ -23,7 +23,7 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
 import org.permanent.permanent.viewmodels.AddEditMilestoneViewModel
-import java.util.*
+import java.util.Calendar
 
 class AddEditMilestoneFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentAddEditMilestoneBinding
@@ -57,7 +57,7 @@ class AddEditMilestoneFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onShowMessage = Observer<String?> { message ->
+    private val onShowMessage = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -69,7 +69,7 @@ class AddEditMilestoneFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val onShowError = Observer<String?> { message ->
+    private val onShowError = Observer<String> { message ->
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         val view: View = snackBar.view
         context?.let {
@@ -79,11 +79,11 @@ class AddEditMilestoneFragment : PermanentBaseFragment() {
         snackBar.show()
     }
 
-    private val onBackToListFragment = Observer<Void>{
+    private val onBackToListFragment = Observer<Void?>{
         requireParentFragment().findNavController().popBackStack()
     }
 
-    private val onShowDatePicker = Observer<Void> {
+    private val onShowDatePicker = Observer<Void?> {
         context?.let { context ->
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)

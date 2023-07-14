@@ -4,7 +4,11 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.models.*
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.Folder
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Share
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.ShareVO
@@ -36,9 +40,9 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val isCurrentArchiveDefault = MutableLiveData(false)
     private var showChangeArchiveButton = MutableLiveData(false)
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
-    private val onChangeArchive = SingleLiveEvent<Void>()
+    private val onChangeArchive = SingleLiveEvent<Void?>()
     private val onViewInArchive = SingleLiveEvent<Int?>()
-    private val onNavigateUp = SingleLiveEvent<Void>()
+    private val onNavigateUp = SingleLiveEvent<Void?>()
     private val isBusy = MutableLiveData<Boolean>()
     private val errorMessage = MutableLiveData<String>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
@@ -186,11 +190,11 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
 
-    fun getOnChangeArchive(): MutableLiveData<Void> = onChangeArchive
+    fun getOnChangeArchive(): MutableLiveData<Void?> = onChangeArchive
 
     fun getOnViewInArchive(): MutableLiveData<Int?> = onViewInArchive
 
-    fun getOnNavigateUp(): MutableLiveData<Void> = onNavigateUp
+    fun getOnNavigateUp(): MutableLiveData<Void?> = onNavigateUp
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 

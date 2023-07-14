@@ -103,6 +103,20 @@
         tools:layout="@layout/fragment_manage_tags" />
 
     <fragment
+        android:id="@+id/loadingFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.LoadingFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" >
+    <action
+        android:id="@+id/action_loadingFragment_to_introFragment"
+        app:destination="@id/introFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/introFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.IntroFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" />
+
+    <fragment
         android:id="@+id/activityFeedFragment"
         android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
         android:label="@string/menu_settings_drawer_activity_feed"
