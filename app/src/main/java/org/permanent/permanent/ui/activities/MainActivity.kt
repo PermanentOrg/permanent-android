@@ -105,12 +105,18 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.loadingFragment, R.id.introFragment -> {
+                R.id.loadingFragment-> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                }
+
+                R.id.introFragment -> {
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = true
                 }
 
                 else -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = true
+                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
                 }
             }
         }
@@ -309,10 +315,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         )
         val alert = android.app.AlertDialog.Builder(this).setView(dialogBinding.root).create()
 
-        dialogBinding.tvTitle.text =
-            getString(R.string.dialog_switch_archive_title, archiveName)
-        dialogBinding.tvText.text =
-            getString(R.string.dialog_switch_archive_text, archiveName)
+        dialogBinding.tvTitle.text = getString(R.string.dialog_switch_archive_title, archiveName)
+        dialogBinding.tvText.text = getString(R.string.dialog_switch_archive_text, archiveName)
         dialogBinding.btnPositive.setOnClickListener {
             viewModel.switchCurrentArchiveTo(recipientArchiveNr)
             alert.dismiss()
@@ -333,6 +337,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
         when (menuItem?.itemId) {
             R.id.moreItem, R.id.doneItem -> sendEventToFragment()
+            R.id.closeItem -> {
+                navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
+                navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
+            }
             else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
         }
         return true

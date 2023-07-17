@@ -30,4 +30,11 @@
         app:showAsAction="always"
         android:visible="false"
         />
+    <item
+        android:id="@+id/closeItem"
+        android:icon="@drawable/ic_close_white"
+        android:title="@string/menu_toolbar_close"
+        app:showAsAction="always"
+        android:visible="false"
+        />
 </menu>

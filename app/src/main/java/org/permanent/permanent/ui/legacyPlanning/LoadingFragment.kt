@@ -12,15 +12,15 @@ import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.compose.LoadingScreen
-import org.permanent.permanent.viewmodels.LegacyPlanningLoadingViewModel
+import org.permanent.permanent.viewmodels.LoadingViewModel
 
 class LoadingFragment : PermanentBaseFragment() {
-    private lateinit var viewModel: LegacyPlanningLoadingViewModel
+    private lateinit var viewModel: LoadingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[LegacyPlanningLoadingViewModel::class.java]
+        viewModel = ViewModelProvider(this)[LoadingViewModel::class.java]
 
         return ComposeView(requireContext()).apply {
             setContent {

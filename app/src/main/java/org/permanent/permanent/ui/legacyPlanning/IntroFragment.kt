@@ -7,23 +7,28 @@ import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.compose.IntroScreen
+import org.permanent.permanent.viewmodels.IntroViewModel
 
 class IntroFragment : PermanentBaseFragment() {
-//    private lateinit var viewModel: LegacyPlanningLoadingViewModel
+    private lateinit var viewModel: IntroViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-//        viewModel = ViewModelProvider(this)[LegacyPlanningLoadingViewModel::class.java]
+        viewModel = ViewModelProvider(this)[IntroViewModel::class.java]
 
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    IntroScreen()
+                    IntroScreen(onCloseScreen = {
+                        findNavController().navigateUp()
+                        findNavController().navigateUp()
+                    })
                 }
             }
         }

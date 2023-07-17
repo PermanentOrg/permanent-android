@@ -6,7 +6,7 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.ILegacyPlanningRepository
 import org.permanent.permanent.repositories.LegacyPlanningRepositoryImpl
 
-class LegacyPlanningLoadingViewModel(application: Application) :
+class LoadingViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
