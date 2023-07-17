@@ -51,7 +51,7 @@ import java.util.Date
 
 class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val retrofit: Retrofit
-    private val retrofitNewBaseUrl: Retrofit
+    private val retrofitStelaBaseUrl: Retrofit
     private val authService: IAuthService
     private val accountService: IAccountService
     private val fileService: IFileService
@@ -111,7 +111,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
         retrofit = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL).addConverterFactory(MoshiConverterFactory.create())
                 .client(okHttpClient).build()
-        retrofitNewBaseUrl = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL_NEW).addConverterFactory(MoshiConverterFactory.create())
+        retrofitStelaBaseUrl = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL_STELA).addConverterFactory(MoshiConverterFactory.create())
             .client(okHttpClient).build()
 
         authService = retrofit.create(IAuthService::class.java)
@@ -125,7 +125,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         tagService = retrofit.create(ITagService::class.java)
         profileService = retrofit.create(IProfileService::class.java)
         storageService = retrofit.create(IStorageService::class.java)
-        legacyPlanningService = retrofitNewBaseUrl.create(ILegacyPlanningService::class.java)
+        legacyPlanningService = retrofitStelaBaseUrl.create(ILegacyPlanningService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
         profileItemsJsonAdapter =
