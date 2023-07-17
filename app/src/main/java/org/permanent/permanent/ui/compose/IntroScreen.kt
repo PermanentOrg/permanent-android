@@ -35,6 +35,7 @@ import org.permanent.permanent.R
 fun IntroScreen(onCloseScreen: () -> Unit) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val whiteTransparentColor = Color(ContextCompat.getColor(context, R.color.whiteTransparent))
@@ -44,20 +45,13 @@ fun IntroScreen(onCloseScreen: () -> Unit) {
     val smallTextSize = 15.sp
     val titleTextSize = 25.sp
     val subTitleTextSize = 19.sp
-    val showAdditionalText = remember { mutableStateOf(false) }
+
     val alignLeft = remember { mutableStateOf(false) }
-    val descriptionText = if (showAdditionalText.value) {
-        stringResource(R.string.set_up_your_legacy_plan_description_long)
-    } else {
-        stringResource(R.string.set_up_your_legacy_plan_description_short)
-    }
-    val imageModifier = if (showAdditionalText.value) 52.dp else 136.dp
+    val showAdditionalText = remember { mutableStateOf(false) }
+    val imageSize = if (showAdditionalText.value) 52.dp else 136.dp
     val spacerHeight = if (showAdditionalText.value) 52.dp else 200.dp
-    val tellMeMoreButtonText = if (showAdditionalText.value) {
-        stringResource(R.string.ill_do_this_later)
-    } else {
-        stringResource(R.string.tell_me_more_about_legacy_planning)
-    }
+    val descriptionText = stringResource(if (showAdditionalText.value) R.string.set_up_your_legacy_plan_description_long else R.string.set_up_your_legacy_plan_description_short)
+    val tellMeMoreButtonText = stringResource(if (showAdditionalText.value) R.string.ill_do_this_later else R.string.tell_me_more_about_legacy_planning)
 
     Column(
         modifier = Modifier
@@ -72,7 +66,7 @@ fun IntroScreen(onCloseScreen: () -> Unit) {
         Image(
             painter = painterResource(id = R.drawable.ic_legacy_logo),
             contentDescription = "App Logo",
-            modifier = Modifier.size(imageModifier)
+            modifier = Modifier.size(imageSize)
         )
         Spacer(modifier = Modifier.height(44.dp))
         Text(
@@ -132,7 +126,8 @@ fun IntroScreen(onCloseScreen: () -> Unit) {
                 containerColor = whiteColor,
                 contentColor = primaryColor
             ),
-            onClick = { }) {
+            onClick = {}
+        ) {
             Text(
                 text = stringResource(R.string.set_up_my_account_plan_now),
                 fontSize = smallTextSize,
@@ -149,7 +144,8 @@ fun IntroScreen(onCloseScreen: () -> Unit) {
                 if (tellMeMoreButtonText == context.getString(R.string.ill_do_this_later)) {
                     onCloseScreen()
                 }
-            }) {
+            }
+        ) {
             Text(
                 text = tellMeMoreButtonText,
                 fontSize = smallTextSize,
