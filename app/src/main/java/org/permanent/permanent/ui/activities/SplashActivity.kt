@@ -55,9 +55,8 @@ class SplashActivity : PermanentBaseActivity() {
         val remoteConfig = setupRemoteConfig()
 
         remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
-//            if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
-//            else
-                if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
+            if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
+            else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
             else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
             else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
             else viewModel.switchArchiveToCurrent()
