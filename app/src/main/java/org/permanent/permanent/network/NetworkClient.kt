@@ -1,6 +1,9 @@
 package org.permanent.permanent.network
 
 import android.content.Context
+import com.franmontiel.persistentcookiejar.PersistentCookieJar
+import com.franmontiel.persistentcookiejar.cache.SetCookieCache
+import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -53,6 +56,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val retrofit: Retrofit
     private val retrofitStelaBaseUrl: Retrofit
     private val authService: IAuthService
+    private lateinit var authServiceWithCookies: IAuthService
     private val accountService: IAccountService
     private val fileService: IFileService
     private val shareService: IShareService
@@ -97,8 +101,6 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                     val requestURL = request.url.toString()
                     if ((uploadURL.isNullOrEmpty() || !requestURL.contains(uploadURL)) &&
                         !requestURL.contains(Constants.SIGN_UP_URL_SUFFIX) &&
-                        !requestURL.contains(Constants.LOGIN_URL_SUFFIX) &&
-                        !requestURL.contains(Constants.VERIFY_2FA_URL_SUFFIX) &&
                         !requestURL.contains(Constants.STRIPE_URL)
                     ) {
                         val requestBuilder: Request.Builder = request.newBuilder()
@@ -108,6 +110,19 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                         chain.proceed(requestBuilder.build())
                     } else chain.proceed(request)
                 }).build()
+
+            val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context))
+            val okHttpClientWithCookies = OkHttpClient.Builder()
+                .cookieJar(cookieJar)
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(UnauthorizedInterceptor())
+                .build()
+            val retrofitWithCookies = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(MoshiConverterFactory.create())
+                .client(okHttpClientWithCookies)
+                .build()
+            authServiceWithCookies = retrofitWithCookies.create(IAuthService::class.java)
         }
         retrofit = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL).addConverterFactory(MoshiConverterFactory.create())
                 .client(okHttpClient).build()
@@ -144,7 +159,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
-        return authService.login(requestBody)
+        return authServiceWithCookies.login(requestBody)
     }
 
     fun logout(): Call<ResponseVO> {
@@ -174,7 +189,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer().addAuth(code, authType).addAccount(email))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
 
-        return authService.verifyCode(requestBody)
+        return authServiceWithCookies.verifyCode(requestBody)
     }
 
     fun signUp(fullName: String, email: String, password: String): Call<AccountVO> {
