@@ -34700,8 +34700,6 @@ org.permanent.permanent.ui.myFiles.upload.UploadQueue:
     public final void notifyEnqueuedUploadsChanged()
     public static void observePendingUploads()
 org.permanent.permanent.ui.myFiles.upload.UploadViewHolder$$InternalSyntheticLambda$1$569f5e3dbbdd793471fe3d5c72df766dd5315109fede70339850cfa279c0d8fe$0
-org.permanent.permanent.ui.myFiles.upload.UploadWorker:
-    public final org.permanent.permanent.ui.PreferencesHelper prefsHelper
 org.permanent.permanent.ui.onboarding.OnboardingActivity$$InternalSyntheticLambda$1$13f91a905430ade0908051826144650ec0d9bda602bcad0c64a8e92c11a737d2$0
 org.permanent.permanent.ui.onboarding.OnboardingActivity:
     public static void setupRecyclerView$1()

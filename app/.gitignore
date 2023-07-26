@@ -3,3 +3,5 @@
 /mapping.txt
 /seeds.txt
 /unused.txt
+/google-services.json
+/src/production/google-services.json
