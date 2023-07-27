@@ -118,7 +118,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .addInterceptor(UnauthorizedInterceptor())
                 .build()
             val retrofitWithCookies = Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(BuildConfig.BASE_API_URL)
                 .addConverterFactory(MoshiConverterFactory.create())
                 .client(okHttpClientWithCookies)
                 .build()
