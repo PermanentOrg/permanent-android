@@ -580,4 +580,7 @@
     <string name="set_up_my_account_plan_now">Set up my Account Plan now</string>
     <string name="tell_me_more_about_legacy_planning">Tell me more about Legacy Planning</string>
     <string name="ill_do_this_later">I’ll do this later</string>
+    <string name="in_the_event">In the event of your death or incapacitation, the following Legacy contact can activate your Legacy Plan:</string>
+    <string name="your_archive_will">Your archive will be transferred to the following archive steward:</string>
+    <string name="create_legacy">Create archive Legacy Plan</string>
 </resources>

@@ -5,6 +5,7 @@
     <color name="colorPrimaryLighter">#1c2451</color>
     <color name="superLightBlue">#F4F6FD</color>
     <color name="blueGrey">#465084</color>
+    <color name="darkBlue">#010A3F</color>
     <color name="barneyPurple">#800080</color>
     <color name="lightPurple">#e7d4e7</color>
     <color name="deepRed">#A10000</color>
@@ -25,5 +26,6 @@
     <color name="lightGrey">#B4B4B4</color>
     <color name="lighterGrey">#DADADA</color>
     <color name="middleGrey">#606060</color>
+    <color name="mardiGras">#8D0085</color>
     <color name="black">#000000</color>
 </resources>

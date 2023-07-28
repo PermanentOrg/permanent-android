@@ -109,6 +109,11 @@
     <action
         android:id="@+id/action_loadingFragment_to_introFragment"
         app:destination="@id/introFragment" />
+        <action
+            android:id="@+id/action_loadingFragment_to_statusFragment"
+            app:destination="@id/statusFragment"
+            app:popUpTo="@id/main_activity_navigation"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment
@@ -302,4 +307,8 @@
         android:name="org.permanent.permanent.ui.public.AddEditOnlinePresenceFragment"
         android:label="@string/add_social_media_label"
         tools:layout="@layout/fragment_add_edit_online_presence" />
+    <fragment
+        android:id="@+id/statusFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.StatusFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" />
 </navigation>
