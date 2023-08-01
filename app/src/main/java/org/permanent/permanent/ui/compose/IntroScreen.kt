@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,7 +33,7 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun IntroScreen(onCloseScreen: () -> Unit) {
+fun IntroScreen(navigateToDesignateContactScreen: () -> Unit, onCloseScreen: () -> Unit) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -50,8 +51,10 @@ fun IntroScreen(onCloseScreen: () -> Unit) {
     val showAdditionalText = remember { mutableStateOf(false) }
     val imageSize = if (showAdditionalText.value) 52.dp else 136.dp
     val spacerHeight = if (showAdditionalText.value) 52.dp else 200.dp
-    val descriptionText = stringResource(if (showAdditionalText.value) R.string.set_up_your_legacy_plan_description_long else R.string.set_up_your_legacy_plan_description_short)
-    val tellMeMoreButtonText = stringResource(if (showAdditionalText.value) R.string.ill_do_this_later else R.string.tell_me_more_about_legacy_planning)
+    val descriptionText =
+        stringResource(if (showAdditionalText.value) R.string.set_up_your_legacy_plan_description_long else R.string.set_up_your_legacy_plan_description_short)
+    val tellMeMoreButtonText =
+        stringResource(if (showAdditionalText.value) R.string.ill_do_this_later else R.string.tell_me_more_about_legacy_planning)
 
     Column(
         modifier = Modifier
@@ -119,14 +122,13 @@ fun IntroScreen(onCloseScreen: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(spacerHeight))
         Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(whiteColor),
+            modifier = Modifier.fillMaxWidth().height(48.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = whiteColor,
                 contentColor = primaryColor
             ),
-            onClick = {}
+            shape = RoundedCornerShape(8.dp),
+            onClick = { navigateToDesignateContactScreen() }
         ) {
             Text(
                 text = stringResource(R.string.set_up_my_account_plan_now),
