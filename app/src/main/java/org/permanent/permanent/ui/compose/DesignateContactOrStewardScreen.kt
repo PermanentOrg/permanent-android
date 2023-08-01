@@ -60,13 +60,12 @@ fun DesignateContactOrStewardScreen() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = stringResource(R.string.designate_a_legacy_contact).uppercase(),
             fontSize = smallTextSize,
             color = primaryColor,
             fontFamily = boldFont,
-            modifier = Modifier.align(Alignment.Start)
+            modifier = Modifier.align(Alignment.Start).padding(top = 36.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -78,7 +77,7 @@ fun DesignateContactOrStewardScreen() {
         )
         Spacer(modifier = Modifier.height(40.dp))
         LegacyContactCard(whiteColor, primaryColor, semiBoldFont, blackColor, regularFont, boldFont)
-        Spacer(modifier = Modifier.height(300.dp))
+        Spacer(modifier = Modifier.weight(1.0f))
         Button(
             modifier = Modifier.fillMaxWidth().height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
@@ -95,7 +94,7 @@ fun DesignateContactOrStewardScreen() {
                     fontSize = subTitleTextSize,
                     fontFamily = regularFont,
                 )
-                Spacer(modifier = Modifier.width(116.dp))
+                Spacer(modifier = Modifier.weight(1.0f))
                 Image(
                     painter = painterResource(id = R.drawable.ic_arrow_next_white),
                     contentDescription = "Account add",
@@ -160,7 +159,7 @@ fun LegacyContactCard(
                     color = textColor,
                     fontFamily = boldFont
                 )
-                Spacer(modifier = Modifier.width(132.dp))
+                Spacer(modifier = Modifier.weight(1.0f))
                 Image(
                     painter = painterResource(id = R.drawable.ic_account_add_primary),
                     contentDescription = "Account add",
