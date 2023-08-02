@@ -31,8 +31,10 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.AccountVO
+import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.LegacySteward
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.ProfileItemsRequestContainer
 import org.permanent.permanent.network.models.ResponseVO
@@ -706,7 +708,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return profileService.delete(requestBody)
     }
 
-    fun getLegacyContact(): Call<List<ResponseVO>> = legacyPlanningService.getLegacyContact()
+    fun getLegacyContact(): Call<List<LegacySteward>> = legacyPlanningService.getLegacyContact()
+    fun getArchiveSteward(archiveId: Int): Call<List<ArchiveSteward>> = legacyPlanningService.getArchiveSteward(archiveId)
 
     fun getPaymentIntent(
         accountId: Int,
