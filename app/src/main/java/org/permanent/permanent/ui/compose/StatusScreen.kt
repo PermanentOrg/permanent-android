@@ -62,7 +62,11 @@ fun StatusScreen(viewModel: LegacyStatusViewModel) {
         }
 
         allArchives.value?.forEach {
-            ArchiveCard(info = it)
+            it.second?.let { _ ->
+                ArchiveCardCompleted(info = it)
+            } ?: run {
+                ArchiveCard(info = it)
+            }
         }
     }
 }
@@ -75,7 +79,7 @@ fun AccountCard(steward: LegacySteward) {
     val whiteSuperTransparentColor = Color(ContextCompat.getColor(context, R.color.whiteSuperTransparent))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
-    val stewardName = if(steward.name != null) steward.name else ""
+    val stewardName = steward.name
 
     Card(
         modifier = Modifier
@@ -126,14 +130,16 @@ fun AccountCard(steward: LegacySteward) {
                     contentDescription = "Person",
                     modifier = Modifier.size(24.dp)
                 )
-                if (stewardName != null) {
+
+                stewardName?.let {
                     Text(
-                        text = stewardName,
+                        text = it,
                         color = whiteColor,
                         fontFamily = semiboldFont,
                         fontSize = 13.sp
                     )
                 }
+
             }
         }
     }
@@ -143,19 +149,98 @@ fun AccountCard(steward: LegacySteward) {
 fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-    val darkBlueColor = Color(ContextCompat.getColor(context, R.color.darkBlue))
-    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val whiteSuperTransparentColor = Color(ContextCompat.getColor(context, R.color.whiteSuperTransparent))
     val mardiGrasColor = Color(ContextCompat.getColor(context, R.color.mardiGras))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val archiveName = if(info.first.fullName != null) info.first.fullName else ""
     val accessRoleText = if(info.first.accessRole?.toTitleCase() != null) info.first.accessRole?.toTitleCase() else ""
+    val cardColor = Color(ContextCompat.getColor(context, R.color.white))
+    val borderWidth = 0.dp
 
-    val hasSteward: Boolean = info.second != null
-    val cardColor: Color = if (hasSteward) darkBlueColor else whiteColor
-    val borderWidth = if (hasSteward) 1.dp else 0.dp
-    val textColor = if (hasSteward) whiteColor else primaryColor
+    Card(
+        modifier = Modifier
+            .padding(24.dp),
+        border = BorderStroke(borderWidth, whiteSuperTransparentColor),
+        colors = CardDefaults.cardColors(
+            containerColor = cardColor)
+
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            AsyncImage(
+                model = info.first.thumbURL200,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(4.dp))
+            )
+
+            if (archiveName != null) {
+                Text(
+                    text = archiveName,
+                    color = primaryColor,
+                    fontFamily = semiboldFont,
+                    fontSize = 15.sp
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(
+                        mardiGrasColor.copy(alpha = 0.2f)
+                    )
+                    .padding(
+                        horizontal = 12.dp,
+                        vertical = 2.dp
+                    )
+            ) {
+                if (accessRoleText != null) {
+                    Text(text = accessRoleText.uppercase(),
+                        color = primaryColor,
+                        fontFamily = regularFont,
+                        fontSize = 8.sp)
+                }
+            }
+            Divider()
+            TextButton(onClick = { /* Do something! */ },
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Text(
+                    stringResource(id = R.string.create_legacy),
+                    color = primaryColor,
+                    fontFamily = semiboldFont,
+                    fontSize = 13.sp)
+                Spacer(modifier = Modifier.weight(1.0f))
+                Image(
+                    painter = painterResource(id = R.drawable.ic_drop_down_white),
+                    contentDescription = "Person",
+                    colorFilter = ColorFilter.tint(primaryColor),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .rotate(-90.0f)
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun ArchiveCardCompleted(info: Pair<Archive, ArchiveSteward?>) {
+    val context = LocalContext.current
+    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
+    val whiteSuperTransparentColor = Color(ContextCompat.getColor(context, R.color.whiteSuperTransparent))
+    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+    val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
+    val archiveName = info.first.fullName
+    val cardColor = Color(ContextCompat.getColor(context, R.color.darkBlue))
+    val borderWidth = 1.dp
+    val textColor = whiteColor
     val stewardName = info.second?.steward?.name
 
     Card(
@@ -181,99 +266,57 @@ fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>) {
                         .clip(RoundedCornerShape(4.dp))
                 )
                 Spacer(modifier = Modifier.weight(1.0f))
-                if (hasSteward) {
-                    TextButton(onClick = { /* Do something! */ },
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text("Edit Plan",
-                            color = whiteColor,
-                            fontFamily = regularFont,
-                            fontSize = 13.sp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_edit_primary),
-                            contentDescription = "Person",
-                            colorFilter = ColorFilter.tint(whiteColor),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
+
+                TextButton(onClick = { /* Do something! */ },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("Edit Plan",
+                        color = whiteColor,
+                        fontFamily = regularFont,
+                        fontSize = 13.sp)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_edit_primary),
+                        contentDescription = "Person",
+                        colorFilter = ColorFilter.tint(whiteColor),
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
+
             }
 
-            if (hasSteward) {
-                Divider()
-            }
+            Divider()
 
-            if (archiveName != null) {
+            archiveName?.let {
                 Text(
-                    text = archiveName,
+                    text = it,
                     color = textColor,
                     fontFamily = semiboldFont,
                     fontSize = 15.sp
                 )
             }
 
-            if (hasSteward) {
-                Text(
-                    text = stringResource(id = R.string.your_archive_will),
-                    color = whiteColor.copy(alpha = 0.85f),
-                    fontFamily = regularFont,
-                    fontSize = 13.sp
+            Text(
+                text = stringResource(id = R.string.your_archive_will),
+                color = whiteColor.copy(alpha = 0.85f),
+                fontFamily = regularFont,
+                fontSize = 13.sp
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_person_primary),
+                    contentDescription = "Person",
+                    modifier = Modifier.size(24.dp)
                 )
 
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_person_primary),
-                        contentDescription = "Person",
-                        modifier = Modifier.size(24.dp)
-                    )
-                    if (stewardName != null) {
-                        Text(
-                            text = stewardName,
-                            color = whiteColor,
-                            fontFamily = semiboldFont,
-                            fontSize = 13.sp
-                        )
-                    }
-                }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            mardiGrasColor.copy(alpha = 0.2f)
-                        )
-                        .padding(
-                            horizontal = 12.dp,
-                            vertical = 2.dp
-                        )
-                ) {
-                    if (accessRoleText != null) {
-                        Text(text = accessRoleText.uppercase(),
-                            color = primaryColor,
-                            fontFamily = regularFont,
-                            fontSize = 8.sp)
-                    }
-                }
-                Divider()
-                TextButton(onClick = { /* Do something! */ },
-                    contentPadding = PaddingValues(0.dp),
-                ) {
+                stewardName?.let {
                     Text(
-                        stringResource(id = R.string.create_legacy),
-                        color = primaryColor,
+                        text = it,
+                        color = whiteColor,
                         fontFamily = semiboldFont,
-                        fontSize = 13.sp)
-                    Spacer(modifier = Modifier.weight(1.0f))
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_drop_down_white),
-                        contentDescription = "Person",
-                        colorFilter = ColorFilter.tint(primaryColor),
-                        modifier = Modifier
-                            .size(24.dp)
-                            .rotate(-90.0f)
+                        fontSize = 13.sp
                     )
                 }
             }
