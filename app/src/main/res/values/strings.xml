@@ -583,4 +583,11 @@
     <string name="in_the_event">In the event of your death or incapacitation, the following Legacy contact can activate your Legacy Plan:</string>
     <string name="your_archive_will">Your archive will be transferred to the following archive steward:</string>
     <string name="create_legacy">Create archive Legacy Plan</string>
+    <string name="designate_a_legacy_contact">Designate a Legacy Contact</string>
+    <string name="designate_contact_title">Who will reach out to Permanent to let us know of your death or incapacitation?</string>
+    <string name="a_trusted_legacy_contact_title">A trusted legacy contact</string>
+    <string name="a_trusted_legacy_contact_description">A trusted person who can inform Permanent about your death or long term disability.</string>
+    <string name="add_legacy_contact">Add Legacy Contact</string>
+    <string name="save_account_legacy_plan">Save account Legacy Plan</string>
+    <string name="button_go_to_legacy_planning">Go to Legacy Planning</string>
 </resources>

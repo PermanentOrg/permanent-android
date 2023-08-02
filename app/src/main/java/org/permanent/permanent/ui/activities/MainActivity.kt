@@ -109,7 +109,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
-                R.id.introFragment -> {
+                R.id.introFragment, R.id.designateContactOrStewardFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = true
                 }
@@ -343,8 +343,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         when (menuItem?.itemId) {
             R.id.moreItem, R.id.doneItem -> sendEventToFragment()
             R.id.closeItem -> {
-                navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
-                navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
+                navController.popBackStack(R.id.myFilesFragment, false)
             }
             else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
         }

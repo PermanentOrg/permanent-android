@@ -119,7 +119,17 @@
     <fragment
         android:id="@+id/introFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.IntroFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" />
+        android:label="@string/menu_settings_drawer_legacy_planning" >
+    <action
+        android:id="@+id/action_introFragment_to_designateContactOrStewardFragment"
+        app:destination="@id/designateContactOrStewardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/designateContactOrStewardFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.DesignateContactOrStewardFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" >
+    </fragment>
 
     <fragment
         android:id="@+id/activityFeedFragment"
