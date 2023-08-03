@@ -81,7 +81,11 @@ open class Record : Parcelable {
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
-        isProcessing = thumbStatus == ThumbStatus.NULL || thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB
+        isProcessing = thumbStatus == ThumbStatus.NULL ||
+                thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB ||
+                thumbStatus == ThumbStatus.FOLDER_COPYING ||
+                thumbStatus == ThumbStatus.FOLDER_MOVING ||
+                thumbStatus == ThumbStatus.FOLDER_NEW
         displayInShares = false
     }
 
@@ -103,7 +107,11 @@ open class Record : Parcelable {
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
-        isProcessing = thumbStatus == ThumbStatus.NULL || thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB
+        isProcessing = thumbStatus == ThumbStatus.NULL ||
+                thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB ||
+                thumbStatus == ThumbStatus.FOLDER_COPYING ||
+                thumbStatus == ThumbStatus.FOLDER_MOVING ||
+                thumbStatus == ThumbStatus.FOLDER_NEW
         displayInShares = false
     }
 
