@@ -94,6 +94,28 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
+                android:id="@+id/btnConfigureSteward"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/open_sans"
+                android:paddingStart="0dp"
+                android:letterSpacing="-0.01"
+                android:text="@string/archive_options_menu_item_configure_Steward"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                app:icon="@drawable/legacy_planning_menu"
+                app:iconPadding="16dp"
+                app:iconTint="@color/black"
+                android:visibility="@{viewModel.accessRole != AccessRole.OWNER ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnMakeDefault" />
+
+            <Button
                 android:id="@+id/btnDeleteArchive"
                 style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                 android:layout_width="0dp"
@@ -113,7 +135,7 @@
                 android:visibility="@{viewModel.isCurrentArchive || viewModel.accessRole != AccessRole.OWNER ? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnMakeDefault" />
+                app:layout_constraintTop_toBottomOf="@id/btnConfigureSteward" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -12,9 +12,11 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -99,6 +101,11 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
 
     private val onCurrentArchiveChangedObserver = Observer<Void?> {
         onCurrentArchiveChangedEvent.call()
+    }
+
+    private val onConfigureStewardChanged = Observer<Archive> {
+        val bundle = bundleOf(PARCELABLE_ARCHIVE_KEY to it)
+        findNavController().navigate(R.id.action_archivesFragment_to_archiveStewardFragment, bundle)
     }
 
     private val onDefaultArchiveChanged = Observer<Int> {
@@ -246,6 +253,8 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         archiveOptionsFragment?.show(parentFragmentManager, archiveOptionsFragment?.tag)
         archiveOptionsFragment?.getOnChangeDefaultArchiveRequest()
             ?.observe(this, onChangeDefaultArchiveObserver)
+        archiveOptionsFragment?.getOnConfjgureStewardRequest()
+            ?.observe(this, onConfigureStewardChanged)
         archiveOptionsFragment?.getOnDeleteArchiveRequest()
             ?.observe(this, onDeleteArchiveObserver)
     }

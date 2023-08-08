@@ -30,13 +30,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun DesignateContactOrStewardScreen() {
+fun LegacyContactScreen() {
+    
+    Column {
+        DesignateContactOrStewardScreen(
+            title = stringResource(R.string.designate_a_legacy_contact),
+            subtitle = stringResource(R.string.designate_contact_title),
+            cardTitle = stringResource(R.string.a_trusted_legacy_contact_title),
+            cardSubtitle = stringResource(R.string.a_trusted_legacy_contact_description),
+            cardButtonName = stringResource(R.string.add_legacy_contact)
+        )
+    }
+}
+
+@Composable
+fun DesignateContactOrStewardScreen(
+    title: String,
+    subtitle: String,
+    cardTitle: String,
+    cardSubtitle: String,
+    cardButtonName: String
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -62,7 +83,7 @@ fun DesignateContactOrStewardScreen() {
     ) {
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = stringResource(R.string.designate_a_legacy_contact).uppercase(),
+            text = title.uppercase(),
             fontSize = smallTextSize,
             color = primaryColor,
             fontFamily = boldFont,
@@ -70,17 +91,28 @@ fun DesignateContactOrStewardScreen() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = stringResource(R.string.designate_contact_title),
+            text = subtitle,
             fontSize = titleTextSize,
             color = primaryColor,
             fontFamily = semiBoldFont,
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(40.dp))
-        LegacyContactCard(whiteColor, primaryColor, semiBoldFont, blackColor, regularFont, boldFont)
+        LegacyContactCard(
+            cardTitle,
+            cardSubtitle,
+            cardButtonName,
+            whiteColor,
+            primaryColor,
+            semiBoldFont,
+            blackColor,
+            regularFont,
+            boldFont)
         Spacer(modifier = Modifier.height(300.dp))
         Button(
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
             shape = RoundedCornerShape(8.dp),
             onClick = {
@@ -109,6 +141,9 @@ fun DesignateContactOrStewardScreen() {
 
 @Composable
 fun LegacyContactCard(
+    cardTitle: String,
+    cardSubtitle: String,
+    cardButtonName: String,
     cardColor: Color,
     textColor: Color,
     semiBoldFont: FontFamily,
@@ -135,7 +170,7 @@ fun LegacyContactCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.a_trusted_legacy_contact_title),
+                    text = cardTitle,
                     fontSize = subTitleTextSize,
                     color = textColor,
                     fontFamily = semiBoldFont
@@ -143,7 +178,7 @@ fun LegacyContactCard(
             }
             Spacer(modifier = Modifier.height(14.dp))
             Text(
-                text = stringResource(R.string.a_trusted_legacy_contact_description),
+                text = cardSubtitle,
                 fontSize = mediumTextSize,
                 color = blackColor,
                 fontFamily = regularFont,
@@ -155,7 +190,7 @@ fun LegacyContactCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.add_legacy_contact),
+                    text = cardButtonName,
                     fontSize = mediumTextSize,
                     color = textColor,
                     fontFamily = boldFont
@@ -169,4 +204,10 @@ fun LegacyContactCard(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun LegacyContactScreenPreview() {
+    LegacyContactScreen()
 }

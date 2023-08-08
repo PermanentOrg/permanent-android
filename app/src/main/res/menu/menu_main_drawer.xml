@@ -42,6 +42,13 @@
             android:icon="@drawable/ic_manage_members_main_drawer_white"
             android:title="@string/menu_drawer_manage_members"
             android:visible="false" />
+
+        <item
+            android:id="@+id/archiveStewardFragment"
+            android:icon="@drawable/legacy_planning_menu"
+            android:iconTint="@color/white"
+            android:title="@string/menu_drawer_legacy_planning"
+            android:visible="false" />
     </group>
 
     <group

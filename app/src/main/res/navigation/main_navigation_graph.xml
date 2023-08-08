@@ -16,6 +16,9 @@
         <deepLink
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}"/>
+        <action
+            android:id="@+id/action_archivesFragment_to_archiveStewardFragment"
+            app:destination="@id/archiveStewardFragment" />
     </fragment>
 
     <fragment
@@ -320,5 +323,9 @@
     <fragment
         android:id="@+id/statusFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.StatusFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" />
+    <fragment
+        android:id="@+id/archiveStewardFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.ArchiveStewardFragment"
         android:label="@string/menu_settings_drawer_legacy_planning" />
 </navigation>

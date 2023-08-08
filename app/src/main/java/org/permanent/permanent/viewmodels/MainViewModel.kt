@@ -168,6 +168,10 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         })
     }
 
+    fun getCurrentArchive() : Archive {
+        return prefsHelper.getCurrentArchive()
+    }
+
     fun getUserEmail(): MutableLiveData<String> = userEmail
 
     fun getArchiveThumb(): MutableLiveData<String> = archiveThumb
