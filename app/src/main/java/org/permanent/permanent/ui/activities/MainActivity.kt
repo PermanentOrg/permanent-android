@@ -114,6 +114,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = true
                 }
 
+                R.id.statusFragment -> {
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
+                }
+
                 else -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = true
                     binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false

@@ -15,8 +15,8 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 32 // If you update this version *upload* won't work without adjustments
-        versionCode 49
-        versionName "1.7.3"
+        versionCode 51
+        versionName "1.7.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -126,6 +126,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
     // Integration with LiveData
     implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
+    // Async Image loading in compose
+    implementation("io.coil-kt:coil-compose:2.4.0")
     // UI Tests
 //    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
 //    debugImplementation 'androidx.compose.ui:ui-test-manifest'

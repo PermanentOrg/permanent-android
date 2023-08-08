@@ -10,6 +10,7 @@ class FolderVO {
     var sort: String? = null
     var view: String? = null
     var type: String? = null
+    var thumbStatus: String? = null
     var thumbURL200: String? = null
     var thumbURL2000: String? = null
     var status: String? = null

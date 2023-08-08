@@ -2,7 +2,8 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ILegacyAccountListener
+import org.permanent.permanent.network.models.LegacySteward
 import org.permanent.permanent.repositories.ILegacyPlanningRepository
 import org.permanent.permanent.repositories.LegacyPlanningRepositoryImpl
 
@@ -10,7 +11,7 @@ class LoadingViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
-    private val onLegacyContactReady = SingleLiveEvent<Void?>()
+    private val onLegacyContactReady = SingleLiveEvent<List<LegacySteward>>()
     private var legacyPlanningRepository: ILegacyPlanningRepository =
         LegacyPlanningRepositoryImpl(appContext)
 
@@ -19,9 +20,9 @@ class LoadingViewModel(application: Application) :
     }
 
     private fun getLegacyContact() {
-        legacyPlanningRepository.getLegacyContact(object : IResponseListener {
-            override fun onSuccess(message: String?) {
-                onLegacyContactReady.call()
+        legacyPlanningRepository.getLegacyContact(object : ILegacyAccountListener {
+            override fun onSuccess(dataList: List<LegacySteward>) {
+                onLegacyContactReady.value = dataList
             }
 
             override fun onFailed(error: String?) {
@@ -29,5 +30,5 @@ class LoadingViewModel(application: Application) :
         })
     }
 
-    fun getOnLegacyContactReady(): MutableLiveData<Void?> = onLegacyContactReady
+    fun getOnLegacyContactReady(): MutableLiveData<List<LegacySteward>> = onLegacyContactReady
 }
