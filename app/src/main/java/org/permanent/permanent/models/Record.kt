@@ -3,7 +3,12 @@ package org.permanent.permanent.models
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.network.models.*
+import org.permanent.permanent.network.models.ArchiveVO
+import org.permanent.permanent.network.models.FolderVO
+import org.permanent.permanent.network.models.ItemVO
+import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.ShareVO
+import org.permanent.permanent.network.models.Shareby_urlVO
 
 open class Record : Parcelable {
     var id: Int? = null
@@ -75,7 +80,12 @@ open class Record : Parcelable {
         accessRole = AccessRole.createFromBackendString(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
-        isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
+        val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
+        isProcessing = thumbStatus == ThumbStatus.NULL ||
+                thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB ||
+                thumbStatus == ThumbStatus.FOLDER_COPYING ||
+                thumbStatus == ThumbStatus.FOLDER_MOVING ||
+                thumbStatus == ThumbStatus.FOLDER_NEW
         displayInShares = false
     }
 
@@ -96,7 +106,12 @@ open class Record : Parcelable {
         accessRole = AccessRole.createFromBackendString(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
-        isProcessing = recordInfo.thumbURL200.isNullOrEmpty()
+        val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
+        isProcessing = thumbStatus == ThumbStatus.NULL ||
+                thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB ||
+                thumbStatus == ThumbStatus.FOLDER_COPYING ||
+                thumbStatus == ThumbStatus.FOLDER_MOVING ||
+                thumbStatus == ThumbStatus.FOLDER_NEW
         displayInShares = false
     }
 
