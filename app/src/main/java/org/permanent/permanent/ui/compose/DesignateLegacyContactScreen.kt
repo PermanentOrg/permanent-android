@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,7 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun DesignateContactOrStewardScreen() {
+fun DesignateContactOrStewardScreen(openAddEditScreen: () -> Unit) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -60,13 +61,12 @@ fun DesignateContactOrStewardScreen() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = stringResource(R.string.designate_a_legacy_contact).uppercase(),
             fontSize = smallTextSize,
             color = primaryColor,
             fontFamily = boldFont,
-            modifier = Modifier.align(Alignment.Start)
+            modifier = Modifier.align(Alignment.Start).padding(top = 36.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -77,25 +77,31 @@ fun DesignateContactOrStewardScreen() {
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(40.dp))
-        LegacyContactCard(whiteColor, primaryColor, semiBoldFont, blackColor, regularFont, boldFont)
-        Spacer(modifier = Modifier.height(300.dp))
-        Button(
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+        LegacyContactCard(
+            whiteColor,
+            primaryColor,
+            semiBoldFont,
+            blackColor,
+            regularFont,
+            boldFont,
+            openAddEditScreen
+        )
+        Spacer(modifier = Modifier.weight(1.0f))
+        Button(modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
             shape = RoundedCornerShape(8.dp),
-            onClick = {
-            }
-        ) {
+            onClick = {}) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.button_go_to_legacy_planning),
                     fontSize = subTitleTextSize,
                     fontFamily = regularFont,
                 )
-                Spacer(modifier = Modifier.width(116.dp))
+                Spacer(modifier = Modifier.weight(1.0f))
                 Image(
                     painter = painterResource(id = R.drawable.ic_arrow_next_white),
                     contentDescription = "Account add",
@@ -114,7 +120,8 @@ fun LegacyContactCard(
     semiBoldFont: FontFamily,
     blackColor: Color,
     regularFont: FontFamily,
-    boldFont: FontFamily
+    boldFont: FontFamily,
+    openAddEditScreen: () -> Unit
 ) {
     val mediumTextSize = 14.sp
     val subTitleTextSize = 16.sp
@@ -125,8 +132,7 @@ fun LegacyContactCard(
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_account_filled_multicolor),
@@ -151,7 +157,9 @@ fun LegacyContactCard(
             )
             Divider(modifier = Modifier.padding(vertical = 24.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { openAddEditScreen() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -160,7 +168,7 @@ fun LegacyContactCard(
                     color = textColor,
                     fontFamily = boldFont
                 )
-                Spacer(modifier = Modifier.width(132.dp))
+                Spacer(modifier = Modifier.weight(1.0f))
                 Image(
                     painter = painterResource(id = R.drawable.ic_account_add_primary),
                     contentDescription = "Account add",

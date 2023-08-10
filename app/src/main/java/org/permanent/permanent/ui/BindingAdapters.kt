@@ -44,7 +44,7 @@ fun setArchiveTypeIcon(view: ImageView, archiveType: ArchiveType?) {
     when (archiveType) {
         ArchiveType.FAMILY -> view.setImageResource(R.drawable.ic_group_primary)
         ArchiveType.ORGANIZATION -> view.setImageResource(R.drawable.ic_organization_primary)
-        else -> view.setImageResource(R.drawable.ic_person_primary)
+        else -> view.setImageResource(R.drawable.ic_account_primary)
     }
 }
 

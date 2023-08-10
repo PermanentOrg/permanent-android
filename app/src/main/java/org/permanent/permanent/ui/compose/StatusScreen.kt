@@ -126,7 +126,7 @@ fun AccountCard(steward: LegacySteward) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_person_primary),
+                    painter = painterResource(id = R.drawable.ic_account_primary),
                     contentDescription = "Person",
                     modifier = Modifier.size(24.dp)
                 )
@@ -306,7 +306,7 @@ fun ArchiveCardCompleted(info: Pair<Archive, ArchiveSteward?>) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_person_primary),
+                    painter = painterResource(id = R.drawable.ic_account_primary),
                     contentDescription = "Person",
                     modifier = Modifier.size(24.dp)
                 )
