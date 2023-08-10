@@ -253,7 +253,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         archiveOptionsFragment?.show(parentFragmentManager, archiveOptionsFragment?.tag)
         archiveOptionsFragment?.getOnChangeDefaultArchiveRequest()
             ?.observe(this, onChangeDefaultArchiveObserver)
-        archiveOptionsFragment?.getOnConfjgureStewardRequest()
+        archiveOptionsFragment?.getOnConfigureStewardRequest()
             ?.observe(this, onConfigureStewardChanged)
         archiveOptionsFragment?.getOnDeleteArchiveRequest()
             ?.observe(this, onDeleteArchiveObserver)

@@ -79,7 +79,7 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
 
     fun getOnChangeDefaultArchiveRequest(): MutableLiveData<Int> = onChangeDefaultArchiveRequest
 
-    fun getOnConfjgureStewardRequest(): MutableLiveData<Archive> = onConfigureStewardRequest
+    fun getOnConfigureStewardRequest(): MutableLiveData<Archive> = onConfigureStewardRequest
 
     fun getOnDeleteArchiveRequest(): MutableLiveData<Archive> = onDeleteArchiveRequest
 }

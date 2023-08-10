@@ -130,7 +130,7 @@
 
     <fragment
         android:id="@+id/designateContactOrStewardFragment"
-        android:name="org.permanent.permanent.ui.legacyPlanning.DesignateContactOrStewardFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.LegacyContactFragment"
         android:label="@string/menu_settings_drawer_legacy_planning" >
     </fragment>
 

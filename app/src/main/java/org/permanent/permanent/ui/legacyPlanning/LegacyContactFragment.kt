@@ -7,10 +7,9 @@ import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.compose.DesignateContactOrStewardScreen
 import org.permanent.permanent.ui.compose.LegacyContactScreen
 
-class DesignateContactOrStewardFragment : PermanentBaseFragment() {
+class LegacyContactFragment : PermanentBaseFragment() {
 
     private var addEditLegacyContactFragment: AddEditLegacyContactFragment? = null
 
