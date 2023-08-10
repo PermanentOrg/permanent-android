@@ -28,7 +28,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 
 @Composable
-fun ArchiveStewardScreen(archive: Archive?)  {
+fun ArchiveStewardScreen(archive: Archive?, openAddEditScreen: () -> Unit)  {
 
     Column(modifier = Modifier.background(Color.White)) {
         Header(archiveName = archive?.fullName,
@@ -39,7 +39,8 @@ fun ArchiveStewardScreen(archive: Archive?)  {
             subtitle = stringResource(R.string.designate_archive_title),
             cardTitle = stringResource(R.string.a_trusted_archive_steward_title),
             cardSubtitle = stringResource(R.string.a_trusted_archive_steward_description),
-            cardButtonName = stringResource(R.string.add_archive_steward)
+            cardButtonName = stringResource(R.string.add_archive_steward),
+            openAddEditScreen = openAddEditScreen
         )
     }
 }
@@ -105,5 +106,5 @@ private fun Header(
 @Preview
 @Composable
 fun ArchiveStewardScreenPreview() {
-    ArchiveStewardScreen(archive = Archive())
+    ArchiveStewardScreen(archive = Archive(), openAddEditScreen = {})
 }
