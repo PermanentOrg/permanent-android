@@ -592,12 +592,16 @@
     <string name="add_legacy_contact">Add Legacy Contact</string>
     <string name="save_account_legacy_plan">Save account Legacy Plan</string>
     <string name="button_go_to_legacy_planning">Go to Legacy Planning</string>
-
     <string name="designate_an_archive_steward">Designate an Archive Steward</string>
     <string name="designate_archive_title">Who should be the owner of this archive in the event of your death or incapacitation?</string>
     <string name="a_trusted_archive_steward_title">A trusted archive steward</string>
     <string name="a_trusted_archive_steward_description">The Archive steward will receive a note when your Legacy Plan is activated.</string>
     <string name="add_archive_steward">Add archive steward</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="legacy_contact">Legacy Contact</string>
+    <string name="designate_account_legacy_contact">Designate Account legacy contact</string>
+    <string name="designate_account_legacy_contact_description">Choose someone to be your legacy contact to save your account legacy plan.</string>
+    <string name="contact_name">Contact name…</string>
+    <string name="contact_email_address">Contact email address…</string>
+    <string name="note_title">Note</string>
+    <string name="note_description">Permanent will send an automatic email to your Legacy Contact to inform them that they have been designated to activate your Account Legacy Plan, alongside instructions on how to do so. However, we strongly recommend that you also discuss your Legacy Plan with this person.</string>
 </resources>

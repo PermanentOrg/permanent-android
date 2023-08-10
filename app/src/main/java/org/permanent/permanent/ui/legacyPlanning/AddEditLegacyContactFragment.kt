@@ -6,13 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
-import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.compose.DesignateContactOrStewardScreen
-import org.permanent.permanent.ui.compose.LegacyContactScreen
+import org.permanent.permanent.ui.PermanentBottomSheetFragment
+import org.permanent.permanent.ui.compose.AddEditLegacyContactScreen
 
-class DesignateContactOrStewardFragment : PermanentBaseFragment() {
-
-    private var addEditLegacyContactFragment: AddEditLegacyContactFragment? = null
+class AddEditLegacyContactFragment : PermanentBottomSheetFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -20,10 +17,7 @@ class DesignateContactOrStewardFragment : PermanentBaseFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    LegacyContactScreen {
-                        addEditLegacyContactFragment = AddEditLegacyContactFragment()
-                        addEditLegacyContactFragment?.show(parentFragmentManager, addEditLegacyContactFragment?.tag)
-                    }
+                    AddEditLegacyContactScreen()
                 }
             }
         }
