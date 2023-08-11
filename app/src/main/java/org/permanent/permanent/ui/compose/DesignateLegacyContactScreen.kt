@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -39,6 +38,8 @@ import org.permanent.permanent.R
 
 @Composable
 fun DesignateContactOrStewardScreen(
+    name: String?,
+    email: String?,
     title: String,
     subtitle: String,
     cardTitle: String,
@@ -74,7 +75,9 @@ fun DesignateContactOrStewardScreen(
             fontSize = smallTextSize,
             color = primaryColor,
             fontFamily = boldFont,
-            modifier = Modifier.align(Alignment.Start).padding(top = 36.dp)
+            modifier = Modifier
+                .align(Alignment.Start)
+                .padding(top = 36.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -86,6 +89,8 @@ fun DesignateContactOrStewardScreen(
         )
         Spacer(modifier = Modifier.height(40.dp))
         LegacyContactCard(
+            name,
+            email,
             cardTitle,
             cardSubtitle,
             cardButtonName,
@@ -126,6 +131,8 @@ fun DesignateContactOrStewardScreen(
 
 @Composable
 fun LegacyContactCard(
+    name: String?,
+    email: String?,
     cardTitle: String,
     cardSubtitle: String,
     cardButtonName: String,
@@ -139,6 +146,8 @@ fun LegacyContactCard(
 ) {
     val mediumTextSize = 14.sp
     val subTitleTextSize = 16.sp
+    val context = LocalContext.current
+    val middleGray = Color(ContextCompat.getColor(context, R.color.middleGrey))
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -170,31 +179,58 @@ fun LegacyContactCard(
                 modifier = Modifier.align(Alignment.Start)
             )
             Divider(modifier = Modifier.padding(vertical = 24.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { openAddEditScreen() },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = cardButtonName,
-                    fontSize = mediumTextSize,
-                    color = textColor,
-                    fontFamily = boldFont
-                )
-                Spacer(modifier = Modifier.weight(1.0f))
-                Image(
-                    painter = painterResource(id = R.drawable.ic_account_add_primary),
-                    contentDescription = "Account add",
-                    modifier = Modifier.size(24.dp)
-                )
+            name?.let {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { openAddEditScreen() },
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Column(modifier = Modifier.weight(1.0f, fill = false)) {
+                        Text(
+                            text = it,
+                            fontSize = mediumTextSize,
+                            color = textColor,
+                            fontFamily = boldFont
+                        )
+                        email?.let {
+                            Text(
+                                text = it,
+                                fontSize = mediumTextSize,
+                                color = middleGray,
+                                fontFamily = regularFont
+                            )
+                        }
+                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_edit_primary),
+                        contentDescription = "Edit steward",
+                        modifier = Modifier
+                            .size(16.dp)
+                    )
+                }
+            } ?: run {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { openAddEditScreen() },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = cardButtonName,
+                        fontSize = mediumTextSize,
+                        color = textColor,
+                        fontFamily = boldFont
+                    )
+                    Spacer(modifier = Modifier.weight(1.0f))
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_account_add_primary),
+                        contentDescription = "Account add",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun LegacyContactScreenPreview() {
-    LegacyContactScreen(openAddEditScreen = {})
 }
