@@ -14,6 +14,7 @@ import org.permanent.permanent.ui.compose.ArchiveStewardScreen
 class ArchiveStewardFragment : PermanentBaseFragment() {
 
     private var archive: Archive? = null
+    private var addEditArchiveStewardFragment: AddEditArchiveStewardFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -23,7 +24,8 @@ class ArchiveStewardFragment : PermanentBaseFragment() {
             setContent {
                 MaterialTheme {
                     ArchiveStewardScreen(archive = archive, openAddEditScreen = {
-
+                        addEditArchiveStewardFragment = AddEditArchiveStewardFragment()
+                        addEditArchiveStewardFragment?.show(parentFragmentManager, addEditArchiveStewardFragment?.tag)
                     })
                 }
             }

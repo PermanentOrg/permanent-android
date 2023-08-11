@@ -327,5 +327,5 @@
     <fragment
         android:id="@+id/archiveStewardFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.ArchiveStewardFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" />
+        android:label="@string/archive_legacy_planning" />
 </navigation>

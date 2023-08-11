@@ -598,10 +598,19 @@
     <string name="a_trusted_archive_steward_description">The Archive steward will receive a note when your Legacy Plan is activated.</string>
     <string name="add_archive_steward">Add archive steward</string>
     <string name="legacy_contact">Legacy Contact</string>
+    <string name="archive_steward">Archive Steward</string>
+    <string name="archive_legacy_planning">Archive Legacy Planning</string>
     <string name="designate_account_legacy_contact">Designate Account legacy contact</string>
     <string name="designate_account_legacy_contact_description">Choose someone to be your legacy contact to save your account legacy plan.</string>
     <string name="contact_name">Contact name…</string>
     <string name="contact_email_address">Contact email address…</string>
     <string name="note_title">Note</string>
     <string name="note_description">Permanent will send an automatic email to your Legacy Contact to inform them that they have been designated to activate your Account Legacy Plan, alongside instructions on how to do so. However, we strongly recommend that you also discuss your Legacy Plan with this person.</string>
+
+    <string name="designate_archive_steward">Designate archive steward</string>
+    <string name="designate_archive_steward_description">In order to designate someone as a steward for your archive, they must have a Permanent.org account.</string>
+    <string name="steward_name">Steward name...</string>
+    <string name="steward_email_address">Steward email address...</string>
+    <string name="steward_note_description">Your Archive Steward will get an email from Permanent with instructions. Discuss your Legacy Plan first. They\'ll receive another email when the plan is activated with steps to accept ownership. Add instructions in the note section above.</string>
+
 </resources>

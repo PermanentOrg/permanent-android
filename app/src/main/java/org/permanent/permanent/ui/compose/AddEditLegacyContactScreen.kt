@@ -38,7 +38,14 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun AddEditLegacyContactScreen() {
+fun AddEditLegacyContactScreen(
+    screenTitle: String,
+    title: String,
+    subtitle: String,
+    namePlaceholder: String,
+    emailPlaceholder: String,
+    note: String
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -65,7 +72,7 @@ fun AddEditLegacyContactScreen() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BottomSheetHeader()
+        BottomSheetHeader(screenTitle = screenTitle)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -74,7 +81,7 @@ fun AddEditLegacyContactScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(R.string.designate_account_legacy_contact),
+                text = title,
                 fontSize = titleTextSize,
                 color = primaryColor,
                 fontFamily = boldFont,
@@ -84,7 +91,7 @@ fun AddEditLegacyContactScreen() {
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = stringResource(R.string.designate_account_legacy_contact_description),
+                text = subtitle,
                 fontSize = smallTextSize,
                 color = blackColor,
                 fontFamily = regularFont,
@@ -94,7 +101,8 @@ fun AddEditLegacyContactScreen() {
             TextField(
                 value = contactName,
                 onValueChange = { value -> contactName = value },
-                label = { Text(text = stringResource(R.string.contact_name)) },
+                label = { Text(text = namePlaceholder) },
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -116,7 +124,8 @@ fun AddEditLegacyContactScreen() {
             TextField(
                 value = contactEmail,
                 onValueChange = { value -> contactEmail = value },
-                label = { Text(text = stringResource(R.string.contact_email_address)) },
+                label = { Text(text = emailPlaceholder) },
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -144,7 +153,7 @@ fun AddEditLegacyContactScreen() {
                 modifier = Modifier.align(Alignment.Start)
             )
             Text(
-                text = stringResource(R.string.note_description),
+                text = note,
                 fontSize = smallTextSize,
                 color = blackColor,
                 fontFamily = regularFont,
@@ -158,7 +167,7 @@ fun AddEditLegacyContactScreen() {
 }
 
 @Composable
-private fun BottomSheetHeader() {
+private fun BottomSheetHeader(screenTitle: String) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
@@ -181,7 +190,7 @@ private fun BottomSheetHeader() {
         )
         Spacer(modifier = Modifier.weight(1.0f))
         Text(
-            text = stringResource(R.string.legacy_contact),
+            text = screenTitle,
             fontSize = subTitleTextSize,
             fontFamily = semiBoldFont,
             color = whiteColor
