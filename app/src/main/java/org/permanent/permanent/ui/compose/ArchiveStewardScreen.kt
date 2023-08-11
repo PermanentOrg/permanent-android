@@ -33,7 +33,8 @@ import org.permanent.permanent.viewmodels.LegacyContactViewModel
 @Composable
 fun ArchiveStewardScreen(viewModel: ArchiveStewardViewModel,
                          archive: Archive?,
-                         openAddEditScreen: () -> Unit)  {
+                         openAddEditScreen: () -> Unit,
+                         openLegacyScreen: () -> Unit)  {
 
     val archiveSteward = viewModel.getOnArchiveStewardReady().observeAsState()
 
@@ -49,7 +50,8 @@ fun ArchiveStewardScreen(viewModel: ArchiveStewardViewModel,
             cardTitle = stringResource(R.string.a_trusted_archive_steward_title),
             cardSubtitle = stringResource(R.string.a_trusted_archive_steward_description),
             cardButtonName = stringResource(R.string.add_archive_steward),
-            openAddEditScreen = openAddEditScreen
+            openAddEditScreen = openAddEditScreen,
+            openLegacyScreen = openLegacyScreen
         )
     }
 }
@@ -111,9 +113,3 @@ private fun Header(
         }
     }
 }
-//
-//@Preview
-//@Composable
-//fun ArchiveStewardScreenPreview() {
-//    ArchiveStewardScreen(archive = Archive(), openAddEditScreen = {})
-//}

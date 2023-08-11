@@ -45,7 +45,8 @@ fun DesignateContactOrStewardScreen(
     cardTitle: String,
     cardSubtitle: String,
     cardButtonName: String,
-    openAddEditScreen: () -> Unit
+    openAddEditScreen: () -> Unit,
+    openLegacyScreen: () -> Unit,
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -108,7 +109,7 @@ fun DesignateContactOrStewardScreen(
             .height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
             shape = RoundedCornerShape(8.dp),
-            onClick = {}) {
+            onClick = { openLegacyScreen() }) {
             Row(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {

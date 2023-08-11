@@ -10,7 +10,8 @@ import org.permanent.permanent.viewmodels.LegacyContactViewModel
 @Composable
 
 fun LegacyContactScreen(viewModel: LegacyContactViewModel,
-                        openAddEditScreen: () -> Unit) {
+                        openAddEditScreen: () -> Unit,
+                        openLegacyScreen: () -> Unit) {
 
     val legacyStewards = viewModel.getOnLegacyContactReady().observeAsState()
 
@@ -23,7 +24,8 @@ fun LegacyContactScreen(viewModel: LegacyContactViewModel,
             cardTitle = stringResource(R.string.a_trusted_legacy_contact_title),
             cardSubtitle = stringResource(R.string.a_trusted_legacy_contact_description),
             cardButtonName = stringResource(R.string.add_legacy_contact),
-            openAddEditScreen = openAddEditScreen
+            openAddEditScreen = openAddEditScreen,
+            openLegacyScreen = openLegacyScreen
         )
     }
 }

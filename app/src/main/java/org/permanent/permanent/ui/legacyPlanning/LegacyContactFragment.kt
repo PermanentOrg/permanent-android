@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.compose.LegacyContactScreen
 import org.permanent.permanent.viewmodels.LegacyContactViewModel
@@ -25,9 +27,11 @@ class LegacyContactFragment : PermanentBaseFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    LegacyContactScreen(viewModel = viewModel) {
+                    LegacyContactScreen(viewModel = viewModel, openAddEditScreen = {
                         addEditLegacyContactFragment = AddEditLegacyContactFragment()
                         addEditLegacyContactFragment?.show(parentFragmentManager, addEditLegacyContactFragment?.tag)
+                    }) {
+                        findNavController().navigate(R.id.action_legacyContactFragment_to_statusFragment)
                     }
                 }
             }

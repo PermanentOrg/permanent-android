@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
@@ -36,8 +38,10 @@ class ArchiveStewardFragment : PermanentBaseFragment() {
                         archive = archive,
                         openAddEditScreen = {
                         addEditArchiveStewardFragment = AddEditArchiveStewardFragment()
-                        addEditArchiveStewardFragment?.show(parentFragmentManager, addEditArchiveStewardFragment?.tag)
-                    })
+                        addEditArchiveStewardFragment?.show(parentFragmentManager, addEditArchiveStewardFragment?.tag) },
+                        openLegacyScreen = {
+                            findNavController().navigate(R.id.action_archiveStewardFragment_to_statusFragment)
+                        })
                 }
             }
         }
