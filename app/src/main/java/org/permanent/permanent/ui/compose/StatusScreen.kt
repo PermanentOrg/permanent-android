@@ -45,7 +45,9 @@ import org.permanent.permanent.network.models.LegacySteward
 import org.permanent.permanent.viewmodels.LegacyStatusViewModel
 
 @Composable
-fun StatusScreen(viewModel: LegacyStatusViewModel) {
+fun StatusScreen(viewModel: LegacyStatusViewModel,
+                 navigateToLegacyContactScreen: () -> Unit,
+                 navigateToArchiveStewardScreen: (archive: Archive) -> Unit) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
 
@@ -58,21 +60,22 @@ fun StatusScreen(viewModel: LegacyStatusViewModel) {
             .verticalScroll(rememberScrollState())
     ) {
         legacyStewards.value?.forEach {
-            AccountCard(steward = it)
+            AccountCard(steward = it, navigateToLegacyContactScreen)
         }
 
         allArchives.value?.forEach {
             it.second?.let { _ ->
-                ArchiveCardCompleted(info = it)
+                ArchiveCardCompleted(info = it, navigateToArchiveStewardScreen)
             } ?: run {
-                ArchiveCard(info = it)
+                ArchiveCard(info = it, navigateToArchiveStewardScreen)
             }
         }
     }
 }
 
 @Composable
-fun AccountCard(steward: LegacySteward) {
+fun AccountCard(steward: LegacySteward,
+                navigateToLegacyContactScreen: () -> Unit) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val darkBlueColor = Color(ContextCompat.getColor(context, R.color.darkBlue))
@@ -90,8 +93,7 @@ fun AccountCard(steward: LegacySteward) {
     ){
         Column(
             modifier = Modifier
-                .padding(24.dp)
-            ,
+                .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Row() {
@@ -101,8 +103,9 @@ fun AccountCard(steward: LegacySteward) {
                     modifier = Modifier.size(48.dp)
                 )
                 Spacer(modifier = Modifier.weight(1.0f))
-                TextButton(onClick = { /* Do something! */ }
-                ) {
+                TextButton(onClick = {
+                    navigateToLegacyContactScreen()
+                }) {
                     Text("Edit Plan",
                         color = whiteColor,
                         fontFamily = regularFont,
@@ -146,7 +149,8 @@ fun AccountCard(steward: LegacySteward) {
 }
 
 @Composable
-fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>) {
+fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>,
+                navigateToArchiveStewardScreen: (archive: Archive) -> Unit) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val whiteSuperTransparentColor = Color(ContextCompat.getColor(context, R.color.whiteSuperTransparent))
@@ -207,7 +211,7 @@ fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>) {
                 }
             }
             Divider()
-            TextButton(onClick = { /* Do something! */ },
+            TextButton(onClick = { navigateToArchiveStewardScreen(info.first)},
                 contentPadding = PaddingValues(0.dp),
             ) {
                 Text(
@@ -231,7 +235,8 @@ fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>) {
 }
 
 @Composable
-fun ArchiveCardCompleted(info: Pair<Archive, ArchiveSteward?>) {
+fun ArchiveCardCompleted(info: Pair<Archive, ArchiveSteward?>,
+                         navigateToArchiveStewardScreen: (archive: Archive) -> Unit) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val whiteSuperTransparentColor = Color(ContextCompat.getColor(context, R.color.whiteSuperTransparent))
@@ -267,7 +272,7 @@ fun ArchiveCardCompleted(info: Pair<Archive, ArchiveSteward?>) {
                 )
                 Spacer(modifier = Modifier.weight(1.0f))
 
-                TextButton(onClick = { /* Do something! */ },
+                TextButton(onClick = { navigateToArchiveStewardScreen(info.first) },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text("Edit Plan",

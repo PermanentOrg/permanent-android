@@ -41,8 +41,10 @@ import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.DialogWelcomeBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.databinding.NavSettingsHeaderBinding
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
@@ -115,6 +117,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 }
 
                 R.id.statusFragment -> {
+                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
+                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
+                }
+
+                R.id.archiveStewardFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
                 }
@@ -213,6 +220,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     setArchiveSettingsIcon(menuItem, isSubmenuVisible)
                     true
                 }
+                R.id.archiveStewardFragment -> {
+                    val bundle = bundleOf(PARCELABLE_ARCHIVE_KEY to viewModel.getCurrentArchive())
+                    navController.navigate(R.id.archiveStewardFragment, bundle)
+                    binding.drawerLayout.closeDrawers()
+                }
                 // Handle other menu items here, if necessary
                 else -> {
                     menuItem.onNavDestinationSelected(navController)
@@ -272,9 +284,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private fun setSubmenuVisibility(visible: Boolean) {
         val manageTagsItem = binding.mainNavigationView.menu.findItem(R.id.manageTagsFragment)
         val manageMembersItem = binding.mainNavigationView.menu.findItem(R.id.membersFragment)
+        val legacyPlanning = binding.mainNavigationView.menu.findItem(R.id.archiveStewardFragment)
 
         manageTagsItem.isVisible = visible
         manageMembersItem.isVisible = visible
+        legacyPlanning.isVisible = visible && viewModel.getCurrentArchive().accessRole == AccessRole.OWNER
     }
 
     private fun setArchiveSettingsIcon(menuItem: MenuItem, submenuVisible: Boolean) {

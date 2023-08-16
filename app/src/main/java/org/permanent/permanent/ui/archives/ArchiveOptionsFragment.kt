@@ -20,6 +20,7 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
     private var archive: Archive? = null
     private val onChangeDefaultArchiveRequest = MutableLiveData<Int>()
     private val onDeleteArchiveRequest = MutableLiveData<Archive>()
+    private val onConfigureStewardRequest = MutableLiveData<Archive>()
 
     fun setBundleArguments(archive: Archive) {
         val bundle = Bundle()
@@ -39,6 +40,7 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
         binding.viewModel = viewModel
         binding.btnMakeDefault.setOnClickListener(this)
         binding.btnDeleteArchive.setOnClickListener(this)
+        binding.btnConfigureSteward.setOnClickListener(this)
         archive = arguments?.getParcelable(PARCELABLE_ARCHIVE_KEY)
         viewModel.setArchive(archive)
         return binding.root
@@ -52,6 +54,9 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
             }
             R.id.btnDeleteArchive -> {
                 onDeleteArchiveRequest.value = archive
+            }
+            R.id.btnConfigureSteward -> {
+                onConfigureStewardRequest.value = archive
             }
         }
     }
@@ -73,6 +78,8 @@ class ArchiveOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListe
     }
 
     fun getOnChangeDefaultArchiveRequest(): MutableLiveData<Int> = onChangeDefaultArchiveRequest
+
+    fun getOnConfigureStewardRequest(): MutableLiveData<Archive> = onConfigureStewardRequest
 
     fun getOnDeleteArchiveRequest(): MutableLiveData<Archive> = onDeleteArchiveRequest
 }

@@ -11,7 +11,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.compose.AddEditLegacyContactScreen
 
-class AddEditLegacyContactFragment : PermanentBottomSheetFragment() {
+class AddEditArchiveStewardFragment : PermanentBottomSheetFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -20,12 +20,12 @@ class AddEditLegacyContactFragment : PermanentBottomSheetFragment() {
             setContent {
                 MaterialTheme {
                     AddEditLegacyContactScreen(
-                        screenTitle = stringResource(R.string.legacy_contact),
-                        title = stringResource(R.string.designate_account_legacy_contact),
-                        subtitle = stringResource(R.string.designate_account_legacy_contact_description),
-                        namePlaceholder = stringResource(R.string.contact_name),
-                        emailPlaceholder = stringResource(R.string.contact_email_address),
-                        note = stringResource(R.string.note_description)
+                        screenTitle = stringResource(R.string.archive_steward),
+                        title = stringResource(R.string.designate_archive_steward),
+                        subtitle = stringResource(R.string.designate_archive_steward_description),
+                        namePlaceholder = stringResource(R.string.steward_name),
+                        emailPlaceholder = stringResource(R.string.steward_email_address),
+                        note = stringResource(R.string.steward_note_description)
                     )
                 }
             }
