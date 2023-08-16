@@ -323,9 +323,32 @@
     <fragment
         android:id="@+id/statusFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.StatusFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" />
+        android:label="@string/menu_settings_drawer_legacy_planning" >
+        <action
+            android:id="@+id/action_statusFragment_to_archiveStewardFragment"
+            app:destination="@id/archiveStewardFragment"
+            app:popUpTo="@id/statusFragment" />
+        <action
+            android:id="@+id/action_statusFragment_to_legacyContactFragment"
+            app:destination="@id/legacyContactFragment"
+            app:popUpTo="@id/statusFragment" />
+    </fragment>
     <fragment
         android:id="@+id/archiveStewardFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.ArchiveStewardFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" />
+        android:label="@string/archive_legacy_planning" >
+        <action
+            android:id="@+id/action_archiveStewardFragment_to_statusFragment"
+            app:destination="@id/statusFragment"
+            app:popUpTo="@id/archiveStewardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/legacyContactFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.LegacyContactFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" >
+        <action
+            android:id="@+id/action_legacyContactFragment_to_statusFragment"
+            app:destination="@id/statusFragment" />
+    </fragment>
 </navigation>

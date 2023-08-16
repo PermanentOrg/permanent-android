@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,21 +27,31 @@ import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
+import org.permanent.permanent.viewmodels.ArchiveStewardViewModel
+import org.permanent.permanent.viewmodels.LegacyContactViewModel
 
 @Composable
-fun ArchiveStewardScreen(archive: Archive?, openAddEditScreen: () -> Unit)  {
+fun ArchiveStewardScreen(viewModel: ArchiveStewardViewModel,
+                         archive: Archive?,
+                         openAddEditScreen: () -> Unit,
+                         openLegacyScreen: () -> Unit)  {
+
+    val archiveSteward = viewModel.getOnArchiveStewardReady().observeAsState()
 
     Column(modifier = Modifier.background(Color.White)) {
         Header(archiveName = archive?.fullName,
             accessRoleText = archive?.accessRole?.toTitleCase(),
             iconURL = archive?.thumbURL200)
         DesignateContactOrStewardScreen(
+            name = archiveSteward.value?.steward?.name,
+            email = archiveSteward.value?.steward?.email,
             title = stringResource(R.string.designate_an_archive_steward),
             subtitle = stringResource(R.string.designate_archive_title),
             cardTitle = stringResource(R.string.a_trusted_archive_steward_title),
             cardSubtitle = stringResource(R.string.a_trusted_archive_steward_description),
             cardButtonName = stringResource(R.string.add_archive_steward),
-            openAddEditScreen = openAddEditScreen
+            openAddEditScreen = openAddEditScreen,
+            openLegacyScreen = openLegacyScreen
         )
     }
 }
@@ -101,10 +112,4 @@ private fun Header(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun ArchiveStewardScreenPreview() {
-    ArchiveStewardScreen(archive = Archive(), openAddEditScreen = {})
 }
