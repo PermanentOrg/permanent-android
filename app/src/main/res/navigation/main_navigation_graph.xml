@@ -106,35 +106,6 @@
         tools:layout="@layout/fragment_manage_tags" />
 
     <fragment
-        android:id="@+id/loadingFragment"
-        android:name="org.permanent.permanent.ui.legacyPlanning.LoadingFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" >
-    <action
-        android:id="@+id/action_loadingFragment_to_introFragment"
-        app:destination="@id/introFragment" />
-        <action
-            android:id="@+id/action_loadingFragment_to_statusFragment"
-            app:destination="@id/statusFragment"
-            app:popUpTo="@id/main_activity_navigation"
-            app:popUpToInclusive="false" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/introFragment"
-        android:name="org.permanent.permanent.ui.legacyPlanning.IntroFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" >
-    <action
-        android:id="@+id/action_introFragment_to_designateContactOrStewardFragment"
-        app:destination="@id/designateContactOrStewardFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/designateContactOrStewardFragment"
-        android:name="org.permanent.permanent.ui.legacyPlanning.LegacyContactFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" >
-    </fragment>
-
-    <fragment
         android:id="@+id/activityFeedFragment"
         android:name="org.permanent.permanent.ui.activityFeed.ActivityFeedFragment"
         android:label="@string/menu_settings_drawer_activity_feed"
@@ -297,6 +268,7 @@
             android:id="@+id/action_addEditMilestoneFragment_to_locationSearchFragment"
             app:destination="@id/locationSearchFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/milestoneListFragment"
         android:name="org.permanent.permanent.ui.public.MilestoneListFragment"
@@ -306,6 +278,7 @@
             android:id="@+id/action_milestoneListFragment_to_addEditMilestoneFragment"
             app:destination="@id/addEditMilestoneFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/onlinePresenceListFragment"
         android:name="org.permanent.permanent.ui.public.OnlinePresenceListFragment"
@@ -320,6 +293,30 @@
         android:name="org.permanent.permanent.ui.public.AddEditOnlinePresenceFragment"
         android:label="@string/add_social_media_label"
         tools:layout="@layout/fragment_add_edit_online_presence" />
+
+    <fragment
+        android:id="@+id/loadingFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.LoadingFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" >
+        <action
+            android:id="@+id/action_loadingFragment_to_introFragment"
+            app:destination="@id/introFragment" />
+        <action
+            android:id="@+id/action_loadingFragment_to_statusFragment"
+            app:destination="@id/statusFragment"
+            app:popUpTo="@id/main_activity_navigation"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/introFragment"
+        android:name="org.permanent.permanent.ui.legacyPlanning.IntroFragment"
+        android:label="@string/menu_settings_drawer_legacy_planning" >
+        <action
+            android:id="@+id/action_introFragment_to_legacyContactFragment"
+            app:destination="@id/legacyContactFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/statusFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.StatusFragment"

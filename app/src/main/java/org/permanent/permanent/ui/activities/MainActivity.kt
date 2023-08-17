@@ -111,19 +111,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
-                R.id.introFragment, R.id.designateContactOrStewardFragment -> {
+                R.id.introFragment, R.id.statusFragment, R.id.legacyContactFragment, R.id.archiveStewardFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = true
-                }
-
-                R.id.statusFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
-                }
-
-                R.id.archiveStewardFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
                 }
 
                 else -> {
