@@ -52,6 +52,7 @@ jobs:
           KEYSTORE_FILE: '${{ github.workspace }}/permanent.keystore'
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          MIXPANEL_KEY: ${{ secrets.MIXPANEL_KEY }}
       run: |
         touch local.properties
         echo GMP_KEY="$GMP_KEY" >> local.properties

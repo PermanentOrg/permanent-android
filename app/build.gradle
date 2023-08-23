@@ -15,7 +15,7 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 32 // If you update this version *upload* won't work without adjustments
-        versionCode 51
+        versionCode 52
         versionName "1.7.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
