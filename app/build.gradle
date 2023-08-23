@@ -184,4 +184,8 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.19.0'
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
     //==============================================================================================
+
+    //========================================= MIXPANEL =========++++================================
+    implementation 'com.mixpanel.android:mixpanel-android:7.+'
+    //==============================================================================================
 }
