@@ -11,6 +11,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.Constants
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLoginBinding
 import org.permanent.permanent.ui.PREFS_NAME
@@ -53,6 +55,7 @@ class LoginFragment : PermanentBaseFragment() {
     }
 
     private val onLoggedIn = Observer<Void> {
+        logEvents()
         startActivity(Intent(context, MainActivity::class.java))
         activity?.finish()
     }
@@ -78,6 +81,11 @@ class LoginFragment : PermanentBaseFragment() {
 
     private val onForgotPasswordRequest = Observer<Void> {
         findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
+    }
+
+    private fun logEvents() {
+        EventsManager(requireContext()).setUserProfile(prefsHelper.getAccountId(), prefsHelper.getAccountEmail())
+        EventsManager(requireContext()).sendToMixpanel(EventType.SignIn)
     }
 
     override fun connectViewModelEvents() {

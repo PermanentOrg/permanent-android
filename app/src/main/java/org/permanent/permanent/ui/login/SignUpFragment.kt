@@ -14,6 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogTermsOfServiceBinding
 import org.permanent.permanent.databinding.FragmentSignUpBinding
@@ -61,6 +63,7 @@ class SignUpFragment : PermanentBaseFragment() {
     }
 
     private val startArchiveOnboardingActivity = Observer<Void> {
+        logEvents()
         prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
@@ -83,6 +86,11 @@ class SignUpFragment : PermanentBaseFragment() {
             alert.dismiss()
         }
         alert.show()
+    }
+
+    private fun logEvents() {
+        EventsManager(requireContext()).setUserProfile(prefsHelper.getAccountId(), prefsHelper.getAccountEmail())
+        EventsManager(requireContext()).sendToMixpanel(EventType.SignUp)
     }
 
     override fun connectViewModelEvents() {

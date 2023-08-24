@@ -44,6 +44,7 @@ jobs:
           PUBLISHABLE_KEY: ${{ secrets.PUBLISHABLE_KEY }}
           APP_ID: ${{ secrets.APP_ID }}
           FIREBASEAPPDISTRO_CLI_TOKEN: ${{ secrets.FIREBASEAPPDISTRO_CLI_TOKEN }}
+          MIXPANEL_KEY: ${{ secrets.MIXPANEL_KEY }}
       run: |
         touch local.properties
         echo GMP_KEY="$GMP_KEY" >> local.properties

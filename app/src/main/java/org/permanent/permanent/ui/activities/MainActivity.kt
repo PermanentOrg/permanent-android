@@ -32,6 +32,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NAME_KEY
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NR_KEY
@@ -72,6 +73,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private val onLoggedOut = Observer<Void> {
+        EventsManager(this).resetUser()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
@@ -215,7 +217,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     return@setNavigationItemSelectedListener false
                 }
 
-                R.id.logOut -> viewModel.deleteDeviceToken()
+                R.id.logOut -> {
+                    viewModel.deleteDeviceToken()
+                    EventsManager(this).resetUser()
+                }
                 else -> {
                     menuItem.onNavDestinationSelected(navController)
                     binding.drawerLayout.closeDrawers()
