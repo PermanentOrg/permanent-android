@@ -73,6 +73,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private val onLoggedOut = Observer<Void> {
+        EventsManager(this).resetUser()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }

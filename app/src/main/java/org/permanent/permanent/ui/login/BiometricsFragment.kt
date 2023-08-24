@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentBiometricsBinding
 import org.permanent.permanent.ui.PREFS_NAME
@@ -28,6 +29,7 @@ class BiometricsFragment : PermanentBaseFragment() {
         navigateToMainActivity()
     }
     private val onLoggedOut = Observer<Void> {
+        EventsManager(requireContext()).resetUser()
         findNavController().navigate(R.id.action_biometricsFragment_to_LoginFragment)
     }
     private val onShowOpenSettingsQuestionDialog = Observer<Void> {
