@@ -5,11 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
-import org.permanent.permanent.network.ILegacyAccountListener
 import org.permanent.permanent.network.ILegacyArchiveListener
+import org.permanent.permanent.network.ILegacyContactsListener
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.network.models.LegacySteward
+import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.ILegacyPlanningRepository
@@ -18,7 +18,7 @@ import org.permanent.permanent.repositories.LegacyPlanningRepositoryImpl
 class LegacyStatusViewModel(application: Application) : ObservableAndroidViewModel(application){
 
     private val appContext = application.applicationContext
-    private val onLegacyContactReady = SingleLiveEvent<List<LegacySteward>>()
+    private val onLegacyContactReady = SingleLiveEvent<List<LegacyContact>>()
     private var legacyPlanningRepository: ILegacyPlanningRepository =
         LegacyPlanningRepositoryImpl(appContext)
 
@@ -34,8 +34,8 @@ class LegacyStatusViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     private fun getLegacyContact() {
-        legacyPlanningRepository.getLegacyContact(object : ILegacyAccountListener {
-            override fun onSuccess(dataList: List<LegacySteward>) {
+        legacyPlanningRepository.getLegacyContact(object : ILegacyContactsListener {
+            override fun onSuccess(dataList: List<LegacyContact>) {
                 onLegacyContactReady.value = dataList
             }
 
@@ -44,7 +44,8 @@ class LegacyStatusViewModel(application: Application) : ObservableAndroidViewMod
         })
     }
 
-    fun getOnLegacyContactReady(): MutableLiveData<List<LegacySteward>> = onLegacyContactReady
+    fun getOnLegacyContactReady(): MutableLiveData<List<LegacyContact>> = onLegacyContactReady
+
     fun getOnAllArchivesReady(): MutableLiveData<List<Pair<Archive, ArchiveSteward?>>> = onYourArchivesRetrieved
 
     private fun getYourArchives() {

@@ -23,6 +23,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,8 +39,8 @@ import org.permanent.permanent.R
 
 @Composable
 fun DesignateContactOrStewardScreen(
-    name: String?,
-    email: String?,
+    name: State<String?>,
+    email: State<String?>,
     title: String,
     subtitle: String,
     cardTitle: String,
@@ -132,8 +133,8 @@ fun DesignateContactOrStewardScreen(
 
 @Composable
 fun LegacyContactCard(
-    name: String?,
-    email: String?,
+    name: State<String?>,
+    email: State<String?>,
     cardTitle: String,
     cardSubtitle: String,
     cardButtonName: String,
@@ -180,7 +181,7 @@ fun LegacyContactCard(
                 modifier = Modifier.align(Alignment.Start)
             )
             Divider(modifier = Modifier.padding(vertical = 24.dp))
-            name?.let {
+            name.value?.let {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -195,7 +196,7 @@ fun LegacyContactCard(
                             color = textColor,
                             fontFamily = boldFont
                         )
-                        email?.let {
+                        email.value?.let {
                             Text(
                                 text = it,
                                 fontSize = mediumTextSize,

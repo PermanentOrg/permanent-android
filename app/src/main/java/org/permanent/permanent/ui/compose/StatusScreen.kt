@@ -41,7 +41,7 @@ import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.models.ArchiveSteward
-import org.permanent.permanent.network.models.LegacySteward
+import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.viewmodels.LegacyStatusViewModel
 
 @Composable
@@ -74,7 +74,7 @@ fun StatusScreen(viewModel: LegacyStatusViewModel,
 }
 
 @Composable
-fun AccountCard(steward: LegacySteward,
+fun AccountCard(steward: LegacyContact,
                 navigateToLegacyContactScreen: () -> Unit) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
@@ -96,7 +96,7 @@ fun AccountCard(steward: LegacySteward,
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Row() {
+            Row {
                 Image(
                     painter = painterResource(id = R.drawable.ic_legacy_logo),
                     contentDescription = "App Logo",

@@ -1,20 +1,24 @@
 package org.permanent.permanent.network
 
-import com.google.android.gms.common.internal.safeparcel.SafeParcelable.Param
 import org.permanent.permanent.network.models.ArchiveSteward
-import org.permanent.permanent.network.models.LegacySteward
-import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.LegacyContact
 import retrofit2.Call
-import retrofit2.http.FormUrlEncoded
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.Url
 
 interface ILegacyPlanningService {
 
+    @POST("api/v2/legacy-contact")
+    fun addLegacyContact(@Body legacyContact: LegacyContact): Call<LegacyContact>
+
+    @PUT("api/v2/legacy-contact/{legacyContactId}")
+    fun editLegacyContact(@Path("legacyContactId") legacyContactId: String, @Body legacyContact: LegacyContact): Call<LegacyContact>
+
     @GET("api/v2/legacy-contact")
-    fun getLegacyContact(): Call<List<LegacySteward>>
+    fun getLegacyContact(): Call<List<LegacyContact>>
 
     @GET("api/v2/directive/archive/{archiveId}")
     fun getArchiveSteward(@Path("archiveId") archiveId: Int): Call<List<ArchiveSteward>>

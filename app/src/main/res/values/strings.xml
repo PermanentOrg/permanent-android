@@ -39,6 +39,7 @@
     <string name="button_done">Done</string>
     <string name="button_update">Update</string>
 
+    <string name="name_or_email_empty_error">Name and Email can not be empty.</string>
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
     <string name="password_too_short_error">Password must be minimum 8 characters long</string>

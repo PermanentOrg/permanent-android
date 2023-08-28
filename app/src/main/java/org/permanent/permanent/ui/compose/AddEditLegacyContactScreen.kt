@@ -16,13 +16,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,16 +41,22 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.Validator
+import org.permanent.permanent.viewmodels.AddEditLegacyContactViewModel
 
 @Composable
 fun AddEditLegacyContactScreen(
+    viewModel: AddEditLegacyContactViewModel,
     screenTitle: String,
     title: String,
     subtitle: String,
     namePlaceholder: String,
     emailPlaceholder: String,
-    note: String
+    note: String,
+    onCancelBtnClick: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -61,8 +73,13 @@ fun AddEditLegacyContactScreen(
     val smallTextSize = 13.sp
     val titleTextSize = 15.sp
 
-    var contactName by remember { mutableStateOf("") }
-    var contactEmail by remember { mutableStateOf("") }
+    var contactName by remember { mutableStateOf(viewModel.legacyContact?.name ?: "") }
+    var contactEmail by remember { mutableStateOf(viewModel.legacyContact?.email ?: "") }
+    val errorMessage by viewModel.showError.observeAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarEventFlow = remember { MutableSharedFlow<String>() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Column(
         modifier = Modifier
@@ -72,7 +89,22 @@ fun AddEditLegacyContactScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BottomSheetHeader(screenTitle = screenTitle)
+        BottomSheetHeader(screenTitle = screenTitle, onCancelBtnClick) {
+            if (contactName.isEmpty() || contactEmail.isEmpty()) {
+                coroutineScope.launch {
+                    snackbarEventFlow.emit(context.getString(R.string.name_or_email_empty_error))
+                }
+            } else if (!Validator.isValidEmail(context, contactEmail, null, null)) {
+                coroutineScope.launch {
+                    snackbarEventFlow.emit(context.getString(R.string.invalid_email_error))
+                }
+            } else {
+                viewModel.onSaveLegacyContact(
+                    contactEmail,
+                    contactName
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -164,10 +196,30 @@ fun AddEditLegacyContactScreen(
         }
     }
     Spacer(modifier = Modifier.height(elementsSpacing))
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
+
+    LaunchedEffect(snackbarEventFlow) {
+        snackbarEventFlow.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable
-private fun BottomSheetHeader(screenTitle: String) {
+private fun BottomSheetHeader(
+    screenTitle: String,
+    onCancelBtnClick: () -> Unit,
+    onSaveBtnClick: () -> Unit
+) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
@@ -179,15 +231,18 @@ private fun BottomSheetHeader(screenTitle: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(primaryColor)
-            .padding(horizontal = 32.dp, vertical = 24.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(R.string.button_cancel),
-            fontSize = subTitleTextSize,
-            fontFamily = regularFont,
-            color = whiteColor
-        )
+        TextButton(onClick = { onCancelBtnClick() }
+        ) {
+            Text(
+                text = stringResource(R.string.button_cancel),
+                fontSize = subTitleTextSize,
+                fontFamily = regularFont,
+                color = whiteColor
+            )
+        }
         Spacer(modifier = Modifier.weight(1.0f))
         Text(
             text = screenTitle,
@@ -196,11 +251,14 @@ private fun BottomSheetHeader(screenTitle: String) {
             color = whiteColor
         )
         Spacer(modifier = Modifier.weight(1.0f))
-        Text(
-            text = stringResource(R.string.button_save),
-            fontSize = subTitleTextSize,
-            fontFamily = regularFont,
-            color = whiteColor
-        )
+        TextButton(onClick = { onSaveBtnClick() }
+        ) {
+            Text(
+                text = stringResource(R.string.button_save),
+                fontSize = subTitleTextSize,
+                fontFamily = regularFont,
+                color = whiteColor
+            )
+        }
     }
 }
