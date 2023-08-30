@@ -45,4 +45,16 @@ class StatusFragment: PermanentBaseFragment()  {
 
     override fun disconnectViewModelEvents() {
     }
+
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+
+        viewModel.fetchData()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
+    }
 }
