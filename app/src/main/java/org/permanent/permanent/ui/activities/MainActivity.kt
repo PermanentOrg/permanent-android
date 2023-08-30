@@ -346,9 +346,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
         when (menuItem?.itemId) {
             R.id.moreItem, R.id.doneItem -> sendEventToFragment()
-            R.id.closeItem -> {
-                navController.popBackStack(R.id.myFilesFragment, false)
-            }
+            R.id.closeItem -> navController.navigate(R.id.myFilesFragment)
             else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
         }
         return true
