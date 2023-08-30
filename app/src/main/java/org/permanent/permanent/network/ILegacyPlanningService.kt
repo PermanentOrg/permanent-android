@@ -20,6 +20,12 @@ interface ILegacyPlanningService {
     @GET("api/v2/legacy-contact")
     fun getLegacyContact(): Call<List<LegacyContact>>
 
+    @POST("api/v2/directive")
+    fun addArchiveSteward(@Body archiveSteward: ArchiveSteward): Call<ArchiveSteward>
+
+    @PUT("api/v2/directive/{directiveId}")
+    fun editArchiveSteward(@Path("directiveId") directiveId: String, @Body archiveSteward: ArchiveSteward): Call<ArchiveSteward>
+
     @GET("api/v2/directive/archive/{archiveId}")
     fun getArchiveSteward(@Path("archiveId") archiveId: Int): Call<List<ArchiveSteward>>
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -33,23 +34,24 @@ fun ArchiveStewardScreen(viewModel: ArchiveStewardViewModel,
                          openAddEditScreen: () -> Unit,
                          openLegacyScreen: () -> Unit)  {
 
-    val archiveSteward = viewModel.getOnArchiveStewardReady().observeAsState()
+    val userName = viewModel.contactName.observeAsState()
+    val userEmail = viewModel.contactEmail.observeAsState()
 
     Column(modifier = Modifier.background(Color.White)) {
         Header(archiveName = archive?.fullName,
             accessRoleText = archive?.accessRole?.toTitleCase(),
             iconURL = archive?.thumbURL200)
-//        DesignateContactOrStewardScreen(
-//            name = archiveSteward.value?.steward?.name,
-//            email = archiveSteward.value?.steward?.email,
-//            title = stringResource(R.string.designate_an_archive_steward),
-//            subtitle = stringResource(R.string.designate_archive_title),
-//            cardTitle = stringResource(R.string.a_trusted_archive_steward_title),
-//            cardSubtitle = stringResource(R.string.a_trusted_archive_steward_description),
-//            cardButtonName = stringResource(R.string.add_archive_steward),
-//            openAddEditScreen = openAddEditScreen,
-//            openLegacyScreen = openLegacyScreen
-//        )
+        DesignateContactOrStewardScreen(
+            name = userName,
+            email = userEmail,
+            title = stringResource(R.string.designate_an_archive_steward),
+            subtitle = stringResource(R.string.designate_archive_title),
+            cardTitle = stringResource(R.string.a_trusted_archive_steward_title),
+            cardSubtitle = stringResource(R.string.a_trusted_archive_steward_description),
+            cardButtonName = stringResource(R.string.add_archive_steward),
+            openAddEditScreen = openAddEditScreen,
+            openLegacyScreen = openLegacyScreen
+        )
     }
 }
 

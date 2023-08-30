@@ -35,9 +35,9 @@ class LegacyContactFragment : PermanentBaseFragment() {
                         addEditLegacyContactFragment?.show(parentFragmentManager, addEditLegacyContactFragment?.tag)
                         addEditLegacyContactFragment?.setBundleArguments(legacyContact)
                         addEditLegacyContactFragment?.getOnLegacyContactUpdated()?.observe(lifecycleOwner, onLegacyContactUpdatedObserver)
-                    }) {
+                    }, openLegacyScreen = {
                         findNavController().navigate(R.id.action_legacyContactFragment_to_statusFragment)
-                    }
+                    })
                 }
             }
         }

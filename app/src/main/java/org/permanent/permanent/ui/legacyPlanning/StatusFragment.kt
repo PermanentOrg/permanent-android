@@ -41,10 +41,8 @@ class StatusFragment: PermanentBaseFragment()  {
     }
 
     override fun connectViewModelEvents() {
-        TODO("Not yet implemented")
     }
 
     override fun disconnectViewModelEvents() {
-        TODO("Not yet implemented")
     }
 }

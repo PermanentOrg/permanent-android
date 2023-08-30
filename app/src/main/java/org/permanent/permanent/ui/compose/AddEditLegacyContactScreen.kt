@@ -45,17 +45,19 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
-import org.permanent.permanent.viewmodels.AddEditLegacyContactViewModel
+import org.permanent.permanent.viewmodels.AddEditLegacyEntityViewModel
 
 @Composable
 fun AddEditLegacyContactScreen(
-    viewModel: AddEditLegacyContactViewModel,
+    viewModel: AddEditLegacyEntityViewModel,
     screenTitle: String,
     title: String,
     subtitle: String,
     namePlaceholder: String,
     emailPlaceholder: String,
     note: String,
+    showName: Boolean,
+    showMessage: Boolean,
     onCancelBtnClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -73,8 +75,9 @@ fun AddEditLegacyContactScreen(
     val smallTextSize = 13.sp
     val titleTextSize = 15.sp
 
-    var contactName by remember { mutableStateOf(viewModel.legacyContact?.name ?: "") }
-    var contactEmail by remember { mutableStateOf(viewModel.legacyContact?.email ?: "") }
+    var contactName by remember { mutableStateOf(viewModel.name ?: "") }
+    var contactEmail by remember { mutableStateOf(viewModel.email ?: "") }
+    var message by remember { mutableStateOf(viewModel.message ?: context.getString(R.string.steward_default_message)) }
     val errorMessage by viewModel.showError.observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
@@ -99,9 +102,10 @@ fun AddEditLegacyContactScreen(
                     snackbarEventFlow.emit(context.getString(R.string.invalid_email_error))
                 }
             } else {
-                viewModel.onSaveLegacyContact(
+                viewModel.onSaveBtnClick(
                     contactEmail,
-                    contactName
+                    contactName,
+                    message
                 )
             }
         }
@@ -130,29 +134,31 @@ fun AddEditLegacyContactScreen(
                 modifier = Modifier.align(Alignment.Start)
             )
             Spacer(modifier = Modifier.height(elementsSpacing))
-            TextField(
-                value = contactName,
-                onValueChange = { value -> contactName = value },
-                label = { Text(text = namePlaceholder) },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                leadingIcon = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_account_empty_multicolor),
-                        contentDescription = "Contact Name Icon"
+            if (showName) {
+                TextField(
+                    value = contactName,
+                    onValueChange = { value -> contactName = value },
+                    label = { Text(text = namePlaceholder) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    leadingIcon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_account_empty_multicolor),
+                            contentDescription = "Contact Name Icon"
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = lightBlueColor,
+                        unfocusedContainerColor = lightBlueColor,
+                        focusedIndicatorColor = lightBlueColor,
+                        unfocusedIndicatorColor = lightBlueColor,
+                        focusedLabelColor = lightGreyColor,
+                        unfocusedLabelColor = lightGreyColor
                     )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = lightBlueColor,
-                    unfocusedContainerColor = lightBlueColor,
-                    focusedIndicatorColor = lightBlueColor,
-                    unfocusedIndicatorColor = lightBlueColor,
-                    focusedLabelColor = lightGreyColor,
-                    unfocusedLabelColor = lightGreyColor
                 )
-            )
+            }
             TextField(
                 value = contactEmail,
                 onValueChange = { value -> contactEmail = value },
@@ -176,6 +182,30 @@ fun AddEditLegacyContactScreen(
                     unfocusedLabelColor = lightGreyColor
                 )
             )
+            if (showMessage) {
+                TextField(
+                    value = message,
+                    onValueChange = { value -> message = value },
+                    label = { Text(text = "message") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    leadingIcon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_message_multicolor),
+                            contentDescription = "Message Icon"
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = lightBlueColor,
+                        unfocusedContainerColor = lightBlueColor,
+                        focusedIndicatorColor = lightBlueColor,
+                        unfocusedIndicatorColor = lightBlueColor,
+                        focusedLabelColor = lightGreyColor,
+                        unfocusedLabelColor = lightGreyColor
+                    )
+                )
+            }
             Divider(modifier = Modifier.padding(vertical = elementsSpacing))
             Text(
                 text = stringResource(R.string.note_title).uppercase(),

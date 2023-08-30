@@ -20,7 +20,7 @@ class LegacyContact() : Parcelable {
         updatedDt = parcel.readString()
     }
 
-    constructor(email: String, name: String) : this() {
+    constructor(email: String, name: String?) : this() {
         this.name = name
         this.email = email
     }

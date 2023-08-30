@@ -714,10 +714,22 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun addLegacyContact(legacyContact: LegacyContact): Call<LegacyContact> =
         legacyPlanningService.addLegacyContact(legacyContact)
 
-    fun editLegacyContact(legacyContactId: String, legacyContact: LegacyContact): Call<LegacyContact> =
+    fun editLegacyContact(
+        legacyContactId: String,
+        legacyContact: LegacyContact
+    ): Call<LegacyContact> =
         legacyPlanningService.editLegacyContact(legacyContactId, legacyContact)
 
     fun getLegacyContact(): Call<List<LegacyContact>> = legacyPlanningService.getLegacyContact()
+
+    fun addArchiveSteward(archiveSteward: ArchiveSteward): Call<ArchiveSteward> =
+        legacyPlanningService.addArchiveSteward(archiveSteward)
+
+    fun editArchiveSteward(
+        directiveId: String,
+        archiveSteward: ArchiveSteward
+    ): Call<ArchiveSteward> =
+        legacyPlanningService.editArchiveSteward(directiveId, archiveSteward)
 
     fun getArchiveSteward(archiveId: Int): Call<List<ArchiveSteward>> =
         legacyPlanningService.getArchiveSteward(archiveId)

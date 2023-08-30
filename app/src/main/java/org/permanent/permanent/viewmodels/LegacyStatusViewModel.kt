@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
-import org.permanent.permanent.network.ILegacyArchiveListener
+import org.permanent.permanent.network.IArchiveStewardsListener
 import org.permanent.permanent.network.ILegacyContactsListener
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.Datum
@@ -73,7 +73,7 @@ class LegacyStatusViewModel(application: Application) : ObservableAndroidViewMod
 
     private fun getArchiveSteward(archive: Archive) {
 
-        legacyPlanningRepository.getArchiveSteward(archiveId = archive.id, object : ILegacyArchiveListener {
+        legacyPlanningRepository.getArchiveSteward(archiveId = archive.id, object : IArchiveStewardsListener {
             override fun onSuccess(dataList: List<ArchiveSteward>) {
                 val steward: ArchiveSteward? = dataList.firstOrNull()
                 list.add(Pair(archive, steward))

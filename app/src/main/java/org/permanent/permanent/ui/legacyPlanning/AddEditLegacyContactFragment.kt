@@ -35,7 +35,7 @@ class AddEditLegacyContactFragment : PermanentBottomSheetFragment() {
         legacyContact = arguments?.getParcelable(PARCELABLE_LEGACY_CONTACT_KEY)
 
         viewModel = ViewModelProvider(this)[AddEditLegacyContactViewModel::class.java]
-        viewModel.legacyContact = legacyContact
+        viewModel.setContact(legacyContact)
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -47,7 +47,9 @@ class AddEditLegacyContactFragment : PermanentBottomSheetFragment() {
                         subtitle = stringResource(R.string.designate_account_legacy_contact_description),
                         namePlaceholder = stringResource(R.string.contact_name),
                         emailPlaceholder = stringResource(R.string.contact_email_address),
-                        note = stringResource(R.string.note_description)
+                        note = stringResource(R.string.note_description),
+                        showName = true,
+                        showMessage = false
                     ) { this@AddEditLegacyContactFragment.dismiss() }
                 }
             }

@@ -36,5 +36,6 @@ class LegacyContactViewModel(application: Application) : ObservableAndroidViewMo
         contactName.value = contact.name
         contactEmail.value = contact.email
     }
+
     fun getOnLegacyContactReady(): MutableLiveData<LegacyContact?> = onLegacyContactReady
 }

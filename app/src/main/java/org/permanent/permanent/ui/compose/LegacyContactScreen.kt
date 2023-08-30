@@ -11,6 +11,7 @@ import org.permanent.permanent.viewmodels.LegacyContactViewModel
 fun LegacyContactScreen(viewModel: LegacyContactViewModel,
                         openAddEditScreen: () -> Unit,
                         openLegacyScreen: () -> Unit) {
+
     val userName = viewModel.contactName.observeAsState()
     val userEmail = viewModel.contactEmail.observeAsState()
 
