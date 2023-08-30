@@ -35,7 +35,7 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
                         }
                     } else {
                         try {
-                            listener.onFailed(getErrorMessage(response.errorBody()))
+                            listener.onFailed(getErrorMessageForLegacyContact(response.errorBody()))
                         } catch (e: Exception) {
                             listener.onFailed(e.message)
                         }
@@ -69,7 +69,7 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
                         }
                     } else {
                         try {
-                            listener.onFailed(getErrorMessage(response.errorBody()))
+                            listener.onFailed(getErrorMessageForLegacyContact(response.errorBody()))
                         } catch (e: Exception) {
                             listener.onFailed(e.message)
                         }
@@ -97,7 +97,7 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
                     }
                 } else {
                     try {
-                        listener.onFailed(getErrorMessage(response.errorBody()))
+                        listener.onFailed(getErrorMessageForLegacyContact(response.errorBody()))
                     } catch (e: Exception) {
                         listener.onFailed(e.message)
                     }
@@ -117,7 +117,10 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
         NetworkClient.instance().addArchiveSteward(archiveSteward)
             .enqueue(object : Callback<ArchiveSteward> {
 
-                override fun onResponse(call: Call<ArchiveSteward>, response: Response<ArchiveSteward>) {
+                override fun onResponse(
+                    call: Call<ArchiveSteward>,
+                    response: Response<ArchiveSteward>
+                ) {
                     if (response.isSuccessful) {
                         val steward = response.body()
                         if (steward != null) {
@@ -127,7 +130,7 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
                         }
                     } else {
                         try {
-                            listener.onFailed(getErrorMessage(response.errorBody()))
+                            listener.onFailed(getErrorMessageForArchiveSteward(response.errorBody()))
                         } catch (e: Exception) {
                             listener.onFailed(e.message)
                         }
@@ -148,7 +151,10 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
         NetworkClient.instance().editArchiveSteward(directiveId, archiveSteward)
             .enqueue(object : Callback<ArchiveSteward> {
 
-                override fun onResponse(call: Call<ArchiveSteward>, response: Response<ArchiveSteward>) {
+                override fun onResponse(
+                    call: Call<ArchiveSteward>,
+                    response: Response<ArchiveSteward>
+                ) {
                     if (response.isSuccessful) {
                         val steward = response.body()
                         if (steward != null) {
@@ -158,7 +164,7 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
                         }
                     } else {
                         try {
-                            listener.onFailed(getErrorMessage(response.errorBody()))
+                            listener.onFailed(getErrorMessageForArchiveSteward(response.errorBody()))
                         } catch (e: Exception) {
                             listener.onFailed(e.message)
                         }
@@ -187,7 +193,7 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
                         }
                     } else {
                         try {
-                            listener.onFailed(getErrorMessage(response.errorBody()))
+                            listener.onFailed(getErrorMessageForArchiveSteward(response.errorBody()))
                         } catch (e: Exception) {
                             listener.onFailed(e.message)
                         }
@@ -200,8 +206,12 @@ class LegacyPlanningRepositoryImpl(val context: Context) : ILegacyPlanningReposi
             })
     }
 
-    private fun getErrorMessage(response: ResponseBody?): String {
+    private fun getErrorMessageForLegacyContact(response: ResponseBody?): String {
         return JSONObject(response!!.string()).getJSONObject("error")
             .getJSONArray("details").getJSONObject(0).getString("message")
+    }
+
+    private fun getErrorMessageForArchiveSteward(response: ResponseBody?): String {
+        return JSONObject(response!!.string()).getJSONObject("error").getString("message")
     }
 }

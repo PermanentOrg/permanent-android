@@ -611,6 +611,7 @@
     <string name="designate_archive_steward_description">In order to designate someone as a steward for your archive, they must have a Permanent.org account.</string>
     <string name="steward_name">Steward name…</string>
     <string name="steward_email_address">Steward email address…</string>
+    <string name="steward_message">Message</string>
     <string name="steward_default_message">Thank you for being the steward of my archive. I appreciate you taking care of my legacy when I am gone.</string>
     <string name="steward_note_description">Your Archive Steward will get an email from Permanent with instructions. Discuss your Legacy Plan first. They\'ll receive another email when the plan is activated with steps to accept ownership. Add instructions in the note section above.</string>
     <string name="name_empty_error">Name can not be empty.</string>

@@ -190,7 +190,7 @@ fun AddEditLegacyContactScreen(
                 TextField(
                     value = message,
                     onValueChange = { value -> message = value },
-                    label = { Text(text = "message") },
+                    label = { Text(text = context.getString(R.string.steward_message)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
