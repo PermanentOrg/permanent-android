@@ -39,7 +39,6 @@
     <string name="button_done">Done</string>
     <string name="button_update">Update</string>
 
-    <string name="name_or_email_empty_error">Name and Email can not be empty.</string>
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
     <string name="password_too_short_error">Password must be minimum 8 characters long</string>
@@ -614,5 +613,6 @@
     <string name="steward_email_address">Steward email address…</string>
     <string name="steward_default_message">Thank you for being the steward of my archive. I appreciate you taking care of my legacy when I am gone.</string>
     <string name="steward_note_description">Your Archive Steward will get an email from Permanent with instructions. Discuss your Legacy Plan first. They\'ll receive another email when the plan is activated with steps to accept ownership. Add instructions in the note section above.</string>
-
+    <string name="name_empty_error">Name can not be empty.</string>
+    <string name="email_empty_error">Email can not be empty.</string>
 </resources>

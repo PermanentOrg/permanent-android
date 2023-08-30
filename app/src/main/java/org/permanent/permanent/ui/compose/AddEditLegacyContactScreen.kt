@@ -93,9 +93,13 @@ fun AddEditLegacyContactScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         BottomSheetHeader(screenTitle = screenTitle, onCancelBtnClick) {
-            if (contactName.isEmpty() || contactEmail.isEmpty()) {
+            if (showName && contactName.isEmpty()) {
                 coroutineScope.launch {
-                    snackbarEventFlow.emit(context.getString(R.string.name_or_email_empty_error))
+                    snackbarEventFlow.emit(context.getString(R.string.name_empty_error))
+                }
+            } else if (contactEmail.isEmpty()) {
+                coroutineScope.launch {
+                    snackbarEventFlow.emit(context.getString(R.string.email_empty_error))
                 }
             } else if (!Validator.isValidEmail(context, contactEmail, null, null)) {
                 coroutineScope.launch {
