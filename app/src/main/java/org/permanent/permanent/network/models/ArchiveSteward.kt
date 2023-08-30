@@ -38,11 +38,12 @@ class ArchiveSteward() : Parcelable {
         executionDT = parcel.readString()
     }
 
-    constructor(archiveId: Int?, email: String) : this() {
+    constructor(archiveId: Int?, email: String, note: String?) : this() {
         this.archiveId = archiveId?.toString()
         this.stewardEmail = email
         this.type = "transfer"
         this.trigger = Trigger("admin")
+        this.note = note
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

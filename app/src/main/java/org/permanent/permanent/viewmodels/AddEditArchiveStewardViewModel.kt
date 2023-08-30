@@ -20,19 +20,21 @@ class AddEditArchiveStewardViewModel(application: Application) :
         this.archiveId = archiveId
         name = null
         email = null
+        message = null
     }
 
     fun setArchiveSteward(steward: ArchiveSteward?) {
         archiveSteward = steward
         name = steward?.steward?.name
         email = steward?.steward?.email
+        message = steward?.note
     }
 
     override fun onSaveBtnClick(email: String, name: String?, message: String?) {
         if (archiveSteward?.directiveId.isNullOrEmpty()) {
-            archiveId?.let { addArchiveSteward(ArchiveSteward(it, email)) }
+            archiveId?.let { addArchiveSteward(ArchiveSteward(it, email, message)) }
         } else {
-            archiveSteward?.directiveId?.let { editArchiveSteward(it, ArchiveSteward(null, email)) }
+            archiveSteward?.directiveId?.let { editArchiveSteward(it, ArchiveSteward(null, email, message)) }
         }
     }
 
