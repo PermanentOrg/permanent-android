@@ -187,7 +187,7 @@ fun LegacyContactCard(
                         .fillMaxWidth()
                         .clickable { openAddEditScreen() },
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1.0f, fill = false)) {
                         Text(
@@ -217,7 +217,8 @@ fun LegacyContactCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { openAddEditScreen() },
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = cardButtonName,
@@ -225,7 +226,6 @@ fun LegacyContactCard(
                         color = textColor,
                         fontFamily = boldFont
                     )
-                    Spacer(modifier = Modifier.weight(1.0f))
                     Image(
                         painter = painterResource(id = R.drawable.ic_account_add_primary),
                         contentDescription = "Account add",

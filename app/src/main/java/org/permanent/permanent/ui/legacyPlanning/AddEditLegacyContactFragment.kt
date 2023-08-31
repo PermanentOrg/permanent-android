@@ -1,15 +1,20 @@
 package org.permanent.permanent.ui.legacyPlanning
 
+import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.R
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
@@ -54,6 +59,18 @@ class AddEditLegacyContactFragment : PermanentBottomSheetFragment() {
                 }
             }
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val bottomSheetDialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        bottomSheetDialog.setOnShowListener { dialog: DialogInterface ->
+            val sheetDialog = dialog as BottomSheetDialog
+            val bottomSheet =
+                sheetDialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            BottomSheetBehavior.from(bottomSheet as FrameLayout)
+                .setState(BottomSheetBehavior.STATE_EXPANDED)
+        }
+        return bottomSheetDialog
     }
 
     private val onLegacyContactUpdatedObserver = Observer<LegacyContact> {
