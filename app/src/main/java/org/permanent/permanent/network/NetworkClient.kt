@@ -34,7 +34,7 @@ import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
-import org.permanent.permanent.network.models.LegacySteward
+import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.ProfileItemsRequestContainer
 import org.permanent.permanent.network.models.ResponseVO
@@ -113,7 +113,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                     } else chain.proceed(request)
                 }).build()
 
-            val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context))
+            val cookieJar =
+                PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context))
             val okHttpClientWithCookies = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(loggingInterceptor)
@@ -126,9 +127,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 .build()
             authServiceWithCookies = retrofitWithCookies.create(IAuthService::class.java)
         }
-        retrofit = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL).addConverterFactory(MoshiConverterFactory.create())
-                .client(okHttpClient).build()
-        retrofitStelaBaseUrl = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL_STELA).addConverterFactory(MoshiConverterFactory.create())
+        retrofit = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .client(okHttpClient).build()
+        retrofitStelaBaseUrl = Retrofit.Builder().baseUrl(BuildConfig.BASE_API_URL_STELA)
+            .addConverterFactory(MoshiConverterFactory.create())
             .client(okHttpClient).build()
 
         authService = retrofit.create(IAuthService::class.java)
@@ -708,8 +711,28 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return profileService.delete(requestBody)
     }
 
-    fun getLegacyContact(): Call<List<LegacySteward>> = legacyPlanningService.getLegacyContact()
-    fun getArchiveSteward(archiveId: Int): Call<List<ArchiveSteward>> = legacyPlanningService.getArchiveSteward(archiveId)
+    fun addLegacyContact(legacyContact: LegacyContact): Call<LegacyContact> =
+        legacyPlanningService.addLegacyContact(legacyContact)
+
+    fun editLegacyContact(
+        legacyContactId: String,
+        legacyContact: LegacyContact
+    ): Call<LegacyContact> =
+        legacyPlanningService.editLegacyContact(legacyContactId, legacyContact)
+
+    fun getLegacyContact(): Call<List<LegacyContact>> = legacyPlanningService.getLegacyContact()
+
+    fun addArchiveSteward(archiveSteward: ArchiveSteward): Call<ArchiveSteward> =
+        legacyPlanningService.addArchiveSteward(archiveSteward)
+
+    fun editArchiveSteward(
+        directiveId: String,
+        archiveSteward: ArchiveSteward
+    ): Call<ArchiveSteward> =
+        legacyPlanningService.editArchiveSteward(directiveId, archiveSteward)
+
+    fun getArchiveSteward(archiveId: Int): Call<List<ArchiveSteward>> =
+        legacyPlanningService.getArchiveSteward(archiveId)
 
     fun getPaymentIntent(
         accountId: Int,

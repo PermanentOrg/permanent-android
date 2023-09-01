@@ -111,19 +111,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
-                R.id.introFragment, R.id.designateContactOrStewardFragment -> {
+                R.id.introFragment, R.id.statusFragment, R.id.legacyContactFragment, R.id.archiveStewardFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = true
-                }
-
-                R.id.statusFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
-                }
-
-                R.id.archiveStewardFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
                 }
 
                 else -> {
@@ -356,9 +346,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
         when (menuItem?.itemId) {
             R.id.moreItem, R.id.doneItem -> sendEventToFragment()
-            R.id.closeItem -> {
-                navController.popBackStack(R.id.myFilesFragment, false)
-            }
+            R.id.closeItem -> navController.navigate(R.id.myFilesFragment)
             else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
         }
         return true

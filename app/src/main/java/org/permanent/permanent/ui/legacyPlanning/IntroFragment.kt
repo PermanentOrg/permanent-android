@@ -25,7 +25,7 @@ class IntroFragment : PermanentBaseFragment() {
             setContent {
                 MaterialTheme {
                     IntroScreen(navigateToDesignateContactScreen = {
-                        findNavController().navigate(R.id.action_introFragment_to_designateContactOrStewardFragment)
+                        findNavController().navigate(R.id.action_introFragment_to_legacyContactFragment)
                     }, onCloseScreen = {
                         findNavController().popBackStack(R.id.myFilesFragment, false)
                     })

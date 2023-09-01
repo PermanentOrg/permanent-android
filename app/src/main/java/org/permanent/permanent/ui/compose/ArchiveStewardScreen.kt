@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -28,7 +27,6 @@ import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.viewmodels.ArchiveStewardViewModel
-import org.permanent.permanent.viewmodels.LegacyContactViewModel
 
 @Composable
 fun ArchiveStewardScreen(viewModel: ArchiveStewardViewModel,
@@ -36,15 +34,16 @@ fun ArchiveStewardScreen(viewModel: ArchiveStewardViewModel,
                          openAddEditScreen: () -> Unit,
                          openLegacyScreen: () -> Unit)  {
 
-    val archiveSteward = viewModel.getOnArchiveStewardReady().observeAsState()
+    val userName = viewModel.contactName.observeAsState()
+    val userEmail = viewModel.contactEmail.observeAsState()
 
     Column(modifier = Modifier.background(Color.White)) {
         Header(archiveName = archive?.fullName,
             accessRoleText = archive?.accessRole?.toTitleCase(),
             iconURL = archive?.thumbURL200)
         DesignateContactOrStewardScreen(
-            name = archiveSteward.value?.steward?.name,
-            email = archiveSteward.value?.steward?.email,
+            name = userName,
+            email = userEmail,
             title = stringResource(R.string.designate_an_archive_steward),
             subtitle = stringResource(R.string.designate_archive_title),
             cardTitle = stringResource(R.string.a_trusted_archive_steward_title),

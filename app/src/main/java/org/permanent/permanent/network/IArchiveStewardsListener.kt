@@ -2,7 +2,7 @@ package org.permanent.permanent.network
 
 import org.permanent.permanent.network.models.ArchiveSteward
 
-interface ILegacyArchiveListener {
+interface IArchiveStewardsListener {
     fun onSuccess(archiveStewards: List<ArchiveSteward>)
 
     fun onFailed(error: String?)

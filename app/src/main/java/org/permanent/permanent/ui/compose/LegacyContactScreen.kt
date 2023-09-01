@@ -8,17 +8,17 @@ import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.LegacyContactViewModel
 
 @Composable
-
 fun LegacyContactScreen(viewModel: LegacyContactViewModel,
                         openAddEditScreen: () -> Unit,
                         openLegacyScreen: () -> Unit) {
 
-    val legacyStewards = viewModel.getOnLegacyContactReady().observeAsState()
+    val userName = viewModel.contactName.observeAsState()
+    val userEmail = viewModel.contactEmail.observeAsState()
 
     Column {
         DesignateContactOrStewardScreen(
-            name = legacyStewards.value?.first()?.name,
-            email = legacyStewards.value?.first()?.email,
+            name = userName,
+            email = userEmail,
             title = stringResource(R.string.designate_a_legacy_contact),
             subtitle = stringResource(R.string.designate_contact_title),
             cardTitle = stringResource(R.string.a_trusted_legacy_contact_title),

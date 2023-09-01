@@ -10,8 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
-import org.permanent.permanent.network.models.Datum
-import org.permanent.permanent.network.models.LegacySteward
+import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.compose.LoadingScreen
 import org.permanent.permanent.viewmodels.LoadingViewModel
@@ -33,7 +32,7 @@ class LoadingFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onLegacyContactObserver = Observer<List<LegacySteward>?> {
+    private val onLegacyContactObserver = Observer<List<LegacyContact>?> {
         if (!it.isNullOrEmpty()) {
             findNavController().navigate(R.id.action_loadingFragment_to_statusFragment)
         } else {
