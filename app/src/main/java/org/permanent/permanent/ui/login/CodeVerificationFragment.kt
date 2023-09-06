@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentVerificationCodeBinding
 import org.permanent.permanent.ui.PREFS_NAME
@@ -42,6 +44,7 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     private val onLoggedIn = Observer<Void?> {
+        logEvents()
         startMainActivity()
     }
 
@@ -82,6 +85,11 @@ class CodeVerificationFragment : PermanentBaseFragment() {
 
     private fun startPhoneVerificationFragment() {
         findNavController().navigate(R.id.action_codeVerificationFragment_to_phoneVerificationFragment)
+    }
+
+    private fun logEvents() {
+        EventsManager(requireContext()).setUserProfile(prefsHelper.getAccountId(), prefsHelper.getAccountEmail())
+        EventsManager(requireContext()).sendToMixpanel(EventType.SignIn)
     }
 
     override fun connectViewModelEvents() {
