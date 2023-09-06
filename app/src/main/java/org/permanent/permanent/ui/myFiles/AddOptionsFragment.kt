@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.ClipData
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -26,7 +25,6 @@ import org.permanent.permanent.Constants.Companion.REQUEST_CODE_VIDEO_CAPTURE
 import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
-import org.permanent.permanent.REQUEST_CODE_READ_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogCreateNewFolderBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
@@ -69,7 +67,9 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         dismiss()
     }
 
-    fun setBundleArguments(folderIdentifier: NavigationFolderIdentifier?, isShownInPublicFiles: Boolean) {
+    fun setBundleArguments(
+        folderIdentifier: NavigationFolderIdentifier?, isShownInPublicFiles: Boolean
+    ) {
         val bundle = Bundle()
         bundle.putParcelable(FOLDER_IDENTIFIER_KEY, folderIdentifier)
         bundle.putBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY, isShownInPublicFiles)
@@ -77,9 +77,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentAddOptionsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
@@ -106,6 +104,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
                     dispatchTakePictureIntent()
                 }
             }
+
             R.id.btnTakeVideo -> context?.let {
                 if (!permissionHelper.hasCameraPermission(it)) {
                     permissionHelper.requestCameraPermission(this)
@@ -113,10 +112,9 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
                     dispatchTakeVideoIntent()
                 }
             }
+
             R.id.btnUpload -> context?.let {
-                if (!permissionHelper.hasReadStoragePermission(it)) {
-                    permissionHelper.requestReadStoragePermission(this)
-                } else if (arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY) == true) {
+                if (arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY) == true) {
                     showConfirmationDialog()
                 } else {
                     startFileSelectionActivity()
@@ -127,8 +125,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
 
     private fun showNewFolderDialog() {
         dialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context),
-            R.layout.dialog_create_new_folder, null, false
+            LayoutInflater.from(context), R.layout.dialog_create_new_folder, null, false
         )
         dialogBinding.executePendingBindings()
         dialogBinding.lifecycleOwner = this
@@ -136,9 +133,7 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         val thisContext = context
 
         if (thisContext != null) {
-            alertDialog = AlertDialog.Builder(thisContext)
-                .setView(dialogBinding.root)
-                .create()
+            alertDialog = AlertDialog.Builder(thisContext).setView(dialogBinding.root).create()
             dialogBinding.btnCreate.setOnClickListener {
                 val currentFolderIdentifier =
                     arguments?.getParcelable<NavigationFolderIdentifier>(FOLDER_IDENTIFIER_KEY)
@@ -208,27 +203,6 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            REQUEST_CODE_READ_STORAGE_PERMISSION ->
-                if (grantResults.isNotEmpty()
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                ) {
-                    if (arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY) == true) {
-                        showConfirmationDialog()
-                    } else {
-                        startFileSelectionActivity()
-                    }
-                } else {
-                    dialogViewModel.errorStringId.value = R.string.upload_no_permissions_error
-                }
-        }
-    }
-
     private fun startFileSelectionActivity() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -258,9 +232,11 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
                 // Start uploading files
                 filesToUpload.value = urisToUpload
             }
+
             REQUEST_CODE_IMAGE_CAPTURE -> if (resultCode == RESULT_OK) {
                 filesToUpload.value = mutableListOf(photoURI)
             }
+
             REQUEST_CODE_VIDEO_CAPTURE -> if (resultCode == RESULT_OK) {
                 intent?.data?.let { filesToUpload.value = mutableListOf(it) }
             }
@@ -291,13 +267,9 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         }
     }
 
-    fun getOnFilesSelected(): MutableLiveData<MutableList<Uri>> {
-        return filesToUpload
-    }
+    fun getOnFilesSelected(): MutableLiveData<MutableList<Uri>> = filesToUpload
 
-    fun getOnRefreshFolder(): MutableLiveData<Void?> {
-        return onRefreshFolder
-    }
+    fun getOnRefreshFolder(): MutableLiveData<Void?> = onRefreshFolder
 
     override fun connectViewModelEvents() {
         dialogViewModel.getOnFolderCreated().observe(this, onFolderCreated)
