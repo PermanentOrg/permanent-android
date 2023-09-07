@@ -55,10 +55,10 @@ class ForgotPasswordFragment : PermanentBaseFragment() {
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
         snackBar.show()
 
-        onBackToSignIn.onChanged("")
+        onBackToSignIn.onChanged(null)
     }
 
-    private val onBackToSignIn = Observer<String> {
+    private val onBackToSignIn = Observer<Void?> {
         findNavController().popBackStack()
     }
 

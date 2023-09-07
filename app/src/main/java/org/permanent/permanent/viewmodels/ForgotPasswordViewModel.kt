@@ -13,7 +13,7 @@ class ForgotPasswordViewModel(application: Application) : ObservableAndroidViewM
     private val emailError = MutableLiveData<Int>()
     private val errorMessage = MutableLiveData<String>()
     private val onPasswordReset = SingleLiveEvent<Void?>()
-    private val onBackToSignIn = SingleLiveEvent<String>()
+    private val onBackToSignIn = SingleLiveEvent<Void?>()
     private val isBusy = MutableLiveData<Boolean>()
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
@@ -38,7 +38,7 @@ class ForgotPasswordViewModel(application: Application) : ObservableAndroidViewM
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    errorMessage.value = error
+                    error?.let { errorMessage.value = it }
                 }
             })
     }
@@ -57,7 +57,7 @@ class ForgotPasswordViewModel(application: Application) : ObservableAndroidViewM
 
     fun getOnPasswordReset(): MutableLiveData<Void?> = onPasswordReset
 
-    fun getOnBackToSignIn(): MutableLiveData<String> = onBackToSignIn
+    fun getOnBackToSignIn(): MutableLiveData<Void?> = onBackToSignIn
 
     fun onEmailTextChanged(email: Editable) {
         currentEmail.value = email.toString().trim { it <= ' ' }
