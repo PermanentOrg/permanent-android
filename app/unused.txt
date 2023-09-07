@@ -7618,6 +7618,83 @@ com.google.thirdparty.publicsuffix.PublicSuffixType:
     static com.google.thirdparty.publicsuffix.PublicSuffixType fromIsPrivate(boolean)
 com.google.thirdparty.publicsuffix.TrieParser:
     void <init>()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$EventDescription:
+    public boolean isAutomatic()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$UpdateEventsPropertiesDescription:
+    public void <init>(java.lang.String,java.util.Map)
+com.mixpanel.android.mpmetrics.AnalyticsMessages$Worker$AnalyticsMessageHandler:
+    protected long getTrackEngageRetryAfter()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$Worker:
+    static synthetic android.os.Handler access$400(com.mixpanel.android.mpmetrics.AnalyticsMessages$Worker)
+    public boolean isDead()
+com.mixpanel.android.mpmetrics.AnalyticsMessages:
+    private static final int CLEAR_ANONYMOUS_UPDATES
+    private static final int EMPTY_QUEUES
+    private static final int ENQUEUE_EVENTS
+    private static final int ENQUEUE_GROUP
+    private static final int ENQUEUE_PEOPLE
+    private static final int FLUSH_QUEUE
+    private static final int KILL_WORKER
+    private static final java.lang.String LOGTAG
+    private static final int PUSH_ANONYMOUS_PEOPLE_RECORDS
+    private static final int REMOVE_RESIDUAL_IMAGE_FILES
+    private static final int REWRITE_EVENT_PROPERTIES
+    public long getTrackEngageRetryAfter()
+    public void hardKill()
+    boolean isDead()
+    public void updateEventProperties(com.mixpanel.android.mpmetrics.AnalyticsMessages$UpdateEventsPropertiesDescription)
+com.mixpanel.android.mpmetrics.ConfigurationChecker:
+    void <init>()
+com.mixpanel.android.mpmetrics.ExceptionHandler:
+    private static final int SLEEP_TIMEOUT_MS
+com.mixpanel.android.mpmetrics.MPConfig:
+    private static final java.lang.String LOGTAG
+    static final java.lang.String REFERRER_PREFS_NAME
+com.mixpanel.android.mpmetrics.MPDbAdapter:
+    public static final int AUTOMATIC_DATA_COLUMN_INDEX
+    public static final int CREATED_AT_COLUMN_INDEX
+    private static final java.lang.String DATABASE_NAME
+    private static final int DATABASE_VERSION
+    public static final int DATA_COLUMN_INDEX
+    public static final int DB_OUT_OF_MEMORY_ERROR
+    public static final int DB_UNDEFINED_CODE
+    public static final int DB_UPDATE_ERROR
+    public static final int ID_COLUMN_INDEX
+    public static final java.lang.String KEY_AUTOMATIC_DATA
+    public static final java.lang.String KEY_CREATED_AT
+    public static final java.lang.String KEY_DATA
+    public static final java.lang.String KEY_TOKEN
+    private static final java.lang.String LOGTAG
+    private static final int MAX_DB_VERSION
+    private static final int MIN_DB_VERSION
+    public static final int TOKEN_COLUMN_INDEX
+com.mixpanel.android.mpmetrics.MixpanelAPI:
+    private static final java.lang.String APP_LINKS_LOGTAG
+    private static final java.lang.String ENGAGE_DATE_FORMAT_STRING
+    private static final java.lang.String LOGTAG
+    void <init>(android.content.Context,java.util.concurrent.Future,java.lang.String,boolean,org.json.JSONObject,boolean)
+    android.content.Context getContext()
+    com.mixpanel.android.mpmetrics.PersistentIdentity getPersistentIdentity(android.content.Context,java.util.concurrent.Future,java.lang.String)
+com.mixpanel.android.mpmetrics.MixpanelActivityLifecycleCallbacks:
+    public static final int CHECK_DELAY
+com.mixpanel.android.mpmetrics.PersistentIdentity:
+    private static final java.lang.String DELIMITER
+    private static final java.lang.String LOGTAG
+    protected void removeOptOutFlag(java.lang.String)
+    public static void writeReferrerPrefs(android.content.Context,java.lang.String,java.util.Map)
+com.mixpanel.android.mpmetrics.ResourceReader:
+    private static final java.lang.String LOGTAG
+com.mixpanel.android.mpmetrics.SynchronizedReference
+com.mixpanel.android.mpmetrics.SystemInformation:
+    private static final java.lang.String LOGTAG
+    public java.lang.String getAppName()
+com.mixpanel.android.util.HttpService:
+    private static final java.lang.String LOGTAG
+    private static final int MAX_UNAVAILABLE_HTTP_RESPONSE_CODE
+    private static final int MIN_UNAVAILABLE_HTTP_RESPONSE_CODE
+com.mixpanel.android.util.LegacyVersionUtils:
+    private static final java.lang.String DEFAULT_DIRECTORY_PREFIX
+    private static final java.lang.String FILE_PREFIX
 com.nimbusds.jose.HeaderValidation:
     void <init>()
 com.nimbusds.jose.JOSEObjectJSON:
@@ -13223,6 +13300,8 @@ androidx.appcompat.widget.AppCompatEmojiEditTextHelper:
     public final void setEnabled(boolean)
 androidx.appcompat.widget.AppCompatEmojiTextHelper:
     public static android.text.method.TransformationMethod wrapTransformationMethod()
+androidx.appcompat.widget.AppCompatHintHelper:
+    public static int calculateStrength(org.bouncycastle.pqc.crypto.lms.LMSParameters)
 androidx.appcompat.widget.AppCompatImageHelper:
     public final androidx.appcompat.widget.TintInfo mInternalImageTint
     public androidx.appcompat.widget.TintInfo mTmpInfo
@@ -25093,9 +25172,7 @@ androidx.core.content.res.ComplexColorCompat:
 androidx.core.content.res.FontResourcesParserCompat:
     public static java.util.ArrayList toByteArrayList(java.lang.String[])
 androidx.core.content.res.GradientColorInflaterCompat
-androidx.core.content.res.GrowingArrayUtils:
-    public static org.bouncycastle.pqc.math.linearalgebra.GF2Vector encryptionPrimitive(org.bouncycastle.pqc.crypto.mceliece.McElieceCCA2PublicKeyParameters,org.bouncycastle.pqc.math.linearalgebra.GF2Vector,org.bouncycastle.pqc.math.linearalgebra.GF2Vector)
-    public static int growSize(int)
+androidx.core.content.res.GrowingArrayUtils
 androidx.core.content.res.ResourcesCompat$Api15Impl
 androidx.core.content.res.ResourcesCompat:
     public static android.util.TypedValue getTypedValue()
@@ -25173,7 +25250,6 @@ androidx.core.location.LocationManagerCompat$CancellableLocationListener:
     public static void cancel()
     public final void cleanup()
     public static void startTimeout()
-androidx.core.location.LocationManagerCompat$GpsStatusTransport$$InternalSyntheticLambda$1$71fbd7573f6d22c7f37038e43187f10ca326b1863a8f750c3871c160d4bd4632$1
 androidx.core.location.LocationManagerCompat$GpsStatusTransport$$InternalSyntheticLambda$1$71fbd7573f6d22c7f37038e43187f10ca326b1863a8f750c3871c160d4bd4632$2
 androidx.core.location.LocationManagerCompat$GpsStatusTransport$$InternalSyntheticLambda$1$71fbd7573f6d22c7f37038e43187f10ca326b1863a8f750c3871c160d4bd4632$3
 androidx.core.location.LocationManagerCompat$GpsStatusTransport:
@@ -28448,6 +28524,8 @@ com.android.volley.toolbox.NetworkImageView:
 com.android.volley.toolbox.NetworkUtility$1
 com.android.volley.toolbox.NetworkUtility$RetryInfo:
     public static synthetic java.lang.String access$100()
+com.android.volley.toolbox.Threads:
+    public static org.bouncycastle.pqc.math.linearalgebra.GF2Vector encryptionPrimitive(org.bouncycastle.pqc.crypto.mceliece.McElieceCCA2PublicKeyParameters,org.bouncycastle.pqc.math.linearalgebra.GF2Vector,org.bouncycastle.pqc.math.linearalgebra.GF2Vector)
 com.android.volley.toolbox.Volley:
     public static com.android.volley.RequestQueue newRequestQueue(android.content.Context,com.android.volley.toolbox.BasicNetwork)
 com.chauthai.swipereveallayout.SwipeRevealLayout$2:
@@ -28880,6 +28958,7 @@ com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$2$a18a8588a9948e81e6082c4662d421fdea3ace75b1bd6e62db21946a4b92e328$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$2$ceeb8383a83a1f81d4dc191b62a96e3726169873abab997218a1ff0ada4df541$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$2$d8008aaf76acd7841bd1dfec2b6bc9ff922e9111faf4de74570ae603f9813a2f$0
+com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$2$e894f610339aa30378d20f560e8217beaa21048f2d6ee1bce4c57fea8fde198f$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$3$19b0f55de32cef7002af081b750d2712df6dee287b4ea80f24119ac183683a16$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$3$2d5ab47061cc1c207636d84f94bccdad77de86275b96598974e06efb68572c6a$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$4$f3f40f4805829bf48313cda75c74207a6e9694218246430fdb2625370e4c5d14$0
@@ -29204,8 +29283,6 @@ com.google.android.gms.common.zzz
 com.google.android.gms.dynamic.DeferredLifecycleHelper:
     public static synthetic bridge com.google.android.gms.dynamic.LifecycleDelegate zaa()
     public static synthetic bridge java.util.LinkedList zab()
-com.google.android.gms.dynamic.zaa:
-    public static byte[][] toByteArray()
 com.google.android.gms.dynamite.DynamiteModule:
     public static boolean zze(android.database.Cursor)
 com.google.android.gms.dynamite.zzb:
@@ -29222,10 +29299,10 @@ com.google.android.gms.internal.base.zac:
     public static final java.lang.ClassLoader zaa
 com.google.android.gms.internal.base.zag:
     public static synthetic bridge com.google.android.gms.internal.base.zag zaa()
-com.google.android.gms.internal.base.zao:
-    public static long getCurrentTime()
 com.google.android.gms.internal.base.zap:
     public static final com.google.android.gms.internal.base.zao zaa
+com.google.android.gms.internal.cloudmessaging.zzd:
+    public static long getCurrentTime()
 com.google.android.gms.internal.cloudmessaging.zze:
     public static final com.google.android.gms.internal.cloudmessaging.zzd zza
 com.google.android.gms.internal.common.zzaa:
@@ -29307,12 +29384,12 @@ com.google.android.gms.internal.measurement.zzew:
     public static final com.google.android.gms.internal.measurement.zzka zza
     public static void <clinit>()
 com.google.android.gms.internal.measurement.zzey
+com.google.android.gms.internal.measurement.zzff
 com.google.android.gms.internal.measurement.zzfs:
     public final void zzz()
 com.google.android.gms.internal.measurement.zzgd:
     public final void zzw()
     public final void zzx()
-com.google.android.gms.internal.measurement.zzgi
 com.google.android.gms.internal.measurement.zzgq
 com.google.android.gms.internal.measurement.zzgs:
     public static final com.google.android.gms.internal.measurement.zzka zza
@@ -29343,8 +29420,6 @@ com.google.android.gms.internal.measurement.zzhv:
     public final android.content.SharedPreferences$OnSharedPreferenceChangeListener zzc
 com.google.android.gms.internal.measurement.zzij:
     public static final synthetic int zza
-com.google.android.gms.internal.measurement.zzil:
-    public static int calculateStrength(org.bouncycastle.pqc.crypto.lms.LMSParameters)
 com.google.android.gms.internal.measurement.zzim:
     public static final com.google.android.gms.internal.measurement.zzim zza
 com.google.android.gms.internal.measurement.zzio:
@@ -29362,6 +29437,8 @@ com.google.android.gms.internal.measurement.zziz:
 com.google.android.gms.internal.measurement.zzja:
     public static volatile int zzb
     public static void <clinit>()
+com.google.android.gms.internal.measurement.zzjb:
+    public static int abs()
 com.google.android.gms.internal.measurement.zzjc:
     public static void zzn()
 com.google.android.gms.internal.measurement.zzje:
@@ -29421,8 +29498,6 @@ com.google.android.gms.internal.measurement.zzkk:
 com.google.android.gms.internal.measurement.zzkl:
     public static final com.google.android.gms.internal.measurement.zzkl zzb
     public static java.lang.String zzj(java.lang.Object)
-com.google.android.gms.internal.measurement.zzkn:
-    public static void toNTT(short[])
 com.google.android.gms.internal.measurement.zzkq:
     public static com.google.android.gms.internal.measurement.zzkq zzc()
     public static com.google.android.gms.internal.measurement.zzkq zzd()
@@ -29622,6 +29697,8 @@ com.google.android.gms.measurement.internal.zzas:
     public final java.lang.Long zze()
     public final java.lang.Object zzf(java.lang.String)
     public final java.lang.String zzg(java.lang.String)
+com.google.android.gms.measurement.internal.zzdr:
+    public static org.bouncycastle.pqc.crypto.lms.LMSSignature generateSign(org.bouncycastle.pqc.crypto.lms.LMSPrivateKeyParameters,byte[])
 com.google.android.gms.measurement.internal.zzdt:
     public volatile java.lang.Object zzg
 com.google.android.gms.measurement.internal.zzdy:
@@ -34274,7 +34351,7 @@ com.google.firebase.crashlytics.internal.metadata.MetaDataStore:
     public final java.io.File getUserDataFileForSession(java.lang.String)
     public static java.lang.String jsonToUserId()
     public static java.lang.String keysDataToJson()
-    public static java.lang.String valueOrNull(org.json.JSONObject,java.lang.String)
+    public static java.lang.String valueOrNull(java.lang.String,org.json.JSONObject)
     public static void writeKeyData()
     public static void writeUserData()
 com.google.firebase.crashlytics.internal.metadata.QueueFile$1
@@ -34406,7 +34483,7 @@ com.google.firebase.crashlytics.internal.settings.SettingsController:
     public static synthetic java.util.concurrent.atomic.AtomicReference access$700()
     public static boolean buildInstanceIdentifierChanged()
     public static java.lang.String getStoredBuildInstanceIdentifier()
-    public static void logSettings(org.json.JSONObject,java.lang.String)
+    public static void logSettings(java.lang.String,org.json.JSONObject)
     public static boolean setStoredBuildInstanceIdentifier()
 com.google.firebase.crashlytics.internal.settings.network.DefaultSettingsSpiCall:
     public static org.json.JSONObject getJsonObjectFrom()
@@ -34965,6 +35042,155 @@ com.google.gson.stream.JsonWriter:
 com.google.thirdparty.publicsuffix.PublicSuffixType:
     public static char getInnerNodeCode()
     public static char getLeafNodeCode()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$EventDescription:
+    public final boolean mIsAutomatic
+    public static java.lang.String getEventName()
+    public static org.json.JSONObject getProperties()
+    public static org.json.JSONObject getSessionMetadata()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$MixpanelDescription:
+    public static java.lang.String getToken()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$MixpanelMessageDescription:
+    public static org.json.JSONObject getMessage()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$PeopleDescription:
+    public final boolean isAnonymous()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$PushAnonymousPeopleDescription:
+    public static java.lang.String getDistinctId()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$UpdateEventsPropertiesDescription:
+    public final java.util.Map mProps
+    public static java.util.Map getProperties()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$Worker$AnalyticsMessageHandler:
+    public static org.json.JSONObject getDefaultEventProperties()
+com.mixpanel.android.mpmetrics.AnalyticsMessages$Worker:
+    public static synthetic com.mixpanel.android.mpmetrics.SystemInformation access$100()
+    public static synthetic java.lang.Object access$300()
+    public static synthetic android.os.Handler access$402()
+    public static android.os.Handler restartWorkerThread()
+    public static void updateFlushFrequency()
+com.mixpanel.android.mpmetrics.AnalyticsMessages:
+    public static void clearAnonymousUpdatesMessage()
+    public static com.mixpanel.android.mpmetrics.AnalyticsMessages$Worker createWorker()
+    public static void emptyTrackingQueues()
+    public final void eventsMessage(com.mixpanel.android.mpmetrics.AnalyticsMessages$EventDescription)
+    public static com.mixpanel.android.mpmetrics.MPConfig getConfig()
+    public static com.mixpanel.android.util.RemoteService getPoster()
+    public static void groupMessage()
+    public static void logAboutMessageToMixpanel()
+    public static void logAboutMessageToMixpanel$1()
+    public static com.mixpanel.android.mpmetrics.MPDbAdapter makeDbAdapter()
+    public final void peopleMessage(com.mixpanel.android.mpmetrics.AnalyticsMessages$PeopleDescription)
+    public static void postToServer()
+    public static void pushAnonymousPeopleMessage()
+    public static void removeResidualImageFiles()
+com.mixpanel.android.mpmetrics.ConfigurationChecker
+com.mixpanel.android.mpmetrics.ExceptionHandler$1
+com.mixpanel.android.mpmetrics.ExceptionHandler:
+    public static void killProcessAndExit()
+com.mixpanel.android.mpmetrics.MPConfig:
+    public static boolean getUseIpAddressForGeolocation()
+    public static void setEventsEndpoint()
+    public final void setEventsEndpointWithBaseURL(java.lang.String)
+    public static void setGroupsEndpoint()
+    public final void setGroupsEndpointWithBaseURL(java.lang.String)
+    public static void setPeopleEndpoint()
+    public final void setPeopleEndpointWithBaseURL(java.lang.String)
+com.mixpanel.android.mpmetrics.MPDbAdapter$MPDatabaseHelper$1:
+    public final synthetic com.mixpanel.android.mpmetrics.MPDbAdapter$MPDatabaseHelper this$0
+com.mixpanel.android.mpmetrics.MPDbAdapter$MPDatabaseHelper:
+    public static boolean aboveMemThreshold()
+    public static void migrateTableFrom4To5()
+    public static void migrateTableFrom5To6(android.database.sqlite.SQLiteDatabase)
+com.mixpanel.android.mpmetrics.MPDbAdapter:
+    public static synthetic java.lang.String access$000()
+    public static synthetic java.lang.String access$100()
+    public static synthetic java.lang.String access$200()
+    public static synthetic java.lang.String access$300()
+    public static synthetic java.lang.String access$400()
+    public static synthetic java.lang.String access$500()
+    public static synthetic java.lang.String access$600()
+    public static synthetic java.lang.String access$700()
+    public static void cleanupEvents()
+    public static void deleteDB()
+    public static java.io.File getDatabaseFile()
+com.mixpanel.android.mpmetrics.MixpanelAPI$1:
+    public final synthetic com.mixpanel.android.mpmetrics.MixpanelAPI this$0
+com.mixpanel.android.mpmetrics.MixpanelAPI$3:
+    public final void onPrefsLoaded()
+com.mixpanel.android.mpmetrics.MixpanelAPI$InstanceProcessor
+com.mixpanel.android.mpmetrics.MixpanelAPI$PeopleImpl$1:
+    public final synthetic com.mixpanel.android.mpmetrics.MixpanelAPI$PeopleImpl this$1
+com.mixpanel.android.mpmetrics.MixpanelAPI:
+    public static synthetic com.mixpanel.android.mpmetrics.SessionMetadata access$1000()
+    public static synthetic com.mixpanel.android.mpmetrics.MixpanelAPI$PeopleImpl access$200()
+    public static void access$500(com.mixpanel.android.mpmetrics.MixpanelAPI,java.lang.String)
+    public static synthetic com.mixpanel.android.mpmetrics.PersistentIdentity access$600()
+    public static synthetic java.lang.String access$900()
+    public static com.mixpanel.android.mpmetrics.PersistentIdentity getPersistentIdentity()
+    public static java.lang.String makeMapKey(java.lang.Object,java.lang.String)
+    public static void onBackground()
+    public static void onForeground()
+    public static void pushWaitingPeopleRecord()
+    public static void recordGroupMessage()
+    public static void recordPeopleMessage()
+    public static void registerMixpanelActivityLifecycleCallbacks()
+    public static boolean sendAppOpen()
+com.mixpanel.android.mpmetrics.MixpanelActivityLifecycleCallbacks:
+    public java.lang.ref.WeakReference mCurrentActivity
+    public static synthetic com.mixpanel.android.mpmetrics.MPConfig access$300()
+    public static synthetic com.mixpanel.android.mpmetrics.MixpanelAPI access$400()
+    public static boolean isInForeground()
+com.mixpanel.android.mpmetrics.PersistentIdentity:
+    public static synthetic java.lang.Object access$000()
+    public static void addTimeEvent()
+    public static void clearReferrerProperties()
+    public static void clearSuperProperties()
+    public final synchronized java.lang.String getAnonymousId()
+    public final synchronized java.lang.String getEventsDistinctId()
+    public final synchronized java.lang.String getEventsUserId()
+    public final synchronized boolean getHadPersistedDistinctId()
+    public final synchronized boolean getOptOutTracking()
+    public final synchronized java.lang.String getPeopleDistinctId()
+    public static java.util.Map getReferrerProperties()
+    public final org.json.JSONObject getSuperPropertiesCache()
+    public static java.util.Map getTimeEvents()
+    public static boolean hasOptOutFlag()
+    public final synchronized boolean isFirstIntegration()
+    public final synchronized boolean isFirstLaunch()
+    public final synchronized boolean isNewVersion()
+    public final synchronized void markEventsUserIdPresent()
+    public static void registerSuperProperties()
+    public static void registerSuperPropertiesOnce()
+    public final synchronized void setAnonymousIdIfAbsent()
+    public final synchronized void setEventsDistinctId()
+    public final synchronized void setOptOutTracking(java.lang.String,boolean)
+    public final synchronized void setPeopleDistinctId()
+    public static void unregisterSuperProperty()
+    public static void updateSuperProperties()
+    public static void writeEdits()
+com.mixpanel.android.mpmetrics.SessionMetadata:
+    public static org.json.JSONObject getMetadataForEvent()
+    public static org.json.JSONObject getMetadataForPeople()
+com.mixpanel.android.mpmetrics.SharedPreferencesLoader$LoadSharedPreferences:
+    public static android.content.SharedPreferences call()
+com.mixpanel.android.mpmetrics.SharedPreferencesLoader$OnPrefsLoadedListener:
+    public abstract void onPrefsLoaded()
+com.mixpanel.android.mpmetrics.SystemInformation:
+    public final java.lang.String mAppName
+    public static java.lang.Integer getAppVersionCode()
+    public static java.lang.String getAppVersionName()
+    public static java.lang.String getBluetoothVersion()
+    public static java.lang.String getCurrentNetworkOperator()
+    public static android.util.DisplayMetrics getDisplayMetrics()
+    public static boolean hasNFC()
+    public static boolean hasTelephony()
+    public static java.lang.Boolean isBluetoothEnabled()
+    public static java.lang.Boolean isWifiConnected()
+com.mixpanel.android.util.HttpService$1:
+    public final synthetic com.mixpanel.android.util.HttpService this$0
+com.mixpanel.android.util.HttpService:
+    public static boolean onOfflineMode()
+com.mixpanel.android.util.MPLog:
+    public static void <clinit>()
+com.nimbusds.jose.HeaderValidation
 com.nimbusds.jose.JWEHeader:
     public static com.nimbusds.jose.EncryptionMethod parseEncryptionMethod()
 com.nimbusds.jose.JWEObject:
@@ -34994,7 +35220,6 @@ com.nimbusds.jose.crypto.impl.RSASSA:
 com.nimbusds.jose.jwk.JWK:
     public static java.security.KeyPair mergeKeyPairs()
     public static java.security.KeyPair twoKeysToKeyPair()
-com.nimbusds.jose.jwk.JWKMetadata
 com.nimbusds.jose.jwk.KeyUseAndOpsConsistency:
     public static boolean areConsistent()
 com.nimbusds.jose.jwk.source.RemoteJWKSet:
@@ -35561,7 +35786,7 @@ com.stripe.android.paymentsheet.PaymentSheet$FlowController$Result:
     public static void <clinit>()
 com.stripe.android.paymentsheet.PaymentSheet:
     public static void <clinit>()
-com.stripe.android.paymentsheet.PaymentSheetActivity$$InternalSyntheticLambda$1$c2723b87470bb07c6fe7868481cd09da3a333b2522d1999e1203ca4d6b2aabe7$3
+com.stripe.android.paymentsheet.PaymentSheetActivity$$InternalSyntheticLambda$1$c2723b87470bb07c6fe7868481cd09da3a333b2522d1999e1203ca4d6b2aabe7$2
 com.stripe.android.paymentsheet.PaymentSheetResult:
     public static void <clinit>()
 com.stripe.android.paymentsheet.PaymentSheetViewModel$TransitionTarget$AddPaymentMethodFull:
@@ -35615,7 +35840,6 @@ com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel$UserErrorMessage:
     public static void <clinit>()
 com.stripe.android.stripe3ds2.views.ChallengeFragment$$InternalSyntheticLambda$1$dbc54cdc4b37e65cc1c82c324ad16304248eb736177c35f962e55653f2a22e33$0
 com.stripe.android.stripe3ds2.views.ChallengeFragment$$InternalSyntheticLambda$1$def1816f2c2d101de8823189f9d065ffb2fe5f1471d5421cabcd6edac4787111$2
-com.stripe.android.stripe3ds2.views.ChallengeZoneWebView$$InternalSyntheticLambda$1$a6c259a78c612d7c6cb88fcc172dbedd58190d3e9ca3836ccb71769c777dde88$0
 com.stripe.android.stripe3ds2.views.InformationZoneView$$InternalSyntheticLambda$1$b1a0e47eca01765e72dae53d7098e212e10e5cd7838b454d56a9391fd5b4951e$0
 com.stripe.android.ui.core.PaymentsColors:
     public static void <clinit>()
@@ -36663,6 +36887,7 @@ kotlinx.coroutines.android.AndroidExceptionPreHandler:
     public static java.lang.reflect.Method preHandler()
 kotlinx.coroutines.android.HandlerContext$scheduleResumeAfterDelay$1:
     public final void invoke(java.lang.Throwable)
+kotlinx.coroutines.android.HandlerDispatcherKt$$InternalSyntheticLambda$1$2f8aa3221d05e328f7620c40e45d7e78601d10b3300463a64904405bfea13680$0
 kotlinx.coroutines.android.HandlerDispatcherKt:
     public static final void postFrameCallback(android.view.Choreographer,kotlinx.coroutines.CancellableContinuation)
     public static final void updateChoreographerAndPostFrameCallback()
@@ -37705,7 +37930,8 @@ org.apache.commons.codec.language.RefinedSoundex:
     public static char getMappingCode()
 org.apache.commons.codec.language.Soundex:
     public static boolean hasMarker(char[])
-org.apache.commons.codec.language.SoundexUtils
+org.apache.commons.codec.language.SoundexUtils:
+    public static void toNTT(short[])
 org.apache.commons.codec.language.bm.Lang$1
 org.apache.commons.codec.language.bm.Lang$LangRule:
     public static synthetic java.util.Set access$200()
@@ -39438,8 +39664,7 @@ org.bouncycastle.pqc.crypto.lms.LMOtsSignature:
     public static byte[] getC()
     public static org.bouncycastle.pqc.crypto.lms.LMOtsParameters getType()
     public static byte[] getY()
-org.bouncycastle.pqc.crypto.lms.LMS:
-    public static org.bouncycastle.pqc.crypto.lms.LMSSignature generateSign(org.bouncycastle.pqc.crypto.lms.LMSPrivateKeyParameters,byte[])
+org.bouncycastle.pqc.crypto.lms.LMS
 org.bouncycastle.pqc.crypto.lms.LMSContext:
     public static byte[] getC()
     public static byte[][] getPath()
@@ -39488,9 +39713,7 @@ org.bouncycastle.pqc.crypto.mceliece.McElieceKobaraImaiCipher:
 org.bouncycastle.pqc.crypto.mceliece.McEliecePointchevalCipher:
     public final void initCipherDecrypt$1()
 org.bouncycastle.pqc.crypto.mceliece.Utils
-org.bouncycastle.pqc.crypto.newhope.ChaCha20
-org.bouncycastle.pqc.crypto.newhope.ErrorCorrection:
-    public static int abs()
+org.bouncycastle.pqc.crypto.newhope.ErrorCorrection
 org.bouncycastle.pqc.crypto.newhope.NHOtherInfoGenerator:
     public static byte[] access$000(org.bouncycastle.pqc.crypto.newhope.NHPublicKeyParameters)
     public static org.bouncycastle.pqc.crypto.newhope.NHPublicKeyParameters access$100(byte[])
@@ -39594,7 +39817,7 @@ org.bouncycastle.pqc.crypto.xmss.OTSHashAddress:
 org.bouncycastle.pqc.crypto.xmss.WOTSPlus:
     public static org.bouncycastle.pqc.crypto.xmss.KeyedHashFunctions getKhf()
     public static org.bouncycastle.pqc.crypto.xmss.WOTSPlusParameters getParams()
-    public static com.google.android.gms.dynamic.zaa getPublicKeyFromSignature()
+    public static org.bouncycastle.pqc.crypto.xmss.WOTSPlusPublicKeyParameters getPublicKeyFromSignature()
     public static byte[] getPublicSeed()
 org.bouncycastle.pqc.crypto.xmss.WOTSPlusParameters:
     public final org.bouncycastle.pqc.crypto.xmss.WOTSPlusOid oid
@@ -39604,7 +39827,8 @@ org.bouncycastle.pqc.crypto.xmss.WOTSPlusParameters:
     public static org.bouncycastle.asn1.ASN1ObjectIdentifier getTreeDigest()
     public static int getTreeDigestSize()
     public static int getWinternitzParameter()
-org.bouncycastle.pqc.crypto.xmss.WOTSPlusPublicKeyParameters
+org.bouncycastle.pqc.crypto.xmss.WOTSPlusPublicKeyParameters:
+    public static byte[][] toByteArray()
 org.bouncycastle.pqc.crypto.xmss.WOTSPlusSignature:
     public final byte[][] toByteArray()
 org.bouncycastle.pqc.crypto.xmss.XMSSKeyPairGenerator:
@@ -39825,6 +40049,8 @@ org.permanent.permanent.DataBinderMapperImpl:
     public static androidx.databinding.ViewDataBinding internalGetViewDataBinding0()
     public static androidx.databinding.ViewDataBinding internalGetViewDataBinding1()
 org.permanent.permanent.DevicePermissionsHelper:
+    public static void <clinit>()
+org.permanent.permanent.EventsManager:
     public static void <clinit>()
 org.permanent.permanent.PermanentFCMService:
     public org.permanent.permanent.ui.PreferencesHelper prefsHelper
@@ -41143,6 +41369,7 @@ org.permanent.permanent.ui.login.CodeVerificationFragment:
     public static void <clinit>()
     public static boolean isLoginFlow()
     public final boolean isSmsCodeFlow()
+    public final void logEvents()
     public final void startArchiveOnboardingActivity()
     public static void startMainActivity()
     public static void startPhoneVerificationFragment()
@@ -41172,6 +41399,7 @@ org.permanent.permanent.ui.login.LoginFragment$userMissingDefaultArchiveObserver
 org.permanent.permanent.ui.login.LoginFragment:
     public final org.permanent.permanent.viewmodels.ForgotPasswordViewModel dialogViewModel
     public static void <clinit>()
+    public final void logEvents()
 org.permanent.permanent.ui.login.PhoneVerificationFragment$onErrorMessage$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.login.PhoneVerificationFragment$onSMSCodeSent$1:
@@ -41191,6 +41419,7 @@ org.permanent.permanent.ui.login.SignUpFragment$startArchiveOnboardingActivity$1
     public final void onChanged$2()
 org.permanent.permanent.ui.login.SignUpFragment:
     public static void <clinit>()
+    public final void logEvents()
     public static void showTermsDialog()
 org.permanent.permanent.ui.login.SmsVerificationCodeHelper:
     public static void <clinit>()
@@ -41875,6 +42104,9 @@ org.permanent.permanent.ui.shares.SharedXMeFragment:
     public final void initDownloadsRecyclerView()
     public final void initRecordsRecyclerView()
     public final void resizeIslandWidthAnimated(int,int)
+org.permanent.permanent.ui.shares.SharesFragment$$InternalSyntheticLambda$1$f90b265528132f4e77782c4eaa176869142f60b74bbfb14dba38180422a8e758$0
+org.permanent.permanent.ui.shares.SharesFragment$$InternalSyntheticLambda$1$f90b265528132f4e77782c4eaa176869142f60b74bbfb14dba38180422a8e758$1
+org.permanent.permanent.ui.shares.SharesFragment$$InternalSyntheticLambda$1$f90b265528132f4e77782c4eaa176869142f60b74bbfb14dba38180422a8e758$2
 org.permanent.permanent.ui.shares.SharesFragment$onGetRootShares$1:
     public final void onChanged$2()
 org.permanent.permanent.ui.shares.SharesFragment$onRecordSelectedObserver$1:
@@ -42023,6 +42255,7 @@ org.permanent.permanent.viewmodels.LocationSearchViewModel:
     public static void requestLocation()
 org.permanent.permanent.viewmodels.LoginFragmentViewModel:
     public static void <clinit>()
+org.permanent.permanent.viewmodels.MainViewModel$$InternalSyntheticLambda$1$b573bbab07eed63d415491567162b57a73f57e74661d509dcbb57f0d31fe9b89$0
 org.permanent.permanent.viewmodels.MainViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.ManageTagsViewModel$1:
@@ -42038,7 +42271,6 @@ org.permanent.permanent.viewmodels.MilestoneListViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.MyFilesContainerViewModel:
     public static void <clinit>()
-org.permanent.permanent.viewmodels.MyFilesViewModel$$InternalSyntheticLambda$1$def59cec0ed606796a855f1d747d420f1bc845663d76e7fcfffdd29216f578b9$0
 org.permanent.permanent.viewmodels.MyFilesViewModel$loadEnqueuedDownloads$1$1:
     public final void invoke$24()
 org.permanent.permanent.viewmodels.MyFilesViewModel$loadEnqueuedUploads$1$1:
@@ -42077,6 +42309,7 @@ org.permanent.permanent.viewmodels.PublicFolderViewModel:
     public static void <clinit>()
     public final java.util.ArrayList getFilesForViewing()
     public final java.util.List getRecords$1()
+org.permanent.permanent.viewmodels.PublicGalleryViewModel$$InternalSyntheticLambda$1$9f1c455b8722ab3972b8ccdfca9ddb3532d7e9ae3727425d96b821a60bfef9f7$0
 org.permanent.permanent.viewmodels.PublicGalleryViewModel:
     public final org.permanent.permanent.ui.PreferencesHelper prefsHelper
     public static void getYourPublicArchives()
