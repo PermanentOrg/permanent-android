@@ -118,14 +118,14 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
             GooglePayLauncher.Result.Completed -> {
                 showDialog(
                     R.string.storage_donation_successful_title,
-                    getString(R.string.storage_donation_successful_text)
+                    getString(R.string.storage_purchase_successful_text)
                 )
             }
             GooglePayLauncher.Result.Canceled -> {
                 Log.d(TAG, "User canceled the operation")
             }
             is GooglePayLauncher.Result.Failed -> {
-                showDialog(R.string.storage_donation_failed_title, result.error.message)
+                showDialog(R.string.storage_purchase_failed_title, result.error.message)
             }
         }
     }

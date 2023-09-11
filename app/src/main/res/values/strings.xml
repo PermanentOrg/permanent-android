@@ -499,10 +499,10 @@
     <string name="storage_gb_endowed">Endow %s GB</string>
     <string name="storage_anonymous_donation">Make my purchase anonymous</string>
     <string name="storage_donation_successful_title">Thank you!</string>
-    <string name="storage_donation_successful_text">Your donation was successful!</string>
+    <string name="storage_purchase_successful_text">Your purchase was successful!</string>
     <string name="storage_donation_no_card_title">Oops!</string>
     <string name="storage_donation_no_card_text">You need to add a payment card first.</string>
-    <string name="storage_donation_failed_title">Oops! Your donation failed</string>
+    <string name="storage_purchase_failed_title">Oops! Your purchase failed</string>
     <string name="storage_dollar_sign">$</string>
 
     <string name="archive_onboarding_welcome_title">Welcome to Permanent!</string>
