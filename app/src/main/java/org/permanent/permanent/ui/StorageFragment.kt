@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -30,7 +29,6 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
 
     private lateinit var binding: FragmentStorageBinding
     private lateinit var viewModel: StorageViewModel
-    private lateinit var googlePayButton: RelativeLayout
     private lateinit var googlePayLauncher: GooglePayLauncher
     private var isGooglePayReady: Boolean = false
 
@@ -44,7 +42,6 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        googlePayButton = binding.buttonLayout
 
         binding.tlAmount.addTab(binding.tlAmount.newTab().setText(DONATION_AMOUNT_10_VALUE))
         binding.tlAmount.addTab(binding.tlAmount.newTab().setText(DONATION_AMOUNT_20_VALUE))
@@ -63,7 +60,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
             readyCallback = ::onGooglePayReady,
             resultCallback = ::onGooglePayResult
         )
-        binding.buttonLayout.setOnClickListener {
+        binding.btnEndow.setOnClickListener {
             if (!isGooglePayReady) showDialogThatNavigatesToGoogleWallet()
             else viewModel.getPaymentIntent()
         }
