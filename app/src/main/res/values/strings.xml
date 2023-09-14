@@ -267,6 +267,7 @@
     <string name="button_select">Select</string>
     <string name="button_select_all">Select all</string>
     <string name="button_clear">Clear</string>
+    <string name="button_endow_with">Endow with</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -491,7 +492,6 @@
     <string name="record_search_no_results_title">Enter search terms to match tags and titles.</string>
     <string name="record_search_no_results_message">Search results will appear here.</string>
 
-    <string name="storage_donate_with_googlepay_button_content_description">Pay with Google Pay</string>
     <string name="storage_title">Need more storage?</string>
     <string name="storage_description">Purchase as little or as much at a time, anytime you\'d like.</string>
     <string name="storage_choose_amount">Choose an amount</string>

@@ -170,39 +170,36 @@
             app:layout_constraintTop_toBottomOf="@+id/etCustomAmount"
             app:theme="@style/colorSwitchStyle" />
 
-        <RelativeLayout
-            android:id="@+id/buttonLayout"
-            android:layout_width="match_parent"
-            android:layout_height="48sp"
-            android:layout_marginStart="16dp"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEndow"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/rounded_googlepay_button_background"
-            android:clickable="true"
-            android:contentDescription="@string/storage_donate_with_googlepay_button_content_description"
-            android:focusable="true"
-            android:padding="2sp"
+            android:fontFamily="@font/open_sans"
+            android:insetTop="3dp"
+            android:insetBottom="3dp"
+            android:letterSpacing="-0.01"
+            android:paddingEnd="80dp"
+            android:text="@string/button_endow_with"
+            android:textSize="16sp"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/swAnonymous">
+            app:layout_constraintTop_toBottomOf="@+id/swAnonymous" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:duplicateParentState="true"
-                android:gravity="center_vertical"
-                android:orientation="vertical"
-                android:weightSum="2">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:duplicateParentState="true"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/img_pay_with_google" />
-            </LinearLayout>
-        </RelativeLayout>
+        <ImageView
+            android:id="@+id/ivGooglePay"
+            android:layout_width="80dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="80dp"
+            android:elevation="2dp"
+            android:src="@drawable/ic_google_pay_mark"
+            app:layout_constraintBottom_toBottomOf="@+id/btnEndow"
+            app:layout_constraintEnd_toEndOf="@+id/btnEndow"
+            app:layout_constraintStart_toStartOf="@+id/btnEndow"
+            app:layout_constraintTop_toTopOf="@+id/btnEndow" />
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar"
