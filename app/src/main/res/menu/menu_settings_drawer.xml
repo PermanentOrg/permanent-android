@@ -13,7 +13,7 @@
             android:title="@string/menu_settings_drawer_account" />
 
         <item
-            android:id="@+id/loadingFragment"
+            android:id="@+id/legacyLoadingFragment"
             android:title="@string/menu_settings_drawer_legacy_planning" />
 
         <item

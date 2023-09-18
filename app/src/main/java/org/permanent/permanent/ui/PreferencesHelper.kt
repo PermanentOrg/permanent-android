@@ -12,6 +12,7 @@ const val IS_ARCHIVE_ONBOARDING_IN_APP = "is_archive_onboarding_done_in_app"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_WELCOME_SEEN = "is_welcome_seen"
+const val IS_LEGACY_SEEN = "is_legacy_seen"
 const val IS_ARCHIVE_ONBOARDING_DEFAULT_FLOW = "is_archive_onboarding_default_flow"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val SHOW_ARCHIVES_SCREEN = "should_show_archives_screen"
@@ -39,10 +40,6 @@ const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
-    fun isOnboardingCompleted(): Boolean {
-        return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
-    }
-
     fun saveWelcomeDialogSeen(isSeen: Boolean) {
         with(sharedPreferences.edit()) {
             putBoolean(IS_WELCOME_SEEN, isSeen)
@@ -52,6 +49,21 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isWelcomeDialogSeen(): Boolean {
         return sharedPreferences.getBoolean(IS_WELCOME_SEEN, false)
+    }
+
+    fun saveLegacyDialogSeen(isSeen: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_LEGACY_SEEN, isSeen)
+            apply()
+        }
+    }
+
+    fun isLegacyDialogSeen(): Boolean {
+        return sharedPreferences.getBoolean(IS_LEGACY_SEEN, false)
+    }
+
+    fun isOnboardingCompleted(): Boolean {
+        return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
     }
 
     fun saveArchiveOnboardingDefaultFlow(isDefault: Boolean) {
