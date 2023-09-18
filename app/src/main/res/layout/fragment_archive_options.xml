@@ -107,7 +107,7 @@
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
-                app:icon="@drawable/legacy_planning_menu"
+                app:icon="@drawable/ic_legacy_planning_primary"
                 app:iconPadding="16dp"
                 app:iconTint="@color/black"
                 android:visibility="@{viewModel.accessRole != AccessRole.OWNER ? View.GONE : View.VISIBLE}"

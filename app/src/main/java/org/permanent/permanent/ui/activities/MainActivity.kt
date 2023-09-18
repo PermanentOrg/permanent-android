@@ -38,6 +38,7 @@ import org.permanent.permanent.RECIPIENT_ARCHIVE_NAME_KEY
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NR_KEY
 import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
+import org.permanent.permanent.databinding.DialogLegacyPlanningBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.DialogWelcomeBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
@@ -109,7 +110,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.loadingFragment-> {
+                R.id.legacyLoadingFragment-> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -272,6 +273,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             showWelcomeDialog()
         }
 
+        if (!prefsHelper.isLegacyDialogSeen()) {
+            showLegacyDialog()
+        }
+
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
     }
@@ -401,6 +406,24 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             prefsHelper.saveWelcomeDialogSeen(true)
             alert.dismiss()
         }
+        alert.show()
+    }
+
+    private fun showLegacyDialog() {
+        val dialogBinding: DialogLegacyPlanningBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(this), R.layout.dialog_legacy_planning, null, false
+        )
+        val alert = AlertDialog.Builder(this).setView(dialogBinding.root).create()
+        dialogBinding.ivClose.setOnClickListener {
+            prefsHelper.saveLegacyDialogSeen(true)
+            alert.dismiss()
+        }
+        dialogBinding.btnTryNow.setOnClickListener {
+            prefsHelper.saveLegacyDialogSeen(true)
+            navController.navigate(R.id.legacyLoadingFragment)
+            alert.dismiss()
+        }
+        alert.setCanceledOnTouchOutside(false)
         alert.show()
     }
 

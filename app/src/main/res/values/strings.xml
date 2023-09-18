@@ -268,6 +268,7 @@
     <string name="button_select_all">Select all</string>
     <string name="button_clear">Clear</string>
     <string name="button_endow_with">Endow with</string>
+    <string name="button_try_now">Try now</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -607,4 +608,7 @@
     <string name="steward_note_description">Your Archive Steward will get an email from Permanent with instructions. Discuss your Legacy Plan first. They\'ll receive another email when the plan is activated with steps to accept ownership. Add instructions in the note section above.</string>
     <string name="name_empty_error">Name can not be empty.</string>
     <string name="email_empty_error">Email can not be empty.</string>
+
+    <string name="dialog_legacy_title">Legacy Planning</string>
+    <string name="dialog_legacy_text">Your Legacy Plan will determine when, how, and with whom your materials will be shared.</string>
 </resources>
