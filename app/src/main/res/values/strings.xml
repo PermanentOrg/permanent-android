@@ -115,6 +115,7 @@
     <string name="main_navigation_title_members">Members</string>
     <string name="main_navigation_title_share_link">Share Link</string>
     <string name="main_navigation_title_search">Search</string>
+    <string name="main_navigation_title_edit_files_metadata">Edit Files Metadata</string>
 
     <string name="file_navigation_title_enter_location">Enter Location</string>
     <string name="file_navigation_title_edit_tags">Edit Tags</string>
@@ -207,6 +208,7 @@
     <string name="record_options_menu_item_download_to_device">Download to device</string>
     <string name="record_options_menu_item_copy">Copy to another location</string>
     <string name="record_options_menu_item_move">Move to another location</string>
+    <string name="record_options_menu_item_edit">Edit files metadata</string>
     <string name="record_options_menu_item_delete">Delete</string>
     <string name="record_options_menu_item_leave_share">Leave share</string>
     <string name="record_options_menu_item_rename">Rename</string>

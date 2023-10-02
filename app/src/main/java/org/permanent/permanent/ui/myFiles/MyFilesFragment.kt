@@ -342,18 +342,23 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.refreshCurrentFolder()
     }
 
-    private val showSelectionOptionsObserver = Observer<Int> {
+    private val showSelectionOptionsObserver = Observer<Pair<Int, Boolean>> {
         selectionOptionsFragment = SelectionOptionsFragment()
         selectionOptionsFragment?.setBundleArguments(it)
         selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
         selectionOptionsFragment?.getOnSelectionRelocateRequest()?.observe(this, onSelectionRelocateObserver)
     }
 
-    private val onSelectionRelocateObserver = Observer<RelocationType> {
+    private val showEditMetadataScreenObserver = Observer<MutableList<Record>> {
+        val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
+        findNavController().navigate(R.id.action_myFilesFragment_to_editMetadataFragment, bundle)
+    }
+
+    private val onSelectionRelocateObserver = Observer<ModificationType> {
         viewModel.onSelectionRelocationBtnClick(it)
     }
 
-    private val onRecordRelocateObserver = Observer<Pair<Record, RelocationType>> {
+    private val onRecordRelocateObserver = Observer<Pair<Record, ModificationType>> {
         viewModel.setRelocationMode(Pair(mutableListOf(it.first), it.second))
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
@@ -475,6 +480,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
+        viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -504,6 +510,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
+        viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)

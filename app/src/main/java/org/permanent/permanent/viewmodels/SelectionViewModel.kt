@@ -8,9 +8,10 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.ui.RelocationIslandState
-import org.permanent.permanent.ui.myFiles.RelocationType
+import org.permanent.permanent.ui.myFiles.ModificationType
 
 abstract class SelectionViewModel(application: Application) : RelocationViewModel(application) {
 
@@ -22,7 +23,8 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     private val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
     private val expandIslandRequest = SingleLiveEvent<Void?>()
     private val deleteRecordsRequest = SingleLiveEvent<Void?>()
-    private val showSelectionOptionsRequest = SingleLiveEvent<Int>()
+    private val showSelectionOptionsRequest = SingleLiveEvent<Pair<Int, Boolean>>()
+    private val showEditMetadataRequest = SingleLiveEvent<MutableList<Record>>()
     private val refreshCurrentFolderRequest = SingleLiveEvent<Void?>()
 
     fun onSelectBtnClick() {
@@ -92,25 +94,44 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         }
     }
 
-    fun onSelectionRelocationBtnClick(type: RelocationType) {
-        if (type == RelocationType.DELETE) {
-            deleteSelectedRecords()
-        } else {
-            setRelocationModeForMultipleRecords(type)
+    fun onSelectionRelocationBtnClick(type: ModificationType) {
+        when (type) {
+            ModificationType.DELETE -> {
+                deleteSelectedRecords()
+            }
+
+            ModificationType.EDIT -> {
+                editMetadataForSelectedRecords()
+            }
+
+            else -> {
+                setRelocationModeForMultipleRecords(type)
+            }
         }
     }
 
-    private fun setRelocationModeForMultipleRecords(type: RelocationType) {
+    private fun setRelocationModeForMultipleRecords(type: ModificationType) {
         isSelectionMode.value = false
         isRelocationMode.value = true
-        relocationType.value = type
+        modificationType.value = type
         relocationIslandState.value = RelocationIslandState.CONFIRMATION
         recordsToRelocate.value = selectedRecords.value
         selectedRecords.value?.let { PermanentApplication.instance.relocateData = Pair(it, type) }
     }
 
     fun onSelectionOptionsBtnClick() {
-        showSelectionOptionsRequest.value = selectedRecordsSize.value
+        showSelectionOptionsRequest.value = Pair(selectedRecordsSize.value!!, isSelectionContainingFolders())
+    }
+
+    private fun isSelectionContainingFolders(): Boolean {
+        val selectedRecords = selectedRecords.value
+        if (!selectedRecords.isNullOrEmpty()) {
+            for (record in selectedRecords) {
+                if (record.type == RecordType.FOLDER) return true
+            }
+            return false
+        }
+        return true
     }
 
     fun onPasteOrMoveBtnClick() {
@@ -119,7 +140,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         relocationIslandState.value = RelocationIslandState.PROCESSING
         val recordsToRelocate = recordsToRelocate.value
         val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
-        val relocationTypeValue = relocationType.value
+        val relocationTypeValue = modificationType.value
         if (!recordsToRelocate.isNullOrEmpty() && folderLinkId != null && relocationTypeValue != null) {
             fileRepository.relocateRecords(
                 recordsToRelocate,
@@ -154,6 +175,23 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
                         }
                     }
                 })
+        }
+    }
+
+    private fun editMetadataForSelectedRecords() {
+        isSelectionMode.value = false
+        getShrinkIslandRequest().call()
+        val recordsToModify = selectedRecords.value
+        if (!recordsToModify.isNullOrEmpty()) {
+            showEditMetadataRequest.value = recordsToModify!!
+            waitAndHideActionIsland()
+            viewModelScope.launch {
+                delay(DELAY_TO_POPULATE_ISLAND_MILLIS)
+                isRelocationMode.value = false
+                selectBtnText.value = appContext.getString(R.string.button_select)
+                deselectAllRecords()
+                refreshCurrentFolderRequest.call()
+            }
         }
     }
 
@@ -194,7 +232,9 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
 
     fun getDeleteRecordsRequest(): SingleLiveEvent<Void?> = deleteRecordsRequest
 
-    fun getShowSelectionOptionsRequest(): SingleLiveEvent<Int> = showSelectionOptionsRequest
+    fun getShowSelectionOptionsRequest(): SingleLiveEvent<Pair<Int, Boolean>> = showSelectionOptionsRequest
+
+    fun getShowEditMetadataScreenRequest(): SingleLiveEvent<MutableList<Record>> = showEditMetadataRequest
 
     fun getRefreshCurrentFolderRequest(): SingleLiveEvent<Void?> = refreshCurrentFolderRequest
 

@@ -44,7 +44,7 @@ import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.invitations.UpdateType
-import org.permanent.permanent.ui.myFiles.RelocationType
+import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestBody
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
@@ -404,7 +404,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun relocateFilesOrFolders(
-        records: MutableList<Record>, destFolderLinkId: Int, relocationType: RelocationType
+        records: MutableList<Record>, destFolderLinkId: Int, relocationType: ModificationType
     ): Call<ResponseVO> {
         val isFolderRecordType = records[0].type == RecordType.FOLDER
         val request = toJson(
@@ -413,13 +413,13 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         )
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (isFolderRecordType) {
-            if (relocationType == RelocationType.MOVE) {
+            if (relocationType == ModificationType.MOVE) {
                 fileService.moveFolder(requestBody)
             } else {
                 fileService.copyFolder(requestBody)
             }
         } else {
-            if (relocationType == RelocationType.MOVE) {
+            if (relocationType == ModificationType.MOVE) {
                 fileService.moveRecord(requestBody)
             } else {
                 fileService.copyRecord(requestBody)

@@ -47,7 +47,15 @@
         <action
             android:id="@+id/action_myFilesFragment_to_publicFilesFragment"
             app:destination="@id/publicFilesFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_editMetadataFragment"
+            app:destination="@id/editMetadataFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/editMetadataFragment"
+        android:name="org.permanent.permanent.ui.EditMetadataFragment"
+        android:label="@string/main_navigation_title_edit_files_metadata" />
 
     <fragment
         android:id="@+id/recordSearchFragment"
@@ -91,6 +99,9 @@
         <action
             android:id="@+id/action_sharesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
+        <action
+            android:id="@+id/action_sharesFragment_to_editMetadataFragment"
+            app:destination="@id/editMetadataFragment" />
     </fragment>
 
     <fragment
@@ -205,6 +216,9 @@
         <action
             android:id="@+id/action_publicFilesFragment_to_fileActivity"
             app:destination="@id/fileActivity" />
+        <action
+            android:id="@+id/action_publicFilesFragment_to_editMetadataFragment"
+            app:destination="@id/editMetadataFragment" />
     </fragment>
 
     <fragment

@@ -6,7 +6,7 @@
 
         <import type="android.view.View" />
 
-        <import type="org.permanent.permanent.ui.myFiles.RelocationType" />
+        <import type="org.permanent.permanent.ui.myFiles.ModificationType" />
 
         <variable
             name="viewModel"

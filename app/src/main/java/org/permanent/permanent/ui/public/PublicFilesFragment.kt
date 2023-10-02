@@ -39,6 +39,7 @@ import org.permanent.permanent.ui.SelectionOptionsFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.AddOptionsFragment
+import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.DELAY_TO_RESIZE_MILLIS
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH_LARGE
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH_SMALL
@@ -49,7 +50,6 @@ import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
 import org.permanent.permanent.ui.myFiles.RecordsAdapter
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
-import org.permanent.permanent.ui.myFiles.RelocationType
 import org.permanent.permanent.ui.myFiles.SortOptionsFragment
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
@@ -277,18 +277,23 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.refreshCurrentFolder()
     }
 
-    private val showSelectionOptionsObserver = Observer<Int> {
+    private val showSelectionOptionsObserver = Observer<Pair<Int, Boolean>> {
         selectionOptionsFragment = SelectionOptionsFragment()
         selectionOptionsFragment?.setBundleArguments(it)
         selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
         selectionOptionsFragment?.getOnSelectionRelocateRequest()?.observe(this, onSelectionRelocateObserver)
     }
 
-    private val onSelectionRelocateObserver = Observer<RelocationType> {
+    private val showEditMetadataScreenObserver = Observer<MutableList<Record>> {
+        val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
+        findNavController().navigate(R.id.action_publicFilesFragment_to_editMetadataFragment, bundle)
+    }
+
+    private val onSelectionRelocateObserver = Observer<ModificationType> {
         viewModel.onSelectionRelocationBtnClick(it)
     }
 
-    private val onRecordRelocateRequest = Observer<Pair<Record, RelocationType>> {
+    private val onRecordRelocateRequest = Observer<Pair<Record, ModificationType>> {
         viewModel.setRelocationMode(Pair(mutableListOf(it.first), it.second))
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
@@ -422,6 +427,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
+        viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -449,6 +455,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
+        viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
