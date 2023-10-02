@@ -38,8 +38,8 @@ import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import org.permanent.permanent.ui.myFiles.RelocationType
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -81,7 +81,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onManageSharingRequest = SingleLiveEvent<Void?>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
-    private val onRelocateRequest = MutableLiveData<RelocationType>()
+    private val onRelocateRequest = MutableLiveData<ModificationType>()
     private val onPublishRequest = SingleLiveEvent<Void?>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
@@ -220,11 +220,11 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onCopyBtnClick() {
-        onRelocateRequest.value = RelocationType.COPY
+        onRelocateRequest.value = ModificationType.COPY
     }
 
     fun onMoveBtnClick() {
-        onRelocateRequest.value = RelocationType.MOVE
+        onRelocateRequest.value = ModificationType.MOVE
     }
 
     fun onPublishBtnClick() {
@@ -283,7 +283,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             isBusy.value = true
             fileRepository.relocateRecords(mutableListOf(record),
                 folderLinkId,
-                RelocationType.PUBLISH,
+                ModificationType.PUBLISH,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         isBusy.value = false
@@ -438,7 +438,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
 
-    fun getOnRelocateRequest(): MutableLiveData<RelocationType> = onRelocateRequest
+    fun getOnRelocateRequest(): MutableLiveData<ModificationType> = onRelocateRequest
 
     fun getOnPublishRequest(): MutableLiveData<Void?> = onPublishRequest
 

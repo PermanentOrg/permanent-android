@@ -12,16 +12,22 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
-import org.permanent.permanent.network.models.*
+import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.myFiles.RelocationType
+import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class FileRepositoryImpl(val context: Context) : IFileRepository {
 
@@ -333,7 +339,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     override fun relocateRecords(
         records: MutableList<Record>,
         destFolderLinkId: Int,
-        relocationType: RelocationType,
+        relocationType: ModificationType,
         listener: IResponseListener
     ) {
         var areFilesReady = false
@@ -391,7 +397,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     private fun relocateFilesOrFolders(
         recordsToRelocate: MutableList<Record>,
         destFolderLinkId: Int,
-        relocationType: RelocationType,
+        relocationType: ModificationType,
         listener: IResponseListener
     ) {
         NetworkClient.instance().relocateFilesOrFolders(
@@ -401,8 +407,8 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 val responseVO = response.body()
                 if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                     val relocationVerb = when (relocationType) {
-                        RelocationType.MOVE -> context.getString(R.string.relocation_type_moved)
-                        RelocationType.PUBLISH -> context.getString(R.string.relocation_type_published)
+                        ModificationType.MOVE -> context.getString(R.string.relocation_type_moved)
+                        ModificationType.PUBLISH -> context.getString(R.string.relocation_type_published)
                         else -> context.getString(R.string.relocation_type_copied)
                     }
                     listener.onSuccess(

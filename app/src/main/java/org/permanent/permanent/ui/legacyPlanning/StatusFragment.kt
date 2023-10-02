@@ -16,7 +16,7 @@ import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.compose.StatusScreen
 import org.permanent.permanent.viewmodels.LegacyStatusViewModel
 
-class StatusFragment: PermanentBaseFragment()  {
+class StatusFragment : PermanentBaseFragment()  {
     private lateinit var viewModel: LegacyStatusViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

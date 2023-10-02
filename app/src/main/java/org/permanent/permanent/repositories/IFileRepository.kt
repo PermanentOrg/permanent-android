@@ -7,12 +7,17 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.network.models.*
-import org.permanent.permanent.ui.myFiles.RelocationType
+import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.UploadDestination
+import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import java.io.File
-import java.util.*
+import java.util.Date
 
 interface IFileRepository {
     fun getMyFilesRecord(listener: IRecordListener)
@@ -86,7 +91,7 @@ interface IFileRepository {
     fun relocateRecords(
         records: MutableList<Record>,
         destFolderLinkId: Int,
-        relocationType: RelocationType,
+        relocationType: ModificationType,
         listener: IResponseListener
     )
 

@@ -11,7 +11,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.RelocationIslandState
-import org.permanent.permanent.ui.myFiles.RelocationType
+import org.permanent.permanent.ui.myFiles.ModificationType
 
 abstract class RelocationViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
@@ -20,7 +20,7 @@ abstract class RelocationViewModel(application: Application) :
     val isRelocationMode = MutableLiveData(false)
     val showActionIsland = MutableLiveData(false)
     val recordsToRelocate = MutableLiveData<MutableList<Record>>()
-    val relocationType = MutableLiveData<RelocationType>()
+    val modificationType = MutableLiveData<ModificationType>()
     var currentFolder = MutableLiveData<NavigationFolder>()
     val existsFiles = MutableLiveData(false)
     private val shrinkIslandRequest = SingleLiveEvent<Void?>()
@@ -28,11 +28,11 @@ abstract class RelocationViewModel(application: Application) :
     protected val showMessage = SingleLiveEvent<String>()
     var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun setRelocationMode(relocationPair: Pair<MutableList<Record>, RelocationType>) {
+    fun setRelocationMode(relocationPair: Pair<MutableList<Record>, ModificationType>) {
         PermanentApplication.instance.relocateData = relocationPair
 
         recordsToRelocate.value = relocationPair.first
-        relocationType.value = relocationPair.second
+        modificationType.value = relocationPair.second
         isRelocationMode.value = true
         viewModelScope.launch {
             delay(DELAY_TO_POPULATE_ISLAND_MILLIS)

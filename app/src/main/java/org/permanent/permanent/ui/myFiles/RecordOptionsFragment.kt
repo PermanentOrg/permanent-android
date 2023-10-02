@@ -47,7 +47,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val onRecordLeaveShareRequest = MutableLiveData<Record>()
     private val onRecordRenameRequest = MutableLiveData<Record>()
-    private val onRecordRelocateRequest = MutableLiveData<Pair<Record, RelocationType>>()
+    private val onRecordRelocateRequest = MutableLiveData<Pair<Record, ModificationType>>()
     private var shareManagementFragment: ShareManagementFragment? = null
 
     fun setBundleArguments(
@@ -184,7 +184,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onRelocateRequestObserver = Observer<RelocationType> {
+    private val onRelocateRequestObserver = Observer<ModificationType> {
         dismiss()
         onRecordRelocateRequest.value = Pair(record, it)
     }
@@ -255,7 +255,7 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
 
-    fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, RelocationType>> =
+    fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, ModificationType>> =
         onRecordRelocateRequest
 
     override fun connectViewModelEvents() {

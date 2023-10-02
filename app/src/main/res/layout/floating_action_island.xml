@@ -6,7 +6,7 @@
 
         <import type="android.view.View" />
 
-        <import type="org.permanent.permanent.ui.myFiles.RelocationType" />
+        <import type="org.permanent.permanent.ui.myFiles.ModificationType" />
 
         <import type="org.permanent.permanent.ui.RelocationIslandState" />
 
@@ -44,7 +44,7 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/open_sans_semibold"
                     android:maxLines="1"
-                    android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_copying : @string/record_options_moving}"
+                    android:text="@{viewModel.modificationType == ModificationType.COPY ? @string/record_options_copying : @string/record_options_moving}"
                     android:textAllCaps="true"
                     android:textColor="@color/lightGrey"
                     android:textSize="11sp"
@@ -82,10 +82,10 @@
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:enabled="@{viewModel.recordsToRelocate.get(0) != null &amp;&amp; (viewModel.recordsToRelocate.get(0).parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordsToRelocate.get(0).parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY))}"
+                    android:enabled="@{viewModel.recordsToRelocate.get(0) != null &amp;&amp; (viewModel.recordsToRelocate.get(0).parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordsToRelocate.get(0).parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.modificationType == ModificationType.COPY))}"
                     android:onClick="@{() -> viewModel.onPasteOrMoveBtnClick()}"
-                    android:text="@{viewModel.relocationType == RelocationType.COPY ? @string/record_options_paste_here : @string/record_options_move_here}"
-                    android:textColor="@{viewModel.recordsToRelocate.get(0) != null &amp;&amp; (viewModel.recordsToRelocate.get(0).parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordsToRelocate.get(0).parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.relocationType == RelocationType.COPY)) ? @color/black : @color/lightGrey}"
+                    android:text="@{viewModel.modificationType == ModificationType.COPY ? @string/record_options_paste_here : @string/record_options_move_here}"
+                    android:textColor="@{viewModel.recordsToRelocate.get(0) != null &amp;&amp; (viewModel.recordsToRelocate.get(0).parentFolderLinkId != viewModel.currentFolder.folderIdentifier.folderLinkId || (viewModel.recordsToRelocate.get(0).parentFolderLinkId == viewModel.currentFolder.folderIdentifier.folderLinkId &amp;&amp; viewModel.modificationType == ModificationType.COPY)) ? @color/black : @color/lightGrey}"
                     android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.CONFIRMATION ? View.VISIBLE : View.GONE}"
                     app:icon="@drawable/ic_copy_move"
                     app:iconTint="@color/colorPrimary"
@@ -155,7 +155,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="48dp"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.onSelectionRelocationBtnClick(RelocationType.COPY)}"
+            android:onClick="@{() -> viewModel.onSelectionRelocationBtnClick(ModificationType.COPY)}"
             android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.SELECTION ? View.VISIBLE : View.GONE}"
             app:icon="@drawable/ic_copy"
             app:iconTint="@color/colorPrimary"
@@ -168,7 +168,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="48dp"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.onSelectionRelocationBtnClick(RelocationType.MOVE)}"
+            android:onClick="@{() -> viewModel.onSelectionRelocationBtnClick(ModificationType.MOVE)}"
             android:visibility="@{viewModel.relocationIslandState == RelocationIslandState.SELECTION ? View.VISIBLE : View.GONE}"
             app:icon="@drawable/ic_move"
             app:iconTint="@color/colorPrimary"
