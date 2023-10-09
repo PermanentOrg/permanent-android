@@ -13,6 +13,7 @@ import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.viewmodels.EditMetadataViewModel
 
 class EditMetadataFragment : PermanentBaseFragment()  {
+
     private lateinit var viewModel: EditMetadataViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -27,7 +28,7 @@ class EditMetadataFragment : PermanentBaseFragment()  {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    EditMetadataScreen()
+                    EditMetadataScreen(viewModel)
                 }
             }
         }
