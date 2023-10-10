@@ -1,10 +1,11 @@
-package org.permanent.permanent.ui.compose
+package org.permanent.permanent.ui.compose.legacyPlanning
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
 import org.permanent.permanent.R
+import org.permanent.permanent.ui.compose.legacyPlanning.DesignateContactOrStewardScreen
 import org.permanent.permanent.viewmodels.LegacyContactViewModel
 
 @Composable

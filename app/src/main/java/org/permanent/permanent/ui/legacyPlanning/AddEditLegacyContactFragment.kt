@@ -18,7 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.R
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.ui.compose.AddEditLegacyContactScreen
+import org.permanent.permanent.ui.compose.legacyPlanning.AddEditLegacyContactScreen
 import org.permanent.permanent.viewmodels.AddEditLegacyContactViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
