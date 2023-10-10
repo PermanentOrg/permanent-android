@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,17 +61,23 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
     val subTitleTextSize = 16.sp
 //    val titleTextSize = 19.sp
     val records by remember { mutableStateOf(viewModel.getRecords()) }
-    val firstRecordThumb = if (records.isNotEmpty()) records[0].thumbURL200 else null
-    val headerTitle = stringResource(R.string.edit_files_metadata_title, records.size)
-    var description by remember { mutableStateOf(viewModel.getDescription()) }
+    val firstRecordThumb by remember { mutableStateOf(records[0].thumbURL200) }
+    val titleString = stringResource(R.string.edit_files_metadata_title, records.size)
+    val headerTitle by remember { mutableStateOf(titleString) }
+    var description by remember { mutableStateOf(viewModel.getCommonDescription()) }
     val someFilesHaveDescription by viewModel.getSomeFilesHaveDescription().observeAsState()
+    val errorMessage by viewModel.showError.observeAsState()
+    val focusRequester = remember { FocusRequester() }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(lightBlueColor)
             .padding(24.dp)
-            .verticalScroll(scrollState),
+            .verticalScroll(scrollState)
+            .clickable {
+                viewModel.applyNewDescriptionToAllRecords(description)
+            },
         verticalArrangement = Arrangement.Top
     ) {
         Header(iconURL = firstRecordThumb, titleText = headerTitle)
@@ -98,13 +107,13 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
             value = description,
             onValueChange = {
                 description = it
-                viewModel.setDescription(it)
             },
             label = { Text(text = stringResource(id = R.string.edit_files_metadata_description_hint)) },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 8.dp)
+                .focusRequester(focusRequester),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = whiteColor,
                 unfocusedContainerColor = whiteColor,
@@ -115,16 +124,16 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
             )
         )
 
-//        if (someFilesHaveDescription == true) {
-//            Spacer(modifier = Modifier.height(10.dp))
-//
-//            Text(
-//                text = stringResource(R.string.edit_files_metadata_description_warning),
-//                color = redColor,
-//                fontFamily = regularFont,
-//                fontSize = smallTextSize
-//            )
-//        }
+        if (someFilesHaveDescription == true) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = stringResource(R.string.edit_files_metadata_description_warning),
+                color = redColor,
+                fontFamily = regularFont,
+                fontSize = smallTextSize
+            )
+        }
 
         Divider(modifier = Modifier.padding(vertical = 24.dp))
     }
