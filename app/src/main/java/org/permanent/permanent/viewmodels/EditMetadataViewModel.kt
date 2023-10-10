@@ -15,14 +15,16 @@ import retrofit2.Response
 class EditMetadataViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
-    private var records: List<Record> = emptyList()
+    private var records: MutableList<Record> = mutableListOf()
+    private var initialDescription: String = ""
     private var commonDescription: String = ""
-    private var someFilesHaveDescription = MutableLiveData(false)
+    private var showWarningSomeFilesHaveDescription = MutableLiveData(false)
     val showError = MutableLiveData<String>()
+    private var fileDataSize = 0
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setRecords(records: ArrayList<Record>) {
-        this.records = records
+        this.records.addAll(records)
         for (record in this.records) {
             requestFileData(record)
         }
@@ -37,10 +39,8 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     record.fileData = response.body()?.getFileData()
-                    if (someFilesHaveDescription.value == false) {
-                        someFilesHaveDescription.value =
-                            !record.fileData?.description.isNullOrBlank()
-                    }
+                    fileDataSize++
+                    if (fileDataSize == records.size) checkForCommonDescription()
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
@@ -50,22 +50,48 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         } else Log.e("EditMetadataViewModel", "folderLinkId or recordId is null")
     }
 
-    fun applyNewDescriptionToAllRecords(description: String) {
-        if (commonDescription != description) {
-            for (record in this.records) {
-                record.fileData?.let { fileData ->
-                    fileData.description = description
-                    fileRepository.updateRecord(fileData, object : IResponseListener {
-                        override fun onSuccess(message: String?) {
-                            Log.d("EditMetadataViewModel", "Description for record: ${record.displayName} was updated")
-                        }
+    private fun checkForCommonDescription() {
+        for (record in records) {
+            val recordDescription = record.fileData?.description
+            if (!recordDescription.isNullOrBlank()) {
+                initialDescription = recordDescription
+                break
+            }
+        }
 
-                        override fun onFailed(error: String?) {
-                            error?.let { showError.value = it }
-                        }
-                    })
+        if (initialDescription.isNotEmpty()) {
+            showWarningSomeFilesHaveDescription.value = true
+            for (record in records) {
+                val recordDescription = record.fileData?.description
+                if (initialDescription != recordDescription) {
+                    commonDescription = ""
+                    return
                 }
             }
+            // If this point is reached, all descriptions are the same
+            commonDescription = initialDescription
+        } else {
+            showWarningSomeFilesHaveDescription.value = false
+        }
+    }
+
+    fun applyNewDescriptionToAllRecords(inputDescription: String) {
+        if (commonDescription != inputDescription) {
+            val fileDataList = records.map {
+                it.fileData?.description = inputDescription
+                it.fileData
+            }
+
+            fileRepository.updateRecords(fileDataList, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    commonDescription = inputDescription
+                    Log.d("EditMetadataViewModel", "Description for records was updated")
+                }
+
+                override fun onFailed(error: String?) {
+                    error?.let { showError.value = it }
+                }
+            })
         }
     }
 
@@ -73,5 +99,5 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getCommonDescription(): String = commonDescription
 
-    fun getSomeFilesHaveDescription(): MutableLiveData<Boolean> = someFilesHaveDescription
+    fun getSomeFilesHaveDescription(): MutableLiveData<Boolean> = showWarningSomeFilesHaveDescription
 }

@@ -388,6 +388,24 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         }
     }
 
+    override fun updateRecords(fileDataList: List<FileData?>, listener: IResponseListener) {
+        NetworkClient.instance().updateRecords(fileDataList).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(context.getString(R.string.file_info_update_success))
+                } else {
+                    listener.onFailed(context.getString(R.string.generic_error))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
     private fun getToRelocate(
         recordType: RecordType, records: MutableList<Record>
     ): MutableList<Record> {
@@ -423,24 +441,6 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                             relocationVerb
                         )
                     )
-                } else {
-                    listener.onFailed(context.getString(R.string.generic_error))
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                listener.onFailed(t.message)
-            }
-        })
-    }
-
-    override fun updateRecord(fileData: FileData, listener: IResponseListener) {
-        NetworkClient.instance().updateRecord(fileData).enqueue(object : Callback<ResponseVO> {
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                val responseVO = response.body()
-
-                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                    listener.onSuccess(context.getString(R.string.file_info_update_success))
                 } else {
                     listener.onFailed(context.getString(R.string.generic_error))
                 }

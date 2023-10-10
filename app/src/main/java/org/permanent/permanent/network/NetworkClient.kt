@@ -427,8 +427,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
     }
 
-    fun updateRecord(fileData: FileData): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addRecord(fileData))
+    fun updateRecords(fileDataList: List<FileData?>): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addRecords(fileDataList))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return fileService.updateRecord(requestBody)
     }

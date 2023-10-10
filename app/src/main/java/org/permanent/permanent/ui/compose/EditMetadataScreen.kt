@@ -16,14 +16,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditMetadataViewModel
 
@@ -60,14 +66,19 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
     val smallTextSize = 14.sp
     val subTitleTextSize = 16.sp
 //    val titleTextSize = 19.sp
+
     val records by remember { mutableStateOf(viewModel.getRecords()) }
     val firstRecordThumb by remember { mutableStateOf(records[0].thumbURL200) }
     val titleString = stringResource(R.string.edit_files_metadata_title, records.size)
     val headerTitle by remember { mutableStateOf(titleString) }
-    var description by remember { mutableStateOf(viewModel.getCommonDescription()) }
+    var inputDescription by remember { mutableStateOf("") }
     val someFilesHaveDescription by viewModel.getSomeFilesHaveDescription().observeAsState()
-    val errorMessage by viewModel.showError.observeAsState()
     val focusRequester = remember { FocusRequester() }
+    val errorMessage by viewModel.showError.observeAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarEventFlow = remember { MutableSharedFlow<String>() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Column(
         modifier = Modifier
@@ -76,7 +87,7 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
             .padding(24.dp)
             .verticalScroll(scrollState)
             .clickable {
-                viewModel.applyNewDescriptionToAllRecords(description)
+                viewModel.applyNewDescriptionToAllRecords(inputDescription)
             },
         verticalArrangement = Arrangement.Top
     ) {
@@ -104,9 +115,9 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
         Spacer(modifier = Modifier.height(10.dp))
 
         TextField(
-            value = description,
-            onValueChange = {
-                description = it
+            value = inputDescription,
+            onValueChange = { value ->
+                inputDescription = value
             },
             label = { Text(text = stringResource(id = R.string.edit_files_metadata_description_hint)) },
             singleLine = true,
@@ -137,6 +148,22 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
 
         Divider(modifier = Modifier.padding(vertical = 24.dp))
     }
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
+
+    LaunchedEffect(snackbarEventFlow) {
+        snackbarEventFlow.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable

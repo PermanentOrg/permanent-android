@@ -98,7 +98,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
             fileData.displayDate = date
 
             isBusy.value = true
-            fileRepository.updateRecord(fileData, object : IResponseListener {
+            fileRepository.updateRecords(mutableListOf(fileData), object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     message?.let { showMessage.value = it }
