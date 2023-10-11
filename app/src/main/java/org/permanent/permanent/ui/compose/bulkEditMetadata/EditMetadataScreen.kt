@@ -54,18 +54,14 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val redColor = Color(ContextCompat.getColor(context, R.color.red))
     val blackColor = Color(ContextCompat.getColor(context, R.color.black))
     val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-//    val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
-//    val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val smallTextSize = 14.sp
     val subTitleTextSize = 16.sp
-//    val titleTextSize = 19.sp
 
     val records by remember { mutableStateOf(viewModel.getRecords()) }
     val firstRecordThumb by remember { mutableStateOf(records[0].thumbURL200) }
