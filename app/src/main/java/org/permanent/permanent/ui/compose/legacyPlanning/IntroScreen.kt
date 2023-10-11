@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose
+package org.permanent.permanent.ui.compose.legacyPlanning
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

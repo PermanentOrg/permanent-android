@@ -1,8 +1,35 @@
 package org.permanent.permanent.network
 
 import com.google.android.gms.maps.model.LatLng
-import org.permanent.permanent.models.*
-import org.permanent.permanent.network.models.*
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Share
+import org.permanent.permanent.models.Status
+import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.models.AccountPasswordVO
+import org.permanent.permanent.network.models.AccountVO
+import org.permanent.permanent.network.models.ArchiveVO
+import org.permanent.permanent.network.models.AuthVO
+import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.FolderDestVO
+import org.permanent.permanent.network.models.FolderVO
+import org.permanent.permanent.network.models.InviteVO
+import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.network.models.Profile_itemVO
+import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.RequestVO
+import org.permanent.permanent.network.models.SearchVO
+import org.permanent.permanent.network.models.ShareVO
+import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.network.models.SimpleVO
+import org.permanent.permanent.network.models.TagLinkVO
+import org.permanent.permanent.network.models.TagVO
 import java.io.File
 
 
@@ -188,15 +215,23 @@ class RequestContainer {
         return this
     }
 
-    fun addRecord(fileData: FileData): RequestContainer {
-        val recordVO = RecordVO()
-        recordVO.folder_linkId = fileData.folderLinkId
-        recordVO.archiveNbr = fileData.archiveNr
-        recordVO.recordId = fileData.recordId
-        recordVO.displayName = fileData.displayName
-        recordVO.description = fileData.description
-        recordVO.displayDT = fileData.displayDate
-        RequestVO.data?.get(0)?.RecordVO = recordVO
+    fun addRecords(fileDataList: List<FileData?>): RequestContainer {
+        for ((index, fileData) in fileDataList.withIndex()) {
+            val recordVO = RecordVO()
+            recordVO.folder_linkId = fileData?.folderLinkId
+            recordVO.archiveNbr = fileData?.archiveNr
+            recordVO.recordId = fileData?.recordId
+            recordVO.displayName = fileData?.displayName
+            recordVO.description = fileData?.description
+            recordVO.displayDT = fileData?.displayDate
+
+            if (index == 0) RequestVO.data?.get(0)?.RecordVO = recordVO
+            else {
+                val newData = Datum()
+                newData.RecordVO = recordVO
+                (RequestVO.data as ArrayList).add(newData)
+            }
+        }
         return this
     }
 

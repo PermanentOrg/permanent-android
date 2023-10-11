@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.ArchiveVO
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderVO
 import org.permanent.permanent.network.models.ItemVO
 import org.permanent.permanent.network.models.RecordVO
@@ -36,6 +37,7 @@ open class Record : Parcelable {
     var displayFirstInCarousel = false
     var isProcessing = false
     var displayInShares = false
+    var fileData: FileData? = null
 
     constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -60,6 +62,7 @@ open class Record : Parcelable {
         displayFirstInCarousel = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         isProcessing = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         displayInShares = parcel.readValue(Boolean::class.java.classLoader) as Boolean
+        fileData = parcel.readParcelable(FileData::class.java.classLoader)
     }
 
     constructor(recordInfo: RecordVO) {
@@ -218,6 +221,7 @@ open class Record : Parcelable {
         parcel.writeValue(displayFirstInCarousel)
         parcel.writeValue(isProcessing)
         parcel.writeValue(displayInShares)
+        parcel.writeParcelable(fileData, flags)
     }
 
     override fun describeContents(): Int {

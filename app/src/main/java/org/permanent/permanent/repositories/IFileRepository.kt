@@ -95,7 +95,7 @@ interface IFileRepository {
         listener: IResponseListener
     )
 
-    fun updateRecord(fileData: FileData, listener: IResponseListener)
+    fun updateRecords(fileDataList: List<FileData?>, listener: IResponseListener)
 
     fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener)
 

@@ -613,4 +613,9 @@
 
     <string name="dialog_legacy_title">Legacy Planning</string>
     <string name="dialog_legacy_text">Your Legacy Plan will determine when, how, and with whom your materials will be shared.</string>
+
+    <string name="edit_files_metadata_title">Editing %d items</string>
+    <string name="edit_files_metadata_description">Description</string>
+    <string name="edit_files_metadata_description_hint">Add description for selected files…</string>
+    <string name="edit_files_metadata_description_warning">Some files already have a description.</string>
 </resources>
