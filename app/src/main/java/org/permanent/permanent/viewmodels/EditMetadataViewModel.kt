@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -16,6 +17,8 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     private val appContext = application.applicationContext
     private var records: MutableList<Record> = mutableListOf()
+    private var allTags = MutableLiveData<List<Tag>>()
+    private var commonTags: MutableList<Tag> = mutableListOf()
     private var initialDescription: String = ""
     private var commonDescription: String = ""
     private var showWarningSomeFilesHaveDescription = MutableLiveData(false)
@@ -40,7 +43,10 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     record.fileData = response.body()?.getFileData()
                     fileDataSize++
-                    if (fileDataSize == records.size) checkForCommonDescription()
+                    if (fileDataSize == records.size) {
+                        checkForCommonDescription()
+                        checkForCommonTags()
+                    }
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
@@ -75,6 +81,22 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         }
     }
 
+    private fun checkForCommonTags() {
+        allTags.value = records.flatMap { it.fileData?.tags ?: emptyList() }.toSet().toMutableList()
+        allTags.value?.let { allTagsValue ->
+            commonTags.addAll(allTagsValue)
+
+            for (tag in allTagsValue) {
+                for (record in records) {
+                    if (record.fileData?.tags?.contains(tag) == false) {
+                        commonTags.remove(tag)
+                        break
+                    }
+                }
+            }
+        }
+    }
+
     fun applyNewDescriptionToAllRecords(inputDescription: String) {
         if (commonDescription != inputDescription) {
             val fileDataList = records.map {
@@ -96,6 +118,10 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun getRecords() = records
+
+    fun getAllTags() = allTags
+
+    fun getCommonTags() = commonTags
 
     fun getCommonDescription(): String = commonDescription
 

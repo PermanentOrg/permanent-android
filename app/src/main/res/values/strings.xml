@@ -618,4 +618,6 @@
     <string name="edit_files_metadata_description">Description</string>
     <string name="edit_files_metadata_description_hint">Add description for selected files…</string>
     <string name="edit_files_metadata_description_warning">Some files already have a description.</string>
+    <string name="edit_files_metadata_tags">Tags</string>
+    <string name="edit_files_metadata_apply_all_to_selection">Apply all to selection</string>
 </resources>
