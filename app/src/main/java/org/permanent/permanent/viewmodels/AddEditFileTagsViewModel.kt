@@ -23,7 +23,7 @@ import retrofit2.Response
 import java.util.*
 import kotlin.collections.ArrayList
 
-class TagsEditViewModel(application: Application) : ObservableAndroidViewModel(application),
+class AddEditFileTagsViewModel(application: Application) : ObservableAndroidViewModel(application),
     Filterable {
 
     private val appContext = application.applicationContext

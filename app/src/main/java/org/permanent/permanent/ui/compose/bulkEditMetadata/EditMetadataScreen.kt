@@ -79,6 +79,7 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
     val allTags by viewModel.getAllTags().observeAsState()
     val focusRequester = remember { FocusRequester() }
     val errorMessage by viewModel.showError.observeAsState()
+    val isBusy by viewModel.getIsBusy().observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
@@ -135,7 +136,7 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
                 )
             }
             Row(modifier = Modifier
-                .clickable { }
+                .clickable { viewModel.onApplyAllTagsToSelectionClick() }
                 .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(
@@ -158,11 +159,23 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
         ) {
             allTags?.let { allTagsValue ->
                 for (tag in allTagsValue) {
-                    TagView(text = tag.name, isSelected = viewModel.getCommonTags().contains(tag))
+                    TagView(
+                        text = tag.name,
+                        isSelected = tag.isSelected.observeAsState(),
+                        onTagClick = { viewModel.onTagClick(tag) },
+                        onTagRemoveClick = { viewModel.onTagRemoveClick(tag) })
                 }
             }
             NewTagView()
         }
+
+//        if (isBusy == true) {
+//            CircularProgressIndicator(
+//                modifier = Modifier.width(48.dp),
+//                color = MaterialTheme.colorScheme.surfaceVariant,
+//                trackColor = MaterialTheme.colorScheme.secondary,
+//            )
+//        }
     }
 
     LaunchedEffect(errorMessage) {

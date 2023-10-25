@@ -32,7 +32,7 @@
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
             android:id="@+id/action_fileMetadataFragment_to_tagsEditFragment"
-            app:destination="@id/tagsEditFragment"
+            app:destination="@id/addEditFileTagsFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -57,12 +57,12 @@
     </fragment>
 
     <fragment
-        android:id="@+id/tagsEditFragment"
-        android:name="org.permanent.permanent.ui.fileView.TagsEditFragment"
+        android:id="@+id/addEditFileTagsFragment"
+        android:name="org.permanent.permanent.ui.fileView.AddEditFileTagsFragment"
         android:label="@string/file_navigation_title_edit_tags"
-        tools:layout="@layout/fragment_tags_edit">
+        tools:layout="@layout/fragment_add_edit_file_tags">
         <action
-            android:id="@+id/action_tagsEditFragment_to_fileMetadataFragment"
+            android:id="@+id/action_addEditFileTagsFragment_to_fileMetadataFragment"
             app:destination="@id/fileMetadataFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />

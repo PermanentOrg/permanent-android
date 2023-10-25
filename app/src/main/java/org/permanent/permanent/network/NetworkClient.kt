@@ -679,7 +679,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun deleteTags(tags: List<Tag>): Call<ResponseVO> {
         val request = toJson(RequestContainer().addTagIds(tags))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
-        return tagService.unlinkTags(requestBody)
+        return tagService.deleteTags(requestBody)
     }
 
     fun updateTag(tag: Tag, archiveId: Int): Call<ResponseVO> {

@@ -1,7 +1,12 @@
 package org.permanent.permanent.ui.fileView
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
@@ -10,17 +15,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentTagsEditBinding
+import org.permanent.permanent.databinding.FragmentAddEditFileTagsBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.viewmodels.TagsEditViewModel
+import org.permanent.permanent.viewmodels.AddEditFileTagsViewModel
 
-class TagsEditFragment : PermanentBaseFragment() {
+class AddEditFileTagsFragment : PermanentBaseFragment() {
 
-    private lateinit var viewModel: TagsEditViewModel
-    private lateinit var binding: FragmentTagsEditBinding
+    private lateinit var viewModel: AddEditFileTagsViewModel
+    private lateinit var binding: FragmentAddEditFileTagsBinding
     private var fileData: FileData? = null
 
     override fun onCreateView(
@@ -28,8 +33,8 @@ class TagsEditFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[TagsEditViewModel::class.java]
-        binding = FragmentTagsEditBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this)[AddEditFileTagsViewModel::class.java]
+        binding = FragmentAddEditFileTagsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -96,7 +101,7 @@ class TagsEditFragment : PermanentBaseFragment() {
             PARCELABLE_FILE_DATA_KEY to it, BOOLEAN_SHOULD_SCROLL_KEY to true
         )
         findNavController().navigate(
-            R.id.action_tagsEditFragment_to_fileMetadataFragment, bundle
+            R.id.action_addEditFileTagsFragment_to_fileMetadataFragment, bundle
         )
     }
 
