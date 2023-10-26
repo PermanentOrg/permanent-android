@@ -137,16 +137,15 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     fun onTagClick(tag: Tag) { // apply tag to all records
         var appliedTagToRecordsNr = 0
 
+        isBusy.value = true
         for (record in records) {
             record.recordId?.let { recordId ->
-
-                isBusy.value = true
                 tagRepository.createOrLinkTags(mutableListOf(tag), recordId, object : IResponseListener {
 
                     override fun onSuccess(message: String?) {
-                        isBusy.value = false
                         appliedTagToRecordsNr++
                         if (appliedTagToRecordsNr == records.size) {
+                            isBusy.value = false
                             commonTags.add(tag)
                             tag.isSelected.value = true
                         }
@@ -164,16 +163,15 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     fun onTagRemoveClick(tag: Tag) { // remove tag from all records
         var removedTagFromRecordsNr = 0
 
+        isBusy.value = true
         for (record in records) {
             record.recordId?.let {
-
-                isBusy.value = true
                 tagRepository.unlinkTags(mutableListOf(tag), it, object : IResponseListener {
 
                     override fun onSuccess(message: String?) {
-                        isBusy.value = false
                         removedTagFromRecordsNr++
                         if (removedTagFromRecordsNr == records.size) {
+                            isBusy.value = false
                             val list: MutableList<Tag> = mutableListOf()
                             allTags.value?.let { tags ->
                                 list.addAll(tags)
@@ -196,17 +194,16 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     fun onApplyAllTagsToSelectionClick() {
         allTags.value?.filterNot { it in commonTags }?.let { uncommonTags ->
 
+            isBusy.value = true
             var appliedTagsToRecordsNr = 0
             for (record in records) {
                 record.recordId?.let {
-
-                    isBusy.value = true
                     tagRepository.createOrLinkTags(uncommonTags, it, object : IResponseListener {
 
                         override fun onSuccess(message: String?) {
-                            isBusy.value = false
                             appliedTagsToRecordsNr++
                             if (appliedTagsToRecordsNr == records.size) {
+                                isBusy.value = false
                                 commonTags.addAll(uncommonTags)
                                 for (tag in uncommonTags) tag.isSelected.value = true
                                 showApplyAllToSelection.value = false
