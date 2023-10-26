@@ -2,13 +2,15 @@ package org.permanent.permanent.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.TagVO
 
 data class Tag constructor(
     var tagId: String? = null,
     var name: String = "",
     var isCheckedOnServer: Boolean = false,
-    var isCheckedOnLocal: Boolean = false
+    var isCheckedOnLocal: Boolean = false,
+    var isSelected: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this() {
@@ -42,5 +44,23 @@ data class Tag constructor(
         override fun newArray(size: Int): Array<Tag?> {
             return arrayOfNulls(size)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is Tag) &&
+                tagId == other.tagId &&
+                name == other.name &&
+                isCheckedOnServer == other.isCheckedOnServer &&
+                isCheckedOnLocal == other.isCheckedOnLocal &&
+                isSelected.value == other.isSelected.value
+    }
+
+    override fun hashCode(): Int {
+        var result = tagId?.hashCode() ?: 0
+        result = 31 * result + name.hashCode()
+        result = 31 * result + isCheckedOnServer.hashCode()
+        result = 31 * result + isCheckedOnLocal.hashCode()
+        result = 31 * result + isSelected.value.hashCode()
+        return result
     }
 }

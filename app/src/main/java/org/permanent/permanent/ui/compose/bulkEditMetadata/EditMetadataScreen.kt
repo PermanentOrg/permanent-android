@@ -79,6 +79,8 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
     val allTags by viewModel.getAllTags().observeAsState()
     val focusRequester = remember { FocusRequester() }
     val errorMessage by viewModel.showError.observeAsState()
+    val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
+    val isBusy by viewModel.getIsBusy().observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
@@ -134,22 +136,24 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
                     fontSize = subTitleTextSize
                 )
             }
-            Row(modifier = Modifier
-                .clickable { }
-                .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(
-                    text = stringResource(R.string.edit_files_metadata_apply_all_to_selection),
-                    color = primaryColor,
-                    fontFamily = semiboldFont,
-                    fontSize = subTitleTextSize
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.ic_done_white),
-                    contentDescription = "Description",
-                    modifier = Modifier.size(24.dp),
-                    colorFilter = ColorFilter.tint(primaryColor)
-                )
+            if (showApplyAllToSelection == true) {
+                Row(modifier = Modifier
+                    .clickable { viewModel.onApplyAllTagsToSelectionClick() }
+                    .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.edit_files_metadata_apply_all_to_selection),
+                        color = primaryColor,
+                        fontFamily = semiboldFont,
+                        fontSize = subTitleTextSize
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_done_white),
+                        contentDescription = "Description",
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(primaryColor)
+                    )
+                }
             }
         }
 
@@ -158,11 +162,23 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
         ) {
             allTags?.let { allTagsValue ->
                 for (tag in allTagsValue) {
-                    TagView(text = tag.name, isSelected = viewModel.getCommonTags().contains(tag))
+                    TagView(
+                        text = tag.name,
+                        isSelected = tag.isSelected.observeAsState(),
+                        onTagClick = { viewModel.onTagClick(tag) },
+                        onTagRemoveClick = { viewModel.onTagRemoveClick(tag) })
                 }
             }
             NewTagView()
         }
+
+//        if (isBusy == true) {
+//            CircularProgressIndicator(
+//                modifier = Modifier.width(48.dp),
+//                color = MaterialTheme.colorScheme.surfaceVariant,
+//                trackColor = MaterialTheme.colorScheme.secondary,
+//            )
+//        }
     }
 
     LaunchedEffect(errorMessage) {

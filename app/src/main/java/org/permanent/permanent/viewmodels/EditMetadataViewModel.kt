@@ -9,6 +9,8 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.ITagRepository
+import org.permanent.permanent.repositories.TagRepositoryImpl
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -17,13 +19,16 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     private val appContext = application.applicationContext
     private var records: MutableList<Record> = mutableListOf()
-    private var allTags = MutableLiveData<List<Tag>>()
+    private var allTags = MutableLiveData<MutableList<Tag>>()
     private var commonTags: MutableList<Tag> = mutableListOf()
     private var initialDescription: String = ""
     private var commonDescription: String = ""
     private var showWarningSomeFilesHaveDescription = MutableLiveData(false)
     val showError = MutableLiveData<String>()
+    val showApplyAllToSelection = MutableLiveData(true)
+    private val isBusy = MutableLiveData(false)
     private var fileDataSize = 0
+    private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setRecords(records: ArrayList<Record>) {
@@ -38,9 +43,11 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         val recordId = record.recordId
 
         if (folderLinkId != null && recordId != null) {
+            isBusy.value = true
             fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    isBusy.value = false
                     record.fileData = response.body()?.getFileData()
                     fileDataSize++
                     if (fileDataSize == records.size) {
@@ -50,6 +57,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    isBusy.value = false
                     showError.value = t.message
                 }
             })
@@ -95,27 +103,124 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                 }
             }
         }
+        for (tag in commonTags) {
+            tag.isSelected.value = true
+        }
+        if (allTags.value?.size == commonTags.size) {
+            showApplyAllToSelection.value = false
+        }
     }
 
     fun applyNewDescriptionToAllRecords(inputDescription: String) {
         if (commonDescription != inputDescription) {
+            isBusy.value = true
+
             val fileDataList = records.map {
                 it.fileData?.description = inputDescription
                 it.fileData
             }
-
             fileRepository.updateRecords(fileDataList, object : IResponseListener {
                 override fun onSuccess(message: String?) {
+                    isBusy.value = false
                     commonDescription = inputDescription
                     Log.d("EditMetadataViewModel", "Description for records was updated")
                 }
 
                 override fun onFailed(error: String?) {
+                    isBusy.value = false
                     error?.let { showError.value = it }
                 }
             })
         }
     }
+
+    fun onTagClick(tag: Tag) { // apply tag to all records
+        var appliedTagToRecordsNr = 0
+
+        isBusy.value = true
+        for (record in records) {
+            record.recordId?.let { recordId ->
+                tagRepository.createOrLinkTags(mutableListOf(tag), recordId, object : IResponseListener {
+
+                    override fun onSuccess(message: String?) {
+                        appliedTagToRecordsNr++
+                        if (appliedTagToRecordsNr == records.size) {
+                            isBusy.value = false
+                            commonTags.add(tag)
+                            tag.isSelected.value = true
+                        }
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        error?.let { showError.value = it }
+                    }
+                })
+            }
+        }
+    }
+
+    fun onTagRemoveClick(tag: Tag) { // remove tag from all records
+        var removedTagFromRecordsNr = 0
+
+        isBusy.value = true
+        for (record in records) {
+            record.recordId?.let {
+                tagRepository.unlinkTags(mutableListOf(tag), it, object : IResponseListener {
+
+                    override fun onSuccess(message: String?) {
+                        removedTagFromRecordsNr++
+                        if (removedTagFromRecordsNr == records.size) {
+                            isBusy.value = false
+                            val list: MutableList<Tag> = mutableListOf()
+                            allTags.value?.let { tags ->
+                                list.addAll(tags)
+                                list.remove(tag)
+                            }
+                            allTags.postValue(list)
+                            commonTags.remove(tag)
+                        }
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        error?.let { showError.value = it }
+                    }
+                })
+            }
+        }
+    }
+
+    fun onApplyAllTagsToSelectionClick() {
+        allTags.value?.filterNot { it in commonTags }?.let { uncommonTags ->
+
+            isBusy.value = true
+            var appliedTagsToRecordsNr = 0
+            for (record in records) {
+                record.recordId?.let {
+                    tagRepository.createOrLinkTags(uncommonTags, it, object : IResponseListener {
+
+                        override fun onSuccess(message: String?) {
+                            appliedTagsToRecordsNr++
+                            if (appliedTagsToRecordsNr == records.size) {
+                                isBusy.value = false
+                                commonTags.addAll(uncommonTags)
+                                for (tag in uncommonTags) tag.isSelected.value = true
+                                showApplyAllToSelection.value = false
+                            }
+                        }
+
+                        override fun onFailed(error: String?) {
+                            isBusy.value = false
+                            error?.let { showError.value = it }
+                        }
+                    })
+                }
+            }
+        }
+    }
+
+    fun getIsBusy() = isBusy
 
     fun getRecords() = records
 
@@ -125,5 +230,6 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getCommonDescription(): String = commonDescription
 
-    fun getSomeFilesHaveDescription(): MutableLiveData<Boolean> = showWarningSomeFilesHaveDescription
+    fun getSomeFilesHaveDescription(): MutableLiveData<Boolean> =
+        showWarningSomeFilesHaveDescription
 }
