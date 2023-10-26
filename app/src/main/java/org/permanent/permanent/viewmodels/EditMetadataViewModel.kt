@@ -25,6 +25,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     private var commonDescription: String = ""
     private var showWarningSomeFilesHaveDescription = MutableLiveData(false)
     val showError = MutableLiveData<String>()
+    val showApplyAllToSelection = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
     private var fileDataSize = 0
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
@@ -105,6 +106,9 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         for (tag in commonTags) {
             tag.isSelected.value = true
         }
+        if (allTags.value?.size == commonTags.size) {
+            showApplyAllToSelection.value = false
+        }
     }
 
     fun applyNewDescriptionToAllRecords(inputDescription: String) {
@@ -170,7 +174,12 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                         isBusy.value = false
                         removedTagFromRecordsNr++
                         if (removedTagFromRecordsNr == records.size) {
-                            allTags.value?.remove(tag)
+                            val list: MutableList<Tag> = mutableListOf()
+                            allTags.value?.let { tags ->
+                                list.addAll(tags)
+                                list.remove(tag)
+                            }
+                            allTags.postValue(list)
                             commonTags.remove(tag)
                         }
                     }
@@ -186,8 +195,9 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     fun onApplyAllTagsToSelectionClick() {
         allTags.value?.filterNot { it in commonTags }?.let { uncommonTags ->
+
+            var appliedTagsToRecordsNr = 0
             for (record in records) {
-                var appliedTagsToRecordsNr = 0
                 record.recordId?.let {
 
                     isBusy.value = true
@@ -196,7 +206,11 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                         override fun onSuccess(message: String?) {
                             isBusy.value = false
                             appliedTagsToRecordsNr++
-                            if (appliedTagsToRecordsNr == records.size) commonTags.addAll(uncommonTags)
+                            if (appliedTagsToRecordsNr == records.size) {
+                                commonTags.addAll(uncommonTags)
+                                for (tag in uncommonTags) tag.isSelected.value = true
+                                showApplyAllToSelection.value = false
+                            }
                         }
 
                         override fun onFailed(error: String?) {

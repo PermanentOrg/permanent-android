@@ -79,6 +79,7 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
     val allTags by viewModel.getAllTags().observeAsState()
     val focusRequester = remember { FocusRequester() }
     val errorMessage by viewModel.showError.observeAsState()
+    val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
     val isBusy by viewModel.getIsBusy().observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
@@ -135,22 +136,24 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
                     fontSize = subTitleTextSize
                 )
             }
-            Row(modifier = Modifier
-                .clickable { viewModel.onApplyAllTagsToSelectionClick() }
-                .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(
-                    text = stringResource(R.string.edit_files_metadata_apply_all_to_selection),
-                    color = primaryColor,
-                    fontFamily = semiboldFont,
-                    fontSize = subTitleTextSize
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.ic_done_white),
-                    contentDescription = "Description",
-                    modifier = Modifier.size(24.dp),
-                    colorFilter = ColorFilter.tint(primaryColor)
-                )
+            if (showApplyAllToSelection == true) {
+                Row(modifier = Modifier
+                    .clickable { viewModel.onApplyAllTagsToSelectionClick() }
+                    .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.edit_files_metadata_apply_all_to_selection),
+                        color = primaryColor,
+                        fontFamily = semiboldFont,
+                        fontSize = subTitleTextSize
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_done_white),
+                        contentDescription = "Description",
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(primaryColor)
+                    )
+                }
             }
         }
 
