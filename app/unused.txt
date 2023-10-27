@@ -40930,7 +40930,6 @@ org.permanent.permanent.ui.StorageFragment$onErrorObserver$1:
 org.permanent.permanent.ui.StorageFragment$onPaymentIntentObserver$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.StorageFragment:
-    public android.widget.RelativeLayout googlePayButton
     public static synthetic void $r8$lambda$41nGyxQxqC9vvkwedju4b9mer9k()
     public static synthetic void $r8$lambda$RuKjNAgRGAgBZMn4Q42HOHhjis4()
     public static void onGooglePayReady()
@@ -41374,7 +41373,7 @@ org.permanent.permanent.ui.login.CodeVerificationFragment:
     public static void startMainActivity()
     public static void startPhoneVerificationFragment()
 org.permanent.permanent.ui.login.ForgotPasswordFragment$onBackToSignIn$1:
-    public final void onChanged$3()
+    public final void onChanged$2()
 org.permanent.permanent.ui.login.ForgotPasswordFragment$onErrorMessage$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.login.ForgotPasswordFragment$onPasswordReset$1:

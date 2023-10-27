@@ -45,8 +45,7 @@
 
         <item
             android:id="@+id/archiveStewardFragment"
-            android:icon="@drawable/legacy_planning_menu"
-            android:iconTint="@color/white"
+            android:icon="@drawable/ic_legacy_hands"
             android:title="@string/menu_drawer_legacy_planning"
             android:visible="false" />
     </group>

@@ -295,7 +295,7 @@
         tools:layout="@layout/fragment_add_edit_online_presence" />
 
     <fragment
-        android:id="@+id/loadingFragment"
+        android:id="@+id/legacyLoadingFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.LoadingFragment"
         android:label="@string/menu_settings_drawer_legacy_planning" >
         <action
