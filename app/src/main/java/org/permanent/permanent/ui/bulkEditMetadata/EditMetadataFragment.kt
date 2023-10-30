@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.bulkEditMetadata
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.compose.bulkEditMetadata.EditMetadataScreen
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.viewmodels.EditMetadataViewModel

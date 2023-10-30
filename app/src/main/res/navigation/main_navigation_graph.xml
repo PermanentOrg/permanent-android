@@ -54,7 +54,7 @@
 
     <fragment
         android:id="@+id/editMetadataFragment"
-        android:name="org.permanent.permanent.ui.EditMetadataFragment"
+        android:name="org.permanent.permanent.ui.bulkEditMetadata.EditMetadataFragment"
         android:label="@string/main_navigation_title_edit_files_metadata" />
 
     <fragment
