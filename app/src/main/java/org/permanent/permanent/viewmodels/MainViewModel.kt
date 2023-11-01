@@ -39,8 +39,8 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
-    private var spaceTotal: Long? = 0
-    private var spaceLeft: Long? = 0
+    private var accountSpaceTotal: Long = 0
+    private var accountSpaceLeft: Long = 0
     private val onViewProfile = SingleLiveEvent<Void?>()
     private val onArchiveSwitched = SingleLiveEvent<Void?>()
     private val onLoggedOut = SingleLiveEvent<Void?>()
@@ -94,16 +94,18 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
                 account.primaryEmail?.let { userEmail.value = it }
-                spaceTotal = account.spaceTotal
-                spaceLeft = account.spaceLeft
+                val spaceTotal = account.spaceTotal
+                val spaceLeft = account.spaceLeft
                 if (spaceTotal != null && spaceLeft != null) {
-                    val spaceUsed = spaceTotal!! - spaceLeft!!
-                    val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal!!.toFloat() * 100
+                    accountSpaceTotal = spaceTotal
+                    accountSpaceLeft = spaceLeft
+                    val spaceUsed = spaceTotal - spaceLeft
+                    val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
                     spaceUsedPercentage.value = spaceUsedPercentageFloat.toInt()
                     spaceUsedText.value = appContext.getString(
                         R.string.nav_settings_header_storage_text,
                         bytesToCustomHumanReadableString(spaceUsed, true),
-                        bytesToCustomHumanReadableString(spaceTotal!!, false)
+                        bytesToCustomHumanReadableString(spaceTotal, false)
                     )
                 }
             }
@@ -170,9 +172,9 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         })
     }
 
-    fun getSpaceTotal() : Long? = spaceTotal
+    fun getSpaceTotal() : Long = accountSpaceTotal
 
-    fun getSpaceLeft() : Long? = spaceLeft
+    fun getSpaceLeft() : Long = accountSpaceLeft
 
     fun getCurrentArchive() : Archive = prefsHelper.getCurrentArchive()
 

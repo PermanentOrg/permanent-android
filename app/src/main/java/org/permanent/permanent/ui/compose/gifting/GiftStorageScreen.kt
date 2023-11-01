@@ -87,13 +87,13 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = bytesToCustomHumanReadableString(spaceTotal!!, false) + " Storage",
+                text = spaceTotal?.let { bytesToCustomHumanReadableString(it, false) } + " Storage",
                 fontSize = smallTextSize,
                 color = primaryColor,
                 fontFamily = semiboldFont
             )
             Text(
-                text = bytesToCustomHumanReadableString(spaceLeft!!, true) + " free",
+                text = spaceLeft?.let { bytesToCustomHumanReadableString(it, true) } + " free",
                 fontSize = smallTextSize,
                 color = primaryColor,
                 fontFamily = semiboldFont
