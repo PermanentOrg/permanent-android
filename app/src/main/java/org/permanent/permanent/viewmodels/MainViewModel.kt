@@ -39,6 +39,8 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
+    private var spaceTotal: Long? = 0
+    private var spaceLeft: Long? = 0
     private val onViewProfile = SingleLiveEvent<Void?>()
     private val onArchiveSwitched = SingleLiveEvent<Void?>()
     private val onLoggedOut = SingleLiveEvent<Void?>()
@@ -92,16 +94,16 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
                 account.primaryEmail?.let { userEmail.value = it }
-                val spaceTotal = account.spaceTotal
-                val spaceLeft = account.spaceLeft
+                spaceTotal = account.spaceTotal
+                spaceLeft = account.spaceLeft
                 if (spaceTotal != null && spaceLeft != null) {
-                    val spaceUsed = spaceTotal - spaceLeft
-                    val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
+                    val spaceUsed = spaceTotal!! - spaceLeft!!
+                    val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal!!.toFloat() * 100
                     spaceUsedPercentage.value = spaceUsedPercentageFloat.toInt()
                     spaceUsedText.value = appContext.getString(
                         R.string.nav_settings_header_storage_text,
                         bytesToCustomHumanReadableString(spaceUsed, true),
-                        bytesToCustomHumanReadableString(spaceTotal, false)
+                        bytesToCustomHumanReadableString(spaceTotal!!, false)
                     )
                 }
             }
@@ -167,6 +169,10 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
             }
         })
     }
+
+    fun getSpaceTotal() : Long? = spaceTotal
+
+    fun getSpaceLeft() : Long? = spaceLeft
 
     fun getCurrentArchive() : Archive = prefsHelper.getCurrentArchive()
 

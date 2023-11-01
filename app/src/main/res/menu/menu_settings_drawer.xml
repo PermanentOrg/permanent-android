@@ -9,6 +9,10 @@
             android:title="@string/menu_settings_drawer_storage" />
 
         <item
+            android:id="@+id/giftStorageFragment"
+            android:title="@string/menu_settings_drawer_gift_storage" />
+
+        <item
             android:id="@+id/accountFragment"
             android:title="@string/menu_settings_drawer_account" />
 
