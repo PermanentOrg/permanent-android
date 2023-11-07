@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -34,8 +35,8 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
-import org.permanent.permanent.ui.bytesToCustomHumanReadableString
 import org.permanent.permanent.models.EmailChip
+import org.permanent.permanent.ui.bytesToCustomHumanReadableString
 import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
@@ -52,6 +53,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
+    val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
     val smallTextSize = 14.sp
     val subTitleTextSize = 16.sp
 
@@ -66,7 +68,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var emailChips = remember { mutableStateListOf<EmailChip>(EmailChip("Another Chip")) }
+    var emails = remember { mutableStateListOf<EmailChip>(EmailChip("Another Chip")) }
 
     Column(
         modifier = Modifier
@@ -101,13 +103,27 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
             )
             Text(
                 text = spaceLeft?.let { bytesToCustomHumanReadableString(it, true) } + " free",
-                fontSize = smallTextSize,
+                fontSize = 10.sp,
                 color = primaryColor,
                 fontFamily = semiboldFont
             )
         }
 
-        EmailChipView(emailChipTexts = emailChips)
+        Text(
+            text = "Gift storage with others".uppercase(),
+            fontSize = smallTextSize,
+            color = primaryColor,
+            fontFamily = boldFont
+        )
+
+        Text(
+            text = stringResource(id = R.string.gift_storage_details),
+            fontSize = 18.sp,
+            color = primaryColor,
+            fontFamily = semiboldFont
+        )
+
+        EmailChipView(emailChipTexts = emails)
 
 //        if (isBusy == true) {
 //            CircularProgressIndicator(
