@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -34,6 +35,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
+import org.permanent.permanent.models.EmailChip
+import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
 @Composable
@@ -63,6 +66,8 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
 
+    var emailChips = remember { mutableStateListOf<EmailChip>(EmailChip("Another Chip")) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -73,7 +78,9 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     ) {
         spaceUsedPercentage?.toFloat()?.let {
             LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth().height(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(12.dp),
                 progress = it/100,
                 color = purpleColor
             )
@@ -99,6 +106,8 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 fontFamily = semiboldFont
             )
         }
+
+        EmailChipView(emailChipTexts = emailChips)
 
 //        if (isBusy == true) {
 //            CircularProgressIndicator(
