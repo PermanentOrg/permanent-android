@@ -2,31 +2,72 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.ui.gbToBytes
 
 class GiftStorageViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
     val showError = MutableLiveData<String>()
     private val isBusy = MutableLiveData(false)
-    private var spaceTotal = MutableLiveData(0L)
-    private var spaceLeft = MutableLiveData(0L)
+    private var spaceTotalBytes = MutableLiveData(0L)
+    private var spaceLeftBytes = MutableLiveData(0L)
     private var spaceUsedPercentage = MutableLiveData(0)
+    private var emailNr = MutableLiveData(2)
+    private var giftGB = MutableLiveData(0)
+    private var giftBytes = MutableLiveData(0L)
+    private var showInsufficientStorageText = MutableLiveData(false)
+    private var note = ""
 
     fun setSpaceTotal(it: Long) {
-        spaceTotal.value = it
+        spaceTotalBytes.value = it
     }
 
     fun setSpaceLeft(it: Long) {
-        spaceLeft.value = it
+        spaceLeftBytes.value = it
     }
 
     fun setSpaceUsedPercentage(it: Int) {
         spaceUsedPercentage.value = it
     }
 
-    fun getSpaceTotal() = spaceTotal
+    fun onMinusBtnClick() {
+        val giftGBValue = giftGB.value
+        if (giftGBValue != null && giftGBValue > 0) {
+            giftGB.value = giftGBValue.minus(1)
+            giftGB.value?.let { giftBytes.value = gbToBytes(it) }
+            checkToShowInsufficientStorageText()
+        }
+    }
 
-    fun getSpaceLeft() = spaceLeft
+    fun onPlusBtnClick() {
+        giftGB.value = giftGB.value?.plus(1)
+        giftGB.value?.let { giftBytes.value = gbToBytes(it) }
+        checkToShowInsufficientStorageText()
+    }
+
+    private fun checkToShowInsufficientStorageText() {
+        val emailNrValue = emailNr.value
+        val giftBytesValue = giftBytes.value
+        val spaceLeftBytesValue = spaceLeftBytes.value
+        if (emailNrValue != null && giftBytesValue != null && spaceLeftBytesValue != null) {
+            showInsufficientStorageText.value =
+                emailNrValue * giftBytesValue > spaceLeftBytesValue
+        }
+    }
+
+    fun getSpaceTotal() = spaceTotalBytes
+
+    fun getSpaceLeft() = spaceLeftBytes
 
     fun getSpaceUsedPercentage() = spaceUsedPercentage
+
+    fun getGiftGB() = giftGB
+
+    fun getGiftBytes() = giftBytes
+
+    fun getShowInsufficientStorageText() = showInsufficientStorageText
+
+    fun getNote() = note
+
+    fun getEmailsNr() = emailNr
 }
