@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.compose.gifting.emailInput
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,9 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
@@ -26,7 +29,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.permanent.permanent.R
+import org.permanent.permanent.Validator
 import org.permanent.permanent.models.EmailChip
 import java.util.UUID
 
@@ -34,9 +41,10 @@ private val INPUTKEY = UUID.randomUUID().toString()
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
-fun EmailChipView(emailChipTexts: MutableList<EmailChip>) {
+fun EmailChipView(emails: MutableList<EmailChip>) {
     val text = remember { mutableStateOf("") }
     val errorText = remember { mutableStateOf("") }
+    var isFocused = remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
@@ -48,11 +56,16 @@ fun EmailChipView(emailChipTexts: MutableList<EmailChip>) {
     val hasError: Boolean = errorText.value.isNotEmpty()
 
     LaunchedEffect(true) {
-        emailChipTexts.add(EmailChip(INPUTKEY))
+        emails.add(EmailChip(INPUTKEY))
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.clickable {
+            if (!isFocused.value) {
+                emails.add(EmailChip(INPUTKEY))
+            }
+        }
     ) {
         Row(
             modifier = Modifier
@@ -67,14 +80,14 @@ fun EmailChipView(emailChipTexts: MutableList<EmailChip>) {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                emailChipTexts.forEach { chip ->
+                emails.forEach { chip ->
                     if (chip.text != INPUTKEY) {
                         EmailChipCard(text = chip.text,
                             onDelete = { text ->
-                            emailChipTexts.removeIf { it.text == text }
+                                emails.removeIf { it.text == text }
                         })
                     } else {
-                        EmailChipTextField(text, errorText, emailChipTexts)
+                        EmailChipTextField(text, errorText, emails, isFocused)
                     }
                 }
             }
@@ -93,7 +106,7 @@ fun EmailChipView(emailChipTexts: MutableList<EmailChip>) {
 @Preview
 @Composable
 fun EmailChipPreview() {
-    EmailChipView(emailChipTexts= mutableListOf(
+    EmailChipView(emails= mutableListOf(
         EmailChip("flaviu88@gmail.com"), EmailChip("flaviu88@gmail.com"), EmailChip("flaviu88@gmail.com"), EmailChip("flaviu88@gmail.com") ,
         EmailChip("Another Chip")
     ))
