@@ -24,7 +24,8 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun EmailChipCard(text: String) {
+fun EmailChipCard(text: String,
+                  onDelete: (text: String) -> Unit) {
 
     val context = LocalContext.current
     val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
@@ -51,13 +52,15 @@ fun EmailChipCard(text: String) {
                     fontFamily = regularFont
                 )
                 IconButton(
-                    onClick = { /* Handle button click */ },
+                    onClick = {
+                        onDelete(text)
+                    },
                     modifier = Modifier.size(20.dp)
                 ) {
                     // Replace the Icons.Filled.Favorite with your desired ImageVector
                     Icon(
                         painter = painterResource(id = R.drawable.ic_close_middle_grey),
-                        contentDescription = "Favorite icon",
+                        contentDescription = "Delete Email",
                         tint = Color.LightGray
                     )
                 }
@@ -70,5 +73,7 @@ fun EmailChipCard(text: String) {
 @Preview
 @Composable
 fun SimpleChipPreview() {
-    EmailChipCard(text = "Example Chip")
+    EmailChipCard(text = "hello", onDelete = {
+
+    })
 }

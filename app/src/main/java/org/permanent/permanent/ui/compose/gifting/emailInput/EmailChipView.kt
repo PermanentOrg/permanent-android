@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 import org.permanent.permanent.models.EmailChip
+import java.util.UUID
+
+private val INPUTKEY = UUID.randomUUID().toString()
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
@@ -42,6 +46,10 @@ fun EmailChipView(emailChipTexts: MutableList<EmailChip>) {
     val italicFont = FontFamily(Font(R.font.open_sans_italic_ttf))
 
     val hasError: Boolean = errorText.value.isNotEmpty()
+
+    LaunchedEffect(true) {
+        emailChipTexts.add(EmailChip(INPUTKEY))
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -60,8 +68,11 @@ fun EmailChipView(emailChipTexts: MutableList<EmailChip>) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 emailChipTexts.forEach { chip ->
-                    if (chip.text != "Another Chip") {
-                        EmailChipCard(text = chip.text)
+                    if (chip.text != INPUTKEY) {
+                        EmailChipCard(text = chip.text,
+                            onDelete = { text ->
+                            emailChipTexts.removeIf { it.text == text }
+                        })
                     } else {
                         EmailChipTextField(text, errorText, emailChipTexts)
                     }

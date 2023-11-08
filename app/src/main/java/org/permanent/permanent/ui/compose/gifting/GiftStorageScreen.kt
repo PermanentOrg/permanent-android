@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -68,7 +67,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var emails = remember { mutableStateListOf<EmailChip>(EmailChip("Another Chip")) }
+    var emails = remember { mutableStateListOf<EmailChip>() }
 
     Column(
         modifier = Modifier
@@ -78,52 +77,76 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.Top
     ) {
-        spaceUsedPercentage?.toFloat()?.let {
-            LinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(12.dp),
-                progress = it/100,
-                color = purpleColor
-            )
+        Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                spaceUsedPercentage?.toFloat()?.let {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(12.dp),
+                        progress = it / 100,
+                        color = purpleColor
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = spaceTotal?.let {
+                            bytesToCustomHumanReadableString(
+                                it,
+                                false
+                            )
+                        } + " Storage",
+                        fontSize = smallTextSize,
+                        color = primaryColor,
+                        fontFamily = semiboldFont
+                    )
+                    Text(
+                        text = spaceLeft?.let {
+                            bytesToCustomHumanReadableString(
+                                it,
+                                true
+                            )
+                        } + " free",
+                        fontSize = 10.sp,
+                        color = primaryColor,
+                        fontFamily = semiboldFont
+                    )
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(id = R.string.gift_storage_to_others).uppercase(),
+                    fontSize = 10.sp,
+                    color = primaryColor,
+                    fontFamily = boldFont
+                )
+
+                Text(
+                    text = stringResource(id = R.string.gift_storage_details),
+                    fontSize = 18.sp,
+                    color = primaryColor,
+                    fontFamily = semiboldFont
+                )
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(id = R.string.gift_storage_emails).uppercase(),
+                    fontSize = 10.sp,
+                    color = primaryColor,
+                    fontFamily = semiboldFont
+                )
+
+                EmailChipView(emailChipTexts = emails)
+            }
+
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = spaceTotal?.let { bytesToCustomHumanReadableString(it, false) } + " Storage",
-                fontSize = smallTextSize,
-                color = primaryColor,
-                fontFamily = semiboldFont
-            )
-            Text(
-                text = spaceLeft?.let { bytesToCustomHumanReadableString(it, true) } + " free",
-                fontSize = 10.sp,
-                color = primaryColor,
-                fontFamily = semiboldFont
-            )
-        }
-
-        Text(
-            text = "Gift storage with others".uppercase(),
-            fontSize = smallTextSize,
-            color = primaryColor,
-            fontFamily = boldFont
-        )
-
-        Text(
-            text = stringResource(id = R.string.gift_storage_details),
-            fontSize = 18.sp,
-            color = primaryColor,
-            fontFamily = semiboldFont
-        )
-
-        EmailChipView(emailChipTexts = emails)
 
 //        if (isBusy == true) {
 //            CircularProgressIndicator(
