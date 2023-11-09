@@ -616,5 +616,13 @@
     <string name="gift_storage_to_others">Gift storage with others</string>
     <string name="gift_storage_details">Send storage to both existing users and new sign-ups. They need to log in or create an account to get your gift.</string>
     <string name="gift_storage_emails">Recipient emails</string>
+    <string name="gift">GIFT</string>
+    <string name="gb_recipient">GB / RECIPIENT</string>
+    <string name="note_to_recipients">NOTE TO RECIPIENTS</string>
+    <string name="optional">(OPTIONAL)</string>
+    <string name="your_text_here">Your text here…</string>
+    <string name="send_gift_storage">Send gift storage</string>
+    <string name="insufficient_storage">Insufficient storage. You need %s more.</string>
+    <string name="total_gifted_forecasted_remaining">Total gifted: %s • Forecasted remaining: %s</string>
 
 </resources>
