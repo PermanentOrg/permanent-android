@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,7 +48,9 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.models.EmailChip
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
+import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
 @Composable
@@ -57,6 +60,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
 
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val purpleColor = Color(ContextCompat.getColor(context, R.color.barneyPurple))
+    val blackColor = Color(ContextCompat.getColor(context, R.color.black))
     val redColor = Color(ContextCompat.getColor(context, R.color.red))
     val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
@@ -65,6 +69,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val italicFont = FontFamily(Font(R.font.open_sans_italic_ttf))
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
+    val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
     val subTitleTextSize = 16.sp
     val smallTextSize = 14.sp
     val smallerTextSize = 12.sp
@@ -85,6 +90,8 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    var emails = remember { mutableStateListOf<EmailChip>() }
 
     Column(
         modifier = Modifier
@@ -123,6 +130,37 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 color = primaryColor,
                 fontFamily = semiboldFont
             )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = stringResource(id = R.string.gift_storage_to_others).uppercase(),
+                fontSize = 10.sp,
+                color = primaryColor,
+                fontFamily = boldFont
+            )
+
+            Text(
+                text = stringResource(id = R.string.gift_storage_details),
+                fontSize = 18.sp,
+                color = primaryColor,
+                fontFamily = semiboldFont
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = stringResource(id = R.string.gift_storage_emails).uppercase(),
+                fontSize = 10.sp,
+                color = primaryColor,
+                fontFamily = semiboldFont
+            )
+
+            EmailChipView(emails = emails)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
