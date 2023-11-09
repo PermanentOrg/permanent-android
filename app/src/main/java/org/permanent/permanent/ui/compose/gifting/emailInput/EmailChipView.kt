@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -45,6 +46,7 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
     val text = remember { mutableStateOf("") }
     val errorText = remember { mutableStateOf("") }
     var isFocused = remember { mutableStateOf(false) }
+    val showTextField = remember { mutableStateOf(true) }
 
     val context = LocalContext.current
 
@@ -56,14 +58,14 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
     val hasError: Boolean = errorText.value.isNotEmpty()
 
     LaunchedEffect(true) {
-        emails.add(EmailChip(INPUTKEY))
+        showTextField.value = true
     }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.clickable {
             if (!isFocused.value) {
-                emails.add(EmailChip(INPUTKEY))
+                showTextField.value = true
             }
         }
     ) {
@@ -87,8 +89,12 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
                                 emails.removeIf { it.text == text }
                         })
                     } else {
-                        EmailChipTextField(text, errorText, emails, isFocused)
+
                     }
+                }
+
+                if(showTextField.value) {
+                    EmailChipTextField(text, errorText, emails, isFocused, showTextField)
                 }
             }
         }

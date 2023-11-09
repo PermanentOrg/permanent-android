@@ -40,7 +40,8 @@ fun EmailChipTextField(
     text: MutableState<String>,
     errorText: MutableState<String>,
     emails: MutableList<EmailChip>,
-    isFocused: MutableState<Boolean>
+    isFocused: MutableState<Boolean>,
+    showTextField: MutableState<Boolean>
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -57,24 +58,22 @@ fun EmailChipTextField(
                 if (!it) {
                     val email = text.value
                     if (Validator.isValidEmail(null, email = email, null, null)) {
-                        emails.add(index = emails.count() - 1, EmailChip(text = email))
+                        emails.add(EmailChip(text = email))
                         text.value = ""
-                        emails.removeLast()
+                        showTextField.value = false
                         errorText.value = ""
                     } else if (text.value.isEmpty()) {
-                        emails.removeLast()
+                        showTextField.value = false
                         errorText.value = ""
                     } else {
                         errorText.value = email
                     }
-                } else {
-
                 }
             }.launchIn(this)
     }
 
     Row(
-        modifier = Modifier.defaultMinSize(48.dp),
+        modifier = Modifier.defaultMinSize(68.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         BasicTextField(value = text.value,
@@ -88,14 +87,14 @@ fun EmailChipTextField(
                     val email = it.substring(startIndex = 0, endIndex = it.count() - 1)
                     if (Validator.isValidEmail(null, email = email, null, null)) {
                         text.value = ""
-                        emails.add(index = emails.count() - 1, EmailChip(text = email))
+                        emails.add(EmailChip(text = email))
                         errorText.value = ""
                     } else {
                         text.value = email
                         errorText.value = email
                     }
-                } else if (emails.count() > 1 && text.value.isEmpty() && it.isEmpty()) {
-                    val last = emails.removeAt(emails.count() - 2)
+                } else if (emails.isNotEmpty() && text.value.isEmpty() && it.isEmpty()) {
+                    val last = emails.removeAt(emails.count() - 1)
                     text.value = last.text
                     errorText.value = ""
                 } else {
@@ -105,8 +104,8 @@ fun EmailChipTextField(
             modifier = Modifier
                 .background(Color.Transparent)
                 .onKeyEvent {
-                    if (it.key == Key.Backspace && text.value.isEmpty() && emails.count() > 1) {
-                        val last = emails.removeAt(emails.count() - 2)
+                    if (it.key == Key.Backspace && text.value.isEmpty() && emails.isNotEmpty()) {
+                        val last = emails.removeAt(emails.count() - 1)
                         text.value = last.text
                     }
                     true
