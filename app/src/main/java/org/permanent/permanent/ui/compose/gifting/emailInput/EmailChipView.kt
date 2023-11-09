@@ -32,8 +32,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.EmailChip
 import java.util.UUID
 
-private val INPUTKEY = UUID.randomUUID().toString()
-
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 fun EmailChipView(emails: MutableList<EmailChip>) {
@@ -77,17 +75,13 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 emails.forEach { chip ->
-                    if (chip.text != INPUTKEY) {
-                        EmailChipCard(text = chip.text,
-                            onDelete = { text ->
-                                emails.removeIf { it.text == text }
+                    EmailChipCard(text = chip.text,
+                        onDelete = { text ->
+                            emails.removeIf { it.text == text }
                         })
-                    } else {
-
-                    }
                 }
 
-                if(showTextField.value) {
+                if (showTextField.value) {
                     EmailChipTextField(text, errorText, emails, isFocused, showTextField)
                 }
             }
@@ -106,8 +100,13 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
 @Preview
 @Composable
 fun EmailChipPreview() {
-    EmailChipView(emails= mutableListOf(
-        EmailChip("flaviu88@gmail.com"), EmailChip("flaviu88@gmail.com"), EmailChip("flaviu88@gmail.com"), EmailChip("flaviu88@gmail.com") ,
-        EmailChip("Another Chip")
-    ))
+    EmailChipView(
+        emails = mutableListOf(
+            EmailChip("flaviu88@gmail.com"),
+            EmailChip("flaviu88@gmail.com"),
+            EmailChip("flaviu88@gmail.com"),
+            EmailChip("flaviu88@gmail.com"),
+            EmailChip("Another Chip")
+        )
+    )
 }
