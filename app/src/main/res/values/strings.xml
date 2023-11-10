@@ -613,8 +613,8 @@
     <string name="dialog_legacy_title">Legacy Planning</string>
     <string name="dialog_legacy_text">Your Legacy Plan will determine when, how, and with whom your materials will be shared.</string>
 
-    <string name="gift_storage_to_others">Gift storage with others</string>
-    <string name="gift_storage_details">Send storage to both existing users and new sign-ups. They need to log in or create an account to get your gift.</string>
+    <string name="gift_storage_to_others">Gift storage to others</string>
+    <string name="gift_storage_details">Send storage to existing users or invite someone new with a gift. Recipients must create an account to claim a gift.</string>
     <string name="gift_storage_emails">Recipient emails</string>
     <string name="gift">GIFT</string>
     <string name="gb_recipient">GB / RECIPIENT</string>

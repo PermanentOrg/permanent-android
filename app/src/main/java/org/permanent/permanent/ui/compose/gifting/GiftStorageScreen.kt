@@ -60,29 +60,22 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
 
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val purpleColor = Color(ContextCompat.getColor(context, R.color.barneyPurple))
-    val blackColor = Color(ContextCompat.getColor(context, R.color.black))
     val redColor = Color(ContextCompat.getColor(context, R.color.red))
     val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
     val lighterGreyColor = Color(ContextCompat.getColor(context, R.color.lighterGrey))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
-    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val italicFont = FontFamily(Font(R.font.open_sans_italic_ttf))
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
-    val subTitleTextSize = 16.sp
     val smallTextSize = 14.sp
-    val smallerTextSize = 12.sp
-    val smallestTextSize = 11.sp
+    val smallestTextSize = 10.sp
 
     val spaceTotalBytes by viewModel.getSpaceTotal().observeAsState(initial = 0L)
     val spaceLeftBytes by viewModel.getSpaceLeft().observeAsState(initial = 0L)
     val spaceUsedPercentage by viewModel.getSpaceUsedPercentage().observeAsState(initial = 0)
-    val emailNr by viewModel.getEmailsNr().observeAsState(initial = 0)
     val giftGB by viewModel.getGiftGB().observeAsState(initial = 0)
     val giftBytes by viewModel.getGiftBytes().observeAsState(initial = 0)
-    val showInsufficientStorageText by viewModel.getShowInsufficientStorageText()
-        .observeAsState(initial = false)
     var note by remember { mutableStateOf(viewModel.getNote()) }
     val errorMessage by viewModel.showError.observeAsState()
 //    val isBusy by viewModel.getIsBusy().observeAsState()
@@ -167,7 +160,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
 
         Text(
             text = stringResource(R.string.gift),
-            fontSize = smallerTextSize,
+            fontSize = smallestTextSize,
             color = primaryColor,
             fontFamily = semiboldFont
         )
@@ -178,7 +171,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 .padding(top = 8.dp),
             border = BorderStroke(
                 0.dp,
-                if (showInsufficientStorageText) redColor else lightGreyColor
+                if (emails.size * giftBytes > spaceLeftBytes) redColor else lightGreyColor
             ),
             colors = CardDefaults.cardColors(containerColor = whiteColor)
         ) {
@@ -231,11 +224,11 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (showInsufficientStorageText) {
+        if (emails.size * giftBytes > spaceLeftBytes) {
             Text(
                 text = stringResource(
                     R.string.insufficient_storage,
-                    bytesToCustomHumanReadableString(emailNr * giftBytes - spaceLeftBytes, true)
+                    bytesToCustomHumanReadableString(emails.size * giftBytes - spaceLeftBytes, true)
                 ),
                 fontSize = smallestTextSize,
                 color = redColor,
@@ -243,12 +236,12 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
             )
         }
 
-        if (giftGB > 0 && emailNr * giftBytes <= spaceLeftBytes) {
+        if (giftGB > 0 && emails.size > 0 && emails.size * giftBytes <= spaceLeftBytes) {
             Text(
                 text = stringResource(
                     R.string.total_gifted_forecasted_remaining,
-                    bytesToCustomHumanReadableString(emailNr * giftBytes, true),
-                    bytesToCustomHumanReadableString(spaceLeftBytes - emailNr * giftBytes, true)
+                    bytesToCustomHumanReadableString(emails.size * giftBytes, true),
+                    bytesToCustomHumanReadableString(spaceLeftBytes - emails.size * giftBytes, true)
                 ),
                 fontSize = smallestTextSize,
                 color = primaryColor,
@@ -265,13 +258,13 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
         ) {
             Text(
                 text = stringResource(R.string.note_to_recipients),
-                fontSize = smallerTextSize,
+                fontSize = smallestTextSize,
                 color = primaryColor,
                 fontFamily = semiboldFont
             )
             Text(
                 text = stringResource(R.string.optional),
-                fontSize = smallerTextSize,
+                fontSize = smallestTextSize,
                 color = lightGreyColor,
                 fontFamily = semiboldFont
             )
