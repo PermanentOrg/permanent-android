@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,12 +29,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 import org.permanent.permanent.models.EmailChip
-import java.util.UUID
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 fun EmailChipView(emails: MutableList<EmailChip>) {
-    val text = remember { mutableStateOf("") }
     val errorText = remember { mutableStateOf("") }
     var isFocused = remember { mutableStateOf(false) }
     val showTextField = remember { mutableStateOf(true) }
@@ -82,7 +79,7 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
                 }
 
                 if (showTextField.value) {
-                    EmailChipTextField(text, errorText, emails, isFocused, showTextField)
+                    EmailChipTextField(errorText, emails, isFocused, showTextField)
                 }
             }
         }
