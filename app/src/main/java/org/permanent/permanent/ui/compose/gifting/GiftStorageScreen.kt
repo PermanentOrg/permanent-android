@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -84,7 +85,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var emails = remember { mutableStateListOf<EmailChip>() }
+    val emails by viewModel.getEmails().observeAsState(initial = mutableListOf())
 
     Column(
         modifier = Modifier
@@ -153,7 +154,12 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 fontFamily = semiboldFont
             )
 
-            EmailChipView(emails = emails)
+            EmailChipView(emails = emails,
+                onAddEmailChip = {
+                    viewModel.addEmailChip(it)
+                }, onRemoveEmailChip = {
+                    viewModel.removeEmailChip(it)
+                })
         }
 
         Spacer(modifier = Modifier.height(32.dp))

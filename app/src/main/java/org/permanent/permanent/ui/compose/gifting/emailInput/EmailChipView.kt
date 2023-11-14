@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -32,7 +31,11 @@ import org.permanent.permanent.models.EmailChip
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
-fun EmailChipView(emails: MutableList<EmailChip>) {
+fun EmailChipView(
+    emails: MutableList<EmailChip>,
+    onAddEmailChip: (EmailChip) -> Unit,
+    onRemoveEmailChip: (EmailChip) -> Unit
+) {
     val errorText = remember { mutableStateOf("") }
     var isFocused = remember { mutableStateOf(false) }
     val showTextField = remember { mutableStateOf(true) }
@@ -74,12 +77,22 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
                 emails.forEach { chip ->
                     EmailChipCard(text = chip.text,
                         onDelete = { text ->
-                            emails.removeIf { it.text == text }
+                            val email = emails.firstOrNull { it.text == text }
+                            if (email != null) {
+                                onRemoveEmailChip(email)
+                            }
                         })
                 }
 
                 if (showTextField.value) {
-                    EmailChipTextField(errorText, emails, isFocused, showTextField)
+                    EmailChipTextField(
+                        errorText,
+                        emails,
+                        isFocused,
+                        showTextField,
+                        onAddEmailChip = onAddEmailChip,
+                        onRemoveEmailChip = onRemoveEmailChip
+                    )
                 }
             }
         }
@@ -92,18 +105,4 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun EmailChipPreview() {
-    EmailChipView(
-        emails = mutableListOf(
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("Another Chip")
-        )
-    )
 }
