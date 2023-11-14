@@ -14,10 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -36,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
+import org.permanent.permanent.ui.compose.components.CustomButton
 
 @Composable
 fun DesignateContactOrStewardScreen(
@@ -105,28 +103,11 @@ fun DesignateContactOrStewardScreen(
             openAddEditScreen
         )
         Spacer(modifier = Modifier.weight(1.0f))
-        Button(modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
-            shape = RoundedCornerShape(8.dp),
-            onClick = { openLegacyScreen() }) {
-            Row(
-                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.button_go_to_legacy_planning),
-                    fontSize = subTitleTextSize,
-                    fontFamily = regularFont,
-                )
-                Spacer(modifier = Modifier.weight(1.0f))
-                Image(
-                    painter = painterResource(id = R.drawable.ic_arrow_next_white),
-                    contentDescription = "Account add",
-                    modifier = Modifier.size(16.dp)
-                )
-            }
+
+        CustomButton(text = stringResource(R.string.button_go_to_legacy_planning)) {
+            openLegacyScreen()
         }
+
         Spacer(modifier = Modifier.height(36.dp))
     }
 }

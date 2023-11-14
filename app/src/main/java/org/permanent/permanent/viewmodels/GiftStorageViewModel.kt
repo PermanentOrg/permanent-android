@@ -41,6 +41,10 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
         giftGB.value?.let { giftBytes.value = gbToBytes(it) }
     }
 
+    fun onSendGiftStorageClick() {
+
+    }
+
     fun getSpaceTotal() = spaceTotalBytes
 
     fun getSpaceLeft() = spaceLeftBytes
@@ -50,6 +54,5 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
     fun getGiftGB() = giftGB
 
     fun getGiftBytes() = giftBytes
-
     fun getNote() = note
 }

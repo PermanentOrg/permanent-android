@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.models.EmailChip
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
+import org.permanent.permanent.ui.compose.components.CustomButton
 import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
@@ -288,6 +289,11 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
             )
         )
 
+        Spacer(modifier = Modifier.height(32.dp))
+
+        CustomButton(text = stringResource(id = R.string.send_gift_storage)) {
+            viewModel.onSendGiftStorageClick()
+        }
 //        if (isBusy == true) {
 //            CircularProgressIndicator(
 //                modifier = Modifier.width(48.dp),
