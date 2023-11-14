@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -55,17 +56,19 @@ fun EmailChipView(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.clickable {
-            if (!isFocused.value) {
-                showTextField.value = true
+        modifier = Modifier
+            .clickable {
+                if (!isFocused.value) {
+                    showTextField.value = true
+                }
             }
-        }
     ) {
         Row(
             modifier = Modifier
                 .border(1.dp, if (hasError) error200 else blue50, RoundedCornerShape(8.dp))
                 .background(Color.White, RoundedCornerShape(8.dp))
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             FlowRow(
