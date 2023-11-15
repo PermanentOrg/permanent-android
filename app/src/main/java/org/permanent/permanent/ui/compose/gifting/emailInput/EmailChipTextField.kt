@@ -44,7 +44,9 @@ fun EmailChipTextField(
     errorText: MutableState<String>,
     emails: MutableList<EmailChip>,
     isFocused: MutableState<Boolean>,
-    showTextField: MutableState<Boolean>
+    showTextField: MutableState<Boolean>,
+    onAddEmailChip: (EmailChip) -> Unit,
+    onRemoveEmailChip: (EmailChip) -> Unit
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -69,7 +71,7 @@ fun EmailChipTextField(
                 if (!it) {
                     val email = textFieldValueState.text
                     if (Validator.isValidEmail(null, email = email, null, null)) {
-                        emails.add(EmailChip(text = email))
+                        onAddEmailChip(EmailChip(text = email))
                         textFieldValueState = TextFieldValue(text = "")
                         showTextField.value = false
                         errorText.value = ""
@@ -98,7 +100,7 @@ fun EmailChipTextField(
                     val email = it.text.substring(startIndex = 0, endIndex = it.text.count() - 1)
                     if (Validator.isValidEmail(null, email = email, null, null)) {
                         textFieldValueState = TextFieldValue(text = "")
-                        emails.add(EmailChip(text = email))
+                        onAddEmailChip(EmailChip(text = email))
                         errorText.value = ""
                     } else {
                         textFieldValueState = TextFieldValue(
@@ -107,7 +109,8 @@ fun EmailChipTextField(
                         errorText.value = email
                     }
                 } else if (emails.isNotEmpty() && textFieldValueState.text.isEmpty() && it.text.isEmpty()) {
-                    val last = emails.removeAt(emails.count() - 1)
+                    val last = emails[emails.count() - 1]
+                    onRemoveEmailChip(last)
                     textFieldValueState = TextFieldValue(
                         text = last.text,
                         selection = TextRange(last.text.length))
@@ -120,7 +123,8 @@ fun EmailChipTextField(
                 .background(Color.Transparent)
                 .onKeyEvent {
                     if (it.key == Key.Backspace && textFieldValueState.text.isEmpty() && emails.isNotEmpty()) {
-                        val last = emails.removeAt(emails.count() - 1)
+                        val last = emails[emails.count() - 1]
+                        onRemoveEmailChip(last)
                         textFieldValueState = TextFieldValue(
                             text = last.text,
                             selection = TextRange(last.text.length)

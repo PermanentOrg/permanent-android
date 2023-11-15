@@ -1,7 +1,10 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.models.EmailChip
 import org.permanent.permanent.ui.gbToBytes
 
 class GiftStorageViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -15,6 +18,9 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
     private var giftGB = MutableLiveData(0)
     private var giftBytes = MutableLiveData(0L)
     private var note = ""
+    private var showInsufficientStorageText = MutableLiveData(false)
+
+    private val emails = MutableLiveData<SnapshotStateList<EmailChip>>(mutableStateListOf())
 
     fun setSpaceTotal(it: Long) {
         spaceTotalBytes.value = it
@@ -33,12 +39,36 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
         if (giftGBValue != null && giftGBValue > 0) {
             giftGB.value = giftGBValue.minus(1)
             giftGB.value?.let { giftBytes.value = gbToBytes(it) }
+            checkToShowInsufficientStorageText()
         }
     }
 
     fun onPlusBtnClick() {
         giftGB.value = giftGB.value?.plus(1)
         giftGB.value?.let { giftBytes.value = gbToBytes(it) }
+        checkToShowInsufficientStorageText()
+    }
+
+    fun addEmailChip(emailChip: EmailChip) {
+        emails.value?.add(emailChip)
+        emails.postValue(emails.value)
+        checkToShowInsufficientStorageText()
+    }
+
+    fun removeEmailChip(emailChip: EmailChip) {
+        emails.value?.remove(emailChip)
+        emails.postValue(emails.value)
+        checkToShowInsufficientStorageText()
+    }
+
+    private fun checkToShowInsufficientStorageText() {
+        val emailNrValue = emails.value?.count()
+        val giftBytesValue = giftBytes.value
+        val spaceLeftBytesValue = spaceLeftBytes.value
+        if (emailNrValue != null && giftBytesValue != null && spaceLeftBytesValue != null) {
+            showInsufficientStorageText.value =
+                emailNrValue * giftBytesValue > spaceLeftBytesValue
+        }
     }
 
     fun onSendGiftStorageClick() {
@@ -55,4 +85,8 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getGiftBytes() = giftBytes
     fun getNote() = note
+
+    fun getEmails() = emails
+
+    fun getShowInsufficientStorageText() = showInsufficientStorageText
 }

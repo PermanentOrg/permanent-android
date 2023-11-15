@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -32,7 +32,11 @@ import org.permanent.permanent.models.EmailChip
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
-fun EmailChipView(emails: MutableList<EmailChip>) {
+fun EmailChipView(
+    emails: MutableList<EmailChip>,
+    onAddEmailChip: (EmailChip) -> Unit,
+    onRemoveEmailChip: (EmailChip) -> Unit
+) {
     val errorText = remember { mutableStateOf("") }
     var isFocused = remember { mutableStateOf(false) }
     val showTextField = remember { mutableStateOf(true) }
@@ -52,17 +56,19 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.clickable {
-            if (!isFocused.value) {
-                showTextField.value = true
+        modifier = Modifier
+            .clickable {
+                if (!isFocused.value) {
+                    showTextField.value = true
+                }
             }
-        }
     ) {
         Row(
             modifier = Modifier
                 .border(1.dp, if (hasError) error200 else blue50, RoundedCornerShape(8.dp))
                 .background(Color.White, RoundedCornerShape(8.dp))
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             FlowRow(
@@ -74,12 +80,22 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
                 emails.forEach { chip ->
                     EmailChipCard(text = chip.text,
                         onDelete = { text ->
-                            emails.removeIf { it.text == text }
+                            val email = emails.firstOrNull { it.text == text }
+                            if (email != null) {
+                                onRemoveEmailChip(email)
+                            }
                         })
                 }
 
                 if (showTextField.value) {
-                    EmailChipTextField(errorText, emails, isFocused, showTextField)
+                    EmailChipTextField(
+                        errorText,
+                        emails,
+                        isFocused,
+                        showTextField,
+                        onAddEmailChip = onAddEmailChip,
+                        onRemoveEmailChip = onRemoveEmailChip
+                    )
                 }
             }
         }
@@ -92,18 +108,4 @@ fun EmailChipView(emails: MutableList<EmailChip>) {
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun EmailChipPreview() {
-    EmailChipView(
-        emails = mutableListOf(
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("flaviu88@gmail.com"),
-            EmailChip("Another Chip")
-        )
-    )
 }
