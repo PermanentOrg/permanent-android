@@ -80,6 +80,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val emails by viewModel.getEmails().observeAsState(initial = mutableListOf())
     val showInsufficientStorageText by viewModel.getShowInsufficientStorageText()
         .observeAsState(initial = false)
+    val showButtonEnabled by viewModel.getShowButtonEnabled().observeAsState(initial = false)
 //    val isBusy by viewModel.getIsBusy().observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
@@ -297,8 +298,8 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        CustomButton(text = stringResource(id = R.string.send_gift_storage)) {
-            viewModel.onSendGiftStorageClick()
+        CustomButton(text = stringResource(id = R.string.send_gift_storage), showButtonEnabled) {
+            viewModel.onSendGiftStorageClick(note)
         }
 //        if (isBusy == true) {
 //            CircularProgressIndicator(

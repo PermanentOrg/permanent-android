@@ -104,7 +104,7 @@ fun DesignateContactOrStewardScreen(
         )
         Spacer(modifier = Modifier.weight(1.0f))
 
-        CustomButton(text = stringResource(R.string.button_go_to_legacy_planning)) {
+        CustomButton(text = stringResource(R.string.button_go_to_legacy_planning), true) {
             openLegacyScreen()
         }
 

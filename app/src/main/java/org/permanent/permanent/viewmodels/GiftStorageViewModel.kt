@@ -19,6 +19,7 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
     private var giftBytes = MutableLiveData(0L)
     private var note = ""
     private var showInsufficientStorageText = MutableLiveData(false)
+    private var showButtonEnabled = MutableLiveData(false)
 
     private val emails = MutableLiveData<SnapshotStateList<EmailChip>>(mutableStateListOf())
 
@@ -40,6 +41,7 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
             giftGB.value = giftGBValue.minus(1)
             giftGB.value?.let { giftBytes.value = gbToBytes(it) }
             checkToShowInsufficientStorageText()
+            checkToShowButtonEnabled()
         }
     }
 
@@ -47,18 +49,21 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
         giftGB.value = giftGB.value?.plus(1)
         giftGB.value?.let { giftBytes.value = gbToBytes(it) }
         checkToShowInsufficientStorageText()
+        checkToShowButtonEnabled()
     }
 
     fun addEmailChip(emailChip: EmailChip) {
         emails.value?.add(emailChip)
         emails.postValue(emails.value)
         checkToShowInsufficientStorageText()
+        checkToShowButtonEnabled()
     }
 
     fun removeEmailChip(emailChip: EmailChip) {
         emails.value?.remove(emailChip)
         emails.postValue(emails.value)
         checkToShowInsufficientStorageText()
+        checkToShowButtonEnabled()
     }
 
     private fun checkToShowInsufficientStorageText() {
@@ -71,7 +76,16 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
         }
     }
 
-    fun onSendGiftStorageClick() {
+    private fun checkToShowButtonEnabled() {
+        val emailNrValue = emails.value?.count()
+        val giftGBValue = giftGB.value
+        val showInsufficientStorageTextValue = showInsufficientStorageText.value
+
+        showButtonEnabled.value =
+            emailNrValue != null && emailNrValue > 0 && giftGBValue != null && giftGBValue > 0 && showInsufficientStorageTextValue == false
+    }
+
+    fun onSendGiftStorageClick(note: String) {
 
     }
 
@@ -89,4 +103,6 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
     fun getEmails() = emails
 
     fun getShowInsufficientStorageText() = showInsufficientStorageText
+
+    fun getShowButtonEnabled() = showButtonEnabled
 }

@@ -24,7 +24,7 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun CustomButton(text: String, onButtonClick: () -> Unit,) {
+fun CustomButton(text: String, showButtonEnabled: Boolean, onButtonClick: () -> Unit) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val primaryColor200 = Color(ContextCompat.getColor(context, R.color.colorPrimary200))
@@ -34,9 +34,9 @@ fun CustomButton(text: String, onButtonClick: () -> Unit,) {
     Button(modifier = Modifier
         .fillMaxWidth()
         .height(48.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+        colors = ButtonDefaults.buttonColors(containerColor = if (showButtonEnabled) primaryColor else primaryColor200),
         shape = RoundedCornerShape(8.dp),
-        onClick = { onButtonClick() }) {
+        onClick = { if (showButtonEnabled) onButtonClick() }) {
         Row(
             modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
