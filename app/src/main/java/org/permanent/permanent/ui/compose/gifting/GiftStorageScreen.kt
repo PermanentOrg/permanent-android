@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,7 +47,6 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
-import org.permanent.permanent.models.EmailChip
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
 import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
@@ -78,13 +76,16 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val giftBytes by viewModel.getGiftBytes().observeAsState(initial = 0)
     var note by remember { mutableStateOf(viewModel.getNote()) }
     val errorMessage by viewModel.showError.observeAsState()
+    val emails by viewModel.getEmails().observeAsState(initial = mutableListOf())
+    val showInsufficientStorageText by viewModel.getShowInsufficientStorageText()
+        .observeAsState(initial = false)
 //    val isBusy by viewModel.getIsBusy().observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var emails = remember { mutableStateListOf<EmailChip>() }
+
 
     Column(
         modifier = Modifier
@@ -153,7 +154,12 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 fontFamily = semiboldFont
             )
 
-            EmailChipView(emails = emails)
+            EmailChipView(emails = emails,
+                onAddEmailChip = {
+                    viewModel.addEmailChip(it)
+                }, onRemoveEmailChip = {
+                    viewModel.removeEmailChip(it)
+                })
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -171,7 +177,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 .padding(top = 8.dp),
             border = BorderStroke(
                 0.dp,
-                if (emails.size * giftBytes > spaceLeftBytes) redColor else lightGreyColor
+                if (showInsufficientStorageText) redColor else lightGreyColor
             ),
             colors = CardDefaults.cardColors(containerColor = whiteColor)
         ) {
@@ -224,7 +230,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (emails.size * giftBytes > spaceLeftBytes) {
+        if (showInsufficientStorageText) {
             Text(
                 text = stringResource(
                     R.string.insufficient_storage,
