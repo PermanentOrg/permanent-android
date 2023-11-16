@@ -5,6 +5,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.EmailChip
+import org.permanent.permanent.network.IBillingListener
+import org.permanent.permanent.network.models.StorageGift
+import org.permanent.permanent.repositories.BillingRepositoryImpl
+import org.permanent.permanent.repositories.IBillingRepository
 import org.permanent.permanent.ui.gbToBytes
 
 class GiftStorageViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -20,8 +24,11 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
     private var note = ""
     private var showInsufficientStorageText = MutableLiveData(false)
     private var showButtonEnabled = MutableLiveData(false)
+    private var onGiftStorageSent = SingleLiveEvent<Void?>()
 
     private val emails = MutableLiveData<SnapshotStateList<EmailChip>>(mutableStateListOf())
+
+    private var billingRepository: IBillingRepository = BillingRepositoryImpl(appContext)
 
     fun setSpaceTotal(it: Long) {
         spaceTotalBytes.value = it
@@ -86,8 +93,31 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
     }
 
     fun onSendGiftStorageClick(note: String) {
+        if (isBusy.value == true) return
 
+        val emailsValue = emails.value?.toList()?.map { it.text }
+        val giftGBValue = giftGB.value
+
+        if (emailsValue != null && giftGBValue != null) {
+            isBusy.value = true
+            val gift = StorageGift(emailsValue, giftGBValue, note)
+
+            billingRepository.send(gift, object : IBillingListener {
+
+                override fun onSuccess(gift: StorageGift) {
+                    isBusy.value = false
+                    onGiftStorageSent.call()
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    error?.let { showError.value = it }
+                }
+            })
+        }
     }
+
+    fun getIsBusy() = isBusy
 
     fun getSpaceTotal() = spaceTotalBytes
 
@@ -105,4 +135,6 @@ class GiftStorageViewModel(application: Application) : ObservableAndroidViewMode
     fun getShowInsufficientStorageText() = showInsufficientStorageText
 
     fun getShowButtonEnabled() = showButtonEnabled
+
+    fun getOnGiftStorageSent() = onGiftStorageSent
 }
