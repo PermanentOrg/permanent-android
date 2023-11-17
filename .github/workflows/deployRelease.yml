@@ -3,7 +3,7 @@ name: Release to Play store
 on:
   workflow_dispatch:
   push:
-    branches: [ "release/**" ]
+    branches: [ "release-disabled/**" ]
 
 jobs:
   build:
