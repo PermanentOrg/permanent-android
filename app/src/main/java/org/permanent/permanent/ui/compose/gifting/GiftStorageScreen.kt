@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -48,6 +51,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
+import org.permanent.permanent.ui.compose.components.CustomButton
 import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
@@ -79,7 +83,8 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val emails by viewModel.getEmails().observeAsState(initial = mutableListOf())
     val showInsufficientStorageText by viewModel.getShowInsufficientStorageText()
         .observeAsState(initial = false)
-//    val isBusy by viewModel.getIsBusy().observeAsState()
+    val showButtonEnabled by viewModel.getShowButtonEnabled().observeAsState(initial = false)
+    val isBusy by viewModel.getIsBusy().observeAsState(initial = false)
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
@@ -162,7 +167,22 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 })
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        if (isBusy == true) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(32.dp),
+                    color = primaryColor,
+                    trackColor = MaterialTheme.colorScheme.secondary,
+                )
+            }
+        } else {
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
         Text(
             text = stringResource(R.string.gift),
@@ -294,13 +314,11 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
             )
         )
 
-//        if (isBusy == true) {
-//            CircularProgressIndicator(
-//                modifier = Modifier.width(48.dp),
-//                color = MaterialTheme.colorScheme.surfaceVariant,
-//                trackColor = MaterialTheme.colorScheme.secondary,
-//            )
-//        }
+        Spacer(modifier = Modifier.height(32.dp))
+
+        CustomButton(text = stringResource(id = R.string.send_gift_storage), showButtonEnabled) {
+            viewModel.onSendGiftStorageClick(note)
+        }
     }
 
     LaunchedEffect(errorMessage) {

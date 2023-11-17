@@ -624,5 +624,6 @@
     <string name="send_gift_storage">Send gift storage</string>
     <string name="insufficient_storage">Insufficient storage. You need %s more.</string>
     <string name="total_gifted_forecasted_remaining">Total gifted: %s • Forecasted remaining: %s</string>
+    <string name="storage_successfully_gifted">Storage successfully gifted! You sent %d GB of Permanent storage.</string>
 
 </resources>
