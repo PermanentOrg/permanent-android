@@ -40,6 +40,7 @@ import org.permanent.permanent.network.models.ProfileItemsRequestContainer
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.network.models.SimpleRequestContainer
+import org.permanent.permanent.network.models.StorageGift
 import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -70,6 +71,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val profileService: IProfileService
     private val storageService: IStorageService
     private val legacyPlanningService: ILegacyPlanningService
+    private val billingService: IBillingService
     private val jsonAdapter: JsonAdapter<RequestContainer>
     private val simpleJsonAdapter: JsonAdapter<SimpleRequestContainer>
     private val profileItemsJsonAdapter: JsonAdapter<ProfileItemsRequestContainer>
@@ -146,6 +148,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         profileService = retrofit.create(IProfileService::class.java)
         storageService = retrofit.create(IStorageService::class.java)
         legacyPlanningService = retrofitStelaBaseUrl.create(ILegacyPlanningService::class.java)
+        billingService = retrofitStelaBaseUrl.create(IBillingService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
         profileItemsJsonAdapter =
@@ -733,6 +736,9 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun getArchiveSteward(archiveId: Int): Call<List<ArchiveSteward>> =
         legacyPlanningService.getArchiveSteward(archiveId)
+
+    fun sendGift(gift: StorageGift): Call<StorageGift> =
+        billingService.send(gift)
 
     fun getPaymentIntent(
         accountId: Int,

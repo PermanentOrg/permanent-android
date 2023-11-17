@@ -99,6 +99,7 @@
     <string name="menu_toolbar_public_add">Add</string>
 
     <string name="menu_settings_drawer_storage">Storage</string>
+    <string name="menu_settings_drawer_gift_storage">Gift Storage</string>
     <string name="menu_settings_drawer_account">Account</string>
     <string name="menu_settings_drawer_legacy_planning">Legacy Planning</string>
     <string name="menu_settings_drawer_activity_feed">Activity Feed</string>
@@ -498,7 +499,6 @@
     <string name="storage_choose_amount">Choose an amount</string>
     <string name="storage_enter_custom_amount">Or enter manually below</string>
     <string name="storage_gb_endowed">Endow %s GB</string>
-    <string name="storage_anonymous_donation">Make my purchase anonymous</string>
     <string name="storage_donation_successful_title">Thank you!</string>
     <string name="storage_purchase_successful_text">Your purchase was successful!</string>
     <string name="storage_donation_no_card_title">Oops!</string>
@@ -611,4 +611,18 @@
 
     <string name="dialog_legacy_title">Legacy Planning</string>
     <string name="dialog_legacy_text">Your Legacy Plan will determine when, how, and with whom your materials will be shared.</string>
+
+    <string name="gift_storage_to_others">Gift storage to others</string>
+    <string name="gift_storage_details">Send storage to existing users or invite someone new with a gift. Recipients must create an account to claim a gift.</string>
+    <string name="gift_storage_emails">Recipient emails</string>
+    <string name="gift">GIFT</string>
+    <string name="gb_recipient">GB / RECIPIENT</string>
+    <string name="note_to_recipients">NOTE TO RECIPIENTS</string>
+    <string name="optional">(OPTIONAL)</string>
+    <string name="your_text_here">Your text here…</string>
+    <string name="send_gift_storage">Send gift storage</string>
+    <string name="insufficient_storage">Insufficient storage. You need %s more.</string>
+    <string name="total_gifted_forecasted_remaining">Total gifted: %s • Forecasted remaining: %s</string>
+    <string name="storage_successfully_gifted">Storage successfully gifted! You sent %d GB of Permanent storage.</string>
+
 </resources>
