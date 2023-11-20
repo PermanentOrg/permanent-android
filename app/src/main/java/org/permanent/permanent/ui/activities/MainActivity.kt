@@ -110,7 +110,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.legacyLoadingFragment-> {
+                R.id.legacyLoadingFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -166,6 +166,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.manageTagsFragment,
             R.id.membersFragment,
             R.id.storageFragment,
+            R.id.giftStorageFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment,
             R.id.accountFragment,
@@ -213,6 +214,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     setArchiveSettingsIcon(menuItem, isSubmenuVisible)
                     true
                 }
+
                 R.id.archiveStewardFragment -> {
                     val bundle = bundleOf(PARCELABLE_ARCHIVE_KEY to viewModel.getCurrentArchive())
                     navController.navigate(R.id.archiveStewardFragment, bundle)
@@ -230,6 +232,16 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.settingsNavigationView.setupWithNavController(navController)
         binding.settingsNavigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.giftStorageFragment -> {
+                    val bundle = bundleOf(
+                        SPACE_TOTAL_KEY to viewModel.getSpaceTotal(),
+                        SPACE_LEFT_KEY to viewModel.getSpaceLeft(),
+                        SPACE_USED_PERCENTAGE_KEY to viewModel.getSpaceUsedPercentage().value
+                    )
+                    navController.navigate(R.id.giftStorageFragment, bundle)
+                    binding.drawerLayout.closeDrawers()
+                }
+
                 R.id.contactSupport -> {
                     binding.drawerLayout.closeDrawers()
                     val intent = Intent(Intent.ACTION_VIEW)
@@ -243,6 +255,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     viewModel.deleteDeviceToken()
                     EventsManager(this).resetUser()
                 }
+
                 else -> {
                     menuItem.onNavDestinationSelected(navController)
                     binding.drawerLayout.closeDrawers()
@@ -288,7 +301,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         manageTagsItem.isVisible = visible
         manageMembersItem.isVisible = visible
-        legacyPlanning.isVisible = visible && viewModel.getCurrentArchive().accessRole == AccessRole.OWNER
+        legacyPlanning.isVisible =
+            visible && viewModel.getCurrentArchive().accessRole == AccessRole.OWNER
     }
 
     private fun setArchiveSettingsIcon(menuItem: MenuItem, submenuVisible: Boolean) {
@@ -469,5 +483,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     companion object {
         const val SAVE_TO_PERMANENT_FILE_URIS_KEY = "save_to_permanent_file_uris_key"
+        const val SPACE_TOTAL_KEY = "space_total_key"
+        const val SPACE_LEFT_KEY = "space_left_key"
+        const val SPACE_USED_PERCENTAGE_KEY = "space_used_percentage_key"
     }
 }
