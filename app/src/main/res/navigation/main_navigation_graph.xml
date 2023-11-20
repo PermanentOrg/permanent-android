@@ -135,6 +135,11 @@
         tools:layout="@layout/fragment_storage" />
 
     <fragment
+        android:id="@+id/giftStorageFragment"
+        android:name="org.permanent.permanent.ui.GiftStorageFragment"
+        android:label="@string/menu_settings_drawer_gift_storage" />
+
+    <fragment
         android:id="@+id/accountFragment"
         android:name="org.permanent.permanent.ui.settings.AccountFragment"
         android:label="@string/menu_settings_drawer_account"

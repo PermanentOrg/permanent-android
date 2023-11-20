@@ -39,6 +39,8 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     private val spaceUsedText = MutableLiveData<String>()
     private val errorMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
+    private var accountSpaceTotal: Long = 0
+    private var accountSpaceLeft: Long = 0
     private val onViewProfile = SingleLiveEvent<Void?>()
     private val onArchiveSwitched = SingleLiveEvent<Void?>()
     private val onLoggedOut = SingleLiveEvent<Void?>()
@@ -95,6 +97,8 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
                 val spaceTotal = account.spaceTotal
                 val spaceLeft = account.spaceLeft
                 if (spaceTotal != null && spaceLeft != null) {
+                    accountSpaceTotal = spaceTotal
+                    accountSpaceLeft = spaceLeft
                     val spaceUsed = spaceTotal - spaceLeft
                     val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
                     spaceUsedPercentage.value = spaceUsedPercentageFloat.toInt()
@@ -167,6 +171,10 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
             }
         })
     }
+
+    fun getSpaceTotal() : Long = accountSpaceTotal
+
+    fun getSpaceLeft() : Long = accountSpaceLeft
 
     fun getCurrentArchive() : Archive = prefsHelper.getCurrentArchive()
 

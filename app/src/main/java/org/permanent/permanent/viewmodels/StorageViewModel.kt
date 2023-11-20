@@ -20,8 +20,8 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     val amount = MutableLiveData(DONATION_AMOUNT_DEFAULT_VALUE)
-    val gbEndowed = MutableLiveData(appContext.getString(R.string.storage_gb_endowed, GB_ENDOWED_DEFAULT_VALUE))
-    private val isDonationAnonymous = MutableLiveData(false)
+    val gbEndowed =
+        MutableLiveData(appContext.getString(R.string.storage_gb_endowed, GB_ENDOWED_DEFAULT_VALUE))
     private val showError = MutableLiveData<String>()
     private val isBusy = MutableLiveData<Boolean>()
     private val onPaymentIntentRetrieved = SingleLiveEvent<String>()
@@ -37,7 +37,7 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
             storageRepository.getPaymentIntent(prefsHelper.getAccountId(),
                 prefsHelper.getAccountEmail(),
                 prefsHelper.getAccountName(),
-                isDonationAnonymous.value,
+                false,
                 amountValue * 100,
                 object : IStringDataListener {
 
@@ -64,12 +64,7 @@ class StorageViewModel(application: Application) : ObservableAndroidViewModel(ap
         )
     }
 
-    fun onIsDonationAnonymousChanged(checked: Boolean) {
-        isDonationAnonymous.value = checked
-    }
-
     fun getOnPaymentIntentRetrieved(): LiveData<String> = onPaymentIntentRetrieved
-    fun getIsDonationAnonymous(): LiveData<Boolean> = isDonationAnonymous
     fun getOnError(): LiveData<String> = showError
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
