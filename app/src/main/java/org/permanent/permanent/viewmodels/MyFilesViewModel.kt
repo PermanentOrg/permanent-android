@@ -18,8 +18,11 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
@@ -281,6 +284,9 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     private fun uploadTo(folder: NavigationFolder, uris: List<Uri>) {
+        val properties = JSONObject()
+        properties.put("workspace", folderName.value)
+        EventsManager(appContext).sendToMixpanel(EventType.InitiateUpload, properties = properties)
         folder.getUploadQueue()?.upload(uris)
     }
 
@@ -304,6 +310,9 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {
+        val properties = JSONObject()
+        properties.put("workspace", folderName.value)
+        EventsManager(appContext).sendToMixpanel(EventType.FinalizeUpload, properties)
         currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
 

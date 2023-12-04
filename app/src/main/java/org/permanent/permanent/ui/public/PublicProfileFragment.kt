@@ -11,6 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import org.permanent.permanent.EventPage
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
 import org.permanent.permanent.models.Archive
@@ -31,6 +33,7 @@ class PublicProfileFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        EventsManager(requireContext()).trackPageView(EventPage.ArchiveProfile)
         viewModel = ViewModelProvider(this)[PublicProfileViewModel::class.java]
         binding = FragmentPublicProfileBinding.inflate(inflater, container, false)
         binding.executePendingBindings()

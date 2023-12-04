@@ -3,6 +3,8 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
@@ -179,6 +181,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 getProfileItemsToUpdateVisibility(checked), true,
                 object : IProfileItemListener {
                     override fun onSuccess(profileItem: ProfileItem) {
+                        EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
                         isBusy.value = false
                         isProfilePublic.value = checked
                     }
