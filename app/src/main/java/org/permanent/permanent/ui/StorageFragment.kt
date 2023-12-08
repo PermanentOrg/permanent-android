@@ -18,6 +18,9 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.googlepaylauncher.GooglePayEnvironment
 import com.stripe.android.googlepaylauncher.GooglePayLauncher
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.EventPage
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentStorageBinding
 import org.permanent.permanent.viewmodels.StorageViewModel
@@ -37,6 +40,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        EventsManager(requireContext()).trackPageView(EventPage.Storage)
         viewModel = ViewModelProvider(this)[StorageViewModel::class.java]
         binding = FragmentStorageBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
@@ -117,6 +121,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
                     R.string.storage_donation_successful_title,
                     getString(R.string.storage_purchase_successful_text)
                 )
+                EventsManager(requireContext()).sendToMixpanel(EventType.PurchaseStorage)
             }
             GooglePayLauncher.Result.Canceled -> {
                 Log.d(TAG, "User canceled the operation")

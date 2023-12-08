@@ -270,6 +270,7 @@
     <string name="button_clear">Clear</string>
     <string name="button_endow_with">Endow with</string>
     <string name="button_try_now">Try now</string>
+    <string name="button_gift_storage">Yes, gift storage</string>
 
     <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
@@ -624,5 +625,6 @@
     <string name="insufficient_storage">Insufficient storage. You need %s more.</string>
     <string name="total_gifted_forecasted_remaining">Total gifted: %s • Forecasted remaining: %s</string>
     <string name="storage_successfully_gifted">Storage successfully gifted! You sent %d GB of Permanent storage.</string>
+    <string name="storage_confirm_dialog_title">Are you sure\nyou’d like to gift storage?\nThis can\'t be undone!</string>
 
 </resources>

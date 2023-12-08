@@ -12,6 +12,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
@@ -181,6 +183,7 @@ class AddEditMilestoneViewModel(application: Application) :
             listOf(profileItemToUpdate), false,
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
+                    EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
                     isBusy.value = false
                     showMessage.value = appContext.getString(
                         R.string.add_edit_milestone_success,

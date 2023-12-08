@@ -5,6 +5,8 @@ import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
@@ -70,6 +72,7 @@ class AddEditOnlinePresenceViewModel(application: Application) :
             listOf(profileItemToUpdate), false,
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
+                    EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
                     isBusy.value = false
                     profileItemToUpdate.id = profileItem.id
                     showMessage.value = appContext.getString(

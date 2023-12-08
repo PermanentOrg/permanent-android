@@ -20,6 +20,12 @@ class EventsManager(context: Context) {
         }
     }
 
+    fun trackPageView(page: EventPage) {
+        val properties = JSONObject()
+        properties.put("page", page.value)
+        mp.track("Screen View", properties)
+    }
+
     fun resetUser() {
         mp.reset()
     }
@@ -27,5 +33,18 @@ class EventsManager(context: Context) {
 
 enum class EventType(val value: String) {
     SignUp("Sign up"),
-    SignIn("Sign in")
+    SignIn("Sign in"),
+    PageView("Screen View"),
+    InitiateUpload("Initiate Upload"),
+    FinalizeUpload("Finalize Upload"),
+    EditArchiveProfile("Edit Archive Profile"),
+    PurchaseStorage("Purchase Storage")
+}
+
+enum class EventPage(val value: String) {
+    AccountMenu("Account Menu"),
+    ArchiveMenu("Archive Menu"),
+    ArchiveProfile("Archive Profile"),
+    Storage("Storage"),
+    RedeemGift("RedeemGift")
 }
