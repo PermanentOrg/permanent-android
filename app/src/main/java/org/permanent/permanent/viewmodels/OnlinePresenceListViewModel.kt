@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.EventType
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.models.ProfileItemName
@@ -89,6 +91,7 @@ class OnlinePresenceListViewModel(application: Application) :
         isBusy.value = true
         profileRepository.deleteProfileItem(profileItem, object : IProfileItemListener {
             override fun onSuccess(profileItem: ProfileItem) {
+                EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
                 isBusy.value = false
                 getProfileItems()
                 showMessage.value = appContext.getString(R.string.online_presence_delete_success)

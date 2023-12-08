@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.compose.gifting
 
+import CustomDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -85,6 +86,8 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
         .observeAsState(initial = false)
     val showButtonEnabled by viewModel.getShowButtonEnabled().observeAsState(initial = false)
     val isBusy by viewModel.getIsBusy().observeAsState(initial = false)
+
+    val openAlertDialog = remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
@@ -317,7 +320,23 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
         Spacer(modifier = Modifier.height(32.dp))
 
         CustomButton(text = stringResource(id = R.string.send_gift_storage), showButtonEnabled) {
-            viewModel.onSendGiftStorageClick(note)
+            openAlertDialog.value = true
+        }
+
+        when {
+            openAlertDialog.value -> {
+                CustomDialog(
+                    title = stringResource(id = R.string.storage_confirm_dialog_title),
+                    subtitle = null,
+                    okButtonText = stringResource(id = R.string.button_gift_storage),
+                    cancelButtonText = stringResource(id = R.string.button_cancel),
+                    onConfirm = {
+                        viewModel.onSendGiftStorageClick(note)
+                        openAlertDialog.value = false
+                    }) {
+                    openAlertDialog.value = false
+                }
+            }
         }
     }
 
