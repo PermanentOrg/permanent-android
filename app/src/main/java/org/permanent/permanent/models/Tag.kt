@@ -51,8 +51,7 @@ data class Tag constructor(
                 tagId == other.tagId &&
                 name == other.name &&
                 isCheckedOnServer == other.isCheckedOnServer &&
-                isCheckedOnLocal == other.isCheckedOnLocal &&
-                isSelected.value == other.isSelected.value
+                isCheckedOnLocal == other.isCheckedOnLocal
     }
 
     override fun hashCode(): Int {
@@ -60,7 +59,6 @@ data class Tag constructor(
         result = 31 * result + name.hashCode()
         result = 31 * result + isCheckedOnServer.hashCode()
         result = 31 * result + isCheckedOnLocal.hashCode()
-        result = 31 * result + isSelected.value.hashCode()
         return result
     }
 }

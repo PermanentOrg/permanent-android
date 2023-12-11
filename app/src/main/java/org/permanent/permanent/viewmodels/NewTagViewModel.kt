@@ -1,79 +1,130 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.text.Editable
-import androidx.lifecycle.LiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.network.IRecordListener
-import org.permanent.permanent.repositories.FileRepositoryImpl
-import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.ITagListener
+import org.permanent.permanent.repositories.ITagRepository
+import org.permanent.permanent.repositories.TagRepositoryImpl
 
 class NewTagViewModel(application: Application) : ObservableAndroidViewModel(application) {
-    private val currentFolderName = MutableLiveData<String>()
-    private val nameError = MutableLiveData<Int?>()
-    private val isBusy = MutableLiveData<Boolean>()
-    private val onFolderCreated = SingleLiveEvent<Void?>()
-    private val errorMessage = MutableLiveData<String>()
-    val errorStringId = MutableLiveData<Int>()
-    private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun onNameTextChanged(email: Editable) {
-        currentFolderName.value = email.toString()
+    private val appContext = application.applicationContext
+    private val isBusy = MutableLiveData(false)
+    val showError = MutableLiveData<String>()
+    var newTagName by mutableStateOf("")
+        private set
+    var recentTagsTitle by mutableStateOf(appContext.getString(R.string.recent_tags, 0))
+        private set
+    var addButtonTitle by mutableStateOf(appContext.getString(R.string.add_x_tags, 0))
+        private set
+    private val records = mutableListOf<Record>()
+    private val recentTags = MutableLiveData<SnapshotStateList<Tag>>(mutableStateListOf())
+    private var selectedRecentTagsSize = MutableLiveData(0)
+    private val onTagsAddedToSelection = MutableLiveData<List<Tag>>()
+    private var tagRepository: ITagRepository = TagRepositoryImpl(application)
+
+    fun setRecords(records: ArrayList<Record>?) {
+        records?.toMutableList()?.let { recordList ->
+            this.records.addAll(recordList)
+        }
     }
 
-    private fun getValidatedFolderName(): String? {
-        val name = currentFolderName.value?.trim()
-
-        if (name.isNullOrEmpty()) {
-            nameError.value = R.string.invalid_folder_name_error
-            return null
+    fun setRecentTags(tags: ArrayList<Tag>?) {
+        tags?.toMutableList()?.let { tagList ->
+            this.recentTags.value?.addAll(tagList)
+            selectedRecentTagsSize.value = tagList.filter { it.isSelected.value == true }.size
         }
-        nameError.value = null
-        return name
     }
 
-    fun createNewFolder(parentFolderIdentifier: NavigationFolderIdentifier?) {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-        val folderName = getValidatedFolderName()
+    fun updateNewTag(it: String) {
+        newTagName = it
+    }
 
-        if (parentFolderIdentifier != null && folderName != null) {
+    fun onPlusButtonClick() {
+        if (isBusy.value == true) return
+
+        val tags: List<Tag> = listOf(Tag(null, newTagName))
+
+        isBusy.value = true
+        tagRepository.createOrLinkTags(tags, 0, object : ITagListener {
+
+            override fun onSuccess(createdTag: Tag?) {
+                isBusy.value = false
+                createdTag?.let {
+                    it.isSelected.value = true
+                    recentTags.value?.add(createdTag)
+                    recentTags.postValue(recentTags.value)
+                    newTagName = ""
+                    selectedRecentTagsSize.value = selectedRecentTagsSize.value?.inc()
+                    updateTagsTexts()
+                } ?: { showError.value = appContext.getString(R.string.generic_error) }
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                error?.let { showError.value = it }
+            }
+        })
+    }
+
+    fun onTagClick(tag: Tag) {
+        tag.isSelected.value?.let {
+            selectedRecentTagsSize.value =
+                if (tag.isSelected.value == true) selectedRecentTagsSize.value?.dec() else selectedRecentTagsSize.value?.inc()
+            tag.isSelected.value = !it
+            updateTagsTexts()
+        }
+    }
+
+    private fun updateTagsTexts() {
+        recentTagsTitle =
+            appContext.getString(R.string.recent_tags, selectedRecentTagsSize.value)
+        addButtonTitle = appContext.getString(R.string.add_x_tags, selectedRecentTagsSize.value)
+    }
+
+    fun onAddTagsButtonClick() {
+        if (isBusy.value == true) return
+
+        var appliedTagToRecordsNr = 0
+        recentTags.value?.filter { it.isSelected.value == true }?.let { selectedRecentTags ->
+
             isBusy.value = true
-            fileRepository.createFolder(
-                parentFolderIdentifier,
-                folderName,
-                object : IRecordListener {
-                    override fun onSuccess(record: Record) {
-                        isBusy.value = false
-                        onFolderCreated.call()
-                    }
+            for (record in records) {
+                record.recordId?.let { recordId ->
+                    tagRepository.createOrLinkTags(
+                        selectedRecentTags,
+                        recordId,
+                        object : ITagListener {
 
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        when (error) {
-                            Constants.ERROR_SERVER_ERROR -> errorStringId.value =
-                                R.string.server_error
-                            else -> error?.let { errorMessage.value = it }
-                        }
-                    }
-                })
+                            override fun onSuccess(createdTag: Tag?) {
+                                appliedTagToRecordsNr++
+                                if (appliedTagToRecordsNr == records.size) {
+                                    isBusy.value = false
+                                    onTagsAddedToSelection.value = selectedRecentTags
+                                }
+                            }
+
+                            override fun onFailed(error: String?) {
+                                isBusy.value = false
+                                error?.let { showError.value = it }
+                            }
+                        })
+                }
+            }
         }
     }
 
-    fun getCurrentFolderName(): MutableLiveData<String> = currentFolderName
+    fun getRecentTags() = recentTags
 
-    fun getNameError(): LiveData<Int?> = nameError
+    fun getOnTagsAddedToSelection() = onTagsAddedToSelection
 
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
-    fun getOnFolderCreated(): MutableLiveData<Void?> = onFolderCreated
-
-    fun getErrorStringId(): LiveData<Int> = errorStringId
-
-    fun getErrorMessage(): LiveData<String> = errorMessage
+    fun getIsBusy() = isBusy
 }

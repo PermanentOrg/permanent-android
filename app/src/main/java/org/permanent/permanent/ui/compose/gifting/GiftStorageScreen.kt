@@ -22,7 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -89,8 +88,6 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
-
-
 
     Column(
         modifier = Modifier
@@ -177,7 +174,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
                 CircularProgressIndicator(
                     modifier = Modifier.width(32.dp),
                     color = primaryColor,
-                    trackColor = MaterialTheme.colorScheme.secondary,
+                    trackColor = lightBlueColor,
                 )
             }
         } else {

@@ -9,56 +9,41 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import org.permanent.permanent.R
-import org.permanent.permanent.network.models.ArchiveSteward
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.ui.compose.legacyPlanning.AddEditLegacyContactScreen
-import org.permanent.permanent.viewmodels.AddEditArchiveStewardViewModel
+import org.permanent.permanent.ui.compose.bulkEditMetadata.NewTagScreen
+import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.viewmodels.NewTagViewModel
-import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class NewTagFragment : PermanentBottomSheetFragment() {
 
-    private var archiveId: Int? = null
     private lateinit var viewModel: NewTagViewModel
-    private val onArchiveStewardUpdated = SingleLiveEvent<ArchiveSteward>()
+    private val onTagsAddedToSelection = MutableLiveData<List<Tag>>()
 
-    fun setBundleArguments(archiveId: Int?, archiveSteward: ArchiveSteward?) {
+    fun setBundleArguments(records: ArrayList<Record>, recentTags: ArrayList<Tag>) {
         val bundle = Bundle()
-        archiveId?.let { bundle.putInt(ARCHIVE_ID_KEY, it) }
-        bundle.putParcelable(ARCHIVE_STEWARD_KEY, archiveSteward)
+        bundle.putParcelableArrayList(PARCELABLE_FILES_KEY, records)
+        bundle.putParcelableArrayList(RECENT_TAGS_KEY, recentTags)
         this.arguments = bundle
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        archiveId = arguments?.getInt(ARCHIVE_ID_KEY)
-
         viewModel = ViewModelProvider(this)[NewTagViewModel::class.java]
-        viewModel.setArchiveId(archiveId)
-        viewModel.setArchiveSteward(archiveSteward)
+        viewModel.setRecords(arguments?.getParcelableArrayList(PARCELABLE_FILES_KEY))
+        viewModel.setRecentTags(arguments?.getParcelableArrayList(RECENT_TAGS_KEY))
 
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    AddEditLegacyContactScreen(
-                        viewModel,
-                        screenTitle = stringResource(R.string.archive_steward),
-                        title = stringResource(R.string.designate_archive_steward),
-                        subtitle = stringResource(R.string.designate_archive_steward_description),
-                        namePlaceholder = stringResource(R.string.steward_name),
-                        emailPlaceholder = stringResource(R.string.steward_email_address),
-                        note = stringResource(R.string.steward_note_description),
-                        showName = false,
-                        showMessage = true
-                    ) { this@NewTagFragment.dismiss() }
+                    NewTagScreen(viewModel) { this@NewTagFragment.dismiss() }
                 }
             }
         }
@@ -76,17 +61,17 @@ class NewTagFragment : PermanentBottomSheetFragment() {
         return bottomSheetDialog
     }
 
-    private val onArchiveStewardUpdatedObserver = Observer<ArchiveSteward> {
-        onArchiveStewardUpdated.value = it
+    private val onTagsAddedToSelectionObserver = Observer<List<Tag>> {
+        onTagsAddedToSelection.value = it
         this.dismiss()
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnArchiveStewardUpdated().observe(this, onArchiveStewardUpdatedObserver)
+        viewModel.getOnTagsAddedToSelection().observe(this, onTagsAddedToSelectionObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnArchiveStewardUpdated().removeObserver(onArchiveStewardUpdatedObserver)
+        viewModel.getOnTagsAddedToSelection().removeObserver(onTagsAddedToSelectionObserver)
     }
 
     override fun onResume() {
@@ -99,10 +84,9 @@ class NewTagFragment : PermanentBottomSheetFragment() {
         disconnectViewModelEvents()
     }
 
-    fun getOnArchiveStewardUpdated(): MutableLiveData<ArchiveSteward> = onArchiveStewardUpdated
+    fun getOnTagsAddedToSelection() = onTagsAddedToSelection
 
     companion object {
-        const val ARCHIVE_ID_KEY = "archive_id_key"
-        const val ARCHIVE_STEWARD_KEY = "archive_steward_key"
+        const val RECENT_TAGS_KEY = "recent_tags_key"
     }
 }

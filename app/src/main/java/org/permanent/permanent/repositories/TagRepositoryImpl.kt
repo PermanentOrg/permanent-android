@@ -4,18 +4,14 @@ import android.content.Context
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ITagListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class TagRepositoryImpl(val context: Context) : ITagRepository {
-    private val prefsHelper = PreferencesHelper(
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    )
 
     override fun getTagsByArchive(archiveId: Int, listener: IDataListener) {
         NetworkClient.instance().getTagsByArchive(archiveId)
@@ -36,14 +32,15 @@ class TagRepositoryImpl(val context: Context) : ITagRepository {
             })
     }
 
-    override fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener) {
+    override fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: ITagListener) {
         NetworkClient.instance().createOrLinkTag(tags, recordId)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess("")
+                        responseVO.getTagVO()?.let { listener.onSuccess(Tag(it)) }
+                            ?: listener.onSuccess(null)
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }

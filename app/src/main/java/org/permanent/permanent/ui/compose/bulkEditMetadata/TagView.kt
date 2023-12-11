@@ -29,7 +29,11 @@ import org.permanent.permanent.R
 
 @Composable
 fun TagView(
-    text: String, isSelected: State<Boolean?>?, onTagClick: () -> Unit, onTagRemoveClick: () -> Unit
+    text: String,
+    isSelected: State<Boolean?>?,
+    isDisplayedInNewTagScreen: Boolean = false,
+    onTagClick: () -> Unit,
+    onTagRemoveClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
 
@@ -38,13 +42,16 @@ fun TagView(
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val selectedBackgroundColor =
         Color(ContextCompat.getColor(context, R.color.colorAccent)).copy(alpha = 0.3f)
-    val unselectedBackgroundColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val unselectedBackgroundColor = if (isDisplayedInNewTagScreen) Color(
+        ContextCompat.getColor(context, R.color.colorAccent)
+    ).copy(alpha = 0.05f) else
+        Color(ContextCompat.getColor(context, R.color.superLightBlue))
 
     Box(
         modifier = Modifier
             .padding(top = 8.dp)
             .clickable {
-                if (isSelected?.value == null || isSelected.value == false) {
+                if (isSelected?.value == null || isSelected.value == false || isDisplayedInNewTagScreen) {
                     onTagClick()
                 }
             }) {
@@ -70,14 +77,16 @@ fun TagView(
                     text = text, color = primaryColor, fontFamily = regularFont, fontSize = 14.sp
                 )
 
-                Image(
-                    painter = painterResource(id = R.drawable.ic_close_white),
-                    contentDescription = "Description",
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable { onTagRemoveClick() },
-                    colorFilter = ColorFilter.tint(lightGreyColor)
-                )
+                onTagRemoveClick?.let {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_close_white),
+                        contentDescription = "Description",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clickable { it() },
+                        colorFilter = ColorFilter.tint(lightGreyColor)
+                    )
+                }
             }
         }
     }

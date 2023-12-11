@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ITagListener
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -61,8 +62,9 @@ class AddEditTagViewModel(application: Application) : ObservableAndroidViewModel
         val tags: List<Tag> = listOf(newTag)
 
         isBusy.value = true
-        tagRepository.createOrLinkTags(tags, 0, object : IResponseListener {
-            override fun onSuccess(message: String?) {
+        tagRepository.createOrLinkTags(tags, 0, object : ITagListener {
+
+            override fun onSuccess(createdTag: Tag?) {
                 isBusy.value = false
                 onUpdateSuccessEvent.call()
             }

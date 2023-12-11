@@ -3,6 +3,7 @@ package org.permanent.permanent.ui.compose.bulkEditMetadata
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -26,14 +27,16 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun NewTagView() {
+fun NewTagView(onClick: () -> Unit) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val primaryColorTransparent = primaryColor.copy(alpha = 0.1f)
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val unselectedBackgroundColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
 
-    Box(modifier = Modifier.padding(top = 8.dp)) {
+    Box(modifier = Modifier
+        .padding(top = 8.dp)
+        .clickable { onClick() }) {
         Box(
             modifier = Modifier
                 .wrapContentSize()

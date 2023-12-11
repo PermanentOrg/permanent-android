@@ -51,11 +51,12 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.viewmodels.EditMetadataViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
+fun EditMetadataScreen(viewModel: EditMetadataViewModel, openNewTagScreen: (recentTags: ArrayList<Tag>) -> Unit) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -165,20 +166,12 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
                     TagView(
                         text = tag.name,
                         isSelected = tag.isSelected.observeAsState(),
-                        onTagClick = { viewModel.onTagClick(tag) },
-                        onTagRemoveClick = { viewModel.onTagRemoveClick(tag) })
+                        onTagClick = { viewModel.onTagClick(tag) }
+                    ) { viewModel.onTagRemoveClick(tag) }
                 }
             }
-            NewTagView()
+            NewTagView { openNewTagScreen(viewModel.getRecentTags()) }
         }
-
-//        if (isBusy == true) {
-//            CircularProgressIndicator(
-//                modifier = Modifier.width(48.dp),
-//                color = MaterialTheme.colorScheme.surfaceVariant,
-//                trackColor = MaterialTheme.colorScheme.secondary,
-//            )
-//        }
     }
 
     LaunchedEffect(errorMessage) {

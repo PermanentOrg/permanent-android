@@ -3,12 +3,13 @@ package org.permanent.permanent.repositories
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ITagListener
 
 interface ITagRepository {
 
     fun getTagsByArchive(archiveId: Int, listener: IDataListener)
 
-    fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener)
+    fun createOrLinkTags(tags: List<Tag>, recordId: Int, listener: ITagListener)
 
     fun unlinkTags(tags: List<Tag>, recordId: Int, listener: IResponseListener)
 
