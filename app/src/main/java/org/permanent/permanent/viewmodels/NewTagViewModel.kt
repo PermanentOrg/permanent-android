@@ -1,18 +1,24 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.ITagListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 class NewTagViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -30,6 +36,11 @@ class NewTagViewModel(application: Application) : ObservableAndroidViewModel(app
     private var selectedRecentTagsSize = MutableLiveData(0)
     private val onTagsAddedToSelection = MutableLiveData<List<Tag>>()
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
+    val prefsHelper = PreferencesHelper(
+        PermanentApplication.instance.applicationContext.getSharedPreferences(
+            PREFS_NAME, Context.MODE_PRIVATE
+        )
+    )
 
     fun setRecords(records: ArrayList<Record>?) {
         records?.toMutableList()?.let { recordList ->
@@ -37,11 +48,31 @@ class NewTagViewModel(application: Application) : ObservableAndroidViewModel(app
         }
     }
 
-    fun setRecentTags(tags: ArrayList<Tag>?) {
-        tags?.toMutableList()?.let { tagList ->
-            this.recentTags.value?.addAll(tagList)
-            selectedRecentTagsSize.value = tagList.filter { it.isSelected.value == true }.size
-        }
+    fun setTagsOfSelectedRecords(tagsOfSelectedRecords: ArrayList<Tag>?) {
+        val recentTagList = arrayListOf<Tag>()
+        val allTagsOfArchive = arrayListOf<Tag>()
+
+        isBusy.value = true
+        tagRepository.getTagsByArchive(prefsHelper.getCurrentArchiveId(), object : IDataListener {
+
+            override fun onSuccess(dataList: List<Datum>?) {
+                isBusy.value = false
+                dataList?.let {
+                    for (data in it) {
+                        data.TagVO?.let { tagVO -> allTagsOfArchive.add(Tag(tagVO)) }
+                    }
+                    recentTagList.addAll(allTagsOfArchive)
+                    tagsOfSelectedRecords?.let { tags -> recentTagList.removeAll(tags.toSet()) }
+                    recentTags.value?.addAll(recentTagList)
+                    selectedRecentTagsSize.value = recentTagList.filter { tag -> tag.isSelected.value == true }.size
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                error?.let { showError.value = it }
+            }
+        })
     }
 
     fun updateNewTag(it: String) {

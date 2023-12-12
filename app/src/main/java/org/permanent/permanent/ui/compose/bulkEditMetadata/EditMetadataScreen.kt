@@ -56,7 +56,10 @@ import org.permanent.permanent.viewmodels.EditMetadataViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun EditMetadataScreen(viewModel: EditMetadataViewModel, openNewTagScreen: (recentTags: ArrayList<Tag>) -> Unit) {
+fun EditMetadataScreen(
+    viewModel: EditMetadataViewModel,
+    openNewTagScreen: (tagsOfSelectedRecords: ArrayList<Tag>) -> Unit
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -77,7 +80,7 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel, openNewTagScreen: (rece
     val headerTitle by remember { mutableStateOf(titleString) }
     var inputDescription by remember { mutableStateOf("") }
     val someFilesHaveDescription by viewModel.getSomeFilesHaveDescription().observeAsState()
-    val allTags by viewModel.getAllTags().observeAsState()
+    val allTags by viewModel.getTagsOfSelectedRecords().observeAsState()
     val focusRequester = remember { FocusRequester() }
     val errorMessage by viewModel.showError.observeAsState()
     val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
@@ -170,7 +173,13 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel, openNewTagScreen: (rece
                     ) { viewModel.onTagRemoveClick(tag) }
                 }
             }
-            NewTagView { openNewTagScreen(viewModel.getRecentTags()) }
+            NewTagView {
+                val tagsOfSelectedRecords = arrayListOf<Tag>()
+                viewModel.getTagsOfSelectedRecords().value?.toList()
+                    ?.let { tagsOfSelectedRecords.addAll(it) }
+
+                openNewTagScreen(tagsOfSelectedRecords)
+            }
         }
     }
 

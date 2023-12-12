@@ -26,10 +26,10 @@ class NewTagFragment : PermanentBottomSheetFragment() {
     private lateinit var viewModel: NewTagViewModel
     private val onTagsAddedToSelection = MutableLiveData<List<Tag>>()
 
-    fun setBundleArguments(records: ArrayList<Record>, recentTags: ArrayList<Tag>) {
+    fun setBundleArguments(records: ArrayList<Record>, tagsOfSelectedRecords: ArrayList<Tag>) {
         val bundle = Bundle()
         bundle.putParcelableArrayList(PARCELABLE_FILES_KEY, records)
-        bundle.putParcelableArrayList(RECENT_TAGS_KEY, recentTags)
+        bundle.putParcelableArrayList(TAGS_OF_SELECTED_RECORDS_KEY, tagsOfSelectedRecords)
         this.arguments = bundle
     }
 
@@ -38,7 +38,7 @@ class NewTagFragment : PermanentBottomSheetFragment() {
     ): View {
         viewModel = ViewModelProvider(this)[NewTagViewModel::class.java]
         viewModel.setRecords(arguments?.getParcelableArrayList(PARCELABLE_FILES_KEY))
-        viewModel.setRecentTags(arguments?.getParcelableArrayList(RECENT_TAGS_KEY))
+        viewModel.setTagsOfSelectedRecords(arguments?.getParcelableArrayList(TAGS_OF_SELECTED_RECORDS_KEY))
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -87,6 +87,6 @@ class NewTagFragment : PermanentBottomSheetFragment() {
     fun getOnTagsAddedToSelection() = onTagsAddedToSelection
 
     companion object {
-        const val RECENT_TAGS_KEY = "recent_tags_key"
+        const val TAGS_OF_SELECTED_RECORDS_KEY = "tags_of_selected_records_key"
     }
 }

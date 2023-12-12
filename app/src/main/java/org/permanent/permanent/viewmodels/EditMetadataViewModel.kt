@@ -1,25 +1,19 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
-import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITagListener
-import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,9 +22,8 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     private val appContext = application.applicationContext
     private var records: MutableList<Record> = mutableListOf()
-    private val allTagsOfSelectedRecords =
+    private val tagsOfSelectedRecords =
         MutableLiveData<SnapshotStateList<Tag>>(mutableStateListOf())
-    private var allTagsOfArchive = MutableLiveData<MutableList<Tag>>(mutableListOf())
     private var commonTags: MutableList<Tag> = mutableListOf()
     private var initialDescription: String = ""
     private var commonDescription: String = ""
@@ -41,11 +34,6 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     private var fileDataSize = 0
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
-    val prefsHelper = PreferencesHelper(
-        PermanentApplication.instance.applicationContext.getSharedPreferences(
-            PREFS_NAME, Context.MODE_PRIVATE
-        )
-    )
 
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
@@ -69,7 +57,6 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                     if (fileDataSize == records.size) {
                         checkForCommonDescription()
                         checkForCommonTags()
-                        requestTagsForCurrentArchive()
                     }
                 }
 
@@ -107,9 +94,9 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     private fun checkForCommonTags() {
-        allTagsOfSelectedRecords.value?.addAll(
+        tagsOfSelectedRecords.value?.addAll(
             records.flatMap { it.fileData?.tags ?: emptyList() }.toSet().toMutableList())
-        allTagsOfSelectedRecords.value?.let { allTagsValue ->
+        tagsOfSelectedRecords.value?.let { allTagsValue ->
             commonTags.addAll(allTagsValue)
 
             for (tag in allTagsValue) {
@@ -124,26 +111,9 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         for (tag in commonTags) {
             tag.isSelected.value = true
         }
-        if (allTagsOfSelectedRecords.value?.size == commonTags.size) {
+        if (tagsOfSelectedRecords.value?.size == commonTags.size) {
             showApplyAllToSelection.value = false
         }
-    }
-
-    private fun requestTagsForCurrentArchive() {
-        tagRepository.getTagsByArchive(prefsHelper.getCurrentArchiveId(), object : IDataListener {
-
-            override fun onSuccess(dataList: List<Datum>?) {
-                dataList?.let {
-                    for (data in it) {
-                        data.TagVO?.let { tagVO -> allTagsOfArchive.value?.add(Tag(tagVO)) }
-                    }
-                }
-            }
-
-            override fun onFailed(error: String?) {
-                error?.let { showError.value = it }
-            }
-        })
     }
 
     fun applyNewDescriptionToAllRecords(inputDescription: String) {
@@ -207,7 +177,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                         removedTagFromRecordsNr++
                         if (removedTagFromRecordsNr == records.size) {
                             isBusy.value = false
-                            allTagsOfSelectedRecords.value?.remove(tag)
+                            tagsOfSelectedRecords.value?.remove(tag)
                             commonTags.remove(tag)
                         }
                     }
@@ -222,7 +192,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun onApplyAllTagsToSelectionClick() {
-        allTagsOfSelectedRecords.value?.filterNot { it in commonTags }?.let { uncommonTags ->
+        tagsOfSelectedRecords.value?.filterNot { it in commonTags }?.let { uncommonTags ->
 
             isBusy.value = true
             var appliedTagsToRecordsNr = 0
@@ -252,22 +222,14 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     fun onTagsAddedToSelection(tags: List<Tag>) {
         commonTags.addAll(tags)
-        allTagsOfSelectedRecords.value?.addAll(tags)
-    }
-
-    fun getRecentTags(): ArrayList<Tag> {
-        val recentTags = arrayListOf<Tag>()
-        allTagsOfArchive.value?.let { recentTags.addAll(it) }
-        allTagsOfSelectedRecords.value?.let { recentTags.removeAll(it.toSet()) }
-        recentTags.filter { it.isSelected.value == true }.map { it.isSelected.value = false }
-        return recentTags
+        tagsOfSelectedRecords.value?.addAll(tags)
     }
 
     fun getIsBusy() = isBusy
 
     fun getRecords() = records
 
-    fun getAllTags() = allTagsOfSelectedRecords
+    fun getTagsOfSelectedRecords() = tagsOfSelectedRecords
 
     fun getSomeFilesHaveDescription() = showWarningSomeFilesHaveDescription
 }
