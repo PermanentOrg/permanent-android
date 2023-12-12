@@ -2,10 +2,13 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ITagListener
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -19,7 +22,8 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
     private val appContext = application.applicationContext
     private var records: MutableList<Record> = mutableListOf()
-    private var allTags = MutableLiveData<MutableList<Tag>>()
+    private val tagsOfSelectedRecords =
+        MutableLiveData<SnapshotStateList<Tag>>(mutableStateListOf())
     private var commonTags: MutableList<Tag> = mutableListOf()
     private var initialDescription: String = ""
     private var commonDescription: String = ""
@@ -90,8 +94,9 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     private fun checkForCommonTags() {
-        allTags.value = records.flatMap { it.fileData?.tags ?: emptyList() }.toSet().toMutableList()
-        allTags.value?.let { allTagsValue ->
+        tagsOfSelectedRecords.value?.addAll(
+            records.flatMap { it.fileData?.tags ?: emptyList() }.toSet().toMutableList())
+        tagsOfSelectedRecords.value?.let { allTagsValue ->
             commonTags.addAll(allTagsValue)
 
             for (tag in allTagsValue) {
@@ -106,7 +111,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         for (tag in commonTags) {
             tag.isSelected.value = true
         }
-        if (allTags.value?.size == commonTags.size) {
+        if (tagsOfSelectedRecords.value?.size == commonTags.size) {
             showApplyAllToSelection.value = false
         }
     }
@@ -140,9 +145,9 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         isBusy.value = true
         for (record in records) {
             record.recordId?.let { recordId ->
-                tagRepository.createOrLinkTags(mutableListOf(tag), recordId, object : IResponseListener {
+                tagRepository.createOrLinkTags(mutableListOf(tag), recordId, object : ITagListener {
 
-                    override fun onSuccess(message: String?) {
+                    override fun onSuccess(createdTag: Tag?) {
                         appliedTagToRecordsNr++
                         if (appliedTagToRecordsNr == records.size) {
                             isBusy.value = false
@@ -172,12 +177,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                         removedTagFromRecordsNr++
                         if (removedTagFromRecordsNr == records.size) {
                             isBusy.value = false
-                            val list: MutableList<Tag> = mutableListOf()
-                            allTags.value?.let { tags ->
-                                list.addAll(tags)
-                                list.remove(tag)
-                            }
-                            allTags.postValue(list)
+                            tagsOfSelectedRecords.value?.remove(tag)
                             commonTags.remove(tag)
                         }
                     }
@@ -192,15 +192,15 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun onApplyAllTagsToSelectionClick() {
-        allTags.value?.filterNot { it in commonTags }?.let { uncommonTags ->
+        tagsOfSelectedRecords.value?.filterNot { it in commonTags }?.let { uncommonTags ->
 
             isBusy.value = true
             var appliedTagsToRecordsNr = 0
             for (record in records) {
                 record.recordId?.let {
-                    tagRepository.createOrLinkTags(uncommonTags, it, object : IResponseListener {
+                    tagRepository.createOrLinkTags(uncommonTags, it, object : ITagListener {
 
-                        override fun onSuccess(message: String?) {
+                        override fun onSuccess(createdTag: Tag?) {
                             appliedTagsToRecordsNr++
                             if (appliedTagsToRecordsNr == records.size) {
                                 isBusy.value = false
@@ -220,16 +220,16 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         }
     }
 
+    fun onTagsAddedToSelection(tags: List<Tag>) {
+        commonTags.addAll(tags)
+        tagsOfSelectedRecords.value?.addAll(tags)
+    }
+
     fun getIsBusy() = isBusy
 
     fun getRecords() = records
 
-    fun getAllTags() = allTags
+    fun getTagsOfSelectedRecords() = tagsOfSelectedRecords
 
-    fun getCommonTags() = commonTags
-
-    fun getCommonDescription(): String = commonDescription
-
-    fun getSomeFilesHaveDescription(): MutableLiveData<Boolean> =
-        showWarningSomeFilesHaveDescription
+    fun getSomeFilesHaveDescription() = showWarningSomeFilesHaveDescription
 }

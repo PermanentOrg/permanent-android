@@ -51,11 +51,15 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Tag
 import org.permanent.permanent.viewmodels.EditMetadataViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
+fun EditMetadataScreen(
+    viewModel: EditMetadataViewModel,
+    openNewTagScreen: (tagsOfSelectedRecords: ArrayList<Tag>) -> Unit
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
@@ -76,7 +80,7 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
     val headerTitle by remember { mutableStateOf(titleString) }
     var inputDescription by remember { mutableStateOf("") }
     val someFilesHaveDescription by viewModel.getSomeFilesHaveDescription().observeAsState()
-    val allTags by viewModel.getAllTags().observeAsState()
+    val allTags by viewModel.getTagsOfSelectedRecords().observeAsState()
     val focusRequester = remember { FocusRequester() }
     val errorMessage by viewModel.showError.observeAsState()
     val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
@@ -165,20 +169,18 @@ fun EditMetadataScreen(viewModel: EditMetadataViewModel) {
                     TagView(
                         text = tag.name,
                         isSelected = tag.isSelected.observeAsState(),
-                        onTagClick = { viewModel.onTagClick(tag) },
-                        onTagRemoveClick = { viewModel.onTagRemoveClick(tag) })
+                        onTagClick = { viewModel.onTagClick(tag) }
+                    ) { viewModel.onTagRemoveClick(tag) }
                 }
             }
-            NewTagView()
-        }
+            NewTagView {
+                val tagsOfSelectedRecords = arrayListOf<Tag>()
+                viewModel.getTagsOfSelectedRecords().value?.toList()
+                    ?.let { tagsOfSelectedRecords.addAll(it) }
 
-//        if (isBusy == true) {
-//            CircularProgressIndicator(
-//                modifier = Modifier.width(48.dp),
-//                color = MaterialTheme.colorScheme.surfaceVariant,
-//                trackColor = MaterialTheme.colorScheme.secondary,
-//            )
-//        }
+                openNewTagScreen(tagsOfSelectedRecords)
+            }
+        }
     }
 
     LaunchedEffect(errorMessage) {

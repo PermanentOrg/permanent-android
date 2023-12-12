@@ -36,41 +36,23 @@ class ResponseVO {
         return null
     }
 
-    fun getData(): List<Datum>? {
-        return Results?.get(0)?.data
-    }
+    fun getData(): List<Datum>? = Results?.get(0)?.data
 
-    fun getDataFromResults(): List<Datum>? {
-        return Results?.map { it.data }?.flatMap { it!! }
-    }
+    fun getDataFromResults(): List<Datum>? = Results?.map { it.data }?.flatMap { it!! }
 
-    fun getSimpleVO(): SimpleVO? {
-        return getData()?.get(0)?.SimpleVO
-    }
+    fun getSimpleVO(): SimpleVO? = getData()?.get(0)?.SimpleVO
 
-    fun getAuthSimpleVO(): AuthSimpleVO? {
-        return getData()?.get(0)?.AuthSimpleVO
-    }
+    fun getAuthSimpleVO(): AuthSimpleVO? = getData()?.get(0)?.AuthSimpleVO
 
-    fun getAccountVO(): AccountVO? {
-        return getData()?.get(0)?.AccountVO
-    }
+    fun getAccountVO(): AccountVO? = getData()?.get(0)?.AccountVO
 
-    fun getArchiveVO(): ArchiveVO? {
-        return getData()?.get(0)?.ArchiveVO
-    }
+    fun getArchiveVO(): ArchiveVO? = getData()?.get(0)?.ArchiveVO
 
-    fun getShareByUrlVO(): Shareby_urlVO? {
-        return getData()?.get(0)?.Shareby_urlVO
-    }
+    fun getShareByUrlVO(): Shareby_urlVO? = getData()?.get(0)?.Shareby_urlVO
 
-    fun getShareVO(): ShareVO? {
-        return getData()?.get(0)?.ShareVO
-    }
+    fun getShareVO(): ShareVO? = getData()?.get(0)?.ShareVO
 
-    fun getRecordVOs(): List<RecordVO>? {
-        return getData()?.get(0)?.FolderVO?.ChildItemVOs
-    }
+    fun getRecordVOs(): List<RecordVO>? = getData()?.get(0)?.FolderVO?.ChildItemVOs
 
     fun getRecord(): Record? {
         val recordVO = getData()?.get(0)?.RecordVO
@@ -84,9 +66,7 @@ class ResponseVO {
         return null
     }
 
-    fun getMessages(): List<String?>? {
-        return Results?.get(0)?.message
-    }
+    fun getMessages(): List<String?>? = Results?.get(0)?.message
 
     fun getFileData(): FileData? {
         val recordVO = getData()?.get(0)?.RecordVO
@@ -94,11 +74,9 @@ class ResponseVO {
         return null
     }
 
-    fun getLocationVO(): LocnVO? {
-        return getData()?.get(0)?.LocnVO
-    }
+    fun getLocationVO(): LocnVO? = getData()?.get(0)?.LocnVO
 
-    fun getProfileItemVO(): Profile_itemVO? {
-        return getData()?.get(0)?.Profile_itemVO
-    }
+    fun getProfileItemVO(): Profile_itemVO? = getData()?.get(0)?.Profile_itemVO
+
+    fun getTagVO(): TagVO?  = getData()?.get(0)?.TagVO
 }

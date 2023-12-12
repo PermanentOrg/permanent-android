@@ -10,6 +10,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ITagListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
@@ -112,9 +113,9 @@ class AddEditFileTagsViewModel(application: Application) : ObservableAndroidView
         }
 
         isBusy.value = true
-        tagRepository.createOrLinkTags(newCheckedTags, recordId, object : IResponseListener {
+        tagRepository.createOrLinkTags(newCheckedTags, recordId, object : ITagListener {
 
-            override fun onSuccess(message: String?) {
+            override fun onSuccess(createdTag: Tag?) {
                 isBusy.value = false
                 if (newUncheckedTags.isNotEmpty())
                     saveNewUncheckedTags(newUncheckedTags, fileData.recordId)
