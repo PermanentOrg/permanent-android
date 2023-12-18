@@ -18,7 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.R
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.ui.compose.AddEditLegacyContactScreen
+import org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreen
 import org.permanent.permanent.viewmodels.AddEditArchiveStewardViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 

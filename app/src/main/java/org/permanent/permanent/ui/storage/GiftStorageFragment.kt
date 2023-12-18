@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.storage
 
 import android.graphics.Typeface
 import android.os.Bundle
@@ -14,8 +14,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
+import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.activities.MainActivity
-import org.permanent.permanent.ui.compose.gifting.GiftStorageScreen
+import org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreen
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
 class GiftStorageFragment : PermanentBaseFragment() {

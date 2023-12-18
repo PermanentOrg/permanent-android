@@ -118,15 +118,9 @@
         tools:layout="@layout/fragment_invitations" />
 
     <fragment
-        android:id="@+id/storageFragment"
-        android:name="org.permanent.permanent.ui.StorageFragment"
-        android:label="@string/menu_settings_drawer_storage"
-        tools:layout="@layout/fragment_storage" />
-
-    <fragment
-        android:id="@+id/giftStorageFragment"
-        android:name="org.permanent.permanent.ui.GiftStorageFragment"
-        android:label="@string/menu_settings_drawer_gift_storage" />
+        android:id="@+id/storageMenuFragment"
+        android:name="org.permanent.permanent.ui.storage.StorageMenuFragment"
+        android:label="@string/menu_settings_drawer_storage" />
 
     <fragment
         android:id="@+id/accountFragment"
