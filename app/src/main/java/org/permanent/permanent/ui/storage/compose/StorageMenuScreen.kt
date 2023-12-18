@@ -109,20 +109,20 @@ fun StorageMenuScreen(viewModel: StorageMenuViewModel) {
             Column(
                 modifier = Modifier
                     .padding(24.dp)
-                    .background(redColor),
+                    .weight(1.0f, fill = false),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
                     text = "Add storage",
                     fontSize = smallTextSize,
-                    color = primaryColor,
+                    color = Color.Black,
                     fontFamily = semiboldFont
                 )
                 Text(
                     text = "Increase your space easily by adding more storage.",
                     fontSize = smallTextSize,
-                    color = primaryColor,
+                    color = Color.Black,
                     fontFamily = regularFont
                 )
             }
@@ -133,7 +133,7 @@ fun StorageMenuScreen(viewModel: StorageMenuViewModel) {
                 modifier = Modifier.size(24.dp)
             )
 
-            Divider(modifier = Modifier.padding(vertical = 24.dp))
+//            Divider(modifier = Modifier.padding(vertical = 24.dp))
         }
     }
 }
