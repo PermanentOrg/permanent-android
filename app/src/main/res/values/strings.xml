@@ -98,7 +98,6 @@
     <string name="menu_toolbar_more">More</string>
     <string name="menu_toolbar_public_add">Add</string>
 
-    <string name="menu_settings_drawer_add_storage">Add Storage</string>
     <string name="menu_settings_drawer_storage">Storage</string>
     <string name="menu_settings_drawer_gift_storage">Gift Storage</string>
     <string name="menu_settings_drawer_account">Account</string>
@@ -628,4 +627,10 @@
     <string name="storage_successfully_gifted">Storage successfully gifted! You sent %d GB of Permanent storage.</string>
     <string name="storage_confirm_dialog_title">Are you sure\nyou’d like to gift storage?\nThis can\'t be undone!</string>
 
+    <string name="add_storage">Add storage</string>
+    <string name="add_storage_description">Increase your space easily by adding more storage.</string>
+    <string name="gift_storage">Gift storage</string>
+    <string name="gift_storage_description">Share storage with others by gifting it to friends or collaborators.</string>
+    <string name="redeem_code">Redeem code</string>
+    <string name="redeem_code_description">Enter codes to unlock special storage benefits just for you.</string>
 </resources>
