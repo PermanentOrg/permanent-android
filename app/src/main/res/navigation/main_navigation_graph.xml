@@ -12,10 +12,10 @@
         tools:layout="@layout/fragment_archives">
         <deepLink
             app:action="ACTION_VIEW"
-            app:uri="https://www.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}"/>
+            app:uri="https://www.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
         <deepLink
             app:action="ACTION_VIEW"
-            app:uri="https://staging.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}"/>
+            app:uri="https://staging.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
         <action
             android:id="@+id/action_archivesFragment_to_archiveStewardFragment"
             app:destination="@id/archiveStewardFragment" />
@@ -118,15 +118,27 @@
         tools:layout="@layout/fragment_invitations" />
 
     <fragment
-        android:id="@+id/storageFragment"
-        android:name="org.permanent.permanent.ui.StorageFragment"
-        android:label="@string/menu_settings_drawer_storage"
-        tools:layout="@layout/fragment_storage" />
+        android:id="@+id/storageMenuFragment"
+        android:name="org.permanent.permanent.ui.storage.StorageMenuFragment"
+        android:label="@string/menu_settings_drawer_storage">
+        <action
+            android:id="@+id/action_storageMenuFragment_to_addStorageFragment"
+            app:destination="@id/addStorageFragment" />
+        <action
+            android:id="@+id/action_storageMenuFragment_to_giftStorageFragment"
+            app:destination="@id/giftStorageFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addStorageFragment"
+        android:name="org.permanent.permanent.ui.storage.AddStorageFragment"
+        android:label="@string/add_storage"
+        tools:layout="@layout/fragment_add_storage" />
 
     <fragment
         android:id="@+id/giftStorageFragment"
-        android:name="org.permanent.permanent.ui.GiftStorageFragment"
-        android:label="@string/menu_settings_drawer_gift_storage" />
+        android:name="org.permanent.permanent.ui.storage.GiftStorageFragment"
+        android:label="@string/gift_storage" />
 
     <fragment
         android:id="@+id/accountFragment"
@@ -302,7 +314,7 @@
     <fragment
         android:id="@+id/legacyLoadingFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.LoadingFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" >
+        android:label="@string/menu_settings_drawer_legacy_planning">
         <action
             android:id="@+id/action_loadingFragment_to_introFragment"
             app:destination="@id/introFragment" />
@@ -316,7 +328,7 @@
     <fragment
         android:id="@+id/introFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.IntroFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" >
+        android:label="@string/menu_settings_drawer_legacy_planning">
         <action
             android:id="@+id/action_introFragment_to_legacyContactFragment"
             app:destination="@id/legacyContactFragment" />
@@ -325,7 +337,7 @@
     <fragment
         android:id="@+id/statusFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.StatusFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" >
+        android:label="@string/menu_settings_drawer_legacy_planning">
         <action
             android:id="@+id/action_statusFragment_to_archiveStewardFragment"
             app:destination="@id/archiveStewardFragment"
@@ -338,7 +350,7 @@
     <fragment
         android:id="@+id/archiveStewardFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.ArchiveStewardFragment"
-        android:label="@string/archive_legacy_planning" >
+        android:label="@string/archive_legacy_planning">
         <action
             android:id="@+id/action_archiveStewardFragment_to_statusFragment"
             app:destination="@id/statusFragment"
@@ -348,7 +360,7 @@
     <fragment
         android:id="@+id/legacyContactFragment"
         android:name="org.permanent.permanent.ui.legacyPlanning.LegacyContactFragment"
-        android:label="@string/menu_settings_drawer_legacy_planning" >
+        android:label="@string/menu_settings_drawer_legacy_planning">
         <action
             android:id="@+id/action_legacyContactFragment_to_statusFragment"
             app:destination="@id/statusFragment" />

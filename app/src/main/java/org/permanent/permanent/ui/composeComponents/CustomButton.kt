@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose.components
+package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row

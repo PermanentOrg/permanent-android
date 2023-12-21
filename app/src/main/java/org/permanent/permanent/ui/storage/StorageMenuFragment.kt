@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.legacyPlanning
+package org.permanent.permanent.ui.storage
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,25 +10,27 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.legacyPlanning.compose.IntroScreen
-import org.permanent.permanent.viewmodels.IntroViewModel
+import org.permanent.permanent.ui.storage.compose.StorageMenuScreen
+import org.permanent.permanent.viewmodels.StorageMenuViewModel
 
-class IntroFragment : PermanentBaseFragment() {
-    private lateinit var viewModel: IntroViewModel
+class StorageMenuFragment : PermanentBaseFragment() {
 
+    private lateinit var viewModel: StorageMenuViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[IntroViewModel::class.java]
+
+        viewModel = ViewModelProvider(this)[StorageMenuViewModel::class.java]
 
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    IntroScreen(navigateToDesignateContactScreen = {
-                        findNavController().navigate(R.id.action_introFragment_to_legacyContactFragment)
-                    }, onCloseScreen = {
-                        findNavController().popBackStack(R.id.myFilesFragment, false)
-                    })
+                    StorageMenuScreen(
+                        viewModel,
+                        onAddStorageClick = { findNavController().navigate(R.id.action_storageMenuFragment_to_addStorageFragment) },
+                        onGiftStorageClick = { findNavController().navigate(R.id.action_storageMenuFragment_to_giftStorageFragment) },
+                        onRedeemCodeClick = { }
+                    )
                 }
             }
         }
@@ -42,6 +44,7 @@ class IntroFragment : PermanentBaseFragment() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.updateUsedStorage()
         connectViewModelEvents()
     }
 

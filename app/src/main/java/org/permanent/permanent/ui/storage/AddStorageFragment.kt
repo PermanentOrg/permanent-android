@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui
+package org.permanent.permanent.ui.storage
 
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
@@ -22,15 +22,16 @@ import org.permanent.permanent.EventPage
 import org.permanent.permanent.EventType
 import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentStorageBinding
+import org.permanent.permanent.databinding.FragmentAddStorageBinding
+import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.StorageViewModel
 import org.permanent.permanent.viewmodels.StorageViewModel.Companion.DONATION_AMOUNT_10_VALUE
 import org.permanent.permanent.viewmodels.StorageViewModel.Companion.DONATION_AMOUNT_20_VALUE
 import org.permanent.permanent.viewmodels.StorageViewModel.Companion.DONATION_AMOUNT_50_VALUE
 
-class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener {
+class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener {
 
-    private lateinit var binding: FragmentStorageBinding
+    private lateinit var binding: FragmentAddStorageBinding
     private lateinit var viewModel: StorageViewModel
     private lateinit var googlePayLauncher: GooglePayLauncher
     private var isGooglePayReady: Boolean = false
@@ -42,7 +43,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     ): View {
         EventsManager(requireContext()).trackPageView(EventPage.Storage)
         viewModel = ViewModelProvider(this)[StorageViewModel::class.java]
-        binding = FragmentStorageBinding.inflate(inflater, container, false)
+        binding = FragmentAddStorageBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -195,7 +196,7 @@ class StorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener
     }
 
     companion object {
-        private val TAG = StorageFragment::class.java.simpleName
+        private val TAG = AddStorageFragment::class.java.simpleName
         private const val MERCHANT_COUNTRY_CODE = "US"
         private const val MERCHANT_NAME = "Permanent.org"
         private const val GOOGLE_WALLET_APP_ID = "com.google.android.apps.walletnfcrel"

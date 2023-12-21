@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose.gifting
+package org.permanent.permanent.ui.storage.compose.gifting
 
 import CustomDialog
 import androidx.compose.foundation.BorderStroke
@@ -52,8 +52,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
-import org.permanent.permanent.ui.compose.components.CustomButton
-import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
+import org.permanent.permanent.ui.composeComponents.CustomButton
+import org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
 @Composable

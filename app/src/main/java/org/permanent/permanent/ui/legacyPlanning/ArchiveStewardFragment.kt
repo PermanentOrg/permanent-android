@@ -14,7 +14,7 @@ import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
-import org.permanent.permanent.ui.compose.ArchiveStewardScreen
+import org.permanent.permanent.ui.legacyPlanning.compose.ArchiveStewardScreen
 import org.permanent.permanent.viewmodels.ArchiveStewardViewModel
 
 class ArchiveStewardFragment : PermanentBaseFragment() {

@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose.gifting.emailInput
+package org.permanent.permanent.ui.storage.compose.gifting.emailInput
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
