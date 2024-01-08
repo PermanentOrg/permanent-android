@@ -631,6 +631,10 @@
     <string name="add_storage_description">Increase your space easily by adding more storage.</string>
     <string name="gift_storage">Gift storage</string>
     <string name="gift_storage_description">Share storage with others by gifting it to friends or collaborators.</string>
+    <string name="redeem">Redeem</string>
     <string name="redeem_code">Redeem code</string>
+    <string name="enter_code">Enter code</string>
     <string name="redeem_code_description">Enter codes to unlock special storage benefits just for you.</string>
+    <string name="redeem_code_title">Redeem gift code for free storage</string>
+    <string name="redeem_code_explanation">If you have a gift code, redeem it for complimentary storage below.</string>
 </resources>

@@ -12,6 +12,7 @@ class StorageMenuViewModel(application: Application) : ObservableAndroidViewMode
     val showError = MutableLiveData<String>()
     private val isBusy = MutableLiveData(false)
     private var spaceTotalBytes = MutableLiveData(0L)
+    private var spaceLeftBytes = MutableLiveData(0L)
     private var spaceUsedBytes = MutableLiveData(0L)
     private var spaceUsedPercentage = MutableLiveData(0)
 
@@ -24,6 +25,7 @@ class StorageMenuViewModel(application: Application) : ObservableAndroidViewMode
                 val spaceLeft = account.spaceLeft
                 if (spaceTotal != null && spaceLeft != null) {
                     spaceTotalBytes.value = spaceTotal
+                    spaceLeftBytes.value = spaceLeft
                     val spaceUsed = spaceTotal - spaceLeft
                     spaceUsedBytes.value = spaceUsed
                     val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
@@ -40,6 +42,8 @@ class StorageMenuViewModel(application: Application) : ObservableAndroidViewMode
     fun getIsBusy() = isBusy
 
     fun getSpaceTotal() = spaceTotalBytes
+
+    fun getSpaceLeft() = spaceLeftBytes
 
     fun getSpaceUsed() = spaceUsedBytes
 

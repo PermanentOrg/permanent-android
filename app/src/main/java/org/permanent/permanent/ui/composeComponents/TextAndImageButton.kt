@@ -24,7 +24,7 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun CustomButton(text: String, showButtonEnabled: Boolean, onButtonClick: () -> Unit) {
+fun TextAndImageButton(text: String, showButtonEnabled: Boolean, onButtonClick: () -> Unit) {
     val context = LocalContext.current
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val primaryColor200 = Color(ContextCompat.getColor(context, R.color.colorPrimary200))

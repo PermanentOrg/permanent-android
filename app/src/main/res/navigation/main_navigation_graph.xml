@@ -127,6 +127,9 @@
         <action
             android:id="@+id/action_storageMenuFragment_to_giftStorageFragment"
             app:destination="@id/giftStorageFragment" />
+        <action
+            android:id="@+id/action_storageMenuFragment_to_redeemCodeFragment"
+            app:destination="@id/redeemCodeFragment" />
     </fragment>
 
     <fragment
@@ -139,6 +142,11 @@
         android:id="@+id/giftStorageFragment"
         android:name="org.permanent.permanent.ui.storage.GiftStorageFragment"
         android:label="@string/gift_storage" />
+
+    <fragment
+        android:id="@+id/redeemCodeFragment"
+        android:name="org.permanent.permanent.ui.storage.RedeemCodeFragment"
+        android:label="@string/redeem_code" />
 
     <fragment
         android:id="@+id/accountFragment"
