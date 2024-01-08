@@ -24,10 +24,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,18 +57,13 @@ fun RedeemCodeScreen(viewModel: RedeemCodeViewModel) {
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
 
-    var note by remember { mutableStateOf(viewModel.getNote()) }
     val showError by viewModel.showError.observeAsState(initial = "")
     val showButtonEnabled by viewModel.getShowButtonEnabled().observeAsState(initial = false)
     val isBusy by viewModel.getIsBusy().observeAsState(initial = false)
 
-    val openAlertDialog = remember { mutableStateOf(false) }
-
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
-
-
 
     Column(
         modifier = Modifier
@@ -123,8 +116,8 @@ fun RedeemCodeScreen(viewModel: RedeemCodeViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         TextField(
-            value = note,
-            onValueChange = { value -> note = value },
+            value = viewModel.code,
+            onValueChange = { value -> viewModel.updateEnteredCode(value) },
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
@@ -149,9 +142,7 @@ fun RedeemCodeScreen(viewModel: RedeemCodeViewModel) {
             .height(52.dp),
             colors = ButtonDefaults.buttonColors(containerColor = if (showButtonEnabled) primaryColor else primaryColor200),
             shape = RoundedCornerShape(8.dp),
-            onClick = {
-//                if (showButtonEnabled) onButtonClick()
-            }) {
+            onClick = { if (showButtonEnabled) viewModel.onRedeemButtonClick() }) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally

@@ -1,5 +1,6 @@
 package org.permanent.permanent.repositories
 
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.IStringDataListener
 
 interface IStorageRepository {
@@ -12,4 +13,6 @@ interface IStorageRepository {
         donationAmount: Int,
         listener: IStringDataListener
     )
+
+    fun redeemGiftCode(code: String, listener: IResponseListener)
 }

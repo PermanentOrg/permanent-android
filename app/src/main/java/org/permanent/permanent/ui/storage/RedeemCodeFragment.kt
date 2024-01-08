@@ -36,21 +36,17 @@ class RedeemCodeFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onGiftStorageSentObserver = Observer<Void?> {
+    private val onGiftStorageRedeemedObserver = Observer<Int> {
         view?.let { thisView ->
-            viewModel.getGiftGB().value?.let { giftGB ->
-                viewModel.getEmails().value?.size?.let { emailSize ->
-                    showSuccessSnackbar(thisView, giftGB, emailSize)
-                }
-            }
+            showSuccessSnackbar(thisView, it)
         }
         findNavController().navigateUp()
     }
 
-    private fun showSuccessSnackbar(thisView: View, giftGB: Int, emailSize: Int) {
+    private fun showSuccessSnackbar(thisView: View, giftGB: Int) {
         val snackBar = Snackbar.make(
             thisView,
-            getString(R.string.storage_successfully_gifted, giftGB * emailSize),
+            getString(R.string.redeem_code_success, giftGB),
             Snackbar.LENGTH_LONG
         )
         val view: View = snackBar.view
@@ -64,11 +60,11 @@ class RedeemCodeFragment : PermanentBaseFragment() {
     }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnGiftStorageSent().observe(this, onGiftStorageSentObserver)
+        viewModel.getOnGiftRedeemed().observe(this, onGiftStorageRedeemedObserver)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnGiftStorageSent().removeObserver(onGiftStorageSentObserver)
+        viewModel.getOnGiftRedeemed().removeObserver(onGiftStorageRedeemedObserver)
     }
 
     override fun onResume() {

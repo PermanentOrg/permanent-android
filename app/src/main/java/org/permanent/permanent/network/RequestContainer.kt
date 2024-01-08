@@ -1,8 +1,36 @@
 package org.permanent.permanent.network
 
 import com.google.android.gms.maps.model.LatLng
-import org.permanent.permanent.models.*
-import org.permanent.permanent.network.models.*
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Share
+import org.permanent.permanent.models.Status
+import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.models.AccountPasswordVO
+import org.permanent.permanent.network.models.AccountVO
+import org.permanent.permanent.network.models.ArchiveVO
+import org.permanent.permanent.network.models.AuthVO
+import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.FolderDestVO
+import org.permanent.permanent.network.models.FolderVO
+import org.permanent.permanent.network.models.InviteVO
+import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.network.models.Profile_itemVO
+import org.permanent.permanent.network.models.PromoVO
+import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.RequestVO
+import org.permanent.permanent.network.models.SearchVO
+import org.permanent.permanent.network.models.ShareVO
+import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.network.models.SimpleVO
+import org.permanent.permanent.network.models.TagLinkVO
+import org.permanent.permanent.network.models.TagVO
 import java.io.File
 
 
@@ -489,6 +517,13 @@ class RequestContainer {
             }
         }
 
+        return this
+    }
+
+    fun addPromo(code: String?): RequestContainer {
+        val promoVO = PromoVO()
+        promoVO.code = code
+        RequestVO.data?.get(0)?.PromoVO = promoVO
         return this
     }
 }
