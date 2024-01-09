@@ -24,6 +24,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.permanent.permanent.R
+import org.permanent.permanent.ui.composeComponents.FeedbackDialog
 import org.permanent.permanent.viewmodels.RedeemCodeViewModel
 
 @Composable
@@ -57,6 +59,7 @@ fun RedeemCodeScreen(viewModel: RedeemCodeViewModel) {
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
 
+    val showFeedbackDialog = remember { mutableStateOf(false) }
     val showError by viewModel.showError.observeAsState(initial = "")
     val showButtonEnabled by viewModel.getShowButtonEnabled().observeAsState(initial = false)
     val isBusy by viewModel.getIsBusy().observeAsState(initial = false)
@@ -152,6 +155,14 @@ fun RedeemCodeScreen(viewModel: RedeemCodeViewModel) {
                     fontSize = 16.sp,
                     fontFamily = regularFont,
                 )
+            }
+        }
+
+        when {
+            showFeedbackDialog.value -> {
+                FeedbackDialog(title = "aaa", subtitle = "bbb", isForSuccess = true) {
+                    showFeedbackDialog.value = false
+                }
             }
         }
     }

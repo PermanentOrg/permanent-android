@@ -37,6 +37,7 @@ class RedeemCodeViewModel(application: Application) : ObservableAndroidViewModel
             override fun onFailed(error: String?) {
                 isBusy.value = false
                 error?.let { showError.value = it }
+                updateEnteredCode("")
             }
         })
     }
@@ -44,5 +45,6 @@ class RedeemCodeViewModel(application: Application) : ObservableAndroidViewModel
     fun getIsBusy() = isBusy
 
     fun getShowButtonEnabled() = showButtonEnabled
+
     fun getOnGiftRedeemed() = onGiftStorageRedeemed
 }
