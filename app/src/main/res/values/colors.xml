@@ -2,6 +2,8 @@
 <resources>
     <color name="blue50">#E7E8ED</color>
     <color name="blue400">#898DA4</color>
+    <color name="blue600">#5A5F80</color>
+    <color name="blue900">#131B4A</color>
     <color name="colorPrimary">#131B4A</color>
     <color name="colorPrimary200">#B8BBC9</color>
     <color name="colorPrimaryDarker">#0f163b</color>
@@ -9,12 +11,13 @@
     <color name="superLightBlue">#F4F6FD</color>
     <color name="blueGrey">#465084</color>
     <color name="darkBlue">#010A3F</color>
+    <color name="error25">#FFFBFA</color>
     <color name="error200">#FECDCA</color>
     <color name="error500">#F04438</color>
+    <color name="red">#FF3D3D</color>
+    <color name="deepRed">#A10000</color>
     <color name="barneyPurple">#800080</color>
     <color name="lightPurple">#e7d4e7</color>
-    <color name="deepRed">#A10000</color>
-    <color name="red">#FF3D3D</color>
     <color name="colorAccentLight">#fdebd6</color>
     <color name="colorAccent">#FF9933</color>
     <color name="colorAccentDark">#ff8000</color>
@@ -23,6 +26,9 @@
     <color name="dotGreen">#1BC917</color>
     <color name="dullGreen">#82B15F</color>
     <color name="paleGreen">#CAE5C9</color>
+    <color name="success25">#F6FEF9</color>
+    <color name="success200">#A6F4C5</color>
+    <color name="success500">#12B76A</color>
     <color name="white">#FFFFFF</color>
     <color name="whiteTransparent">#80FFFFFF</color>
     <color name="whiteSuperTransparent">#50FFFFFF</color>

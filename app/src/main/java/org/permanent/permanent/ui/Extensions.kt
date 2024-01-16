@@ -41,6 +41,8 @@ fun Context.assetSize(resourceUri: Uri): Long {
 
 fun gbToBytes(gb: Int): Long = gb.toLong()*1024*1024*1024
 
+fun mbToBytes(mb: Int): Long = mb.toLong()*1024*1024
+
 fun bytesToHumanReadableString(bytes: Long): String {
     val unit = 1024.0
     if (bytes < unit)

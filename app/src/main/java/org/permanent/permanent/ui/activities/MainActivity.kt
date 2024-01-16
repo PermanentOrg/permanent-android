@@ -111,7 +111,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.legacyLoadingFragment -> {
+                R.id.legacyLoadingFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
