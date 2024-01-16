@@ -1,6 +1,6 @@
 package org.permanent.permanent.repositories
 
-import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.IPromoListener
 import org.permanent.permanent.network.IStringDataListener
 
 interface IStorageRepository {
@@ -14,5 +14,5 @@ interface IStorageRepository {
         listener: IStringDataListener
     )
 
-    fun redeemGiftCode(code: String, listener: IResponseListener)
+    fun redeemGiftCode(code: String, listener: IPromoListener)
 }

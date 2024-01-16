@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.activities.MainActivity
+import org.permanent.permanent.ui.storage.RedeemCodeFragment.Companion.PROMO_SIZE_IN_MB_KEY
 import org.permanent.permanent.ui.storage.compose.StorageMenuScreen
 import org.permanent.permanent.viewmodels.StorageMenuViewModel
 
@@ -23,6 +24,10 @@ class StorageMenuFragment : PermanentBaseFragment() {
     ): View {
 
         viewModel = ViewModelProvider(this)[StorageMenuViewModel::class.java]
+
+        arguments?.getInt(PROMO_SIZE_IN_MB_KEY)?.let {
+            viewModel.setPromoSizeInMB(it)
+        }
 
         return ComposeView(requireContext()).apply {
             setContent {

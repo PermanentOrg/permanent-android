@@ -146,7 +146,11 @@
     <fragment
         android:id="@+id/redeemCodeFragment"
         android:name="org.permanent.permanent.ui.storage.RedeemCodeFragment"
-        android:label="@string/redeem_code" />
+        android:label="@string/redeem_code" >
+        <action
+            android:id="@+id/action_redeemCodeFragment_to_storageMenuFragment"
+            app:destination="@id/storageMenuFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/accountFragment"

@@ -637,5 +637,7 @@
     <string name="redeem_code_description">Enter codes to unlock special storage benefits just for you.</string>
     <string name="redeem_code_title">Redeem gift code for free storage</string>
     <string name="redeem_code_explanation">If you have a gift code, redeem it for complimentary storage below.</string>
-    <string name="redeem_code_success">Gift code redeemed! %d GB of storage</string>
+    <string name="gift_code_redeemed">Gift code redeemed!</string>
+    <string name="code_invalid">The code is invalid!</string>
+    <string name="enter_new_code">Enter a new code.</string>
 </resources>

@@ -101,4 +101,8 @@ class ResponseVO {
     fun getProfileItemVO(): Profile_itemVO? {
         return getData()?.get(0)?.Profile_itemVO
     }
+
+    fun getPromoVO(): PromoVO? {
+        return getData()?.get(0)?.PromoVO
+    }
 }

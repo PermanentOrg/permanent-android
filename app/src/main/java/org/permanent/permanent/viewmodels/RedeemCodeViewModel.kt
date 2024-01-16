@@ -5,14 +5,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.IPromoListener
 import org.permanent.permanent.repositories.IStorageRepository
 import org.permanent.permanent.repositories.StorageRepositoryImpl
 
 class RedeemCodeViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
-    val showError = MutableLiveData<String>()
+    val showError = MutableLiveData<Boolean?>()
+    val showSuccess = MutableLiveData<Boolean?>()
     private val isBusy = MutableLiveData(false)
     var code by mutableStateOf("")
         private set
@@ -27,16 +28,17 @@ class RedeemCodeViewModel(application: Application) : ObservableAndroidViewModel
 
     fun onRedeemButtonClick() {
         isBusy.value = true
-        storageRepository.redeemGiftCode(code, object : IResponseListener {
+        storageRepository.redeemGiftCode(code, object : IPromoListener {
 
-            override fun onSuccess(message: String?) {
+            override fun onSuccess(promoSizeInMB: Int) {
                 isBusy.value = false
-                onGiftStorageRedeemed.value = 4
+                onGiftStorageRedeemed.value = promoSizeInMB
+                showSuccess.value = true
             }
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                error?.let { showError.value = it }
+                error?.let { showError.value = true }
                 updateEnteredCode("")
             }
         })

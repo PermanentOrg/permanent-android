@@ -1,7 +1,7 @@
 package org.permanent.permanent.repositories
 
 import android.content.Context
-import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.IPromoListener
 import org.permanent.permanent.network.IStringDataListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
@@ -38,15 +38,16 @@ class StorageRepositoryImpl(val context: Context) : IStorageRepository {
         })
     }
 
-    override fun redeemGiftCode(code: String, listener: IResponseListener) {
+    override fun redeemGiftCode(code: String, listener: IPromoListener) {
         NetworkClient.instance()
             .redeemGiftCode(code)
             .enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(responseVO.getMessages()?.get(0))
+                    val promoSizeInMB = responseVO?.getPromoVO()?.sizeInMB
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!! && promoSizeInMB != null) {
+                        listener.onSuccess(promoSizeInMB)
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))
                     }
