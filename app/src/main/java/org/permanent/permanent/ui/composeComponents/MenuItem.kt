@@ -30,6 +30,7 @@ fun MenuItem(
     iconResource: Painter,
     title: String,
     subtitle: String,
+    showNewLabel: Boolean,
     onClick: () -> Unit
 ) {
 
@@ -63,12 +64,20 @@ fun MenuItem(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.Start,
         ) {
-            Text(
-                text = title,
-                fontSize = smallTextSize,
-                color = blue900Color,
-                fontFamily = boldFont
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = smallTextSize,
+                    color = blue900Color,
+                    fontFamily = boldFont
+                )
+
+                if (showNewLabel) NewFeatureLabel()
+            }
             Text(
                 text = subtitle,
                 fontSize = superSmallTextSize,
@@ -92,5 +101,6 @@ fun SimpleComposablePreview() {
         iconResource = painterResource(id = R.drawable.ic_plus_primary),
         title = "Add storage!",
         subtitle = "Increase your space easily by adding more storage.",
+        false,
         onClick = { /*TODO*/ })
 }

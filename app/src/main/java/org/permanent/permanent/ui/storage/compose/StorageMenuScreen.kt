@@ -71,7 +71,8 @@ fun StorageMenuScreen(
             MenuItem(
                 painterResource(id = R.drawable.ic_plus_primary),
                 stringResource(R.string.add_storage),
-                stringResource(R.string.add_storage_description)
+                stringResource(R.string.add_storage_description),
+                false
             ) { onAddStorageClick() }
 
             Divider()
@@ -79,7 +80,8 @@ fun StorageMenuScreen(
             MenuItem(
                 painterResource(id = R.drawable.ic_gift_primary),
                 stringResource(R.string.gift_storage),
-                stringResource(R.string.gift_storage_description)
+                stringResource(R.string.gift_storage_description),
+                false,
             ) { onGiftStorageClick() }
 
             Divider()
@@ -87,7 +89,8 @@ fun StorageMenuScreen(
             MenuItem(
                 painterResource(id = R.drawable.ic_redeem_primary),
                 stringResource(R.string.redeem_code),
-                stringResource(R.string.redeem_code_description)
+                stringResource(R.string.redeem_code_description),
+                true,
             ) { onRedeemCodeClick() }
         }
 
