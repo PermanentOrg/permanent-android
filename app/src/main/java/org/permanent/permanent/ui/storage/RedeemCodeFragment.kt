@@ -24,6 +24,8 @@ class RedeemCodeFragment : PermanentBaseFragment() {
 
         viewModel = ViewModelProvider(this)[RedeemCodeViewModel::class.java]
 
+        arguments?.getString(DEEPLINK_PROMO_CODE_KEY)?.let { viewModel.updateEnteredCode(it) }
+
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
@@ -58,5 +60,6 @@ class RedeemCodeFragment : PermanentBaseFragment() {
 
     companion object {
         const val PROMO_SIZE_IN_MB_KEY = "promo_size_in_mb"
+        const val DEEPLINK_PROMO_CODE_KEY = "promo_code"
     }
 }
