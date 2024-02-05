@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose.gifting
+package org.permanent.permanent.ui.storage.compose.gifting
 
 import CustomDialog
 import androidx.compose.foundation.BorderStroke
@@ -52,8 +52,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
-import org.permanent.permanent.ui.compose.components.CustomButton
-import org.permanent.permanent.ui.compose.gifting.emailInput.EmailChipView
+import org.permanent.permanent.ui.composeComponents.TextAndImageButton
+import org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
 
 @Composable
@@ -319,7 +319,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        CustomButton(text = stringResource(id = R.string.send_gift_storage), showButtonEnabled) {
+        TextAndImageButton(text = stringResource(id = R.string.send_gift_storage), showButtonEnabled) {
             openAlertDialog.value = true
         }
 

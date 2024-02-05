@@ -111,7 +111,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.legacyLoadingFragment -> {
+                R.id.legacyLoadingFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -166,8 +166,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.archiveSettings,
             R.id.manageTagsFragment,
             R.id.membersFragment,
-            R.id.storageFragment,
-            R.id.giftStorageFragment,
+            R.id.storageMenuFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment,
             R.id.accountFragment,
@@ -233,13 +232,13 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.settingsNavigationView.setupWithNavController(navController)
         binding.settingsNavigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.giftStorageFragment -> {
+                R.id.storageMenuFragment -> {
                     val bundle = bundleOf(
                         SPACE_TOTAL_KEY to viewModel.getSpaceTotal(),
                         SPACE_LEFT_KEY to viewModel.getSpaceLeft(),
                         SPACE_USED_PERCENTAGE_KEY to viewModel.getSpaceUsedPercentage().value
                     )
-                    navController.navigate(R.id.giftStorageFragment, bundle)
+                    navController.navigate(R.id.storageMenuFragment, bundle)
                     binding.drawerLayout.closeDrawers()
                 }
 

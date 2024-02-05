@@ -624,7 +624,21 @@
     <string name="send_gift_storage">Send gift storage</string>
     <string name="insufficient_storage">Insufficient storage. You need %s more.</string>
     <string name="total_gifted_forecasted_remaining">Total gifted: %s • Forecasted remaining: %s</string>
-    <string name="storage_successfully_gifted">Storage successfully gifted! You sent %d GB of Permanent storage.</string>
-    <string name="storage_confirm_dialog_title">Are you sure\nyou’d like to gift storage?\nThis can\'t be undone!</string>
+    <string name="storage_successfully_gifted">Storage successfully gifted. You sent %d GB of Permanent storage.</string>
+    <string name="storage_confirm_dialog_title">Are you sure\nyou’d like to gift storage?\nThis can\'t be undone.</string>
 
+    <string name="add_storage">Add storage</string>
+    <string name="add_storage_description">Increase your space easily by adding more storage.</string>
+    <string name="gift_storage">Gift storage</string>
+    <string name="gift_storage_description">Share storage with others by gifting it to friends or collaborators.</string>
+    <string name="redeem">Redeem</string>
+    <string name="redeem_code">Redeem code</string>
+    <string name="enter_code">Enter code</string>
+    <string name="redeem_code_description">Enter codes to unlock special storage benefits just for you.</string>
+    <string name="redeem_code_title">Redeem storage gift code</string>
+    <string name="redeem_code_explanation">If you have a gift code, redeem it for storage below.</string>
+    <string name="gift_code_redeemed">Gift code redeemed.</string>
+    <string name="code_invalid">The code is invalid.</string>
+    <string name="enter_new_code">Enter a new code.</string>
+    <string name="new_label">new</string>
 </resources>
