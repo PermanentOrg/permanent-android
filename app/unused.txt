@@ -12519,6 +12519,7 @@ org.permanent.permanent.DataBinderMapperImpl:
     private static final int LAYOUT_DIALOGDELETE
     private static final int LAYOUT_DIALOGDELETEACCOUNT
     private static final int LAYOUT_DIALOGEDITACCESSLEVEL
+    private static final int LAYOUT_DIALOGLEGACYPLANNING
     private static final int LAYOUT_DIALOGRENAMERECORD
     private static final int LAYOUT_DIALOGSENDINVITATION
     private static final int LAYOUT_DIALOGTERMSOFSERVICE
@@ -12532,6 +12533,7 @@ org.permanent.permanent.DataBinderMapperImpl:
     private static final int LAYOUT_FRAGMENTADDEDITONLINEPRESENCE
     private static final int LAYOUT_FRAGMENTADDEDITTAG
     private static final int LAYOUT_FRAGMENTADDOPTIONS
+    private static final int LAYOUT_FRAGMENTADDSTORAGE
     private static final int LAYOUT_FRAGMENTARCHIVEONBOARDINGDEFAULTSELECTION
     private static final int LAYOUT_FRAGMENTARCHIVEONBOARDINGNAMESETTING
     private static final int LAYOUT_FRAGMENTARCHIVEONBOARDINGPENDINGINVITATIONS
@@ -12580,7 +12582,6 @@ org.permanent.permanent.DataBinderMapperImpl:
     private static final int LAYOUT_FRAGMENTSHARES
     private static final int LAYOUT_FRAGMENTSIGNUP
     private static final int LAYOUT_FRAGMENTSORTOPTIONS
-    private static final int LAYOUT_FRAGMENTSTORAGE
     private static final int LAYOUT_FRAGMENTTAGSEDIT
     private static final int LAYOUT_FRAGMENTVERIFICATIONCODE
     private static final int LAYOUT_FRAGMENTVERIFICATIONPHONE
@@ -12604,12 +12605,12 @@ org.permanent.permanent.DataBinderMapperImpl:
     private static final int LAYOUT_NAVSETTINGSHEADER
 org.permanent.permanent.Validator:
     private static final int MIN_PASSWORD_LENGTH
-org.permanent.permanent.ui.storage.StorageFragment:
+org.permanent.permanent.ui.activities.SplashActivity:
+    private static final java.lang.String MINIMUM_APP_VERSION_KEY
+org.permanent.permanent.ui.storage.AddStorageFragment:
     private static final java.lang.String GOOGLE_WALLET_APP_ID
     private static final java.lang.String MERCHANT_COUNTRY_CODE
     private static final java.lang.String MERCHANT_NAME
-org.permanent.permanent.ui.activities.SplashActivity:
-    private static final java.lang.String MINIMUM_APP_VERSION_KEY
 org.permanent.permanent.viewmodels.ArchiveSearchViewModel:
     private static final long SEARCH_DELAY_MILLIS
 org.permanent.permanent.viewmodels.PublicGalleryViewModel:
@@ -12622,6 +12623,28 @@ org.permanent.permanent.viewmodels.SingleLiveEvent:
 org.permanent.permanent.viewmodels.StorageViewModel:
     private static final java.lang.String DONATION_AMOUNT_DEFAULT_VALUE
     private static final java.lang.String GB_ENDOWED_DEFAULT_VALUE
+CustomDialogKt$CustomDialog$1$1:
+    public final void invoke()
+CustomDialogKt$CustomDialog$2$1$1$2$1:
+    public final void invoke()
+CustomDialogKt$CustomDialog$2$1$1$3:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+CustomDialogKt$CustomDialog$2$1$1$4$1:
+    public final void invoke()
+CustomDialogKt$CustomDialog$2$1$1$5:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+CustomDialogKt$CustomDialog$2$1:
+    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
+CustomDialogKt$CustomDialog$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+CustomDialogKt$CustomDialog$3:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+CustomDialogKt$SimpleComposablePreview$1:
+    public final void invoke()
+CustomDialogKt$SimpleComposablePreview$2:
+    public final void invoke()
+CustomDialogKt$SimpleComposablePreview$3:
+    public final void invoke(androidx.compose.runtime.Composer,int)
 _COROUTINE.CoroutineDebuggingKt:
     public static final java.lang.String ARTIFICIAL_FRAME_PACKAGE_NAME
     public static void <clinit>()
@@ -18993,7 +19016,7 @@ androidx.compose.material3.ComposableSingletons$ScaffoldKt$lambda-4$1:
 androidx.compose.material3.ComposableSingletons$SearchBarKt$lambda-1$1:
     public final void invoke(androidx.compose.runtime.Composer,int)
 androidx.compose.material3.ComposableSingletons$SnackbarHostKt$lambda-1$1:
-    public static void invoke$43()
+    public final void invoke$43()
 androidx.compose.material3.ComposableSingletons$SnackbarKt$lambda-1$1:
     public final void invoke(androidx.compose.runtime.Composer,int)
 androidx.compose.material3.ComposableSingletons$TabRowKt$lambda-1$1:
@@ -25250,16 +25273,11 @@ androidx.core.location.LocationManagerCompat$CancellableLocationListener:
     public static void cancel()
     public final void cleanup()
     public static void startTimeout()
+androidx.core.location.LocationManagerCompat$GpsStatusTransport$$InternalSyntheticLambda$1$71fbd7573f6d22c7f37038e43187f10ca326b1863a8f750c3871c160d4bd4632$0
+androidx.core.location.LocationManagerCompat$GpsStatusTransport$$InternalSyntheticLambda$1$71fbd7573f6d22c7f37038e43187f10ca326b1863a8f750c3871c160d4bd4632$1
 androidx.core.location.LocationManagerCompat$GpsStatusTransport$$InternalSyntheticLambda$1$71fbd7573f6d22c7f37038e43187f10ca326b1863a8f750c3871c160d4bd4632$2
 androidx.core.location.LocationManagerCompat$GpsStatusTransport$$InternalSyntheticLambda$1$71fbd7573f6d22c7f37038e43187f10ca326b1863a8f750c3871c160d4bd4632$3
-androidx.core.location.LocationManagerCompat$GpsStatusTransport:
-    public final androidx.core.location.GnssStatusCompat$Callback mCallback
-    public volatile java.util.concurrent.Executor mExecutor
-    public final android.location.LocationManager mLocationManager
-    public void <init>()
-    public final void onGpsStatusChanged(int)
-    public static void register()
-    public static void unregister()
+androidx.core.location.LocationManagerCompat$GpsStatusTransport
 androidx.core.location.LocationManagerCompat$LocationListenerTransport:
     public final androidx.core.location.LocationManagerCompat$LocationListenerKey getKey()
     public static void unregister()
@@ -28959,7 +28977,6 @@ com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$2$ceeb8383a83a1f81d4dc191b62a96e3726169873abab997218a1ff0ada4df541$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$2$d8008aaf76acd7841bd1dfec2b6bc9ff922e9111faf4de74570ae603f9813a2f$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$2$e894f610339aa30378d20f560e8217beaa21048f2d6ee1bce4c57fea8fde198f$0
-com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$3$19b0f55de32cef7002af081b750d2712df6dee287b4ea80f24119ac183683a16$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$3$2d5ab47061cc1c207636d84f94bccdad77de86275b96598974e06efb68572c6a$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$$InternalSyntheticLambda$4$f3f40f4805829bf48313cda75c74207a6e9694218246430fdb2625370e4c5d14$0
 com.google.android.datatransport.runtime.scheduling.persistence.SQLiteEventStore$1
@@ -29944,7 +29961,7 @@ com.google.android.gms.wallet.callback.zzf:
     public final synchronized void zza$1()
 com.google.android.gms.wallet.zzc:
     public static void zzb()
-    public static void zzc()
+    public static void zzc$1()
 com.google.android.gms.wallet.zzd:
     public final void zzc()
 com.google.android.instantapps.InstantApps$PackageManagerWrapper:
@@ -35086,6 +35103,7 @@ com.mixpanel.android.mpmetrics.ExceptionHandler$1
 com.mixpanel.android.mpmetrics.ExceptionHandler:
     public static void killProcessAndExit()
 com.mixpanel.android.mpmetrics.MPConfig:
+    public static void <clinit>()
     public static boolean getUseIpAddressForGeolocation()
     public static void setEventsEndpoint()
     public final void setEventsEndpointWithBaseURL(java.lang.String)
@@ -35930,6 +35948,8 @@ com.stripe.android.view.AddPaymentMethodActivity$$InternalSyntheticLambda$1$fe1b
 com.stripe.android.view.AddPaymentMethodActivityStarter$Args$Builder:
     public static void <clinit>()
 com.stripe.android.view.AddPaymentMethodFpxView$$InternalSyntheticLambda$1$b2fba396daa3b95c549dbdcb6aa2ee205a3fa348198126b1c6aa144612cea29f$0
+com.stripe.android.view.AlertDisplayer$DefaultAlertDisplayer$$InternalSyntheticLambda$1$4628c17a3bfc84bd4888da3c8cde5c7624a99ad1e9e4688b351f07e2cf161dfc$0:
+    private static void onClick$org$permanent$permanent$ui$public$PublicFilesFragment$onShowQuotaExceeded$1$$InternalSyntheticLambda$1$f3e3d6435a5c2a96b5b419c08f4c94ee7ff15d665efe154cb07a6a5b9410af98$1()
 com.stripe.android.view.AlertDisplayer$DefaultAlertDisplayer:
     public static void <clinit>()
 com.stripe.android.view.BecsDebitMandateAcceptanceTextFactory:
@@ -40134,6 +40154,9 @@ org.permanent.permanent.databinding.DialogEditAccessLevelBindingImpl:
     public static boolean onChangeViewModelEmail()
     public static boolean onChangeViewModelFullName()
     public final boolean onChangeViewModelGetIsBusy()
+org.permanent.permanent.databinding.DialogLegacyPlanningBindingImpl:
+    public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
+    public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
 org.permanent.permanent.databinding.DialogRenameRecordBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
@@ -40223,6 +40246,13 @@ org.permanent.permanent.databinding.FragmentAddEditTagBindingImpl:
 org.permanent.permanent.databinding.FragmentAddOptionsBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static boolean onChangeViewModel$18()
+org.permanent.permanent.databinding.FragmentAddStorageBindingImpl:
+    public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
+    public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
+    public static boolean onChangeViewModel$19()
+    public static boolean onChangeViewModelAmount()
+    public static boolean onChangeViewModelGbEndowed()
+    public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentArchiveOnboardingDefaultSelectionBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
@@ -40253,7 +40283,7 @@ org.permanent.permanent.databinding.FragmentArchiveOnboardingWelcomeBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
 org.permanent.permanent.databinding.FragmentArchiveOptionsBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$19()
+    public static boolean onChangeViewModel$20()
     public final boolean onChangeViewModelAccessRole()
     public final boolean onChangeViewModelArchiveName()
     public final boolean onChangeViewModelArchiveThumb()
@@ -40261,14 +40291,14 @@ org.permanent.permanent.databinding.FragmentArchiveOptionsBindingImpl:
 org.permanent.permanent.databinding.FragmentArchiveSearchBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$20()
+    public static boolean onChangeViewModel$21()
     public final boolean onChangeViewModelCurrentSearchQuery()
     public final boolean onChangeViewModelExistsRecords()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentArchivesBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$21()
+    public static boolean onChangeViewModel$22()
     public final boolean onChangeViewModelCurrentArchiveName()
     public final boolean onChangeViewModelCurrentArchiveThumb()
     public static boolean onChangeViewModelExistsArchives()
@@ -40279,29 +40309,29 @@ org.permanent.permanent.databinding.FragmentArchivesBindingImpl:
 org.permanent.permanent.databinding.FragmentBiometricsBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$22()
+    public static boolean onChangeViewModel$23()
     public final boolean onChangeViewModelGetIsBusy()
 org.permanent.permanent.databinding.FragmentChooseFolderBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$23()
+    public static boolean onChangeViewModel$24()
 org.permanent.permanent.databinding.FragmentContainerArchivesBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$24()
+    public static boolean onChangeViewModel$25()
 org.permanent.permanent.databinding.FragmentContainerPrivateFilesBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$25()
+    public static boolean onChangeViewModel$26()
     public static boolean onChangeViewModelShownInWorkspace()
     public final boolean onChangeViewModelTitle$1()
 org.permanent.permanent.databinding.FragmentContainerSharedFilesBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$26()
+    public static boolean onChangeViewModel$27()
 org.permanent.permanent.databinding.FragmentEditAboutBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$27()
+    public static boolean onChangeViewModel$28()
     public final boolean onChangeViewModelIsBusy()
     public static boolean onChangeViewModelLongDescription()
     public static boolean onChangeViewModelLongDescriptionHint()
@@ -40313,7 +40343,7 @@ org.permanent.permanent.databinding.FragmentEditArchiveInformationBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static final android.util.SparseIntArray sViewsWithIds
     public static void <clinit>()
-    public static boolean onChangeViewModel$28()
+    public static boolean onChangeViewModel$29()
     public final boolean onChangeViewModelAliases()
     public static boolean onChangeViewModelAliasesCharsNr()
     public final boolean onChangeViewModelAliasesLabel()
@@ -40329,7 +40359,7 @@ org.permanent.permanent.databinding.FragmentEditArchiveInformationBindingImpl:
 org.permanent.permanent.databinding.FragmentFileDetailsBindingImpl:
     public final androidx.core.widget.NestedScrollView mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$29()
+    public static boolean onChangeViewModel$30()
     public static boolean onChangeViewModelCreated()
     public static boolean onChangeViewModelFileCreated()
     public static boolean onChangeViewModelFileType()
@@ -40343,7 +40373,7 @@ org.permanent.permanent.databinding.FragmentFileDetailsBindingImpl:
 org.permanent.permanent.databinding.FragmentFileInfoBindingImpl:
     public final androidx.core.widget.NestedScrollView mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$30()
+    public static boolean onChangeViewModel$31()
     public final boolean onChangeViewModelAddress()
     public final boolean onChangeViewModelDate()
     public final boolean onChangeViewModelDescription()
@@ -40353,14 +40383,14 @@ org.permanent.permanent.databinding.FragmentFileInfoBindingImpl:
     public final boolean onChangeViewModelName$1()
 org.permanent.permanent.databinding.FragmentFileMetadataBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$31()
+    public static boolean onChangeViewModel$32()
     public static boolean onChangeViewModelFileThumbURL()
 org.permanent.permanent.databinding.FragmentFileViewBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static final android.util.SparseIntArray sViewsWithIds
     public static void <clinit>()
-    public static boolean onChangeViewModel$32()
+    public static boolean onChangeViewModel$33()
     public static boolean onChangeViewModelFilePath()
     public final boolean onChangeViewModelIsBusy()
     public static boolean onChangeViewModelIsError()
@@ -40370,39 +40400,39 @@ org.permanent.permanent.databinding.FragmentFileViewOptionsBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static final android.util.SparseIntArray sViewsWithIds
     public static void <clinit>()
-    public static boolean onChangeViewModel$33()
+    public static boolean onChangeViewModel$34()
     public static boolean onChangeViewModelShouldHideCopyLinkButton()
     public static boolean onChangeViewModelShouldHideShareToAnotherAppButton()
     public static boolean onChangeViewModelShouldHideShareViaPermanentButton()
 org.permanent.permanent.databinding.FragmentFilesContainerBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$34()
+    public static boolean onChangeViewModel$35()
 org.permanent.permanent.databinding.FragmentForgotPasswordBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$35()
+    public static boolean onChangeViewModel$36()
     public final boolean onChangeViewModelGetCurrentEmail()
     public final boolean onChangeViewModelGetEmailError()
     public final boolean onChangeViewModelGetIsBusy()
 org.permanent.permanent.databinding.FragmentInvitationsBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$36()
+    public static boolean onChangeViewModel$37()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentItemOptionsBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$37()
+    public static boolean onChangeViewModel$38()
     public final boolean onChangeViewModelIsBusy()
     public static boolean onChangeViewModelItemName()
 org.permanent.permanent.databinding.FragmentLocationSearchBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$38()
+    public static boolean onChangeViewModel$39()
     public final boolean onChangeViewModelIsBusy$1()
 org.permanent.permanent.databinding.FragmentLoginBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$39()
+    public static boolean onChangeViewModel$40()
     public final boolean onChangeViewModelGetCurrentEmail()
     public final boolean onChangeViewModelGetCurrentPassword()
     public final boolean onChangeViewModelGetEmailError()
@@ -40412,7 +40442,7 @@ org.permanent.permanent.databinding.FragmentLoginBindingImpl:
 org.permanent.permanent.databinding.FragmentManageTagsBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$40()
+    public static boolean onChangeViewModel$41()
     public static boolean onChangeViewModelGetArchiveName()
     public static boolean onChangeViewModelGetTagsCount()
     public final boolean onChangeViewModelIsBusy()
@@ -40420,7 +40450,7 @@ org.permanent.permanent.databinding.FragmentManageTagsBindingImpl:
 org.permanent.permanent.databinding.FragmentMembersBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$41()
+    public static boolean onChangeViewModel$42()
     public static boolean onChangeViewModelExistsContributors()
     public static boolean onChangeViewModelExistsCurators()
     public static boolean onChangeViewModelExistsEditors()
@@ -40437,12 +40467,12 @@ org.permanent.permanent.databinding.FragmentMilestoneListBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static final android.util.SparseIntArray sViewsWithIds
     public static void <clinit>()
-    public static boolean onChangeViewModel$42()
+    public static boolean onChangeViewModel$43()
     public final boolean onChangeViewModelExistsMilestones()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentMyFilesBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
-    public static boolean onChangeViewModel$43()
+    public static boolean onChangeViewModel$44()
     public final boolean onChangeViewModelAreAllSelected()
     public final boolean onChangeViewModelExistsDownloads()
     public final boolean onChangeViewModelExistsFiles()
@@ -40462,25 +40492,25 @@ org.permanent.permanent.databinding.FragmentOnlinePresenceListBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static final android.util.SparseIntArray sViewsWithIds
     public static void <clinit>()
-    public static boolean onChangeViewModel$44()
+    public static boolean onChangeViewModel$45()
     public static boolean onChangeViewModelExistsOnlinePresences()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentPublicArchiveBindingImpl:
     public final androidx.core.widget.NestedScrollView mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$45()
+    public static boolean onChangeViewModel$46()
     public final boolean onChangeViewModelExistsRecords()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentPublicBindingImpl:
     public final androidx.core.widget.NestedScrollView mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$46()
+    public static boolean onChangeViewModel$47()
     public final boolean onChangeViewModelCurrentArchiveThumb()
     public final boolean onChangeViewModelGetIsBusy()
     public static boolean onChangeViewModelProfileBannerThumb()
 org.permanent.permanent.databinding.FragmentPublicFilesBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
-    public static boolean onChangeViewModel$47()
+    public static boolean onChangeViewModel$48()
     public final boolean onChangeViewModelAreAllSelected()
     public final boolean onChangeViewModelExistsDownloads()
     public final boolean onChangeViewModelExistsFiles()
@@ -40498,17 +40528,17 @@ org.permanent.permanent.databinding.FragmentPublicFilesBindingImpl:
 org.permanent.permanent.databinding.FragmentPublicFolderBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$48()
+    public static boolean onChangeViewModel$49()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentPublicGalleryBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$49()
+    public static boolean onChangeViewModel$50()
     public final boolean onChangeViewModelCurrentArchiveThumb()
     public static boolean onChangeViewModelExistsYourArchives()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentPublicProfileBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$50()
+    public static boolean onChangeViewModel$51()
     public final boolean onChangeViewModelAliases()
     public final boolean onChangeViewModelAliasesLabel()
     public static boolean onChangeViewModelArchiveInfoLabel()
@@ -40529,7 +40559,7 @@ org.permanent.permanent.databinding.FragmentPublicProfileBindingImpl:
     public static boolean onChangeViewModelShortAndLongDescription()
 org.permanent.permanent.databinding.FragmentRecordOptionsBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$51()
+    public static boolean onChangeViewModel$52()
     public static boolean onChangeViewModelHiddenOptions()
     public final boolean onChangeViewModelIsBusy()
     public static boolean onChangeViewModelIsFragmentShownInRootFolder()
@@ -40543,7 +40573,7 @@ org.permanent.permanent.databinding.FragmentRecordOptionsBindingImpl:
 org.permanent.permanent.databinding.FragmentRecordSearchBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$52()
+    public static boolean onChangeViewModel$53()
     public final boolean onChangeViewModelCurrentSearchQuery()
     public final boolean onChangeViewModelExistsRecords()
     public static boolean onChangeViewModelExistsTags$1()
@@ -40553,14 +40583,14 @@ org.permanent.permanent.databinding.FragmentRecordSearchBindingImpl:
     public static boolean onChangeViewModelTagsTitle()
 org.permanent.permanent.databinding.FragmentSaveToPermanentBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$53()
+    public static boolean onChangeViewModel$54()
     public final boolean onChangeViewModelCurrentArchiveName()
     public final boolean onChangeViewModelCurrentArchiveThumb()
     public static boolean onChangeViewModelDestinationFolderName()
 org.permanent.permanent.databinding.FragmentSecurityBindingImpl:
     public final android.widget.RelativeLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$54()
+    public static boolean onChangeViewModel$55()
     public static boolean onChangeViewModelBiometricsLogin()
     public static boolean onChangeViewModelCurrentPassword()
     public final boolean onChangeViewModelIsBusy()
@@ -40568,12 +40598,12 @@ org.permanent.permanent.databinding.FragmentSecurityBindingImpl:
     public static boolean onChangeViewModelRetypeNewPassword()
 org.permanent.permanent.databinding.FragmentSelectionOptionsBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$55()
+    public static boolean onChangeViewModel$56()
     public final boolean onChangeViewModelTitle$1()
 org.permanent.permanent.databinding.FragmentShareManagementBindingImpl:
     public final androidx.core.widget.NestedScrollView mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$56()
+    public static boolean onChangeViewModel$57()
     public final boolean onChangeViewModelAccessRole()
     public static boolean onChangeViewModelAreLinkSettingsVisible()
     public static boolean onChangeViewModelAutoApprove()
@@ -40589,7 +40619,7 @@ org.permanent.permanent.databinding.FragmentShareManagementBindingImpl:
 org.permanent.permanent.databinding.FragmentSharePreviewBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$57()
+    public static boolean onChangeViewModel$58()
     public static boolean onChangeViewModelAccountDisplayName()
     public static boolean onChangeViewModelArchiveDisplayName()
     public static boolean onChangeViewModelArchiveThumbURL()
@@ -40602,7 +40632,7 @@ org.permanent.permanent.databinding.FragmentSharePreviewBindingImpl:
     public static boolean onChangeViewModelShowChangeArchiveButton()
 org.permanent.permanent.databinding.FragmentSharedXMeBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
-    public static boolean onChangeViewModel$58()
+    public static boolean onChangeViewModel$59()
     public final boolean onChangeViewModelAreAllSelected()
     public final boolean onChangeViewModelExistsDownloads()
     public final boolean onChangeViewModelExistsFiles()
@@ -40621,12 +40651,12 @@ org.permanent.permanent.databinding.FragmentSharedXMeBindingImpl:
 org.permanent.permanent.databinding.FragmentSharesBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$59()
+    public static boolean onChangeViewModel$60()
     public final boolean onChangeViewModelIsBusy()
 org.permanent.permanent.databinding.FragmentSignUpBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
-    public static boolean onChangeViewModel$60()
+    public static boolean onChangeViewModel$61()
     public final boolean onChangeViewModelGetCurrentEmail()
     public final boolean onChangeViewModelGetCurrentName()
     public final boolean onChangeViewModelGetCurrentPassword()
@@ -40638,16 +40668,8 @@ org.permanent.permanent.databinding.FragmentSortOptionsBindingImpl:
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static final android.util.SparseIntArray sViewsWithIds
     public static void <clinit>()
-    public static boolean onChangeViewModel$61()
-    public static boolean onChangeViewModelGetCurrentSortOption()
-org.permanent.permanent.databinding.FragmentStorageBindingImpl:
-    public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
-    public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
     public static boolean onChangeViewModel$62()
-    public static boolean onChangeViewModelAmount()
-    public static boolean onChangeViewModelGbEndowed()
-    public final boolean onChangeViewModelIsBusy()
-    public static boolean onChangeViewModelIsDonationAnonymous()
+    public static boolean onChangeViewModelGetCurrentSortOption()
 org.permanent.permanent.databinding.FragmentTagsEditBindingImpl:
     public final androidx.constraintlayout.widget.ConstraintLayout mboundView0
     public static final androidx.databinding.ViewDataBinding$IncludedLayouts sIncludes
@@ -40745,6 +40767,8 @@ org.permanent.permanent.databinding.NavSettingsHeaderBindingImpl:
     public static boolean onChangeViewModelUserEmail()
 org.permanent.permanent.models.Download:
     public static void <clinit>()
+org.permanent.permanent.models.EmailChip:
+    public static void <clinit>()
 org.permanent.permanent.models.Event:
     public static void <clinit>()
 org.permanent.permanent.models.File:
@@ -40808,6 +40832,8 @@ org.permanent.permanent.network.models.ProfileItemsRequestVO:
     public static void <clinit>()
 org.permanent.permanent.network.models.Profile_itemVO:
     public static void <clinit>()
+org.permanent.permanent.network.models.PromoVO:
+    public static void <clinit>()
 org.permanent.permanent.network.models.RecordVO:
     public static void <clinit>()
 org.permanent.permanent.network.models.Request:
@@ -40834,6 +40860,8 @@ org.permanent.permanent.network.models.SimpleRequestContainer:
     public static void <clinit>()
 org.permanent.permanent.network.models.SimpleVO:
     public static void <clinit>()
+org.permanent.permanent.network.models.StorageGift:
+    public static void <clinit>()
 org.permanent.permanent.network.models.TagLinkVO:
     public static void <clinit>()
 org.permanent.permanent.network.models.TagVO:
@@ -40845,6 +40873,8 @@ org.permanent.permanent.repositories.AccountRepositoryImpl:
 org.permanent.permanent.repositories.ArchiveRepositoryImpl:
     public static void <clinit>()
 org.permanent.permanent.repositories.AuthenticationRepositoryImpl:
+    public static void <clinit>()
+org.permanent.permanent.repositories.BillingRepositoryImpl:
     public static void <clinit>()
 org.permanent.permanent.repositories.FileRepositoryImpl:
     public final android.content.SharedPreferences sharedPreferences
@@ -40925,21 +40955,8 @@ org.permanent.permanent.ui.SharedFilesContainerFragment$onSaveFolderRequestObser
     public final void onChanged$2()
 org.permanent.permanent.ui.SharedFilesContainerFragment:
     public static void <clinit>()
-org.permanent.permanent.ui.storage.StorageFragment$onErrorObserver$1:
-    public final void onChanged$3()
-org.permanent.permanent.ui.storage.StorageFragment$onPaymentIntentObserver$1:
-    public final void onChanged$3()
-org.permanent.permanent.ui.storage.StorageFragment:
-    public static synthetic void $r8$lambda$41nGyxQxqC9vvkwedju4b9mer9k()
-    public static synthetic void $r8$lambda$RuKjNAgRGAgBZMn4Q42HOHhjis4()
-    public static void onGooglePayReady()
-    public static void onGooglePayResult()
-    public static final void showDialog$lambda$1()
-    public static void showDialogThatNavigatesToGoogleWallet()
-    public static final void showDialogThatNavigatesToGoogleWallet$lambda$3()
 org.permanent.permanent.ui.activities.MainActivity$$InternalSyntheticLambda$1$755d1983d82fc4f5d410f3f05084e6cfac585140e04fbfd02d21921ee5ebef10$0
-org.permanent.permanent.ui.activities.MainActivity$$InternalSyntheticLambda$1$755d1983d82fc4f5d410f3f05084e6cfac585140e04fbfd02d21921ee5ebef10$1
-org.permanent.permanent.ui.activities.MainActivity$$InternalSyntheticLambda$2$2bd86ac88589e890ffb098f864fa3757b97920774b59e4494f985fa3e8ea73e2$1
+org.permanent.permanent.ui.activities.MainActivity$$InternalSyntheticLambda$2$93332c65f50eaaf58ef8311b7e20118a8a99360df16fe6c00712b3903d718f3e$1
 org.permanent.permanent.ui.activities.MainActivity$onArchiveSwitched$1:
     public final void onChanged$2()
 org.permanent.permanent.ui.activities.MainActivity$onErrorMessage$1:
@@ -40955,9 +40972,11 @@ org.permanent.permanent.ui.activities.MainActivity:
     public static void setArchiveSettingsIcon()
     public static void setSubmenuVisibility()
     public static void showArchiveSwitchDialog()
+    public static void showLegacyDialog()
     public static void showWelcomeDialog()
 org.permanent.permanent.ui.activities.PermanentBaseActivity:
     static void <clinit>()
+org.permanent.permanent.ui.activities.SplashActivity$$InternalSyntheticLambda$1$40f5414afa679156e11386f7d6f54e830488f5b5d3b4a85bd8205188df3e1ae9$0
 org.permanent.permanent.ui.activities.SplashActivity$errorObserver$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.activities.SplashActivity$onArchiveSwitchedToCurrentObserver$1:
@@ -41069,123 +41088,38 @@ org.permanent.permanent.ui.archives.PendingArchiveViewHolder:
     public static void <clinit>()
 org.permanent.permanent.ui.archives.PendingArchivesAdapter:
     public static void <clinit>()
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1$1:
-    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1$2:
-    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1$3:
-    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1:
+org.permanent.permanent.ui.composeComponents.FeedbackSnackbarKt$FeedbackSnackbar$1$1$3$1:
     public final void invoke()
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$1$1:
-    public final void invoke(java.lang.String)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$2:
+org.permanent.permanent.ui.composeComponents.FeedbackSnackbarKt$FeedbackSnackbar$1:
     public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$3$1:
-    public final void invoke(java.lang.String)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$4:
+org.permanent.permanent.ui.composeComponents.FeedbackSnackbarKt$FeedbackSnackbar$2:
     public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$5$1:
-    public final void invoke(java.lang.String)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$6:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$2$1$1:
-    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$2:
-    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$3$1:
-    public static java.lang.Object emit$5()
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$3:
-    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$4:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$1$1:
+org.permanent.permanent.ui.composeComponents.FeedbackSnackbarKt$FeedbackSnackbarPreview$1:
     public final void invoke()
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$2:
+org.permanent.permanent.ui.composeComponents.FeedbackSnackbarKt$FeedbackSnackbarPreview$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.composeComponents.MenuItemKt$MenuItem$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.composeComponents.MenuItemKt$MenuItem$3:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.composeComponents.MenuItemKt$SimpleComposablePreview$1:
+    public final void invoke()
+org.permanent.permanent.ui.composeComponents.MenuItemKt$SimpleComposablePreview$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.composeComponents.NewFeatureLabelKt$NewFeatureLabel$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.composeComponents.StorageCardKt$StorageCard$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.composeComponents.TextAndImageButtonKt$TextAndImageButton$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.composeComponents.TextAndImageButtonKt$TextAndImageButton$2:
     public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$3$1:
-    public final void invoke()
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$4:
-    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.AddEditLegacyContactScreenKt:
-    public static final java.lang.String AddEditLegacyContactScreen$lambda$1(androidx.compose.runtime.MutableState)
-    public static final void AddEditLegacyContactScreen$lambda$2()
-    public static final java.lang.String AddEditLegacyContactScreen$lambda$4(androidx.compose.runtime.MutableState)
-    public static final void AddEditLegacyContactScreen$lambda$5()
-    public static final java.lang.String AddEditLegacyContactScreen$lambda$7(androidx.compose.runtime.MutableState)
-    public static final void AddEditLegacyContactScreen$lambda$8()
-    public static final java.lang.String AddEditLegacyContactScreen$lambda$9(androidx.compose.runtime.State)
-org.permanent.permanent.ui.compose.ArchiveStewardScreenKt$ArchiveStewardScreen$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.ArchiveStewardScreenKt$Header$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.ComposableSingletons$AddEditLegacyContactScreenKt$lambda-1$1:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.ComposableSingletons$AddEditLegacyContactScreenKt$lambda-2$1:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.ComposableSingletons$AddEditLegacyContactScreenKt$lambda-3$1:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.DesignateLegacyContactScreenKt$DesignateContactOrStewardScreen$1$1$1:
-    public final void invoke()
-org.permanent.permanent.ui.compose.DesignateLegacyContactScreenKt$DesignateContactOrStewardScreen$1$2:
-    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.DesignateLegacyContactScreenKt$DesignateContactOrStewardScreen$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.DesignateLegacyContactScreenKt$LegacyContactCard$1$1$2$1$1:
-    public final void invoke()
-org.permanent.permanent.ui.compose.DesignateLegacyContactScreenKt$LegacyContactCard$1$1$3$1$1:
-    public final void invoke()
-org.permanent.permanent.ui.compose.DesignateLegacyContactScreenKt$LegacyContactCard$1:
-    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.DesignateLegacyContactScreenKt$LegacyContactCard$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.IntroScreenKt$IntroScreen$1$1$1:
-    public final void invoke()
-org.permanent.permanent.ui.compose.IntroScreenKt$IntroScreen$1$2:
-    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.IntroScreenKt$IntroScreen$1$3:
-    public final void invoke()
-org.permanent.permanent.ui.compose.IntroScreenKt$IntroScreen$1$4:
-    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.IntroScreenKt$IntroScreen$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.LegacyContactScreenKt$LegacyContactScreen$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.LoadingScreenKt$LoadingScreen$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$AccountCard$1$1$1$1$1:
-    public final void invoke()
-org.permanent.permanent.ui.compose.StatusScreenKt$AccountCard$1$1$1$2:
-    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$AccountCard$1:
-    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$AccountCard$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCard$1$1$2:
-    public final void invoke()
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCard$1$1$3:
-    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCard$1:
-    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCard$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCardCompleted$1$1$1$1:
-    public final void invoke()
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCardCompleted$1$1$1$2:
-    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCardCompleted$1:
-    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$ArchiveCardCompleted$2:
-    public final void invoke(androidx.compose.runtime.Composer,int)
-org.permanent.permanent.ui.compose.StatusScreenKt$StatusScreen$2:
+org.permanent.permanent.ui.composeComponents.TextAndImageButtonKt$TextAndImageButton$3:
     public final void invoke(androidx.compose.runtime.Composer,int)
 org.permanent.permanent.ui.fileView.FileActivity:
     public static void <clinit>()
 org.permanent.permanent.ui.fileView.FileDetailsFragment:
     public static void <clinit>()
-org.permanent.permanent.ui.fileView.FileInfoFragment$$InternalSyntheticLambda$1$eac7214c36a44f0ccbe948d2b6b9c8aab1d07abdd6afab9d3a9e7e0f86a51f45$1
 org.permanent.permanent.ui.fileView.FileInfoFragment$onFileInfoUpdated$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.fileView.FileInfoFragment$onShowDatePicker$1:
@@ -41200,7 +41134,6 @@ org.permanent.permanent.ui.fileView.FileInfoFragment$onShowTagsEdit$1:
     public final void onChanged$2()
 org.permanent.permanent.ui.fileView.FileInfoFragment:
     public static void createChipsFor()
-org.permanent.permanent.ui.fileView.FileMetadataFragment$$InternalSyntheticLambda$1$87dab2f49a0e3bc089a426a2a8d97bdd93fedf5fc12376e903de257a1b05ad2a$0
 org.permanent.permanent.ui.fileView.FileMetadataFragment$onShowMessage$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.fileView.FileMetadataFragment:
@@ -41209,6 +41142,7 @@ org.permanent.permanent.ui.fileView.FileMetadataViewPagerAdapter:
     public static void <clinit>()
 org.permanent.permanent.ui.fileView.FileViewFragment$onFileData$1$$InternalSyntheticLambda$1$1fba1a84a538bc90cf6bcd747a43469d72a22e85eb9b40165577bb5b9ffc28eb$0
 org.permanent.permanent.ui.fileView.FileViewFragment$onFileData$1$$InternalSyntheticLambda$2$fefc14065d2fa14bdde5f0b873e15aa8f3112b124e8cae5c5c93d3452363c62c$0
+org.permanent.permanent.ui.fileView.FileViewFragment$onFileData$1$$InternalSyntheticLambda$3$3b1cfe3c98869b4db0ddbbd5649beafdd4b7810d49f326af7c1f2c4eab445ed6$0
 org.permanent.permanent.ui.fileView.FileViewFragment$onFileData$1:
     public final void onChanged$10()
 org.permanent.permanent.ui.fileView.FileViewFragment$onShowMessage$1:
@@ -41260,6 +41194,7 @@ org.permanent.permanent.ui.invitations.InvitationsFragment$onInvitationSent$1:
     public final void onChanged$2()
 org.permanent.permanent.ui.invitations.InvitationsFragment$onInvitesRetrieved$1:
     public final void onChanged$6()
+org.permanent.permanent.ui.invitations.InvitationsFragment$onShowSendInvitationDialog$1$$InternalSyntheticLambda$1$23220f99ffeee56c63d11fb18df3805471482e5ecbbccc4bb90fecd0dc1783ce$0
 org.permanent.permanent.ui.invitations.InvitationsFragment$onShowSendInvitationDialog$1:
     public final void onChanged$2()
 org.permanent.permanent.ui.invitations.InvitationsFragment$onShowSnackbar$1:
@@ -41340,6 +41275,116 @@ org.permanent.permanent.ui.legacyPlanning.StatusFragment$onCreateView$1$1:
     public final void invoke(androidx.compose.runtime.Composer,int)
 org.permanent.permanent.ui.legacyPlanning.StatusFragment:
     public static void <clinit>()
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1$1:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1$2:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1$3:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$1$1:
+    public final void invoke(java.lang.String)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$3$1:
+    public final void invoke(java.lang.String)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$4:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$5$1:
+    public final void invoke(java.lang.String)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$1$2$6:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$2$1$1:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$2:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$3$1:
+    public final java.lang.Object emit$5()
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$3:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$AddEditLegacyContactScreen$4:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$2:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$3$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$1$4:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt$BottomSheetHeader$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.AddEditLegacyContactScreenKt:
+    public static final java.lang.String AddEditLegacyContactScreen$lambda$1(androidx.compose.runtime.MutableState)
+    public static final void AddEditLegacyContactScreen$lambda$2()
+    public static final java.lang.String AddEditLegacyContactScreen$lambda$4(androidx.compose.runtime.MutableState)
+    public static final void AddEditLegacyContactScreen$lambda$5()
+    public static final java.lang.String AddEditLegacyContactScreen$lambda$7(androidx.compose.runtime.MutableState)
+    public static final void AddEditLegacyContactScreen$lambda$8()
+    public static final java.lang.String AddEditLegacyContactScreen$lambda$9(androidx.compose.runtime.State)
+org.permanent.permanent.ui.legacyPlanning.compose.ArchiveStewardScreenKt$ArchiveStewardScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.ArchiveStewardScreenKt$Header$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.ComposableSingletons$AddEditLegacyContactScreenKt$lambda-1$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.ComposableSingletons$AddEditLegacyContactScreenKt$lambda-2$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.ComposableSingletons$AddEditLegacyContactScreenKt$lambda-3$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.DesignateLegacyContactScreenKt$DesignateContactOrStewardScreen$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.DesignateLegacyContactScreenKt$DesignateContactOrStewardScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.DesignateLegacyContactScreenKt$LegacyContactCard$1$1$2$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.DesignateLegacyContactScreenKt$LegacyContactCard$1$1$3$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.DesignateLegacyContactScreenKt$LegacyContactCard$1:
+    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.DesignateLegacyContactScreenKt$LegacyContactCard$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.IntroScreenKt$IntroScreen$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.IntroScreenKt$IntroScreen$1$2:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.IntroScreenKt$IntroScreen$1$3:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.IntroScreenKt$IntroScreen$1$4:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.IntroScreenKt$IntroScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.LegacyContactScreenKt$LegacyContactScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.LoadingScreenKt$LoadingScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$AccountCard$1$1$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$AccountCard$1$1$1$2:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$AccountCard$1:
+    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$AccountCard$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCard$1$1$2:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCard$1$1$3:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCard$1:
+    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCard$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCardCompleted$1$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCardCompleted$1$1$1$2:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCardCompleted$1:
+    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$ArchiveCardCompleted$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.legacyPlanning.compose.StatusScreenKt$StatusScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
 org.permanent.permanent.ui.login.BiometricsFragment$onErrorMessage$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.login.BiometricsFragment$onErrorStringId$1:
@@ -41407,7 +41452,7 @@ org.permanent.permanent.ui.login.PhoneVerificationFragment$onVerificationSkipped
     public final void onChanged$2()
 org.permanent.permanent.ui.login.PhoneVerificationFragment:
     public static void <clinit>()
-org.permanent.permanent.ui.login.SignUpFragment$$InternalSyntheticLambda$1$2fabf4e9159d9db25d9f96095fba229e39d6758edd16bfac59f425af8aa408b2$0
+org.permanent.permanent.ui.login.SignUpFragment$$InternalSyntheticLambda$1$2fabf4e9159d9db25d9f96095fba229e39d6758edd16bfac59f425af8aa408b2$1
 org.permanent.permanent.ui.login.SignUpFragment$onErrorMessage$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.login.SignUpFragment$onReadyToShowTermsDialog$1:
@@ -41424,7 +41469,6 @@ org.permanent.permanent.ui.login.SmsVerificationCodeHelper:
     public static void <clinit>()
 org.permanent.permanent.ui.manageTags.ManageTagsAdapter:
     public static void <clinit>()
-org.permanent.permanent.ui.manageTags.ManageTagsFragment$$InternalSyntheticLambda$1$93284a331b3c6c37e9be01165b7764eee070934fc357bf59c591e61466a2c427$1
 org.permanent.permanent.ui.manageTags.ManageTagsFragment$$InternalSyntheticLambda$1$f871802f6e749317703617e5eefa65767e440f05fe352d9f4629be5b285538e6$0
 org.permanent.permanent.ui.manageTags.ManageTagsFragment$onAddButtonEvent$1:
     public final void onChanged$2()
@@ -41468,13 +41512,11 @@ org.permanent.permanent.ui.members.MembersFragment$onMemberRemoved$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.members.MembersFragment$onMembersUpdated$1:
     public final void onChanged$2()
-org.permanent.permanent.ui.members.MembersFragment$onOwnershipTransferRequest$1$$InternalSyntheticLambda$1$107b6eb8572f7848a358c739613432a0da4ea73c327abcd1469bc22257f44afa$1
 org.permanent.permanent.ui.members.MembersFragment$onOwnershipTransferRequest$1:
     public final void onChanged$15()
-org.permanent.permanent.ui.members.MembersFragment$onShowAddMemberDialog$1$$InternalSyntheticLambda$1$e7a3f7c069195cdae9dc5465bb6a1fdeaa08d0408ca96a0a0efe8a57a4732ce5$0
+org.permanent.permanent.ui.members.MembersFragment$onShowAddMemberDialog$1$$InternalSyntheticLambda$1$e7a3f7c069195cdae9dc5465bb6a1fdeaa08d0408ca96a0a0efe8a57a4732ce5$2
 org.permanent.permanent.ui.members.MembersFragment$onShowAddMemberDialog$1:
     public final void onChanged$2()
-org.permanent.permanent.ui.members.MembersFragment$onShowEditMemberDialog$1$$InternalSyntheticLambda$1$6170d9708fd48b6405b9f7c104d11805e586094813a6410a02d3f4b7b9d82142$2
 org.permanent.permanent.ui.members.MembersFragment$onShowEditMemberDialog$1:
     public final void onChanged$14()
 org.permanent.permanent.ui.members.MembersFragment$onShowMemberOptionsFragment$1:
@@ -41494,7 +41536,7 @@ org.permanent.permanent.ui.members.MembersFragment:
     public static void initEditorsRecyclerView()
     public static void initManagersRecyclerView()
     public static void initViewersRecyclerView()
-org.permanent.permanent.ui.myFiles.AddOptionsFragment$$InternalSyntheticLambda$1$1e0d9c645a52fcd66d163251a093fcac12a01042c92f0ccc9f46518a4b8946cf$0
+org.permanent.permanent.ui.myFiles.AddOptionsFragment$$InternalSyntheticLambda$1$1e0d9c645a52fcd66d163251a093fcac12a01042c92f0ccc9f46518a4b8946cf$1
 org.permanent.permanent.ui.myFiles.AddOptionsFragment$$InternalSyntheticLambda$1$a724f1ff4ba7ba507e5ed86d0e802e5be0c5351fa1a8b62363d76b851b60524b$1
 org.permanent.permanent.ui.myFiles.AddOptionsFragment$onErrorMessage$1:
     public final void onChanged$3()
@@ -41704,7 +41746,6 @@ org.permanent.permanent.ui.myFiles.upload.UploadWorker:
     public static void <clinit>()
 org.permanent.permanent.ui.myFiles.upload.UploadsAdapter:
     public static void <clinit>()
-org.permanent.permanent.ui.onboarding.OnboardingActivity$$InternalSyntheticLambda$1$13f91a905430ade0908051826144650ec0d9bda602bcad0c64a8e92c11a737d2$0
 org.permanent.permanent.ui.onboarding.OnboardingActivity:
     public static void <clinit>()
     public static void setupRecyclerView$1()
@@ -41789,7 +41830,6 @@ org.permanent.permanent.ui.public.MilestoneListFragment$onShowMessage$1:
 org.permanent.permanent.ui.public.MilestoneListFragment:
     public static void <clinit>()
     public final void initMilestonesRecyclerView()
-org.permanent.permanent.ui.public.MilestoneViewHolder$$InternalSyntheticLambda$1$ddefde7dfca3342cd89d92c4eb183d874676560af211bcc9a1f61c1eaba45a04$0
 org.permanent.permanent.ui.public.MilestoneViewHolder$$InternalSyntheticLambda$1$ddefde7dfca3342cd89d92c4eb183d874676560af211bcc9a1f61c1eaba45a04$1
 org.permanent.permanent.ui.public.MilestoneViewHolder$$InternalSyntheticLambda$1$ddefde7dfca3342cd89d92c4eb183d874676560af211bcc9a1f61c1eaba45a04$2
 org.permanent.permanent.ui.public.MilestoneViewHolder:
@@ -41863,6 +41903,8 @@ org.permanent.permanent.ui.public.PublicFilesFragment$onFilesSelectedToUpload$1:
     public final void onChanged$6()
 org.permanent.permanent.ui.public.PublicFilesFragment$onNewTemporaryFiles$1:
     public final void onChanged$6()
+org.permanent.permanent.ui.public.PublicFilesFragment$onRecordDeleteRequest$1$$InternalSyntheticLambda$1$e2141bfe6db179ca8b797bd390e24d0379f37469bfc3a6d7c6c05bf722b1fbb0$0
+org.permanent.permanent.ui.public.PublicFilesFragment$onRecordDeleteRequest$1$$InternalSyntheticLambda$1$e2141bfe6db179ca8b797bd390e24d0379f37469bfc3a6d7c6c05bf722b1fbb0$1
 org.permanent.permanent.ui.public.PublicFilesFragment$onRecordDeleteRequest$1:
     public final void onChanged$17()
 org.permanent.permanent.ui.public.PublicFilesFragment$onRecordRelocateRequest$1$onChanged$1:
@@ -41889,6 +41931,7 @@ org.permanent.permanent.ui.public.PublicFilesFragment$onShowAddOptionsFragment$1
     public final void onChanged$19()
 org.permanent.permanent.ui.public.PublicFilesFragment$onShowMessage$1:
     public final void onChanged$3()
+org.permanent.permanent.ui.public.PublicFilesFragment$onShowQuotaExceeded$1$$InternalSyntheticLambda$1$f3e3d6435a5c2a96b5b419c08f4c94ee7ff15d665efe154cb07a6a5b9410af98$1
 org.permanent.permanent.ui.public.PublicFilesFragment$onShowQuotaExceeded$1:
     public static synthetic void $r8$lambda$6-iOoSCBJUoTWuJpza8stFw16jc()
     public final void onChanged$2()
@@ -41935,6 +41978,7 @@ org.permanent.permanent.ui.public.PublicFragment$onShowMessage$1:
     public final void onChanged$3()
 org.permanent.permanent.ui.public.PublicFragment:
     public static void initViewPagerAdapter()
+org.permanent.permanent.ui.public.PublicGalleryFragment$$InternalSyntheticLambda$1$4e1ddd7381b2473382db5768294b33cfdb213c0f7ddf475f77f8eb3ed2c80380$0
 org.permanent.permanent.ui.public.PublicGalleryFragment$onPopularArchivesRetrieved$1:
     public final void onChanged$6()
 org.permanent.permanent.ui.public.PublicGalleryFragment$onShowError$1:
@@ -42090,7 +42134,6 @@ org.permanent.permanent.ui.shares.SharedXMeFragment$onSortRequest$1:
     public final void onChanged$20()
 org.permanent.permanent.ui.shares.SharedXMeFragment$refreshCurrentFolderObserver$1:
     public final void onChanged$2()
-org.permanent.permanent.ui.shares.SharedXMeFragment$relocationCancellationObserver$1$$InternalSyntheticLambda$1$1c4c73e8aea1404fbb39c264627e8aef5bc7b9cb703b69c408923439c4eefb4f$1
 org.permanent.permanent.ui.shares.SharedXMeFragment$relocationCancellationObserver$1:
     public final void onChanged$2()
 org.permanent.permanent.ui.shares.SharedXMeFragment$showSelectionOptionsObserver$1:
@@ -42105,7 +42148,6 @@ org.permanent.permanent.ui.shares.SharedXMeFragment:
     public final void resizeIslandWidthAnimated(int,int)
 org.permanent.permanent.ui.shares.SharesFragment$$InternalSyntheticLambda$1$f90b265528132f4e77782c4eaa176869142f60b74bbfb14dba38180422a8e758$0
 org.permanent.permanent.ui.shares.SharesFragment$$InternalSyntheticLambda$1$f90b265528132f4e77782c4eaa176869142f60b74bbfb14dba38180422a8e758$1
-org.permanent.permanent.ui.shares.SharesFragment$$InternalSyntheticLambda$1$f90b265528132f4e77782c4eaa176869142f60b74bbfb14dba38180422a8e758$2
 org.permanent.permanent.ui.shares.SharesFragment$onGetRootShares$1:
     public final void onChanged$2()
 org.permanent.permanent.ui.shares.SharesFragment$onRecordSelectedObserver$1:
@@ -42124,6 +42166,161 @@ org.permanent.permanent.ui.shares.SharesFragment:
     public static void <clinit>()
 org.permanent.permanent.ui.shares.SharesViewPagerAdapter:
     public static void <clinit>()
+org.permanent.permanent.ui.storage.AddStorageFragment$onErrorObserver$1:
+    public final void onChanged$3()
+org.permanent.permanent.ui.storage.AddStorageFragment$onPaymentIntentObserver$1:
+    public final void onChanged$3()
+org.permanent.permanent.ui.storage.AddStorageFragment:
+    public static synthetic void $r8$lambda$-EmhEiCB1zJeWoHtypPVZ95ovjk()
+    public static synthetic void $r8$lambda$wPJgf0VdM11PuxfbnEFq5iN7Gu0()
+    public static void onGooglePayReady()
+    public static void onGooglePayResult()
+    public static final void showDialog$lambda$1()
+    public static void showDialogThatNavigatesToGoogleWallet()
+    public static final void showDialogThatNavigatesToGoogleWallet$lambda$3()
+org.permanent.permanent.ui.storage.GiftStorageFragment$onCreateView$4$1$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.GiftStorageFragment$onCreateView$4$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.GiftStorageFragment$onGiftStorageSentObserver$1:
+    public final void onChanged$2()
+org.permanent.permanent.ui.storage.GiftStorageFragment:
+    public static void <clinit>()
+    public static void showSuccessSnackbar()
+org.permanent.permanent.ui.storage.RedeemCodeFragment$onCreateView$1$1$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.RedeemCodeFragment$onCreateView$1$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.RedeemCodeFragment$onGiftStorageRedeemedObserver$1:
+    public final void onChanged$8()
+org.permanent.permanent.ui.storage.StorageMenuFragment$onCreateView$2$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.StorageMenuFragment$onCreateView$2$1$1$2:
+    public final void invoke()
+org.permanent.permanent.ui.storage.StorageMenuFragment$onCreateView$2$1$1$3:
+    public final void invoke()
+org.permanent.permanent.ui.storage.StorageMenuFragment$onCreateView$2$1$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.StorageMenuFragment$onCreateView$2$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.StorageMenuFragment:
+    public static void <clinit>()
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$1$1$3:
+    public final void invoke(java.lang.String)
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$1$1$4:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$1$1$5:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$1$2$1$1:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$1$2:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$1$3$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$1$3:
+    public final void invoke$43()
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt$RedeemCodeScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.RedeemCodeScreenKt:
+    public static final java.lang.Boolean RedeemCodeScreen$lambda$0(androidx.compose.runtime.State)
+    public static final java.lang.Boolean RedeemCodeScreen$lambda$1(androidx.compose.runtime.State)
+    public static final java.lang.Boolean RedeemCodeScreen$lambda$2()
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$1$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$1$1$2$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$1$1$3$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$1$2$1$1:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$1$2:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$1$3$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$1$3:
+    public final void invoke$43()
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt$StorageMenuScreen$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.StorageMenuScreenKt:
+    public static final java.lang.Long StorageMenuScreen$lambda$0()
+    public static final java.lang.Long StorageMenuScreen$lambda$1()
+    public static final java.lang.Integer StorageMenuScreen$lambda$2()
+    public static final java.lang.String StorageMenuScreen$lambda$3(androidx.compose.runtime.State)
+org.permanent.permanent.ui.storage.compose.gifting.ComposableSingletons$GiftStorageScreenKt$lambda-1$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$10$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$3$1:
+    public final void invoke$134()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$3$2:
+    public final void invoke$134()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$5$1$2$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$5$1$2$2:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$5:
+    public final void invoke(androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$7$1:
+    public final void invoke(java.lang.String)
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$8$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$1$9:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$2$1$1:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$2:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$3$1:
+    public final java.lang.Object emit$5()
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$3:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt$GiftStorageScreen$4:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.GiftStorageScreenKt:
+    public static final java.lang.Long GiftStorageScreen$lambda$1(androidx.compose.runtime.State)
+    public static final java.lang.Boolean GiftStorageScreen$lambda$10(androidx.compose.runtime.State)
+    public static final java.lang.Integer GiftStorageScreen$lambda$3(androidx.compose.runtime.State)
+    public static final java.lang.Long GiftStorageScreen$lambda$4(androidx.compose.runtime.State)
+    public static final java.lang.String GiftStorageScreen$lambda$6(androidx.compose.runtime.MutableState)
+    public static final void GiftStorageScreen$lambda$7()
+    public static final java.lang.String GiftStorageScreen$lambda$8(androidx.compose.runtime.State)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.ComposableSingletons$EmailChipCardKt$lambda-1$1:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipCardKt$EmailChipCard$1$1$1$1$1:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipCardKt$EmailChipCard$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipCardKt$SimpleChipPreview$1:
+    public final void invoke(java.lang.String)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipCardKt$SimpleChipPreview$2:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt$EmailChipTextField$1$1$1:
+    public final java.lang.Boolean invoke()
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt$EmailChipTextField$1$1$2:
+    public final java.lang.Object invoke(boolean,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt$EmailChipTextField$1$1:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt$EmailChipTextField$2$1:
+    public final java.lang.Boolean invoke-ZmokQxo()
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt$EmailChipTextField$2$2$1:
+    public final void invoke(androidx.compose.ui.focus.FocusState)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt$EmailChipTextField$2$3:
+    public final void invoke$21()
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt$EmailChipTextField$3:
+    public final void invoke(androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipTextFieldKt:
+    public static final androidx.compose.ui.text.input.TextFieldValue EmailChipTextField$lambda$2(androidx.compose.runtime.MutableState)
+    public static final void EmailChipTextField$lambda$3()
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipViewKt$EmailChipView$1$1:
+    public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipViewKt$EmailChipView$2:
+    public final void invoke()
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipViewKt$EmailChipView$3$1$1$1$1:
+    public final void invoke(java.lang.String)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipViewKt$EmailChipView$3$1$1:
+    public final void invoke(androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,int)
+org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipViewKt$EmailChipView$4:
+    public final void invoke(androidx.compose.runtime.Composer,int)
 org.permanent.permanent.viewmodels.AccessRolesViewModel:
     public final android.content.Context appContext
     public static void <clinit>()
@@ -42182,7 +42379,6 @@ org.permanent.permanent.viewmodels.ArchivesViewModel:
     public static void <clinit>()
     public static void getDefaultArchive()
     public static void updateCurrentArchive$1()
-org.permanent.permanent.viewmodels.BiometricsViewModel$$InternalSyntheticLambda$1$af53617d5ef38b56601ae0bd3d38b0785e60ae98f22d65c14e1b165776a4672c$0
 org.permanent.permanent.viewmodels.BiometricsViewModel:
     public final org.permanent.permanent.ui.PreferencesHelper prefsHelper
     public static void <clinit>()
@@ -42225,6 +42421,9 @@ org.permanent.permanent.viewmodels.FolderOptionsViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.ForgotPasswordViewModel:
     public static void <clinit>()
+org.permanent.permanent.viewmodels.GiftStorageViewModel:
+    public final android.content.Context appContext
+    public static void <clinit>()
 org.permanent.permanent.viewmodels.IntroViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.InvitationsViewModel:
@@ -42254,7 +42453,6 @@ org.permanent.permanent.viewmodels.LocationSearchViewModel:
     public static void requestLocation()
 org.permanent.permanent.viewmodels.LoginFragmentViewModel:
     public static void <clinit>()
-org.permanent.permanent.viewmodels.MainViewModel$$InternalSyntheticLambda$1$b573bbab07eed63d415491567162b57a73f57e74661d509dcbb57f0d31fe9b89$0
 org.permanent.permanent.viewmodels.MainViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.ManageTagsViewModel$1:
@@ -42270,6 +42468,8 @@ org.permanent.permanent.viewmodels.MilestoneListViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.MyFilesContainerViewModel:
     public static void <clinit>()
+org.permanent.permanent.viewmodels.MyFilesViewModel$$InternalSyntheticLambda$1$4fc15176a3878c2deec5197c51b224cd9560f53b545e9b39dd03a1221c772e02$0
+org.permanent.permanent.viewmodels.MyFilesViewModel$$InternalSyntheticLambda$1$def59cec0ed606796a855f1d747d420f1bc845663d76e7fcfffdd29216f578b9$0
 org.permanent.permanent.viewmodels.MyFilesViewModel$loadEnqueuedDownloads$1$1:
     public final void invoke$24()
 org.permanent.permanent.viewmodels.MyFilesViewModel$loadEnqueuedUploads$1$1:
@@ -42337,6 +42537,10 @@ org.permanent.permanent.viewmodels.RecordSearchViewModel:
     public final java.util.List getRecords()
     public static void requestTagsForCurrentArchive()
     public static void searchAndFilterDebounced()
+org.permanent.permanent.viewmodels.RedeemCodeViewModel:
+    public final android.content.Context appContext
+    public static void <clinit>()
+    public static void setCode()
 org.permanent.permanent.viewmodels.RelocationViewModel$setRelocationMode$1:
     public final java.lang.Object invoke(kotlinx.coroutines.CoroutineScope,kotlin.coroutines.Continuation)
 org.permanent.permanent.viewmodels.RelocationViewModel$waitAndHideActionIsland$1:
@@ -42395,9 +42599,13 @@ org.permanent.permanent.viewmodels.SharesViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.SignUpViewModel:
     public static void <clinit>()
+org.permanent.permanent.viewmodels.SingleLiveEvent$$InternalSyntheticLambda$1$983f45502d662c23603563a22c98821eff56c0064e8d171eef0b5d4163b92316$0
 org.permanent.permanent.viewmodels.SortOptionsViewModel:
     public static void <clinit>()
 org.permanent.permanent.viewmodels.SplashViewModel:
+    public static void <clinit>()
+org.permanent.permanent.viewmodels.StorageMenuViewModel:
+    public final android.content.Context appContext
     public static void <clinit>()
 org.permanent.permanent.viewmodels.TagsEditViewModel:
     public static void <clinit>()
