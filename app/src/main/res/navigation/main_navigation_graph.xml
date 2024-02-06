@@ -11,9 +11,11 @@
         android:label="@string/menu_settings_drawer_archives"
         tools:layout="@layout/fragment_archives">
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://www.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
         <action
@@ -47,6 +49,9 @@
         <action
             android:id="@+id/action_myFilesFragment_to_publicFilesFragment"
             app:destination="@id/publicFilesFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_redeemCodeFragment"
+            app:destination="@id/redeemCodeFragment" />
     </fragment>
 
     <fragment
@@ -71,9 +76,11 @@
             android:defaultValue=""
             app:argType="string" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/share/{url_token}" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://www.permanent.org/share/{url_token}" />
         <action
@@ -146,10 +153,18 @@
     <fragment
         android:id="@+id/redeemCodeFragment"
         android:name="org.permanent.permanent.ui.storage.RedeemCodeFragment"
-        android:label="@string/redeem_code" >
+        android:label="@string/redeem_code">
         <action
             android:id="@+id/action_redeemCodeFragment_to_storageMenuFragment"
             app:destination="@id/storageMenuFragment" />
+        <deepLink
+            android:autoVerify="true"
+            app:action="ACTION_VIEW"
+            app:uri="https://staging.permanent.org/app/(private//dialog:storage/promo)?promoCode={promo_code}" />
+        <deepLink
+            android:autoVerify="true"
+            app:action="ACTION_VIEW"
+            app:uri="https://www.permanent.org/app/(private//dialog:storage/promo)?promoCode={promo_code}" />
     </fragment>
 
     <fragment
@@ -182,21 +197,27 @@
             android:defaultValue=""
             app:argType="string" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/p/archive/{archive_nr}/profile" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://staging.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://www.permanent.org/p/archive/{archive_nr}/profile" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
         <deepLink
+            android:autoVerify="true"
             app:action="ACTION_VIEW"
             app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
         <action
