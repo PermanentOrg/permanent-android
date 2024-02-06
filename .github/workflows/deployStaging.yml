@@ -3,7 +3,7 @@ name: Deploy to Staging
 on:
   workflow_dispatch:
   push:
-    branches: [ "master-disabled" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -44,12 +44,13 @@ jobs:
           PUBLISHABLE_KEY: ${{ secrets.PUBLISHABLE_KEY }}
           APP_ID: ${{ secrets.APP_ID }}
           FIREBASEAPPDISTRO_CLI_TOKEN: ${{ secrets.FIREBASEAPPDISTRO_CLI_TOKEN }}
-          MIXPANEL_KEY: ${{ secrets.MIXPANEL_KEY }}
+          MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
       run: |
         touch local.properties
         echo GMP_KEY="$GMP_KEY" >> local.properties
         echo AUTH_CLIENT_ID="$AUTH_CLIENT_ID" >> local.properties
         echo AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" >> local.properties
         echo PUBLISHABLE_KEY="$PUBLISHABLE_KEY" >> local.properties
+        echo MIXPANEL_TOKEN="$MIXPANEL_TOKEN" >> local.properties
         bundle exec fastlane firebase
       shell: bash

@@ -5,7 +5,7 @@ import com.mixpanel.android.mpmetrics.MixpanelAPI
 import org.json.JSONObject
 
 class EventsManager(context: Context) {
-    private val mp: MixpanelAPI = MixpanelAPI.getInstance(context, BuildConfig.MIXPANEL_KEY, true)
+    private val mp: MixpanelAPI = MixpanelAPI.getInstance(context, BuildConfig.MIXPANEL_TOKEN, true)
 
     fun sendToMixpanel(event: EventType, properties: JSONObject? = null) {
         mp.track(event.value, properties)
