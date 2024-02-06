@@ -49,6 +49,9 @@
         <action
             android:id="@+id/action_myFilesFragment_to_publicFilesFragment"
             app:destination="@id/publicFilesFragment" />
+        <action
+            android:id="@+id/action_myFilesFragment_to_redeemCodeFragment"
+            app:destination="@id/redeemCodeFragment" />
     </fragment>
 
     <fragment
