@@ -96,7 +96,7 @@ fun SettingsMenuScreen(
             )
 
             SettingsMenuItem(
-                painterResource(id = R.drawable.ic_account_cercle_primary),
+                painterResource(id = R.drawable.ic_account_circle_white),
                 stringResource(R.string.account),
             ) { onAccountClick() }
 

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -27,7 +28,7 @@ import org.permanent.permanent.R
 fun SettingsMenuItem(
     iconResource: Painter,
     text: String,
-    textColor: Color = Color(ContextCompat.getColor(LocalContext.current, R.color.colorPrimary)),
+    itemColor: Color = Color(ContextCompat.getColor(LocalContext.current, R.color.colorPrimary)),
     onClick: () -> Unit
 ) {
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
@@ -45,12 +46,13 @@ fun SettingsMenuItem(
         Image(
             painter = iconResource,
             contentDescription = "Next",
+            colorFilter = ColorFilter.tint(itemColor),
             modifier = Modifier.size(26.dp)
         )
         Text(
             text = text,
             fontSize = smallTextSize,
-            color = textColor,
+            color = itemColor,
             fontFamily = semiboldFont
         )
     }
