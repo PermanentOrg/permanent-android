@@ -102,7 +102,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.legacyLoadingFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment -> {
+                R.id.legacyLoadingFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -150,7 +150,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.archiveSettings,
             R.id.manageTagsFragment,
             R.id.membersFragment,
-            R.id.storageMenuFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment,
             R.id.accountFragment,
