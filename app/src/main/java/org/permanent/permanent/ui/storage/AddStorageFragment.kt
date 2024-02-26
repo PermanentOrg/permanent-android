@@ -24,15 +24,15 @@ import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentAddStorageBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.viewmodels.StorageViewModel
-import org.permanent.permanent.viewmodels.StorageViewModel.Companion.DONATION_AMOUNT_10_VALUE
-import org.permanent.permanent.viewmodels.StorageViewModel.Companion.DONATION_AMOUNT_20_VALUE
-import org.permanent.permanent.viewmodels.StorageViewModel.Companion.DONATION_AMOUNT_50_VALUE
+import org.permanent.permanent.viewmodels.AddStorageViewModel
+import org.permanent.permanent.viewmodels.AddStorageViewModel.Companion.DONATION_AMOUNT_10_VALUE
+import org.permanent.permanent.viewmodels.AddStorageViewModel.Companion.DONATION_AMOUNT_20_VALUE
+import org.permanent.permanent.viewmodels.AddStorageViewModel.Companion.DONATION_AMOUNT_50_VALUE
 
 class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListener {
 
     private lateinit var binding: FragmentAddStorageBinding
-    private lateinit var viewModel: StorageViewModel
+    private lateinit var viewModel: AddStorageViewModel
     private lateinit var googlePayLauncher: GooglePayLauncher
     private var isGooglePayReady: Boolean = false
 
@@ -42,7 +42,7 @@ class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListe
         savedInstanceState: Bundle?
     ): View {
         EventsManager(requireContext()).trackPageView(EventPage.Storage)
-        viewModel = ViewModelProvider(this)[StorageViewModel::class.java]
+        viewModel = ViewModelProvider(this)[AddStorageViewModel::class.java]
         binding = FragmentAddStorageBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

@@ -110,7 +110,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onCloseSheetObserver = Observer<Void?> {
+    private val onCloseScreenObserver = Observer<Void?> {
         dismiss()
     }
 
@@ -130,7 +130,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
     override fun connectViewModelEvents() {
         viewModel.getShowAccessRolesDocumentation().observe(this, showAccessRolesDocObserver)
         viewModel.getOnAccessRoleUpdated().observe(this, onAccessRoleUpdatedObserver)
-        viewModel.getOnCloseSheetRequest().observe(this, onCloseSheetObserver)
+        viewModel.getOnCloseScreenRequest().observe(this, onCloseScreenObserver)
         viewModel.getShowSnackbar().observe(this, showSnackbar)
         viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
     }
@@ -138,7 +138,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
     override fun disconnectViewModelEvents() {
         viewModel.getShowAccessRolesDocumentation().removeObserver(showAccessRolesDocObserver)
         viewModel.getOnAccessRoleUpdated().removeObserver(onAccessRoleUpdatedObserver)
-        viewModel.getOnCloseSheetRequest().removeObserver(onCloseSheetObserver)
+        viewModel.getOnCloseScreenRequest().removeObserver(onCloseScreenObserver)
         viewModel.getShowSnackbar().observe(this, showSnackbar)
         viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
     }

@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -29,7 +28,6 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.EventPage
@@ -43,14 +41,13 @@ import org.permanent.permanent.databinding.DialogLegacyPlanningBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.DialogWelcomeBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
-import org.permanent.permanent.databinding.NavSettingsHeaderBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
-import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
+import org.permanent.permanent.ui.settings.SettingsMenuFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
@@ -61,9 +58,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var viewModel: MainViewModel
     lateinit var binding: ActivityMainBinding
     private lateinit var headerMainBinding: NavMainHeaderBinding
-    private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+    private var settingsFragment: SettingsMenuFragment? = null
     private var isSubmenuVisible = false
 
     private val onArchiveSwitched = Observer<Void?> {
@@ -74,12 +71,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         navController.navigateUp()
         navController.navigate(R.id.publicFragment)
         binding.drawerLayout.closeDrawers()
-    }
-
-    private val onLoggedOut = Observer<Void?> {
-        EventsManager(this).resetUser()
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
     }
 
     private val onErrorMessage = Observer<String> { errorMessage ->
@@ -111,7 +102,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.legacyLoadingFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment -> {
+                R.id.legacyLoadingFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -143,13 +134,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         headerMainBinding.lifecycleOwner = this
         headerMainBinding.viewModel = viewModel
 
-        // Right drawer header binding
-        headerSettingsBinding =
-            NavSettingsHeaderBinding.bind(binding.settingsNavigationView.getHeaderView(0))
-        headerSettingsBinding.executePendingBindings()
-        headerSettingsBinding.lifecycleOwner = this
-        headerSettingsBinding.viewModel = viewModel
-
         // NavController setupOnDestinationChangedListener
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
@@ -166,7 +150,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.archiveSettings,
             R.id.manageTagsFragment,
             R.id.membersFragment,
-            R.id.storageMenuFragment,
             R.id.activityFeedFragment,
             R.id.invitationsFragment,
             R.id.accountFragment,
@@ -229,40 +212,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             true
         }
 
-        binding.settingsNavigationView.setupWithNavController(navController)
-        binding.settingsNavigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.storageMenuFragment -> {
-                    val bundle = bundleOf(
-                        SPACE_TOTAL_KEY to viewModel.getSpaceTotal(),
-                        SPACE_LEFT_KEY to viewModel.getSpaceLeft(),
-                        SPACE_USED_PERCENTAGE_KEY to viewModel.getSpaceUsedPercentage().value
-                    )
-                    navController.navigate(R.id.storageMenuFragment, bundle)
-                    binding.drawerLayout.closeDrawers()
-                }
-
-                R.id.contactSupport -> {
-                    binding.drawerLayout.closeDrawers()
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.data = Uri.parse(BuildConfig.HELP_URL)
-                    startActivity(intent)
-                    // Returning 'false' to not remain the item selected on resuming
-                    return@setNavigationItemSelectedListener false
-                }
-
-                R.id.logOut -> {
-                    viewModel.deleteDeviceToken()
-                    EventsManager(this).resetUser()
-                }
-
-                else -> {
-                    menuItem.onNavDestinationSelected(navController)
-                    binding.drawerLayout.closeDrawers()
-                }
-            }
-            true
-        }
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
             }
@@ -271,9 +220,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 if (drawerView.id == binding.mainNavigationView.id) {
                     viewModel.updateCurrentArchiveHeader()
                     EventsManager(applicationContext).trackPageView(EventPage.ArchiveMenu)
-                } else if (drawerView.id == binding.settingsNavigationView.id) {
-                    viewModel.updateUsedStorage()
-                    EventsManager(applicationContext).trackPageView(EventPage.AccountMenu)
                 }
             }
 
@@ -373,7 +319,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         when (menuItem?.itemId) {
             R.id.moreItem, R.id.doneItem -> sendEventToFragment()
             R.id.closeItem -> navController.navigate(R.id.myFilesFragment)
-            else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
+            else -> {
+                settingsFragment = SettingsMenuFragment()
+                settingsFragment?.show(
+                    supportFragmentManager,
+                    settingsFragment?.tag
+                ) // settings item
+                EventsManager(applicationContext).trackPageView(EventPage.AccountMenu)
+            }
         }
         return true
     }
@@ -460,14 +413,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     override fun connectViewModelEvents() {
         viewModel.getOnArchiveSwitched().observe(this, onArchiveSwitched)
         viewModel.getOnViewProfile().observe(this, onViewProfile)
-        viewModel.getOnLoggedOut().observe(this, onLoggedOut)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnArchiveSwitched().removeObserver(onArchiveSwitched)
         viewModel.getOnViewProfile().removeObserver(onViewProfile)
-        viewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 

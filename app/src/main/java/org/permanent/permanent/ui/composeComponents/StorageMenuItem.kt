@@ -26,7 +26,7 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun MenuItem(
+fun StorageMenuItem(
     iconResource: Painter,
     title: String,
     subtitle: String,
@@ -97,7 +97,7 @@ fun MenuItem(
 @Preview
 @Composable
 fun SimpleComposablePreview() {
-    MenuItem(
+    StorageMenuItem(
         iconResource = painterResource(id = R.drawable.ic_plus_primary),
         title = "Add storage!",
         subtitle = "Increase your space easily by adding more storage.",

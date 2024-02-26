@@ -52,17 +52,6 @@
             </LinearLayout>
 
             <com.google.android.material.navigation.NavigationView
-                android:id="@+id/settingsNavigationView"
-                android:layout_width="250dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="end"
-                app:headerLayout="@layout/nav_settings_header"
-                app:itemBackground="@drawable/drawer_selected_background_color"
-                app:itemTextAppearance="@style/customDrawerTextStyle"
-                app:itemTextColor="@drawable/drawer_settings_selected_text_color"
-                app:menu="@menu/menu_settings_drawer" />
-
-            <com.google.android.material.navigation.NavigationView
                 android:id="@+id/mainNavigationView"
                 android:layout_width="250dp"
                 android:layout_height="match_parent"
