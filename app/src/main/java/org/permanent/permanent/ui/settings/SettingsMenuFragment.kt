@@ -20,7 +20,9 @@ import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
+import org.permanent.permanent.ui.legacyPlanning.AddEditLegacyContactFragment.Companion.PARCELABLE_LEGACY_CONTACT_KEY
 import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.settings.compose.PartialScreenLayout
 import org.permanent.permanent.ui.settings.compose.SettingsMenuScreen
 import org.permanent.permanent.viewmodels.SettingsMenuViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -44,41 +46,43 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    SettingsMenuScreen(
-                        viewModel = viewModel,
-                        onCloseScreenClick = { this@SettingsMenuFragment.dismiss() },
-                        onAccountClick = {
-                            findNavController().navigate(R.id.accountFragment)
-                            this@SettingsMenuFragment.dismiss()
-                        },
-                        onStorageClick = {
-                            findNavController().navigate(R.id.storageMenuFragment)
-                            this@SettingsMenuFragment.dismiss()
-                        },
-                        onMyArchivesClick = {
-                            findNavController().navigate(R.id.archivesFragment)
-                            this@SettingsMenuFragment.dismiss()
-                        },
-                        onInvitationsClick = {
-                            findNavController().navigate(R.id.invitationsFragment)
-                            this@SettingsMenuFragment.dismiss()
-                        },
-                        onActivityFeedClick = {
-                            findNavController().navigate(R.id.activityFeedFragment)
-                            this@SettingsMenuFragment.dismiss()
-                        },
-                        onSecurityClick = {
-                            findNavController().navigate(R.id.securityFragment)
-                            this@SettingsMenuFragment.dismiss()
-                        },
-                        onLegacyPlanningClick = {
-                            findNavController().navigate(R.id.legacyLoadingFragment)
-                            this@SettingsMenuFragment.dismiss()
-                        },
-                        onSignOutClick = {
-                            viewModel.deleteDeviceToken()
-                            EventsManager(context).resetUser()
-                        })
+                    PartialScreenLayout() {
+                        SettingsMenuScreen(
+                            viewModel = viewModel,
+                            onCloseScreenClick = { this@SettingsMenuFragment.dismiss() },
+                            onAccountClick = {
+                                findNavController().navigate(R.id.accountFragment)
+                                this@SettingsMenuFragment.dismiss()
+                            },
+                            onStorageClick = {
+                                findNavController().navigate(R.id.storageMenuFragment)
+                                this@SettingsMenuFragment.dismiss()
+                            },
+                            onMyArchivesClick = {
+                                findNavController().navigate(R.id.archivesFragment)
+                                this@SettingsMenuFragment.dismiss()
+                            },
+                            onInvitationsClick = {
+                                findNavController().navigate(R.id.invitationsFragment)
+                                this@SettingsMenuFragment.dismiss()
+                            },
+                            onActivityFeedClick = {
+                                findNavController().navigate(R.id.activityFeedFragment)
+                                this@SettingsMenuFragment.dismiss()
+                            },
+                            onSecurityClick = {
+                                findNavController().navigate(R.id.securityFragment)
+                                this@SettingsMenuFragment.dismiss()
+                            },
+                            onLegacyPlanningClick = {
+                                findNavController().navigate(R.id.legacyLoadingFragment)
+                                this@SettingsMenuFragment.dismiss()
+                            },
+                            onSignOutClick = {
+                                viewModel.deleteDeviceToken()
+                                EventsManager(context).resetUser()
+                            })
+                    }
                 }
             }
         }
