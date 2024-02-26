@@ -98,17 +98,16 @@
     <string name="menu_toolbar_more">More</string>
     <string name="menu_toolbar_public_add">Add</string>
 
-    <string name="menu_settings_drawer_storage">Storage</string>
-    <string name="menu_settings_drawer_gift_storage">Gift Storage</string>
-    <string name="menu_settings_drawer_account">Account</string>
-    <string name="menu_settings_drawer_legacy_planning">Legacy Planning</string>
-    <string name="menu_settings_drawer_activity_feed">Activity Feed</string>
-    <string name="menu_settings_drawer_archives">Archives</string>
-    <string name="menu_settings_drawer_invitations">Invitations</string>
-    <string name="menu_settings_drawer_security">Security</string>
-    <string name="menu_settings_drawer_logout">Log Out</string>
-    <string name="menu_settings_drawer_contact_support">Contact Support</string>
-    <string name="menu_settings_drawer_help">Help</string>
+    <string name="account">Account</string>
+    <string name="storage">Storage</string>
+    <string name="my_archives">My Archives</string>
+    <string name="invitations">Invitations</string>
+    <string name="activity_feed">Activity feed</string>
+    <string name="security">Security</string>
+    <string name="legacy_planning">Legacy planning</string>
+    <string name="gift_storage">Gift storage</string>
+    <string name="contact_support">Contact support</string>
+    <string name="sign_out">Sign out</string>
 
     <string name="main_navigation_title_archives">Archives</string>
     <string name="main_navigation_title_my_files">My Files</string>
@@ -629,7 +628,6 @@
 
     <string name="add_storage">Add storage</string>
     <string name="add_storage_description">Increase your space easily by adding more storage.</string>
-    <string name="gift_storage">Gift storage</string>
     <string name="gift_storage_description">Share storage with others by gifting it to friends or collaborators.</string>
     <string name="redeem">Redeem</string>
     <string name="redeem_code">Redeem code</string>

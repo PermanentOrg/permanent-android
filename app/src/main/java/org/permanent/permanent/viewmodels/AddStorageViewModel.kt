@@ -13,7 +13,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
 
-class StorageViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class AddStorageViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(

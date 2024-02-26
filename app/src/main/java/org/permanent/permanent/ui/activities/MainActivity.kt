@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -51,6 +50,7 @@ import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
+import org.permanent.permanent.ui.settings.SettingsMenuFragment
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
 
@@ -64,6 +64,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var headerSettingsBinding: NavSettingsHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+    private var settingsFragment: SettingsMenuFragment? = null
     private var isSubmenuVisible = false
 
     private val onArchiveSwitched = Observer<Void?> {
@@ -373,7 +374,14 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         when (menuItem?.itemId) {
             R.id.moreItem, R.id.doneItem -> sendEventToFragment()
             R.id.closeItem -> navController.navigate(R.id.myFilesFragment)
-            else -> binding.drawerLayout.openDrawer(GravityCompat.END) // settings item
+            else -> {
+                settingsFragment = SettingsMenuFragment()
+                settingsFragment?.show(
+                    supportFragmentManager,
+                    settingsFragment?.tag
+                ) // settings item
+            }
+//            else -> binding.drawerLayout.openDrawer(GravityCompat.END)
         }
         return true
     }

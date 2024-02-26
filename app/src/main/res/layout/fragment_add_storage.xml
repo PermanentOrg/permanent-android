@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.StorageViewModel" />
+            type="org.permanent.permanent.viewmodels.AddStorageViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

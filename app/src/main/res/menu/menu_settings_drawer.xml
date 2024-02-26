@@ -6,38 +6,38 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/storageMenuFragment"
-            android:title="@string/menu_settings_drawer_storage" />
+            android:title="@string/storage" />
 
         <item
             android:id="@+id/accountFragment"
-            android:title="@string/menu_settings_drawer_account" />
+            android:title="@string/account" />
 
         <item
             android:id="@+id/legacyLoadingFragment"
-            android:title="@string/menu_settings_drawer_legacy_planning" />
+            android:title="@string/legacy_planning" />
 
         <item
             android:id="@+id/activityFeedFragment"
-            android:title="@string/menu_settings_drawer_activity_feed" />
+            android:title="@string/activity_feed" />
 
         <item
             android:id="@+id/archivesFragment"
-            android:title="@string/menu_settings_drawer_archives" />
+            android:title="@string/my_archives" />
 
         <item
             android:id="@+id/invitationsFragment"
-            android:title="@string/menu_settings_drawer_invitations" />
+            android:title="@string/invitations" />
 
         <item
             android:id="@+id/securityFragment"
-            android:title="@string/menu_settings_drawer_security" />
+            android:title="@string/security" />
 
         <item
             android:id="@+id/contactSupport"
-            android:title="@string/menu_settings_drawer_contact_support" />
+            android:title="@string/contact_support" />
 
         <item
             android:id="@+id/logOut"
-            android:title="@string/menu_settings_drawer_logout" />
+            android:title="@string/sign_out" />
     </group>
 </menu>
