@@ -36,6 +36,7 @@ import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.SettingsMenuItem
 import org.permanent.permanent.ui.composeComponents.StorageCard
+import org.permanent.permanent.ui.composeComponents.StorageCardStyle
 import org.permanent.permanent.viewmodels.SettingsMenuViewModel
 
 @Composable
@@ -92,7 +93,7 @@ fun SettingsMenuScreen(
                 spaceUsedBytes,
                 spaceTotalBytes,
                 spaceUsedPercentage,
-                true
+                StorageCardStyle.LIGHT
             )
 
             SettingsMenuItem(

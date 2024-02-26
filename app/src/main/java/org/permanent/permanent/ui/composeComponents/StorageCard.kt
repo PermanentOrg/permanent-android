@@ -32,7 +32,7 @@ fun StorageCard(
     spaceUsedBytes: Long,
     spaceTotalBytes: Long,
     spaceUsedPercentage: Int,
-    backgroundWhite: Boolean = false
+    style: StorageCardStyle = StorageCardStyle.COLORFUL
 ) {
     val context = LocalContext.current
 
@@ -50,7 +50,7 @@ fun StorageCard(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .background(
-                brush = if (backgroundWhite) Brush.horizontalGradient(
+                brush = if (style == StorageCardStyle.LIGHT) Brush.horizontalGradient(
                     colors = listOf(
                         whiteColor,
                         whiteColor
@@ -73,14 +73,14 @@ fun StorageCard(
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                 text = bytesToCustomHumanReadableString(spaceUsedBytes, true) + " used",
                 fontSize = superSmallTextSize,
-                color = if (backgroundWhite) blackColor else whiteColor,
+                color = if (style == StorageCardStyle.LIGHT) blackColor else whiteColor,
                 fontFamily = semiboldFont
             )
             Text(
                 modifier = Modifier.padding(top = 16.dp, end = 16.dp),
                 text = bytesToCustomHumanReadableString(spaceTotalBytes, false) + "",
                 fontSize = superSmallTextSize,
-                color = if (backgroundWhite) blackColor else whiteColor,
+                color = if (style == StorageCardStyle.LIGHT) blackColor else whiteColor,
                 fontFamily = semiboldFont
             )
         }
@@ -93,8 +93,8 @@ fun StorageCard(
                     .clip(shape = RoundedCornerShape(3.dp))
                     .height(8.dp),
                 336.dp,
-                if (backgroundWhite) lightBlueColor else whiteTransparentColor,
-                if (backgroundWhite) Brush.horizontalGradient(
+                if (style == StorageCardStyle.LIGHT) lightBlueColor else whiteTransparentColor,
+                if (style == StorageCardStyle.LIGHT) Brush.horizontalGradient(
                     listOf(
                         purpleColor,
                         accentColor
@@ -121,4 +121,9 @@ fun CustomProgressIndicator(
                 .width(width * percent / 100)
         )
     }
+}
+
+enum class StorageCardStyle {
+    LIGHT,
+    COLORFUL
 }
