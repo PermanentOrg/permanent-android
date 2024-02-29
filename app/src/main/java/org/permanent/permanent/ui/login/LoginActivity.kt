@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.login
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
@@ -15,6 +16,14 @@ class LoginActivity : PermanentBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Setup orientation
+        requestedOrientation = if (resources.getBoolean(R.bool.is_tablet)) {
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.activities
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -14,6 +15,14 @@ class UpdateAppActivity : PermanentBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Setup orientation
+        requestedOrientation = if (resources.getBoolean(R.bool.is_tablet)) {
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_update_app)
         binding.btnUpdate.setOnClickListener {
             try {

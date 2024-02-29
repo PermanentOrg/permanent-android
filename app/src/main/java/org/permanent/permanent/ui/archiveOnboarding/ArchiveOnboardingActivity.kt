@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.archiveOnboarding
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
@@ -29,6 +30,14 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Setup orientation
+        requestedOrientation = if (resources.getBoolean(R.bool.is_tablet)) {
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_archive_onboarding)
         viewModel = ViewModelProvider(this)[ArchiveOnboardingViewModel::class.java]
         binding.executePendingBindings()

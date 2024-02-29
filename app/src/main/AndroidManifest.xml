@@ -64,7 +64,8 @@
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
+            android:screenOrientation="@string/screen_orientation"
+            android:resizeableActivity="false"
             android:windowSoftInputMode="adjustPan">
             <nav-graph android:value="@navigation/main_navigation_graph" />
 
@@ -81,6 +82,7 @@
         </activity>
         <activity
             android:name=".ui.fileView.FileActivity"
+            android:resizeableActivity="false"
             android:exported="false">
             <nav-graph android:value="@navigation/file_navigation_graph" />
         </activity>
@@ -89,26 +91,31 @@
             android:configChanges="orientation|keyboardHidden"
             android:exported="false"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="@string/screen_orientation"
+            android:resizeableActivity="false"/>
         <activity
             android:name=".ui.onboarding.OnboardingActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="@string/screen_orientation"
+            android:resizeableActivity="false"/>
         <activity
             android:name=".ui.archiveOnboarding.ArchiveOnboardingActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
+            android:screenOrientation="@string/screen_orientation"
+            android:resizeableActivity="false"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activities.UpdateAppActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="@string/screen_orientation"
+            android:resizeableActivity="false"/>
         <activity
             android:name=".ui.activities.SplashActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="@string/screen_orientation"
+            android:resizeableActivity="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -3,6 +3,7 @@ package org.permanent.permanent.ui.activities
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -120,8 +121,17 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Setup orientation
+        requestedOrientation = if (resources.getBoolean(R.bool.is_tablet)) {
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+
         // MainActivity binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
@@ -159,6 +169,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
+
         // Toolbar Settings menu click listener
         binding.toolbar.setOnMenuItemClickListener(this)
 
