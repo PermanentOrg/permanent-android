@@ -46,6 +46,7 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
+import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.settings.SettingsMenuFragment
@@ -130,9 +131,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         }
 
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
+        prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
 
         // MainActivity binding
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

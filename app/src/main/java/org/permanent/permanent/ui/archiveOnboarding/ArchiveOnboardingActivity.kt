@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.archiveOnboarding
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Typeface
@@ -20,6 +19,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
+import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 class ArchiveOnboardingActivity : PermanentBaseActivity() {
@@ -38,13 +38,16 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
+        val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
+        prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_archive_onboarding)
         viewModel = ViewModelProvider(this)[ArchiveOnboardingViewModel::class.java]
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
         setSupportActionBar(binding.toolbar)
     }
 

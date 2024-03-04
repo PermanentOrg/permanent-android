@@ -2,7 +2,6 @@ package org.permanent.permanent.ui.activities
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -20,6 +19,7 @@ import org.permanent.permanent.databinding.ActivitySplashBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
+import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
@@ -37,11 +37,7 @@ class SplashActivity : PermanentBaseActivity() {
 
         startLoginActivity()
 
-        Toast.makeText(
-            this,
-            it,
-            Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,13 +50,17 @@ class SplashActivity : PermanentBaseActivity() {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
+        val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
+        prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash)
         viewModel = ViewModelProvider(this)[SplashViewModel::class.java]
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
         createNotificationChannel()
-        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
         // Clear deep links that weren't consumed
         prefsHelper.saveShareLinkUrlToken("")

@@ -10,19 +10,27 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
+import org.permanent.permanent.ui.computeWindowSizeClasses
 
 class FileActivity : PermanentBaseActivity() {
 
     private lateinit var binding: ActivityFileBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+    private lateinit var prefsHelper: PreferencesHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_file)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
+
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
+        val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
+        prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
 
         // ActionBar & appBarConfig setup
         setSupportActionBar(binding.fileToolbar)

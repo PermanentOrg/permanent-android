@@ -13,7 +13,9 @@ import org.permanent.permanent.R
 import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityOnboardingBinding
 import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
+import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.viewmodels.OnboardingViewModel
 
@@ -24,6 +26,7 @@ class OnboardingActivity : PermanentBaseActivity() {
     private lateinit var viewModel: OnboardingViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
+    private lateinit var prefsHelper: PreferencesHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +37,10 @@ class OnboardingActivity : PermanentBaseActivity() {
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
+        val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
+        prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_onboarding)
         viewModel = ViewModelProvider(this)[OnboardingViewModel::class.java]
