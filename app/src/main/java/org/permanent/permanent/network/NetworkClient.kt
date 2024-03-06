@@ -740,6 +740,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun sendGift(gift: StorageGift): Call<StorageGift> =
         billingService.send(gift)
 
+    fun redeemGiftCode(code: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addPromo(code))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return storageService.redeemGiftCode(requestBody)
+    }
+
     fun getPaymentIntent(
         accountId: Int,
         accountEmail: String?,

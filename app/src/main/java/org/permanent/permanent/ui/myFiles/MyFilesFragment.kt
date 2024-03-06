@@ -46,6 +46,7 @@ import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
+import org.permanent.permanent.ui.storage.RedeemCodeFragment
 import org.permanent.permanent.viewmodels.MyFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -110,6 +111,13 @@ class MyFilesFragment : PermanentBaseFragment() {
                 navigateToArchivesFragment()
                 // marking it consumed
                 prefsHelper.saveShowArchivesDeepLink(false)
+            } else if (prefsHelper.showRedeemCodeScreen()) {
+                // click on redeem code link wasn't consumed
+                val bundle = bundleOf(RedeemCodeFragment.DEEPLINK_PROMO_CODE_KEY to prefsHelper.getPromoCode())
+                findNavController().navigate(R.id.action_myFilesFragment_to_redeemCodeFragment, bundle)
+                // marking it consumed
+                prefsHelper.saveShowRedeemCodeDeepLink(false)
+                prefsHelper.savePromoCodeFromDeepLink("")
             } else {
                 binding.executePendingBindings()
                 binding.lifecycleOwner = this

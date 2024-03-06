@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.compose.legacyPlanning.IntroScreen
+import org.permanent.permanent.ui.legacyPlanning.compose.IntroScreen
 import org.permanent.permanent.viewmodels.IntroViewModel
 
 class IntroFragment : PermanentBaseFragment() {

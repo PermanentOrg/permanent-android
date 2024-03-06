@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="org.permanent.permanent.viewmodels.AddStorageViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/superLightBlue">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/open_sans_bold"
+            android:text="@string/storage_title"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/open_sans_semibold"
+            android:letterSpacing="-0.01"
+            android:text="@string/storage_description"
+            android:textColor="@color/colorPrimary"
+            android:textSize="19sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <TextView
+            android:id="@+id/tvChooseAmountLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:text="@string/storage_choose_amount"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tlAmount"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:elevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvChooseAmountLabel"
+            app:tabBackground="@drawable/storage_tab_background_color"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="@color/colorAccentDark"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextAppearance="@style/storageTabTextStyle"
+            app:tabTextColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tvCustomAmountLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:text="@string/storage_enter_custom_amount"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tlAmount" />
+
+        <TextView
+            android:id="@+id/tvCurrencyLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:elevation="2dp"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:text="@string/storage_dollar_sign"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/etCustomAmount"
+            app:layout_constraintStart_toStartOf="@+id/etCustomAmount"
+            app:layout_constraintTop_toTopOf="@+id/etCustomAmount" />
+
+        <EditText
+            android:id="@+id/etCustomAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:afterTextChanged="@{(editable)->viewModel.onAmountTextChanged(editable)}"
+            android:background="@drawable/rounded_grey_border_white_background"
+            android:fontFamily="@font/open_sans"
+            android:inputType="number"
+            android:letterSpacing="-0.01"
+            android:padding="8dp"
+            android:paddingStart="16dp"
+            android:text="@{viewModel.amount}"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvCustomAmountLabel" />
+
+        <TextView
+            android:id="@+id/tvCustomAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:text="@{viewModel.gbEndowed}"
+            android:textColor="@color/colorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/etCustomAmount"
+            app:layout_constraintEnd_toEndOf="@+id/etCustomAmount"
+            app:layout_constraintTop_toTopOf="@+id/etCustomAmount" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEndow"
+            style="@style/customButtonBottomSheetStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/open_sans"
+            android:insetTop="3dp"
+            android:insetBottom="3dp"
+            android:letterSpacing="-0.01"
+            android:paddingEnd="80dp"
+            android:text="@string/button_endow_with"
+            android:textSize="16sp"
+            android:backgroundTint="@color/black"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etCustomAmount" />
+
+        <ImageView
+            android:id="@+id/ivGooglePay"
+            android:layout_width="80dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="80dp"
+            android:elevation="2dp"
+            android:src="@drawable/ic_google_pay_mark"
+            app:layout_constraintBottom_toBottomOf="@+id/btnEndow"
+            app:layout_constraintEnd_toEndOf="@+id/btnEndow"
+            app:layout_constraintStart_toStartOf="@+id/btnEndow"
+            app:layout_constraintTop_toTopOf="@+id/btnEndow" />
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimary"
+            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.33" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

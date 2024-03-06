@@ -22,6 +22,7 @@ import org.permanent.permanent.network.models.FolderVO
 import org.permanent.permanent.network.models.InviteVO
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.Profile_itemVO
+import org.permanent.permanent.network.models.PromoVO
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.RequestVO
 import org.permanent.permanent.network.models.SearchVO
@@ -524,6 +525,13 @@ class RequestContainer {
             }
         }
 
+        return this
+    }
+
+    fun addPromo(code: String?): RequestContainer {
+        val promoVO = PromoVO()
+        promoVO.code = code
+        RequestVO.data?.get(0)?.PromoVO = promoVO
         return this
     }
 }

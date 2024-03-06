@@ -5,15 +5,11 @@ import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ResponseVO
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class NotificationRepositoryImpl(val context: Context): INotificationRepository {
-    private val prefsHelper = PreferencesHelper(
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     override fun getNotifications(listener: IDataListener) {
         NetworkClient.instance().getNotifications().enqueue(object : Callback<ResponseVO> {

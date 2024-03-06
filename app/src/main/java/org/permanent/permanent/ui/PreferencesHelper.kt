@@ -16,6 +16,8 @@ const val IS_LEGACY_SEEN = "is_legacy_seen"
 const val IS_ARCHIVE_ONBOARDING_DEFAULT_FLOW = "is_archive_onboarding_default_flow"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val SHOW_ARCHIVES_SCREEN = "should_show_archives_screen"
+const val SHOW_REDEEM_CODE_SCREEN = "should_redeem_code_screen"
+const val PROMO_CODE = "promo_code"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_ID = "preferences_public_record_folder_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_LINK_ID = "preferences_public_record_folder_link_id"
@@ -415,5 +417,27 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun showArchivesScreen(): Boolean {
         return sharedPreferences.getBoolean(SHOW_ARCHIVES_SCREEN, false)
+    }
+
+    fun saveShowRedeemCodeDeepLink(shouldShow: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(SHOW_REDEEM_CODE_SCREEN, shouldShow)
+            apply()
+        }
+    }
+
+    fun showRedeemCodeScreen(): Boolean {
+        return sharedPreferences.getBoolean(SHOW_REDEEM_CODE_SCREEN, false)
+    }
+
+    fun savePromoCodeFromDeepLink(code: String) {
+        with(sharedPreferences.edit()) {
+            putString(PROMO_CODE, code)
+            apply()
+        }
+    }
+
+    fun getPromoCode(): String? {
+        return sharedPreferences.getString(PROMO_CODE, "")
     }
 }

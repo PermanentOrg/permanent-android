@@ -24,7 +24,7 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val showAccessRolesDocumentation = SingleLiveEvent<Void?>()
-    private val onCloseSheetRequest = SingleLiveEvent<Void?>()
+    private val onCloseScreenRequest = SingleLiveEvent<Void?>()
     private val onAccessRoleUpdated = SingleLiveEvent<AccessRole?>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
 
@@ -58,7 +58,7 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
     }
 
     fun onCancelBtnClick() {
-        onCloseSheetRequest.call()
+        onCloseScreenRequest.call()
     }
 
     fun onUpdateRoleBtnClick() {
@@ -150,7 +150,7 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
 
     fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
 
-    fun getOnCloseSheetRequest(): SingleLiveEvent<Void?> = onCloseSheetRequest
+    fun getOnCloseScreenRequest(): SingleLiveEvent<Void?> = onCloseScreenRequest
 
     fun getShowAccessRolesDocumentation(): SingleLiveEvent<Void?> = showAccessRolesDocumentation
 }

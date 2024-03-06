@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -32,11 +33,17 @@ class SplashActivity : PermanentBaseActivity() {
     private lateinit var viewModel: SplashViewModel
 
     private val errorObserver = Observer<String> {
-        val snackBar = Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG)
-        val view: View = snackBar.view
-        view.setBackgroundColor(ContextCompat.getColor(this, R.color.deepRed))
-        snackBar.setTextColor(ContextCompat.getColor(this, R.color.white))
-        snackBar.show()
+        prefsHelper.saveUserLoggedIn(false)
+        prefsHelper.saveDefaultArchiveId(0)
+        prefsHelper.saveBiometricsLogIn(true) // Setting back to default
+
+        startLoginActivity()
+
+        Toast.makeText(
+            this,
+            it,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
