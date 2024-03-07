@@ -128,7 +128,7 @@ fun SettingsMenuScreen(
             ) { onSecurityClick() }
 
             SettingsMenuItem(
-                painterResource(id = R.drawable.ice_legacy_plannning_empty_primary),
+                painterResource(id = R.drawable.ic_legacy_plannning_empty_primary),
                 stringResource(R.string.legacy_planning),
             ) { onLegacyPlanningClick() }
 

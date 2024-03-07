@@ -9,6 +9,8 @@ import android.os.IBinder
 import android.provider.OpenableColumns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.layout.WindowMetricsCalculator
 import net.openid.appauth.*
 import java.io.File
 import java.io.FileOutputStream
@@ -39,9 +41,17 @@ fun Context.assetSize(resourceUri: Uri): Long {
     }
 }
 
-fun gbToBytes(gb: Int): Long = gb.toLong()*1024*1024*1024
+fun Activity.computeWindowSizeClasses(): WindowSizeClass {
+    val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+    val width = metrics.bounds.width()
+    val height = metrics.bounds.height()
+    val density = resources.displayMetrics.density
+    return WindowSizeClass.compute(width / density, height / density)
+}
 
-fun mbToBytes(mb: Int): Long = mb.toLong()*1024*1024
+fun gbToBytes(gb: Int): Long = gb.toLong() * 1024 * 1024 * 1024
+
+fun mbToBytes(mb: Int): Long = mb.toLong() * 1024 * 1024
 
 fun bytesToHumanReadableString(bytes: Long): String {
     val unit = 1024.0
