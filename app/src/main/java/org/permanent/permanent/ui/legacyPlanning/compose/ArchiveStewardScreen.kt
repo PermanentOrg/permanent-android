@@ -1,5 +1,4 @@
 package org.permanent.permanent.ui.legacyPlanning.compose
-import DesignateContactOrStewardScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

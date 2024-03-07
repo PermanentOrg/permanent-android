@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/org/permanent/permanent/ui/compose/legacyPlanning/DesignateContactOrStewardScreen.kt
-package org.permanent.permanent.ui.compose.legacyPlanning
-========
 package org.permanent.permanent.ui.legacyPlanning.compose
->>>>>>>> master:app/src/main/java/org/permanent/permanent/ui/legacyPlanning/compose/DesignateLegacyContactScreen.kt
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

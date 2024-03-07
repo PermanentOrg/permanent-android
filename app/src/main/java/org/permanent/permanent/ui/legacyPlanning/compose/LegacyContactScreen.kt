@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.legacyPlanning.compose
 
-import DesignateContactOrStewardScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
