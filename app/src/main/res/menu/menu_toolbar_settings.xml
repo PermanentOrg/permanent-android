@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/settingsItem"
-        android:icon="@drawable/ic_account_circle_white"
+        android:icon="@drawable/ic_account_circle_white_larger"
         android:title="@string/menu_toolbar_settings"
         app:showAsAction="always"
         />
