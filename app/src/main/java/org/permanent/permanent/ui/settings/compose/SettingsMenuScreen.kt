@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -39,6 +40,7 @@ import org.permanent.permanent.ui.composeComponents.SettingsMenuItem
 import org.permanent.permanent.ui.composeComponents.StorageCard
 import org.permanent.permanent.ui.composeComponents.StorageCardStyle
 import org.permanent.permanent.viewmodels.SettingsMenuViewModel
+
 
 @Composable
 fun SettingsMenuScreen(
@@ -185,7 +187,9 @@ private fun Header(
                     text = accountName,
                     color = blue900Color,
                     fontFamily = semiboldFont,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
@@ -194,7 +198,9 @@ private fun Header(
                     text = accountEmail,
                     color = blue900Color,
                     fontFamily = regularFont,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

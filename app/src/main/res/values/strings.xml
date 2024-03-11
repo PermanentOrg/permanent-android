@@ -103,9 +103,9 @@
     <string name="storage">Storage</string>
     <string name="my_archives">My Archives</string>
     <string name="invitations">Invitations</string>
-    <string name="activity_feed">Activity feed</string>
+    <string name="activity_feed">Activity Feed</string>
     <string name="security">Security</string>
-    <string name="legacy_planning">Legacy planning</string>
+    <string name="legacy_planning">Legacy Planning</string>
     <string name="gift_storage">Gift storage</string>
     <string name="contact_support">Contact support</string>
     <string name="sign_out">Sign out</string>
