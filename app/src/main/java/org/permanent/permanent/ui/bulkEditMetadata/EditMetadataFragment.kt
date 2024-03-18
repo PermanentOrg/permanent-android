@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.compose.bulkEditMetadata.EditMetadataScreen
+import org.permanent.permanent.ui.bulkEditMetadata.compose.EditMetadataScreen
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.viewmodels.EditMetadataViewModel
 
@@ -37,13 +37,27 @@ class EditMetadataFragment : PermanentBaseFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    EditMetadataScreen(viewModel) {
-                        newTagFragment = NewTagFragment()
-                        newTagFragment?.show(parentFragmentManager, newTagFragment?.tag)
-                        newTagFragment?.setBundleArguments(records, it)
-                        newTagFragment?.getOnTagsAddedToSelection()
-                            ?.observe(lifecycleOwner, onTagsAddedToSelectionObserver)
-                    }
+                    EditMetadataScreen(
+                        viewModel = viewModel,
+                        openNewTagScreen = {
+                            newTagFragment = NewTagFragment()
+                            newTagFragment?.show(parentFragmentManager, newTagFragment?.tag)
+                            newTagFragment?.setBundleArguments(records, it)
+                            newTagFragment?.getOnTagsAddedToSelection()
+                                ?.observe(lifecycleOwner, onTagsAddedToSelectionObserver)
+                        },
+                        openEditFileNamesScreen = {
+                            var fragment = EditFileNamesFragment()
+                            fragment?.show(parentFragmentManager, fragment?.tag)
+//                            fragment?.setBundleArguments(records, it)
+                        },
+                        openDateAndTimeScreen = {
+
+                        },
+                        openLocationScreen = {
+
+                        }
+                    )
                 }
             }
         }
