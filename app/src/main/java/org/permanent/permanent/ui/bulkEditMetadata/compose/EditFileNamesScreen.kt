@@ -13,6 +13,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,14 +27,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
+import org.permanent.permanent.viewmodels.EditFileNamesViewModel
 
 @Composable
-fun EditFileNamesScreen() {
+fun EditFileNamesScreen(
+    viewModel: EditFileNamesViewModel
+) {
     val options = listOf(
         EditFilesOptions.REPLACE,
         EditFilesOptions.APPEND,
@@ -45,6 +48,8 @@ fun EditFileNamesScreen() {
     val superLightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
+
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
     ) {
@@ -113,7 +118,10 @@ fun EditFileNamesScreen() {
 
             // Conditional Content based on selectedOption
             when (options[selectedIndex].title) {
-                "Replace" -> ReplaceFileNamesScreen()
+                "Replace" -> ReplaceFileNamesScreen(
+                    uiState,
+                    replace = viewModel::replace
+                )
                 "Append" -> AppendContent()
                 "Sequence" -> PrependContent()
             }
@@ -132,9 +140,9 @@ fun AppendContent() { /* ... */ }
 
 @Composable
 fun PrependContent() { /* ... */ }
-
-@Preview
-@Composable
-fun SimpleComposablePreview() {
-    EditFileNamesScreen()
-}
+//
+//@Preview
+//@Composable
+//fun SimpleComposablePreview() {
+//    EditFileNamesScreen(viewModel = EditFileNamesViewModel())
+//}

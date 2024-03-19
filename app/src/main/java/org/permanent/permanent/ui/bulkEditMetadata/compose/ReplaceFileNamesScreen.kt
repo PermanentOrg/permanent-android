@@ -26,14 +26,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
+import org.permanent.permanent.viewmodels.EditFileNamesUIState
 
 @Composable
-fun ReplaceFileNamesScreen() {
+fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
+                           replace: (String, String) -> Unit) {
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     var findText by remember { mutableStateOf("") }
@@ -65,7 +66,10 @@ fun ReplaceFileNamesScreen() {
             ) {
                 BasicTextField(
                     value = findText,
-                    onValueChange = { findText = it },
+                    onValueChange = {
+                        findText = it
+                        replace(findText, replaceText)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp), // Make TextField fill parent's width
@@ -97,8 +101,11 @@ fun ReplaceFileNamesScreen() {
                 contentAlignment = Alignment.CenterStart,
             ) {
                 BasicTextField(
-                    value = findText,
-                    onValueChange = { findText = it },
+                    value = replaceText,
+                    onValueChange = {
+                        replaceText = it
+                        replace(findText, replaceText)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp), // Make TextField fill parent's width
@@ -113,12 +120,12 @@ fun ReplaceFileNamesScreen() {
             }
         }
         Spacer(modifier = Modifier.weight(1.0f))
-        EditFileNamesFooter()
+        EditFileNamesFooter(uiState)
     }
 }
 
-@Preview
-@Composable
-fun ReplaceFileNamesPreview() {
-    ReplaceFileNamesScreen()
-}
+//@Preview
+//@Composable
+//fun ReplaceFileNamesPreview() {
+//    ReplaceFileNamesScreen()
+//}

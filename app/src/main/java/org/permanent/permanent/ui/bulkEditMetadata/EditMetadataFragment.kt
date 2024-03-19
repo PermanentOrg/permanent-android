@@ -48,8 +48,8 @@ class EditMetadataFragment : PermanentBaseFragment() {
                         },
                         openEditFileNamesScreen = {
                             var fragment = EditFileNamesFragment()
+                            fragment?.setBundleArguments(records)
                             fragment?.show(parentFragmentManager, fragment?.tag)
-//                            fragment?.setBundleArguments(records, it)
                         },
                         openDateAndTimeScreen = {
 
