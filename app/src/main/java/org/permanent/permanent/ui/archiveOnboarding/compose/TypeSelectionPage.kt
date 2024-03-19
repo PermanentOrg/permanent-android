@@ -12,14 +12,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun TypeSelectionPage(horizontalPaddingDp: Dp) {
+fun TypeSelectionPage() {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
@@ -27,7 +26,7 @@ fun TypeSelectionPage(horizontalPaddingDp: Dp) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = horizontalPaddingDp),
+            .padding(vertical = 32.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Text(
