@@ -37,11 +37,18 @@ platform :android do
       increment_version_code({ version_code: latest_release[:buildVersion].to_i + 1 })
     end
     
-    gradle(task: "clean bundleStagingRelease")
-
+    gradle(
+      task: "assembleStagingRelease",
+      properties: {
+        "android.injected.signing.store.file" => ENV['KEYSTORE_FILE'],
+        "android.injected.signing.store.password" => ENV['KEYSTORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEYSTORE_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEYSTORE_PASSWORD'],
+      })
+    
     firebase_app_distribution(
       app: ENV['APP_ID'],
-      android_artifact_type: "AAB",
+      android_artifact_type: "APK",
       firebase_cli_token: ENV['FIREBASEAPPDISTRO_CLI_TOKEN'],
       groups: "Android"
       )
