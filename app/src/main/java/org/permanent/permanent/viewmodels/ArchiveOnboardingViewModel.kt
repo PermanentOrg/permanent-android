@@ -39,6 +39,7 @@ class ArchiveOnboardingViewModel(application: Application) :
     private val showMessage = SingleLiveEvent<String>()
     private val showError = SingleLiveEvent<String>()
     private var accountName = MutableLiveData("")
+    private var isTablet = false
     private val isArchiveSelected = MutableLiveData(false)
     private val selectedArchiveType = MutableLiveData<ArchiveType>()
     private val selectedArchiveTypeTitle = MutableLiveData<String>()
@@ -61,6 +62,7 @@ class ArchiveOnboardingViewModel(application: Application) :
 
     init {
         accountName.value = prefsHelper.getAccountName()
+        isTablet = prefsHelper.isTablet()
         getPendingArchives()
     }
 
@@ -296,6 +298,7 @@ class ArchiveOnboardingViewModel(application: Application) :
     fun getShowMessage(): LiveData<String> = showMessage
     fun getShowError(): LiveData<String> = showError
     fun getAccountName() = accountName
+    fun isTablet() = isTablet
     fun getCurrentPage(): MutableLiveData<OnboardingPage> = currentPage
     fun getIsArchiveSelected(): MutableLiveData<Boolean> = isArchiveSelected
     fun getSelectedArchiveType(): MutableLiveData<ArchiveType> = selectedArchiveType

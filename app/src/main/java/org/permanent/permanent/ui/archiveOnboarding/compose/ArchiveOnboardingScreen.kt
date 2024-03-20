@@ -36,11 +36,15 @@ fun ArchiveOnboardingScreen(
     viewModel: ArchiveOnboardingViewModel
 ) {
     val context = LocalContext.current
-    val horizontalPaddingDp = 32.dp
-    val spacerPaddingDp = 8.dp
     val blue900Color = Color(ContextCompat.getColor(context, R.color.blue900))
     val blueLighterColor = Color(ContextCompat.getColor(context, R.color.blueLighter))
     val pagerState = rememberPagerState(initialPage = 0)
+    val isTablet = viewModel.isTablet()
+
+    val horizontalPaddingDp = if (isTablet) 64.dp else 32.dp
+    val topPaddingDp = if (isTablet) 32.dp else 24.dp
+    val spacerPaddingDp = if (isTablet) 32.dp else 8.dp
+    val progressIndicatorHeight = if (isTablet) 4.dp else 2.dp
 
     Box(
         modifier = Modifier
@@ -48,8 +52,7 @@ fun ArchiveOnboardingScreen(
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        blue900Color,
-                        blueLighterColor
+                        blue900Color, blueLighterColor
                     )
                 )
             )
@@ -57,40 +60,37 @@ fun ArchiveOnboardingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = horizontalPaddingDp, vertical = 24.dp),
-            verticalArrangement = Arrangement.Top
+                .padding(
+                    start = horizontalPaddingDp, end = horizontalPaddingDp, top = topPaddingDp
+                ), verticalArrangement = Arrangement.Top
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_logo),
-                contentDescription = "Next",
+                contentDescription = "Logo",
                 modifier = Modifier.size(40.dp)
             )
 
             Box(
-                modifier = Modifier.padding(top = 24.dp)
+                modifier = Modifier.padding(top = topPaddingDp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(spacerPaddingDp)) {
                     OnboardingProgressIndicator(
-                        horizontalPaddingDp, spacerPaddingDp, 100
+                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 100
                     )
 
                     OnboardingProgressIndicator(
-                        horizontalPaddingDp, spacerPaddingDp, 0
+                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 0
                     )
 
                     OnboardingProgressIndicator(
-                        horizontalPaddingDp, spacerPaddingDp, 0
+                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 0
                     )
                 }
             }
 
             HorizontalPager(pageCount = 2, state = pagerState, userScrollEnabled = false) { page ->
-                if (page == 0) WelcomePage(
-                    horizontalPaddingDp,
-                    pagerState,
-                    viewModel.getAccountName().value
-                )
-                else TypeSelectionPage(horizontalPaddingDp)
+                if (page == 0) WelcomePage(isTablet, pagerState, viewModel.getAccountName().value)
+                else TypeSelectionPage()
             }
         }
     }
@@ -98,7 +98,7 @@ fun ArchiveOnboardingScreen(
 
 @Composable
 fun OnboardingProgressIndicator(
-    horizontalPaddingDp: Dp, spacerPaddingDp: Dp, percent: Int
+    height: Dp, horizontalPaddingDp: Dp, spacerPaddingDp: Dp, percent: Int
 ) {
     val context = LocalContext.current
     val whiteSuperTransparentColor =
@@ -112,7 +112,7 @@ fun OnboardingProgressIndicator(
     CustomProgressIndicator(
         Modifier
             .clip(shape = RoundedCornerShape(3.dp))
-            .height(2.dp),
+            .height(height),
         (screenWidthDp - horizontalPaddingDp - horizontalPaddingDp - spacerPaddingDp - spacerPaddingDp) / 3,
         whiteSuperTransparentColor,
         Brush.horizontalGradient(

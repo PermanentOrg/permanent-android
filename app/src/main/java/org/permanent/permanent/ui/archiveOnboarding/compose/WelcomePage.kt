@@ -3,15 +3,21 @@
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -21,10 +27,10 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.ButtonStyle
@@ -32,7 +38,7 @@ import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 
 @Composable
 fun WelcomePage(
-    horizontalPaddingDp: Dp,
+    isTablet: Boolean,
     pagerState: PagerState,
     accountName: String?
 ) {
@@ -41,19 +47,106 @@ fun WelcomePage(
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
+    if (isTablet) {
+        TabletBody(accountName, whiteColor, regularFont, coroutineScope, pagerState)
+    } else {
+        PhoneBody(accountName, whiteColor, regularFont, coroutineScope, pagerState)
+    }
+}
+
+@Composable
+private fun TabletBody(
+    accountName: String?,
+    whiteColor: Color,
+    regularFont: FontFamily,
+    coroutineScope: CoroutineScope,
+    pagerState: PagerState
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 64.dp),
+        horizontalArrangement = Arrangement.spacedBy(64.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            accountName?.let {
+                val welcomeTitleText = stringResource(id = R.string.welcome_to_permanent_title, it)
+                val start = welcomeTitleText.indexOf(it)
+                val spanStyles = listOf(
+                    AnnotatedString.Range(
+                        SpanStyle(fontWeight = FontWeight.Bold),
+                        start = start,
+                        end = start + it.length
+                    )
+                )
+
+                Text(
+                    text = AnnotatedString(text = welcomeTitleText, spanStyles = spanStyles),
+                    fontSize = 56.sp,
+                    lineHeight = 72.sp,
+                    color = whiteColor,
+                    fontFamily = regularFont
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = stringResource(id = R.string.welcome_to_permanent_description),
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                color = whiteColor,
+                fontFamily = regularFont
+            )
+
+            Spacer(modifier = Modifier.weight(1.0f))
+
+            Box(
+                modifier = Modifier
+                    .width(168.dp)
+            ) {
+                TextAndIconButton(
+                    ButtonStyle.LIGHT,
+                    text = stringResource(id = R.string.get_started),
+                    showButtonEnabled = true
+                ) {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(1)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PhoneBody(
+    accountName: String?,
+    whiteColor: Color,
+    regularFont: FontFamily,
+    coroutineScope: CoroutineScope,
+    pagerState: PagerState
+) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = horizontalPaddingDp)
+            .padding(vertical = 32.dp)
     ) {
         accountName?.let {
             val welcomeTitleText = stringResource(id = R.string.welcome_to_permanent_title, it)
             val start = welcomeTitleText.indexOf(it)
             val spanStyles = listOf(
                 AnnotatedString.Range(
-                    SpanStyle(fontWeight = FontWeight.Bold),
-                    start = start,
-                    end = start + it.length
+                    SpanStyle(fontWeight = FontWeight.Bold), start = start, end = start + it.length
                 )
             )
 
