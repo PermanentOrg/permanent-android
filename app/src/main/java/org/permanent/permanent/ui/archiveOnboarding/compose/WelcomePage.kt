@@ -30,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
@@ -39,7 +38,7 @@ import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 
 @Composable
 fun WelcomePage(
-    windowWidthSizeClass: WindowWidthSizeClass?,
+    isTablet: Boolean,
     pagerState: PagerState,
     accountName: String?
 ) {
@@ -48,7 +47,7 @@ fun WelcomePage(
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
-    if (windowWidthSizeClass?.equals(WindowWidthSizeClass.EXPANDED) == true) {
+    if (isTablet) {
         TabletBody(accountName, whiteColor, regularFont, coroutineScope, pagerState)
     } else {
         PhoneBody(accountName, whiteColor, regularFont, coroutineScope, pagerState)
