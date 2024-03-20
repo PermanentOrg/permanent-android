@@ -101,6 +101,8 @@ interface IFileRepository {
 
     fun updateRecord(record: Record, newName: String, listener: IResponseListener)
 
+    fun updateMultipleRecords(records: MutableList<Record>, listener: IResponseListener)
+
     fun searchRecords(query: String?, tags: List<Tag>, listener: IOnRecordsRetrievedListener)
 
     interface IOnRecordsRetrievedListener {

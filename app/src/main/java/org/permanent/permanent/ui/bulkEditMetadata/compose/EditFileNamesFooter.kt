@@ -29,7 +29,9 @@ import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditFileNamesUIState
 
 @Composable
-fun EditFileNamesFooter(uiState: EditFileNamesUIState) {
+fun EditFileNamesFooter(uiState: EditFileNamesUIState,
+                        cancel: () -> Unit,
+                        apply: () -> Unit) {
     val context = LocalContext.current
     val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val lightGrey = Color(ContextCompat.getColor(context, R.color.lightGrey))
@@ -95,7 +97,9 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState) {
                 .height(48.dp),
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = lightBlueColor),
-                onClick = { }
+                onClick = {
+                    cancel()
+                }
             ) {
                 Text(
                     text = stringResource(R.string.button_cancel),
@@ -112,7 +116,7 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState) {
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                 onClick = {
-
+                    apply()
                 }
             ) {
                 Text(

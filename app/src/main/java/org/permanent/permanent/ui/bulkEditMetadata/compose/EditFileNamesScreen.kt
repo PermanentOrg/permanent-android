@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Tab
@@ -52,6 +53,7 @@ fun EditFileNamesScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
+        modifier = Modifier.imePadding()
     ) {
         BottomSheetHeader(
             painterResource(id = R.drawable.ic_tag), screenTitle = "Edit file names"
@@ -120,7 +122,8 @@ fun EditFileNamesScreen(
             when (options[selectedIndex].title) {
                 "Replace" -> ReplaceFileNamesScreen(
                     uiState,
-                    replace = viewModel::replace
+                    replace = viewModel::replace,
+                    applyChanges = viewModel::applyChanges
                 )
                 "Append" -> AppendContent()
                 "Sequence" -> PrependContent()

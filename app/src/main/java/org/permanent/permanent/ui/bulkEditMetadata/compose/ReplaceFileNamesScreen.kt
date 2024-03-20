@@ -34,7 +34,8 @@ import org.permanent.permanent.viewmodels.EditFileNamesUIState
 
 @Composable
 fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
-                           replace: (String, String) -> Unit) {
+                           replace: (String, String) -> Unit,
+                           applyChanges: (String, String) -> Unit) {
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     var findText by remember { mutableStateOf("") }
@@ -120,7 +121,12 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
             }
         }
         Spacer(modifier = Modifier.weight(1.0f))
-        EditFileNamesFooter(uiState)
+        EditFileNamesFooter(uiState,
+            cancel = {
+
+            }, apply = {
+                applyChanges(findText, replaceText)
+            })
     }
 }
 

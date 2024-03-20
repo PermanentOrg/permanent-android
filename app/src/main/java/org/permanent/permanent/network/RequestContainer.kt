@@ -307,6 +307,36 @@ class RequestContainer {
         }
     }
 
+    @JvmName("addMultipleRecords")
+    fun addRecords(records: MutableList<Record>): RequestContainer {
+        for ((index, record) in records.withIndex()) {
+            if (record.type == RecordType.FOLDER) {
+                val folderVO = FolderVO()
+                folderVO.folderId = record.id
+                folderVO.folder_linkId = record.folderLinkId
+                folderVO.archiveNbr = record.archiveNr
+                folderVO.displayName = record.displayName
+
+                val newData = Datum()
+                newData.FolderVO = folderVO
+                (RequestVO.data as ArrayList).add(newData)
+
+            } else {
+                val recordVO = RecordVO()
+                recordVO.recordId = record.id
+                recordVO.archiveNbr = record.archiveNr
+                recordVO.folder_linkId = record.folderLinkId
+                recordVO.displayName = record.displayName
+
+                val newData = Datum()
+                newData.RecordVO = recordVO
+                (RequestVO.data as ArrayList).add(newData)
+
+            }
+        }
+        return this
+    }
+
     fun addSearch(query: String?, tags: List<Tag>): RequestContainer {
         val searchVO = SearchVO()
         searchVO.query = query
