@@ -149,7 +149,7 @@
                         app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
-                        android:visibility="@{viewModel.existsFiles == false ? View.GONE : View.VISIBLE}"
+                        android:visibility="@{viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
                         app:viewModeIcon="@{viewModel.isListViewMode}" />
 
                     <TextView

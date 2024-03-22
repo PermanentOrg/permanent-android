@@ -128,13 +128,14 @@ class MyFilesFragment : PermanentBaseFragment() {
                 viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
                 viewModel.loadRootFiles()
                 initDownloadsRecyclerView(binding.rvDownloads)
-                initFilesRecyclerView(binding.rvFiles, showScreenSimplified)
                 viewModel.registerDeviceForFCM()
 
                 arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
                     showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
                     if (showScreenSimplified) viewModel.setShowScreenSimplified()
                 }
+                initFilesRecyclerView(binding.rvFiles, showScreenSimplified)
+
                 arguments?.getParcelableArrayList<Uri>(MainActivity.SAVE_TO_PERMANENT_FILE_URIS_KEY)
                     ?.let { showSaveToPermanentFragment(it) }
                 if (viewModel.isRelocationMode.value == true) resizeIslandWidthAnimated(
