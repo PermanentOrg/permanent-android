@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,13 +28,14 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
-import org.permanent.permanent.ui.composeComponents.ButtonStyle
+import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 
 @Composable
@@ -115,7 +117,7 @@ private fun TabletBody(
                     .width(168.dp)
             ) {
                 TextAndIconButton(
-                    ButtonStyle.LIGHT,
+                    ButtonColor.LIGHT,
                     text = stringResource(id = R.string.get_started),
                     showButtonEnabled = true
                 ) {
@@ -172,7 +174,7 @@ private fun PhoneBody(
         Spacer(modifier = Modifier.weight(1.0f))
 
         TextAndIconButton(
-            ButtonStyle.LIGHT,
+            ButtonColor.LIGHT,
             text = stringResource(id = R.string.get_started),
             showButtonEnabled = true
         ) {
@@ -181,4 +183,11 @@ private fun PhoneBody(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun WelcomePagePhonePreview() {
+    val pagerState = rememberPagerState(initialPage = 0)
+    WelcomePage(false, pagerState, "Jane Doe")
 }

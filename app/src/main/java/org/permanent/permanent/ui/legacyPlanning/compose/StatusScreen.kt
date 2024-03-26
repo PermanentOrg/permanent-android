@@ -221,7 +221,7 @@ fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>,
                     fontSize = 13.sp)
                 Spacer(modifier = Modifier.weight(1.0f))
                 Image(
-                    painter = painterResource(id = R.drawable.ic_drop_down_white),
+                    painter = painterResource(id = R.drawable.ic_arrow_drop_down_white),
                     contentDescription = "Person",
                     colorFilter = ColorFilter.tint(primaryColor),
                     modifier = Modifier

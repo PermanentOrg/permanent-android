@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.bytesToCustomHumanReadableString
-import org.permanent.permanent.ui.composeComponents.ButtonStyle
+import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 import org.permanent.permanent.ui.storage.compose.gifting.emailInput.EmailChipView
 import org.permanent.permanent.viewmodels.GiftStorageViewModel
@@ -321,7 +321,7 @@ fun GiftStorageScreen(viewModel: GiftStorageViewModel) {
         Spacer(modifier = Modifier.height(32.dp))
 
         TextAndIconButton(
-            ButtonStyle.DARK,
+            ButtonColor.DARK,
             text = stringResource(id = R.string.send_gift_storage),
             showButtonEnabled = showButtonEnabled
         ) {

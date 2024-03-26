@@ -271,7 +271,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         val archiveSettingsRightIcon =
             menuItem.actionView?.findViewById<ImageView>(R.id.ivRightIcon)
         val icon =
-            if (submenuVisible) R.drawable.ic_drop_up_white else R.drawable.ic_drop_down_white
+            if (submenuVisible) R.drawable.ic_arrow_drop_up_white else R.drawable.ic_arrow_drop_down_white
         archiveSettingsRightIcon?.setImageResource(icon)
     }
 

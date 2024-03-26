@@ -227,7 +227,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
 
         dialogBinding.tvTitle.text =
             getString(R.string.leave_share_record_title, record.displayName)
-        dialogBinding.btnDelete.text = getString(R.string.button_leave_share)
+        dialogBinding.btnDelete.text = getString(R.string.leave_share)
         dialogBinding.btnDelete.setOnClickListener {
             viewModel.unshare(record)
             alert.dismiss()

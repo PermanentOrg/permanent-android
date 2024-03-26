@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
-import org.permanent.permanent.ui.composeComponents.ButtonStyle
+import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 
 @Composable
@@ -106,7 +106,7 @@ fun DesignateContactOrStewardScreen(
         Spacer(modifier = Modifier.weight(1.0f))
 
         TextAndIconButton(
-            ButtonStyle.DARK,
+            ButtonColor.DARK,
             text = stringResource(R.string.button_go_to_legacy_planning),
             showButtonEnabled = true
         ) {
