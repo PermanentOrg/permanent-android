@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,7 +50,7 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState,
             horizontalArrangement = Arrangement.spacedBy(13.dp)
         ) {
             Text(
-                text = "Preview",
+                text = stringResource(id = R.string.preview),
                 style = TextStyle(
                     fontSize = 10.sp,
                     fontFamily = semiBoldFont,
@@ -78,14 +80,16 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState,
                         )
                     )
                 }
-                Text(
-                    text = "930 KB",
-                    style = TextStyle(
-                        fontSize = 12.sp,
-                        fontFamily = regularFont,
-                        color = lightGrey,
+                uiState.recordSize?.let {
+                    Text(
+                        text = it,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = regularFont,
+                            color = lightGrey,
+                        )
                     )
-                )
+                }
             }
         }
         Row(
@@ -115,15 +119,24 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState,
                 .height(48.dp),
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+                enabled = !uiState.isBusy,
                 onClick = {
                     apply()
                 }
             ) {
-                Text(
-                    text = "Apply Changes",
-                    fontSize = 14.sp,
-                    fontFamily = regularFont,
-                )
+                if(uiState.isBusy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(32.dp),
+                        color = primaryColor,
+                        trackColor = lightBlueColor,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.apply_changes),
+                        fontSize = 14.sp,
+                        fontFamily = regularFont,
+                    )
+                }
             }
         }
     }

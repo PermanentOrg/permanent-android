@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.bulkEditMetadata.compose
 
+import CustomDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -35,7 +37,8 @@ import org.permanent.permanent.viewmodels.EditFileNamesUIState
 @Composable
 fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
                            replace: (String, String) -> Unit,
-                           applyChanges: (String, String) -> Unit) {
+                           applyChanges: (String, String) -> Unit,
+                           cancel: () -> Unit) {
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     var findText by remember { mutableStateOf("") }
@@ -44,6 +47,7 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
     val middleGrey = Color(ContextCompat.getColor(context, R.color.middleGrey))
     val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
+    val openAlertDialog = remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(22.dp)
@@ -51,7 +55,7 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "Find".uppercase(),
+            Text(text = stringResource(id = R.string.find).uppercase(),
                 style = TextStyle(
                     fontSize = 10.sp,
                     fontFamily = semiBoldFont,
@@ -59,10 +63,17 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
             )
             Box(
                 modifier = Modifier
-                    .border(width = 1.dp, color = superLightBlue, shape = RoundedCornerShape(size = 2.dp))
+                    .border(
+                        width = 1.dp,
+                        color = superLightBlue,
+                        shape = RoundedCornerShape(size = 2.dp)
+                    )
                     .width(342.dp)
                     .height(48.dp)
-                    .background(color = superLightBlue.copy(0.5f), shape = RoundedCornerShape(size = 2.dp)),
+                    .background(
+                        color = superLightBlue.copy(0.5f),
+                        shape = RoundedCornerShape(size = 2.dp)
+                    ),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 BasicTextField(
@@ -73,12 +84,12 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp), // Make TextField fill parent's width
+                        .padding(horizontal = 16.dp),
                     textStyle = TextStyle(
                         fontFamily = regularFont,
                         fontSize = 13.sp,
                         color = blue900,
-                        lineHeight = 16.sp // Set line height as before
+                        lineHeight = 16.sp
                     ),
                     singleLine = true
                 )
@@ -87,7 +98,7 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "Replace".uppercase(),
+            Text(text = stringResource(id = R.string.replace).uppercase(),
                 style = TextStyle(
                     fontSize = 10.sp,
                     fontFamily = semiBoldFont,
@@ -95,10 +106,17 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
             )
             Box(
                 modifier = Modifier
-                    .border(width = 1.dp, color = superLightBlue, shape = RoundedCornerShape(size = 2.dp))
+                    .border(
+                        width = 1.dp,
+                        color = superLightBlue,
+                        shape = RoundedCornerShape(size = 2.dp)
+                    )
                     .width(342.dp)
                     .height(48.dp)
-                    .background(color = superLightBlue.copy(0.5f), shape = RoundedCornerShape(size = 2.dp)),
+                    .background(
+                        color = superLightBlue.copy(0.5f),
+                        shape = RoundedCornerShape(size = 2.dp)
+                    ),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 BasicTextField(
@@ -109,12 +127,12 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp), // Make TextField fill parent's width
+                        .padding(horizontal = 16.dp),
                     textStyle = TextStyle(
                         fontFamily = regularFont,
                         fontSize = 13.sp,
                         color = blue900,
-                        lineHeight = 16.sp // Set line height as before
+                        lineHeight = 16.sp
                     ),
                     singleLine = true
                 )
@@ -123,15 +141,24 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
         Spacer(modifier = Modifier.weight(1.0f))
         EditFileNamesFooter(uiState,
             cancel = {
-
+                cancel()
             }, apply = {
-                applyChanges(findText, replaceText)
+                openAlertDialog.value = true
             })
+        when {
+            openAlertDialog.value -> {
+                CustomDialog(
+                    title = stringResource(id = R.string.modify_file_names),
+                    subtitle = stringResource(id = R.string.replace_confirmation_substring, uiState.recordsNumber),
+                    okButtonText = stringResource(id = R.string.modify),
+                    cancelButtonText = stringResource(id = R.string.button_cancel),
+                    onConfirm = {
+                        openAlertDialog.value = false
+                        applyChanges(findText, replaceText)
+                    }) {
+                    openAlertDialog.value = false
+                }
+            }
+        }
     }
 }
-
-//@Preview
-//@Composable
-//fun ReplaceFileNamesPreview() {
-//    ReplaceFileNamesScreen()
-//}

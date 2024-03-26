@@ -1,12 +1,12 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.ui.bytesToHumanReadableString
 
 class EditFileNamesViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -19,6 +19,8 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
         records.firstOrNull()?.let {
             updateRecordThumb(it.thumbURL200)
             updateFileName(it.displayName)
+            updateRecordsCount(records.count())
+            it.fileData?.size?.let { size -> updateFileSize(size) }
         }
     }
 
@@ -28,6 +30,24 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
 
     private fun updateFileName(name: String?) {
         uiState.value = uiState.value.copy(fileName = name)
+    }
+
+    private fun updateError(errorMessage: String) {
+        uiState.value = uiState.value.copy(errorMessage = errorMessage)
+    }
+
+    private fun updateRecordsCount(count: Int) {
+        uiState.value = uiState.value.copy(recordsNumber = count)
+    }
+
+    private fun updateFileSize(size: Long) {
+        val sizeString = bytesToHumanReadableString(size)
+        uiState.value = uiState.value.copy(recordSize = sizeString)
+
+    }
+
+    private fun triggerCloseScreen() {
+        uiState.value = uiState.value.copy(shouldClose = true)
     }
 
     fun replace(findText: String, replaceText: String) {
@@ -48,23 +68,39 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
         applyChanges()
     }
 
+    fun toggleLoading() {
+        val currentState = uiState.value
+        uiState.value = currentState.toggleIsBusy()
+    }
+
     private fun applyChanges() {
+        toggleLoading()
         fileRepository.updateMultipleRecords(records = records, object : IResponseListener {
             override fun onSuccess(message: String?) {
-//                isBusy.value = false
-//                commonDescription = inputDescription
-                Log.d("EditMetadataViewModel", "Description for records was updated")
+                toggleLoading()
+                triggerCloseScreen()
             }
 
             override fun onFailed(error: String?) {
-//                isBusy.value = false
-//                error?.let { showError.value = it }
+                toggleLoading()
+                error?.let {
+                    updateError(it)
+                }
             }
         })
     }
 }
 
 data class EditFileNamesUIState(
+    val isBusy: Boolean = false,
     val firstRecordThumb: String? = null,
-    val fileName: String? = null
-)
+    val fileName: String? = null,
+    val errorMessage: String? = null,
+    val shouldClose: Boolean = false,
+    val recordsNumber: Int = 0,
+    val recordSize: String? = null
+) {
+    fun toggleIsBusy(): EditFileNamesUIState {
+        return copy(isBusy = !isBusy)
+    }
+}

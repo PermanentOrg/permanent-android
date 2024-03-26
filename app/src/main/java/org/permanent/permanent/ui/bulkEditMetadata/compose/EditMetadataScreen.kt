@@ -188,7 +188,7 @@ fun EditMetadataScreen(
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-        FilesMenuView(icon = "",
+        FilesMenuView(icon = R.drawable.ic_edit_name,
             title = "File names",
             actionTitle = "Modify") {
             openEditFileNamesScreen(viewModel.getRecords())
@@ -315,19 +315,20 @@ private fun DescriptionView(
 
 @Composable
 private fun FilesMenuView(
-    icon: String,
+    icon: Int,
     title: String,
     actionTitle: String,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
     val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
+    val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val blackColor = Color(ContextCompat.getColor(context, R.color.black))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-    val subTitleTextSize = 16.sp
+    val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
 
     Row(
-        verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .clickable(onClick = onClick)
     ) {
@@ -336,7 +337,7 @@ private fun FilesMenuView(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_tag),
+                painter = painterResource(id = icon),
                 contentDescription = "Description",
                 modifier = Modifier.size(24.dp),
                 colorFilter = ColorFilter.tint(lightGreyColor)
@@ -345,9 +346,25 @@ private fun FilesMenuView(
                 text = title,
                 color = blackColor,
                 fontFamily = regularFont,
-                fontSize = subTitleTextSize
+                fontSize = 15.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1.0f))
+
+        Row{
+            Text(
+                text = actionTitle,
+                color = blue900,
+                fontFamily = semiBoldFont,
+                fontSize = 15.sp
             )
 
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_select_grey),
+                contentDescription = "Description",
+                modifier = Modifier.size(24.dp),
+                colorFilter = ColorFilter.tint(blue900))
         }
     }
 }

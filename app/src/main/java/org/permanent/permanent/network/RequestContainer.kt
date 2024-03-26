@@ -317,9 +317,12 @@ class RequestContainer {
                 folderVO.archiveNbr = record.archiveNr
                 folderVO.displayName = record.displayName
 
-                val newData = Datum()
-                newData.FolderVO = folderVO
-                (RequestVO.data as ArrayList).add(newData)
+                if (index == 0) RequestVO.data?.get(0)?.FolderVO = folderVO
+                else {
+                    val newData = Datum()
+                    newData.FolderVO = folderVO
+                    (RequestVO.data as ArrayList).add(newData)
+                }
 
             } else {
                 val recordVO = RecordVO()
@@ -327,10 +330,12 @@ class RequestContainer {
                 recordVO.archiveNbr = record.archiveNr
                 recordVO.folder_linkId = record.folderLinkId
                 recordVO.displayName = record.displayName
-
-                val newData = Datum()
-                newData.RecordVO = recordVO
-                (RequestVO.data as ArrayList).add(newData)
+                if (index == 0) RequestVO.data?.get(0)?.RecordVO = recordVO
+                else {
+                    val newData = Datum()
+                    newData.RecordVO = recordVO
+                    (RequestVO.data as ArrayList).add(newData)
+                }
 
             }
         }

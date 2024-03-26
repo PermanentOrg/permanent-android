@@ -10,14 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,17 +29,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditFileNamesViewModel
 
 @Composable
 fun EditFileNamesScreen(
-    viewModel: EditFileNamesViewModel
+    viewModel: EditFileNamesViewModel,
+    cancel: () -> Unit
 ) {
     val options = listOf(
         EditFilesOptions.REPLACE,
@@ -52,11 +59,15 @@ fun EditFileNamesScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarEventFlow = remember { MutableSharedFlow<String>() }
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Column(
         modifier = Modifier.imePadding()
     ) {
         BottomSheetHeader(
-            painterResource(id = R.drawable.ic_tag), screenTitle = "Edit file names"
+            painterResource(id = R.drawable.ic_edit_name), screenTitle = stringResource(id = R.string.edit_file_names)
         )
         Column(modifier = Modifier
             .fillMaxSize()
@@ -123,13 +134,34 @@ fun EditFileNamesScreen(
                 "Replace" -> ReplaceFileNamesScreen(
                     uiState,
                     replace = viewModel::replace,
-                    applyChanges = viewModel::applyChanges
+                    applyChanges = viewModel::applyChanges,
+                    cancel = cancel
                 )
                 "Append" -> AppendContent()
                 "Sequence" -> PrependContent()
             }
         }
     }
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
+
+    LaunchedEffect(snackbarEventFlow) {
+        snackbarEventFlow.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    LaunchedEffect(key1 = uiState.shouldClose, block = {
+        if(uiState.shouldClose) {
+            cancel()
+        }
+    })
 }
 
 private enum class EditFilesOptions(val title: String, val resource: Int) {
@@ -143,9 +175,3 @@ fun AppendContent() { /* ... */ }
 
 @Composable
 fun PrependContent() { /* ... */ }
-//
-//@Preview
-//@Composable
-//fun SimpleComposablePreview() {
-//    EditFileNamesScreen(viewModel = EditFileNamesViewModel())
-//}
