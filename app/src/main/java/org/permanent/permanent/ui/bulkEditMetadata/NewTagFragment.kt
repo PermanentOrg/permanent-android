@@ -17,7 +17,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.ui.compose.bulkEditMetadata.NewTagScreen
+import org.permanent.permanent.ui.bulkEditMetadata.compose.NewTagScreen
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.viewmodels.NewTagViewModel
 

@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose.bulkEditMetadata
+package org.permanent.permanent.ui.bulkEditMetadata.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

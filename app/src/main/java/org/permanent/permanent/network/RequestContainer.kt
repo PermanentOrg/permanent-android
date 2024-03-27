@@ -265,7 +265,10 @@ class RequestContainer {
         for ((index, record) in records.withIndex()) {
             if (isFolderRecordType) {
                 val folderVO = FolderVO()
+                folderVO.folderId = record.id
+                folderVO.archiveNbr = record.archiveNr
                 folderVO.folder_linkId = record.folderLinkId
+                folderVO.displayName = record.displayName
                 if (index == 0) RequestVO.data?.get(0)?.FolderVO = folderVO
                 else {
                     val newData = Datum()
@@ -274,8 +277,11 @@ class RequestContainer {
                 }
             } else {
                 val recordVO = RecordVO()
+                recordVO.recordId = record.id
+                recordVO.archiveNbr = record.archiveNr
                 recordVO.folder_linkId = record.folderLinkId
                 recordVO.parentFolder_linkId = record.parentFolderLinkId
+                recordVO.displayName = record.displayName
                 if (index == 0) RequestVO.data?.get(0)?.RecordVO = recordVO
                 else {
                     val newData = Datum()
