@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.bulkEditMetadata.compose
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -117,7 +118,7 @@ fun EditFileNamesScreen(
                                         contentDescription = "Replace"
                                     )
                                     Text(
-                                        text = option.title.uppercase(),
+                                        text = option.getLabel(context).uppercase(),
                                         color = blue900,
                                         fontFamily = boldFont,
                                         fontSize = 10.sp
@@ -130,15 +131,15 @@ fun EditFileNamesScreen(
             }
 
             // Conditional Content based on selectedOption
-            when (options[selectedIndex].title) {
-                "Replace" -> ReplaceFileNamesScreen(
+            when (options[selectedIndex]) {
+                EditFilesOptions.REPLACE-> ReplaceFileNamesScreen(
                     uiState,
                     replace = viewModel::replace,
                     applyChanges = viewModel::applyChanges,
                     cancel = cancel
                 )
-                "Append" -> AppendContent()
-                "Sequence" -> PrependContent()
+                EditFilesOptions.APPEND -> AppendContent()
+                EditFilesOptions.SEQUENCE -> PrependContent()
             }
         }
     }
@@ -164,10 +165,12 @@ fun EditFileNamesScreen(
     })
 }
 
-private enum class EditFilesOptions(val title: String, val resource: Int) {
-    REPLACE("Replace", R.drawable.refresh),
-    APPEND("Append", R.drawable.append),
-    SEQUENCE("Sequence", R.drawable.sequence)
+private enum class EditFilesOptions(val titleID: Int, val resource: Int) {
+    REPLACE(R.string.replace, R.drawable.refresh),
+    APPEND(R.string.append, R.drawable.append),
+    SEQUENCE(R.string.sequence, R.drawable.sequence);
+
+    fun getLabel(context: Context) = context.getString(titleID)
 }
 
 @Composable

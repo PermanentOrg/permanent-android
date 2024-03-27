@@ -189,8 +189,8 @@ fun EditMetadataScreen(
         Divider(modifier = Modifier.padding(vertical = 16.dp))
 
         FilesMenuView(icon = R.drawable.ic_edit_name,
-            title = "File names",
-            actionTitle = "Modify") {
+            title = stringResource(id = R.string.file_names),
+            actionTitle = stringResource(id = R.string.modify)) {
             openEditFileNamesScreen(viewModel.getRecords())
         }
     }

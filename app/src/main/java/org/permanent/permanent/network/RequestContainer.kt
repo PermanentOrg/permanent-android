@@ -265,7 +265,10 @@ class RequestContainer {
         for ((index, record) in records.withIndex()) {
             if (isFolderRecordType) {
                 val folderVO = FolderVO()
+                folderVO.folderId = record.id
+                folderVO.archiveNbr = record.archiveNr
                 folderVO.folder_linkId = record.folderLinkId
+                folderVO.displayName = record.displayName
                 if (index == 0) RequestVO.data?.get(0)?.FolderVO = folderVO
                 else {
                     val newData = Datum()
@@ -274,8 +277,11 @@ class RequestContainer {
                 }
             } else {
                 val recordVO = RecordVO()
+                recordVO.recordId = record.id
+                recordVO.archiveNbr = record.archiveNr
                 recordVO.folder_linkId = record.folderLinkId
                 recordVO.parentFolder_linkId = record.parentFolderLinkId
+                recordVO.displayName = record.displayName
                 if (index == 0) RequestVO.data?.get(0)?.RecordVO = recordVO
                 else {
                     val newData = Datum()
@@ -305,41 +311,6 @@ class RequestContainer {
             RequestVO.data?.get(0)?.RecordVO = recordVO
             this
         }
-    }
-
-    @JvmName("addMultipleRecords")
-    fun addRecords(records: MutableList<Record>): RequestContainer {
-        for ((index, record) in records.withIndex()) {
-            if (record.type == RecordType.FOLDER) {
-                val folderVO = FolderVO()
-                folderVO.folderId = record.id
-                folderVO.folder_linkId = record.folderLinkId
-                folderVO.archiveNbr = record.archiveNr
-                folderVO.displayName = record.displayName
-
-                if (index == 0) RequestVO.data?.get(0)?.FolderVO = folderVO
-                else {
-                    val newData = Datum()
-                    newData.FolderVO = folderVO
-                    (RequestVO.data as ArrayList).add(newData)
-                }
-
-            } else {
-                val recordVO = RecordVO()
-                recordVO.recordId = record.id
-                recordVO.archiveNbr = record.archiveNr
-                recordVO.folder_linkId = record.folderLinkId
-                recordVO.displayName = record.displayName
-                if (index == 0) RequestVO.data?.get(0)?.RecordVO = recordVO
-                else {
-                    val newData = Datum()
-                    newData.RecordVO = recordVO
-                    (RequestVO.data as ArrayList).add(newData)
-                }
-
-            }
-        }
-        return this
     }
 
     fun addSearch(query: String?, tags: List<Tag>): RequestContainer {

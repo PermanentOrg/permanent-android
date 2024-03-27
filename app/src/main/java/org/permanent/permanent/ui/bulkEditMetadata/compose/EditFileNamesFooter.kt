@@ -47,7 +47,7 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(13.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.preview),
