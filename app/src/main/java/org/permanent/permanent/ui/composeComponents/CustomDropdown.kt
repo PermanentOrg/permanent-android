@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -63,7 +64,7 @@ fun CustomDropdown() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Individual",
+                    text = stringResource(id = R.string.individual),
                     color = whiteColor,
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
@@ -71,7 +72,7 @@ fun CustomDropdown() {
                 )
 
                 Text(
-                    text = "Create an archive that captures a person’s life.",
+                    text = stringResource(id = R.string.individual_description),
                     color = whiteColor,
                     fontSize = 12.sp,
                     lineHeight = 16.sp,
