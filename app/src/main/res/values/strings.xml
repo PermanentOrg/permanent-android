@@ -7,7 +7,7 @@
     <string name="onboarding_page_two_text">We are the most comprehensive consumer digital preservation platform available today.</string>
     <string name="onboarding_page_three_title">We will never mine your data, claim your copyright or invade your privacy.</string>
     <string name="onboarding_page_three_text">We are backed by a mission-driven, cultural heritage nonprofit dedicated to the public good.</string>
-    <string name="onboarding_next_button">Next</string>
+    <string name="next">Next</string>
     <string name="get_started">Get Started</string>
     <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
@@ -524,7 +524,7 @@
     <string name="archive_onboarding_group_archive_text">any group of people, such as a community group or a family</string>
     <string name="archive_onboarding_organization_archive_title">Organization Archive</string>
     <string name="archive_onboarding_organization_archive_text">an organizational entity, such as a company or nonprofit</string>
-    <string name="archive_onboarding_back_button">Back</string>
+    <string name="back">Back</string>
     <string name="archive_onboarding_name_archive_button">Next: Name Archive</string>
     <string name="archive_onboarding_create_archive_button">Create Archive</string>
     <string name="archive_onboarding_accept_all_button">Accept All</string>
@@ -537,8 +537,11 @@
     <string name="welcome_to_permanent_title">Hello, <b>%s</b>.\nWelcome to Permanent!</string>
     <string name="welcome_to_permanent_description">We’re so glad you’re here!\n\nAt Permanent, it is our mission to provide a safe and secure place to store, preserve, and share the digital legacy of all people, whether that\'s for you or for your friends, family, interests or organizations.\n\nWe know that starting this journey can sometimes be overwhelming, but don’t worry. We’re here to help you every step of the way.</string>
     <string name="create_your_first_archive_title">Create your first archive.</string>
+    <string name="create_your_first_archive_description">What do you plan to capture and preserve with your first archive?</string>
+    <string name="individual">Individual</string>
+    <string name="individual_description">Create an archive that captures a person’s life.</string>
 
-    <string name="button_leave_share">Leave share</string>
+    <string name="leave_share">Leave share</string>
 
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>

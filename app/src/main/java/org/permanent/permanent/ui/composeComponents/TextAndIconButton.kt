@@ -27,9 +27,9 @@ import org.permanent.permanent.R
 
 @Composable
 fun TextAndIconButton(
-    style: ButtonStyle,
+    style: ButtonColor,
     text: String,
-    icon: Painter = painterResource(id = R.drawable.ic_arrow_next_primary),
+    icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
     showButtonEnabled: Boolean,
     onButtonClick: () -> Unit
 ) {
@@ -43,7 +43,7 @@ fun TextAndIconButton(
     Button(modifier = Modifier
         .fillMaxWidth()
         .height(56.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = if (style == ButtonStyle.LIGHT) whiteColor else if (showButtonEnabled) primaryColor else primaryColor200),
+        colors = ButtonDefaults.buttonColors(containerColor = if (style == ButtonColor.LIGHT) whiteColor else if (showButtonEnabled) primaryColor else primaryColor200),
         shape = RoundedCornerShape(12.dp),
         onClick = { if (showButtonEnabled) onButtonClick() }) {
         Row(
@@ -51,14 +51,14 @@ fun TextAndIconButton(
         ) {
             Text(
                 text = text,
-                color = if (style == ButtonStyle.LIGHT) primaryColor else whiteColor,
+                color = if (style == ButtonColor.LIGHT) primaryColor else whiteColor,
                 fontSize = subTitleTextSize,
                 fontFamily = semiboldFont,
             )
             Spacer(modifier = Modifier.weight(1.0f))
             Image(
                 painter = icon,
-                colorFilter = ColorFilter.tint(if (style == ButtonStyle.LIGHT) primaryColor else whiteColor),
+                colorFilter = ColorFilter.tint(if (style == ButtonColor.LIGHT) primaryColor else whiteColor),
                 contentDescription = "Next",
                 modifier = Modifier.size(16.dp)
             )
@@ -66,7 +66,8 @@ fun TextAndIconButton(
     }
 }
 
-enum class ButtonStyle {
+enum class ButtonColor {
     LIGHT,
-    DARK
+    DARK,
+    TRANSPARENT
 }

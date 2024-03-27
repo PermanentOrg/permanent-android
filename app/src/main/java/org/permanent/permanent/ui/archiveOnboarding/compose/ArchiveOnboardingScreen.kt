@@ -90,7 +90,7 @@ fun ArchiveOnboardingScreen(
 
             HorizontalPager(pageCount = 2, state = pagerState, userScrollEnabled = false) { page ->
                 if (page == 0) WelcomePage(isTablet, pagerState, viewModel.getAccountName().value)
-                else TypeSelectionPage()
+                else TypeSelectionPage(isTablet, pagerState)
             }
         }
     }
