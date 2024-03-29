@@ -654,4 +654,16 @@
     <string name="enter_new_code">Enter a new code.</string>
     <string name="new_label">new</string>
 
+    <string name="file_names">File names</string>
+    <string name="edit_file_names">Edit file names</string>
+    <string name="preview">Preview</string>
+    <string name="apply_changes">Apply Changes</string>
+    <string name="replace_confirmation_substring">Are you sure you want to find and replace these %d file names? </string>
+    <string name="modify_file_names">Modify file names</string>
+    <string name="modify">Modify</string>
+    <string name="replace">Replace</string>
+    <string name="append">Append</string>
+    <string name="sequence">Sequence</string>
+    <string name="find">Find</string>
+
 </resources>

@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose.bulkEditMetadata
+package org.permanent.permanent.ui.bulkEditMetadata.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -252,7 +252,7 @@ fun NewTagScreen(viewModel: NewTagViewModel, onCancelBtnClick: () -> Unit) {
 }
 
 @Composable
-private fun BottomSheetHeader(
+fun BottomSheetHeader(
     icon: Painter, screenTitle: String
 ) {
     val context = LocalContext.current

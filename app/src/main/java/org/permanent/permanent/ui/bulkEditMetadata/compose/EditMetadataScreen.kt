@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.compose.bulkEditMetadata
+package org.permanent.permanent.ui.bulkEditMetadata.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,6 +51,7 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.viewmodels.EditMetadataViewModel
 
@@ -58,7 +59,10 @@ import org.permanent.permanent.viewmodels.EditMetadataViewModel
 @Composable
 fun EditMetadataScreen(
     viewModel: EditMetadataViewModel,
-    openNewTagScreen: (tagsOfSelectedRecords: ArrayList<Tag>) -> Unit
+    openNewTagScreen: (tagsOfSelectedRecords: ArrayList<Tag>) -> Unit,
+    openEditFileNamesScreen: (records: MutableList<Record>) -> Unit,
+    openDateAndTimeScreen: (records: MutableList<Record>) -> Unit,
+    openLocationScreen: (records: MutableList<Record>) -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -181,6 +185,14 @@ fun EditMetadataScreen(
                 openNewTagScreen(tagsOfSelectedRecords)
             }
         }
+
+        Divider(modifier = Modifier.padding(vertical = 16.dp))
+
+        FilesMenuView(icon = R.drawable.ic_edit_name,
+            title = stringResource(id = R.string.file_names),
+            actionTitle = stringResource(id = R.string.modify)) {
+            openEditFileNamesScreen(viewModel.getRecords())
+        }
     }
 
     LaunchedEffect(errorMessage) {
@@ -298,5 +310,61 @@ private fun DescriptionView(
             fontFamily = regularFont,
             fontSize = smallTextSize
         )
+    }
+}
+
+@Composable
+private fun FilesMenuView(
+    icon: Int,
+    title: String,
+    actionTitle: String,
+    onClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
+    val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
+    val blackColor = Color(ContextCompat.getColor(context, R.color.black))
+    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+    val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Image(
+                painter = painterResource(id = icon),
+                contentDescription = "Description",
+                modifier = Modifier.size(24.dp),
+                colorFilter = ColorFilter.tint(lightGreyColor)
+            )
+            Text(
+                text = title,
+                color = blackColor,
+                fontFamily = regularFont,
+                fontSize = 15.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1.0f))
+
+        Row{
+            Text(
+                text = actionTitle,
+                color = blue900,
+                fontFamily = semiBoldFont,
+                fontSize = 15.sp
+            )
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_select_grey),
+                contentDescription = "Description",
+                modifier = Modifier.size(24.dp),
+                colorFilter = ColorFilter.tint(blue900))
+        }
     }
 }

@@ -406,6 +406,26 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         })
     }
 
+    override fun updateMultipleRecords(records: MutableList<Record>,
+                                       isFolderRecordType: Boolean,
+                                       listener: IResponseListener) {
+        NetworkClient.instance().updateMultipleRecords(records = records, isFolderRecordType).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(context.getString(R.string.file_info_update_success))
+                } else {
+                    listener.onFailed(context.getString(R.string.generic_error))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
     private fun getToRelocate(
         recordType: RecordType, records: MutableList<Record>
     ): MutableList<Record> {
