@@ -452,8 +452,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         }
     }
 
-    fun updateMultipleRecords(records: MutableList<Record>): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addRecords(records, isFolderRecordType = false))
+    fun updateMultipleRecords(records: MutableList<Record>, isFolderRecordType: Boolean): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addRecords(records, isFolderRecordType))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return fileService.updateRecord(requestBody)
     }

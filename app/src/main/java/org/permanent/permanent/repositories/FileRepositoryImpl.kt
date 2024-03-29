@@ -406,8 +406,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         })
     }
 
-    override fun updateMultipleRecords(records: MutableList<Record>, listener: IResponseListener) {
-        NetworkClient.instance().updateMultipleRecords(records = records).enqueue(object : Callback<ResponseVO> {
+    override fun updateMultipleRecords(records: MutableList<Record>,
+                                       isFolderRecordType: Boolean,
+                                       listener: IResponseListener) {
+        NetworkClient.instance().updateMultipleRecords(records = records, isFolderRecordType).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
 

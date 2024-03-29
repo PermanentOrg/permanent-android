@@ -75,7 +75,9 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
 
     private fun applyChanges() {
         toggleLoading()
-        fileRepository.updateMultipleRecords(records = records, object : IResponseListener {
+        fileRepository.updateMultipleRecords(records = records,
+            isFolderRecordType = false,
+            object : IResponseListener {
             override fun onSuccess(message: String?) {
                 toggleLoading()
                 triggerCloseScreen()
