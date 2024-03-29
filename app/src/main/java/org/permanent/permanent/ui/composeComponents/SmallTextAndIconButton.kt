@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,43 @@ import org.permanent.permanent.R
 fun SmallTextAndIconButton(
     buttonColor: ButtonColor,
     text: String,
+    icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
+    iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
+    onButtonClick: () -> Unit
+) {
+    CustomSmallTextAndIconButton(
+        buttonColor = buttonColor,
+        text = text,
+        annotatedText = null,
+        icon = icon,
+        iconAlignment = iconAlignment,
+        onButtonClick = onButtonClick
+    )
+}
+
+@Composable
+fun SmallTextAndIconButton(
+    buttonColor: ButtonColor,
+    annotatedText: AnnotatedString,
+    icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
+    iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
+    onButtonClick: () -> Unit
+) {
+    CustomSmallTextAndIconButton(
+        buttonColor = buttonColor,
+        text = null,
+        annotatedText = annotatedText,
+        icon = icon,
+        iconAlignment = iconAlignment,
+        onButtonClick = onButtonClick
+    )
+}
+
+@Composable
+private fun CustomSmallTextAndIconButton(
+    buttonColor: ButtonColor,
+    text: String?,
+    annotatedText: AnnotatedString?,
     icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
     iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
     onButtonClick: () -> Unit
@@ -70,12 +108,21 @@ fun SmallTextAndIconButton(
                 Spacer(modifier = Modifier.width(10.dp))
             }
 
-            Text(
-                text = text,
-                color = if (buttonColor == ButtonColor.LIGHT) primaryColor else whiteColor,
-                fontSize = 16.sp,
-                fontFamily = semiboldFont,
-            )
+            if (text != null) {
+                Text(
+                    text = text,
+                    color = if (buttonColor == ButtonColor.LIGHT) primaryColor else whiteColor,
+                    fontSize = 16.sp,
+                    fontFamily = semiboldFont,
+                )
+            } else if (annotatedText != null) {
+                Text(
+                    text = annotatedText,
+                    color = if (buttonColor == ButtonColor.LIGHT) primaryColor else whiteColor,
+                    fontSize = 16.sp,
+                    fontFamily = semiboldFont,
+                )
+            }
 
             if (iconAlignment == ButtonIconAlignment.END) {
                 Spacer(modifier = Modifier.width(10.dp))

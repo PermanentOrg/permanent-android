@@ -23,13 +23,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun CustomDropdown() {
+fun CustomDropdown(isTablet: Boolean = false) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val purpleColor = Color(ContextCompat.getColor(context, R.color.barneyPurple))
@@ -39,13 +40,13 @@ fun CustomDropdown() {
 
     Button(modifier = Modifier
         .fillMaxWidth()
-        .height(112.dp)
+        .height(if (isTablet) 168.dp else 112.dp)
         .background(
             Brush.horizontalGradient(listOf(purpleColor, accentColor)),
             RoundedCornerShape(12.dp)
         ),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-        shape =  RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(12.dp),
         onClick = { }) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -60,22 +61,22 @@ fun CustomDropdown() {
             )
 
             Column(
-                modifier = Modifier.weight(1.0f, fill = false),
+                modifier = Modifier.weight(1.0f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.individual),
+                    text = stringResource(id = R.string.personal),
                     color = whiteColor,
-                    fontSize = 14.sp,
+                    fontSize = if (isTablet) 18.sp else 14.sp,
                     lineHeight = 24.sp,
                     fontFamily = semiboldFont,
                 )
 
                 Text(
-                    text = stringResource(id = R.string.individual_description),
+                    text = stringResource(id = R.string.personal_description),
                     color = whiteColor,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
+                    fontSize = if (isTablet) 18.sp else 12.sp,
+                    lineHeight = if (isTablet) 32.sp else 16.sp,
                     fontFamily = regularFont,
                 )
             }
@@ -88,4 +89,10 @@ fun CustomDropdown() {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun CustomDropdownPreview() {
+    CustomDropdown()
 }
