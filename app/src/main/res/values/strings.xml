@@ -538,8 +538,12 @@
     <string name="welcome_to_permanent_description">We’re so glad you’re here!\n\nAt Permanent, it is our mission to provide a safe and secure place to store, preserve, and share the digital legacy of all people, whether that\'s for you or for your friends, family, interests or organizations.\n\nWe know that starting this journey can sometimes be overwhelming, but don’t worry. We’re here to help you every step of the way.</string>
     <string name="create_your_first_archive_title">Create your first archive.</string>
     <string name="create_your_first_archive_description">What do you plan to capture and preserve with your first archive?</string>
+    <string name="create_your_first_archive_description_tablet">With my first archive, I plan to capture and preserve material about…</string>
     <string name="individual">Individual</string>
     <string name="individual_description">Create an archive that captures a person’s life.</string>
+    <string name="personal">Personal</string>
+    <string name="personal_description">Create an archive that captures my personal life journey.</string>
+    <string name="lets_create_archive">Let’s create a %s archive</string>
 
     <string name="leave_share">Leave share</string>
 
