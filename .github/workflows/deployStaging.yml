@@ -44,6 +44,9 @@ jobs:
           PUBLISHABLE_KEY: ${{ secrets.PUBLISHABLE_KEY }}
           APP_ID: ${{ secrets.APP_ID }}
           FIREBASEAPPDISTRO_CLI_TOKEN: ${{ secrets.FIREBASEAPPDISTRO_CLI_TOKEN }}
+          KEYSTORE_FILE: '${{ github.workspace }}/permanent.keystore'
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
       run: |
         touch local.properties

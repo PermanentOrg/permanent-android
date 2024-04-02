@@ -2,16 +2,13 @@ package org.permanent.permanent.ui.activities
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -22,6 +19,7 @@ import org.permanent.permanent.databinding.ActivitySplashBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
+import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.LoginActivity
 import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
@@ -39,22 +37,30 @@ class SplashActivity : PermanentBaseActivity() {
 
         startLoginActivity()
 
-        Toast.makeText(
-            this,
-            it,
-            Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Setup orientation
+        requestedOrientation = if (resources.getBoolean(R.bool.is_tablet)) {
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
+        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, MODE_PRIVATE))
+        val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
+        prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash)
         viewModel = ViewModelProvider(this)[SplashViewModel::class.java]
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
         createNotificationChannel()
-        prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
         // Clear deep links that weren't consumed
         prefsHelper.saveShareLinkUrlToken("")

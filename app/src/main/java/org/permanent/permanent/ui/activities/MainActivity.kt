@@ -3,6 +3,7 @@ package org.permanent.permanent.ui.activities
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -45,6 +46,7 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
+import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.settings.SettingsMenuFragment
@@ -120,9 +122,20 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Setup orientation
+        requestedOrientation = if (resources.getBoolean(R.bool.is_tablet)) {
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
         prefsHelper = PreferencesHelper(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
+        prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
+
         // MainActivity binding
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -159,6 +172,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
+
         // Toolbar Settings menu click listener
         binding.toolbar.setOnMenuItemClickListener(this)
 
@@ -257,7 +271,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         val archiveSettingsRightIcon =
             menuItem.actionView?.findViewById<ImageView>(R.id.ivRightIcon)
         val icon =
-            if (submenuVisible) R.drawable.ic_drop_up_white else R.drawable.ic_drop_down_white
+            if (submenuVisible) R.drawable.ic_arrow_drop_up_white else R.drawable.ic_arrow_drop_down_white
         archiveSettingsRightIcon?.setImageResource(icon)
     }
 

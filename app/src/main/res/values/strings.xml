@@ -1,13 +1,14 @@
 <resources>
     <string name="app_name">Permanent Archive</string>
+    <string name="screen_orientation">2</string>
     <string name="onboarding_page_one_title">Share your most cherished memories with total control.</string>
     <string name="onboarding_page_one_text">Easily create links to privately shared content that limit how many people can access the content or for how long.</string>
     <string name="onboarding_page_two_title">Preserve your most important documents with peace of mind.</string>
     <string name="onboarding_page_two_text">We are the most comprehensive consumer digital preservation platform available today.</string>
     <string name="onboarding_page_three_title">We will never mine your data, claim your copyright or invade your privacy.</string>
     <string name="onboarding_page_three_text">We are backed by a mission-driven, cultural heritage nonprofit dedicated to the public good.</string>
-    <string name="onboarding_next_button">Next</string>
-    <string name="onboarding_get_started_button">Get Started</string>
+    <string name="next">Next</string>
+    <string name="get_started">Get Started</string>
     <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
     <string name="email_hint">Email</string>
@@ -102,9 +103,9 @@
     <string name="storage">Storage</string>
     <string name="my_archives">My Archives</string>
     <string name="invitations">Invitations</string>
-    <string name="activity_feed">Activity feed</string>
+    <string name="activity_feed">Activity Feed</string>
     <string name="security">Security</string>
-    <string name="legacy_planning">Legacy planning</string>
+    <string name="legacy_planning">Legacy Planning</string>
     <string name="gift_storage">Gift storage</string>
     <string name="contact_support">Contact support</string>
     <string name="sign_out">Sign out</string>
@@ -526,7 +527,7 @@
     <string name="archive_onboarding_group_archive_text">any group of people, such as a community group or a family</string>
     <string name="archive_onboarding_organization_archive_title">Organization Archive</string>
     <string name="archive_onboarding_organization_archive_text">an organizational entity, such as a company or nonprofit</string>
-    <string name="archive_onboarding_back_button">Back</string>
+    <string name="back">Back</string>
     <string name="archive_onboarding_name_archive_button">Next: Name Archive</string>
     <string name="archive_onboarding_create_archive_button">Create Archive</string>
     <string name="archive_onboarding_accept_all_button">Accept All</string>
@@ -536,8 +537,18 @@
     <string name="archive_onboarding_name_hint">Name</string>
     <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
+    <string name="welcome_to_permanent_title">Hello, <b>%s</b>.\nWelcome to Permanent!</string>
+    <string name="welcome_to_permanent_description">We’re so glad you’re here!\n\nAt Permanent, it is our mission to provide a safe and secure place to store, preserve, and share the digital legacy of all people, whether that\'s for you or for your friends, family, interests or organizations.\n\nWe know that starting this journey can sometimes be overwhelming, but don’t worry. We’re here to help you every step of the way.</string>
+    <string name="create_your_first_archive_title">Create your first archive.</string>
+    <string name="create_your_first_archive_description">What do you plan to capture and preserve with your first archive?</string>
+    <string name="create_your_first_archive_description_tablet">With my first archive, I plan to capture and preserve material about…</string>
+    <string name="individual">Individual</string>
+    <string name="individual_description">Create an archive that captures a person’s life.</string>
+    <string name="personal">Personal</string>
+    <string name="personal_description">Create an archive that captures my personal life journey.</string>
+    <string name="lets_create_archive">Let’s create a %s archive</string>
 
-    <string name="button_leave_share">Leave share</string>
+    <string name="leave_share">Leave share</string>
 
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>

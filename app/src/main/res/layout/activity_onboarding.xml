@@ -64,7 +64,7 @@
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/colorAccent"
-            android:text="@{viewModel.snapPosition == 2 ? @string/onboarding_get_started_button : @string/onboarding_next_button}"
+            android:text="@{viewModel.snapPosition == 2 ? @string/get_started : @string/next}"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="21sp"

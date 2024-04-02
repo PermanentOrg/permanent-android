@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui
 
 import android.content.SharedPreferences
+import androidx.window.core.layout.WindowWidthSizeClass
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
@@ -18,6 +19,7 @@ const val IS_LIST_VIEW_MODE = "is_list_view_mode"
 const val SHOW_ARCHIVES_SCREEN = "should_show_archives_screen"
 const val SHOW_REDEEM_CODE_SCREEN = "should_redeem_code_screen"
 const val PROMO_CODE = "promo_code"
+const val WINDOW_WIDTH_SIZE_CLASS = "window_width_size_class"
 const val PREFS_ACCOUNT_ID = "preferences_user_account_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_ID = "preferences_public_record_folder_id"
 const val PREFS_PUBLIC_RECORD_FOLDER_LINK_ID = "preferences_public_record_folder_link_id"
@@ -264,10 +266,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
     }
 
     fun savePublicRecordInfo(
-        folderId: Int?,
-        folderLinkId: Int?,
-        archiveNr: String?,
-        thumbURL2000: String?
+        folderId: Int?, folderLinkId: Int?, archiveNr: String?, thumbURL2000: String?
     ) {
         folderId?.let {
             with(sharedPreferences.edit()) {
@@ -439,5 +438,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getPromoCode(): String? {
         return sharedPreferences.getString(PROMO_CODE, "")
+    }
+
+    fun saveWindowWidthSizeClass(windowWidthSizeClass: WindowWidthSizeClass) {
+        with(sharedPreferences.edit()) {
+            putString(WINDOW_WIDTH_SIZE_CLASS, windowWidthSizeClass.toString())
+            apply()
+        }
+    }
+
+    fun isTablet(): Boolean {
+        val windowWidthSizeString = sharedPreferences.getString(WINDOW_WIDTH_SIZE_CLASS, "")
+        return windowWidthSizeString.equals(WindowWidthSizeClass.EXPANDED.toString())
     }
 }

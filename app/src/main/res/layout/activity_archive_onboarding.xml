@@ -3,200 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="android.view.View" />
-        <import type="org.permanent.permanent.ui.archiveOnboarding.OnboardingPage" />
-
-        <variable
-            name="viewModel"
-            type="org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white">
+        android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragmentContainerView"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:logo="@drawable/img_toolbar_logo"
-            app:title="@string/toolbar_title"
-            app:titleMarginStart="24dp"
-            app:titleTextAppearance="@style/TextAppearance.AppCompat.Large"
-            app:titleTextColor="@color/colorAccent" />
+            android:name="org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingFragment" />
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/linearProgressIndicator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            android:max="3"
-            android:progress="@{viewModel.progress}"
-            android:progressTint="@color/colorPrimary"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.PENDING_INVITATIONS || viewModel.currentPage == OnboardingPage.DEFAULT_SELECTION ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            app:layout_constraintVertical_bias="0.0"
-            app:trackThickness="8dp" />
-
-        <View
-            android:id="@+id/viewDividerFirst"
-            android:layout_width="4dp"
-            android:layout_height="0dp"
-            android:background="@color/white"
-            app:layout_constraintBottom_toBottomOf="@+id/linearProgressIndicator"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.34"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/linearProgressIndicator" />
-
-        <View
-            android:id="@+id/viewDividerSecond"
-            android:layout_width="4dp"
-            android:layout_height="0dp"
-            android:background="@color/white"
-            app:layout_constraintBottom_toBottomOf="@+id/linearProgressIndicator"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.66"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/linearProgressIndicator" />
-
-        <FrameLayout
-            android:id="@+id/frameLayoutContainer"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/btnGetStarted"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearProgressIndicator" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnGetStarted"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:onClick="@{() -> viewModel.onGetStartedBtnClick()}"
-            android:text="@string/onboarding_get_started_button"
-            android:textSize="18sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.WELCOME ? View.VISIBLE : View.INVISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnBack"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="88dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/middleGrey"
-            android:onClick="@{() -> viewModel.onBackBtnClick()}"
-            android:text="@string/archive_onboarding_back_button"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.TYPE_SELECTION || viewModel.currentPage == OnboardingPage.NAME_SETTING ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnNameArchive"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp"
-            android:enabled="@{viewModel.isArchiveSelected ? true : false}"
-            android:onClick="@{() -> viewModel.onNameArchiveBtnClick()}"
-            android:text="@string/archive_onboarding_name_archive_button"
-            android:textColor="@{viewModel.isArchiveSelected ? @color/white : @color/whiteTransparent}"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.TYPE_SELECTION ? View.VISIBLE : View.INVISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/btnBack" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCreateArchive"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp"
-            android:enabled="@{viewModel.name == null || viewModel.name.trim().isEmpty ? false : true}"
-            android:onClick="@{() -> viewModel.onCreateArchiveBtnClick()}"
-            android:text="@string/archive_onboarding_create_archive_button"
-            android:textColor="@{viewModel.name == null || viewModel.name.trim().isEmpty ? @color/whiteTransparent : @color/white}"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.NAME_SETTING ? View.VISIBLE : View.INVISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/btnBack" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/middleGuideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.50" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAcceptAll"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp"
-            android:onClick="@{() -> viewModel.onAcceptAllBtnClick()}"
-            android:text="@string/archive_onboarding_accept_all_button"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.PENDING_INVITATIONS ? View.VISIBLE : View.GONE }"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/middleGuideline" />
-
-        <TextView
-            android:id="@+id/tvCreateNewArchive"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:fontFamily="@font/open_sans_bold"
-            android:onClick="@{() -> viewModel.onCreateNewArchiveBtnClick()}"
-            android:text="@string/button_create_new_archive"
-            android:textColor="@color/colorPrimary"
-            android:textSize="17sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.PENDING_INVITATIONS ? View.VISIBLE : View.INVISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnAcceptAll"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tvCreateNewArchive2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:fontFamily="@font/open_sans_bold"
-            android:onClick="@{() -> viewModel.onCreateNewArchiveBtnClick()}"
-            android:text="@string/button_create_new_archive"
-            android:textColor="@color/colorPrimary"
-            android:textSize="17sp"
-            android:visibility="@{viewModel.currentPage == OnboardingPage.DEFAULT_SELECTION ? View.VISIBLE : View.INVISIBLE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
