@@ -665,5 +665,10 @@
     <string name="append">Append</string>
     <string name="sequence">Sequence</string>
     <string name="find">Find</string>
+    <string name="text">Text</string>
+    <string name="where">Where</string>
+    <string name="before_name">Before Name</string>
+    <string name="after_name">After Name</string>
+
 
 </resources>

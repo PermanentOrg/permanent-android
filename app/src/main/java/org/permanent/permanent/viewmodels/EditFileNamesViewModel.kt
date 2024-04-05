@@ -60,9 +60,37 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
         }
     }
 
+    fun append(text: String, before: Boolean) {
+        val name = records.firstOrNull()?.displayName
+        if(text.isNotEmpty()) {
+            var newName = name
+            if(before) {
+                newName = text + newName
+            } else {
+                newName += text
+            }
+            uiState.value = uiState.value.copy(fileName = newName)
+        } else {
+            uiState.value = uiState.value.copy(fileName = name)
+        }
+    }
+
     fun applyChanges(findText: String, replaceText: String) {
         for(record in records) {
             val newName = record.displayName?.replace(findText, replaceText)
+            record.displayName = newName
+        }
+        applyChanges()
+    }
+
+    fun applyChanges(text: String, before: Boolean) {
+        for(record in records) {
+            var newName = record.displayName
+            if(before) {
+                newName = text + newName
+            } else {
+                newName += text
+            }
             record.displayName = newName
         }
         applyChanges()
