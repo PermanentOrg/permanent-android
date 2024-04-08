@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -75,6 +76,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionOptionsFragment: SelectionOptionsFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
+    private var screenWidth = 960
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -106,6 +108,11 @@ class SharedXMeFragment : PermanentBaseFragment() {
             val showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
             if (showScreenSimplified) viewModel.setShowScreenSimplified()
         }
+
+        val displayMetrics = DisplayMetrics()
+        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+        screenWidth = displayMetrics.widthPixels - 50
+
         return binding.root
     }
 
@@ -323,7 +330,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private val expandIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(
             binding.flFloatingActionIsland.width,
-            MyFilesFragment.ISLAND_WIDTH_LARGE
+            screenWidth
         )
     }
 
@@ -374,7 +381,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         lifecycleScope.launch {
             delay(MyFilesFragment.DELAY_TO_RESIZE_MILLIS)
             resizeIslandWidthAnimated(
-                binding.flFloatingActionIsland.width, MyFilesFragment.ISLAND_WIDTH_LARGE
+                binding.flFloatingActionIsland.width, screenWidth
             )
         }
     }

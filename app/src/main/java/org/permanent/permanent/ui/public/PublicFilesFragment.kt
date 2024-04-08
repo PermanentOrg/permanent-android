@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,7 +42,6 @@ import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.AddOptionsFragment
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.DELAY_TO_RESIZE_MILLIS
-import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH_LARGE
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH_SMALL
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.RESIZE_DURATION_MILLIS
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
@@ -78,6 +78,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionOptionsFragment: SelectionOptionsFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Pair<Workspace, Record>>()
+    private var screenWidth = 960
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -99,8 +100,12 @@ class PublicFilesFragment : PermanentBaseFragment() {
         initDownloadsRecyclerView(binding.rvDownloads)
         initFilesRecyclerView(binding.rvFiles)
 
+        val displayMetrics = DisplayMetrics()
+        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+        screenWidth = displayMetrics.widthPixels - 50
+
         if (viewModel.isRelocationMode.value == true) resizeIslandWidthAnimated(
-            binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE
+            binding.flFloatingActionIsland.width, screenWidth
         )
         arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
             val showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
@@ -253,7 +258,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     }
 
     private val expandIslandRequestObserver = Observer<Void?> {
-        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, screenWidth)
     }
 
     private val deleteRecordsObserver = Observer<Void?> {
@@ -297,7 +302,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.setRelocationMode(Pair(mutableListOf(it.first), it.second))
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
-            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, screenWidth)
         }
     }
 
