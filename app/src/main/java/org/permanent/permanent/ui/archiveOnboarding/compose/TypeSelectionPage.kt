@@ -34,22 +34,27 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.CustomDropdown
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
 
 @Composable
-fun TypeSelectionPage(isTablet: Boolean, pagerState: PagerState) {
+fun TypeSelectionPage(
+    isTablet: Boolean,
+    pagerState: PagerState,
+    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
     if (isTablet) {
-        TabletBody(whiteColor, regularFont, coroutineScope, pagerState)
+        TabletBody(whiteColor, regularFont, coroutineScope, pagerState, onArchiveTypeClick)
     } else {
-        PhoneBody(whiteColor, regularFont, coroutineScope, pagerState)
+        PhoneBody(whiteColor, regularFont, coroutineScope, pagerState, onArchiveTypeClick)
     }
 }
 
@@ -58,7 +63,8 @@ private fun TabletBody(
     whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
-    pagerState: PagerState
+    pagerState: PagerState,
+    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -107,7 +113,7 @@ private fun TabletBody(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            CustomDropdown(isTablet = true)
+            CustomDropdown(isTablet = true, onArchiveTypeClick = onArchiveTypeClick)
 
             Spacer(modifier = Modifier.weight(1.0f))
 
@@ -131,7 +137,8 @@ private fun TabletBody(
                 }
 
                 val boldedWord = "Personal"
-                val partialBoldedText = stringResource(id = R.string.lets_create_archive, boldedWord)
+                val partialBoldedText =
+                    stringResource(id = R.string.lets_create_archive, boldedWord)
                 val start = partialBoldedText.indexOf(boldedWord)
                 val spanStyles = listOf(
                     AnnotatedString.Range(
@@ -143,7 +150,10 @@ private fun TabletBody(
 
                 SmallTextAndIconButton(
                     ButtonColor.LIGHT,
-                    annotatedText = AnnotatedString(text = partialBoldedText, spanStyles = spanStyles)
+                    annotatedText = AnnotatedString(
+                        text = partialBoldedText,
+                        spanStyles = spanStyles
+                    )
                 ) {
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(2)
@@ -159,7 +169,8 @@ private fun PhoneBody(
     whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
-    pagerState: PagerState
+    pagerState: PagerState,
+    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -194,7 +205,7 @@ private fun PhoneBody(
             fontFamily = regularFont
         )
 
-        CustomDropdown()
+        CustomDropdown(onArchiveTypeClick = onArchiveTypeClick)
 
         Spacer(modifier = Modifier.weight(1f))
 

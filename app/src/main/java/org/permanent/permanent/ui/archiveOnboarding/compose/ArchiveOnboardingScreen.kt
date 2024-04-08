@@ -17,6 +17,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -28,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
+import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.CustomProgressIndicator
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
@@ -45,6 +50,17 @@ fun ArchiveOnboardingScreen(
     val topPaddingDp = if (isTablet) 32.dp else 24.dp
     val spacerPaddingDp = if (isTablet) 32.dp else 8.dp
     val progressIndicatorHeight = if (isTablet) 4.dp else 2.dp
+
+    var newArchive by remember {
+        mutableStateOf(
+            NewArchive(
+                ArchiveType.PERSON,
+                "",
+                "",
+                ""
+            )
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -89,8 +105,17 @@ fun ArchiveOnboardingScreen(
             }
 
             HorizontalPager(pageCount = 2, state = pagerState, userScrollEnabled = false) { page ->
-                if (page == 0) WelcomePage(isTablet, pagerState, viewModel.getAccountName().value)
-                else TypeSelectionPage(isTablet, pagerState)
+                if (page == 0) WelcomePage(
+                    isTablet = isTablet,
+                    pagerState = pagerState,
+                    accountName = viewModel.getAccountName().value
+                )
+                else TypeSelectionPage(
+                    isTablet = isTablet,
+                    pagerState = pagerState,
+                    onArchiveTypeClick = { archiveType ->
+                        newArchive.type = archiveType
+                    })
             }
         }
     }
@@ -123,3 +148,10 @@ fun OnboardingProgressIndicator(
         percent
     )
 }
+
+data class NewArchive(
+    var type: ArchiveType,
+    var name: String,
+    var goals: String?,
+    var priorities: String?
+)
