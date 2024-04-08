@@ -138,7 +138,12 @@ fun EditFileNamesScreen(
                     applyChanges = viewModel::applyChanges,
                     cancel = cancel
                 )
-                EditFilesOptions.APPEND -> AppendContent()
+                EditFilesOptions.APPEND -> AppendFileNamesScreen(
+                    uiState = uiState,
+                    append = viewModel::append,
+                    applyChanges = viewModel::applyChanges,
+                    cancel = cancel
+                )
                 EditFilesOptions.SEQUENCE -> PrependContent()
             }
         }
