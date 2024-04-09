@@ -78,7 +78,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionOptionsFragment: SelectionOptionsFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Pair<Workspace, Record>>()
-    private var screenWidth = 960
+    private var islandExpandedWidth = 960
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -102,10 +102,10 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
         val displayMetrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-        screenWidth = displayMetrics.widthPixels - 50
+        islandExpandedWidth = displayMetrics.widthPixels - 50
 
         if (viewModel.isRelocationMode.value == true) resizeIslandWidthAnimated(
-            binding.flFloatingActionIsland.width, screenWidth
+            binding.flFloatingActionIsland.width, islandExpandedWidth
         )
         arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
             val showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
@@ -258,7 +258,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     }
 
     private val expandIslandRequestObserver = Observer<Void?> {
-        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, screenWidth)
+        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, islandExpandedWidth)
     }
 
     private val deleteRecordsObserver = Observer<Void?> {
@@ -302,7 +302,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.setRelocationMode(Pair(mutableListOf(it.first), it.second))
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
-            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, screenWidth)
+            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, islandExpandedWidth)
         }
     }
 

@@ -76,7 +76,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionOptionsFragment: SelectionOptionsFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
-    private var screenWidth = 960
+    private var islandExpandedWidth = 960
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -111,7 +111,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
 
         val displayMetrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-        screenWidth = displayMetrics.widthPixels - 50
+        islandExpandedWidth = displayMetrics.widthPixels - 50
 
         return binding.root
     }
@@ -330,7 +330,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private val expandIslandRequestObserver = Observer<Void?> {
         resizeIslandWidthAnimated(
             binding.flFloatingActionIsland.width,
-            screenWidth
+            islandExpandedWidth
         )
     }
 
@@ -381,7 +381,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         lifecycleScope.launch {
             delay(MyFilesFragment.DELAY_TO_RESIZE_MILLIS)
             resizeIslandWidthAnimated(
-                binding.flFloatingActionIsland.width, screenWidth
+                binding.flFloatingActionIsland.width, islandExpandedWidth
             )
         }
     }
