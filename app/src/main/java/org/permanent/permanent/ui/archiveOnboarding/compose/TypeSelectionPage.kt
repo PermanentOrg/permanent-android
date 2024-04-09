@@ -37,7 +37,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
-import org.permanent.permanent.ui.composeComponents.CustomDropdown
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
 
 @Composable
@@ -113,7 +112,7 @@ private fun TabletBody(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            CustomDropdown(isTablet = true, onArchiveTypeClick = onArchiveTypeClick)
+            ArchiveTypeDropdown(isTablet = true, onListItemClick = onArchiveTypeClick)
 
             Spacer(modifier = Modifier.weight(1.0f))
 
@@ -205,7 +204,7 @@ private fun PhoneBody(
             fontFamily = regularFont
         )
 
-        CustomDropdown(onArchiveTypeClick = onArchiveTypeClick)
+        ArchiveTypeDropdown(onListItemClick = onArchiveTypeClick)
 
         Spacer(modifier = Modifier.weight(1f))
 

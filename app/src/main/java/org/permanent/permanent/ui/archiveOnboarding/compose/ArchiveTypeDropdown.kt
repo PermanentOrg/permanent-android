@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package org.permanent.permanent.ui.composeComponents
+package org.permanent.permanent.ui.archiveOnboarding.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,11 +45,12 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.ui.composeComponents.MenuItem
 
 @Composable
-fun CustomDropdown(
+fun ArchiveTypeDropdown(
     isTablet: Boolean = false,
-    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+    onListItemClick: (archiveType: ArchiveType) -> Unit
 ) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
@@ -60,16 +61,46 @@ fun CustomDropdown(
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
-    var currentArchiveType by remember {
-        mutableStateOf(
-            UIArchive(
-                ArchiveType.PERSON,
-                R.drawable.ic_heart_white,
-                R.string.personal,
-                R.string.personal_description
-            )
+    var listItems = listOf(
+        UIArchive(
+            ArchiveType.PERSON,
+            R.drawable.ic_heart_white,
+            R.string.personal,
+            R.string.personal_description
+        ),
+        UIArchive(
+            ArchiveType.PERSON,
+            R.drawable.ic_account_empty_primary,
+            R.string.individual,
+            R.string.individual_description
+        ),
+        UIArchive(
+            ArchiveType.FAMILY,
+            R.drawable.ic_family_primary,
+            R.string.family,
+            R.string.family_description
+        ),
+        UIArchive(
+            ArchiveType.FAMILY,
+            R.drawable.ic_family_history_primary,
+            R.string.family_history,
+            R.string.family_history_description
+        ),
+        UIArchive(
+            ArchiveType.FAMILY,
+            R.drawable.ic_community_primary,
+            R.string.community,
+            R.string.community_description
+        ),
+        UIArchive(
+            ArchiveType.ORGANIZATION,
+            R.drawable.ic_organization_empty_primary,
+            R.string.organization,
+            R.string.organization_description
         )
-    }
+    )
+
+    var currentArchiveType by remember { mutableStateOf(listItems[0]) }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -177,131 +208,27 @@ fun CustomDropdown(
                 Column(
                     modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Top
                 ) {
-                    Divider()
+                    listItems.forEach { item ->
+                        Divider()
 
-                    StorageMenuItem(
-                        painterResource(id = R.drawable.ic_heart_white),
-                        stringResource(R.string.personal),
-                        stringResource(R.string.personal_description)
-                    ) {
-                        currentArchiveType.type = ArchiveType.PERSON
-                        currentArchiveType.icon = R.drawable.ic_heart_white
-                        currentArchiveType.title = R.string.personal
-                        currentArchiveType.description = R.string.personal_description
-                        onArchiveTypeClick(currentArchiveType.type)
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
+                        MenuItem(
+                            painterResource(id = item.icon),
+                            stringResource(item.title),
+                            stringResource(item.description)
+                        ) {
+                            currentArchiveType = item
+                            onListItemClick(item.type)
+                            scope
+                                .launch { sheetState.hide() }
+                                .invokeOnCompletion {
+                                    if (!sheetState.isVisible) {
+                                        showBottomSheet = false
+                                    }
                                 }
-                            }
+                        }
                     }
 
                     Divider()
-
-                    StorageMenuItem(
-                        painterResource(id = R.drawable.ic_account_empty_primary),
-                        stringResource(R.string.individual),
-                        stringResource(R.string.individual_description)
-                    ) {
-                        currentArchiveType.type = ArchiveType.PERSON
-                        currentArchiveType.icon = R.drawable.ic_account_empty_primary
-                        currentArchiveType.title = R.string.individual
-                        currentArchiveType.description = R.string.individual_description
-                        onArchiveTypeClick(currentArchiveType.type)
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
-                                }
-                            }
-                    }
-
-                    Divider()
-
-                    StorageMenuItem(
-                        painterResource(id = R.drawable.ic_family_primary),
-                        stringResource(R.string.family),
-                        stringResource(R.string.family_description)
-                    ) {
-                        currentArchiveType.type = ArchiveType.FAMILY
-                        currentArchiveType.icon = R.drawable.ic_family_primary
-                        currentArchiveType.title = R.string.family
-                        currentArchiveType.description = R.string.family_description
-                        onArchiveTypeClick(currentArchiveType.type)
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
-                                }
-                            }
-                    }
-
-                    Divider()
-
-                    StorageMenuItem(
-                        painterResource(id = R.drawable.ic_family_history_primary),
-                        stringResource(R.string.family_history),
-                        stringResource(R.string.family_history_description)
-                    ) {
-                        currentArchiveType.type = ArchiveType.FAMILY
-                        currentArchiveType.icon = R.drawable.ic_family_history_primary
-                        currentArchiveType.title = R.string.family_history
-                        currentArchiveType.description = R.string.family_history_description
-                        onArchiveTypeClick(currentArchiveType.type)
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
-                                }
-                            }
-                    }
-
-                    Divider()
-
-                    StorageMenuItem(
-                        painterResource(id = R.drawable.ic_community_primary),
-                        stringResource(R.string.community),
-                        stringResource(R.string.community_description)
-                    ) {
-                        currentArchiveType.type = ArchiveType.FAMILY
-                        currentArchiveType.icon = R.drawable.ic_community_primary
-                        currentArchiveType.title = R.string.community
-                        currentArchiveType.description = R.string.community_description
-                        onArchiveTypeClick(currentArchiveType.type)
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
-                                }
-                            }
-                    }
-
-                    Divider()
-
-                    StorageMenuItem(
-                        painterResource(id = R.drawable.ic_organization_empty_primary),
-                        stringResource(R.string.organization),
-                        stringResource(R.string.organization_description)
-                    ) {
-                        currentArchiveType.type = ArchiveType.ORGANIZATION
-                        currentArchiveType.icon = R.drawable.ic_organization_empty_primary
-                        currentArchiveType.title = R.string.organization
-                        currentArchiveType.description = R.string.organization_description
-                        onArchiveTypeClick(currentArchiveType.type)
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
-                                }
-                            }
-                    }
                 }
             }
         }
@@ -318,5 +245,5 @@ data class UIArchive(
 @Preview
 @Composable
 fun CustomDropdownPreview() {
-    CustomDropdown(onArchiveTypeClick = {})
+    ArchiveTypeDropdown(onListItemClick = {})
 }
