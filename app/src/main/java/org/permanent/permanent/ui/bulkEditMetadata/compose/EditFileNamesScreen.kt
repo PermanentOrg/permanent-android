@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.SnackbarHostState
@@ -64,9 +63,7 @@ fun EditFileNamesScreen(
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier.imePadding()
-    ) {
+    Column() {
         BottomSheetHeader(
             painterResource(id = R.drawable.ic_edit_name), screenTitle = stringResource(id = R.string.edit_file_names)
         )
