@@ -27,6 +27,7 @@ import org.permanent.permanent.R
 
 @Composable
 fun MenuItem(
+    isTablet: Boolean = false,
     iconResource: Painter,
     title: String,
     subtitle: String,
@@ -41,8 +42,6 @@ fun MenuItem(
     val middleGreyColor = Color(ContextCompat.getColor(context, R.color.middleGrey))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
-    val smallTextSize = 15.sp
-    val superSmallTextSize = 13.sp
 
     Row(
         modifier = Modifier
@@ -73,7 +72,8 @@ fun MenuItem(
             ) {
                 Text(
                     text = title,
-                    fontSize = smallTextSize,
+                    fontSize = if (isTablet) 18.sp else 14.sp,
+                    lineHeight = 24.sp,
                     color = blue900Color,
                     fontFamily = boldFont
                 )
@@ -82,7 +82,8 @@ fun MenuItem(
             }
             Text(
                 text = subtitle,
-                fontSize = superSmallTextSize,
+                fontSize = if (isTablet) 18.sp else 12.sp,
+                lineHeight = if (isTablet) 32.sp else 16.sp,
                 color = middleGreyColor,
                 fontFamily = regularFont
             )
