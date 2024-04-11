@@ -212,9 +212,10 @@ fun ArchiveTypeDropdown(
                         Divider()
 
                         MenuItem(
-                            painterResource(id = item.icon),
-                            stringResource(item.title),
-                            stringResource(item.description)
+                            isTablet = isTablet,
+                            iconResource = painterResource(id = item.icon),
+                            title = stringResource(item.title),
+                            subtitle = stringResource(item.description)
                         ) {
                             currentArchiveType = item
                             onListItemClick(item.type)
