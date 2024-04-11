@@ -54,8 +54,8 @@ fun ArchiveTypeDropdown(
 ) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
-    val purpleColor = Color(ContextCompat.getColor(context, R.color.barneyPurple))
-    val accentColor = Color(ContextCompat.getColor(context, R.color.colorAccent))
+    val mardiGrasColor = Color(ContextCompat.getColor(context, R.color.mardiGras))
+    val orangeColor = Color(ContextCompat.getColor(context, R.color.orange))
     val blue900Color = Color(ContextCompat.getColor(context, R.color.blue900))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
@@ -110,7 +110,7 @@ fun ArchiveTypeDropdown(
         .fillMaxWidth()
         .height(if (isTablet) 168.dp else 112.dp)
         .background(
-            Brush.horizontalGradient(listOf(purpleColor, accentColor)),
+            Brush.horizontalGradient(listOf(mardiGrasColor, orangeColor)),
             RoundedCornerShape(12.dp)
         ),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
