@@ -144,7 +144,11 @@ fun EditFileNamesScreen(
                     applyChanges = viewModel::applyChanges,
                     cancel = cancel
                 )
-                EditFilesOptions.SEQUENCE -> PrependContent()
+                EditFilesOptions.SEQUENCE -> SequenceFileNamesScreen(uiState = uiState,
+                    append = viewModel::append,
+                    applyChanges = viewModel::applyChanges,
+                    cancel = cancel
+                )
             }
         }
     }
@@ -177,9 +181,3 @@ private enum class EditFilesOptions(val titleID: Int, val resource: Int) {
 
     fun getLabel(context: Context) = context.getString(titleID)
 }
-
-@Composable
-fun AppendContent() { /* ... */ }
-
-@Composable
-fun PrependContent() { /* ... */ }
