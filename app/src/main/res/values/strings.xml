@@ -551,7 +551,8 @@
     <string name="community_description">Create an archive that captures a community’s life.</string>
     <string name="organization">Organization</string>
     <string name="organization_description">Create an archive that captures an organization’s life.</string>
-    <string name="lets_create_archive">Let’s create a %s archive</string>
+    <string name="lets_create_a_archive">Let’s create a %s archive</string>
+    <string name="lets_create_an_archive">Let’s create an %s archive</string>
 
     <string name="leave_share">Leave share</string>
 
