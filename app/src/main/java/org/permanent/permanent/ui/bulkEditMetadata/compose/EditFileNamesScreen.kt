@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -36,7 +37,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditFileNamesViewModel
@@ -57,117 +57,118 @@ fun EditFileNamesScreen(
     val superLightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
-
     val uiState by viewModel.uiState.collectAsState()
 
-    val coroutineScope = rememberCoroutineScope()
-    val snackbarEventFlow = remember { MutableSharedFlow<String>() }
+    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier.imePadding()
-    ) {
-        BottomSheetHeader(
-            painterResource(id = R.drawable.ic_edit_name), screenTitle = stringResource(id = R.string.edit_file_names)
-        )
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(26.dp),
-            verticalArrangement = Arrangement.spacedBy(32.dp)) {
-
-            Box(
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) {it
+        Column() {
+            BottomSheetHeader(
+                painterResource(id = R.drawable.ic_edit_name),
+                screenTitle = stringResource(id = R.string.edit_file_names)
+            )
+            Column(
                 modifier = Modifier
-                    .border(1.dp, superLightBlueColor, RoundedCornerShape(10))
-                    .padding(3.dp)
-                    .clip(RoundedCornerShape(4.dp))
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(26.dp),
+                verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                TabRow(
-                    selectedTabIndex = selectedIndex,
-                    containerColor = Color.White,
-                    modifier = Modifier,
-                    indicator = {
-                        Box {}
-                    },
-                    divider = {},
+                Box(
+                    modifier = Modifier
+                        .border(1.dp, superLightBlueColor, RoundedCornerShape(10))
+                        .padding(3.dp)
+                        .clip(RoundedCornerShape(4.dp))
                 ) {
-                    options.forEachIndexed { index, option ->
-                        val selected = selectedIndex == index
-                        Tab(
-                            modifier = if (selected) Modifier
-                                .background(superLightBlueColor)
-                            else Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(
-                                    Color.White
-                                ),
-                            selected = selected,
-                            onClick = { selectedIndex = index },
-                            text = {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                                    modifier = if (selected) Modifier
-                                        .alpha(1.0f)
-                                    else
-                                        Modifier
-                                            .alpha(0.5f)
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = option.resource),
-                                        contentDescription = "Replace"
-                                    )
-                                    Text(
-                                        text = option.getLabel(context).uppercase(),
-                                        color = blue900,
-                                        fontFamily = boldFont,
-                                        fontSize = 10.sp
-                                    )
+                    TabRow(
+                        selectedTabIndex = selectedIndex,
+                        containerColor = Color.White,
+                        modifier = Modifier,
+                        indicator = {
+                            Box {}
+                        },
+                        divider = {},
+                    ) {
+                        options.forEachIndexed { index, option ->
+                            val selected = selectedIndex == index
+                            Tab(
+                                modifier = if (selected) Modifier
+                                    .background(superLightBlueColor)
+                                else Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(
+                                        Color.White
+                                    ),
+                                selected = selected,
+                                onClick = { selectedIndex = index },
+                                text = {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                                        modifier = if (selected) Modifier
+                                            .alpha(1.0f)
+                                        else
+                                            Modifier
+                                                .alpha(0.5f)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = option.resource),
+                                            contentDescription = "Replace"
+                                        )
+                                        Text(
+                                            text = option.getLabel(context).uppercase(),
+                                            color = blue900,
+                                            fontFamily = boldFont,
+                                            fontSize = 10.sp
+                                        )
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
-            }
 
-            // Conditional Content based on selectedOption
-            when (options[selectedIndex]) {
-                EditFilesOptions.REPLACE-> ReplaceFileNamesScreen(
-                    uiState,
-                    replace = viewModel::replace,
-                    applyChanges = viewModel::applyChanges,
-                    cancel = cancel
-                )
-                EditFilesOptions.APPEND -> AppendFileNamesScreen(
-                    uiState = uiState,
-                    append = viewModel::append,
-                    applyChanges = viewModel::applyChanges,
-                    cancel = cancel
-                )
-                EditFilesOptions.SEQUENCE -> PrependContent()
-            }
-        }
-    }
+                // Conditional Content based on selectedOption
+                when (options[selectedIndex]) {
+                    EditFilesOptions.REPLACE -> ReplaceFileNamesScreen(
+                        uiState,
+                        replace = viewModel::replace,
+                        applyChanges = viewModel::applyChanges,
+                        cancel = cancel
+                    )
 
-    LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let { message ->
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(message)
+                    EditFilesOptions.APPEND -> AppendFileNamesScreen(
+                        uiState = uiState,
+                        append = viewModel::append,
+                        applyChanges = viewModel::applyChanges,
+                        cancel = cancel
+                    )
+
+                    EditFilesOptions.SEQUENCE -> PrependContent()
+                }
             }
         }
-    }
 
-    LaunchedEffect(snackbarEventFlow) {
-        snackbarEventFlow.collect { message ->
-            snackbarHostState.showSnackbar(message)
+        LaunchedEffect(key1 = uiState.errorMessage) {
+            uiState.errorMessage?.let {
+                scope.launch {
+                    snackbarHostState.showSnackbar(it)
+                    viewModel.updateError(null)
+                }
+            }
         }
-    }
 
-    LaunchedEffect(key1 = uiState.shouldClose, block = {
-        if(uiState.shouldClose) {
-            cancel()
-        }
-    })
+        LaunchedEffect(key1 = uiState.shouldClose, block = {
+            if(uiState.shouldClose) {
+                cancel()
+            }
+        })
+    }
 }
 
 private enum class EditFilesOptions(val titleID: Int, val resource: Int) {
