@@ -16,7 +16,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,6 +69,9 @@ private fun TabletBody(
     pagerState: PagerState,
     onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
 ) {
+    val context = LocalContext.current
+    var archiveTypeName by remember { mutableStateOf(context.getString(R.string.personal)) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,7 +119,10 @@ private fun TabletBody(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            ArchiveTypeDropdown(isTablet = true, onListItemClick = onArchiveTypeClick)
+            ArchiveTypeDropdown(isTablet = true, onListItemClick = {
+                onArchiveTypeClick(it.type)
+                archiveTypeName = context.getString(it.title)
+            })
 
             Spacer(modifier = Modifier.weight(1.0f))
 
@@ -135,15 +145,19 @@ private fun TabletBody(
                     }
                 }
 
-                val boldedWord = "Personal"
                 val partialBoldedText =
-                    stringResource(id = R.string.lets_create_archive, boldedWord)
-                val start = partialBoldedText.indexOf(boldedWord)
+                    if (archiveTypeName == context.getString(R.string.individual) ||
+                        archiveTypeName == context.getString(R.string.organization)
+                    ) stringResource(
+                        id = R.string.lets_create_an_archive, archiveTypeName
+                    ) else stringResource(id = R.string.lets_create_a_archive, archiveTypeName)
+
+                val start = partialBoldedText.indexOf(archiveTypeName)
                 val spanStyles = listOf(
                     AnnotatedString.Range(
                         SpanStyle(fontWeight = FontWeight.ExtraBold),
                         start = start,
-                        end = start + boldedWord.length
+                        end = start + archiveTypeName.length
                     )
                 )
 
@@ -204,7 +218,7 @@ private fun PhoneBody(
             fontFamily = regularFont
         )
 
-        ArchiveTypeDropdown(onListItemClick = onArchiveTypeClick)
+        ArchiveTypeDropdown(onListItemClick = { onArchiveTypeClick(it.type) })
 
         Spacer(modifier = Modifier.weight(1f))
 

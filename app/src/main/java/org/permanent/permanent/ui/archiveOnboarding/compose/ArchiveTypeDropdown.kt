@@ -50,7 +50,7 @@ import org.permanent.permanent.ui.composeComponents.MenuItem
 @Composable
 fun ArchiveTypeDropdown(
     isTablet: Boolean = false,
-    onListItemClick: (archiveType: ArchiveType) -> Unit
+    onListItemClick: (archive: UIArchive) -> Unit
 ) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
@@ -218,7 +218,7 @@ fun ArchiveTypeDropdown(
                             subtitle = stringResource(item.description)
                         ) {
                             currentArchiveType = item
-                            onListItemClick(item.type)
+                            onListItemClick(item)
                             scope
                                 .launch { sheetState.hide() }
                                 .invokeOnCompletion {
