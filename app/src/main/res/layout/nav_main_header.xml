@@ -14,7 +14,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDarker"
         android:onClick="@{() -> viewModel.onViewProfileClick()}">
 
@@ -23,9 +23,9 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
             android:scaleType="centerCrop"
             app:imageUrl="@{viewModel.archiveThumb}"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,11 +49,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
             android:fontFamily="@font/open_sans"
             android:letterSpacing="-0.01"
             android:text="@string/nav_main_header_view_profile"
             android:textColor="@color/whiteSuperTransparent"
             android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivArchiveThumb"
             app:layout_constraintTop_toBottomOf="@id/tvHeaderTitle" />
