@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
@@ -44,20 +46,23 @@ import org.permanent.permanent.viewmodels.EditFileNamesUIState
 
 @Composable
 fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
-                          append: (String, Boolean) -> Unit,
-                          applyChanges: (String, Boolean) -> Unit,
+                          formatDate: (String, Boolean, SequenceDateOptions) -> Unit,
+                          formatCount:(String, Boolean, String) -> Unit,
+                          applyDateChanges: (String, Boolean, SequenceDateOptions) -> Unit,
+                          applyCountChanges: (String, Boolean, String) -> Unit,
                           cancel: () -> Unit) {
 
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     var text by remember { mutableStateOf("") }
+    var count by remember { mutableStateOf("") }
     val context = LocalContext.current
     val middleGrey = Color(ContextCompat.getColor(context, R.color.middleGrey))
     val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val openAlertDialog = remember { mutableStateOf(false) }
 
-    var expanded by remember { mutableStateOf(false) }
+    var expandedField by remember { mutableStateOf(-1) }
     var whereDropdownSize by remember { mutableStateOf(Size.Zero) }
     var formatDropdownSize by remember { mutableStateOf(Size.Zero) }
     var dateDropdownSize by remember { mutableStateOf(Size.Zero) }
@@ -81,13 +86,25 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
     )
     var selectedDateOption by remember { mutableStateOf(SequenceDateOptions.CREATED) }
 
+    fun updateFormat() {
+        if (selectedFormatOption == SequenceFormatOptions.DATETIME) {
+            formatDate(
+                text,
+                selectedWhereOption.appendBefore(),
+                selectedDateOption
+            )
+        } else {
+            formatCount(text, selectedWhereOption.appendBefore(), count)
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(22.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = stringResource(id = R.string.text).uppercase(),
+            Text(text = stringResource(id = R.string.base).uppercase(),
                 style = TextStyle(
                     fontSize = 10.sp,
                     fontFamily = semiBoldFont,
@@ -111,6 +128,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                     value = text,
                     onValueChange = {
                         text = it
+                        updateFormat()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,12 +143,16 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                 )
             }
         }
-        Row() {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1.0f)
             ) {
                 Text(
-                    text = stringResource(id = R.string.where).uppercase(),
+                    text = stringResource(id = R.string.format).uppercase(),
                     style = TextStyle(
                         fontSize = 10.sp,
                         fontFamily = semiBoldFont,
@@ -154,7 +176,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                             shape = RoundedCornerShape(size = 2.dp)
                         )
                         .clickable {
-                            expanded = !expanded
+                            expandedField = 0
                         },
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -177,8 +199,8 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                         modifier = Modifier
                             .background(Color.White)
                             .width(with(LocalDensity.current) { formatDropdownSize.width.toDp() }),
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        expanded = expandedField == 0,
+                        onDismissRequest = { expandedField = -1 }
                     ) {
                         formatOptions.forEach {
                             DropdownMenuItem(
@@ -186,9 +208,9 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                                     .background(Color.White),
                                 text = { Text(stringResource(id = it.titleID)) },
                                 onClick = {
-                                    expanded = false
+                                    expandedField = -1
                                     selectedFormatOption = it
-//                                append(text, selectedOption.appendBefore())
+                                    updateFormat()
                                 })
                         }
                     }
@@ -196,7 +218,8 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
             }
 
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1.0f)
             ) {
                 Text(
                     text = stringResource(id = R.string.where).uppercase(),
@@ -223,7 +246,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                             shape = RoundedCornerShape(size = 2.dp)
                         )
                         .clickable {
-                            expanded = !expanded
+                            expandedField = 1
                         },
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -246,8 +269,8 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                         modifier = Modifier
                             .background(Color.White)
                             .width(with(LocalDensity.current) { whereDropdownSize.width.toDp() }),
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        expanded = expandedField == 1,
+                        onDismissRequest = { expandedField = -1 }
                     ) {
                         whereOptions.forEach {
                             DropdownMenuItem(
@@ -255,9 +278,9 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                                     .background(Color.White),
                                 text = { Text(stringResource(id = it.titleID)) },
                                 onClick = {
-                                    expanded = false
+                                    expandedField = -1
                                     selectedWhereOption = it
-//                                append(text, selectedOption.appendBefore())
+                                    updateFormat()
                                 })
                         }
                     }
@@ -267,69 +290,111 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = stringResource(id = R.string.where).uppercase(),
-                style = TextStyle(
-                    fontSize = 10.sp,
-                    fontFamily = semiBoldFont,
-                    color = middleGrey
+            if (selectedFormatOption == SequenceFormatOptions.DATETIME) {
+                Text(
+                    text = stringResource(id = R.string.date_value).uppercase(),
+                    style = TextStyle(
+                        fontSize = 10.sp,
+                        fontFamily = semiBoldFont,
+                        color = middleGrey
+                    )
                 )
-            )
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 1.dp,
-                        color = superLightBlue,
-                        shape = RoundedCornerShape(size = 2.dp)
-                    )
-                    .fillMaxWidth()
-                    .onGloballyPositioned { coordinates ->
-                        //This value is used to assign to the DropDown the same width
-                        dateDropdownSize = coordinates.size.toSize()
-                    }
-                    .height(48.dp)
-                    .background(
-                        color = superLightBlue.copy(0.5f),
-                        shape = RoundedCornerShape(size = 2.dp)
-                    )
-                    .clickable {
-                        expanded = !expanded
-                    },
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                BasicTextField(
-                    value = stringResource(id = selectedDateOption.titleID),
-                    onValueChange = {},
+                Box(
                     modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = superLightBlue,
+                            shape = RoundedCornerShape(size = 2.dp)
+                        )
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    textStyle = TextStyle(
-                        fontFamily = regularFont,
-                        fontSize = 13.sp,
-                        color = blue900,
-                        lineHeight = 16.sp
-                    ),
-                    singleLine = true,
-                    enabled = false
-                )
-                DropdownMenu(
-                    modifier = Modifier
-                        .background(Color.White)
-                        .width(with(LocalDensity.current) { dateDropdownSize.width.toDp() }),
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                        .onGloballyPositioned { coordinates ->
+                            //This value is used to assign to the DropDown the same width
+                            dateDropdownSize = coordinates.size.toSize()
+                        }
+                        .height(48.dp)
+                        .background(
+                            color = superLightBlue.copy(0.5f),
+                            shape = RoundedCornerShape(size = 2.dp)
+                        )
+                        .clickable {
+                            expandedField = 2
+                        },
+                    contentAlignment = Alignment.CenterStart,
                 ) {
-                    dateOptions.forEach {
-                        DropdownMenuItem(
-                            modifier = Modifier
-                                .background(Color.White),
-                            text = { Text(stringResource(id = it.titleID)) },
-                            onClick = {
-                                expanded = false
-                                selectedDateOption = it
-//                                append(text, selectedOption.appendBefore())
-                            })
+                    BasicTextField(
+                        value = stringResource(id = selectedDateOption.titleID),
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        textStyle = TextStyle(
+                            fontFamily = regularFont,
+                            fontSize = 13.sp,
+                            color = blue900,
+                            lineHeight = 16.sp
+                        ),
+                        singleLine = true,
+                        enabled = false
+                    )
+                    DropdownMenu(
+                        modifier = Modifier
+                            .background(Color.White)
+                            .width(with(LocalDensity.current) { dateDropdownSize.width.toDp() }),
+                        expanded = expandedField == 2,
+                        onDismissRequest = { expandedField = -1 }
+                    ) {
+                        dateOptions.forEach {
+                            DropdownMenuItem(
+                                modifier = Modifier
+                                    .background(Color.White),
+                                text = { Text(stringResource(id = it.titleID)) },
+                                onClick = {
+                                    expandedField = -1
+                                    selectedDateOption = it
+                                    updateFormat()
+                                })
+                        }
                     }
+                }
+            } else {
+                Text(text = stringResource(id = R.string.count).uppercase(),
+                    style = TextStyle(
+                        fontSize = 10.sp,
+                        fontFamily = semiBoldFont,
+                        color = middleGrey)
+                )
+                Box(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = superLightBlue,
+                            shape = RoundedCornerShape(size = 2.dp)
+                        )
+                        .height(48.dp)
+                        .background(
+                            color = superLightBlue.copy(0.5f),
+                            shape = RoundedCornerShape(size = 2.dp)
+                        ),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    BasicTextField(
+                        value = count,
+                        onValueChange = {
+                            count = it
+                            updateFormat()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        textStyle = TextStyle(
+                            fontFamily = regularFont,
+                            fontSize = 13.sp,
+                            color = blue900,
+                            lineHeight = 16.sp
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
                 }
             }
         }
@@ -349,7 +414,11 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                     cancelButtonText = stringResource(id = R.string.button_cancel),
                     onConfirm = {
                         openAlertDialog.value = false
-//                        applyChanges(text, selectedOption.appendBefore())
+                        if (selectedFormatOption == SequenceFormatOptions.DATETIME) {
+                            applyDateChanges(text, selectedWhereOption.appendBefore(), selectedDateOption)
+                        } else {
+                            applyCountChanges(text, selectedWhereOption.appendBefore(), count)
+                        }
                     }) {
                     openAlertDialog.value = false
                 }
@@ -371,8 +440,7 @@ private enum class SequenceWhereOptions(val titleID: Int) {
         return this == BEFORE
     }
 }
-
-private enum class SequenceDateOptions(val titleID: Int) {
+enum class SequenceDateOptions(val titleID: Int) {
     CREATED(R.string.created),
     LAST_MODIFIED(R.string.last_modified),
     UPLOADED(R.string.uploaded);

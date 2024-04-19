@@ -145,8 +145,10 @@ fun EditFileNamesScreen(
                     cancel = cancel
                 )
                 EditFilesOptions.SEQUENCE -> SequenceFileNamesScreen(uiState = uiState,
-                    append = viewModel::append,
-                    applyChanges = viewModel::applyChanges,
+                    formatDate = viewModel::formatDate,
+                    formatCount = viewModel::formatCount,
+                    applyDateChanges = viewModel::applyChanges,
+                    applyCountChanges = viewModel::applyChanges,
                     cancel = cancel
                 )
             }
