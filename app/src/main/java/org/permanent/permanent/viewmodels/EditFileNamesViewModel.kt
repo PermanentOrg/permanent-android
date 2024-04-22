@@ -33,7 +33,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
         uiState.value = uiState.value.copy(fileName = name)
     }
 
-    private fun updateError(errorMessage: String) {
+    fun updateError(errorMessage: String?) {
         uiState.value = uiState.value.copy(errorMessage = errorMessage)
     }
 
@@ -99,11 +99,19 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun applyChanges(findText: String, replaceText: String) {
+        var containsString = false
         for(record in records) {
+            if(record.displayName?.contains(findText) == true) {
+                containsString = true
+            }
             val newName = record.displayName?.replace(findText, replaceText)
             record.displayName = newName
         }
-        applyChanges()
+        if(containsString) {
+            applyChanges()
+        } else {
+            updateError("No matching files found.  Please try again.")
+        }
     }
 
     fun applyChanges(text: String, before: Boolean) {

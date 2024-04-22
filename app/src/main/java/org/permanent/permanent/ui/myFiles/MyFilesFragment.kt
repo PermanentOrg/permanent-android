@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -77,6 +78,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
+    private var islandExpandedWidth = 960
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -86,6 +88,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this)[MyFilesViewModel::class.java]
         renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
+
+        val displayMetrics = DisplayMetrics()
+        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+        islandExpandedWidth = displayMetrics.widthPixels - 50
 
         val record: Record? = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         if (record != null) {
@@ -139,7 +145,7 @@ class MyFilesFragment : PermanentBaseFragment() {
                     ?.let { showSaveToPermanentFragment(it) }
                 if (viewModel.isRelocationMode.value == true) resizeIslandWidthAnimated(
                     binding.flFloatingActionIsland.width,
-                    ISLAND_WIDTH_LARGE
+                    islandExpandedWidth
                 )
             }
         }
@@ -326,7 +332,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val expandIslandRequestObserver = Observer<Void?> {
-        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+        resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, islandExpandedWidth)
     }
 
     private val deleteRecordsObserver = Observer<Void?> {
@@ -370,7 +376,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.setRelocationMode(Pair(mutableListOf(it.first), it.second))
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
-            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, ISLAND_WIDTH_LARGE)
+            resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, islandExpandedWidth)
         }
     }
 
@@ -549,7 +555,6 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     companion object {
         const val ISLAND_WIDTH_SMALL = 160
-        const val ISLAND_WIDTH_LARGE = 960
         const val RESIZE_DURATION_MILLIS = 500L
         const val DELAY_TO_RESIZE_MILLIS = 500L
     }
