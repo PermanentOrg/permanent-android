@@ -147,16 +147,20 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun applyChanges(text: String, before: Boolean, count: String) {
-        var countInt = count.toInt()
-        for (record in records) {
-            record.displayName = if(before) {
-                countInt.toString() + text
-            } else {
-                text + countInt.toString()
+        var countInt = count.toIntOrNull()
+        if (countInt != null) {
+            for (record in records) {
+                record.displayName = if (before) {
+                    countInt.toString() + text
+                } else {
+                    text + countInt.toString()
+                }
+                countInt++
             }
-            countInt++
+            applyChanges()
+        } else {
+            updateError("Count value needs to be a number.")
         }
-        applyChanges()
     }
 
     fun toggleLoading() {

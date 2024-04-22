@@ -380,8 +380,10 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                     BasicTextField(
                         value = count,
                         onValueChange = {
-                            count = it
-                            updateFormat()
+                            if(it.toIntOrNull() != null || it.isEmpty()) {
+                                count = it
+                                updateFormat()
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
