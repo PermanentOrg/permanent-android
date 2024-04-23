@@ -678,8 +678,17 @@
     <string name="find">Find</string>
     <string name="text">Text</string>
     <string name="where">Where</string>
-    <string name="before_name">Before Name</string>
-    <string name="after_name">After Name</string>
+    <string name="before_name">Before name</string>
+    <string name="after_name">After name</string>
+    <string name="date_time">Date &amp; Time</string>
+    <string name="count">Count</string>
+    <string name="created">Created</string>
+    <string name="last_modified">Last modified</string>
+    <string name="uploaded">Uploaded</string>
+    <string name="base">Base</string>
+    <string name="format">Format</string>
+    <string name="date_value">Date Value</string>
+    <string name="start_with">Start With</string>
 
 
 </resources>

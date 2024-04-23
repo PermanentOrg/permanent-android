@@ -66,7 +66,8 @@ fun EditFileNamesScreen(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         }
-    ) {it
+    ) {
+        it
         Column() {
             BottomSheetHeader(
                 painterResource(id = R.drawable.ic_edit_name),
@@ -149,25 +150,32 @@ fun EditFileNamesScreen(
                         cancel = cancel
                     )
 
-                    EditFilesOptions.SEQUENCE -> PrependContent()
+                    EditFilesOptions.SEQUENCE -> SequenceFileNamesScreen(
+                        uiState = uiState,
+                        formatDate = viewModel::formatDate,
+                        formatCount = viewModel::formatCount,
+                        applyDateChanges = viewModel::applyChanges,
+                        applyCountChanges = viewModel::applyChanges,
+                        cancel = cancel
+                    )
                 }
             }
-        }
 
-        LaunchedEffect(key1 = uiState.errorMessage) {
-            uiState.errorMessage?.let {
-                scope.launch {
-                    snackbarHostState.showSnackbar(it)
-                    viewModel.updateError(null)
+            LaunchedEffect(key1 = uiState.errorMessage) {
+                uiState.errorMessage?.let {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(it)
+                        viewModel.updateError(null)
+                    }
                 }
             }
-        }
 
-        LaunchedEffect(key1 = uiState.shouldClose, block = {
-            if(uiState.shouldClose) {
-                cancel()
-            }
-        })
+            LaunchedEffect(key1 = uiState.shouldClose, block = {
+                if (uiState.shouldClose) {
+                    cancel()
+                }
+            })
+        }
     }
 }
 
@@ -178,9 +186,3 @@ private enum class EditFilesOptions(val titleID: Int, val resource: Int) {
 
     fun getLabel(context: Context) = context.getString(titleID)
 }
-
-@Composable
-fun AppendContent() { /* ... */ }
-
-@Composable
-fun PrependContent() { /* ... */ }
