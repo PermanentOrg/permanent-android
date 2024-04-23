@@ -62,10 +62,16 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val openAlertDialog = remember { mutableStateOf(false) }
 
-    var expandedField by remember { mutableStateOf(-1) }
+    var expandedField: SequenceDropdownOptions? by remember { mutableStateOf(null) }
     var whereDropdownSize by remember { mutableStateOf(Size.Zero) }
     var formatDropdownSize by remember { mutableStateOf(Size.Zero) }
     var dateDropdownSize by remember { mutableStateOf(Size.Zero) }
+
+    var dropdownOptions = listOf(
+        SequenceDropdownOptions.FORMAT,
+        SequenceDropdownOptions.WHERE,
+        SequenceDropdownOptions.DATE,
+    )
 
     val formatOptions = listOf(
         SequenceFormatOptions.DATETIME,
@@ -176,7 +182,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                             shape = RoundedCornerShape(size = 2.dp)
                         )
                         .clickable {
-                            expandedField = 0
+                            expandedField = SequenceDropdownOptions.FORMAT
                         },
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -199,8 +205,8 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                         modifier = Modifier
                             .background(Color.White)
                             .width(with(LocalDensity.current) { formatDropdownSize.width.toDp() }),
-                        expanded = expandedField == 0,
-                        onDismissRequest = { expandedField = -1 }
+                        expanded = expandedField == SequenceDropdownOptions.FORMAT,
+                        onDismissRequest = { expandedField = null }
                     ) {
                         formatOptions.forEach {
                             DropdownMenuItem(
@@ -208,7 +214,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                                     .background(Color.White),
                                 text = { Text(stringResource(id = it.titleID)) },
                                 onClick = {
-                                    expandedField = -1
+                                    expandedField = null
                                     selectedFormatOption = it
                                     updateFormat()
                                 })
@@ -246,7 +252,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                             shape = RoundedCornerShape(size = 2.dp)
                         )
                         .clickable {
-                            expandedField = 1
+                            expandedField = SequenceDropdownOptions.WHERE
                         },
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -269,8 +275,8 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                         modifier = Modifier
                             .background(Color.White)
                             .width(with(LocalDensity.current) { whereDropdownSize.width.toDp() }),
-                        expanded = expandedField == 1,
-                        onDismissRequest = { expandedField = -1 }
+                        expanded = expandedField == SequenceDropdownOptions.WHERE,
+                        onDismissRequest = { expandedField = null }
                     ) {
                         whereOptions.forEach {
                             DropdownMenuItem(
@@ -278,7 +284,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                                     .background(Color.White),
                                 text = { Text(stringResource(id = it.titleID)) },
                                 onClick = {
-                                    expandedField = -1
+                                    expandedField = null
                                     selectedWhereOption = it
                                     updateFormat()
                                 })
@@ -317,7 +323,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                             shape = RoundedCornerShape(size = 2.dp)
                         )
                         .clickable {
-                            expandedField = 2
+                            expandedField = SequenceDropdownOptions.DATE
                         },
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -340,8 +346,8 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                         modifier = Modifier
                             .background(Color.White)
                             .width(with(LocalDensity.current) { dateDropdownSize.width.toDp() }),
-                        expanded = expandedField == 2,
-                        onDismissRequest = { expandedField = -1 }
+                        expanded = expandedField == SequenceDropdownOptions.DATE,
+                        onDismissRequest = { expandedField = null }
                     ) {
                         dateOptions.forEach {
                             DropdownMenuItem(
@@ -349,7 +355,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                                     .background(Color.White),
                                 text = { Text(stringResource(id = it.titleID)) },
                                 onClick = {
-                                    expandedField = -1
+                                    expandedField = null
                                     selectedDateOption = it
                                     updateFormat()
                                 })
@@ -446,4 +452,10 @@ enum class SequenceDateOptions(val titleID: Int) {
     CREATED(R.string.created),
     LAST_MODIFIED(R.string.last_modified),
     UPLOADED(R.string.uploaded);
+}
+
+private enum class SequenceDropdownOptions() {
+    FORMAT,
+    WHERE,
+    DATE
 }
