@@ -44,10 +44,10 @@ import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
 
 @Composable
-fun TypeSelectionPage(
+fun ArchiveTypePage(
     isTablet: Boolean,
     pagerState: PagerState,
-    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+    onArchiveTypeClick: (archiveType: ArchiveType, archiveTypeName: String) -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -67,7 +67,7 @@ private fun TabletBody(
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+    onArchiveTypeClick: (archiveType: ArchiveType, archiveTypeName: String) -> Unit
 ) {
     val context = LocalContext.current
     var archiveTypeName by remember { mutableStateOf(context.getString(R.string.personal)) }
@@ -120,8 +120,8 @@ private fun TabletBody(
             Spacer(modifier = Modifier.height(32.dp))
 
             ArchiveTypeDropdown(isTablet = true, onListItemClick = {
-                onArchiveTypeClick(it.type)
                 archiveTypeName = context.getString(it.title)
+                onArchiveTypeClick(it.type, archiveTypeName)
             })
 
             Spacer(modifier = Modifier.weight(1.0f))
@@ -140,7 +140,7 @@ private fun TabletBody(
                         iconAlignment = ButtonIconAlignment.START
                     ) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(0)
+                            pagerState.animateScrollToPage(OnboardingPage.WELCOME_PAGE.value)
                         }
                     }
                 }
@@ -169,7 +169,7 @@ private fun TabletBody(
                     )
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(2)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
                     }
                 }
             }
@@ -183,8 +183,9 @@ private fun PhoneBody(
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+    onArchiveTypeClick: (archiveType: ArchiveType, archiveTypeName: String) -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -218,7 +219,12 @@ private fun PhoneBody(
             fontFamily = regularFont
         )
 
-        ArchiveTypeDropdown(onListItemClick = { onArchiveTypeClick(it.type) })
+        ArchiveTypeDropdown(onListItemClick = {
+            onArchiveTypeClick(
+                it.type,
+                context.getString(it.title)
+            )
+        })
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -238,7 +244,7 @@ private fun PhoneBody(
                     iconAlignment = ButtonIconAlignment.START
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(0)
+                        pagerState.animateScrollToPage(OnboardingPage.WELCOME_PAGE.value)
                     }
                 }
             }
@@ -253,7 +259,7 @@ private fun PhoneBody(
                     text = stringResource(id = R.string.next)
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(2)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
                     }
                 }
             }
