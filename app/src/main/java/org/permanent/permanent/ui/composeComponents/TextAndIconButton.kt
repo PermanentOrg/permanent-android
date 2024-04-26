@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -35,15 +36,15 @@ fun TextAndIconButton(
 ) {
     val context = LocalContext.current
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
+    val whiteTransparentColor =
+        Color(ContextCompat.getColor(context, R.color.whiteSuperTransparent))
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-    val primaryColor200 = Color(ContextCompat.getColor(context, R.color.colorPrimary200))
-    val subTitleTextSize = 16.sp
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
 
     Button(modifier = Modifier
         .fillMaxWidth()
         .height(56.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = if (style == ButtonColor.LIGHT) whiteColor else if (showButtonEnabled) primaryColor else primaryColor200),
+        colors = ButtonDefaults.buttonColors(containerColor = if (!showButtonEnabled) whiteTransparentColor else if (style == ButtonColor.LIGHT) whiteColor else primaryColor),
         shape = RoundedCornerShape(12.dp),
         onClick = { if (showButtonEnabled) onButtonClick() }) {
         Row(
@@ -52,7 +53,7 @@ fun TextAndIconButton(
             Text(
                 text = text,
                 color = if (style == ButtonColor.LIGHT) primaryColor else whiteColor,
-                fontSize = subTitleTextSize,
+                fontSize = 16.sp,
                 fontFamily = semiboldFont,
             )
             Spacer(modifier = Modifier.weight(1.0f))
@@ -70,4 +71,14 @@ enum class ButtonColor {
     LIGHT,
     DARK,
     TRANSPARENT
+}
+
+@Preview
+@Composable
+fun TextAndIconButtonPreview() {
+    TextAndIconButton(
+        style = ButtonColor.LIGHT,
+        text = "Some text",
+        showButtonEnabled = true,
+        onButtonClick = {})
 }
