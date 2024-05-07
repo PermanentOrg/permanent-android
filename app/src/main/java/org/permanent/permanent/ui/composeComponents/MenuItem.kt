@@ -26,11 +26,13 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
-fun StorageMenuItem(
+fun MenuItem(
+    isTablet: Boolean = false,
     iconResource: Painter,
     title: String,
     subtitle: String,
-    showNewLabel: Boolean,
+    showNewLabel: Boolean = false,
+    showArrow: Boolean = false,
     onClick: () -> Unit
 ) {
 
@@ -40,22 +42,21 @@ fun StorageMenuItem(
     val middleGreyColor = Color(ContextCompat.getColor(context, R.color.middleGrey))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
-    val smallTextSize = 15.sp
-    val superSmallTextSize = 13.sp
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .padding(horizontal = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
 
         ) {
         Image(
             painter = iconResource,
-            contentDescription = "Next",
-            modifier = Modifier.size(26.dp)
+            contentDescription = "",
+            colorFilter = ColorFilter.tint(blue900Color),
+            modifier = Modifier.size(18.dp)
         )
         Column(
             modifier = Modifier
@@ -71,7 +72,8 @@ fun StorageMenuItem(
             ) {
                 Text(
                     text = title,
-                    fontSize = smallTextSize,
+                    fontSize = if (isTablet) 18.sp else 14.sp,
+                    lineHeight = 24.sp,
                     color = blue900Color,
                     fontFamily = boldFont
                 )
@@ -80,27 +82,31 @@ fun StorageMenuItem(
             }
             Text(
                 text = subtitle,
-                fontSize = superSmallTextSize,
+                fontSize = if (isTablet) 18.sp else 12.sp,
+                lineHeight = if (isTablet) 32.sp else 16.sp,
                 color = middleGreyColor,
                 fontFamily = regularFont
             )
         }
-        Image(
-            painter = painterResource(id = R.drawable.ic_arrow_select_grey),
-            contentDescription = "Next",
-            colorFilter = ColorFilter.tint(middleGreyColor),
-            modifier = Modifier.size(30.dp)
-        )
+
+        if (showArrow) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_select_light_blue),
+                contentDescription = "Next",
+                modifier = Modifier.size(14.dp)
+            )
+        }
     }
 }
 
 @Preview
 @Composable
 fun SimpleComposablePreview() {
-    StorageMenuItem(
+    MenuItem(
         iconResource = painterResource(id = R.drawable.ic_plus_primary),
         title = "Add storage!",
         subtitle = "Increase your space easily by adding more storage.",
-        false,
-        onClick = { /*TODO*/ })
+        showNewLabel = true,
+        showArrow = true,
+        onClick = { })
 }

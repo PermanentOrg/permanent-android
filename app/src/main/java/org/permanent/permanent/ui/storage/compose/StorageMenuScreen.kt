@@ -28,8 +28,8 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.FeedbackSnackbar
+import org.permanent.permanent.ui.composeComponents.MenuItem
 import org.permanent.permanent.ui.composeComponents.StorageCard
-import org.permanent.permanent.ui.composeComponents.StorageMenuItem
 import org.permanent.permanent.viewmodels.StorageMenuViewModel
 
 @Composable
@@ -68,29 +68,30 @@ fun StorageMenuScreen(
                 spaceUsedPercentage,
             )
 
-            StorageMenuItem(
-                painterResource(id = R.drawable.ic_plus_primary),
-                stringResource(R.string.add_storage),
-                stringResource(R.string.add_storage_description),
-                false
+            MenuItem(
+                iconResource = painterResource(id = R.drawable.ic_plus_primary),
+                title = stringResource(R.string.add_storage),
+                subtitle = stringResource(R.string.add_storage_description),
+                showArrow = true,
             ) { onAddStorageClick() }
 
             Divider()
 
-            StorageMenuItem(
-                painterResource(id = R.drawable.ic_gift_primary),
-                stringResource(R.string.gift_storage),
-                stringResource(R.string.gift_storage_description),
-                false,
+            MenuItem(
+                iconResource = painterResource(id = R.drawable.ic_gift_primary),
+                title = stringResource(R.string.gift_storage),
+                subtitle = stringResource(R.string.gift_storage_description),
+                showArrow = true,
             ) { onGiftStorageClick() }
 
             Divider()
 
-            StorageMenuItem(
-                painterResource(id = R.drawable.ic_redeem_primary),
-                stringResource(R.string.redeem_code),
-                stringResource(R.string.redeem_code_description),
-                true,
+            MenuItem(
+                iconResource = painterResource(id = R.drawable.ic_redeem_primary),
+                title = stringResource(R.string.redeem_code),
+                subtitle = stringResource(R.string.redeem_code_description),
+                showNewLabel = true,
+                showArrow = true,
             ) { onRedeemCodeClick() }
         }
 
