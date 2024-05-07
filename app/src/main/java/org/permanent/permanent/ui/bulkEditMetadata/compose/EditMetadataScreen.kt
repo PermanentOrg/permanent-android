@@ -193,6 +193,14 @@ fun EditMetadataScreen(
             actionTitle = stringResource(id = R.string.modify)) {
             openEditFileNamesScreen(viewModel.getRecords())
         }
+
+        Divider(modifier = Modifier.padding(vertical = 16.dp))
+
+        FilesMenuView(icon = R.drawable.ic_edit_name,
+            title = stringResource(id = R.string.locations),
+            actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
+            openLocationScreen(viewModel.getRecords())
+        }
     }
 
     LaunchedEffect(errorMessage) {
