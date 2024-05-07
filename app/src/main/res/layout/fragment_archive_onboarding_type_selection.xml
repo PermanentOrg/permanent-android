@@ -211,7 +211,7 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="16dp"
                         android:scaleType="centerCrop"
-                        android:src="@{viewModel.selectedArchiveType == ArchiveType.ORGANIZATION ? @drawable/ic_organization_white : @drawable/ic_organization_primary}"
+                        android:src="@{viewModel.selectedArchiveType == ArchiveType.ORGANIZATION ? @drawable/ic_organization_filled_white : @drawable/ic_organization_filled_primary}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />

@@ -22,6 +22,7 @@
     <color name="colorAccentLight">#fdebd6</color>
     <color name="colorAccent">#FF9933</color>
     <color name="colorAccentDark">#ff8000</color>
+    <color name="orange">#F17400</color>
     <color name="green">#34C759</color>
     <color name="deepGreen">#167D14</color>
     <color name="dotGreen">#1BC917</color>
