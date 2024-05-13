@@ -43,7 +43,7 @@ fun ArchiveOnboardingScreen(
     val context = LocalContext.current
     val blue900Color = Color(ContextCompat.getColor(context, R.color.blue900))
     val blueLighterColor = Color(ContextCompat.getColor(context, R.color.blueLighter))
-    val pagerState = rememberPagerState(initialPage = 0)
+    val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME_PAGE.value)
     val isTablet = viewModel.isTablet()
 
     val horizontalPaddingDp = if (isTablet) 64.dp else 32.dp
@@ -54,10 +54,11 @@ fun ArchiveOnboardingScreen(
     var newArchive by remember {
         mutableStateOf(
             NewArchive(
-                ArchiveType.PERSON,
-                "",
-                "",
-                ""
+                type = ArchiveType.PERSON,
+                typeName = context.getString(R.string.personal),
+                name = "",
+                goals = "",
+                priorities = ""
             )
         )
     }
@@ -104,18 +105,29 @@ fun ArchiveOnboardingScreen(
                 }
             }
 
-            HorizontalPager(pageCount = 2, state = pagerState, userScrollEnabled = false) { page ->
-                if (page == 0) WelcomePage(
-                    isTablet = isTablet,
-                    pagerState = pagerState,
-                    accountName = viewModel.getAccountName().value
-                )
-                else TypeSelectionPage(
-                    isTablet = isTablet,
-                    pagerState = pagerState,
-                    onArchiveTypeClick = { archiveType ->
-                        newArchive.type = archiveType
-                    })
+            HorizontalPager(
+                pageCount = OnboardingPage.values().size,
+                state = pagerState,
+                userScrollEnabled = false
+            ) { page ->
+                when (page) {
+                    OnboardingPage.WELCOME_PAGE.value -> WelcomePage(
+                        isTablet = isTablet,
+                        pagerState = pagerState,
+                        accountName = viewModel.getAccountName().value
+                    )
+
+                    OnboardingPage.ARCHIVE_TYPE_PAGE.value -> ArchiveTypePage(isTablet = isTablet,
+                        pagerState = pagerState,
+                        onArchiveTypeClick = { type: ArchiveType, typeName: String ->
+                            val archive = NewArchive(type = type, typeName = typeName, "", "", "")
+                            newArchive = archive
+                        })
+
+                    else -> ArchiveNamePage(
+                        isTablet = isTablet, pagerState = pagerState, newArchive = newArchive
+                    )
+                }
             }
         }
     }
@@ -151,7 +163,16 @@ fun OnboardingProgressIndicator(
 
 data class NewArchive(
     var type: ArchiveType,
+    var typeName: String,
     var name: String,
     var goals: String?,
     var priorities: String?
 )
+
+enum class OnboardingPage(val value: Int) {
+    WELCOME_PAGE(0),
+    ARCHIVE_TYPE_PAGE(1),
+    ARCHIVE_NAME_PAGE(2),
+    GOALS_PAGE(3),
+    PRIORITIES_PAGE(4)
+}

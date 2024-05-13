@@ -531,10 +531,11 @@
     <string name="archive_onboarding_name_archive_button">Next: Name Archive</string>
     <string name="archive_onboarding_create_archive_button">Create Archive</string>
     <string name="archive_onboarding_accept_all_button">Accept All</string>
-    <string name="archive_onboarding_accept_button">Accept</string>
-    <string name="archive_onboarding_the_label">The</string>
-    <string name="archive_onboarding_archive_label">Archive</string>
-    <string name="archive_onboarding_name_hint">Name</string>
+    <string name="accept">Accept</string>
+    <string name="the">The</string>
+    <string name="archive">Archive</string>
+    <string name="name">Name</string>
+    <string name="name_dots">Name...</string>
     <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
     <string name="welcome_to_permanent_title">Hello, <b>%s</b>.\nWelcome to Permanent!</string>
@@ -556,6 +557,9 @@
     <string name="organization_description">Create an archive that captures an organization’s life.</string>
     <string name="lets_create_a_archive">Let’s create a %s archive</string>
     <string name="lets_create_an_archive">Let’s create an %s archive</string>
+    <string name="create_your_archive_title">Create your %s archive</string>
+    <string name="create_your_archive_description">Name your new archive. This is the legal or official name of the person, family, group, or organization the archive is about. You can edit the name later if needed.</string>
+    <string name="create_the_archive">Create the archive</string>
 
     <string name="leave_share">Leave share</string>
 
