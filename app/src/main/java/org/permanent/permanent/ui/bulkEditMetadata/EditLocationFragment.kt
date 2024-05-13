@@ -33,7 +33,9 @@ class EditLocationFragment : PermanentBottomSheetFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    EditLocationScreen()
+                    EditLocationScreen(cancel = {
+                        this@EditLocationFragment.dismiss()
+                    })
                 }
             }
         }

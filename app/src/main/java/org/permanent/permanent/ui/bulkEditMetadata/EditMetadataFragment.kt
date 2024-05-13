@@ -52,12 +52,12 @@ class EditMetadataFragment : PermanentBaseFragment() {
                             fragment?.show(parentFragmentManager, fragment?.tag)
                         },
                         openDateAndTimeScreen = {
+
+                        },
+                        openLocationScreen = {
                             var fragment = EditLocationFragment()
                             fragment?.setBundleArguments(records)
                             fragment?.show(parentFragmentManager, fragment?.tag)
-                        },
-                        openLocationScreen = {
-
                         }
                     )
                 }
