@@ -154,7 +154,7 @@ private fun TabletBody(
                     ) else stringResource(id = R.string.lets_create_a_archive, archiveTypeName)
 
                 TextAndIconButton(
-                    style = ButtonColor.LIGHT, text = text, showButtonEnabled = true
+                    style = ButtonColor.LIGHT, text = text
                 ) {
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)

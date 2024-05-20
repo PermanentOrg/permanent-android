@@ -35,6 +35,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.CustomProgressIndicator
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
+import java.util.EnumMap
 
 @Composable
 fun ArchiveOnboardingScreen(
@@ -57,7 +58,7 @@ fun ArchiveOnboardingScreen(
                 type = ArchiveType.PERSON,
                 typeName = context.getString(R.string.personal),
                 name = "",
-                goals = "",
+                goals = EnumMap(OnboardingGoal::class.java),
                 priorities = ""
             )
         )
@@ -120,12 +121,26 @@ fun ArchiveOnboardingScreen(
                     OnboardingPage.ARCHIVE_TYPE_PAGE.value -> ArchiveTypePage(isTablet = isTablet,
                         pagerState = pagerState,
                         onArchiveTypeClick = { type: ArchiveType, typeName: String ->
-                            val archive = NewArchive(type = type, typeName = typeName, "", "", "")
+                            val archive = NewArchive(
+                                type = type,
+                                typeName = typeName,
+                                name = "",
+                                goals = EnumMap(OnboardingGoal::class.java),
+                                priorities = ""
+                            )
                             newArchive = archive
                         })
 
-                    else -> ArchiveNamePage(
-                        isTablet = isTablet, pagerState = pagerState, newArchive = newArchive
+                    OnboardingPage.ARCHIVE_NAME_PAGE.value -> ArchiveNamePage(
+                        isTablet = isTablet,
+                        pagerState = pagerState,
+                        newArchive = newArchive
+                    )
+
+                    OnboardingPage.GOALS_PAGE.value -> GoalsPage(
+                        isTablet = isTablet,
+                        pagerState = pagerState,
+                        newArchive = newArchive
                     )
                 }
             }
@@ -165,9 +180,20 @@ data class NewArchive(
     var type: ArchiveType,
     var typeName: String,
     var name: String,
-    var goals: String?,
+    var goals: EnumMap<OnboardingGoal, Boolean>,
     var priorities: String?
 )
+
+enum class OnboardingGoal {
+    CAPTURE,
+    DIGITIZE,
+    COLLABORATE,
+    CREATE_AN_ARCHIVE,
+    SHARE,
+    CREATE_A_PLAN,
+    ORGANIZE,
+    SOMETHING_ELSE
+}
 
 enum class OnboardingPage(val value: Int) {
     WELCOME_PAGE(0),

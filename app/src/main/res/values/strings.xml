@@ -535,7 +535,7 @@
     <string name="the">The</string>
     <string name="archive">Archive</string>
     <string name="name">Name</string>
-    <string name="name_dots">Name...</string>
+    <string name="name_dots">Name…</string>
     <string name="archive_onboarding_pending_invitations">Pending Invitations:</string>
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
     <string name="welcome_to_permanent_title">Hello, <b>%s</b>.\nWelcome to Permanent!</string>
@@ -560,6 +560,17 @@
     <string name="create_your_archive_title">Create your %s archive</string>
     <string name="create_your_archive_description">Name your new archive. This is the legal or official name of the person, family, group, or organization the archive is about. You can edit the name later if needed.</string>
     <string name="create_the_archive">Create the archive</string>
+    <string name="chart_your_path_title">Chart your path to success</string>
+    <string name="chart_your_path_description">Let’s set some goals. Everyone has unique goals for preserving their legacy. We want to learn more about how we can help you achieve yours.</string>
+    <string name="goals_capture">Capture and preserve memories for storytelling</string>
+    <string name="goals_digitize">Digitize or transfer my materials securely</string>
+    <string name="goals_collaborate">Collaborate with others to build my archive</string>
+    <string name="goals_create_an_archive">Create a public archive to share a legacy</string>
+    <string name="goals_share">Share my archive with others securely</string>
+    <string name="goals_create_a_plan">Create a plan for passing on my digital materials</string>
+    <string name="goals_organize">Organize my materials</string>
+    <string name="goals_something_else">Something else…</string>
+    <string name="skip_this_step">Skip this step</string>
 
     <string name="leave_share">Leave share</string>
 
@@ -702,6 +713,4 @@
     <string name="format">Format</string>
     <string name="date_value">Date Value</string>
     <string name="start_with">Start With</string>
-
-
 </resources>

@@ -107,8 +107,7 @@ fun DesignateContactOrStewardScreen(
 
         TextAndIconButton(
             ButtonColor.DARK,
-            text = stringResource(R.string.button_go_to_legacy_planning),
-            showButtonEnabled = true
+            text = stringResource(R.string.button_go_to_legacy_planning)
         ) {
             openLegacyScreen()
         }
