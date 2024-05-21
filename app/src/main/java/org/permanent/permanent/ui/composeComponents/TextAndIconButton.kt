@@ -31,7 +31,7 @@ fun TextAndIconButton(
     style: ButtonColor,
     text: String,
     icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
-    showButtonEnabled: Boolean,
+    showButtonEnabled: Boolean = true,
     onButtonClick: () -> Unit
 ) {
     val context = LocalContext.current
