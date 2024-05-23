@@ -139,6 +139,7 @@ fun ArchiveOnboardingScreen(
 
                     OnboardingPage.GOALS_PAGE.value -> GoalsPage(
                         isTablet = isTablet,
+                        horizontalPaddingDp = horizontalPaddingDp,
                         pagerState = pagerState,
                         newArchive = newArchive
                     )
