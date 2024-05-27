@@ -1,6 +1,8 @@
 package org.permanent.permanent.ui.bulkEditMetadata.compose
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,25 +13,33 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -56,6 +66,9 @@ fun EditLocationScreen(
         position = CameraPosition.fromLatLngZoom(singapore, 10f)
     }
 
+    var isSearching by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+
     Column() {
         BottomSheetHeader(
             painterResource(id = R.drawable.ic_edit_name),
@@ -77,27 +90,49 @@ fun EditLocationScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SearchBar(
-                    query = "searchQuery",
-                    onQueryChange = {
+                MySearchBar(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .height(48.dp)
+                        .background(Color.White)
+                        .shadow(
+                            elevation = 16.dp,
+                            spotColor = Color(0x29000000),
+                            ambientColor = Color(0x29000000)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Color(0xFFF4F6FD),
+                            shape = RoundedCornerShape(size = 2.dp)
+                        ),
+                    text = searchText,
+                    onTextChange = {
+                        searchText = it
+                    },
+                    onSearch = {
+                        // Perform search logic here
+                    },
+                    isFocused = {
 
                     },
-                    onSearch = {},
-                    placeholder = {
-                        Text(text = "Search movies")
-                    },
                     leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = null
+                        Image(
+                            painter = painterResource(R.drawable.ic_search_middle_grey),
+                            contentDescription = "Search icon"
                         )
                     },
-                    trailingIcon = {},
-                    content = {},
-                    active = false,
-                    onActiveChange = {},
-                    tonalElevation = 0.dp
+                    trailingIcon = {
+                        if (searchText.isNotEmpty()) {
+                            IconButton(onClick = {
+                                searchText = ""
+                            }) {
+                                Image(
+                                    painter = painterResource(R.drawable.ic_close_middle_grey),
+                                    contentDescription = "Search icon"
+                                )
+                            }
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.weight(1.0f))
@@ -157,6 +192,85 @@ fun EditLocationScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun LocationDetails() {
+    Row() {
+        Icon(
+            imageVector = Icons.Default.Search,
+            tint = MaterialTheme.colorScheme.onSurface,
+            contentDescription = null
+        )
+        Column() {
+            Text(
+                text = "Norwich",
+                style = TextStyle(
+                    fontSize = 15.sp,
+                    fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFF606060),
+                )
+            )
+            Text(
+                text = "12 km  •  Meeting House Ln, Oakdale, CT 06370, USA",
+                style = TextStyle(
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFB4B4B4),
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun MySearchBar(
+    modifier: Modifier = Modifier,
+    text: String,
+    onTextChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    isFocused: (Boolean) -> Unit,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (leadingIcon != null) {
+            leadingIcon()
+        }
+
+        BasicTextField(
+            value = text,
+            onValueChange = onTextChange,
+            modifier = Modifier.weight(1f)
+                .onFocusChanged {
+                    isFocused(it.isFocused)
+                },
+            singleLine = true,
+            textStyle = TextStyle(fontSize = 16.sp),
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterStart // Align text to the start
+                ) {
+                    if (text.isEmpty()) {
+                        Text(text = "Search...", color = Color.Gray)
+                    }
+                    innerTextField()
+                }
+            }
+        )
+
+        if (trailingIcon != null) {
+            trailingIcon()
         }
     }
 }
