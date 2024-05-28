@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,9 +32,7 @@ import org.permanent.permanent.R
 
 @Composable
 fun CustomCheckbox(
-    isTablet: Boolean = false,
-    text: String,
-    checkedState: MutableState<Boolean>
+    isTablet: Boolean = false, text: String, checkedState: MutableState<Boolean>
 ) {
     val context = LocalContext.current
     val whiteTransparentColor =
@@ -51,23 +50,22 @@ fun CustomCheckbox(
             .background(
                 if (checkedState.value) Brush.horizontalGradient(
                     listOf(
-                        barneyPurpleLightColor,
-                        barneyPurpleColor
+                        barneyPurpleLightColor, barneyPurpleColor
                     )
                 ) else if (isTablet) Brush.horizontalGradient(
                     listOf(
-                        blue900Color,
-                        blue900Color
+                        blue900Color, blue900Color
                     )
                 )
-                else
-                    Brush.horizontalGradient(
-                        listOf(
-                            Color.Transparent,
-                            Color.Transparent
-                        )
-                    ), RoundedCornerShape(10.dp)
-            ),
+                else Brush.horizontalGradient(
+                    listOf(
+                        Color.Transparent, Color.Transparent
+                    )
+                ), RoundedCornerShape(10.dp)
+            )
+            .clickable {
+                checkedState.value = !checkedState.value
+            },
         horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -17,6 +17,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,10 +44,11 @@ fun ArchiveOnboardingScreen(
     viewModel: ArchiveOnboardingViewModel
 ) {
     val context = LocalContext.current
-    val blue900Color = Color(ContextCompat.getColor(context, R.color.blue900))
-    val blueLighterColor = Color(ContextCompat.getColor(context, R.color.blueLighter))
     val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME_PAGE.value)
     val isTablet = viewModel.isTablet()
+
+    val blue900Color = remember { Color(ContextCompat.getColor(context, R.color.blue900)) }
+    val blueLighterColor = remember { Color(ContextCompat.getColor(context, R.color.blueLighter)) }
 
     val horizontalPaddingDp = if (isTablet) 64.dp else 32.dp
     val topPaddingDp = if (isTablet) 32.dp else 24.dp
@@ -62,6 +65,15 @@ fun ArchiveOnboardingScreen(
                 priorities = ""
             )
         )
+    }
+
+    val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
+
+    LaunchedEffect(pagerState.currentPage) {
+        when (pagerState.currentPage) {
+            OnboardingPage.ARCHIVE_NAME_PAGE.value -> viewModel.updateSecondProgressBarEmpty(true)
+            OnboardingPage.GOALS_PAGE.value -> viewModel.updateSecondProgressBarEmpty(false)
+        }
     }
 
     Box(
@@ -93,15 +105,24 @@ fun ArchiveOnboardingScreen(
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(spacerPaddingDp)) {
                     OnboardingProgressIndicator(
-                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 100
+                        progressIndicatorHeight,
+                        horizontalPaddingDp,
+                        spacerPaddingDp,
+                        isEmpty = false
                     )
 
                     OnboardingProgressIndicator(
-                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 0
+                        progressIndicatorHeight,
+                        horizontalPaddingDp,
+                        spacerPaddingDp,
+                        isSecondProgressBarEmpty
                     )
 
                     OnboardingProgressIndicator(
-                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 0
+                        progressIndicatorHeight,
+                        horizontalPaddingDp,
+                        spacerPaddingDp,
+                        isEmpty = true
                     )
                 }
             }
@@ -112,37 +133,36 @@ fun ArchiveOnboardingScreen(
                 userScrollEnabled = false
             ) { page ->
                 when (page) {
-                    OnboardingPage.WELCOME_PAGE.value -> WelcomePage(
-                        isTablet = isTablet,
-                        pagerState = pagerState,
-                        accountName = viewModel.getAccountName().value
-                    )
+                    OnboardingPage.WELCOME_PAGE.value -> {
+                        WelcomePage(
+                            isTablet = isTablet,
+                            pagerState = pagerState,
+                            accountName = viewModel.getAccountName().value
+                        )
+                    }
 
-                    OnboardingPage.ARCHIVE_TYPE_PAGE.value -> ArchiveTypePage(isTablet = isTablet,
-                        pagerState = pagerState,
-                        onArchiveTypeClick = { type: ArchiveType, typeName: String ->
-                            val archive = NewArchive(
-                                type = type,
-                                typeName = typeName,
-                                name = "",
-                                goals = EnumMap(OnboardingGoal::class.java),
-                                priorities = ""
-                            )
-                            newArchive = archive
-                        })
+                    OnboardingPage.ARCHIVE_TYPE_PAGE.value -> {
+                        ArchiveTypePage(isTablet = isTablet,
+                            pagerState = pagerState,
+                            onArchiveTypeClick = { type: ArchiveType, typeName: String ->
+                                newArchive = newArchive.copy(type = type, typeName = typeName)
+                            })
+                    }
 
-                    OnboardingPage.ARCHIVE_NAME_PAGE.value -> ArchiveNamePage(
-                        isTablet = isTablet,
-                        pagerState = pagerState,
-                        newArchive = newArchive
-                    )
+                    OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
+                        ArchiveNamePage(
+                            isTablet = isTablet, pagerState = pagerState, newArchive = newArchive
+                        )
+                    }
 
-                    OnboardingPage.GOALS_PAGE.value -> GoalsPage(
-                        isTablet = isTablet,
-                        horizontalPaddingDp = horizontalPaddingDp,
-                        pagerState = pagerState,
-                        newArchive = newArchive
-                    )
+                    OnboardingPage.GOALS_PAGE.value -> {
+                        GoalsPage(
+                            isTablet = isTablet,
+                            horizontalPaddingDp = horizontalPaddingDp,
+                            pagerState = pagerState,
+                            newArchive = newArchive
+                        )
+                    }
                 }
             }
         }
@@ -151,7 +171,7 @@ fun ArchiveOnboardingScreen(
 
 @Composable
 fun OnboardingProgressIndicator(
-    height: Dp, horizontalPaddingDp: Dp, spacerPaddingDp: Dp, percent: Int
+    height: Dp, horizontalPaddingDp: Dp, spacerPaddingDp: Dp, isEmpty: Boolean
 ) {
     val context = LocalContext.current
     val whiteSuperTransparentColor =
@@ -173,7 +193,7 @@ fun OnboardingProgressIndicator(
                 purpleColor, accentColor
             )
         ),
-        percent
+        if (isEmpty) 0 else 100
     )
 }
 
