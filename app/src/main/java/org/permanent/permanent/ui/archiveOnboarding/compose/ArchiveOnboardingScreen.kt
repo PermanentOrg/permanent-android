@@ -68,6 +68,7 @@ fun ArchiveOnboardingScreen(
     }
 
     val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
+    val checkboxStates = remember { CheckboxStates.create() }
 
     LaunchedEffect(pagerState.currentPage) {
         when (pagerState.currentPage) {
@@ -160,7 +161,8 @@ fun ArchiveOnboardingScreen(
                             isTablet = isTablet,
                             horizontalPaddingDp = horizontalPaddingDp,
                             pagerState = pagerState,
-                            newArchive = newArchive
+                            newArchive = newArchive,
+                            checkboxStates
                         )
                     }
                 }
@@ -206,20 +208,9 @@ data class NewArchive(
 )
 
 enum class OnboardingGoal {
-    CAPTURE,
-    DIGITIZE,
-    COLLABORATE,
-    CREATE_AN_ARCHIVE,
-    SHARE,
-    CREATE_A_PLAN,
-    ORGANIZE,
-    SOMETHING_ELSE
+    CAPTURE, DIGITIZE, COLLABORATE, CREATE_AN_ARCHIVE, SHARE, CREATE_A_PLAN, ORGANIZE, SOMETHING_ELSE
 }
 
 enum class OnboardingPage(val value: Int) {
-    WELCOME_PAGE(0),
-    ARCHIVE_TYPE_PAGE(1),
-    ARCHIVE_NAME_PAGE(2),
-    GOALS_PAGE(3),
-    PRIORITIES_PAGE(4)
+    WELCOME_PAGE(0), ARCHIVE_TYPE_PAGE(1), ARCHIVE_NAME_PAGE(2), GOALS_PAGE(3), PRIORITIES_PAGE(4)
 }

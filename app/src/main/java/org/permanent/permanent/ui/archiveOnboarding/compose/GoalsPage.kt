@@ -22,8 +22,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +53,11 @@ import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
 
 @Composable
 fun GoalsPage(
-    isTablet: Boolean, horizontalPaddingDp: Dp, pagerState: PagerState, newArchive: NewArchive
+    isTablet: Boolean,
+    horizontalPaddingDp: Dp,
+    pagerState: PagerState,
+    newArchive: NewArchive,
+    checkboxStates: CheckboxStates
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -62,11 +66,17 @@ fun GoalsPage(
 
     if (isTablet) {
         TabletBody(
-            horizontalPaddingDp, whiteColor, regularFont, coroutineScope, pagerState, newArchive
+            horizontalPaddingDp,
+            whiteColor,
+            regularFont,
+            coroutineScope,
+            pagerState,
+            newArchive,
+            checkboxStates
         )
     } else {
         PhoneBody(
-            whiteColor, regularFont, coroutineScope, pagerState, newArchive
+            whiteColor, regularFont, coroutineScope, pagerState, newArchive, checkboxStates
         )
     }
 }
@@ -77,17 +87,10 @@ private fun PhoneBody(
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    newArchive: NewArchive
+    newArchive: NewArchive,
+    checkboxStates: CheckboxStates
 ) {
     val scrollState = rememberScrollState()
-    val captureCheckedState = remember { mutableStateOf(false) }
-    val digitizeCheckedState = remember { mutableStateOf(false) }
-    val collaborateCheckedState = remember { mutableStateOf(false) }
-    val createArchiveCheckedState = remember { mutableStateOf(false) }
-    val shareCheckedState = remember { mutableStateOf(false) }
-    val createPlanCheckedState = remember { mutableStateOf(false) }
-    val organizeCheckedState = remember { mutableStateOf(false) }
-    val somethingElseCheckedState = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -129,34 +132,35 @@ private fun PhoneBody(
             CustomCheckbox(
                 isTablet = false,
                 text = stringResource(id = R.string.goals_capture),
-                checkedState = captureCheckedState
+                checkedState = checkboxStates.isCaptureChecked
             )
             CustomCheckbox(
                 text = stringResource(id = R.string.goals_digitize),
-                checkedState = digitizeCheckedState
+                checkedState = checkboxStates.isDigitizeChecked
             )
             CustomCheckbox(
                 text = stringResource(id = R.string.goals_collaborate),
-                checkedState = collaborateCheckedState
+                checkedState = checkboxStates.isCollaborateChecked
             )
             CustomCheckbox(
                 text = stringResource(id = R.string.goals_create_an_archive),
-                checkedState = createArchiveCheckedState
+                checkedState = checkboxStates.isCreateArchiveChecked
             )
             CustomCheckbox(
-                text = stringResource(id = R.string.goals_share), checkedState = shareCheckedState
+                text = stringResource(id = R.string.goals_share),
+                checkedState = checkboxStates.isShareChecked
             )
             CustomCheckbox(
                 text = stringResource(id = R.string.goals_create_a_plan),
-                checkedState = createPlanCheckedState
+                checkedState = checkboxStates.isCreatePlanChecked
             )
             CustomCheckbox(
                 text = stringResource(id = R.string.goals_organize),
-                checkedState = organizeCheckedState
+                checkedState = checkboxStates.isOrganizeChecked
             )
             CustomCheckbox(
                 text = stringResource(id = R.string.goals_something_else),
-                checkedState = somethingElseCheckedState
+                checkedState = checkboxStates.isSomethingElseChecked
             )
         }
 
@@ -188,19 +192,23 @@ private fun PhoneBody(
                 SmallTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
-                    newArchive.goals[OnboardingGoal.CAPTURE] = captureCheckedState.value
-                    newArchive.goals[OnboardingGoal.DIGITIZE] = digitizeCheckedState.value
-                    newArchive.goals[OnboardingGoal.COLLABORATE] = collaborateCheckedState.value
+                    newArchive.goals[OnboardingGoal.CAPTURE] = checkboxStates.isCaptureChecked.value
+                    newArchive.goals[OnboardingGoal.DIGITIZE] =
+                        checkboxStates.isDigitizeChecked.value
+                    newArchive.goals[OnboardingGoal.COLLABORATE] =
+                        checkboxStates.isCollaborateChecked.value
                     newArchive.goals[OnboardingGoal.CREATE_AN_ARCHIVE] =
-                        createArchiveCheckedState.value
-                    newArchive.goals[OnboardingGoal.SHARE] = shareCheckedState.value
-                    newArchive.goals[OnboardingGoal.CREATE_A_PLAN] = createPlanCheckedState.value
-                    newArchive.goals[OnboardingGoal.ORGANIZE] = organizeCheckedState.value
+                        checkboxStates.isCreateArchiveChecked.value
+                    newArchive.goals[OnboardingGoal.SHARE] = checkboxStates.isShareChecked.value
+                    newArchive.goals[OnboardingGoal.CREATE_A_PLAN] =
+                        checkboxStates.isCreatePlanChecked.value
+                    newArchive.goals[OnboardingGoal.ORGANIZE] =
+                        checkboxStates.isOrganizeChecked.value
                     newArchive.goals[OnboardingGoal.SOMETHING_ELSE] =
-                        somethingElseCheckedState.value
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
-                    }
+                        checkboxStates.isSomethingElseChecked.value
+//                    coroutineScope.launch {
+//                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+//                    }
                 }
             }
         }
@@ -214,20 +222,12 @@ private fun TabletBody(
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    newArchive: NewArchive
+    newArchive: NewArchive,
+    checkboxStates: CheckboxStates
 ) {
     val configuration = LocalConfiguration.current
     val oneThirdOfScreenDp = (configuration.screenWidthDp.dp - 2 * horizontalPaddingDp) / 3
     val spacerWidth = 32.dp
-
-    val captureCheckedState = remember { mutableStateOf(false) }
-    val digitizeCheckedState = remember { mutableStateOf(false) }
-    val collaborateCheckedState = remember { mutableStateOf(false) }
-    val createArchiveCheckedState = remember { mutableStateOf(false) }
-    val shareCheckedState = remember { mutableStateOf(false) }
-    val createPlanCheckedState = remember { mutableStateOf(false) }
-    val organizeCheckedState = remember { mutableStateOf(false) }
-    val somethingElseCheckedState = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -294,56 +294,56 @@ private fun TabletBody(
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_capture),
-                    checkedState = captureCheckedState
+                    checkedState = checkboxStates.isCaptureChecked
                 )
             }
             item {
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_digitize),
-                    checkedState = digitizeCheckedState
+                    checkedState = checkboxStates.isDigitizeChecked
                 )
             }
             item {
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_collaborate),
-                    checkedState = collaborateCheckedState
+                    checkedState = checkboxStates.isCollaborateChecked
                 )
             }
             item {
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_create_an_archive),
-                    checkedState = createArchiveCheckedState
+                    checkedState = checkboxStates.isCreateArchiveChecked
                 )
             }
             item {
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_share),
-                    checkedState = shareCheckedState
+                    checkedState = checkboxStates.isShareChecked
                 )
             }
             item {
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_create_a_plan),
-                    checkedState = createPlanCheckedState
+                    checkedState = checkboxStates.isCreatePlanChecked
                 )
             }
             item {
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_organize),
-                    checkedState = organizeCheckedState
+                    checkedState = checkboxStates.isOrganizeChecked
                 )
             }
             item {
                 CustomCheckbox(
                     isTablet = true,
                     text = stringResource(id = R.string.goals_something_else),
-                    checkedState = somethingElseCheckedState
+                    checkedState = checkboxStates.isSomethingElseChecked
                 )
             }
         }
@@ -384,23 +384,51 @@ private fun TabletBody(
                     SmallTextAndIconButton(
                         buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                     ) {
-                        newArchive.goals[OnboardingGoal.CAPTURE] = captureCheckedState.value
-                        newArchive.goals[OnboardingGoal.DIGITIZE] = digitizeCheckedState.value
-                        newArchive.goals[OnboardingGoal.COLLABORATE] = collaborateCheckedState.value
+                        newArchive.goals[OnboardingGoal.CAPTURE] =
+                            checkboxStates.isCaptureChecked.value
+                        newArchive.goals[OnboardingGoal.DIGITIZE] =
+                            checkboxStates.isDigitizeChecked.value
+                        newArchive.goals[OnboardingGoal.COLLABORATE] =
+                            checkboxStates.isCollaborateChecked.value
                         newArchive.goals[OnboardingGoal.CREATE_AN_ARCHIVE] =
-                            createArchiveCheckedState.value
-                        newArchive.goals[OnboardingGoal.SHARE] = shareCheckedState.value
+                            checkboxStates.isCreateArchiveChecked.value
+                        newArchive.goals[OnboardingGoal.SHARE] = checkboxStates.isShareChecked.value
                         newArchive.goals[OnboardingGoal.CREATE_A_PLAN] =
-                            createPlanCheckedState.value
-                        newArchive.goals[OnboardingGoal.ORGANIZE] = organizeCheckedState.value
+                            checkboxStates.isCreatePlanChecked.value
+                        newArchive.goals[OnboardingGoal.ORGANIZE] =
+                            checkboxStates.isOrganizeChecked.value
                         newArchive.goals[OnboardingGoal.SOMETHING_ELSE] =
-                            somethingElseCheckedState.value
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
-                        }
+                            checkboxStates.isSomethingElseChecked.value
+//                        coroutineScope.launch {
+//                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+//                        }
                     }
                 }
             }
         }
+    }
+}
+
+data class CheckboxStates(
+    val isCaptureChecked: MutableState<Boolean>,
+    val isDigitizeChecked: MutableState<Boolean>,
+    val isCollaborateChecked: MutableState<Boolean>,
+    val isCreateArchiveChecked: MutableState<Boolean>,
+    val isShareChecked: MutableState<Boolean>,
+    val isCreatePlanChecked: MutableState<Boolean>,
+    val isOrganizeChecked: MutableState<Boolean>,
+    val isSomethingElseChecked: MutableState<Boolean>
+) {
+    companion object {
+        fun create() = CheckboxStates(
+            isCaptureChecked = mutableStateOf(false),
+            isDigitizeChecked = mutableStateOf(false),
+            isCollaborateChecked = mutableStateOf(false),
+            isCreateArchiveChecked = mutableStateOf(false),
+            isShareChecked = mutableStateOf(false),
+            isCreatePlanChecked = mutableStateOf(false),
+            isOrganizeChecked = mutableStateOf(false),
+            isSomethingElseChecked = mutableStateOf(false)
+        )
     }
 }
