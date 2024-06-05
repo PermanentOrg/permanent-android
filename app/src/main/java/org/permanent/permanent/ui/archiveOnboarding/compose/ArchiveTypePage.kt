@@ -76,7 +76,7 @@ private fun TabletBody(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 64.dp),
+            .padding(64.dp),
         horizontalArrangement = Arrangement.spacedBy(64.dp),
     ) {
         Column(
@@ -177,7 +177,7 @@ private fun PhoneBody(
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = 32.dp),
+            .padding(32.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         val titleText = stringResource(id = R.string.create_your_first_archive_title)

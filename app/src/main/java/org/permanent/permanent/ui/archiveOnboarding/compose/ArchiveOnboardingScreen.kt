@@ -44,7 +44,8 @@ fun ArchiveOnboardingScreen(
     viewModel: ArchiveOnboardingViewModel
 ) {
     val context = LocalContext.current
-    val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME_PAGE.value)
+    val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME_PAGE.value,
+        pageCount = { OnboardingPage.values().size })
     val isTablet = viewModel.isTablet()
 
     val blue900Color = remember { Color(ContextCompat.getColor(context, R.color.blue900)) }
@@ -91,18 +92,21 @@ fun ArchiveOnboardingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = horizontalPaddingDp, end = horizontalPaddingDp, top = topPaddingDp
-                ), verticalArrangement = Arrangement.Top
+                .padding(top = topPaddingDp),
+            verticalArrangement = Arrangement.Top
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_logo),
                 contentDescription = "Logo",
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(horizontal = horizontalPaddingDp)
             )
 
             Box(
-                modifier = Modifier.padding(top = topPaddingDp)
+                modifier = Modifier.padding(
+                    top = topPaddingDp, start = horizontalPaddingDp, end = horizontalPaddingDp
+                )
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(spacerPaddingDp)) {
                     OnboardingProgressIndicator(
@@ -129,9 +133,7 @@ fun ArchiveOnboardingScreen(
             }
 
             HorizontalPager(
-                pageCount = OnboardingPage.values().size,
-                state = pagerState,
-                userScrollEnabled = false
+                state = pagerState, userScrollEnabled = false
             ) { page ->
                 when (page) {
                     OnboardingPage.WELCOME_PAGE.value -> {

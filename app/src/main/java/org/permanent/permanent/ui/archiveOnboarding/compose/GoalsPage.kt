@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -41,6 +42,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -61,8 +64,10 @@ fun GoalsPage(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
+    val whiteSuperTransparentColor =
+        Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
 
     if (isTablet) {
         TabletBody(
@@ -76,13 +81,20 @@ fun GoalsPage(
         )
     } else {
         PhoneBody(
-            whiteColor, regularFont, coroutineScope, pagerState, newArchive, checkboxStates
+            whiteSuperTransparentColor,
+            whiteColor,
+            regularFont,
+            coroutineScope,
+            pagerState,
+            newArchive,
+            checkboxStates
         )
     }
 }
 
 @Composable
 private fun PhoneBody(
+    whiteSuperTransparentColor: Color,
     whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
@@ -92,80 +104,122 @@ private fun PhoneBody(
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
+    ConstraintLayout(
         modifier = Modifier
-            .fillMaxHeight()
+            .fillMaxSize()
             .padding(vertical = 32.dp)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        val titleText = stringResource(id = R.string.chart_your_path_title)
-        val boldedWord = "path"
-        val start = titleText.indexOf(boldedWord)
-        val spanStyles = listOf(
-            AnnotatedString.Range(
-                SpanStyle(fontWeight = FontWeight.Bold),
-                start = start,
-                end = start + boldedWord.length
-            )
-        )
-
-        Text(
-            text = AnnotatedString(text = titleText, spanStyles = spanStyles),
-            fontSize = 32.sp,
-            lineHeight = 48.sp,
-            color = whiteColor,
-            fontFamily = regularFont
-        )
-
-        Text(
-            text = stringResource(id = R.string.chart_your_path_description),
-            fontSize = 14.sp,
-            lineHeight = 24.sp,
-            color = whiteColor,
-            fontFamily = regularFont
-        )
+        val (content, divider, spacer, buttons) = createRefs()
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier
+                .constrainAs(content) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(divider.top)
+                    height = Dimension.fillToConstraints
+                }
+                .verticalScroll(scrollState)
+                .padding(start = 32.dp, end = 32.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            CustomCheckbox(
-                isTablet = false,
-                text = stringResource(id = R.string.goals_capture),
-                checkedState = checkboxStates.isCaptureChecked
+            val titleText = stringResource(id = R.string.chart_your_path_title)
+            val boldedWord = "path"
+            val start = titleText.indexOf(boldedWord)
+            val spanStyles = listOf(
+                AnnotatedString.Range(
+                    SpanStyle(fontWeight = FontWeight.Bold),
+                    start = start,
+                    end = start + boldedWord.length
+                )
             )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_digitize),
-                checkedState = checkboxStates.isDigitizeChecked
+
+            Text(
+                text = AnnotatedString(text = titleText, spanStyles = spanStyles),
+                fontSize = 32.sp,
+                lineHeight = 48.sp,
+                color = whiteColor,
+                fontFamily = regularFont
             )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_collaborate),
-                checkedState = checkboxStates.isCollaborateChecked
+
+            Text(
+                text = stringResource(id = R.string.chart_your_path_description),
+                fontSize = 14.sp,
+                lineHeight = 24.sp,
+                color = whiteColor,
+                fontFamily = regularFont
             )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_create_an_archive),
-                checkedState = checkboxStates.isCreateArchiveChecked
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_share),
-                checkedState = checkboxStates.isShareChecked
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_create_a_plan),
-                checkedState = checkboxStates.isCreatePlanChecked
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_organize),
-                checkedState = checkboxStates.isOrganizeChecked
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_something_else),
-                checkedState = checkboxStates.isSomethingElseChecked
-            )
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CustomCheckbox(
+                    isTablet = false,
+                    text = stringResource(id = R.string.goals_capture),
+                    checkedState = checkboxStates.isCaptureChecked
+                )
+                CustomCheckbox(
+                    text = stringResource(id = R.string.goals_digitize),
+                    checkedState = checkboxStates.isDigitizeChecked
+                )
+                CustomCheckbox(
+                    text = stringResource(id = R.string.goals_collaborate),
+                    checkedState = checkboxStates.isCollaborateChecked
+                )
+                CustomCheckbox(
+                    text = stringResource(id = R.string.goals_create_an_archive),
+                    checkedState = checkboxStates.isCreateArchiveChecked
+                )
+                CustomCheckbox(
+                    text = stringResource(id = R.string.goals_share),
+                    checkedState = checkboxStates.isShareChecked
+                )
+                CustomCheckbox(
+                    text = stringResource(id = R.string.goals_create_a_plan),
+                    checkedState = checkboxStates.isCreatePlanChecked
+                )
+                CustomCheckbox(
+                    text = stringResource(id = R.string.goals_organize),
+                    checkedState = checkboxStates.isOrganizeChecked
+                )
+                CustomCheckbox(
+                    text = stringResource(id = R.string.goals_something_else),
+                    checkedState = checkboxStates.isSomethingElseChecked
+                )
+            }
         }
 
+        HorizontalDivider(
+            modifier = Modifier
+                .constrainAs(divider) {
+                    bottom.linkTo(spacer.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                },
+            thickness = 1.dp,
+            color = whiteSuperTransparentColor
+        )
+
+        Spacer(
+            modifier = Modifier
+                .height(32.dp)
+                .constrainAs(spacer) {
+                    bottom.linkTo(buttons.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+        )
+
         Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)
+            modifier = Modifier
+                .constrainAs(buttons) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                }
+                .padding(horizontal = 32.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -232,7 +286,7 @@ private fun TabletBody(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 64.dp),
+            .padding(64.dp),
         verticalArrangement = Arrangement.spacedBy(64.dp)
     ) {
         Row(
