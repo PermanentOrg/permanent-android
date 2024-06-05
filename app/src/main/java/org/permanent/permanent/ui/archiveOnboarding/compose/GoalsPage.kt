@@ -26,6 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,7 +63,7 @@ fun GoalsPage(
     horizontalPaddingDp: Dp,
     pagerState: PagerState,
     newArchive: NewArchive,
-    checkboxStates: CheckboxStates
+    goals: SnapshotStateList<OnboardingGoal>
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -77,7 +80,7 @@ fun GoalsPage(
             coroutineScope,
             pagerState,
             newArchive,
-            checkboxStates
+            goals
         )
     } else {
         PhoneBody(
@@ -87,7 +90,7 @@ fun GoalsPage(
             coroutineScope,
             pagerState,
             newArchive,
-            checkboxStates
+            goals
         )
     }
 }
@@ -100,7 +103,7 @@ private fun PhoneBody(
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
     newArchive: NewArchive,
-    checkboxStates: CheckboxStates
+    goals: SnapshotStateList<OnboardingGoal>
 ) {
     val scrollState = rememberScrollState()
 
@@ -111,17 +114,15 @@ private fun PhoneBody(
     ) {
         val (content, divider, spacer, buttons) = createRefs()
 
-        Column(
-            modifier = Modifier
-                .constrainAs(content) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(divider.top)
-                    height = Dimension.fillToConstraints
-                }
-                .verticalScroll(scrollState)
-                .padding(start = 32.dp, end = 32.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
+        Column(modifier = Modifier
+            .constrainAs(content) {
+                top.linkTo(parent.top)
+                bottom.linkTo(divider.top)
+                height = Dimension.fillToConstraints
+            }
+            .verticalScroll(scrollState)
+            .padding(start = 32.dp, end = 32.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)) {
             val titleText = stringResource(id = R.string.chart_your_path_title)
             val boldedWord = "path"
             val start = titleText.indexOf(boldedWord)
@@ -152,75 +153,40 @@ private fun PhoneBody(
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CustomCheckbox(
-                    isTablet = false,
-                    text = stringResource(id = R.string.goals_capture),
-                    checkedState = checkboxStates.isCaptureChecked
-                )
-                CustomCheckbox(
-                    text = stringResource(id = R.string.goals_digitize),
-                    checkedState = checkboxStates.isDigitizeChecked
-                )
-                CustomCheckbox(
-                    text = stringResource(id = R.string.goals_collaborate),
-                    checkedState = checkboxStates.isCollaborateChecked
-                )
-                CustomCheckbox(
-                    text = stringResource(id = R.string.goals_create_an_archive),
-                    checkedState = checkboxStates.isCreateArchiveChecked
-                )
-                CustomCheckbox(
-                    text = stringResource(id = R.string.goals_share),
-                    checkedState = checkboxStates.isShareChecked
-                )
-                CustomCheckbox(
-                    text = stringResource(id = R.string.goals_create_a_plan),
-                    checkedState = checkboxStates.isCreatePlanChecked
-                )
-                CustomCheckbox(
-                    text = stringResource(id = R.string.goals_organize),
-                    checkedState = checkboxStates.isOrganizeChecked
-                )
-                CustomCheckbox(
-                    text = stringResource(id = R.string.goals_something_else),
-                    checkedState = checkboxStates.isSomethingElseChecked
-                )
+                goals.forEach { goal ->
+                    CustomCheckbox(
+                        text = goal.description, checkedState = goal.isChecked
+                    )
+                }
             }
         }
 
         HorizontalDivider(
-            modifier = Modifier
-                .constrainAs(divider) {
-                    bottom.linkTo(spacer.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                },
-            thickness = 1.dp,
-            color = whiteSuperTransparentColor
+            modifier = Modifier.constrainAs(divider) {
+                bottom.linkTo(spacer.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }, thickness = 1.dp, color = whiteSuperTransparentColor
         )
 
-        Spacer(
-            modifier = Modifier
-                .height(32.dp)
-                .constrainAs(spacer) {
-                    bottom.linkTo(buttons.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-        )
+        Spacer(modifier = Modifier
+            .height(32.dp)
+            .constrainAs(spacer) {
+                bottom.linkTo(buttons.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            })
 
-        Row(
-            modifier = Modifier
-                .constrainAs(buttons) {
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                }
-                .padding(horizontal = 32.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
+        Row(modifier = Modifier
+            .constrainAs(buttons) {
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }
+            .padding(horizontal = 32.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -246,20 +212,7 @@ private fun PhoneBody(
                 SmallTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
-                    newArchive.goals[OnboardingGoal.CAPTURE] = checkboxStates.isCaptureChecked.value
-                    newArchive.goals[OnboardingGoal.DIGITIZE] =
-                        checkboxStates.isDigitizeChecked.value
-                    newArchive.goals[OnboardingGoal.COLLABORATE] =
-                        checkboxStates.isCollaborateChecked.value
-                    newArchive.goals[OnboardingGoal.CREATE_AN_ARCHIVE] =
-                        checkboxStates.isCreateArchiveChecked.value
-                    newArchive.goals[OnboardingGoal.SHARE] = checkboxStates.isShareChecked.value
-                    newArchive.goals[OnboardingGoal.CREATE_A_PLAN] =
-                        checkboxStates.isCreatePlanChecked.value
-                    newArchive.goals[OnboardingGoal.ORGANIZE] =
-                        checkboxStates.isOrganizeChecked.value
-                    newArchive.goals[OnboardingGoal.SOMETHING_ELSE] =
-                        checkboxStates.isSomethingElseChecked.value
+                    newArchive.goals = goals
 //                    coroutineScope.launch {
 //                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
 //                    }
@@ -277,7 +230,7 @@ private fun TabletBody(
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
     newArchive: NewArchive,
-    checkboxStates: CheckboxStates
+    goals: SnapshotStateList<OnboardingGoal>
 ) {
     val configuration = LocalConfiguration.current
     val oneThirdOfScreenDp = (configuration.screenWidthDp.dp - 2 * horizontalPaddingDp) / 3
@@ -344,61 +297,12 @@ private fun TabletBody(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_capture),
-                    checkedState = checkboxStates.isCaptureChecked
-                )
-            }
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_digitize),
-                    checkedState = checkboxStates.isDigitizeChecked
-                )
-            }
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_collaborate),
-                    checkedState = checkboxStates.isCollaborateChecked
-                )
-            }
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_create_an_archive),
-                    checkedState = checkboxStates.isCreateArchiveChecked
-                )
-            }
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_share),
-                    checkedState = checkboxStates.isShareChecked
-                )
-            }
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_create_a_plan),
-                    checkedState = checkboxStates.isCreatePlanChecked
-                )
-            }
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_organize),
-                    checkedState = checkboxStates.isOrganizeChecked
-                )
-            }
-            item {
-                CustomCheckbox(
-                    isTablet = true,
-                    text = stringResource(id = R.string.goals_something_else),
-                    checkedState = checkboxStates.isSomethingElseChecked
-                )
+            goals.forEach { goal ->
+                item {
+                    CustomCheckbox(
+                        isTablet = true, text = goal.description, checkedState = goal.isChecked
+                    )
+                }
             }
         }
 
@@ -438,21 +342,7 @@ private fun TabletBody(
                     SmallTextAndIconButton(
                         buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                     ) {
-                        newArchive.goals[OnboardingGoal.CAPTURE] =
-                            checkboxStates.isCaptureChecked.value
-                        newArchive.goals[OnboardingGoal.DIGITIZE] =
-                            checkboxStates.isDigitizeChecked.value
-                        newArchive.goals[OnboardingGoal.COLLABORATE] =
-                            checkboxStates.isCollaborateChecked.value
-                        newArchive.goals[OnboardingGoal.CREATE_AN_ARCHIVE] =
-                            checkboxStates.isCreateArchiveChecked.value
-                        newArchive.goals[OnboardingGoal.SHARE] = checkboxStates.isShareChecked.value
-                        newArchive.goals[OnboardingGoal.CREATE_A_PLAN] =
-                            checkboxStates.isCreatePlanChecked.value
-                        newArchive.goals[OnboardingGoal.ORGANIZE] =
-                            checkboxStates.isOrganizeChecked.value
-                        newArchive.goals[OnboardingGoal.SOMETHING_ELSE] =
-                            checkboxStates.isSomethingElseChecked.value
+                        newArchive.goals = goals
 //                        coroutineScope.launch {
 //                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
 //                        }
@@ -463,26 +353,21 @@ private fun TabletBody(
     }
 }
 
-data class CheckboxStates(
-    val isCaptureChecked: MutableState<Boolean>,
-    val isDigitizeChecked: MutableState<Boolean>,
-    val isCollaborateChecked: MutableState<Boolean>,
-    val isCreateArchiveChecked: MutableState<Boolean>,
-    val isShareChecked: MutableState<Boolean>,
-    val isCreatePlanChecked: MutableState<Boolean>,
-    val isOrganizeChecked: MutableState<Boolean>,
-    val isSomethingElseChecked: MutableState<Boolean>
-) {
-    companion object {
-        fun create() = CheckboxStates(
-            isCaptureChecked = mutableStateOf(false),
-            isDigitizeChecked = mutableStateOf(false),
-            isCollaborateChecked = mutableStateOf(false),
-            isCreateArchiveChecked = mutableStateOf(false),
-            isShareChecked = mutableStateOf(false),
-            isCreatePlanChecked = mutableStateOf(false),
-            isOrganizeChecked = mutableStateOf(false),
-            isSomethingElseChecked = mutableStateOf(false)
+data class OnboardingGoal(
+    val type: OnboardingGoalType, val description: String, val isChecked: MutableState<Boolean>
+)
+
+enum class OnboardingGoalType {
+    CAPTURE, DIGITIZE, COLLABORATE, CREATE_AN_ARCHIVE, SHARE, CREATE_A_PLAN, ORGANIZE, SOMETHING_ELSE
+}
+
+val OnboardingGoalSaver: Saver<OnboardingGoal, *> = listSaver(
+    save = { listOf(it.type.ordinal, it.description, it.isChecked.value) },
+    restore = {
+        OnboardingGoal(
+            type = OnboardingGoalType.values()[it[0] as Int],
+            description = it[1] as String,
+            isChecked = mutableStateOf(it[2] as Boolean)
         )
     }
-}
+)

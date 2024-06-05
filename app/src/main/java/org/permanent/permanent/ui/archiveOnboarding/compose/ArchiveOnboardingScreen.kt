@@ -20,9 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -37,7 +41,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.CustomProgressIndicator
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
-import java.util.EnumMap
 
 @Composable
 fun ArchiveOnboardingScreen(
@@ -62,14 +65,70 @@ fun ArchiveOnboardingScreen(
                 type = ArchiveType.PERSON,
                 typeName = context.getString(R.string.personal),
                 name = "",
-                goals = EnumMap(OnboardingGoal::class.java),
+                goals = mutableStateListOf(),
                 priorities = ""
             )
         )
     }
 
     val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
-    val checkboxStates = remember { CheckboxStates.create() }
+    val goals = rememberSaveable(
+        saver = listSaver(
+            save = { it.map { goal -> listOf(goal.type.ordinal, goal.description, goal.isChecked.value) } },
+            restore = { restoredGoals ->
+                restoredGoals.map {
+                    OnboardingGoal(
+                        type = OnboardingGoalType.values()[it[0] as Int],
+                        description = it[1] as String,
+                        isChecked = mutableStateOf(it[2] as Boolean)
+                    )
+                }.toMutableStateList()
+            }
+        )
+    ) {
+        mutableStateListOf(
+            OnboardingGoal(
+                OnboardingGoalType.CAPTURE,
+                context.getString(R.string.goals_capture),
+                mutableStateOf(false)
+            ),
+            OnboardingGoal(
+                OnboardingGoalType.DIGITIZE,
+                context.getString(R.string.goals_digitize),
+                mutableStateOf(false)
+            ),
+            OnboardingGoal(
+                OnboardingGoalType.COLLABORATE,
+                context.getString(R.string.goals_collaborate),
+                mutableStateOf(false)
+            ),
+            OnboardingGoal(
+                OnboardingGoalType.CREATE_AN_ARCHIVE,
+                context.getString(R.string.goals_create_an_archive),
+                mutableStateOf(false)
+            ),
+            OnboardingGoal(
+                OnboardingGoalType.SHARE,
+                context.getString(R.string.goals_share),
+                mutableStateOf(false)
+            ),
+            OnboardingGoal(
+                OnboardingGoalType.CREATE_A_PLAN,
+                context.getString(R.string.goals_create_a_plan),
+                mutableStateOf(false)
+            ),
+            OnboardingGoal(
+                OnboardingGoalType.ORGANIZE,
+                context.getString(R.string.goals_organize),
+                mutableStateOf(false)
+            ),
+            OnboardingGoal(
+                OnboardingGoalType.SOMETHING_ELSE,
+                context.getString(R.string.goals_something_else),
+                mutableStateOf(false)
+            ),
+        )
+    }
 
     LaunchedEffect(pagerState.currentPage) {
         when (pagerState.currentPage) {
@@ -164,7 +223,7 @@ fun ArchiveOnboardingScreen(
                             horizontalPaddingDp = horizontalPaddingDp,
                             pagerState = pagerState,
                             newArchive = newArchive,
-                            checkboxStates
+                            goals
                         )
                     }
                 }
@@ -205,13 +264,9 @@ data class NewArchive(
     var type: ArchiveType,
     var typeName: String,
     var name: String,
-    var goals: EnumMap<OnboardingGoal, Boolean>,
+    var goals: List<OnboardingGoal>,
     var priorities: String?
 )
-
-enum class OnboardingGoal {
-    CAPTURE, DIGITIZE, COLLABORATE, CREATE_AN_ARCHIVE, SHARE, CREATE_A_PLAN, ORGANIZE, SOMETHING_ELSE
-}
 
 enum class OnboardingPage(val value: Int) {
     WELCOME_PAGE(0), ARCHIVE_TYPE_PAGE(1), ARCHIVE_NAME_PAGE(2), GOALS_PAGE(3), PRIORITIES_PAGE(4)
