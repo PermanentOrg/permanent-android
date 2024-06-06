@@ -38,7 +38,7 @@ fun EmailChipView(
     onRemoveEmailChip: (EmailChip) -> Unit
 ) {
     val errorText = remember { mutableStateOf("") }
-    var isFocused = remember { mutableStateOf(false) }
+    val isFocused = remember { mutableStateOf(false) }
     val showTextField = remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -72,10 +72,10 @@ fun EmailChipView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FlowRow(
-                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.Center
             ) {
                 emails.forEach { chip ->
                     EmailChipCard(text = chip.text,

@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
@@ -6,20 +6,33 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,8 +41,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -42,116 +59,134 @@ import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
 
 @Composable
 fun GoalsPage(
-    isTablet: Boolean, pagerState: PagerState, newArchive: NewArchive
+    isTablet: Boolean,
+    horizontalPaddingDp: Dp,
+    pagerState: PagerState,
+    newArchive: NewArchive,
+    goals: SnapshotStateList<OnboardingGoal>
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
+    val whiteSuperTransparentColor =
+        Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
 
     if (isTablet) {
         TabletBody(
-            whiteColor, regularFont, coroutineScope, pagerState, newArchive
+            horizontalPaddingDp,
+            whiteColor,
+            regularFont,
+            coroutineScope,
+            pagerState,
+            newArchive,
+            goals
         )
     } else {
         PhoneBody(
-            whiteColor, regularFont, coroutineScope, pagerState, newArchive
+            whiteSuperTransparentColor,
+            whiteColor,
+            regularFont,
+            coroutineScope,
+            pagerState,
+            newArchive,
+            goals
         )
     }
 }
 
 @Composable
 private fun PhoneBody(
+    whiteSuperTransparentColor: Color,
     whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    newArchive: NewArchive
+    newArchive: NewArchive,
+    goals: SnapshotStateList<OnboardingGoal>
 ) {
     val scrollState = rememberScrollState()
-    val captureCheckedState = remember { mutableStateOf(false) }
-    val digitizeCheckedState = remember { mutableStateOf(false) }
-    val collaborateCheckedState = remember { mutableStateOf(false) }
-    val createArchiveCheckedState = remember { mutableStateOf(false) }
-    val shareCheckedState = remember { mutableStateOf(false) }
-    val createPlanCheckedState = remember { mutableStateOf(false) }
-    val organizeCheckedState = remember { mutableStateOf(false) }
-    val somethingElseCheckedState = remember { mutableStateOf(false) }
 
-    Column(
+    ConstraintLayout(
         modifier = Modifier
-            .fillMaxHeight()
+            .fillMaxSize()
             .padding(vertical = 32.dp)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        val titleText = stringResource(id = R.string.chart_your_path_title)
-        val boldedWord = "path"
-        val start = titleText.indexOf(boldedWord)
-        val spanStyles = listOf(
-            AnnotatedString.Range(
-                SpanStyle(fontWeight = FontWeight.Bold),
-                start = start,
-                end = start + boldedWord.length
-            )
-        )
+        val (content, divider, spacer, buttons) = createRefs()
 
-        Text(
-            text = AnnotatedString(text = titleText, spanStyles = spanStyles),
-            fontSize = 32.sp,
-            lineHeight = 48.sp,
-            color = whiteColor,
-            fontFamily = regularFont
-        )
+        Column(modifier = Modifier
+            .constrainAs(content) {
+                top.linkTo(parent.top)
+                bottom.linkTo(divider.top)
+                height = Dimension.fillToConstraints
+            }
+            .verticalScroll(scrollState)
+            .padding(start = 32.dp, end = 32.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            val titleText = stringResource(id = R.string.chart_your_path_title)
+            val boldedWord = "path"
+            val start = titleText.indexOf(boldedWord)
+            val spanStyles = listOf(
+                AnnotatedString.Range(
+                    SpanStyle(fontWeight = FontWeight.Bold),
+                    start = start,
+                    end = start + boldedWord.length
+                )
+            )
 
-        Text(
-            text = stringResource(id = R.string.chart_your_path_description),
-            fontSize = 14.sp,
-            lineHeight = 24.sp,
-            color = whiteColor,
-            fontFamily = regularFont
-        )
+            Text(
+                text = AnnotatedString(text = titleText, spanStyles = spanStyles),
+                fontSize = 32.sp,
+                lineHeight = 48.sp,
+                color = whiteColor,
+                fontFamily = regularFont
+            )
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            CustomCheckbox(
-                isTablet = false,
-                text = stringResource(id = R.string.goals_capture),
-                checkedState = captureCheckedState
+            Text(
+                text = stringResource(id = R.string.chart_your_path_description),
+                fontSize = 14.sp,
+                lineHeight = 24.sp,
+                color = whiteColor,
+                fontFamily = regularFont
             )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_digitize),
-                checkedState = digitizeCheckedState
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_collaborate),
-                checkedState = collaborateCheckedState
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_create_an_archive),
-                checkedState = createArchiveCheckedState
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_share), checkedState = shareCheckedState
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_create_a_plan),
-                checkedState = createPlanCheckedState
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_organize),
-                checkedState = organizeCheckedState
-            )
-            CustomCheckbox(
-                text = stringResource(id = R.string.goals_something_else),
-                checkedState = somethingElseCheckedState
-            )
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                goals.forEach { goal ->
+                    CustomCheckbox(
+                        text = goal.description, checkedState = goal.isChecked
+                    )
+                }
+            }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
+        HorizontalDivider(
+            modifier = Modifier.constrainAs(divider) {
+                bottom.linkTo(spacer.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }, thickness = 1.dp, color = whiteSuperTransparentColor
+        )
+
+        Spacer(modifier = Modifier
+            .height(32.dp)
+            .constrainAs(spacer) {
+                bottom.linkTo(buttons.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            })
+
+        Row(modifier = Modifier
+            .constrainAs(buttons) {
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }
+            .padding(horizontal = 32.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -177,19 +212,10 @@ private fun PhoneBody(
                 SmallTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
-                    newArchive.goals[OnboardingGoal.CAPTURE] = captureCheckedState.value
-                    newArchive.goals[OnboardingGoal.DIGITIZE] = digitizeCheckedState.value
-                    newArchive.goals[OnboardingGoal.COLLABORATE] = collaborateCheckedState.value
-                    newArchive.goals[OnboardingGoal.CREATE_AN_ARCHIVE] =
-                        createArchiveCheckedState.value
-                    newArchive.goals[OnboardingGoal.SHARE] = shareCheckedState.value
-                    newArchive.goals[OnboardingGoal.CREATE_A_PLAN] = createPlanCheckedState.value
-                    newArchive.goals[OnboardingGoal.ORGANIZE] = organizeCheckedState.value
-                    newArchive.goals[OnboardingGoal.SOMETHING_ELSE] =
-                        somethingElseCheckedState.value
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
-                    }
+                    newArchive.goals = goals
+//                    coroutineScope.launch {
+//                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+//                    }
                 }
             }
         }
@@ -198,10 +224,150 @@ private fun PhoneBody(
 
 @Composable
 private fun TabletBody(
+    horizontalPaddingDp: Dp,
     whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    newArchive: NewArchive
+    newArchive: NewArchive,
+    goals: SnapshotStateList<OnboardingGoal>
 ) {
+    val configuration = LocalConfiguration.current
+    val oneThirdOfScreenDp = (configuration.screenWidthDp.dp - 2 * horizontalPaddingDp) / 3
+    val spacerWidth = 32.dp
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(64.dp),
+        verticalArrangement = Arrangement.spacedBy(64.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            Column(
+                modifier = Modifier.width(2 * (oneThirdOfScreenDp) - spacerWidth / 2),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
+            ) {
+                val titleText = stringResource(id = R.string.chart_your_path_title)
+                val boldedWord = "path"
+                val start = titleText.indexOf(boldedWord)
+                val spanStyles = listOf(
+                    AnnotatedString.Range(
+                        SpanStyle(fontWeight = FontWeight.Bold),
+                        start = start,
+                        end = start + boldedWord.length
+                    )
+                )
+
+                Text(
+                    text = AnnotatedString(text = titleText, spanStyles = spanStyles),
+                    fontSize = 56.sp,
+                    lineHeight = 72.sp,
+                    color = whiteColor,
+                    fontFamily = regularFont
+                )
+            }
+
+            Spacer(modifier = Modifier.width(spacerWidth))
+
+            Column(
+                modifier = Modifier.width(oneThirdOfScreenDp - spacerWidth / 2),
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = stringResource(id = R.string.chart_your_path_description),
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    color = whiteColor,
+                    fontFamily = regularFont
+                )
+            }
+        }
+
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            columns = GridCells.Fixed(3),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            goals.forEach { goal ->
+                item {
+                    CustomCheckbox(
+                        isTablet = true, text = goal.description, checkedState = goal.isChecked
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            Row(
+                modifier = Modifier.width(oneThirdOfScreenDp - spacerWidth / 2)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    SmallTextAndIconButton(
+                        buttonColor = ButtonColor.TRANSPARENT,
+                        text = stringResource(id = R.string.back),
+                        icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
+                        iconAlignment = ButtonIconAlignment.START
+                    ) {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(32.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    SmallTextAndIconButton(
+                        buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
+                    ) {
+                        newArchive.goals = goals
+//                        coroutineScope.launch {
+//                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+//                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
+data class OnboardingGoal(
+    val type: OnboardingGoalType, val description: String, val isChecked: MutableState<Boolean>
+)
+
+enum class OnboardingGoalType {
+    CAPTURE, DIGITIZE, COLLABORATE, CREATE_AN_ARCHIVE, SHARE, CREATE_A_PLAN, ORGANIZE, SOMETHING_ELSE
+}
+
+val OnboardingGoalSaver: Saver<OnboardingGoal, *> = listSaver(
+    save = { listOf(it.type.ordinal, it.description, it.isChecked.value) },
+    restore = {
+        OnboardingGoal(
+            type = OnboardingGoalType.values()[it[0] as Int],
+            description = it[1] as String,
+            isChecked = mutableStateOf(it[2] as Boolean)
+        )
+    }
+)

@@ -2,9 +2,11 @@ package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
@@ -30,34 +32,40 @@ import org.permanent.permanent.R
 
 @Composable
 fun CustomCheckbox(
-    isTablet: Boolean = false,
-    text: String,
-    checkedState: MutableState<Boolean>
+    isTablet: Boolean = false, text: String, checkedState: MutableState<Boolean>
 ) {
     val context = LocalContext.current
     val whiteTransparentColor =
         Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
+    val blue900Color = Color(ContextCompat.getColor(context, R.color.blue900))
     val barneyPurpleColor = Color(ContextCompat.getColor(context, R.color.barneyPurple))
     val barneyPurpleLightColor = Color(ContextCompat.getColor(context, R.color.barneyPurpleLight))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
     Row(
         modifier = Modifier
+            .height(if (isTablet) 116.dp else 96.dp)
             .fillMaxWidth()
             .border(1.dp, whiteTransparentColor, RoundedCornerShape(10.dp))
             .background(
                 if (checkedState.value) Brush.horizontalGradient(
                     listOf(
-                        barneyPurpleLightColor,
-                        barneyPurpleColor
+                        barneyPurpleLightColor, barneyPurpleColor
                     )
-                ) else Brush.horizontalGradient(
+                ) else if (isTablet) Brush.horizontalGradient(
                     listOf(
-                        Color.Transparent,
-                        Color.Transparent
+                        blue900Color, blue900Color
+                    )
+                )
+                else Brush.horizontalGradient(
+                    listOf(
+                        Color.Transparent, Color.Transparent
                     )
                 ), RoundedCornerShape(10.dp)
-            ),
+            )
+            .clickable {
+                checkedState.value = !checkedState.value
+            },
         horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -75,8 +83,8 @@ fun CustomCheckbox(
         Text(
             modifier = Modifier.padding(top = 24.dp, bottom = 24.dp, end = 24.dp),
             text = text,
-            fontSize = 14.sp,
-            lineHeight = 24.sp,
+            fontSize = if (isTablet) 18.sp else 14.sp,
+            lineHeight = if (isTablet) 30.sp else 24.sp,
             color = Color.White,
             fontFamily = regularFont
         )

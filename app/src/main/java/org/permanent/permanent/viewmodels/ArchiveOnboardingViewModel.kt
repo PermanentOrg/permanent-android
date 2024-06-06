@@ -6,6 +6,9 @@ import android.text.Editable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
@@ -59,6 +62,9 @@ class ArchiveOnboardingViewModel(application: Application) :
     private var areAllArchivesAccepted = false
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+
+    private val _isSecondProgressBarEmpty = MutableStateFlow(true)
+    val isSecondProgressBarEmpty: StateFlow<Boolean> = _isSecondProgressBarEmpty
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -116,6 +122,10 @@ class ArchiveOnboardingViewModel(application: Application) :
             }
         }
         onShowNextFragment.value = fragment
+    }
+
+    fun updateSecondProgressBarEmpty(isEmpty: Boolean) {
+        _isSecondProgressBarEmpty.update { isEmpty }
     }
 
     fun onArchiveTypeBtnClick(archiveType: ArchiveType) {

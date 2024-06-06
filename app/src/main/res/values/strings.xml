@@ -560,7 +560,7 @@
     <string name="create_your_archive_title">Create your %s archive</string>
     <string name="create_your_archive_description">Name your new archive. This is the legal or official name of the person, family, group, or organization the archive is about. You can edit the name later if needed.</string>
     <string name="create_the_archive">Create the archive</string>
-    <string name="chart_your_path_title">Chart your path to success</string>
+    <string name="chart_your_path_title">Chart your\npath to success</string>
     <string name="chart_your_path_description">Let’s set some goals. Everyone has unique goals for preserving their legacy. We want to learn more about how we can help you achieve yours.</string>
     <string name="goals_capture">Capture and preserve memories for storytelling</string>
     <string name="goals_digitize">Digitize or transfer my materials securely</string>
