@@ -562,6 +562,8 @@
     <string name="create_the_archive">Create the archive</string>
     <string name="chart_your_path_title">Chart your\npath to success</string>
     <string name="chart_your_path_description">Let’s set some goals. Everyone has unique goals for preserving their legacy. We want to learn more about how we can help you achieve yours.</string>
+    <string name="tell_us_title">Tell us what’s important to you</string>
+    <string name="tell_us_description">Finally, we’re curious — what brought you to Permanent.org?</string>
     <string name="goals_capture">Capture and preserve memories for storytelling</string>
     <string name="goals_digitize">Digitize or transfer my materials securely</string>
     <string name="goals_collaborate">Collaborate with others to build my archive</string>
@@ -571,6 +573,12 @@
     <string name="goals_organize">Organize my materials</string>
     <string name="goals_something_else">Something else…</string>
     <string name="skip_this_step">Skip this step</string>
+    <string name="priorities_access">Access to a safe and secure digital storage platform</string>
+    <string name="priorities_supporting">Supporting a mission-driven nonprofit</string>
+    <string name="priorities_preserving">Preserving family history or genealogy research</string>
+    <string name="priorities_professional">Professional business needs/clients</string>
+    <string name="priorities_collaborate">Collaborate with a family member, friend, or colleague</string>
+    <string name="priorities_interest">Interest in digital preservation solutions</string>
 
     <string name="leave_share">Leave share</string>
 

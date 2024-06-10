@@ -65,6 +65,8 @@ class ArchiveOnboardingViewModel(application: Application) :
 
     private val _isSecondProgressBarEmpty = MutableStateFlow(true)
     val isSecondProgressBarEmpty: StateFlow<Boolean> = _isSecondProgressBarEmpty
+    private val _isThirdProgressBarEmpty = MutableStateFlow(true)
+    val isThirdProgressBarEmpty: StateFlow<Boolean> = _isThirdProgressBarEmpty
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -126,6 +128,9 @@ class ArchiveOnboardingViewModel(application: Application) :
 
     fun updateSecondProgressBarEmpty(isEmpty: Boolean) {
         _isSecondProgressBarEmpty.update { isEmpty }
+    }
+    fun updateThirdProgressBarEmpty(isEmpty: Boolean) {
+        _isThirdProgressBarEmpty.update { isEmpty }
     }
 
     fun onArchiveTypeBtnClick(archiveType: ArchiveType) {

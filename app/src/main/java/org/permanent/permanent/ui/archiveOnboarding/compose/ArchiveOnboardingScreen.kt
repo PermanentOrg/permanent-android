@@ -66,15 +66,24 @@ fun ArchiveOnboardingScreen(
                 typeName = context.getString(R.string.personal),
                 name = "",
                 goals = mutableStateListOf(),
-                priorities = ""
+                priorities = mutableStateListOf()
             )
         )
     }
 
     val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
+    val isThirdProgressBarEmpty by viewModel.isThirdProgressBarEmpty.collectAsState()
     val goals = rememberSaveable(
         saver = listSaver(
-            save = { it.map { goal -> listOf(goal.type.ordinal, goal.description, goal.isChecked.value) } },
+            save = {
+                it.map { goal ->
+                    listOf(
+                        goal.type.ordinal,
+                        goal.description,
+                        goal.isChecked.value
+                    )
+                }
+            },
             restore = { restoredGoals ->
                 restoredGoals.map {
                     OnboardingGoal(
@@ -130,10 +139,72 @@ fun ArchiveOnboardingScreen(
         )
     }
 
+    val priorities = rememberSaveable(
+        saver = listSaver(
+            save = {
+                it.map { priority ->
+                    listOf(
+                        priority.type.ordinal,
+                        priority.description,
+                        priority.isChecked.value
+                    )
+                }
+            },
+            restore = { restoredPriorities ->
+                restoredPriorities.map {
+                    OnboardingPriority(
+                        type = OnboardingPriorityType.values()[it[0] as Int],
+                        description = it[1] as String,
+                        isChecked = mutableStateOf(it[2] as Boolean)
+                    )
+                }.toMutableStateList()
+            }
+        )
+    ) {
+        mutableStateListOf(
+            OnboardingPriority(
+                OnboardingPriorityType.ACCESS,
+                context.getString(R.string.priorities_access),
+                mutableStateOf(false)
+            ),
+            OnboardingPriority(
+                OnboardingPriorityType.SUPPORTING,
+                context.getString(R.string.priorities_supporting),
+                mutableStateOf(false)
+            ),
+            OnboardingPriority(
+                OnboardingPriorityType.PRESERVING,
+                context.getString(R.string.priorities_preserving),
+                mutableStateOf(false)
+            ),
+            OnboardingPriority(
+                OnboardingPriorityType.PROFESSIONAL,
+                context.getString(R.string.priorities_professional),
+                mutableStateOf(false)
+            ),
+            OnboardingPriority(
+                OnboardingPriorityType.COLLABORATE,
+                context.getString(R.string.priorities_collaborate),
+                mutableStateOf(false)
+            ),
+            OnboardingPriority(
+                OnboardingPriorityType.INTEREST,
+                context.getString(R.string.priorities_interest),
+                mutableStateOf(false)
+            ),
+        )
+    }
+
     LaunchedEffect(pagerState.currentPage) {
         when (pagerState.currentPage) {
             OnboardingPage.ARCHIVE_NAME_PAGE.value -> viewModel.updateSecondProgressBarEmpty(true)
-            OnboardingPage.GOALS_PAGE.value -> viewModel.updateSecondProgressBarEmpty(false)
+
+            OnboardingPage.GOALS_PAGE.value -> {
+                viewModel.updateSecondProgressBarEmpty(false)
+                viewModel.updateThirdProgressBarEmpty(true)
+            }
+
+            OnboardingPage.PRIORITIES_PAGE.value -> viewModel.updateThirdProgressBarEmpty(false)
         }
     }
 
@@ -186,7 +257,7 @@ fun ArchiveOnboardingScreen(
                         progressIndicatorHeight,
                         horizontalPaddingDp,
                         spacerPaddingDp,
-                        isEmpty = true
+                        isThirdProgressBarEmpty
                     )
                 }
             }
@@ -224,6 +295,16 @@ fun ArchiveOnboardingScreen(
                             pagerState = pagerState,
                             newArchive = newArchive,
                             goals
+                        )
+                    }
+
+                    OnboardingPage.PRIORITIES_PAGE.value -> {
+                        PrioritiesPage(
+                            isTablet = isTablet,
+                            horizontalPaddingDp = horizontalPaddingDp,
+                            pagerState = pagerState,
+                            newArchive = newArchive,
+                            priorities
                         )
                     }
                 }
@@ -265,7 +346,7 @@ data class NewArchive(
     var typeName: String,
     var name: String,
     var goals: List<OnboardingGoal>,
-    var priorities: String?
+    var priorities: List<OnboardingPriority>
 )
 
 enum class OnboardingPage(val value: Int) {
