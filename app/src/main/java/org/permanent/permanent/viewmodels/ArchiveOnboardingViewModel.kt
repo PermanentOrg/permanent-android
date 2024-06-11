@@ -63,6 +63,8 @@ class ArchiveOnboardingViewModel(application: Application) :
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
+    private val _isFirstProgressBarEmpty = MutableStateFlow(false)
+    val isFirstProgressBarEmpty: StateFlow<Boolean> = _isFirstProgressBarEmpty
     private val _isSecondProgressBarEmpty = MutableStateFlow(true)
     val isSecondProgressBarEmpty: StateFlow<Boolean> = _isSecondProgressBarEmpty
     private val _isThirdProgressBarEmpty = MutableStateFlow(true)
@@ -126,6 +128,9 @@ class ArchiveOnboardingViewModel(application: Application) :
         onShowNextFragment.value = fragment
     }
 
+    fun updateFirstProgressBarEmpty(isEmpty: Boolean) {
+        _isFirstProgressBarEmpty.update { isEmpty }
+    }
     fun updateSecondProgressBarEmpty(isEmpty: Boolean) {
         _isSecondProgressBarEmpty.update { isEmpty }
     }

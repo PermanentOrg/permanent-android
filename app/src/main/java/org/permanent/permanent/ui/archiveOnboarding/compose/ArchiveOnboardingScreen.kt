@@ -71,6 +71,7 @@ fun ArchiveOnboardingScreen(
         )
     }
 
+    val isFirstProgressBarEmpty by viewModel.isFirstProgressBarEmpty.collectAsState()
     val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
     val isThirdProgressBarEmpty by viewModel.isThirdProgressBarEmpty.collectAsState()
     val goals = rememberSaveable(
@@ -197,14 +198,21 @@ fun ArchiveOnboardingScreen(
 
     LaunchedEffect(pagerState.currentPage) {
         when (pagerState.currentPage) {
-            OnboardingPage.ARCHIVE_NAME_PAGE.value -> viewModel.updateSecondProgressBarEmpty(true)
+            OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
+                viewModel.updateFirstProgressBarEmpty(false)
+                viewModel.updateSecondProgressBarEmpty(true)
+            }
 
             OnboardingPage.GOALS_PAGE.value -> {
+                viewModel.updateFirstProgressBarEmpty(true)
                 viewModel.updateSecondProgressBarEmpty(false)
                 viewModel.updateThirdProgressBarEmpty(true)
             }
 
-            OnboardingPage.PRIORITIES_PAGE.value -> viewModel.updateThirdProgressBarEmpty(false)
+            OnboardingPage.PRIORITIES_PAGE.value -> {
+                viewModel.updateSecondProgressBarEmpty(true)
+                viewModel.updateThirdProgressBarEmpty(false)
+            }
         }
     }
 
@@ -243,7 +251,7 @@ fun ArchiveOnboardingScreen(
                         progressIndicatorHeight,
                         horizontalPaddingDp,
                         spacerPaddingDp,
-                        isEmpty = false
+                        isFirstProgressBarEmpty
                     )
 
                     OnboardingProgressIndicator(
