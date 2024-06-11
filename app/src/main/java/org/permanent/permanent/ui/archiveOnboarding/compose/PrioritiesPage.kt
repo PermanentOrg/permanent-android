@@ -251,8 +251,8 @@ private fun TabletBody(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top
             ) {
-                val titleText = stringResource(id = R.string.chart_your_path_title)
-                val boldedWord = "path"
+                val titleText = stringResource(id = R.string.tell_us_title)
+                val boldedWord = "important"
                 val start = titleText.indexOf(boldedWord)
                 val spanStyles = listOf(
                     AnnotatedString.Range(
@@ -278,7 +278,7 @@ private fun TabletBody(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = stringResource(id = R.string.chart_your_path_description),
+                    text = stringResource(id = R.string.tell_us_description),
                     fontSize = 16.sp,
                     lineHeight = 24.sp,
                     color = whiteColor,
@@ -295,10 +295,10 @@ private fun TabletBody(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            priorities.forEach { goal ->
+            priorities.forEach { priority ->
                 item {
                     CustomCheckbox(
-                        isTablet = true, text = goal.description, checkedState = goal.isChecked
+                        isTablet = true, text = priority.description, checkedState = priority.isChecked
                     )
                 }
             }
