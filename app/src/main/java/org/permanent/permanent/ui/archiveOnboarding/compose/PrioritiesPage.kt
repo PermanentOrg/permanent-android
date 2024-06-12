@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalFoundationApi::class)
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
@@ -6,7 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,14 +55,13 @@ import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.CustomCheckbox
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
 
-
 @Composable
-fun GoalsPage(
+fun PrioritiesPage(
     isTablet: Boolean,
     horizontalPaddingDp: Dp,
     pagerState: PagerState,
     newArchive: NewArchive,
-    goals: SnapshotStateList<OnboardingGoal>
+    priorities: SnapshotStateList<OnboardingPriority>
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -80,7 +78,7 @@ fun GoalsPage(
             coroutineScope,
             pagerState,
             newArchive,
-            goals
+            priorities
         )
     } else {
         PhoneBody(
@@ -90,7 +88,7 @@ fun GoalsPage(
             coroutineScope,
             pagerState,
             newArchive,
-            goals
+            priorities
         )
     }
 }
@@ -103,7 +101,7 @@ private fun PhoneBody(
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
     newArchive: NewArchive,
-    goals: SnapshotStateList<OnboardingGoal>
+    priorities: SnapshotStateList<OnboardingPriority>
 ) {
     val scrollState = rememberScrollState()
 
@@ -123,8 +121,8 @@ private fun PhoneBody(
             .verticalScroll(scrollState)
             .padding(start = 32.dp, end = 32.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)) {
-            val titleText = stringResource(id = R.string.chart_your_path_title)
-            val boldedWord = "path"
+            val titleText = stringResource(id = R.string.tell_us_title)
+            val boldedWord = "important"
             val start = titleText.indexOf(boldedWord)
             val spanStyles = listOf(
                 AnnotatedString.Range(
@@ -143,7 +141,7 @@ private fun PhoneBody(
             )
 
             Text(
-                text = stringResource(id = R.string.chart_your_path_description),
+                text = stringResource(id = R.string.tell_us_description),
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
                 color = whiteColor,
@@ -153,7 +151,7 @@ private fun PhoneBody(
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                goals.forEach { goal ->
+                priorities.forEach { goal ->
                     CustomCheckbox(
                         text = goal.description, checkedState = goal.isChecked
                     )
@@ -199,7 +197,7 @@ private fun PhoneBody(
                     iconAlignment = ButtonIconAlignment.START
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.GOALS_PAGE.value)
                     }
                 }
             }
@@ -212,10 +210,10 @@ private fun PhoneBody(
                 SmallTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
-                    newArchive.goals = goals
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
-                    }
+                    newArchive.priorities = priorities
+//                    coroutineScope.launch {
+//                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+//                    }
                 }
             }
         }
@@ -230,7 +228,7 @@ private fun TabletBody(
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
     newArchive: NewArchive,
-    goals: SnapshotStateList<OnboardingGoal>
+    priorities: SnapshotStateList<OnboardingPriority>
 ) {
     val configuration = LocalConfiguration.current
     val oneThirdOfScreenDp = (configuration.screenWidthDp.dp - 2 * horizontalPaddingDp) / 3
@@ -253,8 +251,8 @@ private fun TabletBody(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top
             ) {
-                val titleText = stringResource(id = R.string.chart_your_path_title)
-                val boldedWord = "path"
+                val titleText = stringResource(id = R.string.tell_us_title)
+                val boldedWord = "important"
                 val start = titleText.indexOf(boldedWord)
                 val spanStyles = listOf(
                     AnnotatedString.Range(
@@ -280,7 +278,7 @@ private fun TabletBody(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = stringResource(id = R.string.chart_your_path_description),
+                    text = stringResource(id = R.string.tell_us_description),
                     fontSize = 16.sp,
                     lineHeight = 24.sp,
                     color = whiteColor,
@@ -297,10 +295,10 @@ private fun TabletBody(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            goals.forEach { goal ->
+            priorities.forEach { priority ->
                 item {
                     CustomCheckbox(
-                        isTablet = true, text = goal.description, checkedState = goal.isChecked
+                        isTablet = true, text = priority.description, checkedState = priority.isChecked
                     )
                 }
             }
@@ -327,7 +325,7 @@ private fun TabletBody(
                         iconAlignment = ButtonIconAlignment.START
                     ) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.GOALS_PAGE.value)
                         }
                     }
                 }
@@ -342,10 +340,10 @@ private fun TabletBody(
                     SmallTextAndIconButton(
                         buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                     ) {
-                        newArchive.goals = goals
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
-                        }
+                        newArchive.priorities = priorities
+//                        coroutineScope.launch {
+//                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+//                        }
                     }
                 }
             }
@@ -353,19 +351,20 @@ private fun TabletBody(
     }
 }
 
-data class OnboardingGoal(
-    val type: OnboardingGoalType, val description: String, val isChecked: MutableState<Boolean>
+
+data class OnboardingPriority(
+    val type: OnboardingPriorityType, val description: String, val isChecked: MutableState<Boolean>
 )
 
-enum class OnboardingGoalType {
-    CAPTURE, DIGITIZE, COLLABORATE, CREATE_AN_ARCHIVE, SHARE, CREATE_A_PLAN, ORGANIZE, SOMETHING_ELSE
+enum class OnboardingPriorityType {
+    ACCESS, SUPPORTING, PRESERVING, PROFESSIONAL, COLLABORATE, INTEREST
 }
 
-val OnboardingGoalSaver: Saver<OnboardingGoal, *> = listSaver(
+val OnboardingPrioritySaver: Saver<OnboardingPriority, *> = listSaver(
     save = { listOf(it.type.ordinal, it.description, it.isChecked.value) },
     restore = {
-        OnboardingGoal(
-            type = OnboardingGoalType.values()[it[0] as Int],
+        OnboardingPriority(
+            type = OnboardingPriorityType.values()[it[0] as Int],
             description = it[1] as String,
             isChecked = mutableStateOf(it[2] as Boolean)
         )

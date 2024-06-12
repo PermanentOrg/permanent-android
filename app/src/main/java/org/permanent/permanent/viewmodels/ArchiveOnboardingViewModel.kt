@@ -30,6 +30,8 @@ import org.permanent.permanent.ui.archiveOnboarding.OnboardingPage
 import org.permanent.permanent.ui.archiveOnboarding.PendingInvitationsFragment
 import org.permanent.permanent.ui.archiveOnboarding.TypeSelectionFragment
 import org.permanent.permanent.ui.archiveOnboarding.WelcomeFragment
+import org.permanent.permanent.ui.archiveOnboarding.compose.OnboardingGoalType
+import org.permanent.permanent.ui.archiveOnboarding.compose.OnboardingPriorityType
 
 class ArchiveOnboardingViewModel(application: Application) :
     ObservableAndroidViewModel(application), OnboardingArchiveListener {
@@ -63,8 +65,12 @@ class ArchiveOnboardingViewModel(application: Application) :
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
+    private val _isFirstProgressBarEmpty = MutableStateFlow(false)
+    val isFirstProgressBarEmpty: StateFlow<Boolean> = _isFirstProgressBarEmpty
     private val _isSecondProgressBarEmpty = MutableStateFlow(true)
     val isSecondProgressBarEmpty: StateFlow<Boolean> = _isSecondProgressBarEmpty
+    private val _isThirdProgressBarEmpty = MutableStateFlow(true)
+    val isThirdProgressBarEmpty: StateFlow<Boolean> = _isThirdProgressBarEmpty
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -124,8 +130,38 @@ class ArchiveOnboardingViewModel(application: Application) :
         onShowNextFragment.value = fragment
     }
 
+    fun updateFirstProgressBarEmpty(isEmpty: Boolean) {
+        _isFirstProgressBarEmpty.update { isEmpty }
+    }
     fun updateSecondProgressBarEmpty(isEmpty: Boolean) {
         _isSecondProgressBarEmpty.update { isEmpty }
+    }
+    fun updateThirdProgressBarEmpty(isEmpty: Boolean) {
+        _isThirdProgressBarEmpty.update { isEmpty }
+    }
+
+    fun createOnboardingGoals(context: Context): List<Pair<Int, String>> {
+        return listOf(
+            OnboardingGoalType.CAPTURE.ordinal to context.getString(R.string.goals_capture),
+            OnboardingGoalType.DIGITIZE.ordinal to context.getString(R.string.goals_digitize),
+            OnboardingGoalType.COLLABORATE.ordinal to context.getString(R.string.goals_collaborate),
+            OnboardingGoalType.CREATE_AN_ARCHIVE.ordinal to context.getString(R.string.goals_create_an_archive),
+            OnboardingGoalType.SHARE.ordinal to context.getString(R.string.goals_share),
+            OnboardingGoalType.CREATE_A_PLAN.ordinal to context.getString(R.string.goals_create_a_plan),
+            OnboardingGoalType.ORGANIZE.ordinal to context.getString(R.string.goals_organize),
+            OnboardingGoalType.SOMETHING_ELSE.ordinal to context.getString(R.string.goals_something_else)
+        )
+    }
+
+    fun createOnboardingPriorities(context: Context): List<Pair<Int, String>> {
+        return listOf(
+            OnboardingPriorityType.ACCESS.ordinal to context.getString(R.string.priorities_access),
+            OnboardingPriorityType.SUPPORTING.ordinal to context.getString(R.string.priorities_supporting),
+            OnboardingPriorityType.PRESERVING.ordinal to context.getString(R.string.priorities_preserving),
+            OnboardingPriorityType.PROFESSIONAL.ordinal to context.getString(R.string.priorities_professional),
+            OnboardingPriorityType.COLLABORATE.ordinal to context.getString(R.string.priorities_collaborate),
+            OnboardingPriorityType.INTEREST.ordinal to context.getString(R.string.priorities_interest)
+        )
     }
 
     fun onArchiveTypeBtnClick(archiveType: ArchiveType) {
