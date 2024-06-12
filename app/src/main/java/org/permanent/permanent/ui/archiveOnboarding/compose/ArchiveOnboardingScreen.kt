@@ -47,6 +47,7 @@ fun ArchiveOnboardingScreen(
     viewModel: ArchiveOnboardingViewModel
 ) {
     val context = LocalContext.current
+
     val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME_PAGE.value,
         pageCount = { OnboardingPage.values().size })
     val isTablet = viewModel.isTablet()
@@ -74,6 +75,7 @@ fun ArchiveOnboardingScreen(
     val isFirstProgressBarEmpty by viewModel.isFirstProgressBarEmpty.collectAsState()
     val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
     val isThirdProgressBarEmpty by viewModel.isThirdProgressBarEmpty.collectAsState()
+
     val goals = rememberSaveable(
         saver = listSaver(
             save = {
@@ -96,48 +98,13 @@ fun ArchiveOnboardingScreen(
             }
         )
     ) {
-        mutableStateListOf(
+        viewModel.createOnboardingGoals(context).map { (ordinal, description) ->
             OnboardingGoal(
-                OnboardingGoalType.CAPTURE,
-                context.getString(R.string.goals_capture),
-                mutableStateOf(false)
-            ),
-            OnboardingGoal(
-                OnboardingGoalType.DIGITIZE,
-                context.getString(R.string.goals_digitize),
-                mutableStateOf(false)
-            ),
-            OnboardingGoal(
-                OnboardingGoalType.COLLABORATE,
-                context.getString(R.string.goals_collaborate),
-                mutableStateOf(false)
-            ),
-            OnboardingGoal(
-                OnboardingGoalType.CREATE_AN_ARCHIVE,
-                context.getString(R.string.goals_create_an_archive),
-                mutableStateOf(false)
-            ),
-            OnboardingGoal(
-                OnboardingGoalType.SHARE,
-                context.getString(R.string.goals_share),
-                mutableStateOf(false)
-            ),
-            OnboardingGoal(
-                OnboardingGoalType.CREATE_A_PLAN,
-                context.getString(R.string.goals_create_a_plan),
-                mutableStateOf(false)
-            ),
-            OnboardingGoal(
-                OnboardingGoalType.ORGANIZE,
-                context.getString(R.string.goals_organize),
-                mutableStateOf(false)
-            ),
-            OnboardingGoal(
-                OnboardingGoalType.SOMETHING_ELSE,
-                context.getString(R.string.goals_something_else),
-                mutableStateOf(false)
-            ),
-        )
+                type = OnboardingGoalType.values()[ordinal],
+                description = description,
+                isChecked = mutableStateOf(false)
+            )
+        }.toMutableStateList()
     }
 
     val priorities = rememberSaveable(
@@ -162,38 +129,13 @@ fun ArchiveOnboardingScreen(
             }
         )
     ) {
-        mutableStateListOf(
+        viewModel.createOnboardingPriorities(context).map { (ordinal, description) ->
             OnboardingPriority(
-                OnboardingPriorityType.ACCESS,
-                context.getString(R.string.priorities_access),
-                mutableStateOf(false)
-            ),
-            OnboardingPriority(
-                OnboardingPriorityType.SUPPORTING,
-                context.getString(R.string.priorities_supporting),
-                mutableStateOf(false)
-            ),
-            OnboardingPriority(
-                OnboardingPriorityType.PRESERVING,
-                context.getString(R.string.priorities_preserving),
-                mutableStateOf(false)
-            ),
-            OnboardingPriority(
-                OnboardingPriorityType.PROFESSIONAL,
-                context.getString(R.string.priorities_professional),
-                mutableStateOf(false)
-            ),
-            OnboardingPriority(
-                OnboardingPriorityType.COLLABORATE,
-                context.getString(R.string.priorities_collaborate),
-                mutableStateOf(false)
-            ),
-            OnboardingPriority(
-                OnboardingPriorityType.INTEREST,
-                context.getString(R.string.priorities_interest),
-                mutableStateOf(false)
-            ),
-        )
+                type = OnboardingPriorityType.values()[ordinal],
+                description = description,
+                isChecked = mutableStateOf(false)
+            )
+        }.toMutableStateList()
     }
 
     LaunchedEffect(pagerState.currentPage) {
@@ -302,7 +244,7 @@ fun ArchiveOnboardingScreen(
                             horizontalPaddingDp = horizontalPaddingDp,
                             pagerState = pagerState,
                             newArchive = newArchive,
-                            goals
+                            goals = goals
                         )
                     }
 
@@ -312,7 +254,7 @@ fun ArchiveOnboardingScreen(
                             horizontalPaddingDp = horizontalPaddingDp,
                             pagerState = pagerState,
                             newArchive = newArchive,
-                            priorities
+                            priorities = priorities
                         )
                     }
                 }
