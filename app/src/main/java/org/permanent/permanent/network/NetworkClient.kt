@@ -397,7 +397,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun deleteFilesOrFolders(records: MutableList<Record>): Call<ResponseVO> {
         val isFolderRecordType = records[0].type == RecordType.FOLDER
-        val request = toJson(RequestContainer().addRecords(records, isFolderRecordType))
+        val request = toJson(RequestContainer().addRecords(records,  isFolderRecordType))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (isFolderRecordType) {
             fileService.deleteFolder(requestBody)
@@ -450,6 +450,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         } else {
             fileService.updateRecord(requestBody)
         }
+    }
+
+    fun updateMultipleRecords(records: MutableList<Record>, locnVO: LocnVO): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addRecords(records, locnVO, false))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.updateRecord(requestBody)
     }
 
     fun updateMultipleRecords(records: MutableList<Record>, isFolderRecordType: Boolean): Call<ResponseVO> {

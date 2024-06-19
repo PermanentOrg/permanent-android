@@ -10,21 +10,24 @@ import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.libraries.places.api.Places
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.bulkEditMetadata.compose.EditLocationScreen
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
-import org.permanent.permanent.viewmodels.EditFileNamesViewModel
+import org.permanent.permanent.viewmodels.EditLocationViewModel
 
 class EditLocationFragment : PermanentBottomSheetFragment() {
-    private lateinit var viewModel: EditFileNamesViewModel
+    private lateinit var viewModel: EditLocationViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[EditFileNamesViewModel::class.java]
+        Places.initialize(requireContext(), BuildConfig.GMP_KEY)
+        viewModel = ViewModelProvider(this)[EditLocationViewModel::class.java]
 
         arguments?.getParcelableArrayList<Record>(PARCELABLE_FILES_KEY)?.let {
             viewModel.setRecords(it)
@@ -33,7 +36,7 @@ class EditLocationFragment : PermanentBottomSheetFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    EditLocationScreen(cancel = {
+                    EditLocationScreen(viewModel, cancel = {
                         this@EditLocationFragment.dismiss()
                     })
                 }

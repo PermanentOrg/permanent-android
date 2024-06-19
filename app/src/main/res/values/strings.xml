@@ -700,6 +700,7 @@
     <string name="start_with">Start With</string>
     <string name="locations">Locations</string>
     <string name="set_location">Set Location</string>
+    <string name="add_location">Add Location</string>
 
 
 </resources>
