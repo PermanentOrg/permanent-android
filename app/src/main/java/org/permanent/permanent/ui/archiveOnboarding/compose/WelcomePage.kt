@@ -67,7 +67,7 @@ private fun TabletBody(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 64.dp),
+            .padding(64.dp),
         horizontalArrangement = Arrangement.spacedBy(64.dp),
     ) {
         Column(
@@ -122,7 +122,7 @@ private fun TabletBody(
                     showButtonEnabled = true
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(1)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE_PAGE.value)
                     }
                 }
             }
@@ -141,7 +141,7 @@ private fun PhoneBody(
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = 32.dp)
+            .padding(32.dp)
     ) {
         accountName?.let {
             val welcomeTitleText = stringResource(id = R.string.welcome_to_permanent_title, it)
@@ -179,7 +179,7 @@ private fun PhoneBody(
             showButtonEnabled = true
         ) {
             coroutineScope.launch {
-                pagerState.animateScrollToPage(1)
+                pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE_PAGE.value)
             }
         }
     }
@@ -188,6 +188,6 @@ private fun PhoneBody(
 @Preview
 @Composable
 fun WelcomePagePhonePreview() {
-    val pagerState = rememberPagerState(initialPage = 0)
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { OnboardingPage.values().size })
     WelcomePage(false, pagerState, "Jane Doe")
 }

@@ -42,12 +42,13 @@ import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
+import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 
 @Composable
-fun TypeSelectionPage(
+fun ArchiveTypePage(
     isTablet: Boolean,
     pagerState: PagerState,
-    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+    onArchiveTypeClick: (archiveType: ArchiveType, archiveTypeName: String) -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -67,7 +68,7 @@ private fun TabletBody(
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+    onArchiveTypeClick: (archiveType: ArchiveType, archiveTypeName: String) -> Unit
 ) {
     val context = LocalContext.current
     var archiveTypeName by remember { mutableStateOf(context.getString(R.string.personal)) }
@@ -75,7 +76,7 @@ private fun TabletBody(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 64.dp),
+            .padding(64.dp),
         horizontalArrangement = Arrangement.spacedBy(64.dp),
     ) {
         Column(
@@ -106,8 +107,7 @@ private fun TabletBody(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            horizontalAlignment = Alignment.End
+                .weight(1f), horizontalAlignment = Alignment.End
         ) {
             Text(
                 text = stringResource(id = R.string.create_your_first_archive_description_tablet),
@@ -120,8 +120,8 @@ private fun TabletBody(
             Spacer(modifier = Modifier.height(32.dp))
 
             ArchiveTypeDropdown(isTablet = true, onListItemClick = {
-                onArchiveTypeClick(it.type)
                 archiveTypeName = context.getString(it.title)
+                onArchiveTypeClick(it.type, archiveTypeName)
             })
 
             Spacer(modifier = Modifier.weight(1.0f))
@@ -140,36 +140,24 @@ private fun TabletBody(
                         iconAlignment = ButtonIconAlignment.START
                     ) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(0)
+                            pagerState.animateScrollToPage(OnboardingPage.WELCOME_PAGE.value)
                         }
                     }
                 }
 
-                val partialBoldedText =
-                    if (archiveTypeName == context.getString(R.string.individual) ||
-                        archiveTypeName == context.getString(R.string.organization)
+                val text =
+                    if (archiveTypeName == context.getString(R.string.individual) || archiveTypeName == context.getString(
+                            R.string.organization
+                        )
                     ) stringResource(
                         id = R.string.lets_create_an_archive, archiveTypeName
                     ) else stringResource(id = R.string.lets_create_a_archive, archiveTypeName)
 
-                val start = partialBoldedText.indexOf(archiveTypeName)
-                val spanStyles = listOf(
-                    AnnotatedString.Range(
-                        SpanStyle(fontWeight = FontWeight.ExtraBold),
-                        start = start,
-                        end = start + archiveTypeName.length
-                    )
-                )
-
-                SmallTextAndIconButton(
-                    ButtonColor.LIGHT,
-                    annotatedText = AnnotatedString(
-                        text = partialBoldedText,
-                        spanStyles = spanStyles
-                    )
+                TextAndIconButton(
+                    style = ButtonColor.LIGHT, text = text
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(2)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
                     }
                 }
             }
@@ -183,12 +171,13 @@ private fun PhoneBody(
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
-    onArchiveTypeClick: (archiveType: ArchiveType) -> Unit
+    onArchiveTypeClick: (archiveType: ArchiveType, archiveTypeName: String) -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = 32.dp),
+            .padding(32.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         val titleText = stringResource(id = R.string.create_your_first_archive_title)
@@ -218,13 +207,16 @@ private fun PhoneBody(
             fontFamily = regularFont
         )
 
-        ArchiveTypeDropdown(onListItemClick = { onArchiveTypeClick(it.type) })
+        ArchiveTypeDropdown(onListItemClick = {
+            onArchiveTypeClick(
+                it.type, context.getString(it.title)
+            )
+        })
 
         Spacer(modifier = Modifier.weight(1f))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -238,7 +230,7 @@ private fun PhoneBody(
                     iconAlignment = ButtonIconAlignment.START
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(0)
+                        pagerState.animateScrollToPage(OnboardingPage.WELCOME_PAGE.value)
                     }
                 }
             }
@@ -249,11 +241,10 @@ private fun PhoneBody(
                     .weight(1f)
             ) {
                 SmallTextAndIconButton(
-                    ButtonColor.LIGHT,
-                    text = stringResource(id = R.string.next)
+                    ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(2)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
                     }
                 }
             }

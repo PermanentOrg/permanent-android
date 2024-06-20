@@ -35,6 +35,7 @@ fun SmallTextAndIconButton(
     text: String,
     icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
     iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
+    showButtonEnabled: Boolean = true,
     onButtonClick: () -> Unit
 ) {
     CustomSmallTextAndIconButton(
@@ -43,6 +44,7 @@ fun SmallTextAndIconButton(
         annotatedText = null,
         icon = icon,
         iconAlignment = iconAlignment,
+        showButtonEnabled = showButtonEnabled,
         onButtonClick = onButtonClick
     )
 }
@@ -53,6 +55,7 @@ fun SmallTextAndIconButton(
     annotatedText: AnnotatedString,
     icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
     iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
+    showButtonEnabled: Boolean = true,
     onButtonClick: () -> Unit
 ) {
     CustomSmallTextAndIconButton(
@@ -61,6 +64,7 @@ fun SmallTextAndIconButton(
         annotatedText = annotatedText,
         icon = icon,
         iconAlignment = iconAlignment,
+        showButtonEnabled = showButtonEnabled,
         onButtonClick = onButtonClick
     )
 }
@@ -72,6 +76,7 @@ private fun CustomSmallTextAndIconButton(
     annotatedText: AnnotatedString?,
     icon: Painter = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
     iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
+    showButtonEnabled: Boolean,
     onButtonClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -90,7 +95,7 @@ private fun CustomSmallTextAndIconButton(
             RoundedCornerShape(12.dp)
         ),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = if (buttonColor == ButtonColor.LIGHT) whiteColor else if (buttonColor == ButtonColor.TRANSPARENT) Color.Transparent else primaryColor),
+        colors = ButtonDefaults.buttonColors(containerColor = if (!showButtonEnabled) whiteTransparentColor else if (buttonColor == ButtonColor.LIGHT) whiteColor else if (buttonColor == ButtonColor.TRANSPARENT) Color.Transparent else primaryColor),
         onClick = { onButtonClick() }) {
         Row(
             modifier = Modifier.fillMaxWidth(),

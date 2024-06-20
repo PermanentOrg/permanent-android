@@ -17,10 +17,16 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -41,10 +47,13 @@ fun ArchiveOnboardingScreen(
     viewModel: ArchiveOnboardingViewModel
 ) {
     val context = LocalContext.current
-    val blue900Color = Color(ContextCompat.getColor(context, R.color.blue900))
-    val blueLighterColor = Color(ContextCompat.getColor(context, R.color.blueLighter))
-    val pagerState = rememberPagerState(initialPage = 0)
+
+    val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME_PAGE.value,
+        pageCount = { OnboardingPage.values().size })
     val isTablet = viewModel.isTablet()
+
+    val blue900Color = remember { Color(ContextCompat.getColor(context, R.color.blue900)) }
+    val blueLighterColor = remember { Color(ContextCompat.getColor(context, R.color.blueLighter)) }
 
     val horizontalPaddingDp = if (isTablet) 64.dp else 32.dp
     val topPaddingDp = if (isTablet) 32.dp else 24.dp
@@ -54,12 +63,99 @@ fun ArchiveOnboardingScreen(
     var newArchive by remember {
         mutableStateOf(
             NewArchive(
-                ArchiveType.PERSON,
-                "",
-                "",
-                ""
+                type = ArchiveType.PERSON,
+                typeName = context.getString(R.string.personal),
+                name = "",
+                goals = mutableStateListOf(),
+                priorities = mutableStateListOf()
             )
         )
+    }
+
+    val isFirstProgressBarEmpty by viewModel.isFirstProgressBarEmpty.collectAsState()
+    val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
+    val isThirdProgressBarEmpty by viewModel.isThirdProgressBarEmpty.collectAsState()
+
+    val goals = rememberSaveable(
+        saver = listSaver(
+            save = {
+                it.map { goal ->
+                    listOf(
+                        goal.type.ordinal,
+                        goal.description,
+                        goal.isChecked.value
+                    )
+                }
+            },
+            restore = { restoredGoals ->
+                restoredGoals.map {
+                    OnboardingGoal(
+                        type = OnboardingGoalType.values()[it[0] as Int],
+                        description = it[1] as String,
+                        isChecked = mutableStateOf(it[2] as Boolean)
+                    )
+                }.toMutableStateList()
+            }
+        )
+    ) {
+        viewModel.createOnboardingGoals(context).map { (ordinal, description) ->
+            OnboardingGoal(
+                type = OnboardingGoalType.values()[ordinal],
+                description = description,
+                isChecked = mutableStateOf(false)
+            )
+        }.toMutableStateList()
+    }
+
+    val priorities = rememberSaveable(
+        saver = listSaver(
+            save = {
+                it.map { priority ->
+                    listOf(
+                        priority.type.ordinal,
+                        priority.description,
+                        priority.isChecked.value
+                    )
+                }
+            },
+            restore = { restoredPriorities ->
+                restoredPriorities.map {
+                    OnboardingPriority(
+                        type = OnboardingPriorityType.values()[it[0] as Int],
+                        description = it[1] as String,
+                        isChecked = mutableStateOf(it[2] as Boolean)
+                    )
+                }.toMutableStateList()
+            }
+        )
+    ) {
+        viewModel.createOnboardingPriorities(context).map { (ordinal, description) ->
+            OnboardingPriority(
+                type = OnboardingPriorityType.values()[ordinal],
+                description = description,
+                isChecked = mutableStateOf(false)
+            )
+        }.toMutableStateList()
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        when (pagerState.currentPage) {
+            OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
+                viewModel.updateFirstProgressBarEmpty(false)
+                viewModel.updateSecondProgressBarEmpty(true)
+            }
+
+            OnboardingPage.GOALS_PAGE.value -> {
+                viewModel.updateFirstProgressBarEmpty(true)
+                viewModel.updateSecondProgressBarEmpty(false)
+                viewModel.updateThirdProgressBarEmpty(true)
+            }
+
+            OnboardingPage.PRIORITIES_PAGE.value -> {
+                viewModel.updateSecondProgressBarEmpty(true)
+                viewModel.updateThirdProgressBarEmpty(false)
+            }
+        }
     }
 
     Box(
@@ -76,46 +172,92 @@ fun ArchiveOnboardingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = horizontalPaddingDp, end = horizontalPaddingDp, top = topPaddingDp
-                ), verticalArrangement = Arrangement.Top
+                .padding(top = topPaddingDp),
+            verticalArrangement = Arrangement.Top
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_logo),
                 contentDescription = "Logo",
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(horizontal = horizontalPaddingDp)
             )
 
             Box(
-                modifier = Modifier.padding(top = topPaddingDp)
+                modifier = Modifier.padding(
+                    top = topPaddingDp, start = horizontalPaddingDp, end = horizontalPaddingDp
+                )
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(spacerPaddingDp)) {
                     OnboardingProgressIndicator(
-                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 100
+                        progressIndicatorHeight,
+                        horizontalPaddingDp,
+                        spacerPaddingDp,
+                        isFirstProgressBarEmpty
                     )
 
                     OnboardingProgressIndicator(
-                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 0
+                        progressIndicatorHeight,
+                        horizontalPaddingDp,
+                        spacerPaddingDp,
+                        isSecondProgressBarEmpty
                     )
 
                     OnboardingProgressIndicator(
-                        progressIndicatorHeight, horizontalPaddingDp, spacerPaddingDp, 0
+                        progressIndicatorHeight,
+                        horizontalPaddingDp,
+                        spacerPaddingDp,
+                        isThirdProgressBarEmpty
                     )
                 }
             }
 
-            HorizontalPager(pageCount = 2, state = pagerState, userScrollEnabled = false) { page ->
-                if (page == 0) WelcomePage(
-                    isTablet = isTablet,
-                    pagerState = pagerState,
-                    accountName = viewModel.getAccountName().value
-                )
-                else TypeSelectionPage(
-                    isTablet = isTablet,
-                    pagerState = pagerState,
-                    onArchiveTypeClick = { archiveType ->
-                        newArchive.type = archiveType
-                    })
+            HorizontalPager(
+                state = pagerState, userScrollEnabled = false
+            ) { page ->
+                when (page) {
+                    OnboardingPage.WELCOME_PAGE.value -> {
+                        WelcomePage(
+                            isTablet = isTablet,
+                            pagerState = pagerState,
+                            accountName = viewModel.getAccountName().value
+                        )
+                    }
+
+                    OnboardingPage.ARCHIVE_TYPE_PAGE.value -> {
+                        ArchiveTypePage(isTablet = isTablet,
+                            pagerState = pagerState,
+                            onArchiveTypeClick = { type: ArchiveType, typeName: String ->
+                                newArchive = newArchive.copy(type = type, typeName = typeName)
+                            })
+                    }
+
+                    OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
+                        ArchiveNamePage(
+                            isTablet = isTablet, pagerState = pagerState, newArchive = newArchive
+                        )
+                    }
+
+                    OnboardingPage.GOALS_PAGE.value -> {
+                        GoalsPage(
+                            isTablet = isTablet,
+                            horizontalPaddingDp = horizontalPaddingDp,
+                            pagerState = pagerState,
+                            newArchive = newArchive,
+                            goals = goals
+                        )
+                    }
+
+                    OnboardingPage.PRIORITIES_PAGE.value -> {
+                        PrioritiesPage(
+                            isTablet = isTablet,
+                            horizontalPaddingDp = horizontalPaddingDp,
+                            pagerState = pagerState,
+                            newArchive = newArchive,
+                            priorities = priorities
+                        )
+                    }
+                }
             }
         }
     }
@@ -123,7 +265,7 @@ fun ArchiveOnboardingScreen(
 
 @Composable
 fun OnboardingProgressIndicator(
-    height: Dp, horizontalPaddingDp: Dp, spacerPaddingDp: Dp, percent: Int
+    height: Dp, horizontalPaddingDp: Dp, spacerPaddingDp: Dp, isEmpty: Boolean
 ) {
     val context = LocalContext.current
     val whiteSuperTransparentColor =
@@ -145,13 +287,18 @@ fun OnboardingProgressIndicator(
                 purpleColor, accentColor
             )
         ),
-        percent
+        if (isEmpty) 0 else 100
     )
 }
 
 data class NewArchive(
     var type: ArchiveType,
+    var typeName: String,
     var name: String,
-    var goals: String?,
-    var priorities: String?
+    var goals: List<OnboardingGoal>,
+    var priorities: List<OnboardingPriority>
 )
+
+enum class OnboardingPage(val value: Int) {
+    WELCOME_PAGE(0), ARCHIVE_TYPE_PAGE(1), ARCHIVE_NAME_PAGE(2), GOALS_PAGE(3), PRIORITIES_PAGE(4)
+}
