@@ -112,6 +112,7 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
             fileRepository.updateMultipleRecords(records = records, locnVO = it,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
+                        updateRecords()
                         isBusy.value = false
                         shouldClose.value = true
                     }
@@ -127,5 +128,12 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
 //        else {
 //            showMessage.value = appContext?.getString(R.string.file_location_update_error)
 //        }
+    }
+
+    fun updateRecords() {
+        records.forEach {
+            it.fileData?.latitude = selectedLocation.value.latitude
+            it.fileData?.longitude = selectedLocation.value.longitude
+        }
     }
 }

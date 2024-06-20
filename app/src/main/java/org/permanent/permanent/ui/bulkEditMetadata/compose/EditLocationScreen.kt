@@ -87,7 +87,7 @@ fun EditLocationScreen(
 
     Column() {
         BottomSheetHeader(
-            painterResource(id = R.drawable.ic_location_icon),
+            painterResource(id = R.drawable.map_icon),
             screenTitle = stringResource(id = R.string.add_location)
         )
         Box(
@@ -197,7 +197,7 @@ fun EditLocationScreen(
                             .height(48.dp),
                             shape = RoundedCornerShape(0.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
-                            enabled = viewModel.isBusy.value,
+//                            enabled = !viewModel.isBusy.value,
                             onClick = {
                                 viewModel.updateRecordLocation()
                             }) {
