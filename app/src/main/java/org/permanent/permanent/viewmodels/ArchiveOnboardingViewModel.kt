@@ -2,7 +2,6 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.content.Context
-import android.text.Editable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -30,6 +29,7 @@ import org.permanent.permanent.ui.archiveOnboarding.OnboardingPage
 import org.permanent.permanent.ui.archiveOnboarding.PendingInvitationsFragment
 import org.permanent.permanent.ui.archiveOnboarding.TypeSelectionFragment
 import org.permanent.permanent.ui.archiveOnboarding.WelcomeFragment
+import org.permanent.permanent.ui.archiveOnboarding.compose.NewArchive
 import org.permanent.permanent.ui.archiveOnboarding.compose.OnboardingGoalType
 import org.permanent.permanent.ui.archiveOnboarding.compose.OnboardingPriorityType
 
@@ -71,6 +71,8 @@ class ArchiveOnboardingViewModel(application: Application) :
     val isSecondProgressBarEmpty: StateFlow<Boolean> = _isSecondProgressBarEmpty
     private val _isThirdProgressBarEmpty = MutableStateFlow(true)
     val isThirdProgressBarEmpty: StateFlow<Boolean> = _isThirdProgressBarEmpty
+    private val _isBusyState = MutableStateFlow(false)
+    val isBusyState: StateFlow<Boolean> = _isBusyState
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -110,18 +112,22 @@ class ArchiveOnboardingViewModel(application: Application) :
                 currentPage.value = OnboardingPage.WELCOME
                 prefsHelper.saveArchiveOnboardingDefaultFlow(true)
             }
+
             typeSelectionFragment -> {
                 currentPage.value = OnboardingPage.TYPE_SELECTION
                 prefsHelper.saveArchiveOnboardingDefaultFlow(true)
             }
+
             nameSettingFragment -> {
                 currentPage.value = OnboardingPage.NAME_SETTING
                 prefsHelper.saveArchiveOnboardingDefaultFlow(true)
             }
+
             pendingInvitationsFragment -> {
                 currentPage.value = OnboardingPage.PENDING_INVITATIONS
                 prefsHelper.saveArchiveOnboardingDefaultFlow(false)
             }
+
             defaultSelectionFragment -> {
                 currentPage.value = OnboardingPage.DEFAULT_SELECTION
                 prefsHelper.saveArchiveOnboardingDefaultFlow(false)
@@ -133,9 +139,11 @@ class ArchiveOnboardingViewModel(application: Application) :
     fun updateFirstProgressBarEmpty(isEmpty: Boolean) {
         _isFirstProgressBarEmpty.update { isEmpty }
     }
+
     fun updateSecondProgressBarEmpty(isEmpty: Boolean) {
         _isSecondProgressBarEmpty.update { isEmpty }
     }
+
     fun updateThirdProgressBarEmpty(isEmpty: Boolean) {
         _isThirdProgressBarEmpty.update { isEmpty }
     }
@@ -164,91 +172,37 @@ class ArchiveOnboardingViewModel(application: Application) :
         )
     }
 
-    fun onArchiveTypeBtnClick(archiveType: ArchiveType) {
-        isArchiveSelected.value = true
-        selectedArchiveType.value = archiveType
-        selectedArchiveTypeTitle.value = when (archiveType) {
-            ArchiveType.FAMILY -> appContext.getString(R.string.archive_onboarding_group_archive_title)
-            ArchiveType.ORGANIZATION -> appContext.getString(R.string.archive_onboarding_organization_archive_title)
-            else -> appContext.getString(R.string.archive_onboarding_person_archive_title)
-        }
-        selectedArchiveTypeText.value = when (archiveType) {
-            ArchiveType.FAMILY -> appContext.getString(R.string.archive_onboarding_group_archive_text)
-            ArchiveType.ORGANIZATION -> appContext.getString(R.string.archive_onboarding_organization_archive_text)
-            else -> appContext.getString(R.string.archive_onboarding_person_archive_text)
-        }
-    }
-
-    fun onNameTextChanged(name: Editable) {
-        this.name.value = name.toString()
-    }
-
-    fun onGetStartedBtnClick() {
-        showFragment(typeSelectionFragment)
-        progress.value = progress.value?.plus(1)
-    }
-
-    fun onBackBtnClick() {
-        if (currentPage.value == OnboardingPage.TYPE_SELECTION) {
-            if (onPendingArchivesRetrieved.value?.isNotEmpty() == true) {
-                if (areAllArchivesAccepted) {
-                    showFragment(defaultSelectionFragment)
-                } else {
-                    showFragment(pendingInvitationsFragment)
+    fun createNewArchive(newArchive: NewArchive) {
+        _isBusyState.value = true
+        archiveRepository.createNewArchive(newArchive.name,
+            newArchive.type,
+            object : IArchiveRepository.IArchiveListener {
+                override fun onSuccess(archive: Archive) {
+                    _isBusyState.value = false
+                    setNewArchiveAsDefault(archive)
                 }
-            } else {
-                showFragment(welcomeFragment)
-            }
-        } else {
-            showFragment(typeSelectionFragment)
-        }
-        progress.value = progress.value?.minus(1)
-    }
 
-    fun onNameArchiveBtnClick() {
-        showFragment(nameSettingFragment)
-        progress.value = progress.value?.plus(1)
-    }
-
-    fun onCreateArchiveBtnClick() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-        val name = name.value?.trim()
-        val selectedArchiveType = selectedArchiveType.value
-
-        if (name != null && selectedArchiveType != null) {
-            isBusy.value = true
-            archiveRepository.createNewArchive(
-                name,
-                selectedArchiveType,
-                object : IArchiveRepository.IArchiveListener {
-                    override fun onSuccess(archive: Archive) {
-                        isBusy.value = false
-                        setNewArchiveAsDefault(archive)
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        error?.let { showError.value = it }
-                    }
-                })
-        }
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    error?.let { showError.value = it }
+                }
+            })
     }
 
     fun setNewArchiveAsDefault(newArchive: Archive) {
         val account = Account(prefsHelper.getAccountId(), prefsHelper.getAccountEmail())
         account.defaultArchiveId = newArchive.id
 
+        _isBusyState.value = true
         accountRepository.update(account, object : IResponseListener {
             override fun onSuccess(message: String?) {
-                isBusy.value = false
+                _isBusyState.value = false
                 prefsHelper.saveDefaultArchiveId(newArchive.id)
                 setNewArchiveAsCurrent(newArchive)
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
+                _isBusyState.value = false
                 error?.let { showError.value = it }
             }
         })
@@ -256,9 +210,10 @@ class ArchiveOnboardingViewModel(application: Application) :
 
     fun setNewArchiveAsCurrent(newArchive: Archive) {
         newArchive.number?.let { archiveNr ->
+            _isBusyState.value = true
             archiveRepository.switchToArchive(archiveNr, object : IDataListener {
                 override fun onSuccess(dataList: List<Datum>?) {
-                    isBusy.value = false
+                    _isBusyState.value = false
                     prefsHelper.saveCurrentArchiveInfo(
                         newArchive.id,
                         newArchive.number,
@@ -267,77 +222,150 @@ class ArchiveOnboardingViewModel(application: Application) :
                         newArchive.thumbURL200,
                         newArchive.accessRole
                     )
-                    onArchiveOnboardingDone.call()
+//                    onArchiveOnboardingDone.call()
                 }
 
                 override fun onFailed(error: String?) {
-                    isBusy.value = false
+                    _isBusyState.value = false
                     error?.let { showError.value = it }
                 }
             })
         }
     }
 
-    fun onCreateNewArchiveBtnClick() {
-        onGetStartedBtnClick()
-    }
-
+    //    fun onArchiveTypeBtnClick(archiveType: ArchiveType) {
+//        isArchiveSelected.value = true
+//        selectedArchiveType.value = archiveType
+//        selectedArchiveTypeTitle.value = when (archiveType) {
+//            ArchiveType.FAMILY -> appContext.getString(R.string.archive_onboarding_group_archive_title)
+//            ArchiveType.ORGANIZATION -> appContext.getString(R.string.archive_onboarding_organization_archive_title)
+//            else -> appContext.getString(R.string.archive_onboarding_person_archive_title)
+//        }
+//        selectedArchiveTypeText.value = when (archiveType) {
+//            ArchiveType.FAMILY -> appContext.getString(R.string.archive_onboarding_group_archive_text)
+//            ArchiveType.ORGANIZATION -> appContext.getString(R.string.archive_onboarding_organization_archive_text)
+//            else -> appContext.getString(R.string.archive_onboarding_person_archive_text)
+//        }
+//    }
+//
+//    fun onNameTextChanged(name: Editable) {
+//        this.name.value = name.toString()
+//    }
+//
+//    fun onGetStartedBtnClick() {
+//        showFragment(typeSelectionFragment)
+//        progress.value = progress.value?.plus(1)
+//    }
+//
+//    fun onBackBtnClick() {
+//        if (currentPage.value == OnboardingPage.TYPE_SELECTION) {
+//            if (onPendingArchivesRetrieved.value?.isNotEmpty() == true) {
+//                if (areAllArchivesAccepted) {
+//                    showFragment(defaultSelectionFragment)
+//                } else {
+//                    showFragment(pendingInvitationsFragment)
+//                }
+//            } else {
+//                showFragment(welcomeFragment)
+//            }
+//        } else {
+//            showFragment(typeSelectionFragment)
+//        }
+//        progress.value = progress.value?.minus(1)
+//    }
+//
+//    fun onNameArchiveBtnClick() {
+//        showFragment(nameSettingFragment)
+//        progress.value = progress.value?.plus(1)
+//    }
+//
+//    fun onCreateArchiveBtnClick() {
+//        if (isBusy.value != null && isBusy.value!!) {
+//            return
+//        }
+//        val name = name.value?.trim()
+//        val selectedArchiveType = selectedArchiveType.value
+//
+//        if (name != null && selectedArchiveType != null) {
+//            isBusy.value = true
+//            archiveRepository.createNewArchive(
+//                name,
+//                selectedArchiveType,
+//                object : IArchiveRepository.IArchiveListener {
+//                    override fun onSuccess(archive: Archive) {
+//                        isBusy.value = false
+//                        setNewArchiveAsDefault(archive)
+//                    }
+//
+//                    override fun onFailed(error: String?) {
+//                        isBusy.value = false
+//                        error?.let { showError.value = it }
+//                    }
+//                })
+//        }
+//    }
+//
+//    fun onCreateNewArchiveBtnClick() {
+//        onGetStartedBtnClick()
+//    }
+//
     override fun onAcceptBtnClick(archive: Archive) {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-
-        isBusy.value = true
-        archiveRepository.acceptArchives(listOf(archive), object : IResponseListener {
-            override fun onSuccess(message: String?) {
-                isBusy.value = false
-                archive.status = Status.OK
-                setNewArchiveAsDefault(archive)
-            }
-
-            override fun onFailed(error: String?) {
-                isBusy.value = false
-                error?.let { showError.value = it }
-                return
-            }
-        })
+//        if (isBusy.value != null && isBusy.value!!) {
+//            return
+//        }
+//
+//        isBusy.value = true
+//        archiveRepository.acceptArchives(listOf(archive), object : IResponseListener {
+//            override fun onSuccess(message: String?) {
+//                isBusy.value = false
+//                archive.status = Status.OK
+//                setNewArchiveAsDefault(archive)
+//            }
+//
+//            override fun onFailed(error: String?) {
+//                isBusy.value = false
+//                error?.let { showError.value = it }
+//                return
+//            }
+//        })
     }
 
-    fun onAcceptAllBtnClick() {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-
-        val pendingArchives = onPendingArchivesRetrieved.value
-
-        if (!pendingArchives.isNullOrEmpty()) {
-            isBusy.value = true
-            archiveRepository.acceptArchives(pendingArchives, object : IResponseListener {
-                override fun onSuccess(message: String?) {
-                    isBusy.value = false
-                    for (pendingArchive in pendingArchives) {
-                        pendingArchive.status = Status.OK
-                    }
-                    onPendingArchivesRetrieved.value = onPendingArchivesRetrieved.value
-                    showFragment(defaultSelectionFragment)
-                    confirmationText.value = appContext.getString(
-                        R.string.archive_onboarding_default_selection_text,
-                        pendingArchives.size.toString()
-                    )
-                    areAllArchivesAccepted = true
-                }
-
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    error?.let { showError.value = it }
-                    return
-                }
-            })
-        }
-    }
-
+    //
+//    fun onAcceptAllBtnClick() {
+//        if (isBusy.value != null && isBusy.value!!) {
+//            return
+//        }
+//
+//        val pendingArchives = onPendingArchivesRetrieved.value
+//
+//        if (!pendingArchives.isNullOrEmpty()) {
+//            isBusy.value = true
+//            archiveRepository.acceptArchives(pendingArchives, object : IResponseListener {
+//                override fun onSuccess(message: String?) {
+//                    isBusy.value = false
+//                    for (pendingArchive in pendingArchives) {
+//                        pendingArchive.status = Status.OK
+//                    }
+//                    onPendingArchivesRetrieved.value = onPendingArchivesRetrieved.value
+//                    showFragment(defaultSelectionFragment)
+//                    confirmationText.value = appContext.getString(
+//                        R.string.archive_onboarding_default_selection_text,
+//                        pendingArchives.size.toString()
+//                    )
+//                    areAllArchivesAccepted = true
+//                }
+//
+//                override fun onFailed(error: String?) {
+//                    isBusy.value = false
+//                    error?.let { showError.value = it }
+//                    return
+//                }
+//            })
+//        }
+//    }
+//
     override fun onMakeDefaultBtnClick(archive: Archive) {
-        setNewArchiveAsDefault(archive)
+//        setNewArchiveAsDefault(archive)
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
