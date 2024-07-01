@@ -54,9 +54,11 @@ import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.CustomCheckbox
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
+import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 @Composable
 fun PrioritiesPage(
+    viewModel: ArchiveOnboardingViewModel,
     isTablet: Boolean,
     horizontalPaddingDp: Dp,
     pagerState: PagerState,
@@ -72,6 +74,7 @@ fun PrioritiesPage(
 
     if (isTablet) {
         TabletBody(
+            viewModel,
             horizontalPaddingDp,
             whiteColor,
             regularFont,
@@ -82,6 +85,7 @@ fun PrioritiesPage(
         )
     } else {
         PhoneBody(
+            viewModel,
             whiteSuperTransparentColor,
             whiteColor,
             regularFont,
@@ -95,6 +99,7 @@ fun PrioritiesPage(
 
 @Composable
 private fun PhoneBody(
+    viewModel: ArchiveOnboardingViewModel,
     whiteSuperTransparentColor: Color,
     whiteColor: Color,
     regularFont: FontFamily,
@@ -214,6 +219,7 @@ private fun PhoneBody(
 //                    coroutineScope.launch {
 //                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
 //                    }
+                    viewModel.createNewArchive(newArchive)
                 }
             }
         }
@@ -222,6 +228,7 @@ private fun PhoneBody(
 
 @Composable
 private fun TabletBody(
+    viewModel: ArchiveOnboardingViewModel,
     horizontalPaddingDp: Dp,
     whiteColor: Color,
     regularFont: FontFamily,
@@ -298,7 +305,9 @@ private fun TabletBody(
             priorities.forEach { priority ->
                 item {
                     CustomCheckbox(
-                        isTablet = true, text = priority.description, checkedState = priority.isChecked
+                        isTablet = true,
+                        text = priority.description,
+                        checkedState = priority.isChecked
                     )
                 }
             }
@@ -344,6 +353,7 @@ private fun TabletBody(
 //                        coroutineScope.launch {
 //                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
 //                        }
+                        viewModel.createNewArchive(newArchive)
                     }
                 }
             }

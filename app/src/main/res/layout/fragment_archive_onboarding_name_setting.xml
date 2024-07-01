@@ -147,7 +147,6 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="24dp"
                     android:layout_marginEnd="16dp"
-                    android:afterTextChanged="@{(editable)->viewModel.onNameTextChanged(editable)}"
                     android:background="@drawable/rounded_grey_border_white_background"
                     android:fontFamily="@font/open_sans"
                     android:letterSpacing="-0.01"
