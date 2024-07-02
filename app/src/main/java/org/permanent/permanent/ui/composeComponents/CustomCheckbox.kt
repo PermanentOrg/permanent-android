@@ -44,7 +44,7 @@ fun CustomCheckbox(
 
     Row(
         modifier = Modifier
-            .height(if (isTablet) 116.dp else 96.dp)
+            .height(if (isTablet) 116.dp else 100.dp)
             .fillMaxWidth()
             .border(1.dp, whiteTransparentColor, RoundedCornerShape(10.dp))
             .background(
