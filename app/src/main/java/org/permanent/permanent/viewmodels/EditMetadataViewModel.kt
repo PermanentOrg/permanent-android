@@ -20,7 +20,6 @@ import retrofit2.Response
 
 class EditMetadataViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
-    private val appContext = application.applicationContext
     private var records: MutableList<Record> = mutableListOf()
     private val tagsOfSelectedRecords =
         MutableLiveData<SnapshotStateList<Tag>>(mutableStateListOf())
@@ -31,6 +30,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     val showError = MutableLiveData<String>()
     val showApplyAllToSelection = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
+    private val locationMenuName = MutableLiveData("Locations")
     private var fileDataSize = 0
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -39,6 +39,17 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         this.records.addAll(records)
         for (record in this.records) {
             requestFileData(record)
+        }
+    }
+
+    fun setLocationMenuName() {
+        records.firstOrNull()?.fileData?.completeAddress?.let { firstAddress: String ->
+            var sameName = records.all { it.fileData?.completeAddress == firstAddress}
+            if (sameName) {
+                locationMenuName.value = records.firstOrNull()?.fileData?.completeAddress
+            } else {
+                locationMenuName.value = "Various locations"
+            }
         }
     }
 
@@ -57,6 +68,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                     if (fileDataSize == records.size) {
                         checkForCommonDescription()
                         checkForCommonTags()
+                        setLocationMenuName()
                     }
                 }
 
@@ -232,4 +244,6 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     fun getTagsOfSelectedRecords() = tagsOfSelectedRecords
 
     fun getSomeFilesHaveDescription() = showWarningSomeFilesHaveDescription
+
+    fun getLocationMenuName() = locationMenuName
 }

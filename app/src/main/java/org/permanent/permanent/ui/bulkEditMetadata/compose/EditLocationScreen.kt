@@ -58,7 +58,7 @@ fun EditLocationScreen(
     val context = LocalContext.current
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(viewModel.selectedLocation.value, 12f)
@@ -98,9 +98,7 @@ fun EditLocationScreen(
                     modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState
                 ) {
                     Marker(
-                        state = MarkerState(position = viewModel.selectedLocation.value),
-                        title = "Singapore",
-                        snippet = "Marker in Singapore"
+                        state = MarkerState(position = viewModel.selectedLocation.value)
                     )
                 }
             }
@@ -111,17 +109,17 @@ fun EditLocationScreen(
                 LocationSearchBar(modifier = Modifier
                     .shadow(
                         elevation = 16.dp,
-                        spotColor = Color(0x29000000),
-                        ambientColor = Color(0x29000000)
+                        spotColor = Color.Black.copy(0.16f),
+                        ambientColor = Color.Black.copy(0.16f)
                     )
                     .border(
                         width = 1.dp,
-                        color = Color(0xFFF4F6FD),
+                        color = superLightBlue,
                         shape = RoundedCornerShape(size = 2.dp)
                     )
                     .height(48.dp)
                     .background(
-                        color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 2.dp)
+                        color = Color.White, shape = RoundedCornerShape(size = 2.dp)
                     ), text = viewModel.searchText.value, onTextChange = {
                     viewModel.searchText.value = it
                 }, isFocused = {
@@ -154,7 +152,9 @@ fun EditLocationScreen(
                 })
 
                 if (isSearching) {
-                    LazyColumn {
+                    LazyColumn(
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    ) {
                         items(locations) { prediction ->
                             val primaryText = prediction.getPrimaryText(null).toString()
                             val secondaryText = prediction.getSecondaryText(null).toString()
@@ -179,7 +179,7 @@ fun EditLocationScreen(
                             .weight(1.0f)
                             .height(48.dp),
                             shape = RoundedCornerShape(0.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = lightBlueColor),
+                            colors = ButtonDefaults.buttonColors(containerColor = superLightBlue),
                             onClick = {
                                 cancel()
                             }) {
@@ -197,7 +197,6 @@ fun EditLocationScreen(
                             .height(48.dp),
                             shape = RoundedCornerShape(0.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
-//                            enabled = !viewModel.isBusy.value,
                             onClick = {
                                 viewModel.updateRecordLocation()
                             }) {
@@ -205,7 +204,7 @@ fun EditLocationScreen(
                                 CircularProgressIndicator(
                                     modifier = Modifier.width(32.dp),
                                     color = primaryColor,
-                                    trackColor = lightBlueColor,
+                                    trackColor = superLightBlue,
                                 )
                             } else {
                                 Text(

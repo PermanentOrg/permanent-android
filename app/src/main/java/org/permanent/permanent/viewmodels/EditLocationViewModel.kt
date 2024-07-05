@@ -1,8 +1,6 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +17,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.LocnVO
@@ -29,6 +28,7 @@ import org.permanent.permanent.repositories.LocationRepositoryImpl
 
 class EditLocationViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private val appContext = application.applicationContext
     private val placesClient: PlacesClient = Places.createClient(application)
     private var token = AutocompleteSessionToken.newInstance()
     private var locationRepository: ILocationRepository = LocationRepositoryImpl()
@@ -66,7 +66,7 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
                 _locations.value = response.autocompletePredictions
             }.addOnFailureListener { exception: Exception? ->
                 if (exception is ApiException) {
-                    Log.e(TAG, "Place not found: ${exception.statusCode}")
+                    showMessage.value = "Place not found: ${exception.statusCode}"
                 }
             }
     }
@@ -83,7 +83,7 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
             }
             .addOnFailureListener { exception: Exception? ->
                 if (exception is ApiException) {
-                    Log.e(TAG, "Place not found: ${exception.statusCode}")
+                    showMessage.value = "Place not found: ${exception.statusCode}"
                 }
             }
     }
@@ -124,10 +124,9 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
                         }
                     }
                 })
+        } ?: run {
+            showMessage.value = appContext.getString(R.string.file_location_update_error)
         }
-//        else {
-//            showMessage.value = appContext?.getString(R.string.file_location_update_error)
-//        }
     }
 
     fun updateRecords() {

@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,6 +90,7 @@ fun EditMetadataScreen(
     val errorMessage by viewModel.showError.observeAsState()
     val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
     val isBusy by viewModel.getIsBusy().observeAsState()
+    val locationMenuName by viewModel.getLocationMenuName().observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
@@ -196,10 +198,12 @@ fun EditMetadataScreen(
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-        FilesMenuView(icon = R.drawable.map_icon,
-            title = stringResource(id = R.string.locations),
-            actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
-            openLocationScreen(viewModel.getRecords())
+        locationMenuName?.let {
+            FilesMenuView(icon = R.drawable.map_icon,
+                title = it,
+                actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
+                openLocationScreen(viewModel.getRecords())
+            }
         }
     }
 
@@ -336,13 +340,16 @@ private fun FilesMenuView(
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
 
     Row(
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .clickable(onClick = onClick)
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .weight(1.0f),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Image(
                 painter = painterResource(id = icon),
@@ -354,13 +361,12 @@ private fun FilesMenuView(
                 text = title,
                 color = blackColor,
                 fontFamily = regularFont,
-                fontSize = 15.sp
+                fontSize = 15.sp,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
-        Spacer(modifier = Modifier.weight(1.0f))
-
-        Row{
+        Row() {
             Text(
                 text = actionTitle,
                 color = blue900,
