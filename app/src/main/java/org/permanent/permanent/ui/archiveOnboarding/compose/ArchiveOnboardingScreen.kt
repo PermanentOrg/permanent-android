@@ -2,9 +2,16 @@
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +34,12 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -75,29 +84,23 @@ fun ArchiveOnboardingScreen(
     val isFirstProgressBarEmpty by viewModel.isFirstProgressBarEmpty.collectAsState()
     val isSecondProgressBarEmpty by viewModel.isSecondProgressBarEmpty.collectAsState()
     val isThirdProgressBarEmpty by viewModel.isThirdProgressBarEmpty.collectAsState()
+    val isBusyState by viewModel.isBusyState.collectAsState()
 
-    val goals = rememberSaveable(
-        saver = listSaver(
-            save = {
-                it.map { goal ->
-                    listOf(
-                        goal.type.ordinal,
-                        goal.description,
-                        goal.isChecked.value
-                    )
-                }
-            },
-            restore = { restoredGoals ->
-                restoredGoals.map {
-                    OnboardingGoal(
-                        type = OnboardingGoalType.values()[it[0] as Int],
-                        description = it[1] as String,
-                        isChecked = mutableStateOf(it[2] as Boolean)
-                    )
-                }.toMutableStateList()
-            }
-        )
-    ) {
+    val goals = rememberSaveable(saver = listSaver(save = {
+        it.map { goal ->
+            listOf(
+                goal.type.ordinal, goal.description, goal.isChecked.value
+            )
+        }
+    }, restore = { restoredGoals ->
+        restoredGoals.map {
+            OnboardingGoal(
+                type = OnboardingGoalType.values()[it[0] as Int],
+                description = it[1] as String,
+                isChecked = mutableStateOf(it[2] as Boolean)
+            )
+        }.toMutableStateList()
+    })) {
         viewModel.createOnboardingGoals(context).map { (ordinal, description) ->
             OnboardingGoal(
                 type = OnboardingGoalType.values()[ordinal],
@@ -107,28 +110,21 @@ fun ArchiveOnboardingScreen(
         }.toMutableStateList()
     }
 
-    val priorities = rememberSaveable(
-        saver = listSaver(
-            save = {
-                it.map { priority ->
-                    listOf(
-                        priority.type.ordinal,
-                        priority.description,
-                        priority.isChecked.value
-                    )
-                }
-            },
-            restore = { restoredPriorities ->
-                restoredPriorities.map {
-                    OnboardingPriority(
-                        type = OnboardingPriorityType.values()[it[0] as Int],
-                        description = it[1] as String,
-                        isChecked = mutableStateOf(it[2] as Boolean)
-                    )
-                }.toMutableStateList()
-            }
-        )
-    ) {
+    val priorities = rememberSaveable(saver = listSaver(save = {
+        it.map { priority ->
+            listOf(
+                priority.type.ordinal, priority.description, priority.isChecked.value
+            )
+        }
+    }, restore = { restoredPriorities ->
+        restoredPriorities.map {
+            OnboardingPriority(
+                type = OnboardingPriorityType.values()[it[0] as Int],
+                description = it[1] as String,
+                isChecked = mutableStateOf(it[2] as Boolean)
+            )
+        }.toMutableStateList()
+    })) {
         viewModel.createOnboardingPriorities(context).map { (ordinal, description) ->
             OnboardingPriority(
                 type = OnboardingPriorityType.values()[ordinal],
@@ -159,105 +155,139 @@ fun ArchiveOnboardingScreen(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        blue900Color, blueLighterColor
-                    )
-                )
-            )
+        modifier = Modifier.fillMaxSize()
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = topPaddingDp),
-            verticalArrangement = Arrangement.Top
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.img_logo),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(horizontal = horizontalPaddingDp)
-            )
-
-            Box(
-                modifier = Modifier.padding(
-                    top = topPaddingDp, start = horizontalPaddingDp, end = horizontalPaddingDp
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            blue900Color, blueLighterColor
+                        )
+                    )
                 )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = topPaddingDp),
+                verticalArrangement = Arrangement.Top
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(spacerPaddingDp)) {
-                    OnboardingProgressIndicator(
-                        progressIndicatorHeight,
-                        horizontalPaddingDp,
-                        spacerPaddingDp,
-                        isFirstProgressBarEmpty
-                    )
+                Image(
+                    painter = painterResource(id = R.drawable.img_logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(horizontal = horizontalPaddingDp)
+                )
 
-                    OnboardingProgressIndicator(
-                        progressIndicatorHeight,
-                        horizontalPaddingDp,
-                        spacerPaddingDp,
-                        isSecondProgressBarEmpty
+                Box(
+                    modifier = Modifier.padding(
+                        top = topPaddingDp, start = horizontalPaddingDp, end = horizontalPaddingDp
                     )
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(spacerPaddingDp)) {
+                        OnboardingProgressIndicator(
+                            progressIndicatorHeight,
+                            horizontalPaddingDp,
+                            spacerPaddingDp,
+                            isFirstProgressBarEmpty
+                        )
 
-                    OnboardingProgressIndicator(
-                        progressIndicatorHeight,
-                        horizontalPaddingDp,
-                        spacerPaddingDp,
-                        isThirdProgressBarEmpty
-                    )
+                        OnboardingProgressIndicator(
+                            progressIndicatorHeight,
+                            horizontalPaddingDp,
+                            spacerPaddingDp,
+                            isSecondProgressBarEmpty
+                        )
+
+                        OnboardingProgressIndicator(
+                            progressIndicatorHeight,
+                            horizontalPaddingDp,
+                            spacerPaddingDp,
+                            isThirdProgressBarEmpty
+                        )
+                    }
+                }
+
+                HorizontalPager(
+                    state = pagerState, userScrollEnabled = false
+                ) { page ->
+                    when (page) {
+                        OnboardingPage.WELCOME_PAGE.value -> {
+                            WelcomePage(
+                                isTablet = isTablet,
+                                pagerState = pagerState,
+                                accountName = viewModel.getAccountName().value
+                            )
+                        }
+
+                        OnboardingPage.ARCHIVE_TYPE_PAGE.value -> {
+                            ArchiveTypePage(isTablet = isTablet,
+                                pagerState = pagerState,
+                                onArchiveTypeClick = { type: ArchiveType, typeName: String ->
+                                    newArchive = newArchive.copy(type = type, typeName = typeName)
+                                })
+                        }
+
+                        OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
+                            ArchiveNamePage(
+                                isTablet = isTablet,
+                                pagerState = pagerState,
+                                newArchive = newArchive
+                            )
+                        }
+
+                        OnboardingPage.GOALS_PAGE.value -> {
+                            GoalsPage(
+                                isTablet = isTablet,
+                                horizontalPaddingDp = horizontalPaddingDp,
+                                pagerState = pagerState,
+                                newArchive = newArchive,
+                                goals = goals
+                            )
+                        }
+
+                        OnboardingPage.PRIORITIES_PAGE.value -> {
+                            PrioritiesPage(
+                                viewModel = viewModel,
+                                isTablet = isTablet,
+                                horizontalPaddingDp = horizontalPaddingDp,
+                                pagerState = pagerState,
+                                newArchive = newArchive,
+                                priorities = priorities
+                            )
+                        }
+                    }
                 }
             }
+        }
 
-            HorizontalPager(
-                state = pagerState, userScrollEnabled = false
-            ) { page ->
-                when (page) {
-                    OnboardingPage.WELCOME_PAGE.value -> {
-                        WelcomePage(
-                            isTablet = isTablet,
-                            pagerState = pagerState,
-                            accountName = viewModel.getAccountName().value
-                        )
-                    }
+        // Overlay with spinning images
+        if (isBusyState) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(enabled = false) {}, contentAlignment = Alignment.Center
+            ) {
+                val infiniteTransition = rememberInfiniteTransition(label = "")
 
-                    OnboardingPage.ARCHIVE_TYPE_PAGE.value -> {
-                        ArchiveTypePage(isTablet = isTablet,
-                            pagerState = pagerState,
-                            onArchiveTypeClick = { type: ArchiveType, typeName: String ->
-                                newArchive = newArchive.copy(type = type, typeName = typeName)
-                            })
-                    }
+                val rotation by infiniteTransition.animateFloat(
+                    initialValue = 0f, targetValue = 360f, animationSpec = infiniteRepeatable(
+                        animation = tween(1000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ), label = ""
+                )
 
-                    OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
-                        ArchiveNamePage(
-                            isTablet = isTablet, pagerState = pagerState, newArchive = newArchive
-                        )
-                    }
+                Image(painter = painterResource(id = R.drawable.ellipse_exterior),
+                    contentDescription = null,
+                    modifier = Modifier.graphicsLayer { rotationZ = -rotation })
 
-                    OnboardingPage.GOALS_PAGE.value -> {
-                        GoalsPage(
-                            isTablet = isTablet,
-                            horizontalPaddingDp = horizontalPaddingDp,
-                            pagerState = pagerState,
-                            newArchive = newArchive,
-                            goals = goals
-                        )
-                    }
-
-                    OnboardingPage.PRIORITIES_PAGE.value -> {
-                        PrioritiesPage(
-                            isTablet = isTablet,
-                            horizontalPaddingDp = horizontalPaddingDp,
-                            pagerState = pagerState,
-                            newArchive = newArchive,
-                            priorities = priorities
-                        )
-                    }
-                }
+                Image(painter = painterResource(id = R.drawable.ellipse_interior),
+                    contentDescription = null,
+                    modifier = Modifier.graphicsLayer { rotationZ = rotation })
             }
         }
     }
