@@ -262,6 +262,10 @@ class RequestContainer {
     }
 
     fun addRecords(records: MutableList<Record>, isFolderRecordType: Boolean): RequestContainer {
+        return addRecords(records = records, null, isFolderRecordType)
+    }
+
+    fun addRecords(records: MutableList<Record>, locnVO: LocnVO? = null, isFolderRecordType: Boolean): RequestContainer {
         for ((index, record) in records.withIndex()) {
             if (isFolderRecordType) {
                 val folderVO = FolderVO()
@@ -282,6 +286,9 @@ class RequestContainer {
                 recordVO.folder_linkId = record.folderLinkId
                 recordVO.parentFolder_linkId = record.parentFolderLinkId
                 recordVO.displayName = record.displayName
+                if(locnVO != null) {
+                    recordVO.LocnVO = locnVO
+                }
                 if (index == 0) RequestVO.data?.get(0)?.RecordVO = recordVO
                 else {
                     val newData = Datum()

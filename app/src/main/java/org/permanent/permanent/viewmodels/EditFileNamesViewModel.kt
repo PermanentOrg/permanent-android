@@ -15,6 +15,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     val uiState = MutableStateFlow(EditFileNamesUIState())
 
     private var records: MutableList<Record> = mutableListOf()
+
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
         records.firstOrNull()?.let {

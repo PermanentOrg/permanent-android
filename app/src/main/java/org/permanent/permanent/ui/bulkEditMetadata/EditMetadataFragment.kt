@@ -19,6 +19,7 @@ class EditMetadataFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: EditMetadataViewModel
     private var newTagFragment: NewTagFragment? = null
+    private var locationFragment: EditLocationFragment? = null
     private var records = ArrayList<Record>()
 
     override fun onCreateView(
@@ -55,7 +56,11 @@ class EditMetadataFragment : PermanentBaseFragment() {
 
                         },
                         openLocationScreen = {
-
+                            locationFragment = EditLocationFragment()
+                            locationFragment?.setBundleArguments(records)
+                            locationFragment?.show(parentFragmentManager, locationFragment?.tag)
+                            locationFragment?.getOnLocationChanged()
+                                ?.observe(lifecycleOwner, onLocationChangedObserver)
                         }
                     )
                 }
@@ -63,16 +68,21 @@ class EditMetadataFragment : PermanentBaseFragment() {
         }
     }
 
-
     private val onTagsAddedToSelectionObserver = Observer<List<Tag>> {
         viewModel.onTagsAddedToSelection(it)
     }
 
+    private val onLocationChangedObserver = Observer<String> {
+        viewModel.onLocationChanged(it)
+    }
+
     override fun connectViewModelEvents() {
+
     }
 
     override fun disconnectViewModelEvents() {
         newTagFragment?.getOnTagsAddedToSelection()?.removeObserver(onTagsAddedToSelectionObserver)
+        locationFragment?.getOnLocationChanged()?.removeObserver(onLocationChangedObserver)
     }
 
     override fun onResume() {
