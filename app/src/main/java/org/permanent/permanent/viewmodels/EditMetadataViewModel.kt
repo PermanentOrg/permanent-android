@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IResponseListener
@@ -20,6 +21,7 @@ import retrofit2.Response
 
 class EditMetadataViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private val appContext = application.applicationContext
     private var records: MutableList<Record> = mutableListOf()
     private val tagsOfSelectedRecords =
         MutableLiveData<SnapshotStateList<Tag>>(mutableStateListOf())
@@ -30,7 +32,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     val showError = MutableLiveData<String>()
     val showApplyAllToSelection = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
-    private val locationMenuName = MutableLiveData("Locations")
+    private val locationMenuName = MutableLiveData(appContext.getString(R.string.locations))
     private var fileDataSize = 0
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -48,7 +50,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
             if (sameName) {
                 locationMenuName.value = records.firstOrNull()?.fileData?.completeAddress
             } else {
-                locationMenuName.value = "Various locations"
+                locationMenuName.value = appContext.getString(R.string.various_locations)
             }
         }
     }
@@ -235,6 +237,10 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     fun onTagsAddedToSelection(tags: List<Tag>) {
         commonTags.addAll(tags)
         tagsOfSelectedRecords.value?.addAll(tags)
+    }
+
+    fun onLocationChanged(address: String) {
+        locationMenuName.value = address
     }
 
     fun getIsBusy() = isBusy

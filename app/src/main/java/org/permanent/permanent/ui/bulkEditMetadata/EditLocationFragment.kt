@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -22,6 +24,7 @@ import org.permanent.permanent.viewmodels.EditLocationViewModel
 
 class EditLocationFragment : PermanentBottomSheetFragment() {
     private lateinit var viewModel: EditLocationViewModel
+    private val onLocationChanged = MutableLiveData<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -62,11 +65,27 @@ class EditLocationFragment : PermanentBottomSheetFragment() {
         return bottomSheetDialog
     }
 
-    override fun connectViewModelEvents() {
+    private val onLocationChangedObserver = Observer<String> {
+        onLocationChanged.value = it
+    }
 
+    override fun connectViewModelEvents() {
+        viewModel.getOnLocationChanged().observe(this, onLocationChangedObserver)
     }
 
     override fun disconnectViewModelEvents() {
-
+        viewModel.getOnLocationChanged().removeObserver(onLocationChangedObserver)
     }
+
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
+    }
+
+    fun getOnLocationChanged() = onLocationChanged
 }

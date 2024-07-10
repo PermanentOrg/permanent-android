@@ -38,6 +38,8 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
 
     private var locationVO: LocnVO? = null
     private val _locations = MutableLiveData<List<AutocompletePrediction>>()
+
+    private val onLocationChanged = MutableLiveData<String>()
     val locations: LiveData<List<AutocompletePrediction>> get() = _locations
     private val _selectedLocation = mutableStateOf(LatLng(1.35, 103.87))
     val selectedLocation: State<LatLng> get() = _selectedLocation
@@ -133,6 +135,13 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
         records.forEach {
             it.fileData?.latitude = selectedLocation.value.latitude
             it.fileData?.longitude = selectedLocation.value.longitude
+            val address = locationVO?.getUIAddress()
+            it.fileData?.completeAddress = address
+            address?.let { address ->
+                onLocationChanged.value = address
+            }
         }
     }
+
+    fun getOnLocationChanged() = onLocationChanged
 }
