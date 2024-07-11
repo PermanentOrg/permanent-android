@@ -52,7 +52,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                         prefsHelper.saveAuthToken(responseVO.getSimpleVO()?.value as String?)
 
                         val account = Account(responseVO.getAccountVO())
-                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, password, account.fullName)
                         prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
                         listener.onSuccess()
                     } else {
@@ -165,7 +165,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                             prefsHelper.saveAuthToken(responseVO.getAuthSimpleVO()?.value)
                         }
                         val account = Account(responseVO.getAccountVO())
-                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                        prefsHelper.saveAccountInfo(account.id, account.primaryEmail, "", account.fullName)
                         prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
                         listener.onSuccess()
                     } else {

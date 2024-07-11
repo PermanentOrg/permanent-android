@@ -82,8 +82,7 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
                     isBusy.value = false
 
                     prefsHelper.saveAuthToken(account.token)
-
-                    prefsHelper.saveAccountInfo(account.id, account.primaryEmail, account.fullName)
+                    prefsHelper.saveAccountInfo(account.id, account.primaryEmail, password, account.fullName)
                     prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
 
                     onAccountCreated.call()

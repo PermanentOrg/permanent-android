@@ -8,18 +8,24 @@ import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.Status
+import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
+import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.StelaAccountRepository
+import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archiveOnboarding.DefaultSelectionFragment
@@ -40,10 +46,9 @@ class ArchiveOnboardingViewModel(application: Application) :
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
-    private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String>()
-    private val showError = SingleLiveEvent<String>()
     private var accountName = MutableLiveData("")
+    private lateinit var newArchive: NewArchive
     private var isTablet = false
     private val isArchiveSelected = MutableLiveData(false)
     private val selectedArchiveType = MutableLiveData<ArchiveType>()
@@ -64,6 +69,10 @@ class ArchiveOnboardingViewModel(application: Application) :
     private var areAllArchivesAccepted = false
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private var authRepository: IAuthenticationRepository =
+        AuthenticationRepositoryImpl(application)
+    private var stelaAccountRepository: StelaAccountRepository =
+        StelaAccountRepositoryImpl(application)
 
     private val _isFirstProgressBarEmpty = MutableStateFlow(false)
     val isFirstProgressBarEmpty: StateFlow<Boolean> = _isFirstProgressBarEmpty
@@ -73,6 +82,8 @@ class ArchiveOnboardingViewModel(application: Application) :
     val isThirdProgressBarEmpty: StateFlow<Boolean> = _isThirdProgressBarEmpty
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
+    private val _showError = MutableStateFlow("")
+    val showError: StateFlow<String> = _showError
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -101,7 +112,7 @@ class ArchiveOnboardingViewModel(application: Application) :
             }
 
             override fun onFailed(error: String?) {
-                error?.let { showError.value = it }
+                error?.let { _showError.value = it }
             }
         })
     }
@@ -153,28 +164,30 @@ class ArchiveOnboardingViewModel(application: Application) :
             OnboardingGoalType.CAPTURE.ordinal to context.getString(R.string.goals_capture),
             OnboardingGoalType.DIGITIZE.ordinal to context.getString(R.string.goals_digitize),
             OnboardingGoalType.COLLABORATE.ordinal to context.getString(R.string.goals_collaborate),
-            OnboardingGoalType.CREATE_AN_ARCHIVE.ordinal to context.getString(R.string.goals_create_an_archive),
+            OnboardingGoalType.PUBLISH.ordinal to context.getString(R.string.goals_publish),
             OnboardingGoalType.SHARE.ordinal to context.getString(R.string.goals_share),
-            OnboardingGoalType.CREATE_A_PLAN.ordinal to context.getString(R.string.goals_create_a_plan),
+            OnboardingGoalType.LEGACY.ordinal to context.getString(R.string.goals_legacy),
             OnboardingGoalType.ORGANIZE.ordinal to context.getString(R.string.goals_organize),
-            OnboardingGoalType.SOMETHING_ELSE.ordinal to context.getString(R.string.goals_something_else)
+            OnboardingGoalType.UNDEFINED.ordinal to context.getString(R.string.goals_undefined)
         )
     }
 
     fun createOnboardingPriorities(context: Context): List<Pair<Int, String>> {
         return listOf(
-            OnboardingPriorityType.ACCESS.ordinal to context.getString(R.string.priorities_access),
-            OnboardingPriorityType.SUPPORTING.ordinal to context.getString(R.string.priorities_supporting),
-            OnboardingPriorityType.PRESERVING.ordinal to context.getString(R.string.priorities_preserving),
+            OnboardingPriorityType.SAFE.ordinal to context.getString(R.string.priorities_safe),
+            OnboardingPriorityType.NONPROFIT.ordinal to context.getString(R.string.priorities_nonprofit),
+            OnboardingPriorityType.GENEALOGY.ordinal to context.getString(R.string.priorities_genealogy),
             OnboardingPriorityType.PROFESSIONAL.ordinal to context.getString(R.string.priorities_professional),
             OnboardingPriorityType.COLLABORATE.ordinal to context.getString(R.string.priorities_collaborate),
-            OnboardingPriorityType.INTEREST.ordinal to context.getString(R.string.priorities_interest)
+            OnboardingPriorityType.DIGIPRES.ordinal to context.getString(R.string.priorities_digipres)
         )
     }
 
     fun createNewArchive(newArchive: NewArchive) {
+        this.newArchive = newArchive
         _isBusyState.value = true
-        archiveRepository.createNewArchive(newArchive.name,
+        archiveRepository.createNewArchive(
+            newArchive.name,
             newArchive.type,
             object : IArchiveRepository.IArchiveListener {
                 override fun onSuccess(archive: Archive) {
@@ -184,80 +197,122 @@ class ArchiveOnboardingViewModel(application: Application) :
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
-                    error?.let { showError.value = it }
+                    error?.let { _showError.value = it }
                 }
             })
     }
 
-    fun setNewArchiveAsDefault(newArchive: Archive) {
+    fun setNewArchiveAsDefault(archive: Archive) {
         val account = Account(prefsHelper.getAccountId(), prefsHelper.getAccountEmail())
-        account.defaultArchiveId = newArchive.id
+        account.defaultArchiveId = archive.id
 
         _isBusyState.value = true
         accountRepository.update(account, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 _isBusyState.value = false
-                prefsHelper.saveDefaultArchiveId(newArchive.id)
-                setNewArchiveAsCurrent(newArchive)
+                prefsHelper.saveDefaultArchiveId(archive.id)
+                setNewArchiveAsCurrent(archive)
             }
 
             override fun onFailed(error: String?) {
                 _isBusyState.value = false
-                error?.let { showError.value = it }
+                error?.let { _showError.value = it }
             }
         })
     }
 
-    fun setNewArchiveAsCurrent(newArchive: Archive) {
-        newArchive.number?.let { archiveNr ->
+    fun setNewArchiveAsCurrent(archive: Archive) {
+        archive.number?.let { archiveNr ->
             _isBusyState.value = true
             archiveRepository.switchToArchive(archiveNr, object : IDataListener {
                 override fun onSuccess(dataList: List<Datum>?) {
                     _isBusyState.value = false
                     prefsHelper.saveCurrentArchiveInfo(
-                        newArchive.id,
-                        newArchive.number,
-                        newArchive.type,
-                        newArchive.fullName,
-                        newArchive.thumbURL200,
-                        newArchive.accessRole
+                        archive.id,
+                        archive.number,
+                        archive.type,
+                        archive.fullName,
+                        archive.thumbURL200,
+                        archive.accessRole
                     )
-//                    onArchiveOnboardingDone.call()
+                    login()
                 }
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
-                    error?.let { showError.value = it }
+                    error?.let { _showError.value = it }
                 }
             })
         }
     }
 
-    //    fun onArchiveTypeBtnClick(archiveType: ArchiveType) {
-//        isArchiveSelected.value = true
-//        selectedArchiveType.value = archiveType
-//        selectedArchiveTypeTitle.value = when (archiveType) {
-//            ArchiveType.FAMILY -> appContext.getString(R.string.archive_onboarding_group_archive_title)
-//            ArchiveType.ORGANIZATION -> appContext.getString(R.string.archive_onboarding_organization_archive_title)
-//            else -> appContext.getString(R.string.archive_onboarding_person_archive_title)
-//        }
-//        selectedArchiveTypeText.value = when (archiveType) {
-//            ArchiveType.FAMILY -> appContext.getString(R.string.archive_onboarding_group_archive_text)
-//            ArchiveType.ORGANIZATION -> appContext.getString(R.string.archive_onboarding_organization_archive_text)
-//            else -> appContext.getString(R.string.archive_onboarding_person_archive_text)
-//        }
-//    }
-//
-//    fun onNameTextChanged(name: Editable) {
-//        this.name.value = name.toString()
-//    }
-//
-//    fun onGetStartedBtnClick() {
-//        showFragment(typeSelectionFragment)
-//        progress.value = progress.value?.plus(1)
-//    }
-//
-//    fun onBackBtnClick() {
+    fun login() {
+        val email = prefsHelper.getAccountEmail()
+        val password = prefsHelper.getAccountPassword()
+
+        if (email != null && password != null) {
+            _isBusyState.value = true
+            authRepository.login(email,
+                password,
+                object : IAuthenticationRepository.IOnLoginListener {
+                    override fun onSuccess() {
+                        _isBusyState.value = false
+                        prefsHelper.saveUserLoggedIn(true)
+                        sendGoalsAndPriorities()
+                    }
+
+                    override fun onFailed(error: String?) {
+                        _isBusyState.value = false
+                        when (error) {
+                            Constants.ERROR_SERVER_ERROR -> _showError.value =
+                                appContext.getString(R.string.server_error)
+
+                            null -> _showError.value = appContext.getString(R.string.generic_error)
+
+                            else -> _showError.value = error!!
+                        }
+                    }
+                })
+        }
+    }
+
+    fun sendGoalsAndPriorities() {
+        val addTags = mutableListOf<String>()
+        when (newArchive.typeName) {
+            appContext.getString(R.string.personal) -> addTags.add("type:myself")
+            appContext.getString(R.string.individual) -> addTags.add("type:individual")
+            appContext.getString(R.string.family) -> addTags.add("type:family")
+            appContext.getString(R.string.family_history) -> addTags.add("type:famhist")
+            appContext.getString(R.string.community) -> addTags.add("type:community")
+            appContext.getString(R.string.organization) -> addTags.add("type:org")
+        }
+        newArchive.goals.forEach { goal ->
+            if (goal.isChecked.value) {
+                addTags.add("goal:" + goal.type.name.lowercase())
+            }
+        }
+        newArchive.priorities.forEach { priority ->
+            if (priority.isChecked.value) {
+                addTags.add("why:" + priority.type.name.lowercase())
+            }
+        }
+        val tags = Tags(addTags = addTags, removeTags = listOf())
+        _isBusyState.value = true
+        stelaAccountRepository.addRemoveTags(tags, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                // TODO: show congrats screen
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let { _showError.value = it }
+            }
+        })
+    }
+
+    //    fun onBackBtnClick() {
 //        if (currentPage.value == OnboardingPage.TYPE_SELECTION) {
 //            if (onPendingArchivesRetrieved.value?.isNotEmpty() == true) {
 //                if (areAllArchivesAccepted) {
@@ -272,11 +327,6 @@ class ArchiveOnboardingViewModel(application: Application) :
 //            showFragment(typeSelectionFragment)
 //        }
 //        progress.value = progress.value?.minus(1)
-//    }
-//
-//    fun onNameArchiveBtnClick() {
-//        showFragment(nameSettingFragment)
-//        progress.value = progress.value?.plus(1)
 //    }
 //
 //    fun onCreateArchiveBtnClick() {
@@ -368,9 +418,7 @@ class ArchiveOnboardingViewModel(application: Application) :
 //        setNewArchiveAsDefault(archive)
     }
 
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
     fun getShowMessage(): LiveData<String> = showMessage
-    fun getShowError(): LiveData<String> = showError
     fun getAccountName() = accountName
     fun isTablet() = isTablet
     fun getCurrentPage(): MutableLiveData<OnboardingPage> = currentPage
