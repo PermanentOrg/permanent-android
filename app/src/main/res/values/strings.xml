@@ -567,18 +567,18 @@
     <string name="goals_capture">Capture and preserve memories for storytelling</string>
     <string name="goals_digitize">Digitize or transfer my materials securely</string>
     <string name="goals_collaborate">Collaborate with others to build my archive</string>
-    <string name="goals_create_an_archive">Create a public archive to share a legacy</string>
+    <string name="goals_publish">Create a public archive to share a legacy</string>
     <string name="goals_share">Share my archive with others securely</string>
-    <string name="goals_create_a_plan">Create a plan for passing on my digital materials</string>
+    <string name="goals_legacy">Create a plan for passing on my digital materials</string>
     <string name="goals_organize">Organize my materials</string>
-    <string name="goals_something_else">Something else…</string>
+    <string name="goals_undefined">Something else…</string>
     <string name="skip_this_step">Skip this step</string>
-    <string name="priorities_access">Access to a safe and secure digital storage platform</string>
-    <string name="priorities_supporting">Supporting a mission-driven nonprofit</string>
-    <string name="priorities_preserving">Preserving family history or genealogy research</string>
+    <string name="priorities_safe">Access to a safe and secure digital storage platform</string>
+    <string name="priorities_nonprofit">Supporting a mission-driven nonprofit</string>
+    <string name="priorities_genealogy">Preserving family history or genealogy research</string>
     <string name="priorities_professional">Professional business needs/clients</string>
     <string name="priorities_collaborate">Collaborate with a family member, friend, or colleague</string>
-    <string name="priorities_interest">Interest in digital preservation solutions</string>
+    <string name="priorities_digipres">Interest in digital preservation solutions</string>
 
     <string name="leave_share">Leave share</string>
 

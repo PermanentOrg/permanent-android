@@ -2,11 +2,11 @@ package org.permanent.permanent.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.util.*
+import java.util.Locale
 
 enum class ArchiveType(val backendString: String) : Parcelable {
     PERSON("type.archive.person"),
-    FAMILY("type.archive.family"),
+    FAMILY("type.archive.group"), // this was previously "type.archive.family"
     ORGANIZATION("type.archive.organization"),
     NONPROFIT("type.archive.nonprofit");
 

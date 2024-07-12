@@ -358,7 +358,7 @@ data class OnboardingGoal(
 )
 
 enum class OnboardingGoalType {
-    CAPTURE, DIGITIZE, COLLABORATE, CREATE_AN_ARCHIVE, SHARE, CREATE_A_PLAN, ORGANIZE, SOMETHING_ELSE
+    CAPTURE, DIGITIZE, COLLABORATE, PUBLISH, SHARE, LEGACY, ORGANIZE, UNDEFINED
 }
 
 val OnboardingGoalSaver: Saver<OnboardingGoal, *> = listSaver(

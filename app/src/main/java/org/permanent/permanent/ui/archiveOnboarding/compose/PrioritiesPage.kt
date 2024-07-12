@@ -367,7 +367,7 @@ data class OnboardingPriority(
 )
 
 enum class OnboardingPriorityType {
-    ACCESS, SUPPORTING, PRESERVING, PROFESSIONAL, COLLABORATE, INTEREST
+    SAFE, NONPROFIT, GENEALOGY, PROFESSIONAL, COLLABORATE, DIGIPRES
 }
 
 val OnboardingPrioritySaver: Saver<OnboardingPriority, *> = listSaver(

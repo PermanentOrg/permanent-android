@@ -30,6 +30,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Tag
+import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.FileData
@@ -61,6 +62,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val authService: IAuthService
     private lateinit var authServiceWithCookies: IAuthService
     private val accountService: IAccountService
+    private val stelaAccountService: StelaAccountService
     private val fileService: IFileService
     private val shareService: IShareService
     private val archiveService: IArchiveService
@@ -149,6 +151,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         storageService = retrofit.create(IStorageService::class.java)
         legacyPlanningService = retrofitStelaBaseUrl.create(ILegacyPlanningService::class.java)
         billingService = retrofitStelaBaseUrl.create(IBillingService::class.java)
+        stelaAccountService = retrofitStelaBaseUrl.create(StelaAccountService::class.java)
         jsonAdapter = Moshi.Builder().build().adapter(RequestContainer::class.java)
         simpleJsonAdapter = Moshi.Builder().build().adapter(SimpleRequestContainer::class.java)
         profileItemsJsonAdapter =
@@ -397,7 +400,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun deleteFilesOrFolders(records: MutableList<Record>): Call<ResponseVO> {
         val isFolderRecordType = records[0].type == RecordType.FOLDER
-        val request = toJson(RequestContainer().addRecords(records,  isFolderRecordType))
+        val request = toJson(RequestContainer().addRecords(records, isFolderRecordType))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return if (isFolderRecordType) {
             fileService.deleteFolder(requestBody)
@@ -757,6 +760,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return storageService.redeemGiftCode(requestBody)
     }
+
+    fun addRemoveTags(tags: Tags): Call<ResponseVO> = stelaAccountService.addRemoveTags(tags)
 
     fun getPaymentIntent(
         accountId: Int,
