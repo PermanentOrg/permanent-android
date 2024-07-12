@@ -460,6 +460,6 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isTablet(): Boolean {
         val windowWidthSizeString = sharedPreferences.getString(WINDOW_WIDTH_SIZE_CLASS, "")
-        return windowWidthSizeString.equals(WindowWidthSizeClass.EXPANDED.toString())
+        return !windowWidthSizeString.equals(WindowWidthSizeClass.COMPACT.toString())
     }
 }
