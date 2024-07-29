@@ -140,7 +140,7 @@ private fun TabletBody(
                         iconAlignment = ButtonIconAlignment.START
                     ) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.WELCOME_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.WELCOME.value)
                         }
                     }
                 }
@@ -157,7 +157,7 @@ private fun TabletBody(
                     style = ButtonColor.LIGHT, text = text
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
                     }
                 }
             }
@@ -230,7 +230,7 @@ private fun PhoneBody(
                     iconAlignment = ButtonIconAlignment.START
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.WELCOME_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.WELCOME.value)
                     }
                 }
             }
@@ -244,7 +244,7 @@ private fun PhoneBody(
                     ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
                     }
                 }
             }

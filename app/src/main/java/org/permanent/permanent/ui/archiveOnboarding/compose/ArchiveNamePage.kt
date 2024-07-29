@@ -209,7 +209,7 @@ private fun TabletBody(
                         iconAlignment = ButtonIconAlignment.START
                     ) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
                         }
                     }
                 }
@@ -221,7 +221,7 @@ private fun TabletBody(
                 ) {
                     if (textFieldValueState.text.isNotEmpty()) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.GOALS_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.GOALS.value)
                         }
                         newArchive.name = textFieldValueState.text
                     }
@@ -358,7 +358,7 @@ private fun PhoneBody(
                     iconAlignment = ButtonIconAlignment.START
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
                     }
                 }
             }
@@ -375,7 +375,7 @@ private fun PhoneBody(
                 ) {
                     if (textFieldValueState.text.isNotEmpty()) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.GOALS_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.GOALS.value)
                         }
                         newArchive.name = textFieldValueState.text
                     }

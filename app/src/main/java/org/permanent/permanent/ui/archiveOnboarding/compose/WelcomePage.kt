@@ -122,7 +122,7 @@ private fun TabletBody(
                     showButtonEnabled = true
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
                     }
                 }
             }
@@ -179,7 +179,7 @@ private fun PhoneBody(
             showButtonEnabled = true
         ) {
             coroutineScope.launch {
-                pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE_PAGE.value)
+                pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
             }
         }
     }
