@@ -310,7 +310,8 @@ fun ArchiveOnboardingScreen(
 
     LaunchedEffect(errorMessage) {
         coroutineScope.launch {
-            snackbarHostState.showSnackbar(errorMessage)
+            if (errorMessage.isNotEmpty())
+                snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
