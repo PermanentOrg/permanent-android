@@ -62,7 +62,7 @@ fun ArchiveOnboardingScreen(
 ) {
     val context = LocalContext.current
 
-    val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME_PAGE.value,
+    val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME.value,
         pageCount = { OnboardingPage.values().size })
     val isTablet = viewModel.isTablet()
 
@@ -145,18 +145,18 @@ fun ArchiveOnboardingScreen(
 
     LaunchedEffect(pagerState.currentPage) {
         when (pagerState.currentPage) {
-            OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
+            OnboardingPage.ARCHIVE_NAME.value -> {
                 viewModel.updateFirstProgressBarEmpty(false)
                 viewModel.updateSecondProgressBarEmpty(true)
             }
 
-            OnboardingPage.GOALS_PAGE.value -> {
+            OnboardingPage.GOALS.value -> {
                 viewModel.updateFirstProgressBarEmpty(true)
                 viewModel.updateSecondProgressBarEmpty(false)
                 viewModel.updateThirdProgressBarEmpty(true)
             }
 
-            OnboardingPage.PRIORITIES_PAGE.value -> {
+            OnboardingPage.PRIORITIES.value -> {
                 viewModel.updateSecondProgressBarEmpty(true)
                 viewModel.updateThirdProgressBarEmpty(false)
             }
@@ -224,7 +224,7 @@ fun ArchiveOnboardingScreen(
                     state = pagerState, userScrollEnabled = false
                 ) { page ->
                     when (page) {
-                        OnboardingPage.WELCOME_PAGE.value -> {
+                        OnboardingPage.WELCOME.value -> {
                             WelcomePage(
                                 isTablet = isTablet,
                                 pagerState = pagerState,
@@ -232,7 +232,7 @@ fun ArchiveOnboardingScreen(
                             )
                         }
 
-                        OnboardingPage.ARCHIVE_TYPE_PAGE.value -> {
+                        OnboardingPage.ARCHIVE_TYPE.value -> {
                             ArchiveTypePage(isTablet = isTablet,
                                 pagerState = pagerState,
                                 onArchiveTypeClick = { type: ArchiveType, typeName: String ->
@@ -240,7 +240,7 @@ fun ArchiveOnboardingScreen(
                                 })
                         }
 
-                        OnboardingPage.ARCHIVE_NAME_PAGE.value -> {
+                        OnboardingPage.ARCHIVE_NAME.value -> {
                             ArchiveNamePage(
                                 isTablet = isTablet,
                                 pagerState = pagerState,
@@ -248,7 +248,7 @@ fun ArchiveOnboardingScreen(
                             )
                         }
 
-                        OnboardingPage.GOALS_PAGE.value -> {
+                        OnboardingPage.GOALS.value -> {
                             GoalsPage(
                                 isTablet = isTablet,
                                 horizontalPaddingDp = horizontalPaddingDp,
@@ -258,7 +258,7 @@ fun ArchiveOnboardingScreen(
                             )
                         }
 
-                        OnboardingPage.PRIORITIES_PAGE.value -> {
+                        OnboardingPage.PRIORITIES.value -> {
                             PrioritiesPage(
                                 viewModel = viewModel,
                                 isTablet = isTablet,
@@ -266,6 +266,13 @@ fun ArchiveOnboardingScreen(
                                 pagerState = pagerState,
                                 newArchive = newArchive,
                                 priorities = priorities
+                            )
+                        }
+
+                        OnboardingPage.CONGRATULATIONS.value -> {
+                            CongratulationsPage(
+                                viewModel = viewModel,
+                                isTablet = isTablet
                             )
                         }
                     }
@@ -303,7 +310,8 @@ fun ArchiveOnboardingScreen(
 
     LaunchedEffect(errorMessage) {
         coroutineScope.launch {
-            snackbarHostState.showSnackbar(errorMessage)
+            if (errorMessage.isNotEmpty())
+                snackbarHostState.showSnackbar(errorMessage)
         }
     }
 
@@ -353,5 +361,5 @@ data class NewArchive(
 )
 
 enum class OnboardingPage(val value: Int) {
-    WELCOME_PAGE(0), ARCHIVE_TYPE_PAGE(1), ARCHIVE_NAME_PAGE(2), GOALS_PAGE(3), PRIORITIES_PAGE(4)
+    WELCOME(0), ARCHIVE_TYPE(1), ARCHIVE_NAME(2), GOALS(3), PRIORITIES(4), CONGRATULATIONS(5)
 }

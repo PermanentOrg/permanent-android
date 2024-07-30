@@ -564,6 +564,9 @@
     <string name="chart_your_path_description">Let’s set some goals. Everyone has unique goals for preserving their legacy. We want to learn more about how we can help you achieve yours.</string>
     <string name="tell_us_title">Tell us what’s\nimportant to you</string>
     <string name="tell_us_description">Finally, we’re curious — what brought you to Permanent.org?</string>
+    <string name="congratulations_title">Congratulations!</string>
+    <string name="congratulations_description_first">Get started by uploading your first files, or learn more about your new archive by</string>
+    <string name="congratulations_description_second">viewing our help articles here.</string>
     <string name="goals_capture">Capture and preserve memories for storytelling</string>
     <string name="goals_digitize">Digitize or transfer my materials securely</string>
     <string name="goals_collaborate">Collaborate with others to build my archive</string>
@@ -579,6 +582,7 @@
     <string name="priorities_professional">Professional business needs/clients</string>
     <string name="priorities_collaborate">Collaborate with a family member, friend, or colleague</string>
     <string name="priorities_digipres">Interest in digital preservation solutions</string>
+    <string name="invited_as">Invited as</string>
 
     <string name="leave_share">Leave share</string>
 
@@ -644,6 +648,7 @@
     <string name="contact_email_address">Contact email address…</string>
     <string name="note_title">Note</string>
     <string name="note_description">Permanent will send an automatic email to your Legacy Contact to inform them that they have been designated to activate your Account Legacy Plan, alongside instructions on how to do so. However, we strongly recommend that you also discuss your Legacy Plan with this person.</string>
+    <string name="done">Done</string>
 
     <string name="designate_archive_steward">Designate archive steward</string>
     <string name="designate_archive_steward_description">In order to designate someone as a steward for your archive, they must have a Permanent.org account.</string>

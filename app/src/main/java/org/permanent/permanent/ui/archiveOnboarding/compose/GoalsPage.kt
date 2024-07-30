@@ -199,7 +199,7 @@ private fun PhoneBody(
                     iconAlignment = ButtonIconAlignment.START
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
                     }
                 }
             }
@@ -214,7 +214,7 @@ private fun PhoneBody(
                 ) {
                     newArchive.goals = goals
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES.value)
                     }
                 }
             }
@@ -327,7 +327,7 @@ private fun TabletBody(
                         iconAlignment = ButtonIconAlignment.START
                     ) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
                         }
                     }
                 }
@@ -344,7 +344,7 @@ private fun TabletBody(
                     ) {
                         newArchive.goals = goals
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES.value)
                         }
                     }
                 }

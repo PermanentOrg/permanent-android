@@ -22,7 +22,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
@@ -71,6 +74,15 @@ fun PrioritiesPage(
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val whiteSuperTransparentColor =
         Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
+
+    val newArchiveCallsSuccess by viewModel.newArchiveCallsSuccess.collectAsState()
+
+    LaunchedEffect(newArchiveCallsSuccess) {
+        if (newArchiveCallsSuccess) {
+            pagerState.animateScrollToPage(OnboardingPage.CONGRATULATIONS.value)
+            viewModel.resetNewArchiveCallsSuccess()
+        }
+    }
 
     if (isTablet) {
         TabletBody(
@@ -202,7 +214,7 @@ private fun PhoneBody(
                     iconAlignment = ButtonIconAlignment.START
                 ) {
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.GOALS_PAGE.value)
+                        pagerState.animateScrollToPage(OnboardingPage.GOALS.value)
                     }
                 }
             }
@@ -216,9 +228,6 @@ private fun PhoneBody(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
                     newArchive.priorities = priorities
-//                    coroutineScope.launch {
-//                        pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
-//                    }
                     viewModel.createNewArchive(newArchive)
                 }
             }
@@ -334,7 +343,7 @@ private fun TabletBody(
                         iconAlignment = ButtonIconAlignment.START
                     ) {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.GOALS_PAGE.value)
+                            pagerState.animateScrollToPage(OnboardingPage.GOALS.value)
                         }
                     }
                 }
@@ -350,9 +359,6 @@ private fun TabletBody(
                         buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                     ) {
                         newArchive.priorities = priorities
-//                        coroutineScope.launch {
-//                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES_PAGE.value)
-//                        }
                         viewModel.createNewArchive(newArchive)
                     }
                 }
@@ -370,13 +376,11 @@ enum class OnboardingPriorityType {
     SAFE, NONPROFIT, GENEALOGY, PROFESSIONAL, COLLABORATE, DIGIPRES
 }
 
-val OnboardingPrioritySaver: Saver<OnboardingPriority, *> = listSaver(
-    save = { listOf(it.type.ordinal, it.description, it.isChecked.value) },
-    restore = {
+val OnboardingPrioritySaver: Saver<OnboardingPriority, *> =
+    listSaver(save = { listOf(it.type.ordinal, it.description, it.isChecked.value) }, restore = {
         OnboardingPriority(
             type = OnboardingPriorityType.values()[it[0] as Int],
             description = it[1] as String,
             isChecked = mutableStateOf(it[2] as Boolean)
         )
-    }
-)
+    })
