@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.bulkEditMetadata.compose
 
+import CustomDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,6 +65,7 @@ fun EditLocationScreen(
         position = CameraPosition.fromLatLngZoom(viewModel.selectedLocation.value, 12f)
     }
 
+    val openAlertDialog = remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
     val locations by viewModel.locations.observeAsState(emptyList())
 
@@ -97,9 +99,11 @@ fun EditLocationScreen(
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState
                 ) {
-                    Marker(
-                        state = MarkerState(position = viewModel.selectedLocation.value)
-                    )
+                    if (viewModel.selectedLocation.value != viewModel.defaultPosition) {
+                        Marker(
+                            state = MarkerState(position = viewModel.selectedLocation.value)
+                        )
+                    }
                 }
             }
             Column(
@@ -198,7 +202,7 @@ fun EditLocationScreen(
                             shape = RoundedCornerShape(0.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                             onClick = {
-                                viewModel.updateRecordLocation()
+                                openAlertDialog.value = true
                             }) {
                             if (viewModel.isBusy.value) {
                                 CircularProgressIndicator(
@@ -215,6 +219,21 @@ fun EditLocationScreen(
                             }
                         }
                     }
+                }
+            }
+        }
+        when {
+            openAlertDialog.value -> {
+                CustomDialog(
+                    title = stringResource(id = R.string.location_confirmation_title),
+                    subtitle = stringResource(id = R.string.location_confirmation_substring),
+                    okButtonText = stringResource(id = R.string.set_location),
+                    cancelButtonText = stringResource(id = R.string.button_cancel),
+                    onConfirm = {
+                        openAlertDialog.value = false
+                        viewModel.updateRecordLocation()
+                    }) {
+                    openAlertDialog.value = false
                 }
             }
         }
