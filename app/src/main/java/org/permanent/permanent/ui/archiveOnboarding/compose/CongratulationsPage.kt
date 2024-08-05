@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -250,28 +251,37 @@ private fun TabletBody(
                     }
             })
 
-            archives.forEach { archive ->
-                val archiveName = archive.fullName
-                val archiveAccessRole = archive.accessRole
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                archives.forEach { archive ->
+                    item {
+                        val archiveName = archive.fullName
+                        val archiveAccessRole = archive.accessRole
 
-                if (archiveName != null && archiveAccessRole != null) {
-                    ArchiveItem(
-                        isTablet = true,
-                        iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
-                        title = archiveName,
-                        accessRole = archiveAccessRole,
-                        showSubtitle = archiveAccessRole != AccessRole.OWNER
-                    )
-                    Log.d(
-                        "CongratsPage",
-                        "Archive - Name: ${archive.fullName}, Status: ${archive.status}, ThumbStatus: ${archive.thumbStatus}"
-                    )
+                        if (archiveName != null && archiveAccessRole != null) {
+                            ArchiveItem(
+                                isTablet = true,
+                                iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
+                                title = archiveName,
+                                accessRole = archiveAccessRole,
+                                showSubtitle = archiveAccessRole != AccessRole.OWNER
+                            )
+                            Log.d(
+                                "CongratsPage",
+                                "Archive - Name: ${archive.fullName}, Status: ${archive.status}, ThumbStatus: ${archive.thumbStatus}"
+                            )
+                        }
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1.0f))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
