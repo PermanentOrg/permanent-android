@@ -8,6 +8,7 @@ class Archive() : Parcelable {
     var id: Int = -1
     var number: String? = null
     var thumbArchiveNr: String? = null
+    var thumbStatus: ThumbStatus? = null
     var type: ArchiveType? = null
     var fullName: String? = null
     var thumbURL200: String? = null
@@ -21,6 +22,7 @@ class Archive() : Parcelable {
         id = parcel.readValue(Int::class.java.classLoader) as Int
         number = parcel.readString()
         thumbArchiveNr = parcel.readString()
+        thumbStatus = parcel.readParcelable(ThumbStatus::class.java.classLoader)
         type = parcel.readParcelable(ArchiveType::class.java.classLoader)
         fullName = parcel.readString()
         thumbURL200 = parcel.readString()
@@ -35,6 +37,7 @@ class Archive() : Parcelable {
         id = archiveVO?.archiveId ?: -1
         number = archiveVO?.archiveNbr
         thumbArchiveNr = archiveVO?.thumbArchiveNbr
+        thumbStatus = ThumbStatus.createFromBackendString(archiveVO?.thumbStatus)
         type = when (archiveVO?.type) {
             ArchiveType.FAMILY.backendString -> ArchiveType.FAMILY
             ArchiveType.ORGANIZATION.backendString, ArchiveType.NONPROFIT.backendString -> ArchiveType.ORGANIZATION
@@ -82,6 +85,7 @@ class Archive() : Parcelable {
         parcel.writeValue(id)
         parcel.writeString(number)
         parcel.writeString(thumbArchiveNr)
+        parcel.writeParcelable(thumbStatus, flags)
         parcel.writeParcelable(type, flags)
         parcel.writeString(fullName)
         parcel.writeString(thumbURL200)

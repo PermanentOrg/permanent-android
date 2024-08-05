@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -19,13 +21,18 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import java.util.Locale
 
 @Composable
 fun ArchiveItem(
-    isTablet: Boolean = false, title: String, accessRole: AccessRole?, showSubtitle: Boolean = true
+    isTablet: Boolean = false,
+    iconURL: String? = null,
+    title: String,
+    accessRole: AccessRole?,
+    showSubtitle: Boolean = true
 ) {
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
@@ -34,11 +41,22 @@ fun ArchiveItem(
         Row(
             modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = if (isTablet) R.drawable.ic_archive_placeholder_multicolor else R.drawable.ic_archive_gradient),
-                contentDescription = "",
-                modifier = Modifier.size(if (isTablet) 48.dp else 18.dp)
-            )
+            if (iconURL == null) {
+                Image(
+                    painter = painterResource(id = if (isTablet) R.drawable.ic_archive_placeholder_multicolor else R.drawable.ic_archive_gradient),
+                    contentDescription = "",
+                    modifier = Modifier.size(if (isTablet) 48.dp else 18.dp)
+                )
+            } else {
+                AsyncImage(
+                    model = iconURL,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .padding(

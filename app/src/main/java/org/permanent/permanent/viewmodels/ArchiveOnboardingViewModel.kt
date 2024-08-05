@@ -13,6 +13,7 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
@@ -70,8 +71,8 @@ class ArchiveOnboardingViewModel(application: Application) :
     val showError: StateFlow<String> = _showError
     private val _newArchiveCallsSuccess = MutableStateFlow(false)
     val newArchiveCallsSuccess: StateFlow<Boolean> = _newArchiveCallsSuccess
-    private val _archives = MutableStateFlow<MutableList<Archive>>(mutableListOf())
-    val archives: StateFlow<List<Archive>> = _archives
+    private val _acceptedArchives = MutableStateFlow<MutableList<Archive>>(mutableListOf())
+    val acceptedArchives: StateFlow<List<Archive>> = _acceptedArchives
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -83,9 +84,13 @@ class ArchiveOnboardingViewModel(application: Application) :
         archiveRepository.getAllArchives(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
                 val allArchives: MutableList<Archive> = ArrayList()
+                val acceptedArchives: MutableList<Archive> = ArrayList()
                 if (!dataList.isNullOrEmpty()) {
                     for (data in dataList) {
-                        allArchives.add(Archive(data.ArchiveVO))
+                        val archive = Archive(data.ArchiveVO)
+                        if (archive.status == Status.OK) {
+                            acceptedArchives.add(archive)
+                        }
                     }
                 }
 //                allArchives.add(
@@ -99,9 +104,9 @@ class ArchiveOnboardingViewModel(application: Application) :
 //                    )
 //                )
                 // Move the archive with AccessRole.OWNER to the first position
-                allArchives.sortByDescending { it.accessRole == AccessRole.OWNER }
+                acceptedArchives.sortByDescending { it.accessRole == AccessRole.OWNER }
 
-                _archives.value = allArchives
+                _acceptedArchives.value = acceptedArchives
             }
 
             override fun onFailed(error: String?) {
@@ -155,7 +160,7 @@ class ArchiveOnboardingViewModel(application: Application) :
             object : IArchiveRepository.IArchiveListener {
                 override fun onSuccess(archive: Archive) {
                     _isBusyState.value = false
-                    _archives.value.add(0, archive)
+                    _acceptedArchives.value.add(0, archive)
                     setNewArchiveAsDefault(archive)
                 }
 

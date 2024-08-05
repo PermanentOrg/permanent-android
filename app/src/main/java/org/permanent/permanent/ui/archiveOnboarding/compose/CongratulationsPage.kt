@@ -2,6 +2,7 @@
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.constraintlayout.compose.Dimension
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.ThumbStatus
 import org.permanent.permanent.ui.composeComponents.ArchiveItem
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
@@ -51,7 +53,7 @@ fun CongratulationsPage(
 ) {
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
-    val archives by viewModel.archives.collectAsState()
+    val archives by viewModel.acceptedArchives.collectAsState()
 
     if (isTablet) {
         TabletBody(
@@ -255,9 +257,14 @@ private fun TabletBody(
                 if (archiveName != null && archiveAccessRole != null) {
                     ArchiveItem(
                         isTablet = true,
+                        iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
                         title = archiveName,
                         accessRole = archiveAccessRole,
                         showSubtitle = archiveAccessRole != AccessRole.OWNER
+                    )
+                    Log.d(
+                        "CongratsPage",
+                        "Archive - Name: ${archive.fullName}, Status: ${archive.status}, ThumbStatus: ${archive.thumbStatus}"
                     )
                 }
             }

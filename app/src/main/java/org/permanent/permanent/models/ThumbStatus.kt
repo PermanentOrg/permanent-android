@@ -6,6 +6,7 @@ import android.os.Parcelable
 enum class ThumbStatus(private val backendString: String?) : Parcelable {
     NULL(null),
     OK("status.generic.ok"),
+    ARCHIVE_NEEDS_THUMB("status.archive.gen_avatar"), // This archive has just been created and is processing
     RECORD_NEEDS_THUMB("status.record.needs_thumb"), // This record has just been uploaded and is processing
     FOLDER_COPYING("status.folder.copying"), // This folder or some of it's contents are being copied and cannot be access until the copy is completed.
     FOLDER_MOVING("status.folder.moving"), // This folder or some of it's contents are being moved and cannot be accessed until the move is completed.
@@ -32,6 +33,7 @@ enum class ThumbStatus(private val backendString: String?) : Parcelable {
         fun createFromBackendString(backendString: String?): ThumbStatus {
             return when (backendString) {
                 NULL.backendString -> NULL
+                ARCHIVE_NEEDS_THUMB.backendString -> ARCHIVE_NEEDS_THUMB
                 RECORD_NEEDS_THUMB.backendString -> RECORD_NEEDS_THUMB
                 FOLDER_COPYING.backendString -> FOLDER_COPYING
                 FOLDER_MOVING.backendString -> FOLDER_MOVING
