@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
@@ -81,13 +82,26 @@ class ArchiveOnboardingViewModel(application: Application) :
     private fun getAllArchives() {
         archiveRepository.getAllArchives(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
+                val allArchives: MutableList<Archive> = ArrayList()
                 if (!dataList.isNullOrEmpty()) {
-                    val allArchives: MutableList<Archive> = ArrayList()
                     for (data in dataList) {
                         allArchives.add(Archive(data.ArchiveVO))
                     }
-                    _archives.value = allArchives
                 }
+//                allArchives.add(
+//                    Archive(
+//                        id = 12345,
+//                        number = "12345",
+//                        type = ArchiveType.PERSON,
+//                        fullName = "Laura Test",
+//                        thumbURL = "",
+//                        accessRole = AccessRole.EDITOR
+//                    )
+//                )
+                // Move the archive with AccessRole.OWNER to the first position
+                allArchives.sortByDescending { it.accessRole == AccessRole.OWNER }
+
+                _archives.value = allArchives
             }
 
             override fun onFailed(error: String?) {
@@ -186,6 +200,7 @@ class ArchiveOnboardingViewModel(application: Application) :
                         archive.accessRole
                     )
                     login()
+                    getAllArchives()
                 }
 
                 override fun onFailed(error: String?) {
