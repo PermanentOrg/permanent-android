@@ -41,7 +41,8 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
 
     private val onLocationChanged = MutableLiveData<String>()
     val locations: LiveData<List<AutocompletePrediction>> get() = _locations
-    private val _selectedLocation = mutableStateOf(LatLng(1.35, 103.87))
+    val defaultPosition = LatLng(38.8938592, -77.0969767)
+    private val _selectedLocation = mutableStateOf(defaultPosition)
     val selectedLocation: State<LatLng> get() = _selectedLocation
     var searchText: MutableState<String> = mutableStateOf("")
     var isBusy: MutableState<Boolean> = mutableStateOf(false)
@@ -50,9 +51,14 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
 
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
-        records.firstOrNull()?.fileData?.let {
-            _selectedLocation.value = LatLng(it.latitude, it.longitude)
-            requestLocation(_selectedLocation.value)
+        records.forEach { record ->
+            record.fileData?.let {
+                if( it.latitude != -1.0) {
+                    _selectedLocation.value = LatLng(it.latitude, it.longitude)
+                    requestLocation(_selectedLocation.value)
+                    return@forEach
+                }
+            }
         }
     }
 
