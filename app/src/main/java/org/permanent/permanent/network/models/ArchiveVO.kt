@@ -9,6 +9,7 @@ class ArchiveVO() {
     var archiveId: Int? = null
     var archiveNbr: String? = null
     var thumbArchiveNbr: String? = null
+    var thumbStatus: String? = null
     var type: String? = null
     var thumbURL200: String? = null
     var status: String? = null
@@ -18,6 +19,7 @@ class ArchiveVO() {
         archiveId = archive.id
         archiveNbr = archive.number
         thumbArchiveNbr = archive.thumbArchiveNr
+        thumbStatus = archive.thumbStatus?.toBackendString()
         type = archive.type?.backendString
         fullName = archive.fullName
         thumbURL200 = archive.thumbURL200

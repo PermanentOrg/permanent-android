@@ -2,6 +2,7 @@
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -20,9 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,10 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.ThumbStatus
 import org.permanent.permanent.ui.composeComponents.ArchiveItem
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
@@ -48,34 +50,26 @@ import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 @Composable
 fun CongratulationsPage(
-    viewModel: ArchiveOnboardingViewModel,
-    isTablet: Boolean
+    viewModel: ArchiveOnboardingViewModel, isTablet: Boolean
 ) {
-    val context = LocalContext.current
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-    val whiteSuperTransparentColor =
-        Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
 
-    val archives by viewModel.archives.collectAsState()
+    val archives by viewModel.acceptedArchives.collectAsState()
 
     if (isTablet) {
-
+        TabletBody(
+            viewModel, regularFont, archives
+        )
     } else {
         PhoneBody(
-            viewModel,
-            whiteSuperTransparentColor,
-            regularFont,
-            archives
+            viewModel, regularFont, archives
         )
     }
 }
 
 @Composable
 private fun PhoneBody(
-    viewModel: ArchiveOnboardingViewModel,
-    whiteSuperTransparentColor: Color,
-    regularFont: FontFamily,
-    archives: List<Archive>
+    viewModel: ArchiveOnboardingViewModel, regularFont: FontFamily, archives: List<Archive>
 ) {
     val scrollState = rememberScrollState()
     val uriHandler = LocalUriHandler.current
@@ -145,7 +139,7 @@ private fun PhoneBody(
                     if (archiveName != null && archiveAccessRole != null) {
                         ArchiveItem(
                             title = archiveName,
-                            subtitle = stringResource(id = R.string.invited_as) + " " + archiveAccessRole.toTitleCase(),
+                            accessRole = archiveAccessRole,
                             showSubtitle = archiveAccessRole != AccessRole.OWNER
                         )
                     }
@@ -159,7 +153,7 @@ private fun PhoneBody(
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 width = Dimension.fillToConstraints
-            }, thickness = 1.dp, color = whiteSuperTransparentColor
+            }, thickness = 1.dp, color = Color.White.copy(alpha = 0.16f)
         )
 
         Spacer(modifier = Modifier
@@ -190,6 +184,122 @@ private fun PhoneBody(
                     icon = painterResource(id = R.drawable.ic_done_white),
                 ) {
                     viewModel.completeArchiveOnboarding()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TabletBody(
+    viewModel: ArchiveOnboardingViewModel, regularFont: FontFamily, archives: List<Archive>
+) {
+    val uriHandler = LocalUriHandler.current
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(64.dp),
+        horizontalArrangement = Arrangement.spacedBy(64.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            Text(
+                text = stringResource(id = R.string.congratulations_title),
+                fontSize = 56.sp,
+                lineHeight = 72.sp,
+                color = Color.White,
+                fontFamily = regularFont
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f), horizontalAlignment = Alignment.End
+        ) {
+            val annotatedString = buildAnnotatedString {
+                append(stringResource(id = R.string.congratulations_description_first))
+                append(" ")
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.White, textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(stringResource(id = R.string.congratulations_description_second))
+                }
+                addStringAnnotation(
+                    tag = "URL",
+                    annotation = "https://permanent.zohodesk.com/portal/en/kb/permanent-legacy-foundation",
+                    start = this.length - stringResource(id = R.string.congratulations_description_second).length,
+                    end = this.length
+                )
+            }
+
+            ClickableText(text = annotatedString, style = TextStyle(
+                fontSize = 18.sp,
+                lineHeight = 24.sp,
+                color = Color.White,
+                fontFamily = regularFont
+            ), onClick = { offset ->
+                annotatedString.getStringAnnotations("URL", offset, offset).firstOrNull()
+                    ?.let { annotation ->
+                        uriHandler.openUri(annotation.item)
+                    }
+            })
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                archives.forEach { archive ->
+                    item {
+                        val archiveName = archive.fullName
+                        val archiveAccessRole = archive.accessRole
+
+                        if (archiveName != null && archiveAccessRole != null) {
+                            ArchiveItem(
+                                isTablet = true,
+                                iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
+                                title = archiveName,
+                                accessRole = archiveAccessRole,
+                                showSubtitle = archiveAccessRole != AccessRole.OWNER
+                            )
+                            Log.d(
+                                "CongratsPage",
+                                "Archive - Name: ${archive.fullName}, Status: ${archive.status}, ThumbStatus: ${archive.thumbStatus}"
+                            )
+                        }
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    SmallTextAndIconButton(
+                        buttonColor = ButtonColor.LIGHT,
+                        text = stringResource(id = R.string.done),
+                        icon = painterResource(id = R.drawable.ic_done_white),
+                    ) {
+                        viewModel.completeArchiveOnboarding()
+                    }
                 }
             }
         }

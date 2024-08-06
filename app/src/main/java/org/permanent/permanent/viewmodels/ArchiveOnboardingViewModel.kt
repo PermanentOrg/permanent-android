@@ -9,9 +9,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
@@ -69,8 +71,8 @@ class ArchiveOnboardingViewModel(application: Application) :
     val showError: StateFlow<String> = _showError
     private val _newArchiveCallsSuccess = MutableStateFlow(false)
     val newArchiveCallsSuccess: StateFlow<Boolean> = _newArchiveCallsSuccess
-    private val _archives = MutableStateFlow<MutableList<Archive>>(mutableListOf())
-    val archives: StateFlow<List<Archive>> = _archives
+    private val _acceptedArchives = MutableStateFlow<MutableList<Archive>>(mutableListOf())
+    val acceptedArchives: StateFlow<List<Archive>> = _acceptedArchives
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -81,13 +83,30 @@ class ArchiveOnboardingViewModel(application: Application) :
     private fun getAllArchives() {
         archiveRepository.getAllArchives(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
+                val allArchives: MutableList<Archive> = ArrayList()
+                val acceptedArchives: MutableList<Archive> = ArrayList()
                 if (!dataList.isNullOrEmpty()) {
-                    val allArchives: MutableList<Archive> = ArrayList()
                     for (data in dataList) {
-                        allArchives.add(Archive(data.ArchiveVO))
+                        val archive = Archive(data.ArchiveVO)
+                        if (archive.status == Status.OK) {
+                            acceptedArchives.add(archive)
+                        }
                     }
-                    _archives.value = allArchives
                 }
+//                allArchives.add(
+//                    Archive(
+//                        id = 12345,
+//                        number = "12345",
+//                        type = ArchiveType.PERSON,
+//                        fullName = "Laura Test",
+//                        thumbURL = "",
+//                        accessRole = AccessRole.EDITOR
+//                    )
+//                )
+                // Move the archive with AccessRole.OWNER to the first position
+                acceptedArchives.sortByDescending { it.accessRole == AccessRole.OWNER }
+
+                _acceptedArchives.value = acceptedArchives
             }
 
             override fun onFailed(error: String?) {
@@ -141,7 +160,7 @@ class ArchiveOnboardingViewModel(application: Application) :
             object : IArchiveRepository.IArchiveListener {
                 override fun onSuccess(archive: Archive) {
                     _isBusyState.value = false
-                    _archives.value.add(0, archive)
+                    _acceptedArchives.value.add(0, archive)
                     setNewArchiveAsDefault(archive)
                 }
 
@@ -186,6 +205,7 @@ class ArchiveOnboardingViewModel(application: Application) :
                         archive.accessRole
                     )
                     login()
+                    getAllArchives()
                 }
 
                 override fun onFailed(error: String?) {
