@@ -61,6 +61,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
         NetworkClient.instance().updateProfilePhoto(
             prefsHelper.getCurrentArchiveNr(),
             prefsHelper.getCurrentArchiveId(),
+            prefsHelper.getCurrentArchiveType(),
             thumbRecord.archiveNr
         )
             .enqueue(object : Callback<ResponseVO> {

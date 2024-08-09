@@ -539,9 +539,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun updateProfilePhoto(
-        archiveNr: String?, archiveId: Int, thumbArchiveNr: String?
+        archiveNr: String?, archiveId: Int, archiveType: ArchiveType, thumbArchiveNr: String?
     ): Call<ResponseVO> {
-        val request = toJson(RequestContainer().addArchive(archiveNr, archiveId, thumbArchiveNr))
+        val request =
+            toJson(RequestContainer().addArchive(archiveNr, archiveId, archiveType, thumbArchiveNr))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.updateProfilePhoto(requestBody)
     }
