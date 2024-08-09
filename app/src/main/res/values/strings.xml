@@ -732,5 +732,4 @@
     <string name="various_locations">Various locations</string>
     <string name="location_confirmation_title">New location</string>
     <string name="location_confirmation_substring">Are you sure you want set a new location for selected items?</string>
-
 </resources>

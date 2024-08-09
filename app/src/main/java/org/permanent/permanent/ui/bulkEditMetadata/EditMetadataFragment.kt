@@ -53,7 +53,9 @@ class EditMetadataFragment : PermanentBaseFragment() {
                             fragment?.show(parentFragmentManager, fragment?.tag)
                         },
                         openDateAndTimeScreen = {
-
+                            var fragment = EditDateTimeFragment()
+                            fragment?.setBundleArguments(records)
+                            fragment?.show(parentFragmentManager, fragment?.tag)
                         },
                         openLocationScreen = {
                             locationFragment = EditLocationFragment()
