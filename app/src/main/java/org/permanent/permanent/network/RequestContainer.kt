@@ -417,10 +417,16 @@ class RequestContainer {
         return this
     }
 
-    fun addArchive(archiveNr: String?, archiveId: Int, thumbArchiveNr: String?): RequestContainer {
+    fun addArchive(
+        archiveNr: String?,
+        archiveId: Int,
+        type: ArchiveType,
+        thumbArchiveNr: String?
+    ): RequestContainer {
         val archiveVO = ArchiveVO()
         archiveVO.archiveId = archiveId
         archiveVO.archiveNbr = archiveNr
+        archiveVO.type = type.backendString
         archiveVO.thumbArchiveNbr = thumbArchiveNr
         RequestVO.data?.get(0)?.ArchiveVO = archiveVO
         return this
