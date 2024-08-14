@@ -1,11 +1,14 @@
 package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -32,7 +35,11 @@ fun ArchiveItem(
     iconURL: String? = null,
     title: String,
     accessRole: AccessRole?,
-    showSubtitle: Boolean = true
+    showSubtitle: Boolean = true,
+    showSeparator: Boolean = true,
+    showAcceptButton: Boolean = false,
+    showAcceptedLabel: Boolean = false,
+    onButtonClick: () -> Unit? = {}
 ) {
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
@@ -87,8 +94,29 @@ fun ArchiveItem(
             if (isTablet) {
                 AccessRoleLabel(accessRole = accessRole)
             }
+            if (showAcceptButton) {
+                Box(
+                    modifier = Modifier
+                        .width(88.dp)
+                        .height(40.dp)
+                ) {
+                    SmallTextAndIconButton(
+                        buttonColor = ButtonColor.TRANSPARENT,
+                        text = stringResource(id = R.string.accept),
+                        fontSize = 12.sp,
+                        icon = null
+                    ) {
+                        onButtonClick()
+                    }
+                }
+            }
+            if (showAcceptedLabel) {
+                AcceptedLabel()
+            }
         }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.16f))
+        if (showSeparator) {
+            HorizontalDivider(color = Color.White.copy(alpha = 0.16f))
+        }
     }
 }
 
@@ -96,6 +124,6 @@ fun ArchiveItem(
 @Composable
 fun ArchiveItemPreview() {
     ArchiveItem(
-        isTablet = true, title = "The Flavia Handrea Archive", accessRole = AccessRole.VIEWER
-    )
+        title = "The Flavia Handrea Archive", accessRole = AccessRole.VIEWER
+    ) { }
 }

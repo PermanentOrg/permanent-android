@@ -228,7 +228,7 @@ private fun PhoneBody(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
                     newArchive.priorities = priorities
-                    viewModel.createNewArchive(newArchive)
+                    viewModel.onNextButtonClick(newArchive)
                 }
             }
         }
@@ -359,7 +359,7 @@ private fun TabletBody(
                         buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                     ) {
                         newArchive.priorities = priorities
-                        viewModel.createNewArchive(newArchive)
+                        viewModel.onNextButtonClick(newArchive)
                     }
                 }
             }

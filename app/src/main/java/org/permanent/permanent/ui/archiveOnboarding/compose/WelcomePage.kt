@@ -8,61 +8,75 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.Status
+import org.permanent.permanent.ui.composeComponents.ArchiveItem
 import org.permanent.permanent.ui.composeComponents.ButtonColor
+import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.TextAndIconButton
+import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 @Composable
 fun WelcomePage(
+    viewModel: ArchiveOnboardingViewModel,
     isTablet: Boolean,
     pagerState: PagerState,
     accountName: String?
 ) {
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+    val archives by viewModel.allArchives.collectAsState()
 
     if (isTablet) {
-        TabletBody(accountName, whiteColor, regularFont, coroutineScope, pagerState)
+        TabletBody(
+            viewModel, accountName, regularFont, coroutineScope, pagerState, archives
+        )
     } else {
-        PhoneBody(accountName, whiteColor, regularFont, coroutineScope, pagerState)
+        PhoneBody(
+            viewModel, accountName, regularFont, coroutineScope, pagerState, archives
+        )
     }
 }
 
 @Composable
 private fun TabletBody(
+    viewModel: ArchiveOnboardingViewModel,
     accountName: String?,
-    whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
-    pagerState: PagerState
+    pagerState: PagerState,
+    archives: List<Archive>
 ) {
     Row(
         modifier = Modifier
@@ -90,7 +104,7 @@ private fun TabletBody(
                     text = AnnotatedString(text = welcomeTitleText, spanStyles = spanStyles),
                     fontSize = 56.sp,
                     lineHeight = 72.sp,
-                    color = whiteColor,
+                    color = Color.White,
                     fontFamily = regularFont
                 )
             }
@@ -99,22 +113,20 @@ private fun TabletBody(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            horizontalAlignment = Alignment.End
+                .weight(1f), horizontalAlignment = Alignment.End
         ) {
             Text(
                 text = stringResource(id = R.string.welcome_to_permanent_description),
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
-                color = whiteColor,
+                color = Color.White,
                 fontFamily = regularFont
             )
 
             Spacer(modifier = Modifier.weight(1.0f))
 
             Box(
-                modifier = Modifier
-                    .width(168.dp)
+                modifier = Modifier.width(168.dp)
             ) {
                 TextAndIconButton(
                     ButtonColor.LIGHT,
@@ -132,62 +144,127 @@ private fun TabletBody(
 
 @Composable
 private fun PhoneBody(
+    viewModel: ArchiveOnboardingViewModel,
     accountName: String?,
-    whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
-    pagerState: PagerState
+    pagerState: PagerState,
+    archives: List<Archive>
 ) {
-    Column(
+    val scrollState = rememberScrollState()
+
+    ConstraintLayout(
         modifier = Modifier
-            .fillMaxHeight()
-            .padding(32.dp)
+            .fillMaxSize()
+            .padding(vertical = 32.dp)
     ) {
-        accountName?.let {
-            val welcomeTitleText = stringResource(id = R.string.welcome_to_permanent_title, it)
-            val start = welcomeTitleText.indexOf(it)
-            val spanStyles = listOf(
-                AnnotatedString.Range(
-                    SpanStyle(fontWeight = FontWeight.Bold), start = start, end = start + it.length
+        val (content, spacer, buttons) = createRefs()
+
+        Column(modifier = Modifier
+            .constrainAs(content) {
+                top.linkTo(parent.top)
+                bottom.linkTo(spacer.top)
+                height = Dimension.fillToConstraints
+            }
+            .verticalScroll(scrollState)
+            .padding(start = 32.dp, end = 32.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)) {
+
+            accountName?.let {
+                val welcomeTitleText = stringResource(id = R.string.welcome_to_permanent_title, it)
+                val start = welcomeTitleText.indexOf(it)
+                val spanStyles = listOf(
+                    AnnotatedString.Range(
+                        SpanStyle(fontWeight = FontWeight.Bold),
+                        start = start,
+                        end = start + it.length
+                    )
                 )
-            )
+
+                Text(
+                    text = AnnotatedString(text = welcomeTitleText, spanStyles = spanStyles),
+                    fontSize = 32.sp,
+                    lineHeight = 48.sp,
+                    color = Color.White,
+                    fontFamily = regularFont
+                )
+            }
 
             Text(
-                text = AnnotatedString(text = welcomeTitleText, spanStyles = spanStyles),
-                fontSize = 32.sp,
-                lineHeight = 48.sp,
-                color = whiteColor,
+                text = stringResource(id = if (archives.isNotEmpty()) R.string.welcome_to_permanent_with_archives_description else R.string.welcome_to_permanent_description),
+                fontSize = 14.sp,
+                lineHeight = 24.sp,
+                color = Color.White,
                 fontFamily = regularFont
             )
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                archives.forEachIndexed { index, archive ->
+                    val archiveName = archive.fullName
+                    val archiveAccessRole = archive.accessRole
+
+                    if (archiveName != null && archiveAccessRole != null) {
+                        ArchiveItem(
+                            title = archiveName,
+                            accessRole = archiveAccessRole,
+                            showSubtitle = archiveAccessRole != AccessRole.OWNER,
+                            showSeparator = index != archives.lastIndex,
+                            showAcceptButton = archive.status == Status.PENDING,
+                            showAcceptedLabel = archive.status == Status.OK
+                        ) {
+                            viewModel.onAcceptBtnClick(archive)
+                        }
+                    }
+                }
+            }
+
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier
+            .height(24.dp)
+            .constrainAs(spacer) {
+                bottom.linkTo(buttons.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            })
 
-        Text(
-            text = stringResource(id = R.string.welcome_to_permanent_description),
-            fontSize = 14.sp,
-            lineHeight = 24.sp,
-            color = whiteColor,
-            fontFamily = regularFont
-        )
+        Column(modifier = Modifier
+            .constrainAs(buttons) {
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+            }
+            .padding(horizontal = 32.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
 
-        Spacer(modifier = Modifier.weight(1.0f))
+            SmallTextAndIconButton(buttonColor = ButtonColor.LIGHT,
+                text = stringResource(id = if (archives.isEmpty()) R.string.get_started else R.string.next),
+                showButtonEnabled = archives.isEmpty() || archives.any { it.status == Status.OK }
+            ) {
+                val nextPage =
+                    if (archives.isEmpty()) OnboardingPage.ARCHIVE_TYPE.value else {
+                        viewModel.setAcceptedArchiveFlow()
+                        OnboardingPage.GOALS.value
+                    }
 
-        TextAndIconButton(
-            ButtonColor.LIGHT,
-            text = stringResource(id = R.string.get_started),
-            showButtonEnabled = true
-        ) {
-            coroutineScope.launch {
-                pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(nextPage)
+                }
+            }
+
+            if (archives.isNotEmpty()) {
+                SmallTextAndIconButton(
+                    buttonColor = ButtonColor.TRANSPARENT,
+                    text = stringResource(id = R.string.new_archive),
+                    icon = painterResource(id = R.drawable.ic_plus_white)
+                ) {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
+                    }
+                }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun WelcomePagePhonePreview() {
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { OnboardingPage.values().size })
-    WelcomePage(false, pagerState, "Jane Doe")
 }

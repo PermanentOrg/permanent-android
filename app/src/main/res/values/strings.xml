@@ -532,6 +532,7 @@
     <string name="archive_onboarding_create_archive_button">Create Archive</string>
     <string name="archive_onboarding_accept_all_button">Accept All</string>
     <string name="accept">Accept</string>
+    <string name="accepted">Accepted</string>
     <string name="the">The</string>
     <string name="archive">Archive</string>
     <string name="name">Name</string>
@@ -540,6 +541,7 @@
     <string name="archive_onboarding_choose_default_archive">Choose a default archive</string>
     <string name="welcome_to_permanent_title">Hello, <b>%s</b>.\nWelcome to Permanent!</string>
     <string name="welcome_to_permanent_description">We’re so glad you’re here!\n\nAt Permanent, it is our mission to provide a safe and secure place to store, preserve, and share the digital legacy of all people, whether that\'s for you or for your friends, family, interests or organizations.\n\nWe know that starting this journey can sometimes be overwhelming, but don’t worry. We’re here to help you every step of the way.</string>
+    <string name="welcome_to_permanent_with_archives_description">You’ve been invited to collaborate on an archive as an archive member. A Permanent archive is the collection of digital materials about an individual, family or group, or organizational entity. Get started by accepting an invitation, or by creating a new archive of your own.</string>
     <string name="create_your_first_archive_title">Create your first archive.</string>
     <string name="create_your_first_archive_description">What do you plan to capture and preserve with your first archive?</string>
     <string name="create_your_first_archive_description_tablet">With my first archive, I plan to capture and preserve material about…</string>
@@ -583,6 +585,7 @@
     <string name="priorities_collaborate">Collaborate with a family member, friend, or colleague</string>
     <string name="priorities_digipres">Interest in digital preservation solutions</string>
     <string name="invited_as">Invited as</string>
+    <string name="new_archive">New archive</string>
 
     <string name="leave_share">Leave share</string>
 
