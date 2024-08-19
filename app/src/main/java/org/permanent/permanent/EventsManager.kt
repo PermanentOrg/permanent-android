@@ -11,12 +11,12 @@ class EventsManager(context: Context) {
         mp.track(event.value, properties)
     }
 
-    fun setUserProfile(id: Int? = null, email: String? = null) {
+    fun setUserProfile(id: Int? = null, userEmail: String? = null) {
         id?.let {
             mp.identify(it.toString())
         }
-        email?.let {
-            mp.people.set("email", email)
+        userEmail?.let {
+            mp.people.set("\$email", userEmail)
         }
     }
 
