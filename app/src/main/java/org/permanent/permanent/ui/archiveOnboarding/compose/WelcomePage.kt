@@ -38,7 +38,6 @@ import androidx.constraintlayout.compose.Dimension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
-import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.ui.composeComponents.ArchiveItem
@@ -207,9 +206,10 @@ private fun PhoneBody(
 
                     if (archiveName != null && archiveAccessRole != null) {
                         ArchiveItem(
+                            isForWelcomePage = true,
                             title = archiveName,
                             accessRole = archiveAccessRole,
-                            showSubtitle = archiveAccessRole != AccessRole.OWNER,
+                            showSubtitle = true,
                             showSeparator = index != archives.lastIndex,
                             showAcceptButton = archive.status == Status.PENDING,
                             showAcceptedLabel = archive.status == Status.OK

@@ -27,11 +27,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
-import java.util.Locale
 
 @Composable
 fun ArchiveItem(
     isTablet: Boolean = false,
+    isForWelcomePage: Boolean = false,
     iconURL: String? = null,
     title: String,
     accessRole: AccessRole?,
@@ -41,9 +41,6 @@ fun ArchiveItem(
     showAcceptedLabel: Boolean = false,
     onButtonClick: () -> Unit? = {}
 ) {
-    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-    val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
-
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
@@ -77,17 +74,16 @@ fun ArchiveItem(
                     fontSize = if (isTablet) 18.sp else 14.sp,
                     lineHeight = 24.sp,
                     color = Color.White,
-                    fontFamily = boldFont
+                    fontFamily = FontFamily(Font(R.font.open_sans_bold_ttf))
                 )
                 if (!isTablet && showSubtitle) {
                     Text(
-                        text = stringResource(id = R.string.invited_as) + " " + accessRole?.name?.toLowerCase(
-                            Locale.getDefault()
-                        ),
+                        text = (if (isForWelcomePage) stringResource(id = R.string.invited_as) + " " else "") +
+                                (accessRole?.toTitleCase() ?: ""),
                         fontSize = 12.sp,
                         lineHeight = 16.sp,
                         color = Color.White.copy(alpha = 0.5f),
-                        fontFamily = regularFont
+                        fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf))
                     )
                 }
             }
