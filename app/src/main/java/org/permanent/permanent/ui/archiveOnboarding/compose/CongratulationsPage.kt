@@ -2,7 +2,6 @@
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import org.permanent.permanent.R
-import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ThumbStatus
 import org.permanent.permanent.ui.composeComponents.ArchiveItem
@@ -140,7 +138,7 @@ private fun PhoneBody(
                         ArchiveItem(
                             title = archiveName,
                             accessRole = archiveAccessRole,
-                            showSubtitle = archiveAccessRole != AccessRole.OWNER
+                            showSubtitle = true
                         )
                     }
                 }
@@ -267,11 +265,7 @@ private fun TabletBody(
                                 iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
                                 title = archiveName,
                                 accessRole = archiveAccessRole,
-                                showSubtitle = archiveAccessRole != AccessRole.OWNER
-                            )
-                            Log.d(
-                                "CongratsPage",
-                                "Archive - Name: ${archive.fullName}, Status: ${archive.status}, ThumbStatus: ${archive.thumbStatus}"
+                                showSubtitle = false
                             )
                         }
                     }

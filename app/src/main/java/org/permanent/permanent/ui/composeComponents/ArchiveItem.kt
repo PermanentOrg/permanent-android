@@ -1,11 +1,14 @@
 package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -24,19 +27,20 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
-import java.util.Locale
 
 @Composable
 fun ArchiveItem(
     isTablet: Boolean = false,
+    isForWelcomePage: Boolean = false,
     iconURL: String? = null,
     title: String,
     accessRole: AccessRole?,
-    showSubtitle: Boolean = true
+    showSubtitle: Boolean = true,
+    showSeparator: Boolean = true,
+    showAcceptButton: Boolean = false,
+    showAcceptedLabel: Boolean = false,
+    onButtonClick: () -> Unit? = {}
 ) {
-    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-    val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
-
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
@@ -70,25 +74,45 @@ fun ArchiveItem(
                     fontSize = if (isTablet) 18.sp else 14.sp,
                     lineHeight = 24.sp,
                     color = Color.White,
-                    fontFamily = boldFont
+                    fontFamily = FontFamily(Font(R.font.open_sans_bold_ttf))
                 )
                 if (!isTablet && showSubtitle) {
                     Text(
-                        text = stringResource(id = R.string.invited_as) + " " + accessRole?.name?.toLowerCase(
-                            Locale.getDefault()
-                        ),
+                        text = (if (isForWelcomePage) stringResource(id = R.string.invited_as) + " " else "") +
+                                (accessRole?.toTitleCase() ?: ""),
                         fontSize = 12.sp,
                         lineHeight = 16.sp,
                         color = Color.White.copy(alpha = 0.5f),
-                        fontFamily = regularFont
+                        fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf))
                     )
                 }
             }
             if (isTablet) {
                 AccessRoleLabel(accessRole = accessRole)
             }
+            if (showAcceptButton) {
+                Box(
+                    modifier = Modifier
+                        .width(88.dp)
+                        .height(40.dp)
+                ) {
+                    SmallTextAndIconButton(
+                        buttonColor = ButtonColor.TRANSPARENT,
+                        text = stringResource(id = R.string.accept),
+                        fontSize = 12.sp,
+                        icon = null
+                    ) {
+                        onButtonClick()
+                    }
+                }
+            }
+            if (showAcceptedLabel) {
+                AcceptedLabel()
+            }
         }
-        HorizontalDivider(color = Color.White.copy(alpha = 0.16f))
+        if (showSeparator) {
+            HorizontalDivider(color = Color.White.copy(alpha = 0.16f))
+        }
     }
 }
 
@@ -96,6 +120,6 @@ fun ArchiveItem(
 @Composable
 fun ArchiveItemPreview() {
     ArchiveItem(
-        isTablet = true, title = "The Flavia Handrea Archive", accessRole = AccessRole.VIEWER
-    )
+        title = "The Flavia Handrea Archive", accessRole = AccessRole.VIEWER
+    ) { }
 }

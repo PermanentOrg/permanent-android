@@ -2,6 +2,7 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -71,8 +72,14 @@ class ArchiveOnboardingViewModel(application: Application) :
     val showError: StateFlow<String> = _showError
     private val _newArchiveCallsSuccess = MutableStateFlow(false)
     val newArchiveCallsSuccess: StateFlow<Boolean> = _newArchiveCallsSuccess
+    private val _isAcceptedArchiveFlow = MutableStateFlow(false)
+    val isAcceptedArchiveFlow: StateFlow<Boolean> = _isAcceptedArchiveFlow
+    private val _isArchiveCreationFlow = MutableStateFlow(false)
+    val isArchiveCreationFlow: StateFlow<Boolean> = _isArchiveCreationFlow
     private val _acceptedArchives = MutableStateFlow<MutableList<Archive>>(mutableListOf())
     val acceptedArchives: StateFlow<List<Archive>> = _acceptedArchives
+    private val _allArchives = MutableStateFlow<MutableList<Archive>>(mutableListOf())
+    val allArchives: StateFlow<List<Archive>> = _allArchives
 
     init {
         accountName.value = prefsHelper.getAccountName()
@@ -83,30 +90,22 @@ class ArchiveOnboardingViewModel(application: Application) :
     private fun getAllArchives() {
         archiveRepository.getAllArchives(object : IDataListener {
             override fun onSuccess(dataList: List<Datum>?) {
-                val allArchives: MutableList<Archive> = ArrayList()
                 val acceptedArchives: MutableList<Archive> = ArrayList()
+                val allArchives: MutableList<Archive> = ArrayList()
                 if (!dataList.isNullOrEmpty()) {
                     for (data in dataList) {
                         val archive = Archive(data.ArchiveVO)
                         if (archive.status == Status.OK) {
                             acceptedArchives.add(archive)
                         }
+                        allArchives.add(archive)
                     }
                 }
-//                allArchives.add(
-//                    Archive(
-//                        id = 12345,
-//                        number = "12345",
-//                        type = ArchiveType.PERSON,
-//                        fullName = "Laura Test",
-//                        thumbURL = "",
-//                        accessRole = AccessRole.EDITOR
-//                    )
-//                )
                 // Move the archive with AccessRole.OWNER to the first position
                 acceptedArchives.sortByDescending { it.accessRole == AccessRole.OWNER }
 
                 _acceptedArchives.value = acceptedArchives
+                _allArchives.value = allArchives
             }
 
             override fun onFailed(error: String?) {
@@ -151,11 +150,23 @@ class ArchiveOnboardingViewModel(application: Application) :
         )
     }
 
-    fun createNewArchive(newArchive: NewArchive) {
+    fun onNextButtonClick(newArchive: NewArchive) {
+        if (_isAcceptedArchiveFlow.value) {
+            getAllArchives()
+            this.newArchive.goals = newArchive.goals
+            this.newArchive.priorities = newArchive.priorities
+            sendGoalsAndPriorities()
+        } else {
+            createNewArchive(newArchive)
+        }
+    }
+
+    private fun createNewArchive(newArchive: NewArchive) {
         this.newArchive = newArchive
+        _isArchiveCreationFlow.value = true
         _isBusyState.value = true
-        archiveRepository.createNewArchive(
-            newArchive.name,
+
+        archiveRepository.createNewArchive(newArchive.name,
             newArchive.type,
             object : IArchiveRepository.IArchiveListener {
                 override fun onSuccess(archive: Archive) {
@@ -205,7 +216,7 @@ class ArchiveOnboardingViewModel(application: Application) :
                         archive.accessRole
                     )
                     login()
-                    getAllArchives()
+                    if (_isArchiveCreationFlow.value) getAllArchives()
                 }
 
                 override fun onFailed(error: String?) {
@@ -222,13 +233,14 @@ class ArchiveOnboardingViewModel(application: Application) :
 
         if (email != null && password != null) {
             _isBusyState.value = true
-            authRepository.login(email,
+            authRepository.login(
+                email,
                 password,
                 object : IAuthenticationRepository.IOnLoginListener {
                     override fun onSuccess() {
                         _isBusyState.value = false
                         prefsHelper.saveUserLoggedIn(true)
-                        sendGoalsAndPriorities()
+                        if (_isArchiveCreationFlow.value) sendGoalsAndPriorities()
                     }
 
                     override fun onFailed(error: String?) {
@@ -283,116 +295,53 @@ class ArchiveOnboardingViewModel(application: Application) :
         })
     }
 
+    override fun onAcceptBtnClick(archive: Archive) {
+        if (_isBusyState.value) {
+            return
+        }
+        this.newArchive = NewArchive(
+            type = archive.type ?: ArchiveType.PERSON,
+            typeName = when (archive.type) {
+                ArchiveType.PERSON -> appContext.getString(R.string.personal)
+                ArchiveType.FAMILY -> appContext.getString(R.string.family)
+                ArchiveType.ORGANIZATION -> appContext.getString(R.string.organization)
+                ArchiveType.NONPROFIT -> appContext.getString(R.string.organization)
+                else -> appContext.getString(R.string.personal)
+            },
+            name = "",
+            goals = mutableStateListOf(),
+            priorities = mutableStateListOf()
+        )
+
+        _isArchiveCreationFlow.value = false
+        _isBusyState.value = true
+        archiveRepository.acceptArchives(listOf(archive), object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                archive.status = Status.OK
+                setNewArchiveAsDefault(archive)
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let { _showError.value = it }
+                return
+            }
+        })
+    }
+
     fun resetNewArchiveCallsSuccess() {
         _newArchiveCallsSuccess.value = false
+    }
+
+    fun setAcceptedArchiveFlow() {
+        _isAcceptedArchiveFlow.value = true
     }
 
     fun completeArchiveOnboarding() {
         onArchiveOnboardingDone.call()
     }
 
-    //    fun onBackBtnClick() {
-//        if (currentPage.value == OnboardingPage.TYPE_SELECTION) {
-//            if (onPendingArchivesRetrieved.value?.isNotEmpty() == true) {
-//                if (areAllArchivesAccepted) {
-//                    showFragment(defaultSelectionFragment)
-//                } else {
-//                    showFragment(pendingInvitationsFragment)
-//                }
-//            } else {
-//                showFragment(welcomeFragment)
-//            }
-//        } else {
-//            showFragment(typeSelectionFragment)
-//        }
-//        progress.value = progress.value?.minus(1)
-//    }
-//
-//    fun onCreateArchiveBtnClick() {
-//        if (isBusy.value != null && isBusy.value!!) {
-//            return
-//        }
-//        val name = name.value?.trim()
-//        val selectedArchiveType = selectedArchiveType.value
-//
-//        if (name != null && selectedArchiveType != null) {
-//            isBusy.value = true
-//            archiveRepository.createNewArchive(
-//                name,
-//                selectedArchiveType,
-//                object : IArchiveRepository.IArchiveListener {
-//                    override fun onSuccess(archive: Archive) {
-//                        isBusy.value = false
-//                        setNewArchiveAsDefault(archive)
-//                    }
-//
-//                    override fun onFailed(error: String?) {
-//                        isBusy.value = false
-//                        error?.let { showError.value = it }
-//                    }
-//                })
-//        }
-//    }
-//
-//    fun onCreateNewArchiveBtnClick() {
-//        onGetStartedBtnClick()
-//    }
-//
-    override fun onAcceptBtnClick(archive: Archive) {
-//        if (isBusy.value != null && isBusy.value!!) {
-//            return
-//        }
-//
-//        isBusy.value = true
-//        archiveRepository.acceptArchives(listOf(archive), object : IResponseListener {
-//            override fun onSuccess(message: String?) {
-//                isBusy.value = false
-//                archive.status = Status.OK
-//                setNewArchiveAsDefault(archive)
-//            }
-//
-//            override fun onFailed(error: String?) {
-//                isBusy.value = false
-//                error?.let { showError.value = it }
-//                return
-//            }
-//        })
-    }
-
-    //
-//    fun onAcceptAllBtnClick() {
-//        if (isBusy.value != null && isBusy.value!!) {
-//            return
-//        }
-//
-//        val pendingArchives = onPendingArchivesRetrieved.value
-//
-//        if (!pendingArchives.isNullOrEmpty()) {
-//            isBusy.value = true
-//            archiveRepository.acceptArchives(pendingArchives, object : IResponseListener {
-//                override fun onSuccess(message: String?) {
-//                    isBusy.value = false
-//                    for (pendingArchive in pendingArchives) {
-//                        pendingArchive.status = Status.OK
-//                    }
-//                    onPendingArchivesRetrieved.value = onPendingArchivesRetrieved.value
-//                    showFragment(defaultSelectionFragment)
-//                    confirmationText.value = appContext.getString(
-//                        R.string.archive_onboarding_default_selection_text,
-//                        pendingArchives.size.toString()
-//                    )
-//                    areAllArchivesAccepted = true
-//                }
-//
-//                override fun onFailed(error: String?) {
-//                    isBusy.value = false
-//                    error?.let { showError.value = it }
-//                    return
-//                }
-//            })
-//        }
-//    }
-//
     override fun onMakeDefaultBtnClick(archive: Archive) {
 //        setNewArchiveAsDefault(archive)
     }
