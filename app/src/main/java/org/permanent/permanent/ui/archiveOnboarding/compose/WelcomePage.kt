@@ -12,7 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -40,10 +41,10 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Status
+import org.permanent.permanent.models.ThumbStatus
 import org.permanent.permanent.ui.composeComponents.ArchiveItem
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
-import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 @Composable
@@ -86,7 +87,8 @@ private fun TabletBody(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             accountName?.let {
                 val welcomeTitleText = stringResource(id = R.string.welcome_to_permanent_title, it)
@@ -106,6 +108,16 @@ private fun TabletBody(
                     color = Color.White,
                     fontFamily = regularFont
                 )
+
+                if (archives.isNotEmpty()) {
+                    Text(
+                        text = stringResource(id = R.string.welcome_to_permanent_with_archives_description),
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        color = Color.White,
+                        fontFamily = regularFont
+                    )
+                }
             }
         }
 
@@ -114,26 +126,76 @@ private fun TabletBody(
                 .fillMaxWidth()
                 .weight(1f), horizontalAlignment = Alignment.End
         ) {
-            Text(
-                text = stringResource(id = R.string.welcome_to_permanent_description),
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                color = Color.White,
-                fontFamily = regularFont
-            )
+            if (archives.isEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.welcome_to_permanent_description),
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    color = Color.White,
+                    fontFamily = regularFont
+                )
+            }
 
-            Spacer(modifier = Modifier.weight(1.0f))
-
-            Box(
-                modifier = Modifier.width(168.dp)
+            LazyColumn(
+                modifier = Modifier.weight(1f)
             ) {
-                TextAndIconButton(
-                    ButtonColor.LIGHT,
-                    text = stringResource(id = R.string.get_started),
-                    showButtonEnabled = true
+                itemsIndexed(archives) { index, archive ->
+                    val archiveName = archive.fullName
+                    val archiveAccessRole = archive.accessRole
+
+                    if (archiveName != null && archiveAccessRole != null) {
+                        ArchiveItem(
+                            isTablet = true,
+                            isForWelcomePage = true,
+                            iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
+                            title = archiveName,
+                            accessRole = archiveAccessRole,
+                            showSubtitle = true,
+                            showSeparator = index != archives.lastIndex,
+                            showAcceptButton = archive.status == Status.PENDING,
+                            showAcceptedLabel = archive.status == Status.OK
+                        ) {
+                            viewModel.onAcceptBtnClick(archive)
+                        }
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                Box(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
+                    if (archives.isNotEmpty()) {
+                        SmallTextAndIconButton(
+                            buttonColor = ButtonColor.TRANSPARENT,
+                            text = stringResource(id = R.string.create_new_archive),
+                            icon = painterResource(id = R.drawable.ic_plus_white)
+                        ) {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_TYPE.value)
+                            }
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    SmallTextAndIconButton(buttonColor = ButtonColor.LIGHT,
+                        text = stringResource(id = if (archives.isEmpty()) R.string.get_started else R.string.next),
+                        showButtonEnabled = archives.isEmpty() || archives.any { it.status == Status.OK }) {
+                        val nextPage =
+                            if (archives.isEmpty()) OnboardingPage.ARCHIVE_TYPE.value else {
+                                viewModel.setAcceptedArchiveFlow()
+                                OnboardingPage.GOALS.value
+                            }
+
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(nextPage)
+                        }
                     }
                 }
             }
@@ -219,7 +281,6 @@ private fun PhoneBody(
                     }
                 }
             }
-
         }
 
         Spacer(modifier = Modifier
