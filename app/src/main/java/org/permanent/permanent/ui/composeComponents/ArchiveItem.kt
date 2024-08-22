@@ -41,15 +41,110 @@ fun ArchiveItem(
     showAcceptedLabel: Boolean = false,
     onButtonClick: () -> Unit? = {}
 ) {
+    if (isTablet && isForWelcomePage) {
+        TabletBodyForWelcomePage(
+            iconURL,
+            title,
+            accessRole,
+            showSeparator,
+            showAcceptButton,
+            showAcceptedLabel,
+            onButtonClick
+        )
+    } else {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (iconURL == null) {
+                    Image(
+                        painter = painterResource(id = if (isTablet) R.drawable.ic_archive_placeholder_multicolor else R.drawable.ic_archive_gradient),
+                        contentDescription = "",
+                        modifier = Modifier.size(if (isTablet) 48.dp else 18.dp)
+                    )
+                } else {
+                    AsyncImage(
+                        model = iconURL,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = if (isTablet) 32.dp else 24.dp)
+                        .weight(1.0f, fill = true),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = if (isTablet) 18.sp else 14.sp,
+                        lineHeight = 24.sp,
+                        color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.open_sans_bold_ttf))
+                    )
+                    if (!isTablet && showSubtitle) {
+                        Text(
+                            text = (if (isForWelcomePage) stringResource(id = R.string.invited_as) + " " else "") + (accessRole?.toTitleCase()
+                                ?: ""),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp,
+                            color = Color.White.copy(alpha = 0.5f),
+                            fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf))
+                        )
+                    }
+                }
+                if (isTablet) {
+                    AccessRoleLabel(accessRole = accessRole)
+                }
+                if (showAcceptButton) {
+                    Box(
+                        modifier = Modifier
+                            .width(88.dp)
+                            .height(40.dp)
+                    ) {
+                        SmallTextAndIconButton(
+                            buttonColor = ButtonColor.TRANSPARENT,
+                            text = stringResource(id = R.string.accept),
+                            fontSize = 12.sp,
+                            icon = null
+                        ) {
+                            onButtonClick()
+                        }
+                    }
+                }
+                if (showAcceptedLabel) {
+                    AcceptedLabel()
+                }
+            }
+            if (showSeparator) {
+                HorizontalDivider(color = Color.White.copy(alpha = 0.16f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TabletBodyForWelcomePage(
+    iconURL: String? = null,
+    title: String,
+    accessRole: AccessRole?,
+    showSeparator: Boolean = true,
+    showAcceptButton: Boolean = false,
+    showAcceptedLabel: Boolean = false,
+    onButtonClick: () -> Unit? = {}
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
             if (iconURL == null) {
                 Image(
-                    painter = painterResource(id = if (isTablet) R.drawable.ic_archive_placeholder_multicolor else R.drawable.ic_archive_gradient),
+                    painter = painterResource(id = R.drawable.ic_archive_placeholder_multicolor),
                     contentDescription = "",
-                    modifier = Modifier.size(if (isTablet) 48.dp else 18.dp)
+                    modifier = Modifier.size(48.dp)
                 )
             } else {
                 AsyncImage(
@@ -63,38 +158,30 @@ fun ArchiveItem(
 
             Column(
                 modifier = Modifier
-                    .padding(
-                        horizontal = 16.dp, vertical = if (isTablet) 32.dp else 24.dp
-                    )
+                    .padding(horizontal = 16.dp, vertical = 32.dp)
                     .weight(1.0f, fill = true),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(
                     text = title,
-                    fontSize = if (isTablet) 18.sp else 14.sp,
+                    fontSize = 14.sp,
                     lineHeight = 24.sp,
                     color = Color.White,
                     fontFamily = FontFamily(Font(R.font.open_sans_bold_ttf))
                 )
-                if (!isTablet && showSubtitle) {
-                    Text(
-                        text = (if (isForWelcomePage) stringResource(id = R.string.invited_as) + " " else "") +
-                                (accessRole?.toTitleCase() ?: ""),
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp,
-                        color = Color.White.copy(alpha = 0.5f),
-                        fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf))
-                    )
-                }
-            }
-            if (isTablet) {
-                AccessRoleLabel(accessRole = accessRole)
+                Text(
+                    text = stringResource(id = R.string.invited_as) + " " + accessRole?.toTitleCase(),
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    color = Color.White.copy(alpha = 0.5f),
+                    fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf))
+                )
             }
             if (showAcceptButton) {
                 Box(
                     modifier = Modifier
-                        .width(88.dp)
-                        .height(40.dp)
+                        .width(96.dp)
+                        .height(48.dp)
                 ) {
                     SmallTextAndIconButton(
                         buttonColor = ButtonColor.TRANSPARENT,

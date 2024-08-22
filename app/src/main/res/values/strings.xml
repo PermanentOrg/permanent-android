@@ -476,7 +476,7 @@
     <string name="archive_current_archive">Current Archive</string>
     <string name="archive_pending_archives">Pending Archives:</string>
     <string name="archive_choose_archive">Choose Archive:</string>
-    <string name="button_create_new_archive">Create New Archive</string>
+    <string name="create_new_archive">Create new Archive</string>
     <string name="archive_accept_pending_archive_success">Archive accepted successfully.</string>
     <string name="archive_decline_pending_archive_success">Archive declined successfully.</string>
     <string name="archive_current_archive_switch_success">Archive switched successfully.</string>

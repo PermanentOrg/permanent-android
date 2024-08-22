@@ -183,7 +183,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:onClick="@{()-> viewModel.onCreateNewArchiveBtnClick()}"
-            android:text="@string/button_create_new_archive"
+            android:text="@string/create_new_archive"
             android:visibility="@{viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
