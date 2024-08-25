@@ -20,46 +20,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
 fun CustomCheckbox(
     isTablet: Boolean = false, text: String, checkedState: MutableState<Boolean>
 ) {
-    val context = LocalContext.current
-    val whiteTransparentColor =
-        Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
-    val blue900Color = Color(ContextCompat.getColor(context, R.color.blue900))
-    val barneyPurpleColor = Color(ContextCompat.getColor(context, R.color.barneyPurple))
-    val barneyPurpleLightColor = Color(ContextCompat.getColor(context, R.color.barneyPurpleLight))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
     Row(
         modifier = Modifier
             .height(if (isTablet) 116.dp else 100.dp)
             .fillMaxWidth()
-            .border(1.dp, whiteTransparentColor, RoundedCornerShape(10.dp))
+            .border(
+                1.dp,
+                colorResource(id = R.color.whiteSuperExtraTransparent),
+                RoundedCornerShape(10.dp)
+            )
             .background(
                 if (checkedState.value) Brush.horizontalGradient(
                     listOf(
-                        barneyPurpleLightColor, barneyPurpleColor
+                        colorResource(id = R.color.barneyPurpleLight),
+                        colorResource(id = R.color.barneyPurple)
                     )
-                ) else if (isTablet) Brush.horizontalGradient(
+                ) else Brush.horizontalGradient(
                     listOf(
-                        blue900Color, blue900Color
-                    )
-                )
-                else Brush.horizontalGradient(
-                    listOf(
-                        Color.Transparent, Color.Transparent
+                        colorResource(id = R.color.blue900), colorResource(id = R.color.blue900)
                     )
                 ), RoundedCornerShape(10.dp)
             )
@@ -76,7 +69,7 @@ fun CustomCheckbox(
             colors = CheckboxDefaults.colors(
                 uncheckedColor = Color.White,
                 checkedColor = Color.White,
-                checkmarkColor = barneyPurpleLightColor
+                checkmarkColor = colorResource(id = R.color.barneyPurpleLight)
             )
         )
 
