@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.bulkEditMetadata.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -39,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
+import org.permanent.permanent.viewmodels.EditDateTimeViewModel
+import org.permanent.permanent.viewmodels.EditFileNamesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -46,10 +50,13 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditDateTimeScreen(cancel: () -> Unit) {
+fun EditDateTimeScreen(
+    viewModel: EditDateTimeViewModel,
+    cancel: () -> Unit) {
 
     val context = LocalContext.current
     val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val blue400 = Color(ContextCompat.getColor(context, R.color.blue400))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
@@ -65,15 +72,19 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
     val timePickerState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
-        is24Hour = true,
+        is24Hour = false,
     )
+
+    var selectedTime by remember { mutableStateOf(
+        convertTimeToString(timePickerState.hour, timePickerState.minute)
+    )}
 
     Column(
         horizontalAlignment = Alignment.End
     ) {
         BottomSheetHeader(
-            painterResource(id = R.drawable.map_icon),
-            screenTitle = stringResource(id = R.string.add_location)
+            painterResource(id = R.drawable.ic_date_time),
+            screenTitle = stringResource(id = R.string.add_date_time)
         )
 
         DatePicker(
@@ -84,6 +95,7 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
             colors = DatePickerDefaults.colors(
                 selectedDayContainerColor = blue900,
                 dayContentColor = Color.Black,
+                todayContentColor = Color.Black,
                 todayDateBorderColor = blue900,
                 selectedYearContainerColor = blue900,
                 yearContentColor = Color.Black,
@@ -95,7 +107,8 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Time",
@@ -108,7 +121,7 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
             )
 
             Text(
-                text = "9:41 AM",
+                text = selectedTime,
                 style = TextStyle(
                     fontSize = 17.sp,
                     lineHeight = 22.sp,
@@ -116,12 +129,14 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
                     color = Color(0xFF000000),
 
                     ),
-                modifier = Modifier.clickable {
-                    showTimePicker = true
-                }
+                modifier = Modifier
+                    .clickable {
+                        showTimePicker = true
+                    }
+                    .background(color = Color(0x1F767680), shape = RoundedCornerShape(size = 8.dp))
+                    .padding(start = 12.dp, top = 6.dp, end = 12.dp, bottom = 6.dp)
             )
         }
-
 
         Row(
             modifier = Modifier.padding(24.dp),
@@ -151,6 +166,7 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = blue900),
                 onClick = {
+                    viewModel.updateDate(selectedDate)
 //                        openAlertDialog.value = true
                 }) {
 //                    if (viewModel.isBusy.value) {
@@ -161,7 +177,7 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
 //                        )
 //                    } else {
                 Text(
-                    text = stringResource(R.string.set_location),
+                    text = stringResource(R.string.add_date),
                     fontSize = 14.sp,
                     fontFamily = regularFont,
                 )
@@ -171,10 +187,20 @@ fun EditDateTimeScreen(cancel: () -> Unit) {
         if (showTimePicker) {
             TimePickerDialog(
                 onDismiss = { showTimePicker = false },
-                onConfirm = { showTimePicker = false }
+                onConfirm = {
+                    showTimePicker = false
+                    selectedTime = convertTimeToString(timePickerState.hour, timePickerState.minute)
+                }
             ) {
                 TimePicker(
                     state = timePickerState,
+                    colors = TimePickerDefaults.colors(
+                        timeSelectorSelectedContainerColor = blue900,
+                        timeSelectorSelectedContentColor = Color.White,
+                        selectorColor = blue900,
+                        periodSelectorSelectedContainerColor = blue900,
+                        periodSelectorSelectedContentColor = Color.White
+                    )
                 )
             }
         }
@@ -206,6 +232,21 @@ fun TimePickerDialog(
 fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
+}
+
+fun convertTimeToString(hour: Int, min: Int): String {
+    val amPM = if (hour < 12) {
+        "AM"
+    } else {
+        "PM"
+    }
+    val minString = if (min < 10) {
+        "0$min"
+    } else {
+        "$min"
+    }
+
+    return "$hour:$minString $amPM"
 }
 
 @Preview(showSystemUi = true)
