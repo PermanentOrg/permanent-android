@@ -145,6 +145,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.github.chthai64:SwipeRevealLayout:1.4.0'
+
     //==============================================================================================
 
     //=================================== ONBOARDING DOT INDICATOR =================================
