@@ -128,7 +128,6 @@ class SplashActivity : PermanentBaseActivity() {
     }
 
     private fun startArchiveOnboardingActivity() {
-        prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(this@SplashActivity, ArchiveOnboardingActivity::class.java))
         finish()
     }

@@ -61,7 +61,6 @@ class LoginFragment : PermanentBaseFragment() {
     }
 
     private val userMissingDefaultArchiveObserver = Observer<Void?> {
-        prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
     }

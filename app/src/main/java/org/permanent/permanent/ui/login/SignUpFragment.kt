@@ -64,7 +64,6 @@ class SignUpFragment : PermanentBaseFragment() {
 
     private val startArchiveOnboardingActivity = Observer<Void?> {
         logEvents()
-        prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
     }
