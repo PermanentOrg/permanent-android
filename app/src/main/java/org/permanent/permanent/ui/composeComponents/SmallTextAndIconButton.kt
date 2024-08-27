@@ -114,7 +114,7 @@ private fun CustomSmallTextAndIconButton(
                     modifier = Modifier.size(16.dp)
                 )
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(16.dp))
             }
 
             if (text != null) {
@@ -134,7 +134,7 @@ private fun CustomSmallTextAndIconButton(
             }
 
             if (iconAlignment == ButtonIconAlignment.END && icon != null) {
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
                 Image(
                     painter = icon,

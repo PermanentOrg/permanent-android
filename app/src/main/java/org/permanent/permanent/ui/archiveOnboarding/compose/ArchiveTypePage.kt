@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,7 +41,6 @@ import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
-import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 
 @Composable
 fun ArchiveTypePage(
@@ -85,7 +83,7 @@ private fun TabletBody(
                 .weight(1f)
         ) {
             val titleText = stringResource(id = R.string.create_your_first_archive_title)
-            val boldedWord = "archive"
+            val boldedWord = "Archive"
             val start = titleText.indexOf(boldedWord)
             val spanStyles = listOf(
                 AnnotatedString.Range(
@@ -110,7 +108,7 @@ private fun TabletBody(
                 .weight(1f), horizontalAlignment = Alignment.End
         ) {
             Text(
-                text = stringResource(id = R.string.create_your_first_archive_description_tablet),
+                text = stringResource(id = R.string.create_your_first_archive_description),
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
                 color = whiteColor,
@@ -131,33 +129,30 @@ private fun TabletBody(
                 horizontalArrangement = Arrangement.spacedBy(32.dp)
             ) {
                 Box(
-                    modifier = Modifier.width(120.dp)
+                    modifier = Modifier.weight(1f)
                 ) {
-                    SmallTextAndIconButton(
-                        ButtonColor.TRANSPARENT,
-                        text = stringResource(id = R.string.back),
-                        icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
-                        iconAlignment = ButtonIconAlignment.START
-                    ) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.WELCOME.value)
+                        SmallTextAndIconButton(
+                            buttonColor = ButtonColor.TRANSPARENT,
+                            text = stringResource(id = R.string.back),
+                            icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
+                            iconAlignment = ButtonIconAlignment.START
+                        ) {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(OnboardingPage.WELCOME.value)
+                            }
                         }
-                    }
                 }
 
-                val text =
-                    if (archiveTypeName == context.getString(R.string.individual) || archiveTypeName == context.getString(
-                            R.string.organization
-                        )
-                    ) stringResource(
-                        id = R.string.lets_create_an_archive, archiveTypeName
-                    ) else stringResource(id = R.string.lets_create_a_archive, archiveTypeName)
-
-                TextAndIconButton(
-                    style = ButtonColor.LIGHT, text = text
+                Box(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
+                    SmallTextAndIconButton(
+                        buttonColor = ButtonColor.LIGHT,
+                        text = stringResource(id = R.string.next)
+                    ) {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
+                        }
                     }
                 }
             }
@@ -181,7 +176,7 @@ private fun PhoneBody(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         val titleText = stringResource(id = R.string.create_your_first_archive_title)
-        val boldedWord = "archive"
+        val boldedWord = "Archive"
         val start = titleText.indexOf(boldedWord)
         val spanStyles = listOf(
             AnnotatedString.Range(

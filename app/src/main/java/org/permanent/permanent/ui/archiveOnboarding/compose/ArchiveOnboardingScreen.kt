@@ -253,7 +253,6 @@ fun ArchiveOnboardingScreen(
                             GoalsPage(
                                 viewModel = viewModel,
                                 isTablet = isTablet,
-                                horizontalPaddingDp = horizontalPaddingDp,
                                 pagerState = pagerState,
                                 newArchive = newArchive,
                                 goals = goals
@@ -264,7 +263,6 @@ fun ArchiveOnboardingScreen(
                             PrioritiesPage(
                                 viewModel = viewModel,
                                 isTablet = isTablet,
-                                horizontalPaddingDp = horizontalPaddingDp,
                                 pagerState = pagerState,
                                 newArchive = newArchive,
                                 priorities = priorities

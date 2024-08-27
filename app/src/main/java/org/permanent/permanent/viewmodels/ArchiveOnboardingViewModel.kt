@@ -141,9 +141,9 @@ class ArchiveOnboardingViewModel(application: Application) :
 
     fun createOnboardingPriorities(context: Context): List<Pair<Int, String>> {
         return listOf(
-            OnboardingPriorityType.SAFE.ordinal to context.getString(R.string.priorities_safe),
-            OnboardingPriorityType.NONPROFIT.ordinal to context.getString(R.string.priorities_nonprofit),
             OnboardingPriorityType.GENEALOGY.ordinal to context.getString(R.string.priorities_genealogy),
+            OnboardingPriorityType.NONPROFIT.ordinal to context.getString(R.string.priorities_nonprofit),
+            OnboardingPriorityType.SAFE.ordinal to context.getString(R.string.priorities_safe),
             OnboardingPriorityType.PROFESSIONAL.ordinal to context.getString(R.string.priorities_professional),
             OnboardingPriorityType.COLLABORATE.ordinal to context.getString(R.string.priorities_collaborate),
             OnboardingPriorityType.DIGIPRES.ordinal to context.getString(R.string.priorities_digipres)
