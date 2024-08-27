@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -47,7 +46,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
-import org.permanent.permanent.ui.composeComponents.TextAndIconButton
 
 
 @Composable
@@ -200,10 +198,10 @@ private fun TabletBody(
                 horizontalArrangement = Arrangement.spacedBy(32.dp)
             ) {
                 Box(
-                    modifier = Modifier.width(120.dp)
+                    modifier = Modifier.weight(1f)
                 ) {
                     SmallTextAndIconButton(
-                        ButtonColor.TRANSPARENT,
+                        buttonColor = ButtonColor.TRANSPARENT,
                         text = stringResource(id = R.string.back),
                         icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
                         iconAlignment = ButtonIconAlignment.START
@@ -214,16 +212,20 @@ private fun TabletBody(
                     }
                 }
 
-                TextAndIconButton(
-                    ButtonColor.LIGHT,
-                    text = stringResource(id = R.string.create_the_archive),
-                    showButtonEnabled = textFieldValueState.text.isNotEmpty()
+                Box(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    if (textFieldValueState.text.isNotEmpty()) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.GOALS.value)
+                    SmallTextAndIconButton(
+                        buttonColor = ButtonColor.LIGHT,
+                        text = stringResource(id = R.string.next),
+                        showButtonEnabled = textFieldValueState.text.isNotEmpty()
+                    ) {
+                        if (textFieldValueState.text.isNotEmpty()) {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(OnboardingPage.GOALS.value)
+                            }
+                            newArchive.name = textFieldValueState.text
                         }
-                        newArchive.name = textFieldValueState.text
                     }
                 }
             }

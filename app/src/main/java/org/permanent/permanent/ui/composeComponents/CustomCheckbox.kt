@@ -59,11 +59,11 @@ fun CustomCheckbox(
             .clickable {
                 checkedState.value = !checkedState.value
             },
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            modifier = Modifier.padding(start = 24.dp),
+            modifier = Modifier.padding(start = 16.dp),
             checked = checkedState.value,
             onCheckedChange = { checkedState.value = it },
             colors = CheckboxDefaults.colors(
@@ -74,10 +74,10 @@ fun CustomCheckbox(
         )
 
         Text(
-            modifier = Modifier.padding(top = 24.dp, bottom = 24.dp, end = 24.dp),
+            modifier = Modifier.padding(top = 24.dp, bottom = 24.dp, end = 16.dp),
             text = text,
-            fontSize = if (isTablet) 18.sp else 14.sp,
-            lineHeight = if (isTablet) 30.sp else 24.sp,
+            fontSize = 14.sp,
+            lineHeight = 24.sp,
             color = Color.White,
             fontFamily = regularFont
         )

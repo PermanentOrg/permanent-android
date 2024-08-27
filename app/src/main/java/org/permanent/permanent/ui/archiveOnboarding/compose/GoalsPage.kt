@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -28,11 +27,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -40,13 +37,10 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
@@ -61,39 +55,20 @@ import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 fun GoalsPage(
     viewModel: ArchiveOnboardingViewModel,
     isTablet: Boolean,
-    horizontalPaddingDp: Dp,
     pagerState: PagerState,
     newArchive: NewArchive,
     goals: SnapshotStateList<OnboardingGoal>
 ) {
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
-    val whiteSuperTransparentColor =
-        Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
 
     if (isTablet) {
         TabletBody(
-            viewModel,
-            horizontalPaddingDp,
-            whiteColor,
-            regularFont,
-            coroutineScope,
-            pagerState,
-            newArchive,
-            goals
+            viewModel, regularFont, coroutineScope, pagerState, newArchive, goals
         )
     } else {
         PhoneBody(
-            viewModel,
-            whiteSuperTransparentColor,
-            whiteColor,
-            regularFont,
-            coroutineScope,
-            pagerState,
-            newArchive,
-            goals
+            viewModel, regularFont, coroutineScope, pagerState, newArchive, goals
         )
     }
 }
@@ -101,8 +76,6 @@ fun GoalsPage(
 @Composable
 private fun PhoneBody(
     viewModel: ArchiveOnboardingViewModel,
-    whiteSuperTransparentColor: Color,
-    whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
@@ -143,7 +116,7 @@ private fun PhoneBody(
                 text = AnnotatedString(text = titleText, spanStyles = spanStyles),
                 fontSize = 32.sp,
                 lineHeight = 48.sp,
-                color = whiteColor,
+                color = Color.White,
                 fontFamily = regularFont
             )
 
@@ -151,7 +124,7 @@ private fun PhoneBody(
                 text = stringResource(id = R.string.chart_your_path_description),
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
-                color = whiteColor,
+                color = Color.White,
                 fontFamily = regularFont
             )
 
@@ -172,7 +145,7 @@ private fun PhoneBody(
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 width = Dimension.fillToConstraints
-            }, thickness = 1.dp, color = whiteSuperTransparentColor
+            }, thickness = 1.dp, color = colorResource(id = R.color.whiteSuperExtraTransparent)
         )
 
         Spacer(modifier = Modifier
@@ -232,18 +205,12 @@ private fun PhoneBody(
 @Composable
 private fun TabletBody(
     viewModel: ArchiveOnboardingViewModel,
-    horizontalPaddingDp: Dp,
-    whiteColor: Color,
     regularFont: FontFamily,
     coroutineScope: CoroutineScope,
     pagerState: PagerState,
     newArchive: NewArchive,
     goals: SnapshotStateList<OnboardingGoal>
 ) {
-    val configuration = LocalConfiguration.current
-    val oneThirdOfScreenDp = (configuration.screenWidthDp.dp - 2 * horizontalPaddingDp) / 3
-    val spacerWidth = 32.dp
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -254,12 +221,10 @@ private fun TabletBody(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.spacedBy(32.dp),
         ) {
             Column(
-                modifier = Modifier.width(2 * (oneThirdOfScreenDp) - spacerWidth / 2),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Top
+                modifier = Modifier.weight(1f)
             ) {
                 val titleText = stringResource(id = R.string.chart_your_path_title)
                 val boldedWord = "path"
@@ -276,22 +241,19 @@ private fun TabletBody(
                     text = AnnotatedString(text = titleText, spanStyles = spanStyles),
                     fontSize = 56.sp,
                     lineHeight = 72.sp,
-                    color = whiteColor,
+                    color = Color.White,
                     fontFamily = regularFont
                 )
             }
 
-            Spacer(modifier = Modifier.width(spacerWidth))
-
             Column(
-                modifier = Modifier.width(oneThirdOfScreenDp - spacerWidth / 2),
-                horizontalAlignment = Alignment.End
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = stringResource(id = R.string.chart_your_path_description),
                     fontSize = 16.sp,
                     lineHeight = 24.sp,
-                    color = whiteColor,
+                    color = Color.White,
                     fontFamily = regularFont
                 )
             }
@@ -301,7 +263,7 @@ private fun TabletBody(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            columns = GridCells.Fixed(3),
+            columns = GridCells.Fixed(4),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -318,43 +280,47 @@ private fun TabletBody(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.spacedBy(32.dp),
         ) {
-            Row(
-                modifier = Modifier.width(oneThirdOfScreenDp - spacerWidth / 2)
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {}
+
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(32.dp)
                 ) {
-                    SmallTextAndIconButton(
-                        buttonColor = ButtonColor.TRANSPARENT,
-                        text = stringResource(id = R.string.back),
-                        icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
-                        iconAlignment = ButtonIconAlignment.START
+                    Box(
+                        modifier = Modifier.weight(1f)
                     ) {
-                        val backPage =
-                            if (viewModel.isAcceptedArchiveFlow.value) OnboardingPage.WELCOME.value else OnboardingPage.ARCHIVE_NAME.value
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(backPage)
+                        SmallTextAndIconButton(
+                            buttonColor = ButtonColor.TRANSPARENT,
+                            text = stringResource(id = R.string.back),
+                            icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
+                            iconAlignment = ButtonIconAlignment.START
+                        ) {
+                            val backPage =
+                                if (viewModel.isAcceptedArchiveFlow.value) OnboardingPage.WELCOME.value else OnboardingPage.ARCHIVE_NAME.value
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(backPage)
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.width(32.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    SmallTextAndIconButton(
-                        buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
+                    Box(
+                        modifier = Modifier.weight(1f)
                     ) {
-                        newArchive.goals = goals
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.PRIORITIES.value)
+                        SmallTextAndIconButton(
+                            buttonColor = ButtonColor.LIGHT,
+                            text = stringResource(id = R.string.next)
+                        ) {
+                            newArchive.goals = goals
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(OnboardingPage.PRIORITIES.value)
+                            }
                         }
                     }
                 }
