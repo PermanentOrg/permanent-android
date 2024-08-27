@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalFoundationApi::class)
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
@@ -6,7 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,10 +54,12 @@ import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.CustomCheckbox
 import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
+import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 
 @Composable
 fun GoalsPage(
+    viewModel: ArchiveOnboardingViewModel,
     isTablet: Boolean,
     horizontalPaddingDp: Dp,
     pagerState: PagerState,
@@ -74,6 +75,7 @@ fun GoalsPage(
 
     if (isTablet) {
         TabletBody(
+            viewModel,
             horizontalPaddingDp,
             whiteColor,
             regularFont,
@@ -84,6 +86,7 @@ fun GoalsPage(
         )
     } else {
         PhoneBody(
+            viewModel,
             whiteSuperTransparentColor,
             whiteColor,
             regularFont,
@@ -97,6 +100,7 @@ fun GoalsPage(
 
 @Composable
 private fun PhoneBody(
+    viewModel: ArchiveOnboardingViewModel,
     whiteSuperTransparentColor: Color,
     whiteColor: Color,
     regularFont: FontFamily,
@@ -123,6 +127,7 @@ private fun PhoneBody(
             .verticalScroll(scrollState)
             .padding(start = 32.dp, end = 32.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)) {
+
             val titleText = stringResource(id = R.string.chart_your_path_title)
             val boldedWord = "path"
             val start = titleText.indexOf(boldedWord)
@@ -198,8 +203,10 @@ private fun PhoneBody(
                     icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
                     iconAlignment = ButtonIconAlignment.START
                 ) {
+                    val backPage =
+                        if (viewModel.isAcceptedArchiveFlow.value) OnboardingPage.WELCOME.value else OnboardingPage.ARCHIVE_NAME.value
                     coroutineScope.launch {
-                        pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
+                        pagerState.animateScrollToPage(backPage)
                     }
                 }
             }
@@ -224,6 +231,7 @@ private fun PhoneBody(
 
 @Composable
 private fun TabletBody(
+    viewModel: ArchiveOnboardingViewModel,
     horizontalPaddingDp: Dp,
     whiteColor: Color,
     regularFont: FontFamily,
@@ -326,8 +334,10 @@ private fun TabletBody(
                         icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
                         iconAlignment = ButtonIconAlignment.START
                     ) {
+                        val backPage =
+                            if (viewModel.isAcceptedArchiveFlow.value) OnboardingPage.WELCOME.value else OnboardingPage.ARCHIVE_NAME.value
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(OnboardingPage.ARCHIVE_NAME.value)
+                            pagerState.animateScrollToPage(backPage)
                         }
                     }
                 }
@@ -361,13 +371,11 @@ enum class OnboardingGoalType {
     CAPTURE, DIGITIZE, COLLABORATE, PUBLISH, SHARE, LEGACY, ORGANIZE, UNDEFINED
 }
 
-val OnboardingGoalSaver: Saver<OnboardingGoal, *> = listSaver(
-    save = { listOf(it.type.ordinal, it.description, it.isChecked.value) },
-    restore = {
+val OnboardingGoalSaver: Saver<OnboardingGoal, *> =
+    listSaver(save = { listOf(it.type.ordinal, it.description, it.isChecked.value) }, restore = {
         OnboardingGoal(
             type = OnboardingGoalType.values()[it[0] as Int],
             description = it[1] as String,
             isChecked = mutableStateOf(it[2] as Boolean)
         )
-    }
-)
+    })

@@ -221,11 +221,12 @@ fun ArchiveOnboardingScreen(
                 }
 
                 HorizontalPager(
-                    state = pagerState, userScrollEnabled = false
+                    state = pagerState, beyondBoundsPageCount = 2 , userScrollEnabled = false
                 ) { page ->
                     when (page) {
                         OnboardingPage.WELCOME.value -> {
                             WelcomePage(
+                                viewModel = viewModel,
                                 isTablet = isTablet,
                                 pagerState = pagerState,
                                 accountName = viewModel.getAccountName().value
@@ -250,6 +251,7 @@ fun ArchiveOnboardingScreen(
 
                         OnboardingPage.GOALS.value -> {
                             GoalsPage(
+                                viewModel = viewModel,
                                 isTablet = isTablet,
                                 horizontalPaddingDp = horizontalPaddingDp,
                                 pagerState = pagerState,
