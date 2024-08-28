@@ -13,7 +13,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
@@ -30,7 +29,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
-import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.EventPage
 import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
@@ -38,9 +36,7 @@ import org.permanent.permanent.RECIPIENT_ARCHIVE_NAME_KEY
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NR_KEY
 import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityMainBinding
-import org.permanent.permanent.databinding.DialogLegacyPlanningBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
-import org.permanent.permanent.databinding.DialogWelcomeBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.PREFS_NAME
@@ -244,14 +240,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
         })
 
-        if (prefsHelper.isArchiveOnboardingDoneInApp() && !prefsHelper.isWelcomeDialogSeen()) {
-            showWelcomeDialog()
-        }
-
-        if (!prefsHelper.isLegacyDialogSeen()) {
-            showLegacyDialog()
-        }
-
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
     }
@@ -336,8 +324,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             else -> {
                 settingsFragment = SettingsMenuFragment()
                 settingsFragment?.show(
-                    supportFragmentManager,
-                    settingsFragment?.tag
+                    supportFragmentManager, settingsFragment?.tag
                 ) // settings item
                 EventsManager(applicationContext).trackPageView(EventPage.AccountMenu)
             }
@@ -364,50 +351,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
-    }
-
-    private fun showWelcomeDialog() {
-        val dialogBinding: DialogWelcomeBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(this), R.layout.dialog_welcome, null, false
-        )
-        val alert = AlertDialog.Builder(this).setView(dialogBinding.root).create()
-
-        dialogBinding.tvWelcomeTitleWelcomeDialog.text =
-            if (prefsHelper.isArchiveOnboardingDefaultFlow()) getString(R.string.welcome_title) else getString(
-                R.string.archive_onboarding_invitation_welcome_title
-            )
-        dialogBinding.tvWelcomeTextWelcomeDialog.text =
-            if (prefsHelper.isArchiveOnboardingDefaultFlow()) getString(
-                R.string.welcome_text, prefsHelper.getCurrentArchiveFullName()
-            ) else getString(
-                R.string.archive_onboarding_invitation_welcome_text,
-                prefsHelper.getCurrentArchiveFullName(),
-                prefsHelper.getCurrentArchiveAccessRole().toTitleCase(),
-                CurrentArchivePermissionsManager.instance.getPermissionsEnumerated()
-            )
-        dialogBinding.btnGetStartedWelcomeDialog.setOnClickListener {
-            prefsHelper.saveWelcomeDialogSeen(true)
-            alert.dismiss()
-        }
-        alert.show()
-    }
-
-    private fun showLegacyDialog() {
-        val dialogBinding: DialogLegacyPlanningBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(this), R.layout.dialog_legacy_planning, null, false
-        )
-        val alert = AlertDialog.Builder(this).setView(dialogBinding.root).create()
-        dialogBinding.ivClose.setOnClickListener {
-            prefsHelper.saveLegacyDialogSeen(true)
-            alert.dismiss()
-        }
-        dialogBinding.btnTryNow.setOnClickListener {
-            prefsHelper.saveLegacyDialogSeen(true)
-            navController.navigate(R.id.legacyLoadingFragment)
-            alert.dismiss()
-        }
-        alert.setCanceledOnTouchOutside(false)
-        alert.show()
     }
 
     private fun isGooglePlayServicesAvailable(activity: Activity): Boolean {

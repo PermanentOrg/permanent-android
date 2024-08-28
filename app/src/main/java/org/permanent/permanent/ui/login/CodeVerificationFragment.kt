@@ -73,7 +73,6 @@ class CodeVerificationFragment : PermanentBaseFragment() {
     }
 
     private fun startArchiveOnboardingActivity() {
-        prefsHelper.saveArchiveOnboardingDoneInApp(true)
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
     }
