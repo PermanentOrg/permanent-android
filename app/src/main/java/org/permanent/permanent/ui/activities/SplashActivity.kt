@@ -21,7 +21,6 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
 import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.LoginActivity
-import org.permanent.permanent.ui.onboarding.OnboardingActivity
 import org.permanent.permanent.viewmodels.SplashViewModel
 
 class SplashActivity : PermanentBaseActivity() {
@@ -69,7 +68,6 @@ class SplashActivity : PermanentBaseActivity() {
 
         remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
             if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
-            else if (!prefsHelper.isOnboardingCompleted()) startOnboardingActivity()
             else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
             else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
             else viewModel.switchArchiveToCurrent()
@@ -115,11 +113,6 @@ class SplashActivity : PermanentBaseActivity() {
 
     private val onArchiveSwitchedToCurrentObserver = Observer<Void?> {
         startBiometricsFragment()
-    }
-
-    private fun startOnboardingActivity() {
-        startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
-        finish()
     }
 
     private fun startUpdateAppActivity() {

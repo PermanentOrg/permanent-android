@@ -8,7 +8,6 @@ import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 
 const val PREFS_NAME = "permanent_preferences"
-const val IS_ONBOARDING_COMPLETED = "onboarding_completed"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
@@ -40,10 +39,6 @@ const val PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR = "preferences_deep_link_folder_arch
 const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
-
-    fun isOnboardingCompleted(): Boolean {
-        return sharedPreferences.getBoolean(IS_ONBOARDING_COMPLETED, false)
-    }
 
     fun saveUserLoggedIn(isLoggedIn: Boolean) {
         with(sharedPreferences.edit()) {
