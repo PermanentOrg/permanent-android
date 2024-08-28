@@ -91,6 +91,7 @@ fun EditMetadataScreen(
     val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
     val isBusy by viewModel.getIsBusy().observeAsState()
     val locationMenuName by viewModel.getLocationMenuName().observeAsState()
+    val dateMenuName by viewModel.getDateMenuName().observeAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
@@ -198,10 +199,12 @@ fun EditMetadataScreen(
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-        FilesMenuView(icon = R.drawable.ic_date_time,
-            title = stringResource(id = R.string.date_time),
-            actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
-            openDateAndTimeScreen(viewModel.getRecords())
+        dateMenuName?.let {
+            FilesMenuView(icon = R.drawable.ic_date_time,
+                title = it,
+                actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
+                openDateAndTimeScreen(viewModel.getRecords())
+            }
         }
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))

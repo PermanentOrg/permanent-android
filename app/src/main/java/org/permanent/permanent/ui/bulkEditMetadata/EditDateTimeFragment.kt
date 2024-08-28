@@ -9,8 +9,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -20,17 +18,18 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.bulkEditMetadata.compose.EditDateTimeScreen
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
-import org.permanent.permanent.viewmodels.EditLocationViewModel
+import org.permanent.permanent.viewmodels.EditDateTimeViewModel
 
 class EditDateTimeFragment : PermanentBottomSheetFragment() {
-    private lateinit var viewModel: EditLocationViewModel
-    private val onLocationChanged = MutableLiveData<String>()
+    private lateinit var viewModel: EditDateTimeViewModel
+//    private val onLocationChanged = MutableLiveData<String>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         Places.initialize(requireContext(), BuildConfig.GMP_KEY)
-        viewModel = ViewModelProvider(this)[EditLocationViewModel::class.java]
+        viewModel = ViewModelProvider(this)[EditDateTimeViewModel::class.java]
 
         arguments?.getParcelableArrayList<Record>(PARCELABLE_FILES_KEY)?.let {
             viewModel.setRecords(it)
@@ -39,7 +38,7 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    EditDateTimeScreen(cancel = {
+                    EditDateTimeScreen(viewModel = viewModel, cancel = {
                         this@EditDateTimeFragment.dismiss()
                     })
                 }
@@ -64,17 +63,17 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         }
         return bottomSheetDialog
     }
-
-    private val onLocationChangedObserver = Observer<String> {
-        onLocationChanged.value = it
-    }
+//
+//    private val onLocationChangedObserver = Observer<String> {
+//        onLocationChanged.value = it
+//    }
 
     override fun connectViewModelEvents() {
-        viewModel.getOnLocationChanged().observe(this, onLocationChangedObserver)
+//        viewModel.getOnLocationChanged().observe(this, onLocationChangedObserver)
     }
-
+//
     override fun disconnectViewModelEvents() {
-        viewModel.getOnLocationChanged().removeObserver(onLocationChangedObserver)
+//        viewModel.getOnLocationChanged().removeObserver(onLocationChangedObserver)
     }
 
     override fun onResume() {
@@ -87,5 +86,5 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         disconnectViewModelEvents()
     }
 
-    fun getOnLocationChanged() = onLocationChanged
+//    fun getOnLocationChanged() = onLocationChanged
 }

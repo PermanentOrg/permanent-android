@@ -33,6 +33,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     val showApplyAllToSelection = MutableLiveData(true)
     private val isBusy = MutableLiveData(false)
     private val locationMenuName = MutableLiveData(appContext.getString(R.string.locations))
+    private val dateMenuName = MutableLiveData(appContext.getString(R.string.date_time))
     private var fileDataSize = 0
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -55,6 +56,17 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         }
     }
 
+    fun setDateMenuName() {
+        records.firstOrNull()?.fileData?.displayDate?.let { firstDate: String ->
+            var sameDate = records.all { it.fileData?.displayDate == firstDate}
+            if (sameDate) {
+                dateMenuName.value = records.firstOrNull()?.fileData?.displayDate
+            } else {
+                dateMenuName.value = appContext.getString(R.string.various_date_times)
+            }
+        }
+    }
+
     private fun requestFileData(record: Record) {
         val folderLinkId = record.folderLinkId
         val recordId = record.recordId
@@ -71,6 +83,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                         checkForCommonDescription()
                         checkForCommonTags()
                         setLocationMenuName()
+                        setDateMenuName()
                     }
                 }
 
@@ -252,4 +265,6 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     fun getSomeFilesHaveDescription() = showWarningSomeFilesHaveDescription
 
     fun getLocationMenuName() = locationMenuName
+
+    fun getDateMenuName() = dateMenuName
 }

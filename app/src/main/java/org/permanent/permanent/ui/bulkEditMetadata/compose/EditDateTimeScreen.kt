@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.bulkEditMetadata.compose
 
+import CustomDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,10 +9,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +25,7 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,13 +40,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditDateTimeViewModel
-import org.permanent.permanent.viewmodels.EditFileNamesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -56,9 +58,10 @@ fun EditDateTimeScreen(
 
     val context = LocalContext.current
     val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
-    val blue400 = Color(ContextCompat.getColor(context, R.color.blue400))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+
+    val openAlertDialog = remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState()
     val selectedDate = datePickerState.selectedDateMillis?.let {
@@ -166,21 +169,21 @@ fun EditDateTimeScreen(
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = blue900),
                 onClick = {
-                    viewModel.updateDate(selectedDate)
-//                        openAlertDialog.value = true
+                    openAlertDialog.value = true
                 }) {
-//                    if (viewModel.isBusy.value) {
-//                        CircularProgressIndicator(
-//                            modifier = Modifier.width(32.dp),
-//                            color = primaryColor,
-//                            trackColor = superLightBlue,
-//                        )
-//                    } else {
-                Text(
-                    text = stringResource(R.string.add_date),
-                    fontSize = 14.sp,
-                    fontFamily = regularFont,
-                )
+                if (viewModel.isBusy.value) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(32.dp),
+                        color = blue900,
+                        trackColor = superLightBlue,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.add_date),
+                        fontSize = 14.sp,
+                        fontFamily = regularFont,
+                    )
+                }
             }
         }
 
@@ -204,7 +207,29 @@ fun EditDateTimeScreen(
                 )
             }
         }
+
+        when {
+            openAlertDialog.value -> {
+                CustomDialog(
+                    title = stringResource(id = R.string.location_confirmation_title),
+                    subtitle = stringResource(id = R.string.location_confirmation_substring),
+                    okButtonText = stringResource(id = R.string.set_location),
+                    cancelButtonText = stringResource(id = R.string.button_cancel),
+                    onConfirm = {
+                        openAlertDialog.value = false
+                        viewModel.updateDate(dateString = selectedDate)
+                    }) {
+                    openAlertDialog.value = false
+                }
+            }
+        }
     }
+
+    LaunchedEffect(key1 = viewModel.shouldClose.value, block = {
+        if (viewModel.shouldClose.value) {
+            cancel()
+        }
+    })
 }
 
 @Composable
@@ -247,10 +272,4 @@ fun convertTimeToString(hour: Int, min: Int): String {
     }
 
     return "$hour:$minString $amPM"
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun SimpleComposablePreview() {
-    EditDateTimeScreen(cancel = {})
 }
