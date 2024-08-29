@@ -256,6 +256,10 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         locationMenuName.value = address
     }
 
+    fun onDateChanged(dateString: String) {
+        dateMenuName.value = dateString
+    }
+
     fun getIsBusy() = isBusy
 
     fun getRecords() = records

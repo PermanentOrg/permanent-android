@@ -20,6 +20,7 @@ class EditMetadataFragment : PermanentBaseFragment() {
     private lateinit var viewModel: EditMetadataViewModel
     private var newTagFragment: NewTagFragment? = null
     private var locationFragment: EditLocationFragment? = null
+    private var dateFragment: EditDateTimeFragment? = null
     private var records = ArrayList<Record>()
 
     override fun onCreateView(
@@ -53,9 +54,11 @@ class EditMetadataFragment : PermanentBaseFragment() {
                             fragment?.show(parentFragmentManager, fragment?.tag)
                         },
                         openDateAndTimeScreen = {
-                            var fragment = EditDateTimeFragment()
-                            fragment?.setBundleArguments(records)
-                            fragment?.show(parentFragmentManager, fragment?.tag)
+                            dateFragment = EditDateTimeFragment()
+                            dateFragment?.setBundleArguments(records)
+                            dateFragment?.show(parentFragmentManager, dateFragment?.tag)
+                            dateFragment?.getOnDateChanged()
+                                ?.observe(lifecycleOwner, onDateChangedObserver)
                         },
                         openLocationScreen = {
                             locationFragment = EditLocationFragment()
@@ -78,6 +81,11 @@ class EditMetadataFragment : PermanentBaseFragment() {
         viewModel.onLocationChanged(it)
     }
 
+    private val onDateChangedObserver = Observer<String> {
+        viewModel.onDateChanged(it)
+    }
+
+
     override fun connectViewModelEvents() {
 
     }
@@ -85,6 +93,7 @@ class EditMetadataFragment : PermanentBaseFragment() {
     override fun disconnectViewModelEvents() {
         newTagFragment?.getOnTagsAddedToSelection()?.removeObserver(onTagsAddedToSelectionObserver)
         locationFragment?.getOnLocationChanged()?.removeObserver(onLocationChangedObserver)
+        dateFragment?.getOnDateChanged()?.removeObserver(onDateChangedObserver)
     }
 
     override fun onResume() {

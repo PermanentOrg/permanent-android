@@ -211,13 +211,13 @@ fun EditDateTimeScreen(
         when {
             openAlertDialog.value -> {
                 CustomDialog(
-                    title = stringResource(id = R.string.location_confirmation_title),
-                    subtitle = stringResource(id = R.string.location_confirmation_substring),
-                    okButtonText = stringResource(id = R.string.set_location),
+                    title = stringResource(id = R.string.date_confirmation_title),
+                    subtitle = stringResource(id = R.string.date_confirmation_substring),
+                    okButtonText = stringResource(id = R.string.set_date_and_time),
                     cancelButtonText = stringResource(id = R.string.button_cancel),
                     onConfirm = {
                         openAlertDialog.value = false
-                        viewModel.updateDate(dateString = selectedDate)
+                        viewModel.updateDate(dateString = "$selectedDate $selectedTime")
                     }) {
                     openAlertDialog.value = false
                 }
@@ -242,12 +242,12 @@ fun TimePickerDialog(
         onDismissRequest = onDismiss,
         dismissButton = {
             TextButton(onClick = { onDismiss() }) {
-                Text("Dismiss")
+                Text(stringResource(id = R.string.button_cancel))
             }
         },
         confirmButton = {
             TextButton(onClick = { onConfirm() }) {
-                Text("OK")
+                Text(stringResource(id = R.string.save_button))
             }
         },
         text = { content() }
@@ -260,16 +260,9 @@ fun convertMillisToDate(millis: Long): String {
 }
 
 fun convertTimeToString(hour: Int, min: Int): String {
-    val amPM = if (hour < 12) {
-        "AM"
-    } else {
-        "PM"
-    }
-    val minString = if (min < 10) {
-        "0$min"
-    } else {
-        "$min"
-    }
+    val amPm = if (hour < 12) "AM" else "PM"
+    val adjustedHour = if (hour == 0) 12 else hour % 12 // Handle 0 hour as 12 AM
+    val minString = String.format("%02d", min)
 
-    return "$hour:$minString $amPM"
+    return "$adjustedHour:$minString $amPm"
 }

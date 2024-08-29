@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -22,7 +24,7 @@ import org.permanent.permanent.viewmodels.EditDateTimeViewModel
 
 class EditDateTimeFragment : PermanentBottomSheetFragment() {
     private lateinit var viewModel: EditDateTimeViewModel
-//    private val onLocationChanged = MutableLiveData<String>()
+    private val onDateChanged = MutableLiveData<String>()
 
 
     override fun onCreateView(
@@ -63,17 +65,17 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         }
         return bottomSheetDialog
     }
-//
-//    private val onLocationChangedObserver = Observer<String> {
-//        onLocationChanged.value = it
-//    }
+
+    private val onDateChangedObserver = Observer<String> {
+        onDateChanged.value = it
+    }
 
     override fun connectViewModelEvents() {
-//        viewModel.getOnLocationChanged().observe(this, onLocationChangedObserver)
+        viewModel.getOnDateChanged().observe(this, onDateChangedObserver)
     }
-//
+
     override fun disconnectViewModelEvents() {
-//        viewModel.getOnLocationChanged().removeObserver(onLocationChangedObserver)
+        viewModel.getOnDateChanged().removeObserver(onDateChangedObserver)
     }
 
     override fun onResume() {
@@ -86,5 +88,5 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         disconnectViewModelEvents()
     }
 
-//    fun getOnLocationChanged() = onLocationChanged
+    fun getOnDateChanged() = onDateChanged
 }

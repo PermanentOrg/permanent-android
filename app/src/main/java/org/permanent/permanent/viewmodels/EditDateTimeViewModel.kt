@@ -3,6 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -14,6 +15,7 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
     var shouldClose: MutableState<Boolean> = mutableStateOf(false)
     var isBusy: MutableState<Boolean> = mutableStateOf(false)
     val showMessage = mutableStateOf("")
+    private val onDateChanged = MutableLiveData<String>()
 
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
@@ -23,19 +25,21 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
         this.records.forEach {
             it.displayDate = dateString
         }
-        applyChanges()
+        applyChanges(dateString)
     }
 
-    private fun applyChanges() {
+    private fun applyChanges(dateString: String) {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
+        isBusy.value = true
         fileRepository.updateMultipleRecords(records = records,
             isFolderRecordType = false,
             object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     shouldClose.value = true
+                    onDateChanged.value = dateString
                 }
 
                 override fun onFailed(error: String?) {
@@ -46,4 +50,6 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
                 }
             })
     }
+
+    fun getOnDateChanged() = onDateChanged
 }
