@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -122,12 +123,15 @@ fun ArchiveTypeDropdown(
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Image(
-                painter = painterResource(id = currentArchiveType.icon),
-                colorFilter = ColorFilter.tint(whiteColor),
-                contentDescription = "",
-                modifier = Modifier.size(16.dp)
-            )
+            Column {
+                Spacer(modifier = Modifier.height(4.dp))
+                Image(
+                    painter = painterResource(id = currentArchiveType.icon),
+                    colorFilter = ColorFilter.tint(whiteColor),
+                    contentDescription = "",
+                    modifier = Modifier.size(16.dp)
+                )
+            }
 
             Column(
                 modifier = Modifier.weight(1.0f), verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -149,12 +153,15 @@ fun ArchiveTypeDropdown(
                 )
             }
 
-            Image(
-                painter = painterResource(id = R.drawable.ic_arrow_drop_down),
-                colorFilter = ColorFilter.tint(whiteColor),
-                contentDescription = "Drop down",
-                modifier = Modifier.size(12.dp)
-            )
+            Column {
+                Spacer(modifier = Modifier.height(4.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.ic_arrow_drop_down),
+                    colorFilter = ColorFilter.tint(whiteColor),
+                    contentDescription = "Drop down",
+                    modifier = Modifier.size(14.dp)
+                )
+            }
         }
 
         if (showBottomSheet) {

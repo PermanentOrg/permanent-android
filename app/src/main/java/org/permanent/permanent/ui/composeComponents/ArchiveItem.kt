@@ -102,7 +102,7 @@ fun ArchiveItem(
                 if (showAcceptButton) {
                     Box(
                         modifier = Modifier
-                            .width(88.dp)
+                            .width(90.dp)
                             .height(40.dp)
                     ) {
                         SmallTextAndIconButton(
