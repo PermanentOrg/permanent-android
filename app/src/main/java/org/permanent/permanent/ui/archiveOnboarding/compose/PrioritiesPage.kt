@@ -138,8 +138,19 @@ private fun PhoneBody(
                 fontFamily = regularFont
             )
 
+            val descriptionText = stringResource(id = R.string.tell_us_description)
+            val boldedText = "What brought you to Permanent.org"
+            val startIndex = descriptionText.indexOf(boldedText)
+            val styles = listOf(
+                AnnotatedString.Range(
+                    SpanStyle(fontWeight = FontWeight.Bold),
+                    start = startIndex,
+                    end = startIndex + boldedText.length
+                )
+            )
+
             Text(
-                text = stringResource(id = R.string.tell_us_description),
+                text = AnnotatedString(text = descriptionText, spanStyles = styles),
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
                 color = Color.White,
@@ -263,8 +274,19 @@ private fun TabletBody(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
+                val descriptionText = stringResource(id = R.string.tell_us_description)
+                val boldedText = "What brought you to Permanent.org"
+                val startIndex = descriptionText.indexOf(boldedText)
+                val styles = listOf(
+                    AnnotatedString.Range(
+                        SpanStyle(fontWeight = FontWeight.Bold),
+                        start = startIndex,
+                        end = startIndex + boldedText.length
+                    )
+                )
+
                 Text(
-                    text = stringResource(id = R.string.tell_us_description),
+                    text = AnnotatedString(text = descriptionText, spanStyles = styles),
                     fontSize = 16.sp,
                     lineHeight = 24.sp,
                     color = Color.White,
