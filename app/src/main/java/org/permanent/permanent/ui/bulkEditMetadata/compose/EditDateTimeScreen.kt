@@ -46,7 +46,6 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditDateTimeViewModel
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -63,23 +62,23 @@ fun EditDateTimeScreen(
 
     val openAlertDialog = remember { mutableStateOf(false) }
 
-    val datePickerState = rememberDatePickerState()
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = viewModel.initialDateMilis
+    )
     val selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: ""
 
     var showTimePicker by remember { mutableStateOf(false) }
 
-    val currentTime = Calendar.getInstance()
-
     val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-        initialMinute = currentTime.get(Calendar.MINUTE),
-        is24Hour = false,
+        initialHour = viewModel.initialHour,
+        initialMinute = viewModel.initialMinute,
+        is24Hour = true,
     )
 
     var selectedTime by remember { mutableStateOf(
-        convertTimeToString(timePickerState.hour, timePickerState.minute)
+        convertTimeToString(timePickerState.hour, timePickerState.minute, 0)
     )}
 
     Column(
@@ -192,7 +191,7 @@ fun EditDateTimeScreen(
                 onDismiss = { showTimePicker = false },
                 onConfirm = {
                     showTimePicker = false
-                    selectedTime = convertTimeToString(timePickerState.hour, timePickerState.minute)
+                    selectedTime = convertTimeToString(timePickerState.hour, timePickerState.minute, 0)
                 }
             ) {
                 TimePicker(
@@ -217,7 +216,7 @@ fun EditDateTimeScreen(
                     cancelButtonText = stringResource(id = R.string.button_cancel),
                     onConfirm = {
                         openAlertDialog.value = false
-                        viewModel.updateDate(dateString = "$selectedDate $selectedTime")
+                        viewModel.updateDate(dateString = "${selectedDate}T${selectedTime}")
                     }) {
                     openAlertDialog.value = false
                 }
@@ -255,14 +254,14 @@ fun TimePickerDialog(
 }
 
 fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return formatter.format(Date(millis))
 }
 
-fun convertTimeToString(hour: Int, min: Int): String {
-    val amPm = if (hour < 12) "AM" else "PM"
-    val adjustedHour = if (hour == 0) 12 else hour % 12 // Handle 0 hour as 12 AM
+fun convertTimeToString(hour: Int, min: Int, sec: Int): String {
+    val hourString = String.format("%02d", hour)
     val minString = String.format("%02d", min)
+    val secString = String.format("%02d", sec)
 
-    return "$adjustedHour:$minString $amPm"
+    return "$hourString:$minString:$secString"
 }

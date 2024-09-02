@@ -74,7 +74,7 @@ open class Record : Parcelable {
         folderLinkId = recordInfo.folder_linkId
         parentFolderLinkId = recordInfo.parentFolder_linkId
         displayName = recordInfo.displayName
-        displayDate = recordInfo.displayDT?.substringBefore("T")
+        displayDate = recordInfo.displayDT
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
         thumbURL2000 = recordInfo.thumbURL2000
@@ -100,7 +100,7 @@ open class Record : Parcelable {
         folderLinkId = recordInfo.folder_linkId
         parentFolderLinkId = recordInfo.parentFolder_linkId
         displayName = recordInfo.displayName
-        displayDate = recordInfo.displayDT?.substringBefore("T")
+        displayDate = recordInfo.displayDT
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
         thumbURL2000 = recordInfo.thumbURL2000
@@ -127,7 +127,7 @@ open class Record : Parcelable {
         folderLinkId = itemVO.folder_linkId
         parentFolderLinkId = itemVO.parentFolder_linkId
         displayName = itemVO.displayName
-        displayDate = itemVO.displayDT?.substringBefore("T")
+        displayDate = itemVO.displayDT
         archiveFullName = "The ${archiveVO.fullName} Archive"
         archiveThumbURL200 = archiveVO.thumbURL200
         showArchiveThumb = showArchiveThumbnail
@@ -172,7 +172,7 @@ open class Record : Parcelable {
         folderLinkId = recordInfo?.folder_linkId
         parentFolderLinkId = recordInfo?.parentFolder_linkId
         displayName = recordInfo?.displayName
-        displayDate = recordInfo?.displayDT?.substringBefore("T")
+        displayDate = recordInfo?.displayDT
         thumbURL200 = recordInfo?.thumbURL200
         thumbURL2000 = recordInfo?.thumbURL2000
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0

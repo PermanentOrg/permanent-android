@@ -8,6 +8,9 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class EditDateTimeViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -15,10 +18,19 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
     var shouldClose: MutableState<Boolean> = mutableStateOf(false)
     var isBusy: MutableState<Boolean> = mutableStateOf(false)
     val showMessage = mutableStateOf("")
+
     private val onDateChanged = MutableLiveData<String>()
+    private val currentTime = Calendar.getInstance()
+    var initialDateMilis: Long = currentTime.timeInMillis
+    var initialHour: Int = currentTime.get(Calendar.HOUR_OF_DAY)
+    var initialMinute = currentTime.get(Calendar.MINUTE)
 
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
+        records.firstOrNull()?.displayDate?.let {
+            val dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            extractDateHourMinute(it, dateFormat)
+        }
     }
 
     fun updateDate(dateString: String) {
@@ -52,4 +64,22 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun getOnDateChanged() = onDateChanged
+
+    private fun extractDateHourMinute(dateString: String, dateFormat: String) {
+        val simpleDateFormat = SimpleDateFormat(dateFormat, Locale.getDefault())
+        val date = simpleDateFormat.parse(dateString)
+
+        val hourFormatter = SimpleDateFormat("HH", Locale.getDefault())
+        val minuteFormatter = SimpleDateFormat("mm", Locale.getDefault())
+
+         date?.time?.let {
+             initialDateMilis = it
+        }
+        hourFormatter.format(date).toIntOrNull()?.let {
+            initialHour = it
+        }
+        minuteFormatter.format(date).toIntOrNull()?.let {
+            initialMinute = it
+        }
+    }
 }
