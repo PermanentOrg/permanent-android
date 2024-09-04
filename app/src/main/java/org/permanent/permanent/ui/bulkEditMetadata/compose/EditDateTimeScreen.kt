@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -55,9 +56,8 @@ fun EditDateTimeScreen(
     viewModel: EditDateTimeViewModel,
     cancel: () -> Unit) {
 
-    val context = LocalContext.current
-    val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
-    val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
+    val superLightBlue = colorResource(id = R.color.superLightBlue)
+    val blue900 = colorResource(R.color.blue900)
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
     val openAlertDialog = remember { mutableStateOf(false) }
