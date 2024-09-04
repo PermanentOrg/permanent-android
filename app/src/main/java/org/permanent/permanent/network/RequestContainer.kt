@@ -286,6 +286,7 @@ class RequestContainer {
                 recordVO.folder_linkId = record.folderLinkId
                 recordVO.parentFolder_linkId = record.parentFolderLinkId
                 recordVO.displayName = record.displayName
+                recordVO.displayDT = record.displayDate
                 if(locnVO != null) {
                     recordVO.LocnVO = locnVO
                 }
