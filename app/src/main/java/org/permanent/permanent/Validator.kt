@@ -46,18 +46,18 @@ class Validator {
             }
         }
 
-        fun isValidPassword(password: String?, passwordError: MutableLiveData<Int>): Boolean {
+        fun isValidPassword(password: String?, passwordError: MutableLiveData<Int>?): Boolean {
             return when {
                 password.isNullOrEmpty() -> {
-                    passwordError.value = R.string.password_empty_error
+                    passwordError?.value = R.string.password_empty_error
                     false
                 }
                 password.length < MIN_PASSWORD_LENGTH -> {
-                    passwordError.value = R.string.password_too_short_error
+                    passwordError?.value = R.string.password_too_short_error
                     false
                 }
                 else -> {
-                    passwordError.value = null
+                    passwordError?.value = null
                     true
                 }
             }

@@ -49,7 +49,7 @@
             android:fontFamily="@font/open_sans"
             android:letterSpacing="-0.01"
             android:onClick="@{() -> viewModel.onDoneBtnClick()}"
-            android:text="@string/button_done"
+            android:text="@string/done"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/frameLayoutContainer"

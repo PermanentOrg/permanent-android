@@ -66,7 +66,7 @@ fun FeedbackSnackbar(
                         .padding(top = 36.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = if (isForSuccess) R.drawable.ic_done_green else R.drawable.ic_error),
+                        painter = painterResource(id = if (isForSuccess) R.drawable.ic_done_green else R.drawable.ic_error_square),
                         contentDescription = "Next",
                         modifier = Modifier.size(16.dp)
                     )

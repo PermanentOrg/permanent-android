@@ -2,16 +2,9 @@
 
 package org.permanent.permanent.ui.archiveOnboarding.compose
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,12 +30,10 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -53,7 +44,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
-import org.permanent.permanent.ui.composeComponents.CustomProgressIndicator
+import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
+import org.permanent.permanent.ui.composeComponents.CustomLinearProgressIndicator
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 @Composable
@@ -282,29 +274,7 @@ fun ArchiveOnboardingScreen(
 
         // Overlay with spinning images
         if (isBusyState) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    .clickable(enabled = false) {}, contentAlignment = Alignment.Center
-            ) {
-                val infiniteTransition = rememberInfiniteTransition(label = "")
-
-                val rotation by infiniteTransition.animateFloat(
-                    initialValue = 0f, targetValue = 360f, animationSpec = infiniteRepeatable(
-                        animation = tween(1000, easing = LinearEasing),
-                        repeatMode = RepeatMode.Restart
-                    ), label = ""
-                )
-
-                Image(painter = painterResource(id = R.drawable.ellipse_exterior),
-                    contentDescription = null,
-                    modifier = Modifier.graphicsLayer { rotationZ = -rotation })
-
-                Image(painter = painterResource(id = R.drawable.ellipse_interior),
-                    contentDescription = null,
-                    modifier = Modifier.graphicsLayer { rotationZ = rotation })
-            }
+            CircularProgressIndicator()
         }
     }
 
@@ -337,7 +307,7 @@ fun OnboardingProgressIndicator(
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
 
-    CustomProgressIndicator(
+    CustomLinearProgressIndicator(
         Modifier
             .clip(shape = RoundedCornerShape(3.dp))
             .height(height),

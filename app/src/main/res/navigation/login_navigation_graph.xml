@@ -8,20 +8,13 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="org.permanent.permanent.ui.login.LoginFragment"
-        android:label="LoginFragment"
-        tools:layout="@layout/fragment_login">
+        android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_codeVerificationFragment"
             app:destination="@id/codeVerificationFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_signUpFragment"
-            app:destination="@id/signUpFragment" />
-        <action
             android:id="@+id/action_loginFragment_to_biometricsFragment"
             app:destination="@id/biometricsFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
-            app:destination="@id/forgotPasswordFragment" />
     </fragment>
     <fragment
         android:id="@+id/biometricsFragment"

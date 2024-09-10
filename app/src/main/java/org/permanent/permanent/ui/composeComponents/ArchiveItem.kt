@@ -105,7 +105,7 @@ fun ArchiveItem(
                             .width(90.dp)
                             .height(40.dp)
                     ) {
-                        SmallTextAndIconButton(
+                        CenteredTextAndIconButton(
                             buttonColor = ButtonColor.TRANSPARENT,
                             text = stringResource(id = R.string.accept),
                             fontSize = 12.sp,
@@ -183,7 +183,7 @@ private fun TabletBodyForWelcomePage(
                         .width(96.dp)
                         .height(48.dp)
                 ) {
-                    SmallTextAndIconButton(
+                    CenteredTextAndIconButton(
                         buttonColor = ButtonColor.TRANSPARENT,
                         text = stringResource(id = R.string.accept),
                         fontSize = 12.sp,
