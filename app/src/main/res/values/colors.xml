@@ -35,6 +35,7 @@
     <color name="success500">#12B76A</color>
     <color name="success">#32D583</color>
     <color name="white">#FFFFFF</color>
+    <color name="whiteLightTransparent">#D6FFFFFF</color>
     <color name="whiteTransparent">#80FFFFFF</color>
     <color name="whiteSuperTransparent">#50FFFFFF</color>
     <color name="whiteSuperExtraTransparent">#20FFFFFF</color>

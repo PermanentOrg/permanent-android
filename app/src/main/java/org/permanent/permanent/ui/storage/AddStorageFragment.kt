@@ -138,7 +138,7 @@ class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListe
         alertDialog.setTitle(title)
         alertDialog.setMessage(text)
         alertDialog.setPositiveButton(
-            R.string.button_ok
+            R.string.ok
         ) { _, _ ->
         }
         val alert: AlertDialog = alertDialog.create()

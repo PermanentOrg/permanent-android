@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="org.permanent.permanent.ui.login.LoginFragment"
+        android:name="org.permanent.permanent.ui.login.AuthenticationFragment"
         android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_codeVerificationFragment"

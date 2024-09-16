@@ -25,13 +25,11 @@ import org.permanent.permanent.R
 
 @Composable
 fun CustomSnackbar(
-    isTablet: Boolean = false,
     message: String, buttonText: String, onButtonClick: () -> Unit, modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(if (isTablet) 64.dp else 32.dp)
             .background(
                 color = colorResource(id = R.color.errorLight),
                 shape = RoundedCornerShape(size = 12.dp)

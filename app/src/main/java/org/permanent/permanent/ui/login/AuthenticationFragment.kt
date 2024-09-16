@@ -17,10 +17,10 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
-import org.permanent.permanent.ui.login.compose.LoginContainer
+import org.permanent.permanent.ui.login.compose.AuthenticationContainer
 import org.permanent.permanent.viewmodels.LoginFragmentViewModel
 
-class LoginFragment : PermanentBaseFragment() {
+class AuthenticationFragment : PermanentBaseFragment() {
     private lateinit var viewModel: LoginFragmentViewModel
     private lateinit var prefsHelper: PreferencesHelper
 
@@ -36,7 +36,7 @@ class LoginFragment : PermanentBaseFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    LoginContainer(viewModel)
+                    AuthenticationContainer(viewModel)
                 }
             }
         }
