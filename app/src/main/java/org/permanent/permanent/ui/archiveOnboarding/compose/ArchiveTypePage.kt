@@ -40,7 +40,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
-import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
+import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 
 @Composable
 fun ArchiveTypePage(
@@ -131,7 +131,7 @@ private fun TabletBody(
                 Box(
                     modifier = Modifier.weight(1f)
                 ) {
-                        SmallTextAndIconButton(
+                        CenteredTextAndIconButton(
                             buttonColor = ButtonColor.TRANSPARENT,
                             text = stringResource(id = R.string.back),
                             icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
@@ -146,7 +146,7 @@ private fun TabletBody(
                 Box(
                     modifier = Modifier.weight(1f)
                 ) {
-                    SmallTextAndIconButton(
+                    CenteredTextAndIconButton(
                         buttonColor = ButtonColor.LIGHT,
                         text = stringResource(id = R.string.next)
                     ) {
@@ -218,7 +218,7 @@ private fun PhoneBody(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                SmallTextAndIconButton(
+                CenteredTextAndIconButton(
                     buttonColor = ButtonColor.TRANSPARENT,
                     text = stringResource(id = R.string.back),
                     icon = painterResource(id = R.drawable.ic_arrow_back_rounded_white),
@@ -235,7 +235,7 @@ private fun PhoneBody(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                SmallTextAndIconButton(
+                CenteredTextAndIconButton(
                     ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
                     coroutineScope.launch {

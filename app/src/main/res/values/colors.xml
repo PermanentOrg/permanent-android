@@ -12,6 +12,7 @@
     <color name="superLightBlue">#F4F6FD</color>
     <color name="blueGrey">#465084</color>
     <color name="darkBlue">#010A3F</color>
+    <color name="errorLight">#FEE4E2</color>
     <color name="error25">#FFFBFA</color>
     <color name="error200">#FECDCA</color>
     <color name="error500">#F04438</color>
@@ -34,9 +35,11 @@
     <color name="success500">#12B76A</color>
     <color name="success">#32D583</color>
     <color name="white">#FFFFFF</color>
+    <color name="whiteLightTransparent">#D6FFFFFF</color>
     <color name="whiteTransparent">#80FFFFFF</color>
     <color name="whiteSuperTransparent">#50FFFFFF</color>
     <color name="whiteSuperExtraTransparent">#20FFFFFF</color>
+    <color name="whiteUltraTransparent">#0AFFFFFF</color>
     <color name="superLightGrey">#EBEBEB</color>
     <color name="lightGrey">#B4B4B4</color>
     <color name="lighterGrey">#DADADA</color>

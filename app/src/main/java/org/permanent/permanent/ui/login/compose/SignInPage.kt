@@ -1,0 +1,303 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
+package org.permanent.permanent.ui.login.compose
+
+import android.graphics.Rect
+import android.view.ViewTreeObserver
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+import org.permanent.permanent.R
+import org.permanent.permanent.ui.composeComponents.ButtonColor
+import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
+import org.permanent.permanent.ui.composeComponents.CustomSnackbar
+import org.permanent.permanent.ui.composeComponents.CustomTextButton
+import org.permanent.permanent.viewmodels.LoginFragmentViewModel
+
+@Composable
+fun SignInPage(
+    viewModel: LoginFragmentViewModel, pagerState: PagerState
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+
+    val errorMessage by viewModel.showError.collectAsState()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    var emailValueState by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = ""
+            )
+        )
+    }
+
+    var passwordValueState by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = ""
+            )
+        )
+    }
+
+    val keyboardState by keyboardAsState()
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.img_logo),
+                contentDescription = "Logo",
+                modifier = Modifier.size(64.dp)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = stringResource(id = R.string.sign_in_to_permanent),
+                fontSize = 32.sp,
+                lineHeight = 48.sp,
+                color = Color.White,
+                fontFamily = regularFont
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            if (keyboardState == Keyboard.Closed) {
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            Column(
+                modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Bottom
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, Color.White.copy(alpha = 0.29f), RoundedCornerShape(10.dp)),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextField(
+                        value = emailValueState,
+                        onValueChange = { value -> emailValueState = value },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .weight(1.0f),
+                        singleLine = true,
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.email_address).uppercase(),
+                                color = Color.White,
+                                fontSize = 10.sp,
+                                lineHeight = 16.sp,
+                                fontFamily = regularFont
+                            )
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            fontFamily = regularFont,
+                            fontWeight = FontWeight(600),
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = colorResource(id = R.color.whiteUltraTransparent),
+                            unfocusedContainerColor = colorResource(id = R.color.whiteUltraTransparent),
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            cursorColor = colorResource(id = R.color.blue400),
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, Color.White.copy(alpha = 0.29f), RoundedCornerShape(10.dp)),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextField(
+                        value = passwordValueState,
+                        onValueChange = { value -> passwordValueState = value },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .weight(1.0f),
+                        singleLine = true,
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.password).uppercase(),
+                                color = Color.White,
+                                fontSize = 10.sp,
+                                lineHeight = 16.sp,
+                                fontFamily = regularFont
+                            )
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            fontFamily = regularFont,
+                            fontWeight = FontWeight(600),
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = colorResource(id = R.color.whiteUltraTransparent),
+                            focusedIndicatorColor = colorResource(id = R.color.whiteUltraTransparent),
+                            unfocusedIndicatorColor = Color.Transparent,
+                            cursorColor = colorResource(id = R.color.blue400)
+                        ),
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                CenteredTextAndIconButton(
+                    buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.sign_in)
+                ) {
+                    keyboardController?.hide()
+                    viewModel.login(emailValueState.text.trim(), passwordValueState.text.trim())
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                CustomTextButton(text = stringResource(id = R.string.forgot_password)) {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(AuthPage.FORGOT_PASSWORD.value)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    HorizontalDivider(
+                        color = colorResource(id = R.color.colorPrimary200),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = stringResource(id = R.string.new_to_permanent).uppercase(),
+                        color = colorResource(id = R.color.colorPrimary200),
+                        fontSize = 10.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.open_sans_semibold_ttf))
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    HorizontalDivider(
+                        color = colorResource(id = R.color.colorPrimary200),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                CenteredTextAndIconButton(
+                    buttonColor = ButtonColor.TRANSPARENT,
+                    text = stringResource(id = R.string.register),
+                    icon = painterResource(id = R.drawable.ic_account_add_white)
+                ) {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(AuthPage.SIGN_UP.value)
+                    }
+                }
+            }
+        }
+
+        if (errorMessage.isNotEmpty()) {
+            CustomSnackbar(message = errorMessage,
+                buttonText = stringResource(id = R.string.ok),
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onButtonClick = {
+                    viewModel.clearError()
+                })
+        }
+    }
+}
+
+enum class Keyboard {
+    Opened, Closed
+}
+
+@Composable
+fun keyboardAsState(): State<Keyboard> {
+    val keyboardState = remember { mutableStateOf(Keyboard.Closed) }
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val onGlobalListener = ViewTreeObserver.OnGlobalLayoutListener {
+            val rect = Rect()
+            view.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = view.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+            keyboardState.value = if (keypadHeight > screenHeight * 0.15) {
+                Keyboard.Opened
+            } else {
+                Keyboard.Closed
+            }
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(onGlobalListener)
+
+        onDispose {
+            view.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalListener)
+        }
+    }
+
+    return keyboardState
+}

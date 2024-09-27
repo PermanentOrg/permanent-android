@@ -1,19 +1,14 @@
 package org.permanent.permanent.ui.login
 
 import android.content.Context
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
-import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentForgotPasswordBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -42,20 +37,20 @@ class ForgotPasswordFragment : PermanentBaseFragment() {
     }
 
     private val onPasswordReset = Observer<Void?> {
-        val message = getString(
-            R.string.login_screen_password_reset_message, viewModel.getCurrentEmail().value
-        )
-        val snackBar = Snackbar.make(binding.root, message, SNACKBAR_DURATION)
-        val view: View = snackBar.view
-        context?.let {
-            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
-            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
-        }
-        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
-        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
-        snackBar.show()
-
-        onBackToSignIn.onChanged(null)
+//        val message = getString(
+//            R.string.login_screen_password_reset_message, viewModel.getCurrentEmail().value
+//        )
+//        val snackBar = Snackbar.make(binding.root, message, SNACKBAR_DURATION)
+//        val view: View = snackBar.view
+//        context?.let {
+//            view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
+//            snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
+//        }
+//        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+//        snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
+//        snackBar.show()
+//
+//        onBackToSignIn.onChanged(null)
     }
 
     private val onBackToSignIn = Observer<Void?> {

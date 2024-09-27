@@ -43,7 +43,7 @@ import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ThumbStatus
 import org.permanent.permanent.ui.composeComponents.ArchiveItem
 import org.permanent.permanent.ui.composeComponents.ButtonColor
-import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
+import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 @Composable
@@ -176,7 +176,7 @@ private fun PhoneBody(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                SmallTextAndIconButton(
+                CenteredTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT,
                     text = stringResource(id = R.string.done),
                     icon = painterResource(id = R.drawable.ic_done_white),
@@ -287,7 +287,7 @@ private fun TabletBody(
                         .fillMaxWidth()
                         .weight(1f)
                 ) {
-                    SmallTextAndIconButton(
+                    CenteredTextAndIconButton(
                         buttonColor = ButtonColor.LIGHT,
                         text = stringResource(id = R.string.done),
                         icon = painterResource(id = R.drawable.ic_done_white),

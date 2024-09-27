@@ -44,7 +44,7 @@ import org.permanent.permanent.models.Status
 import org.permanent.permanent.models.ThumbStatus
 import org.permanent.permanent.ui.composeComponents.ArchiveItem
 import org.permanent.permanent.ui.composeComponents.ButtonColor
-import org.permanent.permanent.ui.composeComponents.SmallTextAndIconButton
+import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
 @Composable
@@ -169,7 +169,7 @@ private fun TabletBody(
                     modifier = Modifier.weight(1f)
                 ) {
                     if (archives.isNotEmpty()) {
-                        SmallTextAndIconButton(
+                        CenteredTextAndIconButton(
                             buttonColor = ButtonColor.TRANSPARENT,
                             text = stringResource(id = R.string.create_new_archive),
                             icon = painterResource(id = R.drawable.ic_plus_white)
@@ -184,7 +184,7 @@ private fun TabletBody(
                 Box(
                     modifier = Modifier.weight(1f)
                 ) {
-                    SmallTextAndIconButton(buttonColor = ButtonColor.LIGHT,
+                    CenteredTextAndIconButton(buttonColor = ButtonColor.LIGHT,
                         text = stringResource(id = if (archives.isEmpty()) R.string.get_started else R.string.next),
                         showButtonEnabled = archives.isEmpty() || archives.any { it.status == Status.OK }) {
                         val nextPage =
@@ -300,7 +300,7 @@ private fun PhoneBody(
             }
             .padding(horizontal = 32.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
 
-            SmallTextAndIconButton(buttonColor = ButtonColor.LIGHT,
+            CenteredTextAndIconButton(buttonColor = ButtonColor.LIGHT,
                 text = stringResource(id = if (archives.isEmpty()) R.string.get_started else R.string.next),
                 showButtonEnabled = archives.isEmpty() || archives.any { it.status == Status.OK }
             ) {
@@ -316,7 +316,7 @@ private fun PhoneBody(
             }
 
             if (archives.isNotEmpty()) {
-                SmallTextAndIconButton(
+                CenteredTextAndIconButton(
                     buttonColor = ButtonColor.TRANSPARENT,
                     text = stringResource(id = R.string.new_archive),
                     icon = painterResource(id = R.drawable.ic_plus_white)
