@@ -54,16 +54,17 @@ import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CustomSnackbar
 import org.permanent.permanent.ui.composeComponents.CustomTextButton
-import org.permanent.permanent.viewmodels.LoginFragmentViewModel
+import org.permanent.permanent.viewmodels.AuthenticationViewModel
 
 @Composable
 fun SignInPage(
-    viewModel: LoginFragmentViewModel, pagerState: PagerState
+    viewModel: AuthenticationViewModel, pagerState: PagerState
 ) {
     val coroutineScope = rememberCoroutineScope()
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
-    val errorMessage by viewModel.showError.collectAsState()
+    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+    val snackbarType by viewModel.snackbarType.collectAsState()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -207,7 +208,9 @@ fun SignInPage(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.sign_in)
                 ) {
                     keyboardController?.hide()
-                    viewModel.login(emailValueState.text.trim(), passwordValueState.text.trim())
+                    viewModel.login(
+                        true, emailValueState.text.trim(), passwordValueState.text.trim()
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -251,7 +254,7 @@ fun SignInPage(
 
                 CenteredTextAndIconButton(
                     buttonColor = ButtonColor.TRANSPARENT,
-                    text = stringResource(id = R.string.register),
+                    text = stringResource(id = R.string.sign_up),
                     icon = painterResource(id = R.drawable.ic_account_add_white)
                 ) {
                     coroutineScope.launch {
@@ -261,14 +264,13 @@ fun SignInPage(
             }
         }
 
-        if (errorMessage.isNotEmpty()) {
-            CustomSnackbar(message = errorMessage,
-                buttonText = stringResource(id = R.string.ok),
-                modifier = Modifier.align(Alignment.BottomCenter),
-                onButtonClick = {
-                    viewModel.clearError()
-                })
-        }
+        CustomSnackbar(modifier = Modifier.align(Alignment.BottomCenter),
+            isForError = snackbarType == AuthenticationViewModel.SnackbarType.ERROR,
+            message = snackbarMessage,
+            buttonText = stringResource(id = R.string.ok),
+            onButtonClick = {
+                viewModel.clearSnackbar()
+            })
     }
 }
 
