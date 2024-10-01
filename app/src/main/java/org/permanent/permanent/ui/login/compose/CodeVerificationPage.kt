@@ -24,9 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -61,12 +59,8 @@ fun CodeVerificationPage(
     val keyboardController = LocalSoftwareKeyboardController.current
     val keyboardState by keyboardAsState()
 
-    var codeValues by remember {
-        mutableStateOf(List(4) { "" })
-    }
-
-    // List of FocusRequesters for each TextField
-    val focusRequesters = List(4) { FocusRequester() }
+    val codeValues by viewModel.codeValues.collectAsState()
+    val focusRequesters = remember { List(4) { FocusRequester() } }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -113,7 +107,8 @@ fun CodeVerificationPage(
                     DigitTextField(
                         value = codeValue,
                         onValueChange = { newValue ->
-                            codeValues = codeValues.toMutableList().also { it[index] = newValue }
+                            val updatedValues = codeValues.toMutableList().also { it[index] = newValue }
+                            viewModel.updateCodeValues(updatedValues)
                         },
                         focusRequester = focusRequesters[index],
                         previousFocusRequester = if (index > 0) focusRequesters[index - 1] else null,
@@ -121,9 +116,7 @@ fun CodeVerificationPage(
                         modifier = Modifier
                             .height(64.dp)
                             .width(70.dp)
-                            .border(
-                                1.dp, Color.White.copy(alpha = 0.29f), RoundedCornerShape(12.dp)
-                            )
+                            .border(1.dp, Color.White.copy(alpha = 0.29f), RoundedCornerShape(12.dp))
                     )
                 }
             }
@@ -137,7 +130,10 @@ fun CodeVerificationPage(
             ) {
                 keyboardController?.hide()
                 val code = codeValues.joinToString("")
-                viewModel.verifyCode(code)
+                viewModel.verifyCode(code) {
+                    focusRequesters[0].requestFocus() // Request focus to the first digit field after clearing the code
+                    keyboardController?.hide()
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))

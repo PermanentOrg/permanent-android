@@ -7,15 +7,16 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,40 +55,37 @@ fun CustomSnackbar(
         } else visible = false
     }
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = slideInVertically(
-            initialOffsetY = { fullHeight -> fullHeight } // Slide in from bottom
+    AnimatedVisibility(visible = visible,
+        enter = slideInVertically(initialOffsetY = { fullHeight -> fullHeight } // Slide in from bottom
         ) + fadeIn(), // Fade in as well
-        exit = slideOutVertically(
-            targetOffsetY = { fullHeight -> fullHeight } // Slide out to bottom
+        exit = slideOutVertically(targetOffsetY = { fullHeight -> fullHeight } // Slide out to bottom
         ) + fadeOut(), // Fade out as well
-        modifier = modifier
-    ) {
+        modifier = modifier) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
                 .background(
                     color = colorResource(id = if (isForError) R.color.errorLight else R.color.successLight),
                     shape = RoundedCornerShape(size = 12.dp)
-                )
-                .padding(24.dp), contentAlignment = Alignment.Center
+                ), contentAlignment = Alignment.Center
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
             ) {
                 Image(
                     painter = painterResource(id = if (isForError) R.drawable.ic_error_cercle else R.drawable.ic_done_white),
+                    contentDescription = "error",
                     colorFilter = ColorFilter.tint(
                         if (isForError) colorResource(id = R.color.error500) else colorResource(
                             id = R.color.successDark
                         )
                     ),
-                    contentDescription = "error",
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier
+                        .padding(start = 24.dp)
+                        .size(16.dp)
                 )
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
                     text = message,
@@ -100,16 +98,30 @@ fun CustomSnackbar(
                     lineHeight = 24.sp
                 )
 
-                TextButton(onClick = onButtonClick) {
-                    Text(
-                        text = buttonText,
-                        color = if (isForError) colorResource(id = R.color.blue900) else colorResource(
-                            id = R.color.successDark
-                        ),
-                        fontFamily = FontFamily(Font(R.font.open_sans_semibold_ttf)),
-                        fontSize = 14.sp,
-                        lineHeight = 24.sp
-                    )
+                if (isForError) {
+                    Box(modifier = Modifier
+                        .clickable { onButtonClick() }
+                        .padding(top = 24.dp, bottom = 24.dp, end = 24.dp, start = 8.dp)) {
+                        Text(
+                            text = buttonText,
+                            color = colorResource(id = R.color.blue900),
+                            fontFamily = FontFamily(Font(R.font.open_sans_semibold_ttf)),
+                            fontSize = 14.sp,
+                            lineHeight = 24.sp
+                        )
+                    }
+                } else {
+                    Box(modifier = Modifier
+                        .clickable { onButtonClick() }
+                        .padding(top = 24.dp, bottom = 24.dp, end = 24.dp, start = 8.dp),
+                        contentAlignment = Alignment.Center) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_close_white),
+                            contentDescription = "Close",
+                            colorFilter = ColorFilter.tint(colorResource(id = R.color.blue200)),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
         }
@@ -119,8 +131,7 @@ fun CustomSnackbar(
 @Preview
 @Composable
 fun CustomSnackbarPreview() {
-    CustomSnackbar(
-        message = "The entered data is invalid",
+    CustomSnackbar(message = "The entered data is invalid",
         buttonText = "OK",
         onButtonClick = { /*TODO*/ })
 }

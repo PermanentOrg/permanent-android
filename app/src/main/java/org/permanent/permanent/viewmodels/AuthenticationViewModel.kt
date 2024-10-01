@@ -32,6 +32,8 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     private val onUserMissingDefaultArchive = SingleLiveEvent<Void?>()
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
+    private val _codeValues = MutableStateFlow(List(4) { "" })
+    val codeValues: StateFlow<List<String>> = _codeValues
     private val _snackbarMessage = MutableStateFlow("")
     val snackbarMessage: StateFlow<String> = _snackbarMessage
     private val _snackbarType = MutableStateFlow(SnackbarType.NONE)
@@ -169,7 +171,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         }
     }
 
-    fun verifyCode(code: String) {
+    fun verifyCode(code: String, onCleared: () -> Unit) {
         if (_isBusyState.value) {
             return
         }
@@ -189,6 +191,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
+                    clearCodeValues(onCleared)
                     showErrorMessage(
                         if (error.equals(Constants.ERROR_INVALID_VERIFICATION_CODE)) {
                             appContext.getString(R.string.code_is_incorrect)
@@ -198,6 +201,19 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                     )
                 }
             })
+    }
+
+    fun updateCodeValues(newValues: List<String>) {
+        _codeValues.value = newValues
+    }
+
+    private fun clearCodeValues(onCleared: () -> Unit) {
+        viewModelScope.launch {
+            _codeValues.value = List(4) { "" }
+            // Small delay to ensure the state update is propagated before requesting focus
+            delay(100)
+            onCleared() // Trigger the focus shift after the state update is fully reflected
+        }
     }
 
     fun showSuccessMessage(message: String) {

@@ -208,6 +208,7 @@ fun SignInPage(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.sign_in)
                 ) {
                     keyboardController?.hide()
+                    viewModel.clearSnackbar()
                     viewModel.login(
                         true, emailValueState.text.trim(), passwordValueState.text.trim()
                     )
