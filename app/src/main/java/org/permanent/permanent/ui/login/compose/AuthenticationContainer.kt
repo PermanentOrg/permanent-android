@@ -22,6 +22,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,15 +45,25 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.CustomTextButton
-import org.permanent.permanent.viewmodels.LoginFragmentViewModel
+import org.permanent.permanent.viewmodels.AuthenticationViewModel
 
 @Composable
 fun AuthenticationContainer(
-    viewModel: LoginFragmentViewModel
+    viewModel: AuthenticationViewModel
 ) {
     val pagerState = rememberPagerState(
         initialPage = AuthPage.SIGN_IN.value,
         pageCount = { AuthPage.values().size })
+
+    val navigateToPage by viewModel.navigateToPage.collectAsState()
+
+    LaunchedEffect(navigateToPage) {
+        navigateToPage?.let { page ->
+            pagerState.animateScrollToPage(page.value)
+            viewModel.clearPageNavigation()
+        }
+    }
+
     val isTablet = viewModel.isTablet()
 
     val isBusyState by viewModel.isBusyState.collectAsState()
@@ -96,11 +107,9 @@ fun AuthenticationContainer(
                         }
 
                         AuthPage.CODE_VERIFICATION.value -> {
-//                                CodeVerificationPage(
-//                                    viewModel = viewModel,
-//                                    isTablet = isTablet,
-//                                    pagerState = pagerState
-//                                )
+                                CodeVerificationPage(
+                                    viewModel = viewModel
+                                )
                         }
 
                         AuthPage.SIGN_UP.value -> {
@@ -139,7 +148,7 @@ private fun LeftSideView(
 
     Box(
         modifier = Modifier
-            .width(2 * oneThirdOfScreenDp + horizontalPaddingDp)
+            .width(2 * oneThirdOfScreenDp)
             .fillMaxHeight()
     ) {
         Image(

@@ -24,7 +24,6 @@ class Constants {
         const val MEDIA_TYPE_OCTET_STREAM = "application/octet-stream"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
         const val AUTH_TYPE_PHONE = "type.auth.phone"
-        const val AUTH_REQUEST_SCOPE = "offline_access"
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
         const val ERROR_INVALID_VERIFICATION_CODE = "warning.auth.token_does_not_match"
         const val ERROR_EXPIRED_VERIFICATION_CODE = "warning.auth.token_expired"
@@ -40,8 +39,6 @@ class Constants {
         const val ERROR_PASSWORD_NO_MATCH = "warning.registration.password_match"
         const val ERROR_PASSWORD_OLD_INCORRECT = "warning.auth.bad_old_password"
         const val SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED"
-        const val FILE_DELETED_SUCCESSFULLY = "Record(s) have been deleted."
-        const val FOLDER_DELETED_SUCCESSFULLY = "Folder has been deleted."
         // This is also used in manifest
         const val FILE_PROVIDER_NAME = ".fileprovider"
     }

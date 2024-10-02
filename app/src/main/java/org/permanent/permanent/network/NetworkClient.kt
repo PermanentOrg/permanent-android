@@ -764,6 +764,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun addRemoveTags(tags: Tags): Call<ResponseVO> = stelaAccountService.addRemoveTags(tags)
 
+//    fun getTwoFAMethod(): Call<ResponseVO> = stelaAccountService.getTwoFAMethod()
+
     fun getPaymentIntent(
         accountId: Int,
         accountEmail: String?,

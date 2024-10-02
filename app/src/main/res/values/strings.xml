@@ -12,7 +12,7 @@
     <string name="new_to_permanent">New to Permanent?</string>
     <string name="login_screen_missing_auth_token_error">Missing authentication token. Please try again.</string>
     <string name="login_screen_use_touch_id">Use Touch ID</string>
-    <string name="forgot_password_screen_or">Or</string>
+    <string name="or">Or</string>
     <string name="forgot_password_screen_back_to_sign_in">Back to Sign in</string>
     <string name="button_recover_password">Recover password</string>
     <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
@@ -29,16 +29,22 @@
     <string name="verification_code_enter_code_hint">Code</string>
     <string name="no_notifications">No notifications</string>
     <string name="verify">Verify</string>
+    <string name="verify_your_identity_title">Verify your identity</string>
+    <string name="verify_your_identity_text">Please check your email or SMS for the 4-digit code and enter it below.</string>
     <string name="update">Update</string>
     <string name="sign_in">Sign in</string>
     <string name="sign_in_to_permanent">Sign in to\nPermanent</string>
     <string name="email_address">Email address</string>
     <string name="password">Password</string>
-    <string name="register">Register</string>
     <string name="the_entered_data_is_invalid">The entered data is invalid</string>
     <string name="haadsma_dairy_truck_title">Haadsma Dairy Truck | The Haadsma Dairy Archive</string>
     <string name="haadsma_dairy_truck_text">At Permanent, we celebrate our members\' hard work through our public gallery and archive spotlights. Explore our gallery and, when you\'re ready, publish or share your own public archive.</string>
     <string name="start_exploring_now">Start Exploring Now</string>
+    <string name="didnt_receive_code">Didn\'t receive the code?</string>
+    <string name="resend_code">Resend code</string>
+    <string name="code_is_incorrect">The 4-digit code is incorrect.</string>
+    <string name="code_expired">The code expired.</string>
+    <string name="code_resent">The code was resent.</string>
 
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
@@ -390,7 +396,7 @@
     <string name="invitations_description">Invite your friends and family and both of your accounts will be credited with one free gigabyte of storage when they sign up.</string>
     <string name="invitations_send_new_invite_button">Send New Invite</string>
     <string name="invitations_your_invitations">Your Invitations</string>
-    <string name="invitations_resend_button">Resend</string>
+    <string name="resend">Resend</string>
     <string name="invitations_revoke_button">Revoke</string>
     <string name="invitations_update_type_sent">sent</string>
     <string name="invitations_update_type_resent">resent</string>

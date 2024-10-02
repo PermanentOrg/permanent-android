@@ -18,16 +18,16 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
 import org.permanent.permanent.ui.login.compose.AuthenticationContainer
-import org.permanent.permanent.viewmodels.LoginFragmentViewModel
+import org.permanent.permanent.viewmodels.AuthenticationViewModel
 
 class AuthenticationFragment : PermanentBaseFragment() {
-    private lateinit var viewModel: LoginFragmentViewModel
+    private lateinit var viewModel: AuthenticationViewModel
     private lateinit var prefsHelper: PreferencesHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[LoginFragmentViewModel::class.java]
+        viewModel = ViewModelProvider(this)[AuthenticationViewModel::class.java]
 
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

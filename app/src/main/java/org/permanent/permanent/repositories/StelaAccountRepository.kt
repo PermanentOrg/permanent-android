@@ -6,4 +6,6 @@ import org.permanent.permanent.network.IResponseListener
 interface StelaAccountRepository {
 
     fun addRemoveTags(tags: Tags, listener: IResponseListener)
+
+//    fun getTwoFAMethod(listener: IResponseListener)
 }

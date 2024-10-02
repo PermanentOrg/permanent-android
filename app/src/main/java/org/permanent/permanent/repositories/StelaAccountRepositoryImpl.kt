@@ -39,4 +39,30 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
                 }
             })
     }
+
+//    override fun getTwoFAMethod(listener: IResponseListener) {
+//        NetworkClient.instance().getTwoFAMethod().enqueue(object : Callback<ResponseVO> {
+//
+//            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+//                if (response.isSuccessful) {
+//                    val responseBody = response.body()
+//                    if (responseBody != null) {
+//                        listener.onSuccess("")
+//                    } else {
+//                        listener.onFailed(appContext.getString(R.string.generic_error))
+//                    }
+//                } else {
+//                    try {
+//                        listener.onFailed(response.errorBody().toString())
+//                    } catch (e: Exception) {
+//                        listener.onFailed(e.message)
+//                    }
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+//                listener.onFailed(t.message)
+//            }
+//        })
+//    }
 }

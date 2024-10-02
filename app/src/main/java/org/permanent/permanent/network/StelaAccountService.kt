@@ -10,4 +10,7 @@ interface StelaAccountService {
 
     @PUT("api/v2/account/tags")
     fun addRemoveTags(@Body tags: Tags): Call<ResponseVO>
+
+//    @GET("api/v2/idpuser")
+//    fun getTwoFAMethod(): Call<ResponseVO>
 }
