@@ -122,7 +122,10 @@ fun EditMetadataScreen(
             lightGreyColor,
             someFilesHaveDescription,
             redColor,
-            smallTextSize
+            smallTextSize,
+            onTextChange = {
+                inputDescription = it
+            }
         )
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))
@@ -282,9 +285,9 @@ private fun DescriptionView(
     lightGreyColor: Color,
     someFilesHaveDescription: Boolean?,
     redColor: Color,
-    smallTextSize: TextUnit
+    smallTextSize: TextUnit,
+    onTextChange: (String) -> Unit
 ) {
-    var description = inputDescription
     Row(
         verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -304,10 +307,8 @@ private fun DescriptionView(
     Spacer(modifier = Modifier.height(10.dp))
 
     TextField(
-        value = description,
-        onValueChange = { value ->
-            description = value
-        },
+        value = inputDescription,
+        onValueChange = onTextChange,
         label = { Text(text = stringResource(id = R.string.edit_files_metadata_description_hint)) },
         singleLine = true,
         modifier = Modifier
