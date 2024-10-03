@@ -288,7 +288,6 @@ private fun DescriptionView(
     smallTextSize: TextUnit,
     onTextChange: (String) -> Unit
 ) {
-//    var description = inputDescription
     Row(
         verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
