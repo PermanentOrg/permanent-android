@@ -1,6 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
@@ -15,6 +16,8 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     val uiState = MutableStateFlow(EditFileNamesUIState())
 
     private var records: MutableList<Record> = mutableListOf()
+
+    private val onFileNameChanged = MutableLiveData<String>()
 
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
@@ -175,6 +178,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
             isFolderRecordType = false,
             object : IResponseListener {
             override fun onSuccess(message: String?) {
+                onFileNameChanged.value = "File names updated successfully!"
                 toggleLoading()
                 triggerCloseScreen()
             }
@@ -187,6 +191,8 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
             }
         })
     }
+
+    fun getOnFileNameChanged() = onFileNameChanged
 }
 
 data class EditFileNamesUIState(

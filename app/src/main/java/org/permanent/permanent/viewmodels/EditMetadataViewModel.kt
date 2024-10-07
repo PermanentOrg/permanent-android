@@ -30,6 +30,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     private var showWarningSomeFilesHaveDescription = MutableLiveData(false)
     val showError = MutableLiveData<String>()
     val showApplyAllToSelection = MutableLiveData(true)
+    val showInfoMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData(false)
     private val locationMenuName = MutableLiveData(appContext.getString(R.string.locations))
     private val dateMenuName = MutableLiveData(appContext.getString(R.string.date_time))
