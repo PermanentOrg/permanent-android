@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -21,6 +22,7 @@ class EditMetadataFragment : PermanentBaseFragment() {
     private var newTagFragment: NewTagFragment? = null
     private var locationFragment: EditLocationFragment? = null
     private var dateFragment: EditDateTimeFragment? = null
+    private var fileNameFragment: EditFileNamesFragment? = null
     private var records = ArrayList<Record>()
 
     override fun onCreateView(
@@ -49,9 +51,11 @@ class EditMetadataFragment : PermanentBaseFragment() {
                                 ?.observe(lifecycleOwner, onTagsAddedToSelectionObserver)
                         },
                         openEditFileNamesScreen = {
-                            var fragment = EditFileNamesFragment()
-                            fragment?.setBundleArguments(records)
-                            fragment?.show(parentFragmentManager, fragment?.tag)
+                            fileNameFragment = EditFileNamesFragment()
+                            fileNameFragment?.setBundleArguments(records)
+                            fileNameFragment?.show(parentFragmentManager, fileNameFragment?.tag)
+                            fileNameFragment?.getOnFilenameChanged()
+                                ?.observe(lifecycleOwner, onFilenameChangedObserver)
                         },
                         openDateAndTimeScreen = {
                             dateFragment = EditDateTimeFragment()
@@ -85,6 +89,10 @@ class EditMetadataFragment : PermanentBaseFragment() {
         viewModel.onDateChanged(it)
     }
 
+    private val onFilenameChangedObserver = Observer<String> {
+        viewModel.showInfoMessage.value = it
+    }
+
 
     override fun connectViewModelEvents() {
 
@@ -94,6 +102,7 @@ class EditMetadataFragment : PermanentBaseFragment() {
         newTagFragment?.getOnTagsAddedToSelection()?.removeObserver(onTagsAddedToSelectionObserver)
         locationFragment?.getOnLocationChanged()?.removeObserver(onLocationChangedObserver)
         dateFragment?.getOnDateChanged()?.removeObserver(onDateChangedObserver)
+        fileNameFragment?.getOnFilenameChanged()?.removeObserver(onFilenameChangedObserver)
     }
 
     override fun onResume() {

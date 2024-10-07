@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -47,6 +48,7 @@ import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditDateTimeViewModel
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
 
@@ -63,8 +65,10 @@ fun EditDateTimeScreen(
     val openAlertDialog = remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = viewModel.initialDateMilis
+        initialSelectedDateMillis = viewModel.initialDateMilis,
+        selectableDates = PastOrPresentSelectableDates
     )
+
     val selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: ""
@@ -264,4 +268,15 @@ fun convertTimeToString(hour: Int, min: Int, sec: Int): String {
     val secString = String.format("%02d", sec)
 
     return "$hourString:$minString:$secString"
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private object PastOrPresentSelectableDates: SelectableDates {
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        return utcTimeMillis <= System.currentTimeMillis()
+    }
+
+    override fun isSelectableYear(year: Int): Boolean {
+        return year <= LocalDate.now().year
+    }
 }

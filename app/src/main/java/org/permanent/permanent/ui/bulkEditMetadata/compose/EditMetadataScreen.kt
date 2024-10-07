@@ -88,6 +88,7 @@ fun EditMetadataScreen(
     val allTags by viewModel.getTagsOfSelectedRecords().observeAsState()
     val focusRequester = remember { FocusRequester() }
     val errorMessage by viewModel.showError.observeAsState()
+    val infoMessage by viewModel.showInfoMessage.observeAsState()
     val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
     val isBusy by viewModel.getIsBusy().observeAsState()
     val locationMenuName by viewModel.getLocationMenuName().observeAsState()
@@ -223,6 +224,14 @@ fun EditMetadataScreen(
 
     LaunchedEffect(errorMessage) {
         errorMessage?.let { message ->
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
+
+    LaunchedEffect(infoMessage) {
+        infoMessage?.let { message ->
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(message)
             }
