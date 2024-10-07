@@ -216,7 +216,7 @@ fun SignInPage(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                CustomTextButton(text = stringResource(id = R.string.forgot_password)) {
+                CustomTextButton(text = stringResource(id = R.string.forgot_your_password_title)) {
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(AuthPage.FORGOT_PASSWORD.value)
                     }

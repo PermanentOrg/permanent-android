@@ -97,19 +97,15 @@ fun AuthenticationContainer(
                 }
 
                 HorizontalPager(
-                    state = pagerState, userScrollEnabled = false
+                    state = pagerState, beyondBoundsPageCount = 3, userScrollEnabled = false
                 ) { page ->
                     when (page) {
                         AuthPage.SIGN_IN.value -> {
-                            SignInPage(
-                                viewModel = viewModel, pagerState = pagerState
-                            )
+                            SignInPage(viewModel = viewModel, pagerState = pagerState)
                         }
 
                         AuthPage.CODE_VERIFICATION.value -> {
-                                CodeVerificationPage(
-                                    viewModel = viewModel
-                                )
+                            CodeVerificationPage(viewModel = viewModel)
                         }
 
                         AuthPage.SIGN_UP.value -> {
@@ -121,11 +117,11 @@ fun AuthenticationContainer(
                         }
 
                         AuthPage.FORGOT_PASSWORD.value -> {
-//                                ForgotPasswordPage(
-//                                    viewModel = viewModel,
-//                                    isTablet = isTablet,
-//                                    pagerState = pagerState
-//                                )
+                            ForgotPasswordPage(viewModel = viewModel, pagerState = pagerState)
+                        }
+
+                        AuthPage.FORGOT_PASSWORD_DONE.value -> {
+                            ForgotPasswordDonePage(pagerState = pagerState)
                         }
                     }
                 }
@@ -222,5 +218,5 @@ private fun LeftSideView(
 }
 
 enum class AuthPage(val value: Int) {
-    SIGN_IN(0), CODE_VERIFICATION(1), SIGN_UP(2), FORGOT_PASSWORD(3)
+    SIGN_IN(0), CODE_VERIFICATION(1), SIGN_UP(2), FORGOT_PASSWORD(3), FORGOT_PASSWORD_DONE(4)
 }
