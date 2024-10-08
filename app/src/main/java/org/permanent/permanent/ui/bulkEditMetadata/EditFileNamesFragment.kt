@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -21,6 +23,7 @@ import org.permanent.permanent.viewmodels.EditFileNamesViewModel
 class EditFileNamesFragment : PermanentBottomSheetFragment() {
 
     private lateinit var viewModel: EditFileNamesViewModel
+    private val onFileNameChanged = MutableLiveData<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -60,12 +63,28 @@ class EditFileNamesFragment : PermanentBottomSheetFragment() {
         return bottomSheetDialog
     }
 
-    override fun connectViewModelEvents() {
+    private val onFileNameChangedObserver = Observer<String> {
+        onFileNameChanged.value = it
+    }
 
+    override fun connectViewModelEvents() {
+        viewModel.getOnFileNameChanged().observe(this, onFileNameChangedObserver)
     }
 
     override fun disconnectViewModelEvents() {
-
+        viewModel.getOnFileNameChanged().removeObserver(onFileNameChangedObserver)
     }
+
+    override fun onResume() {
+        super.onResume()
+        connectViewModelEvents()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disconnectViewModelEvents()
+    }
+
+    fun getOnFilenameChanged() = onFileNameChanged
 
 }
