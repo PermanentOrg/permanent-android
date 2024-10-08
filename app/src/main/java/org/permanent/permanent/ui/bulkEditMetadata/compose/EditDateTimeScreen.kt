@@ -220,7 +220,7 @@ fun EditDateTimeScreen(
                     cancelButtonText = stringResource(id = R.string.button_cancel),
                     onConfirm = {
                         openAlertDialog.value = false
-                        viewModel.updateDate(dateString = "${selectedDate}T${selectedTime}")
+                        viewModel.updateDate(dateString = "$selectedDate $selectedTime")
                     }) {
                     openAlertDialog.value = false
                 }
