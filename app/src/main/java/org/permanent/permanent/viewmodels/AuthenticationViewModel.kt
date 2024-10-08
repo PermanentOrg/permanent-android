@@ -216,6 +216,31 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         }
     }
 
+    fun forgotPassword(email: String) {
+        if (_isBusyState.value) {
+            return
+        }
+
+        if (!Validator.isValidEmail(null, email, null, null)) {
+            showErrorMessage(appContext.getString(R.string.the_entered_data_is_invalid))
+            return
+        }
+
+        _isBusyState.value = true
+        authRepository.forgotPassword(email,
+            object : IAuthenticationRepository.IOnResetPasswordListener {
+                override fun onSuccess() {
+                    _isBusyState.value = false
+                    _navigateToPage.value = AuthPage.FORGOT_PASSWORD_DONE
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    error?.let { showErrorMessage(it) }
+                }
+            })
+    }
+
     fun showSuccessMessage(message: String) {
         clearSnackbar()
         // Post the new message with a small delay to allow UI refresh

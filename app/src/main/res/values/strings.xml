@@ -7,13 +7,14 @@
     <string name="toolbar_title">Permanent.org</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
-    <string name="forgot_password">Forgot password?</string>
+    <string name="forgot_your_password_title">Forgot your password?</string>
+    <string name="forgot_your_password_text">Enter the email address used to sign up for your account to receive instructions on how to reset your password.</string>
+    <string name="forgot_your_password_done_text">Thank you! If your email was found in our system, you will receive an email shortly.</string>
     <string name="sign_up">Sign up</string>
     <string name="new_to_permanent">New to Permanent?</string>
     <string name="login_screen_missing_auth_token_error">Missing authentication token. Please try again.</string>
     <string name="login_screen_use_touch_id">Use Touch ID</string>
     <string name="or">Or</string>
-    <string name="forgot_password_screen_back_to_sign_in">Back to Sign in</string>
     <string name="button_recover_password">Recover password</string>
     <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
     <string name="sign_up_screen_sign_up">Sign Up</string>
@@ -45,6 +46,9 @@
     <string name="code_is_incorrect">The 4-digit code is incorrect.</string>
     <string name="code_expired">The code expired.</string>
     <string name="code_resent">The code was resent.</string>
+    <string name="send_request">Send request</string>
+    <string name="back_to_sign_in">Back to Sign in</string>
+    <string name="go_to_sign_in">Go to Sign in</string>
 
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>

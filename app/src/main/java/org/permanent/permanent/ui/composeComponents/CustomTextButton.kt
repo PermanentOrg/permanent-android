@@ -78,6 +78,6 @@ fun CustomTextButton(
 @Composable
 fun TextButtonPreview() {
     CustomTextButton(
-        text = stringResource(id = R.string.forgot_password),
+        text = stringResource(id = R.string.forgot_your_password_title),
     ) { }
 }
