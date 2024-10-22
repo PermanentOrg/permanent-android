@@ -1,7 +1,9 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -10,11 +12,14 @@ import org.permanent.permanent.ui.bulkEditMetadata.compose.SequenceDateOptions
 import org.permanent.permanent.ui.bytesToHumanReadableString
 
 class EditFileNamesViewModel(application: Application) : ObservableAndroidViewModel(application) {
+    private var appContext = application.applicationContext
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     val uiState = MutableStateFlow(EditFileNamesUIState())
 
     private var records: MutableList<Record> = mutableListOf()
+
+    private val onFileNameChanged = MutableLiveData<String>()
 
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
@@ -175,6 +180,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
             isFolderRecordType = false,
             object : IResponseListener {
             override fun onSuccess(message: String?) {
+                onFileNameChanged.value = appContext.getString(R.string.file_names_updated)
                 toggleLoading()
                 triggerCloseScreen()
             }
@@ -187,6 +193,8 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
             }
         })
     }
+
+    fun getOnFileNameChanged() = onFileNameChanged
 }
 
 data class EditFileNamesUIState(

@@ -28,7 +28,7 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
         records.firstOrNull()?.displayDate?.let {
-            val dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            val dateFormat = "yyyy-MM-dd HH:mm:ss"
             extractDateHourMinute(it, dateFormat)
         }
     }

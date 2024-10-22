@@ -52,7 +52,7 @@ class FileData private constructor() : Parcelable {
         }
         displayName = recordVO.displayName
         description = recordVO.description
-        displayDate = recordVO.displayDT
+        displayDate = recordVO.displayDT?.replace("T", " ")
         createdDate = recordVO.createdDT?.replace("T", " ")
         updatedDate = recordVO.updatedDT?.replace("T", " ")
         derivedDate = recordVO.derivedDT?.replace("T", " ")
