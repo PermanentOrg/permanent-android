@@ -274,7 +274,7 @@ fun SignUpPage(
                         modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(modifier = Modifier.width(24.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     Switch(
                         checked = isUpdatesToggleChecked,
