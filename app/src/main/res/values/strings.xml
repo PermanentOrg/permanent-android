@@ -739,13 +739,13 @@
     <string name="add_location">Add Location</string>
     <string name="various_locations">Various locations</string>
     <string name="location_confirmation_title">New location</string>
-    <string name="location_confirmation_substring">Are you sure you want set a new location for selected items?</string>
+    <string name="location_confirmation_substring">Are you sure you want to set a new date &amp; time for the selected items?</string>
     <string name="add_date_time">Add date and time</string>
     <string name="add_date">Add date</string>
     <string name="various_date_times">Various dates and times</string>
     <string name="date_confirmation_title">New Date &amp; Time</string>
-    <string name="date_confirmation_substring">Are you sure you want set a new date &amp; time for selected items?</string>
+    <string name="date_confirmation_substring">Are you sure you want to set a new date &amp; time for the selected items?</string>
     <string name="set_date_and_time">Set date and time</string>
-
+    <string name="file_names_updated">File names updated successfully</string>
 
 </resources>

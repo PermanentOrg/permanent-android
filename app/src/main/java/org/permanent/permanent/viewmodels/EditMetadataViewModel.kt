@@ -26,11 +26,11 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     private val tagsOfSelectedRecords =
         MutableLiveData<SnapshotStateList<Tag>>(mutableStateListOf())
     private var commonTags: MutableList<Tag> = mutableListOf()
-    private var initialDescription: String = ""
     private var commonDescription: String = ""
     private var showWarningSomeFilesHaveDescription = MutableLiveData(false)
     val showError = MutableLiveData<String>()
     val showApplyAllToSelection = MutableLiveData(true)
+    val showInfoMessage = MutableLiveData<String>()
     private val isBusy = MutableLiveData(false)
     private val locationMenuName = MutableLiveData(appContext.getString(R.string.locations))
     private val dateMenuName = MutableLiveData(appContext.getString(R.string.date_time))
@@ -96,6 +96,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     private fun checkForCommonDescription() {
+        var initialDescription = ""
         for (record in records) {
             val recordDescription = record.fileData?.description
             if (!recordDescription.isNullOrBlank()) {

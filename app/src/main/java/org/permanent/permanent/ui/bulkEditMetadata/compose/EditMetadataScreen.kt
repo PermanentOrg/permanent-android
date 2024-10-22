@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -88,6 +89,7 @@ fun EditMetadataScreen(
     val allTags by viewModel.getTagsOfSelectedRecords().observeAsState()
     val focusRequester = remember { FocusRequester() }
     val errorMessage by viewModel.showError.observeAsState()
+    val infoMessage by viewModel.showInfoMessage.observeAsState()
     val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
     val isBusy by viewModel.getIsBusy().observeAsState()
     val locationMenuName by viewModel.getLocationMenuName().observeAsState()
@@ -97,142 +99,158 @@ fun EditMetadataScreen(
     val snackbarEventFlow = remember { MutableSharedFlow<String>() }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(lightBlueColor)
-            .padding(24.dp)
-            .verticalScroll(scrollState)
-            .clickable {
-                viewModel.applyNewDescriptionToAllRecords(inputDescription)
-            },
-        verticalArrangement = Arrangement.Top
-    ) {
-        Header(iconURL = firstRecordThumb, titleText = headerTitle)
-
-        Divider(modifier = Modifier.padding(vertical = 24.dp))
-
-        DescriptionView(
-            blackColor,
-            regularFont,
-            subTitleTextSize,
-            inputDescription,
-            focusRequester,
-            whiteColor,
-            lightGreyColor,
-            someFilesHaveDescription,
-            redColor,
-            smallTextSize
-        )
-
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { it ->
+        it
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(lightBlueColor)
+                .padding(24.dp)
+                .verticalScroll(scrollState)
+                .clickable {
+                    viewModel.applyNewDescriptionToAllRecords(inputDescription)
+                },
+            verticalArrangement = Arrangement.Top
         ) {
+            Header(iconURL = firstRecordThumb, titleText = headerTitle)
+
+            Divider(modifier = Modifier.padding(vertical = 24.dp))
+
+            DescriptionView(
+                blackColor,
+                regularFont,
+                subTitleTextSize,
+                inputDescription,
+                focusRequester,
+                whiteColor,
+                lightGreyColor,
+                someFilesHaveDescription,
+                redColor,
+                smallTextSize,
+                onTextChange = {
+                    inputDescription = it
+                }
+            )
+
+            Divider(modifier = Modifier.padding(vertical = 16.dp))
+
             Row(
-                modifier = Modifier.padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_tag),
-                    contentDescription = "Description",
-                    modifier = Modifier.size(24.dp),
-                    colorFilter = ColorFilter.tint(lightGreyColor)
-                )
-                Text(
-                    text = stringResource(R.string.edit_files_metadata_tags),
-                    color = blackColor,
-                    fontFamily = regularFont,
-                    fontSize = subTitleTextSize
-                )
-            }
-            if (showApplyAllToSelection == true) {
-                Row(modifier = Modifier
-                    .clickable { viewModel.onApplyAllTagsToSelectionClick() }
-                    .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.edit_files_metadata_apply_all_to_selection),
-                        color = primaryColor,
-                        fontFamily = semiboldFont,
-                        fontSize = subTitleTextSize
-                    )
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_done_white),
+                        painter = painterResource(id = R.drawable.ic_tag),
                         contentDescription = "Description",
                         modifier = Modifier.size(24.dp),
-                        colorFilter = ColorFilter.tint(primaryColor)
+                        colorFilter = ColorFilter.tint(lightGreyColor)
+                    )
+                    Text(
+                        text = stringResource(R.string.edit_files_metadata_tags),
+                        color = blackColor,
+                        fontFamily = regularFont,
+                        fontSize = subTitleTextSize
                     )
                 }
-            }
-        }
-
-        FlowRow(
-            modifier = Modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            allTags?.let { allTagsValue ->
-                for (tag in allTagsValue) {
-                    TagView(
-                        text = tag.name,
-                        isSelected = tag.isSelected.observeAsState(),
-                        onTagClick = { viewModel.onTagClick(tag) }
-                    ) { viewModel.onTagRemoveClick(tag) }
+                if (showApplyAllToSelection == true) {
+                    Row(modifier = Modifier
+                        .clickable { viewModel.onApplyAllTagsToSelectionClick() }
+                        .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.edit_files_metadata_apply_all_to_selection),
+                            color = primaryColor,
+                            fontFamily = semiboldFont,
+                            fontSize = subTitleTextSize
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_done_white),
+                            contentDescription = "Description",
+                            modifier = Modifier.size(24.dp),
+                            colorFilter = ColorFilter.tint(primaryColor)
+                        )
+                    }
                 }
             }
-            NewTagView {
-                val tagsOfSelectedRecords = arrayListOf<Tag>()
-                viewModel.getTagsOfSelectedRecords().value?.toList()
-                    ?.let { tagsOfSelectedRecords.addAll(it) }
 
-                openNewTagScreen(tagsOfSelectedRecords)
+            FlowRow(
+                modifier = Modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                allTags?.let { allTagsValue ->
+                    for (tag in allTagsValue) {
+                        TagView(
+                            text = tag.name,
+                            isSelected = tag.isSelected.observeAsState(),
+                            onTagClick = { viewModel.onTagClick(tag) }
+                        ) { viewModel.onTagRemoveClick(tag) }
+                    }
+                }
+                NewTagView {
+                    val tagsOfSelectedRecords = arrayListOf<Tag>()
+                    viewModel.getTagsOfSelectedRecords().value?.toList()
+                        ?.let { tagsOfSelectedRecords.addAll(it) }
+
+                    openNewTagScreen(tagsOfSelectedRecords)
+                }
             }
-        }
 
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+            Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-        FilesMenuView(icon = R.drawable.ic_edit_name,
-            title = stringResource(id = R.string.file_names),
-            actionTitle = stringResource(id = R.string.modify)) {
-            openEditFileNamesScreen(viewModel.getRecords())
-        }
-
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
-
-        dateMenuName?.let {
-            FilesMenuView(icon = R.drawable.ic_date_time,
-                title = it,
-                actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
-                openDateAndTimeScreen(viewModel.getRecords())
+            FilesMenuView(icon = R.drawable.ic_edit_name,
+                title = stringResource(id = R.string.file_names),
+                actionTitle = stringResource(id = R.string.modify)) {
+                openEditFileNamesScreen(viewModel.getRecords())
             }
-        }
 
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+            Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-        locationMenuName?.let {
-            FilesMenuView(icon = R.drawable.map_icon,
-                title = it,
-                actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
-                openLocationScreen(viewModel.getRecords())
+            dateMenuName?.let {
+                FilesMenuView(icon = R.drawable.ic_date_time,
+                    title = it,
+                    actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
+                    openDateAndTimeScreen(viewModel.getRecords())
+                }
+            }
+
+            Divider(modifier = Modifier.padding(vertical = 16.dp))
+
+            locationMenuName?.let {
+                FilesMenuView(icon = R.drawable.map_icon,
+                    title = it,
+                    actionTitle = stringResource(id = R.string.menu_toolbar_public_add)) {
+                    openLocationScreen(viewModel.getRecords())
+                }
+            }
+
+            LaunchedEffect(infoMessage) {
+                infoMessage?.let { message ->
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(message)
+                    }
+                }
+            }
+
+            LaunchedEffect(errorMessage) {
+                errorMessage?.let { message ->
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(message)
+                    }
+                }
+            }
+
+            LaunchedEffect(snackbarEventFlow) {
+                snackbarEventFlow.collect { message ->
+                    snackbarHostState.showSnackbar(message)
+                }
             }
         }
     }
-
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let { message ->
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(message)
-            }
-        }
-    }
-
-    LaunchedEffect(snackbarEventFlow) {
-        snackbarEventFlow.collect { message ->
-            snackbarHostState.showSnackbar(message)
-        }
-    }
-
-    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable
@@ -282,9 +300,9 @@ private fun DescriptionView(
     lightGreyColor: Color,
     someFilesHaveDescription: Boolean?,
     redColor: Color,
-    smallTextSize: TextUnit
+    smallTextSize: TextUnit,
+    onTextChange: (String) -> Unit
 ) {
-    var description = inputDescription
     Row(
         verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -304,10 +322,8 @@ private fun DescriptionView(
     Spacer(modifier = Modifier.height(10.dp))
 
     TextField(
-        value = description,
-        onValueChange = { value ->
-            description = value
-        },
+        value = inputDescription,
+        onValueChange = onTextChange,
         label = { Text(text = stringResource(id = R.string.edit_files_metadata_description_hint)) },
         singleLine = true,
         modifier = Modifier
