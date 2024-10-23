@@ -61,13 +61,7 @@ class FileData private constructor() : Parcelable {
         originalFileName = recordVO.uploadFileName?.substringBefore(".")
         originalFileType = recordVO.uploadFileName?.substringAfter(".")
 
-        completeAddress = recordVO.LocnVO?.let {
-            val streetName = if (it.streetName == null) "" else it.streetName + ", "
-            val addressValue =
-                (it.streetNumber ?: "") + " " + streetName + it.locality +
-                        ", " + it.adminOneName + ", " + it.countryCode
-            if (!addressValue.contains("null")) addressValue else ""
-        }
+        completeAddress = recordVO.LocnVO?.getUIAddress()
         latitude = recordVO.LocnVO?.latitude ?: -1.0
         longitude = recordVO.LocnVO?.longitude ?: -1.0
 
