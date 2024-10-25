@@ -24,6 +24,7 @@ class Constants {
         const val MEDIA_TYPE_OCTET_STREAM = "application/octet-stream"
         const val AUTH_TYPE_MFA_VALIDATION = "type.auth.mfaValidation"
         const val AUTH_TYPE_PHONE = "type.auth.phone"
+        const val ERROR_GENERIC_INTERNAL = "error.generic.internal"
         const val ERROR_MFA_TOKEN = "warning.auth.mfaToken"
         const val ERROR_INVALID_VERIFICATION_CODE = "warning.auth.token_does_not_match"
         const val ERROR_EXPIRED_VERIFICATION_CODE = "warning.auth.token_expired"

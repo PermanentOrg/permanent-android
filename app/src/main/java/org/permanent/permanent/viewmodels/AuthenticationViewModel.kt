@@ -227,7 +227,8 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         }
 
         _isBusyState.value = true
-        authRepository.forgotPassword(email,
+        authRepository.forgotPassword(
+            email,
             object : IAuthenticationRepository.IOnResetPasswordListener {
                 override fun onSuccess() {
                     _isBusyState.value = false
@@ -236,7 +237,11 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
-                    error?.let { showErrorMessage(it) }
+                    error?.let {
+                        if (it.contains(Constants.ERROR_GENERIC_INTERNAL)) _navigateToPage.value =
+                            AuthPage.FORGOT_PASSWORD_DONE
+                        else showErrorMessage(it)
+                    }
                 }
             })
     }

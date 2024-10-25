@@ -17,10 +17,9 @@
     <string name="or">Or</string>
     <string name="button_recover_password">Recover password</string>
     <string name="copyright">Ⓒ The Permanent Legacy Foundation 2020</string>
-    <string name="sign_up_screen_sign_up">Sign Up</string>
     <string name="sign_up_screen_full_name_hint">Full Name</string>
     <string name="sign_up_screen_password_hint">Password</string>
-    <string name="sign_up_screen_already_registered">Already registered?</string>
+    <string name="already_registered">Already registered?</string>
     <string name="button_accept">Accept</string>
     <string name="button_decline">Decline</string>
     <string name="button_edit">Edit</string>
@@ -35,6 +34,7 @@
     <string name="update">Update</string>
     <string name="sign_in">Sign in</string>
     <string name="sign_in_to_permanent">Sign in to\nPermanent</string>
+    <string name="full_name">Full name</string>
     <string name="email_address">Email address</string>
     <string name="password">Password</string>
     <string name="the_entered_data_is_invalid">The entered data is invalid</string>
@@ -49,6 +49,10 @@
     <string name="send_request">Send request</string>
     <string name="back_to_sign_in">Back to Sign in</string>
     <string name="go_to_sign_in">Go to Sign in</string>
+    <string name="create_your_new_account">Create your new account</string>
+    <string name="i_agree_to_receive_updates">I agree to receive updates via email</string>
+    <string name="i_agree_with">I agree with</string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
 
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>

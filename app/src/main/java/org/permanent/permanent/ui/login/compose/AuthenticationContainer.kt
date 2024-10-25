@@ -109,11 +109,7 @@ fun AuthenticationContainer(
                         }
 
                         AuthPage.SIGN_UP.value -> {
-//                                SignUpPage(
-//                                    viewModel = viewModel,
-//                                    isTablet = isTablet,
-//                                    pagerState = pagerState
-//                                )
+                            SignUpPage(viewModel = viewModel, pagerState = pagerState)
                         }
 
                         AuthPage.FORGOT_PASSWORD.value -> {
