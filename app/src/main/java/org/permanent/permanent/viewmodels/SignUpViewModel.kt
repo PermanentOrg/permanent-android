@@ -6,7 +6,6 @@ import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Validator
-import org.permanent.permanent.models.Account
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.ui.PREFS_NAME
@@ -76,23 +75,23 @@ class SignUpViewModel(application: Application) : ObservableAndroidViewModel(app
 
         if (name != null && email != null && password != null) {
             isBusy.value = true
-            accountRepository.signUp(name, email, password, object : IAccountRepository.IAccountListener {
-
-                override fun onSuccess(account: Account) {
-                    isBusy.value = false
-
-                    prefsHelper.saveAuthToken(account.token)
-                    prefsHelper.saveAccountInfo(account.id, account.primaryEmail, password, account.fullName)
-                    prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
-
-                    onAccountCreated.call()
-                }
-
-                override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    error?.let { onErrorMessage.value = it }
-                }
-            })
+//            accountRepository.signUp(name, email, password, object : IAccountRepository.IAccountListener {
+//
+//                override fun onSuccess(account: Account) {
+//                    isBusy.value = false
+//
+//                    prefsHelper.saveAuthToken(account.token)
+//                    prefsHelper.saveAccountInfo(account.id, account.primaryEmail, password, account.fullName)
+//                    prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
+//
+//                    onAccountCreated.call()
+//                }
+//
+//                override fun onFailed(error: String?) {
+//                    isBusy.value = false
+//                    error?.let { onErrorMessage.value = it }
+//                }
+//            })
         }
     }
 

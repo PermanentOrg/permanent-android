@@ -48,6 +48,12 @@ class AuthenticationFragment : PermanentBaseFragment() {
         activity?.finish()
     }
 
+    private val onAccountCreated = Observer<Void?> {
+        logEvents()
+        startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
+        activity?.finish()
+    }
+
     private val userMissingDefaultArchiveObserver = Observer<Void?> {
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
@@ -61,11 +67,13 @@ class AuthenticationFragment : PermanentBaseFragment() {
     }
 
     override fun connectViewModelEvents() {
+        viewModel.getOnAccountCreated().observe(this, onAccountCreated)
         viewModel.getOnLoggedIn().observe(this, onLoggedIn)
         viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnAccountCreated().removeObserver(onAccountCreated)
         viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
         viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
     }

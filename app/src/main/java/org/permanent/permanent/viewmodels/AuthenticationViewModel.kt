@@ -11,11 +11,14 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
+import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.ui.PREFS_NAME
@@ -29,6 +32,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     )
     private var isTablet = false
     private val onLoggedIn = SingleLiveEvent<Void?>()
+    private val onAccountCreated = SingleLiveEvent<Void?>()
     private val onUserMissingDefaultArchive = SingleLiveEvent<Void?>()
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
@@ -47,6 +51,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
     private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
+    private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 //    private var stelaAccountRepository: StelaAccountRepository =
 //        StelaAccountRepositoryImpl(application)
 
@@ -266,6 +271,54 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         }
     }
 
+    fun signUp(fullName: String, email: String, password: String, optIn: Boolean) {
+        if (_isBusyState.value) {
+            return
+        }
+
+        if (fullName.isEmpty() || !Validator.isValidEmail(
+                null,
+                email,
+                null,
+                null
+            ) || !Validator.isValidPassword(
+                password, null
+            )
+        ) {
+            showErrorMessage(appContext.getString(R.string.the_entered_data_is_invalid))
+            return
+        }
+
+        _isBusyState.value = true
+        accountRepository.signUp(
+            fullName,
+            email,
+            password,
+            optIn,
+            object : IAccountRepository.IAccountListener {
+
+                override fun onSuccess(account: Account) {
+                    _isBusyState.value = false
+
+                    prefsHelper.saveAuthToken(account.token)
+                    prefsHelper.saveAccountInfo(
+                        account.id,
+                        account.primaryEmail,
+                        password,
+                        account.fullName
+                    )
+                    prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
+
+                    onAccountCreated.call()
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    error?.let { showErrorMessage(it) }
+                }
+            })
+    }
+
     fun clearSnackbar() {
         _snackbarMessage.value = ""
     }
@@ -279,4 +332,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     fun getOnUserMissingDefaultArchive(): MutableLiveData<Void?> = onUserMissingDefaultArchive
 
     fun getOnLoggedIn(): MutableLiveData<Void?> = onLoggedIn
+
+    fun getOnAccountCreated(): MutableLiveData<Void?> = onAccountCreated
 }
