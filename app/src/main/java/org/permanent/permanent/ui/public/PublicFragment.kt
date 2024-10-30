@@ -23,7 +23,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.viewmodels.PublicViewModel
 
 class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
@@ -117,7 +117,7 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
                 prefsHelper.saveDeepLinkFileArchiveNr(fileArchiveNr)
                 prefsHelper.saveDeepLinkFolderArchiveNr(folderArchiveNr)
                 prefsHelper.saveDeepLinkFolderLinkId(folderLinkId)
-                startActivity(Intent(context, LoginActivity::class.java))
+                startActivity(Intent(context, AuthenticationActivity::class.java))
                 activity?.finish()
             }
         } else {

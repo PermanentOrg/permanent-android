@@ -19,7 +19,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.ArchivesContainerFragment
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
@@ -65,7 +65,7 @@ class SharePreviewFragment : PermanentBaseFragment() {
                     viewModel.checkShareLink(urlToken!!)
                 } else {
                     prefsHelper.saveShareLinkUrlToken(urlToken!!)
-                    startActivity(Intent(context, LoginActivity::class.java))
+                    startActivity(Intent(context, AuthenticationActivity::class.java))
                     activity?.finish()
                 }
             }

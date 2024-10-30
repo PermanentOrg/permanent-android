@@ -3,17 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/login_navigation"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/authenticationFragment">
 
     <fragment
-        android:id="@+id/loginFragment"
+        android:id="@+id/authenticationFragment"
         android:name="org.permanent.permanent.ui.login.AuthenticationFragment"
-        android:label="LoginFragment">
+        android:label="AuthenticationFragment">
         <action
-            android:id="@+id/action_loginFragment_to_codeVerificationFragment"
+            android:id="@+id/action_authenticationFragment_to_codeVerificationFragment"
             app:destination="@id/codeVerificationFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_biometricsFragment"
+            android:id="@+id/action_authenticationFragment_to_biometricsFragment"
             app:destination="@id/biometricsFragment" />
     </fragment>
     <fragment
@@ -23,19 +23,10 @@
         tools:layout="@layout/fragment_biometrics">
         <action
             android:id="@+id/action_biometricsFragment_to_LoginFragment"
-            app:destination="@id/loginFragment" />
+            app:destination="@id/authenticationFragment" />
         <action
             android:id="@+id/action_biometricsFragment_to_mainActivity"
             app:destination="@id/mainActivity" />
-    </fragment>
-    <fragment
-        android:id="@+id/signUpFragment"
-        android:name="org.permanent.permanent.ui.login.SignUpFragment"
-        android:label="SignUpFragment"
-        tools:layout="@layout/fragment_sign_up">
-        <action
-            android:id="@+id/action_signUpFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
     </fragment>
 
     <fragment

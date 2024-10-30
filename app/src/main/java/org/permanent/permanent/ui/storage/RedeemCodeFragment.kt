@@ -16,7 +16,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.storage.compose.RedeemCodeScreen
 import org.permanent.permanent.viewmodels.RedeemCodeViewModel
 
@@ -37,7 +37,7 @@ class RedeemCodeFragment : PermanentBaseFragment() {
         if (!prefsHelper.isUserLoggedIn()) {
             prefsHelper.saveShowRedeemCodeDeepLink(true)
             promoCode?.let { prefsHelper.savePromoCodeFromDeepLink(it) }
-            startActivity(Intent(context, LoginActivity::class.java))
+            startActivity(Intent(context, AuthenticationActivity::class.java))
             activity?.finish()
         } else {
             promoCode?.let { viewModel.updateEnteredCode(it) }

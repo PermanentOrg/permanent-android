@@ -14,13 +14,14 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
-import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivitySplashBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
 import org.permanent.permanent.ui.computeWindowSizeClasses
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.AuthenticationActivity
+import org.permanent.permanent.ui.login.START_DESTINATION_PAGE_VALUE_KEY
+import org.permanent.permanent.ui.login.compose.AuthPage
 import org.permanent.permanent.viewmodels.SplashViewModel
 
 class SplashActivity : PermanentBaseActivity() {
@@ -126,14 +127,14 @@ class SplashActivity : PermanentBaseActivity() {
     }
 
     private fun startBiometricsFragment() {
-        val intent = Intent(this@SplashActivity, LoginActivity::class.java)
-        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.biometricsFragment)
+        val intent = Intent(this@SplashActivity, AuthenticationActivity::class.java)
+        intent.putExtra(START_DESTINATION_PAGE_VALUE_KEY, AuthPage.BIOMETRICS.value)
         startActivity(intent)
         finish()
     }
 
     private fun startLoginActivity() {
-        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+        startActivity(Intent(this@SplashActivity, AuthenticationActivity::class.java))
         finish()
     }
 

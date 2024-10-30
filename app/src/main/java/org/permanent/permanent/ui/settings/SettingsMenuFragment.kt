@@ -21,7 +21,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.composeComponents.PartialScreenLayout
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.settings.compose.SettingsMenuScreen
 import org.permanent.permanent.viewmodels.SettingsMenuViewModel
 
@@ -99,7 +99,7 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
 
     private val onLoggedOut = Observer<Void?> {
         context?.let { ctx -> EventsManager(ctx).resetUser() }
-        startActivity(Intent(context, LoginActivity::class.java))
+        startActivity(Intent(context, AuthenticationActivity::class.java))
         activity?.finish()
     }
 

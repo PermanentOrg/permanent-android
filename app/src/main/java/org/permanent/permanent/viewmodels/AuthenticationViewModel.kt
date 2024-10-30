@@ -323,6 +323,10 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         _snackbarMessage.value = ""
     }
 
+    fun setNavigateToPage(page: AuthPage) {
+        _navigateToPage.value = page
+    }
+
     fun clearPageNavigation() {
         _navigateToPage.value = null
     }

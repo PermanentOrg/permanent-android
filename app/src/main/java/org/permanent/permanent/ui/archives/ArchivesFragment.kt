@@ -30,7 +30,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.ArchivesViewModel
 import org.permanent.permanent.viewmodels.CreateNewArchiveViewModel
@@ -159,7 +159,7 @@ class ArchivesFragment : PermanentBaseFragment(), ArchiveListener, View.OnClickL
         )
         if (!prefsHelper.isUserLoggedIn()) {
             prefsHelper.saveShowArchivesDeepLink(true)
-            startActivity(Intent(context, LoginActivity::class.java))
+            startActivity(Intent(context, AuthenticationActivity::class.java))
             activity?.finish()
         }
 
