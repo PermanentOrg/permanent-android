@@ -13,12 +13,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.PermanentApplication
-import org.permanent.permanent.R
-import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.DialogDeleteAccountBinding
 import org.permanent.permanent.databinding.FragmentAccountBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.login.LoginActivity
+import org.permanent.permanent.ui.login.AuthenticationActivity
+import org.permanent.permanent.ui.login.START_DESTINATION_PAGE_VALUE_KEY
+import org.permanent.permanent.ui.login.compose.AuthPage
 import org.permanent.permanent.viewmodels.AccountViewModel
 import org.permanent.permanent.viewmodels.DeleteAccountViewModel
 
@@ -71,8 +71,8 @@ class AccountFragment : PermanentBaseFragment() {
     private val onAccountDeleted = Observer<Void?> {
         dialog.dismiss()
         val currentActivity = PermanentApplication.instance.currentActivity
-        val intent = Intent(currentActivity, LoginActivity::class.java)
-        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.signUpFragment)
+        val intent = Intent(currentActivity, AuthenticationActivity::class.java)
+        intent.putExtra(START_DESTINATION_PAGE_VALUE_KEY, AuthPage.SIGN_UP.value)
         currentActivity?.startActivity(intent)
         currentActivity?.finish()
     }

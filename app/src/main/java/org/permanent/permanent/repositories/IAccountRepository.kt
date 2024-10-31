@@ -5,7 +5,7 @@ import org.permanent.permanent.network.IResponseListener
 
 interface IAccountRepository {
 
-    fun signUp(fullName:String, email: String, password: String, listener: IAccountListener)
+    fun signUp(fullName:String, email: String, password: String, optIn: Boolean, listener: IAccountListener)
 
     fun getAccount(listener: IAccountListener)
 

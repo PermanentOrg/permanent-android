@@ -323,9 +323,9 @@ fun SignUpPage(
                         annotatedText.getStringAnnotations(
                             tag = "URL", start = offset, end = offset
                         ).firstOrNull()?.let {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.item))
-                                context.startActivity(intent)
-                            }
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.item))
+                            context.startActivity(intent)
+                        }
                     })
 
                     Spacer(modifier = Modifier.width(24.dp))
@@ -354,9 +354,12 @@ fun SignUpPage(
                 ) {
                     keyboardController?.hide()
                     viewModel.clearSnackbar()
-//                    viewModel.login(
-//                        true, emailValueState.text.trim(), passwordValueState.text.trim()
-//                    )
+                    viewModel.signUp(
+                        fullNameValueState.text.trim(),
+                        emailValueState.text.trim(),
+                        passwordValueState.text.trim(),
+                        isUpdatesToggleChecked
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

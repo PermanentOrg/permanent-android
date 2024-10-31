@@ -6,14 +6,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import org.permanent.permanent.R
-import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.databinding.ActivityLoginBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
 import org.permanent.permanent.ui.computeWindowSizeClasses
+import org.permanent.permanent.ui.login.compose.AuthPage
 
-class LoginActivity : PermanentBaseActivity() {
+class AuthenticationActivity : PermanentBaseActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var navController: NavController
@@ -38,22 +38,19 @@ class LoginActivity : PermanentBaseActivity() {
         binding.lifecycleOwner = this
 
         // NavController setup
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.loginNavHostFragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.authenticationNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
 
         val intentExtras = intent.extras
-        val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
-        if (startDestFragmentId != null && startDestFragmentId != 0) {
-            startWithCustomDestination(startDestFragmentId)
+        val startDestPageVal = intentExtras?.getInt(START_DESTINATION_PAGE_VALUE_KEY)
+        if (startDestPageVal != null && startDestPageVal != 0 && startDestPageVal == AuthPage.BIOMETRICS.value) {
+            val navGraph = navController.graph
+            navGraph.startDestination = R.id.biometricsFragment
+            navController.setGraph(navGraph, intent.extras)
         } else {
-            navController.setGraph(R.navigation.login_navigation_graph, intent.extras)
+            navController.setGraph(R.navigation.authentication_navigation_graph, intent.extras)
         }
-    }
-
-    private fun startWithCustomDestination(startDestFragmentId: Int) {
-        val navGraph = navController.graph
-        navGraph.startDestination = startDestFragmentId
-        navController.setGraph(navGraph, intent.extras)
     }
 
     override fun connectViewModelEvents() {

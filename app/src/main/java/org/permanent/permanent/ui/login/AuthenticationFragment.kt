@@ -17,8 +17,11 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
+import org.permanent.permanent.ui.login.compose.AuthPage
 import org.permanent.permanent.ui.login.compose.AuthenticationContainer
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
+
+const val START_DESTINATION_PAGE_VALUE_KEY = "start_destination_page_value_key"
 
 class AuthenticationFragment : PermanentBaseFragment() {
     private lateinit var viewModel: AuthenticationViewModel
@@ -42,9 +45,29 @@ class AuthenticationFragment : PermanentBaseFragment() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val extras = arguments
+        val startDestPageValue = extras?.getInt(START_DESTINATION_PAGE_VALUE_KEY)
+        startDestPageValue?.let {
+            val targetPage = when (it) {
+                AuthPage.SIGN_UP.value -> AuthPage.SIGN_UP
+                else -> AuthPage.SIGN_IN
+            }
+            viewModel.setNavigateToPage(targetPage)
+        }
+    }
+
     private val onLoggedIn = Observer<Void?> {
-        logEvents()
+        logSignInEvents()
         startActivity(Intent(context, MainActivity::class.java))
+        activity?.finish()
+    }
+
+    private val onAccountCreated = Observer<Void?> {
+        logSignUpEvents()
+        startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
     }
 
@@ -53,19 +76,29 @@ class AuthenticationFragment : PermanentBaseFragment() {
         activity?.finish()
     }
 
-    private fun logEvents() {
+    private fun logSignInEvents() {
         EventsManager(requireContext()).setUserProfile(
             prefsHelper.getAccountId(), prefsHelper.getAccountEmail()
         )
         EventsManager(requireContext()).sendToMixpanel(EventType.SignIn)
     }
 
+    private fun logSignUpEvents() {
+        EventsManager(requireContext()).setUserProfile(
+            prefsHelper.getAccountId(),
+            prefsHelper.getAccountEmail()
+        )
+        EventsManager(requireContext()).sendToMixpanel(EventType.SignUp)
+    }
+
     override fun connectViewModelEvents() {
+        viewModel.getOnAccountCreated().observe(this, onAccountCreated)
         viewModel.getOnLoggedIn().observe(this, onLoggedIn)
         viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
     }
 
     override fun disconnectViewModelEvents() {
+        viewModel.getOnAccountCreated().removeObserver(onAccountCreated)
         viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
         viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
     }

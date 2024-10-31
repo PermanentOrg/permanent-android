@@ -12,7 +12,7 @@
         android:layout_height="match_parent">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/loginNavHostFragment"
+            android:id="@+id/authenticationNavHostFragment"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
-            app:navGraph="@navigation/login_navigation_graph" />
+            app:navGraph="@navigation/authentication_navigation_graph" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -24,9 +24,10 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
         fullName: String,
         email: String,
         password: String,
+        optIn: Boolean,
         listener: IAccountRepository.IAccountListener
     ) {
-        NetworkClient.instance().signUp(fullName, email, password)
+        NetworkClient.instance().signUp(fullName, email, password, optIn)
             .enqueue(object : Callback<AccountVO> {
 
                 override fun onResponse(call: Call<AccountVO>, response: Response<AccountVO>) {

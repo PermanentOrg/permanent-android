@@ -203,12 +203,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return authServiceWithCookies.verifyCode(requestBody)
     }
 
-    fun signUp(fullName: String, email: String, password: String): Call<AccountVO> {
+    fun signUp(fullName: String, email: String, password: String, optIn: Boolean): Call<AccountVO> {
         val payload = SignUpPayload(
             agreed = true,
             createArchive = false,
             fullName = fullName,
-            optIn = false,
+            optIn = optIn,
             primaryEmail = email,
             password = password,
             passwordVerify = password
