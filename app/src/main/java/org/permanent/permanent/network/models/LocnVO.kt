@@ -27,10 +27,13 @@ class LocnVO() : Parcelable {
     }
 
     fun getUIAddress(): String {
-        if (uiAddress == null) {
+        if (uiAddress.isNullOrEmpty()) {
             val strName = if (streetName == null) "" else "$streetName, "
+            val localityName = if (locality == null) "" else "$locality, "
+            val adminName = if (adminOneName == null) "" else "$adminOneName, "
+            val countryCodeName = if (countryCode == null) "" else "$countryCode"
             val addressValue = (streetNumber ?: "") + " " + strName +
-                    locality + ", " + adminOneName + ", " + countryCode
+                    localityName + adminName + countryCodeName
             uiAddress = if (!addressValue.contains("null")) addressValue.trim() else ""
         }
 
