@@ -25,6 +25,8 @@
         <item name="android:fontFamily">@font/open_sans</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 
     <style name="AppBottomSheetDialogTheme"
