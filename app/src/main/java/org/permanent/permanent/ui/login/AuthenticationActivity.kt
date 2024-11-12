@@ -11,7 +11,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
 import org.permanent.permanent.ui.computeWindowSizeClasses
-import org.permanent.permanent.ui.login.compose.AuthPage
 
 class AuthenticationActivity : PermanentBaseActivity() {
 
@@ -41,16 +40,7 @@ class AuthenticationActivity : PermanentBaseActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.authenticationNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
-
-        val intentExtras = intent.extras
-        val startDestPageVal = intentExtras?.getInt(START_DESTINATION_PAGE_VALUE_KEY)
-        if (startDestPageVal != null && startDestPageVal != 0 && startDestPageVal == AuthPage.BIOMETRICS.value) {
-            val navGraph = navController.graph
-            navGraph.startDestination = R.id.biometricsFragment
-            navController.setGraph(navGraph, intent.extras)
-        } else {
-            navController.setGraph(R.navigation.authentication_navigation_graph, intent.extras)
-        }
+        navController.setGraph(R.navigation.authentication_navigation_graph, intent.extras)
     }
 
     override fun connectViewModelEvents() {

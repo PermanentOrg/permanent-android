@@ -1,19 +1,31 @@
 package org.permanent.permanent.viewmodels
 
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
+import android.util.Log
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import co.infinum.goldfinger.Goldfinger
+import co.infinum.goldfinger.MissingHardwareException
+import co.infinum.goldfinger.NoEnrolledFingerprintException
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
+import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
@@ -21,17 +33,21 @@ import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.INotificationRepository
+import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.login.compose.AuthPage
 
 class AuthenticationViewModel(application: Application) : ObservableAndroidViewModel(application) {
+    private val TAG = AuthenticationViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private var isTablet = false
-    private val onLoggedIn = SingleLiveEvent<Void?>()
+    private val onSignedIn = SingleLiveEvent<Void?>()
+    private val onAuthenticated = SingleLiveEvent<Void?>()
     private val onAccountCreated = SingleLiveEvent<Void?>()
     private val onUserMissingDefaultArchive = SingleLiveEvent<Void?>()
     private val _isBusyState = MutableStateFlow(false)
@@ -44,6 +60,9 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     val snackbarType: StateFlow<SnackbarType> = _snackbarType
     private val _navigateToPage = MutableStateFlow<AuthPage?>(null)
     val navigateToPage: StateFlow<AuthPage?> = _navigateToPage
+
+    private lateinit var promptParams: Goldfinger.PromptParams
+    private var goldFinger = Goldfinger.Builder(appContext).build()
 
     private var savedEmail: String? = null
     private var savedPassword: String? = null
@@ -136,7 +155,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                                 archive.thumbURL200,
                                 archive.accessRole
                             )
-                            onLoggedIn.call()
+                            onSignedIn.call()
                             return
                         }
                     }
@@ -191,7 +210,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
             object : IAuthenticationRepository.IOnVerifyListener {
                 override fun onSuccess() {
                     _isBusyState.value = false
-                    onLoggedIn.call()
+                    onSignedIn.call()
                 }
 
                 override fun onFailed(error: String?) {
@@ -319,6 +338,137 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
             })
     }
 
+    fun skipLogin(): Boolean {
+        return  prefsHelper.isUserLoggedIn()
+                && !goldFinger.canAuthenticate()
+                && !goldFinger.hasFingerprintHardware()
+    }
+
+    fun buildPromptParams(fragment: Fragment) {
+        promptParams = Goldfinger.PromptParams.Builder(fragment)
+            .title(R.string.login_biometric_title)
+            .description(R.string.login_biometric_message)
+            .deviceCredentialsAllowed(true)
+            .negativeButtonText(R.string.button_cancel)
+            .build()
+    }
+
+    fun authenticateUser() {
+        goldFinger.authenticate(promptParams, object : Goldfinger.Callback {
+            override fun onError(exception: Exception) {
+                when (exception) {
+                    is NoEnrolledFingerprintException -> handleResult(Goldfinger.Reason.NO_BIOMETRICS)
+                    is MissingHardwareException -> handleResult(Goldfinger.Reason.HW_NOT_PRESENT)
+                    else -> exception.message?.let { showErrorMessage(it) }
+                }
+            }
+            override fun onResult(result: Goldfinger.Result) {
+                if (result.type() == Goldfinger.Type.SUCCESS)
+                    handleResult(Goldfinger.Reason.AUTHENTICATION_SUCCESS)
+                else if (result.type() != Goldfinger.Type.INFO)
+                    handleResult(result.reason())
+            }
+        })
+    }
+
+    fun handleResult(reason: Goldfinger.Reason) {
+        var messageId = 0
+        when (reason) {
+            Goldfinger.Reason.CANCELED -> messageId = 0
+            Goldfinger.Reason.USER_CANCELED -> messageId = 0
+            Goldfinger.Reason.AUTHENTICATION_START -> messageId = 0
+            Goldfinger.Reason.AUTHENTICATION_SUCCESS -> onAuthenticated.call()
+            Goldfinger.Reason.NO_BIOMETRICS -> showOpenSettingsQuestionDialog()
+            Goldfinger.Reason.HW_NOT_PRESENT ->
+                messageId = R.string.login_biometric_error_no_biometric_hardware
+            Goldfinger.Reason.HARDWARE_UNAVAILABLE ->
+                messageId = R.string.login_biometric_error_unavailable
+            Goldfinger.Reason.TIMEOUT ->
+                messageId = R.string.login_biometric_error_timeout
+            Goldfinger.Reason.LOCKOUT,
+            Goldfinger.Reason.LOCKOUT_PERMANENT -> {
+                messageId = R.string.login_biometric_error_too_many_failed_attempts
+                deleteDeviceToken()
+            }
+            Goldfinger.Reason.NO_DEVICE_CREDENTIAL,
+            Goldfinger.Reason.NEGATIVE_BUTTON,
+            Goldfinger.Reason.UNABLE_TO_PROCESS,
+            Goldfinger.Reason.VENDOR,
+            Goldfinger.Reason.NO_SPACE,
+            Goldfinger.Reason.AUTHENTICATION_FAIL,
+            Goldfinger.Reason.UNKNOWN -> messageId = R.string.login_biometric_error_failed
+        }
+        if (messageId != 0) showErrorMessage(appContext.getString(messageId))
+    }
+
+    fun deleteDeviceToken() {
+        if (_isBusyState.value) {
+            return
+        }
+
+        _isBusyState.value = true
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    _isBusyState.value = false
+                    Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
+                    return@OnCompleteListener
+                }
+                val notificationsRepository: INotificationRepository =
+                    NotificationRepositoryImpl(appContext)
+
+                notificationsRepository.deleteDevice(task.result, object : IResponseListener {
+
+                    override fun onSuccess(message: String?) {
+                        _isBusyState.value = false
+                        logout()
+                    }
+
+                    override fun onFailed(error: String?) {
+                        _isBusyState.value = false
+                        Log.e(TAG, "Deleting Device FCM token failed: $error")
+                        logout()
+                    }
+                })
+            })
+    }
+
+    fun logout() {
+        if (_isBusyState.value) {
+            return
+        }
+
+        _isBusyState.value = true
+        authRepository.logout(object : IAuthenticationRepository.IOnLogoutListener {
+            override fun onSuccess() {
+                _isBusyState.value = false
+                EventsManager(appContext).resetUser()
+                _navigateToPage.value = AuthPage.SIGN_IN
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                when (error) {
+                    Constants.ERROR_SERVER_ERROR,
+                    Constants.ERROR_NO_API_KEY -> showErrorMessage(appContext.getString(R.string.server_error))
+                    else -> error?.let { showErrorMessage(it) }
+                }
+            }
+        })
+    }
+
+    private fun showOpenSettingsQuestionDialog() {
+        AlertDialog.Builder(appContext).apply {
+            setTitle(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_title))
+            setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
+            setPositiveButton(R.string.yes_button) { _, _ ->
+                appContext.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) }
+            setNegativeButton(R.string.button_cancel) { _, _ -> }
+            create()
+            show()
+        }
+    }
+
     fun clearSnackbar() {
         _snackbarMessage.value = ""
     }
@@ -335,7 +485,9 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
 
     fun getOnUserMissingDefaultArchive(): MutableLiveData<Void?> = onUserMissingDefaultArchive
 
-    fun getOnLoggedIn(): MutableLiveData<Void?> = onLoggedIn
+    fun getOnSignedIn(): MutableLiveData<Void?> = onSignedIn
+
+    fun getOnAuthenticated(): MutableLiveData<Void?> = onAuthenticated
 
     fun getOnAccountCreated(): MutableLiveData<Void?> = onAccountCreated
 }
