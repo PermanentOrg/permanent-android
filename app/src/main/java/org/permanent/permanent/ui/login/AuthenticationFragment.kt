@@ -88,11 +88,14 @@ class AuthenticationFragment : PermanentBaseFragment() {
 
     private val onAccountCreated = Observer<Void?> {
         logSignUpEvents()
-        startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
-        activity?.finish()
+        startArchiveOnboardingActivity()
     }
 
     private val userMissingDefaultArchiveObserver = Observer<Void?> {
+        startArchiveOnboardingActivity()
+    }
+
+    private fun startArchiveOnboardingActivity() {
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
     }
