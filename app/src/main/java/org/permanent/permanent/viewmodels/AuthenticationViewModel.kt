@@ -102,7 +102,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         authRepository.login(email, password, object : IAuthenticationRepository.IOnLoginListener {
             override fun onSuccess() {
                 _isBusyState.value = false
-                prefsHelper.saveUserLoggedIn(true)
 
                 val defaultArchiveId = prefsHelper.getDefaultArchiveId()
                 if (defaultArchiveId == 0) {
@@ -155,6 +154,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                                 archive.thumbURL200,
                                 archive.accessRole
                             )
+                            prefsHelper.saveUserLoggedIn(true)
                             onSignedIn.call()
                             return
                         }
@@ -210,7 +210,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
             object : IAuthenticationRepository.IOnVerifyListener {
                 override fun onSuccess() {
                     _isBusyState.value = false
-                    onSignedIn.call()
+                    onCodeVerified()
                 }
 
                 override fun onFailed(error: String?) {
@@ -225,6 +225,13 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                     )
                 }
             })
+    }
+
+    fun onCodeVerified() {
+        val defaultArchiveId = prefsHelper.getDefaultArchiveId()
+
+        if (defaultArchiveId == 0) onUserMissingDefaultArchive.call()
+        else getArchive(defaultArchiveId)
     }
 
     fun updateCodeValues(newValues: List<String>) {
