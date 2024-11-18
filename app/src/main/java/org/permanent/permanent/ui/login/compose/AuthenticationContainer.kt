@@ -119,6 +119,10 @@ fun AuthenticationContainer(
                         AuthPage.FORGOT_PASSWORD_DONE.value -> {
                             ForgotPasswordDonePage(pagerState = pagerState)
                         }
+
+                        AuthPage.BIOMETRICS.value -> {
+                            BiometricsPage(viewModel = viewModel)
+                        }
                     }
                 }
             }

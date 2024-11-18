@@ -31,6 +31,7 @@ class AuthenticationFragment : PermanentBaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[AuthenticationViewModel::class.java]
+        viewModel.buildPromptParams(this)
 
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -53,16 +54,36 @@ class AuthenticationFragment : PermanentBaseFragment() {
         startDestPageValue?.let {
             val targetPage = when (it) {
                 AuthPage.SIGN_UP.value -> AuthPage.SIGN_UP
+                AuthPage.BIOMETRICS.value -> {
+                    if (!prefsHelper.isBiometricsLogIn() || viewModel.skipLogin()) {
+                        navigateToMainActivity()
+                        return
+                    } else if (!prefsHelper.isUserLoggedIn()) {
+                        onLoggedOut()
+                        AuthPage.SIGN_IN
+                    } else {
+                        viewModel.authenticateUser()
+                        AuthPage.BIOMETRICS
+                    }
+                }
                 else -> AuthPage.SIGN_IN
             }
             viewModel.setNavigateToPage(targetPage)
         }
     }
 
-    private val onLoggedIn = Observer<Void?> {
+    private fun onLoggedOut() {
+        EventsManager(requireContext()).resetUser()
+        // Navigate to Sign in after this
+    }
+
+    private val onSignedIn = Observer<Void?> {
         logSignInEvents()
-        startActivity(Intent(context, MainActivity::class.java))
-        activity?.finish()
+        navigateToMainActivity()
+    }
+
+    private val onAuthenticated = Observer<Void?> {
+        navigateToMainActivity()
     }
 
     private val onAccountCreated = Observer<Void?> {
@@ -91,15 +112,22 @@ class AuthenticationFragment : PermanentBaseFragment() {
         EventsManager(requireContext()).sendToMixpanel(EventType.SignUp)
     }
 
+    private fun navigateToMainActivity() {
+        startActivity(Intent(context, MainActivity::class.java))
+        activity?.finish()
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getOnAccountCreated().observe(this, onAccountCreated)
-        viewModel.getOnLoggedIn().observe(this, onLoggedIn)
+        viewModel.getOnSignedIn().observe(this, onSignedIn)
+        viewModel.getOnAuthenticated().observe(this, onAuthenticated)
         viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnAccountCreated().removeObserver(onAccountCreated)
-        viewModel.getOnLoggedIn().removeObserver(onLoggedIn)
+        viewModel.getOnSignedIn().removeObserver(onSignedIn)
+        viewModel.getOnAuthenticated().removeObserver(onAuthenticated)
         viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
     }
 

@@ -53,6 +53,8 @@
     <string name="i_agree_to_receive_updates">I agree to receive updates via email</string>
     <string name="i_agree_with">I agree with</string>
     <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="unlock_with_fingerprint">Unlock with fingerprint</string>
+    <string name="unlock_with_credentials">Unlock with Sign in credentials</string>
 
     <string name="verification_code_empty_error">Verification code can not be empty</string>
     <string name="verification_code_invalid_error">Invalid verification code. Please try again.</string>
@@ -85,7 +87,7 @@
     <string name="login_biometric_error_too_many_failed_attempts">Too many failed attempts. Please login with you credentials.</string>
     <string name="login_biometric_title">Biometric login</string>
     <string name="login_biometric_message">Log in using your biometric credential.</string>
-    <string name="login_biometric_welcome_message">Welcome back</string>
+    <string name="welcome_back">Welcome back!</string>
     <string name="login_biometric_unlock_with_biometrics_button">Unlock with Biometrics</string>
     <string name="login_biometric_use_credentials_button">Use credentials instead</string>
     <string name="nav_main_header_view_profile">View Profile</string>
