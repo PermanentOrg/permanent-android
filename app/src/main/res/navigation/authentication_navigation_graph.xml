@@ -9,24 +9,6 @@
         android:id="@+id/authenticationFragment"
         android:name="org.permanent.permanent.ui.login.AuthenticationFragment"
         android:label="AuthenticationFragment">
-        <action
-            android:id="@+id/action_authenticationFragment_to_codeVerificationFragment"
-            app:destination="@id/codeVerificationFragment" />
-        <action
-            android:id="@+id/action_authenticationFragment_to_biometricsFragment"
-            app:destination="@id/biometricsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/biometricsFragment"
-        android:name="org.permanent.permanent.ui.login.BiometricsFragment"
-        android:label="BiometricsFragment"
-        tools:layout="@layout/fragment_biometrics">
-        <action
-            android:id="@+id/action_biometricsFragment_to_LoginFragment"
-            app:destination="@id/authenticationFragment" />
-        <action
-            android:id="@+id/action_biometricsFragment_to_mainActivity"
-            app:destination="@id/mainActivity" />
     </fragment>
 
     <fragment
@@ -35,22 +17,7 @@
         android:label="PhoneVerificationFragment"
         tools:layout="@layout/fragment_verification_phone">
         <action
-            android:id="@+id/action_phoneVerificationFragment_to_codeVerificationFragment"
-            app:destination="@id/codeVerificationFragment" />
-        <action
             android:id="@+id/action_phoneVerificationFragment_to_mainActivity"
-            app:destination="@id/mainActivity" />
-    </fragment>
-    <fragment
-        android:id="@+id/codeVerificationFragment"
-        android:name="org.permanent.permanent.ui.login.CodeVerificationFragment"
-        android:label="CodeVerificationFragment"
-        tools:layout="@layout/fragment_verification_code">
-        <action
-            android:id="@+id/action_codeVerificationFragment_to_phoneVerificationFragment"
-            app:destination="@id/phoneVerificationFragment" />
-        <action
-            android:id="@+id/action_codeVerificationFragment_to_mainActivity"
             app:destination="@id/mainActivity" />
     </fragment>
 
