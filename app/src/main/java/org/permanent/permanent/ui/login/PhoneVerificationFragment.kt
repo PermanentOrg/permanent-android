@@ -39,7 +39,7 @@ class PhoneVerificationFragment : PermanentBaseFragment() {
     }
 
     private val onSMSCodeSent = Observer<Void?> {
-        findNavController().navigate(R.id.action_phoneVerificationFragment_to_codeVerificationFragment)
+//        findNavController().navigate(R.id.action_phoneVerificationFragment_to_codeVerificationFragment)
     }
 
     private val onErrorMessage = Observer<String> { errorMessage ->
