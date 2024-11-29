@@ -7,24 +7,24 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
-import org.permanent.permanent.databinding.FragmentSecurityBinding
+import org.permanent.permanent.databinding.FragmentChangePasswordBinding
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.viewmodels.SecurityViewModel
+import org.permanent.permanent.viewmodels.ChangePasswordViewModel
 
 
-class SecurityFragment : PermanentBaseFragment() {
+class ChangePasswordFragment : PermanentBaseFragment() {
 
-    private lateinit var binding: FragmentSecurityBinding
-    private lateinit var viewModel: SecurityViewModel
+    private lateinit var binding: FragmentChangePasswordBinding
+    private lateinit var viewModel: ChangePasswordViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(SecurityViewModel::class.java)
-        binding = FragmentSecurityBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(ChangePasswordViewModel::class.java)
+        binding = FragmentChangePasswordBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

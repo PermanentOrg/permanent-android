@@ -67,8 +67,8 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
                                 findNavController().navigate(R.id.activityFeedFragment)
                                 this@SettingsMenuFragment.dismiss()
                             },
-                            onSecurityClick = {
-                                findNavController().navigate(R.id.securityFragment)
+                            onLoginAndSecurityClick = {
+                                findNavController().navigate(R.id.loginAndSecurityFragment)
                                 this@SettingsMenuFragment.dismiss()
                             },
                             onLegacyPlanningClick = {

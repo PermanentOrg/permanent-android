@@ -43,7 +43,7 @@ class UnauthorizedInterceptor : Interceptor {
                     Log.w(TAG, "Response code 401 or Requires MFA Token, redirecting to log in")
                     prefsHelper.saveUserLoggedIn(false)
                     prefsHelper.saveDefaultArchiveId(0)
-                    prefsHelper.saveBiometricsLogIn(true) // Setting back to default
+                    prefsHelper.setBiometricsLogIn(true)
                     val currentActivity = PermanentApplication.instance.currentActivity
                     currentActivity?.let {
                         it.startActivity(Intent(it, AuthenticationActivity::class.java))

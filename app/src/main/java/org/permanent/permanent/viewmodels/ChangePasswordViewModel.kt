@@ -1,7 +1,6 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,13 +8,9 @@ import org.permanent.permanent.R
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 
-class SecurityViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class ChangePasswordViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var appContext = application.applicationContext
-    private val prefsHelper = PreferencesHelper(
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
     private val isBusy = MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
@@ -23,7 +18,6 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
     private val currentPassword = MutableLiveData<String>()
     private val newPassword = MutableLiveData<String>()
     private val retypeNewPassword = MutableLiveData<String>()
-    private val biometricsLogin = MutableLiveData(prefsHelper.isBiometricsLogIn())
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     fun onCurrentPasswordTextChanged(password: Editable) {
@@ -36,11 +30,6 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun onRetypeNewPasswordTextChanged(password: Editable) {
         retypeNewPassword.value = password.toString().trim { it <= ' ' }
-    }
-
-    fun onBiometricsLoginChanged(checked: Boolean) {
-        biometricsLogin.value = checked
-        prefsHelper.saveBiometricsLogIn(checked)
     }
 
     fun onUpdatePasswordClick() {
@@ -98,6 +87,4 @@ class SecurityViewModel(application: Application) : ObservableAndroidViewModel(a
     fun getNewPassword(): MutableLiveData<String> = newPassword
 
     fun getRetypeNewPassword(): MutableLiveData<String> = retypeNewPassword
-
-    fun getBiometricsLogin(): MutableLiveData<Boolean> = biometricsLogin
 }

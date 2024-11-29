@@ -2,11 +2,12 @@ package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,32 +30,41 @@ fun SettingsMenuItem(
     iconResource: Painter,
     text: String,
     itemColor: Color = Color(ContextCompat.getColor(LocalContext.current, R.color.colorPrimary)),
+    showWarning: Boolean = false,
     onClick: () -> Unit
 ) {
-    val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
-    val smallTextSize = 15.sp
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp, horizontal = 32.dp)
             .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
-
-        ) {
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Image(
             painter = iconResource,
             contentDescription = "Next",
             colorFilter = ColorFilter.tint(itemColor),
             modifier = Modifier.size(26.dp)
         )
+
+        Spacer(modifier = Modifier.width(24.dp))
+
         Text(
             text = text,
-            fontSize = smallTextSize,
+            fontSize = 15.sp,
             color = itemColor,
-            fontFamily = semiboldFont
+            fontFamily = FontFamily(Font(R.font.usual_medium))
         )
+
+        if (showWarning) {
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_warning_red),
+                contentDescription = "Warning",
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -64,5 +74,6 @@ fun SettingsMenuItemComposablePreview() {
     SettingsMenuItem(
         iconResource = painterResource(id = R.drawable.ic_plus_primary),
         text = "Add storage!",
+        showWarning = true,
         onClick = { /*TODO*/ })
 }

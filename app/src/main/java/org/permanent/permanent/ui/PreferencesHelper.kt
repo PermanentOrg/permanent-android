@@ -51,7 +51,7 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         return sharedPreferences.getBoolean(IS_USER_LOGGED_IN, false)
     }
 
-    fun saveBiometricsLogIn(isBiometricsLogIn: Boolean) {
+    fun setBiometricsLogIn(isBiometricsLogIn: Boolean) {
         with(sharedPreferences.edit()) {
             putBoolean(IS_BIOMETRICS_LOG_IN, isBiometricsLogIn)
             apply()
