@@ -33,7 +33,7 @@ class SplashActivity : PermanentBaseActivity() {
     private val errorObserver = Observer<String> {
         prefsHelper.saveUserLoggedIn(false)
         prefsHelper.saveDefaultArchiveId(0)
-        prefsHelper.saveBiometricsLogIn(true) // Setting back to default
+        prefsHelper.setBiometricsLogIn(true)
 
         startLoginActivity()
 

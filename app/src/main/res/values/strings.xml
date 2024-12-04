@@ -53,6 +53,8 @@
     <string name="i_agree_to_receive_updates">I agree to receive updates via email</string>
     <string name="i_agree_with">I agree with</string>
     <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="sign_in_with_fingerprint">Sign in with fingerprint</string>
+    <string name="sign_in_with_fingerprint_description">This option lets you securely sign in with just a glance.</string>
     <string name="unlock_with_fingerprint">Unlock with fingerprint</string>
     <string name="unlock_with_credentials">Unlock with Sign in credentials</string>
 
@@ -118,11 +120,15 @@
     <string name="my_archives">My Archives</string>
     <string name="invitations">Invitations</string>
     <string name="activity_feed">Activity Feed</string>
-    <string name="security">Security</string>
+    <string name="login_and_security">Login &amp; Security</string>
+    <string name="change_password">Change password</string>
+    <string name="change_password_description">Update your password to keep your account secure.</string>
     <string name="legacy_planning">Legacy Planning</string>
     <string name="gift_storage">Gift storage</string>
     <string name="contact_support">Contact support</string>
     <string name="sign_out">Sign out</string>
+    <string name="two_step_verification">Two-step verification</string>
+    <string name="two_step_verification_description">Enhance account security by requiring a login verification code.</string>
 
     <string name="main_navigation_title_archives">Archives</string>
     <string name="main_navigation_title_my_files">My Files</string>
@@ -715,6 +721,8 @@
     <string name="code_invalid">The code is invalid.</string>
     <string name="enter_new_code">Enter a new code.</string>
     <string name="new_label">new</string>
+    <string name="off">off</string>
+    <string name="on">on</string>
 
     <string name="file_names">File names</string>
     <string name="edit_file_names">Edit file names</string>

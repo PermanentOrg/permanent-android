@@ -51,7 +51,7 @@ fun SettingsMenuScreen(
     onMyArchivesClick: () -> Unit,
     onInvitationsClick: () -> Unit,
     onActivityFeedClick: () -> Unit,
-    onSecurityClick: () -> Unit,
+    onLoginAndSecurityClick: () -> Unit,
     onLegacyPlanningClick: () -> Unit,
     onSignOutClick: () -> Unit
 ) {
@@ -126,8 +126,9 @@ fun SettingsMenuScreen(
 
             SettingsMenuItem(
                 painterResource(id = R.drawable.ic_security_primary),
-                stringResource(R.string.security),
-            ) { onSecurityClick() }
+                stringResource(R.string.login_and_security),
+                showWarning = true,
+            ) { onLoginAndSecurityClick() }
 
             SettingsMenuItem(
                 painterResource(id = R.drawable.ic_legacy_plannning_empty_primary),
@@ -158,8 +159,6 @@ private fun Header(
 ) {
     val context = LocalContext.current
     val blue900Color = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-    val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
-    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
     Row(
         modifier = Modifier
@@ -186,7 +185,7 @@ private fun Header(
                 Text(
                     text = accountName,
                     color = blue900Color,
-                    fontFamily = semiboldFont,
+                    fontFamily = FontFamily(Font(R.font.usual_medium)),
                     fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -197,7 +196,7 @@ private fun Header(
                 Text(
                     text = accountEmail,
                     color = blue900Color,
-                    fontFamily = regularFont,
+                    fontFamily = FontFamily(Font(R.font.usual_regular)),
                     fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

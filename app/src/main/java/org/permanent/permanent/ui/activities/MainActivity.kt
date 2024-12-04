@@ -100,7 +100,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.legacyLoadingFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment -> {
+                R.id.legacyLoadingFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment, R.id.loginAndSecurityFragment, R.id.changePasswordFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -163,8 +163,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             R.id.invitationsFragment,
             R.id.accountFragment,
             R.id.publicFilesFragment,
-            R.id.publicGalleryFragment,
-            R.id.securityFragment
+            R.id.publicGalleryFragment
         )
         appBarConfig = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)

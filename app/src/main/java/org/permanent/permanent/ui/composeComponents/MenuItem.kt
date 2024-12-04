@@ -8,18 +8,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -29,10 +35,16 @@ import org.permanent.permanent.R
 fun MenuItem(
     isTablet: Boolean = false,
     iconResource: Painter,
+    iconSize: Dp = 18.dp,
     title: String,
     subtitle: String,
     showNewLabel: Boolean = false,
+    showOffLabel: Boolean = false,
+    showOnLabel: Boolean = false,
     showArrow: Boolean = false,
+    showSwitch: Boolean = false,
+    switchChecked: Boolean = false,
+    onSwitchCheckedChange: (Boolean) -> Unit = {},
     onClick: () -> Unit
 ) {
 
@@ -40,15 +52,13 @@ fun MenuItem(
 
     val blue900Color = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val middleGreyColor = Color(ContextCompat.getColor(context, R.color.middleGrey))
-    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-    val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(horizontal = 24.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.SpaceBetween,
 
         ) {
@@ -56,7 +66,7 @@ fun MenuItem(
             painter = iconResource,
             contentDescription = "",
             colorFilter = ColorFilter.tint(blue900Color),
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.padding(top = 26.dp).size(iconSize)
         )
         Column(
             modifier = Modifier
@@ -75,17 +85,28 @@ fun MenuItem(
                     fontSize = if (isTablet) 18.sp else 14.sp,
                     lineHeight = 24.sp,
                     color = blue900Color,
-                    fontFamily = boldFont
+                    fontFamily = FontFamily(Font(R.font.usual_bold))
                 )
 
-                if (showNewLabel) NewFeatureLabel()
+                if (showNewLabel) MenuLabel(
+                    colorResource(id = R.color.colorAccent),
+                    stringResource(id = R.string.new_label)
+                )
+                if (showOffLabel) MenuLabel(
+                    colorResource(id = R.color.error500),
+                    stringResource(id = R.string.off)
+                )
+                if (showOnLabel) MenuLabel(
+                    colorResource(id = R.color.success500),
+                    stringResource(id = R.string.on)
+                )
             }
             Text(
                 text = subtitle,
                 fontSize = if (isTablet) 18.sp else 12.sp,
                 lineHeight = if (isTablet) 32.sp else 16.sp,
                 color = middleGreyColor,
-                fontFamily = regularFont
+                fontFamily = FontFamily(Font(R.font.usual_regular))
             )
         }
 
@@ -93,7 +114,19 @@ fun MenuItem(
             Image(
                 painter = painterResource(id = R.drawable.ic_arrow_select_light_blue),
                 contentDescription = "Next",
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.padding(top = 26.dp).size(14.dp)
+            )
+        }
+
+        if (showSwitch) {
+            Switch(
+                checked = switchChecked,
+                onCheckedChange = onSwitchCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = colorResource(id = R.color.white),
+                    checkedTrackColor = colorResource(id = R.color.success500),
+                ),
+                modifier = Modifier.padding(top = 14.dp).scale(0.7f)
             )
         }
     }
@@ -107,6 +140,6 @@ fun SimpleComposablePreview() {
         title = "Add storage!",
         subtitle = "Increase your space easily by adding more storage.",
         showNewLabel = true,
-        showArrow = true,
+        showSwitch = true,
         onClick = { })
 }

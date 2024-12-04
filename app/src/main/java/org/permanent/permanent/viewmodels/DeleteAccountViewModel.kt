@@ -91,7 +91,7 @@ class DeleteAccountViewModel(application: Application) : ObservableAndroidViewMo
                 showMessage.value = message
                 prefsHelper.saveUserLoggedIn(false)
                 prefsHelper.saveDefaultArchiveId(0)
-                prefsHelper.saveBiometricsLogIn(true) // Setting back to default
+                prefsHelper.setBiometricsLogIn(true)
                 onAccountDeleted.call()
             }
 

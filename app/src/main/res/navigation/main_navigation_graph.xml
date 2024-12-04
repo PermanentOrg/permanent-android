@@ -185,10 +185,25 @@
         tools:layout="@layout/fragment_account" />
 
     <fragment
-        android:id="@+id/securityFragment"
-        android:name="org.permanent.permanent.ui.settings.SecurityFragment"
-        android:label="@string/security"
-        tools:layout="@layout/fragment_security" />
+        android:id="@+id/loginAndSecurityFragment"
+        android:name="org.permanent.permanent.ui.settings.LoginAndSecurityFragment"
+        android:label="@string/login_and_security">
+
+        <action
+            android:id="@+id/action_loginAndSecurityFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
+
+        <action
+            android:id="@+id/action_loginAndSecurityFragment_to_twoStepVerificationFragment"
+            app:destination="@id/changePasswordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="org.permanent.permanent.ui.settings.ChangePasswordFragment"
+        android:label="@string/change_password"
+        tools:layout="@layout/fragment_change_password">
+        </fragment>
 
     <activity
         android:id="@+id/fileActivity"
