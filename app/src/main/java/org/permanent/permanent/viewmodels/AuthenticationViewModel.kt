@@ -71,8 +71,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         AuthenticationRepositoryImpl(application)
     private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-//    private var stelaAccountRepository: StelaAccountRepository =
-//        StelaAccountRepositoryImpl(application)
 
     enum class SnackbarType {
         SUCCESS, ERROR, NONE
@@ -102,6 +100,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         authRepository.login(email, password, object : IAuthenticationRepository.IOnLoginListener {
             override fun onSuccess() {
                 _isBusyState.value = false
+                prefsHelper.setIsTwoFAEnabled(false)
 
                 val defaultArchiveId = prefsHelper.getDefaultArchiveId()
                 if (defaultArchiveId == 0) {
@@ -123,8 +122,8 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                     )
 
                     Constants.ERROR_MFA_TOKEN -> {
+                        prefsHelper.setIsTwoFAEnabled(true)
                         prefsHelper.saveAccountEmail(email) //  Save email for verification
-//                        getTwoFAMethod()
                         if (withNavigation) _navigateToPage.value = AuthPage.CODE_VERIFICATION
                         else showSuccessMessage(appContext.getString(R.string.code_resent))
                     }
@@ -168,21 +167,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
             }
         })
     }
-
-//    fun getTwoFAMethod() {
-//        stelaAccountRepository.getTwoFAMethod(object : IResponseListener {
-//
-//            override fun onSuccess(message: String?) {
-//                _isBusyState.value = false
-//                _navigateToPage.value = AuthPage.CODE_VERIFICATION
-//            }
-//
-//            override fun onFailed(error: String?) {
-//                _isBusyState.value = false
-//                error?.let { showErrorMessage(it) }
-//            }
-//        })
-//    }
 
     fun resendCode() {
         val email = savedEmail

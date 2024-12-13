@@ -25,6 +25,7 @@ fun LoginAndSecurityMenu(
     onTwoStepVerificationClick: () -> Unit
 ) {
     val isFingerprintEnabled by viewModel.isBiometricsEnabled.collectAsState()
+    val isTwoFAEnabled by viewModel.isTwoFAEnabled.collectAsState()
 
     Box(
         modifier = Modifier
@@ -48,7 +49,8 @@ fun LoginAndSecurityMenu(
                 iconResource = painterResource(id = R.drawable.ic_lock_primary),
                 title = stringResource(R.string.two_step_verification),
                 subtitle = stringResource(R.string.two_step_verification_description),
-                showOffLabel = true,
+                showOffLabel = !isTwoFAEnabled,
+                showOnLabel = isTwoFAEnabled,
                 showArrow = true,
             ) { onTwoStepVerificationClick() }
 

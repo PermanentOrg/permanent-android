@@ -77,6 +77,7 @@ class ResponseVO {
     fun getLocationVO(): LocnVO? = getData()?.get(0)?.LocnVO
 
     fun getTagVO(): TagVO?  = getData()?.get(0)?.TagVO
+
     fun getProfileItemVO(): Profile_itemVO? {
         return getData()?.get(0)?.Profile_itemVO
     }
@@ -84,5 +85,4 @@ class ResponseVO {
     fun getPromoVO(): PromoVO? {
         return getData()?.get(0)?.PromoVO
     }
-
 }

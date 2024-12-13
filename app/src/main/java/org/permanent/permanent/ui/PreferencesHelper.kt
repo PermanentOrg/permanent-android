@@ -11,6 +11,7 @@ const val PREFS_NAME = "permanent_preferences"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
 const val IS_BIOMETRICS_LOG_IN = "is_biometrics_log_in"
 const val IS_LIST_VIEW_MODE = "is_list_view_mode"
+const val IS_TWO_FA_ENABLED = "is_two_fa_enabled"
 const val SHOW_ARCHIVES_SCREEN = "should_show_archives_screen"
 const val SHOW_REDEEM_CODE_SCREEN = "should_redeem_code_screen"
 const val PROMO_CODE = "promo_code"
@@ -408,5 +409,16 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
     fun isTablet(): Boolean {
         val windowWidthSizeString = sharedPreferences.getString(WINDOW_WIDTH_SIZE_CLASS, "")
         return !windowWidthSizeString.equals(WindowWidthSizeClass.COMPACT.toString())
+    }
+
+    fun setIsTwoFAEnabled(isEnabled: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(IS_TWO_FA_ENABLED, isEnabled)
+            apply()
+        }
+    }
+
+    fun isTwoFAEnabled(): Boolean {
+        return sharedPreferences.getBoolean(IS_TWO_FA_ENABLED, false)
     }
 }

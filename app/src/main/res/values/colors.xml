@@ -18,6 +18,7 @@
     <color name="error200">#FECDCA</color>
     <color name="error500">#F04438</color>
     <color name="red">#FF3D3D</color>
+    <color name="darkRed">#B42318</color>
     <color name="deepRed">#A10000</color>
     <color name="barneyPurple">#800080</color>
     <color name="barneyPurpleLight">#B843A6</color>
