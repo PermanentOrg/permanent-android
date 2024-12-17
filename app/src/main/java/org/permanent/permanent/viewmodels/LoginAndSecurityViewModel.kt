@@ -15,6 +15,9 @@ class LoginAndSecurityViewModel(application: Application) : ObservableAndroidVie
     private val _isBiometricsEnabled = MutableStateFlow(prefsHelper.isBiometricsLogIn())
     val isBiometricsEnabled: StateFlow<Boolean> = _isBiometricsEnabled
 
+    private val _isTwoFAEnabled = MutableStateFlow(prefsHelper.isTwoFAEnabled())
+    val isTwoFAEnabled: StateFlow<Boolean> = _isTwoFAEnabled
+
     fun updateBiometricsEnabled(enabled: Boolean) {
         _isBiometricsEnabled.value = enabled
         prefsHelper.setBiometricsLogIn(enabled)

@@ -69,6 +69,8 @@ fun SettingsMenuScreen(
     val spaceUsedBytes by viewModel.getSpaceUsed().observeAsState(initial = 0L)
     val spaceUsedPercentage by viewModel.getSpaceUsedPercentage().observeAsState(initial = 0)
 
+    val isTwoFAEnabled by viewModel.isTwoFAEnabled().observeAsState(initial = false)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -127,7 +129,7 @@ fun SettingsMenuScreen(
             SettingsMenuItem(
                 painterResource(id = R.drawable.ic_security_primary),
                 stringResource(R.string.login_and_security),
-                showWarning = true,
+                showWarning = !isTwoFAEnabled,
             ) { onLoginAndSecurityClick() }
 
             SettingsMenuItem(

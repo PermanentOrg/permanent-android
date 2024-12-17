@@ -240,6 +240,7 @@ class ArchiveOnboardingViewModel(application: Application) :
                     override fun onSuccess() {
                         _isBusyState.value = false
                         prefsHelper.saveUserLoggedIn(true)
+                        prefsHelper.setIsTwoFAEnabled(false)
                         if (_isArchiveCreationFlow.value) sendGoalsAndPriorities()
                     }
 
@@ -251,7 +252,7 @@ class ArchiveOnboardingViewModel(application: Application) :
 
                             null -> _showError.value = appContext.getString(R.string.generic_error)
 
-                            else -> _showError.value = error!!
+                            else -> _showError.value = error
                         }
                     }
                 })

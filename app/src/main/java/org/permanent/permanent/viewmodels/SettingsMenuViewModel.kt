@@ -33,6 +33,7 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     private var archiveThumb = MutableLiveData("")
     private var accountName = MutableLiveData("")
     private var accountEmail = MutableLiveData("")
+    private var isTwoFAEnabled = MutableLiveData(false)
     private val errorMessage = MutableLiveData<String>()
     private val onLoggedOut = SingleLiveEvent<Void?>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -43,6 +44,7 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
         archiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
         accountName.value = prefsHelper.getAccountName()
         accountEmail.value = prefsHelper.getAccountEmail()
+        isTwoFAEnabled.value = prefsHelper.isTwoFAEnabled()
     }
 
     fun updateUsedStorage() {
@@ -132,6 +134,8 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     fun getAccountName() = accountName
 
     fun getAccountEmail() = accountEmail
+
+    fun isTwoFAEnabled() = isTwoFAEnabled
 
     fun getErrorMessage(): LiveData<String> = errorMessage
 

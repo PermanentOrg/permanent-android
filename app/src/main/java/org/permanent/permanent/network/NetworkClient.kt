@@ -42,6 +42,7 @@ import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.network.models.SimpleRequestContainer
 import org.permanent.permanent.network.models.StorageGift
+import org.permanent.permanent.network.models.TwoFAVO
 import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -764,7 +765,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun addRemoveTags(tags: Tags): Call<ResponseVO> = stelaAccountService.addRemoveTags(tags)
 
-//    fun getTwoFAMethod(): Call<ResponseVO> = stelaAccountService.getTwoFAMethod()
+    fun getTwoFAMethod(): Call<List<TwoFAVO>> = stelaAccountService.getTwoFAMethod()
 
     fun getPaymentIntent(
         accountId: Int,
