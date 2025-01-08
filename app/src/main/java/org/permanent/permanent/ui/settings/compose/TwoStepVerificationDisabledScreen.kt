@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
 
 @Composable
-fun TwoStepVerificationScreen(
+fun TwoStepVerificationDisabledScreen(
     onAddTwoStepVerificationClick: () -> Unit
 ) {
     Column(

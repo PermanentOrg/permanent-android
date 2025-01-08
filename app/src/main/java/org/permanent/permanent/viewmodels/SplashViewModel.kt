@@ -43,8 +43,10 @@ class SplashViewModel(application: Application) : ObservableAndroidViewModel(app
     fun getTwoFAMethod() {
         stelaAccountRepository.getTwoFAMethod(object : ITwoFAListener {
 
-            override fun onSuccess(twoFAVO: TwoFAVO?) {
-                prefsHelper.setIsTwoFAEnabled(twoFAVO != null)
+            override fun onSuccess(twoFAVOList: List<TwoFAVO>?) {
+                prefsHelper.setIsTwoFAEnabled(twoFAVOList != null)
+                if (twoFAVOList != null) prefsHelper.setTwoFAList(twoFAVOList)
+
                 onArchiveSwitchedToCurrent.call()
             }
 

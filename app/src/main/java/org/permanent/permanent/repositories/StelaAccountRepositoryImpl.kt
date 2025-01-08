@@ -49,7 +49,7 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
                 if (response.isSuccessful) {
                     val twoFAVOList = response.body()
                     if (twoFAVOList != null) {
-                        listener.onSuccess(if (twoFAVOList.isEmpty()) null else twoFAVOList[0])
+                        listener.onSuccess(twoFAVOList.ifEmpty { null })
                     } else {
                         listener.onFailed(appContext.getString(R.string.generic_error))
                     }

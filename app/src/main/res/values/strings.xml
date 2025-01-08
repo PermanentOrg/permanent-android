@@ -5,7 +5,7 @@
     <string name="get_started">Get Started</string>
     <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
-    <string name="email_hint">Email</string>
+    <string name="email">Email</string>
     <string name="password_hint">Password</string>
     <string name="forgot_your_password_title">Forgot your password?</string>
     <string name="forgot_your_password_text">Enter the email address used to sign up for your account to receive instructions on how to reset your password.</string>
@@ -130,7 +130,10 @@
     <string name="two_step_verification">Two-step verification</string>
     <string name="two_step_verification_description">Enhance account security by requiring a login verification code.</string>
     <string name="two_step_verification_disabled">Two-step verification is disabled.</string>
+    <string name="two_step_verification_enabled">Two-step verification is enabled.</string>
     <string name="add_two_step_verification">Add two-step verification method</string>
+    <string name="change_verification_method">Change verification method</string>
+    <string name="two_step_verification_help_text">To disable two-step verification, you must remove all existing two-step verification methods you have previously added.</string>
 
     <string name="main_navigation_title_archives">Archives</string>
     <string name="main_navigation_title_my_files">My Files</string>
@@ -763,5 +766,5 @@
     <string name="date_confirmation_substring">Are you sure you want to set a new date &amp; time for the selected items?</string>
     <string name="set_date_and_time">Set date and time</string>
     <string name="file_names_updated">File names updated successfully</string>
-
+    <string name="text_message_sms">Text message (SMS)</string>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="blue25">#F4F6FD</color>
     <color name="blue50">#E7E8ED</color>
     <color name="blue200">#A1A4B7</color>
     <color name="blue400">#898DA4</color>
@@ -12,6 +13,8 @@
     <color name="colorPrimaryLighter">#1c2451</color>
     <color name="superLightBlue">#F4F6FD</color>
     <color name="blueGrey">#465084</color>
+    <color name="blue">#42496E</color>
+    <color name="dividerBlue">#D0D1DB</color>
     <color name="darkBlue">#010A3F</color>
     <color name="errorLight">#FEE4E2</color>
     <color name="error25">#FFFBFA</color>
@@ -27,6 +30,8 @@
     <color name="colorAccent">#FF9933</color>
     <color name="colorAccentDark">#ff8000</color>
     <color name="orange">#F17400</color>
+    <color name="lightGreen">#D1FADF</color>
+    <color name="textGreen">#027A48</color>
     <color name="green">#34C759</color>
     <color name="deepGreen">#167D14</color>
     <color name="dotGreen">#1BC917</color>
