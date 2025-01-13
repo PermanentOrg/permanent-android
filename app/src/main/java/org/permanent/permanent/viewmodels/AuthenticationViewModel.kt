@@ -1,10 +1,7 @@
 package org.permanent.permanent.viewmodels
 
-import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
-import android.content.Intent
-import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -50,6 +47,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     private val onAuthenticated = SingleLiveEvent<Void?>()
     private val onAccountCreated = SingleLiveEvent<Void?>()
     private val onUserMissingDefaultArchive = SingleLiveEvent<Void?>()
+    private val onShowEnrollBiometricsDialog = SingleLiveEvent<Boolean>()
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
     private val _codeValues = MutableStateFlow(List(4) { "" })
@@ -449,15 +447,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     }
 
     private fun showOpenSettingsQuestionDialog() {
-        AlertDialog.Builder(appContext).apply {
-            setTitle(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_title))
-            setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
-            setPositiveButton(R.string.yes_button) { _, _ ->
-                appContext.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) }
-            setNegativeButton(R.string.button_cancel) { _, _ -> }
-            create()
-            show()
-        }
+        onShowEnrollBiometricsDialog.value = true
     }
 
     fun clearSnackbar() {
@@ -475,6 +465,8 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     fun isTablet() = isTablet
 
     fun getOnUserMissingDefaultArchive(): MutableLiveData<Void?> = onUserMissingDefaultArchive
+
+    fun getOnShowEnrollBiometricsDialog(): MutableLiveData<Boolean> = onShowEnrollBiometricsDialog
 
     fun getOnSignedIn(): MutableLiveData<Void?> = onSignedIn
 

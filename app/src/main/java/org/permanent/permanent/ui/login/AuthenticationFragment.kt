@@ -1,8 +1,10 @@
 package org.permanent.permanent.ui.login
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.EventType
 import org.permanent.permanent.EventsManager
+import org.permanent.permanent.R
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
@@ -95,6 +98,17 @@ class AuthenticationFragment : PermanentBaseFragment() {
         startArchiveOnboardingActivity()
     }
 
+    private val showBiometricsDialogObserver = Observer<Boolean> {
+        AlertDialog.Builder(context).apply {
+            setTitle(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_title))
+            setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
+            setPositiveButton(R.string.yes_button) { _, _ -> startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) }
+            setNegativeButton(R.string.button_cancel) { _, _ -> }
+            create()
+            show()
+        }
+    }
+
     private fun startArchiveOnboardingActivity() {
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
@@ -125,6 +139,7 @@ class AuthenticationFragment : PermanentBaseFragment() {
         viewModel.getOnSignedIn().observe(this, onSignedIn)
         viewModel.getOnAuthenticated().observe(this, onAuthenticated)
         viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
+        viewModel.getOnShowEnrollBiometricsDialog().observe(this, showBiometricsDialogObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -132,6 +147,7 @@ class AuthenticationFragment : PermanentBaseFragment() {
         viewModel.getOnSignedIn().removeObserver(onSignedIn)
         viewModel.getOnAuthenticated().removeObserver(onAuthenticated)
         viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
+        viewModel.getOnShowEnrollBiometricsDialog().removeObserver(showBiometricsDialogObserver)
     }
 
     override fun onResume() {

@@ -102,6 +102,7 @@ dependencies {
     implementation 'net.openid:appauth:0.11.1'
     implementation 'androidx.window:window-core:1.2.0'
     implementation 'androidx.window:window:1.2.0'
+    implementation 'com.google.code.gson:gson:2.9.0'
 
     //====================================== ARCHITECTURE COMPONENTS ===============================
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'

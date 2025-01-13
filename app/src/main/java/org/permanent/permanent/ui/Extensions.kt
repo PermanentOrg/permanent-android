@@ -11,13 +11,15 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
-import net.openid.appauth.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import org.permanent.permanent.network.models.TwoFAVO
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 
 fun Context.hideKeyboardFrom(windowToken: IBinder) {
@@ -161,4 +163,15 @@ fun Uri.getFile(context: Context, displayName: String): File? {
         output?.close()
     }
     return null
+}
+
+// Serialize a list of TwoFAVO to JSON
+fun List<TwoFAVO>.toJson(): String {
+    return Gson().toJson(this)
+}
+
+// Deserialize JSON to a list of TwoFAVO
+fun String.toTwoFAVOList(): List<TwoFAVO> {
+    val type = object : TypeToken<List<TwoFAVO>>() {}.type
+    return Gson().fromJson(this, type)
 }

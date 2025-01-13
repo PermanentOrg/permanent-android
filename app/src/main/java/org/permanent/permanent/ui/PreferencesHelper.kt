@@ -6,6 +6,7 @@ import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.network.models.TwoFAVO
 
 const val PREFS_NAME = "permanent_preferences"
 const val IS_USER_LOGGED_IN = "is_user_logged_in"
@@ -38,6 +39,7 @@ const val PREFS_UPLOAD_URL = "preferences_upload_url"
 const val PREFS_DEEP_LINK_FILE_ARCHIVE_NR = "preferences_deep_link_file_archive_nr"
 const val PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR = "preferences_deep_link_folder_archive_nr"
 const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id"
+const val KEY_TWO_FA_LIST = "key_two_fa_list"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -420,5 +422,18 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isTwoFAEnabled(): Boolean {
         return sharedPreferences.getBoolean(IS_TWO_FA_ENABLED, false)
+    }
+
+    fun setTwoFAList(twoFAList: List<TwoFAVO>) {
+        with(sharedPreferences.edit()) {
+            putString(KEY_TWO_FA_LIST, twoFAList.toJson())
+            apply()
+        }
+    }
+
+    // Retrieve 2FA methods
+    fun getTwoFAList(): List<TwoFAVO> {
+        val json = sharedPreferences.getString(KEY_TWO_FA_LIST, null) ?: return emptyList()
+        return json.toTwoFAVOList().sortedByDescending { it.method == "sms" }
     }
 }
