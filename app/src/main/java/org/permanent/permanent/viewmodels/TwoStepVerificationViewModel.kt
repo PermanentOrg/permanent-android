@@ -68,9 +68,9 @@ class TwoStepVerificationViewModel(application: Application) :
                         when (error) {
                             Constants.ERROR_UNKNOWN_SIGNIN -> {
                                 _snackbarMessage.value =
-                                    appContext.getString(R.string.login_bad_credentials)
+                                    appContext.getString(R.string.incorrect_password)
                                 errorMessageCallback(
-                                    appContext.getString(R.string.login_bad_credentials)
+                                    appContext.getString(R.string.incorrect_password)
                                 )
                             }
 
