@@ -44,6 +44,7 @@ import androidx.constraintlayout.compose.Dimension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.ButtonIconAlignment
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
@@ -203,6 +204,11 @@ private fun PhoneBody(
                 CenteredTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT, text = stringResource(id = R.string.next)
                 ) {
+                    if(goals.none { it.isChecked.value }) {
+                        viewModel.sendEvent(AccountEventAction.SKIP_GOALS)
+                    } else {
+                        viewModel.sendEvent(AccountEventAction.SUBMIT_GOALS)
+                    }
                     newArchive.goals = goals
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(OnboardingPage.PRIORITIES.value)
@@ -338,6 +344,11 @@ private fun TabletBody(
                             buttonColor = ButtonColor.LIGHT,
                             text = stringResource(id = R.string.next)
                         ) {
+                            if(goals.none { it.isChecked.value }) {
+                                viewModel.sendEvent(AccountEventAction.SKIP_GOALS)
+                            } else {
+                                viewModel.sendEvent(AccountEventAction.SUBMIT_GOALS)
+                            }
                             newArchive.goals = goals
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(OnboardingPage.PRIORITIES.value)

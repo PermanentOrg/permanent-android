@@ -19,6 +19,7 @@ import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicGalleryBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.public.PublicFragment.Companion.ARCHIVE
@@ -68,6 +69,7 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[PublicGalleryViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_PUBLIC_GALLERY, data = mapOf("workspace" to "Public Gallery"))
         binding = FragmentPublicGalleryBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

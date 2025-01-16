@@ -4,9 +4,12 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -20,6 +23,11 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
     private val onSharesByMeRetrieved = SingleLiveEvent<MutableList<Record>>()
     private val onSharesWithMeRetrieved = SingleLiveEvent<MutableList<Record>>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
+
+    private val prefsHelper = PreferencesHelper(
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
 
     fun requestShares() {
         if (isBusy.value != null && isBusy.value!!) {
@@ -67,6 +75,14 @@ class SharesViewModel(application: Application) : ObservableAndroidViewModel(app
                 error?.let { showMessage.value = it }
             }
         })
+    }
+
+    fun sendEvent(action: AccountEventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy

@@ -1,17 +1,27 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Validator
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.AccountEventAction
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.repositories.IEventsRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 class AccountViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private val isBusy = MutableLiveData<Boolean>()
     private val showMessage = MutableLiveData<String>()
     private val showDeleteAccountDialog = SingleLiveEvent<Void?>()
@@ -26,6 +36,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
     private val postalCode = MutableLiveData<String>()
     private val country = MutableLiveData<String>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     init {
         getAccountInfo()
@@ -62,6 +73,14 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
         account?.state?.let { state.value = it }
         account?.zipCode?.let { postalCode.value = it }
         account?.country?.let { country.value = it }
+    }
+
+    fun sendEvent(action: EventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
     }
 
     fun getOnShowDeleteAccountDialog(): SingleLiveEvent<Void?> = showDeleteAccountDialog
@@ -164,6 +183,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     showMessage.value = message
+                    sendEvent(AccountEventAction.UPDATE)
                 }
 
                 override fun onFailed(error: String?) {

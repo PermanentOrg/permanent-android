@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -30,6 +31,7 @@ class ArchiveStewardFragment : PermanentBaseFragment() {
         archive = arguments?.getParcelable(PARCELABLE_ARCHIVE_KEY)
 
         viewModel = ViewModelProvider(this)[ArchiveStewardViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_STEWARD)
 
         return ComposeView(requireContext()).apply {
             setContent {

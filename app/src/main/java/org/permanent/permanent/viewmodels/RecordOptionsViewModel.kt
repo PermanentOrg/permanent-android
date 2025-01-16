@@ -20,6 +20,7 @@ import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordOption
@@ -31,7 +32,9 @@ import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
@@ -85,6 +88,7 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
     private val onPublishRequest = SingleLiveEvent<Void?>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun initWith(
         record: Record,
@@ -398,6 +402,14 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
             } else null
         }
         return null
+    }
+
+    fun sendEvent(action: EventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy

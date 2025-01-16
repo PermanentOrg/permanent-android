@@ -1,18 +1,30 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.models.DirectiveEventAction
+import org.permanent.permanent.models.EventAction
+import org.permanent.permanent.models.LegacyContactEventAction
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.IArchiveStewardListener
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.ILegacyPlanningRepository
 import org.permanent.permanent.repositories.LegacyPlanningRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 
 class AddEditArchiveStewardViewModel(application: Application) :
     AddEditLegacyEntityViewModel(application) {
     private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private val onArchiveStewardUpdated = SingleLiveEvent<ArchiveSteward>()
     private var legacyPlanningRepository: ILegacyPlanningRepository =
         LegacyPlanningRepositoryImpl(appContext)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var archiveId: Int? = null
     private var archiveSteward: ArchiveSteward? = null
 
@@ -46,6 +58,7 @@ class AddEditArchiveStewardViewModel(application: Application) :
                 override fun onSuccess(archiveSteward: ArchiveSteward) {
                     this@AddEditArchiveStewardViewModel.archiveSteward = archiveSteward
                     onArchiveStewardUpdated.value = archiveSteward
+                    sendEvent(DirectiveEventAction.CREATE, archiveSteward.archiveId)
                 }
 
                 override fun onFailed(error: String?) {
@@ -62,6 +75,7 @@ class AddEditArchiveStewardViewModel(application: Application) :
 
                 override fun onSuccess(archiveSteward: ArchiveSteward) {
                     onArchiveStewardUpdated.value = archiveSteward
+                    sendEvent(DirectiveEventAction.UPDATE, archiveSteward.archiveId)
                 }
 
                 override fun onFailed(error: String?) {
@@ -69,5 +83,15 @@ class AddEditArchiveStewardViewModel(application: Application) :
                 }
             })
     }
+
+    fun sendEvent(action: EventAction, entityId: String?) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            entityId = entityId,
+            data = mapOf()
+        )
+    }
+
     fun getOnArchiveStewardUpdated(): MutableLiveData<ArchiveSteward> = onArchiveStewardUpdated
 }
