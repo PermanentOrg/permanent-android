@@ -13,6 +13,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentSharesBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.Workspace
@@ -34,6 +35,7 @@ class SharesFragment : PermanentBaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[SharesViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_SHARED_WORKSPACE, data = mapOf("workspace" to "Shared Files"))
         binding = FragmentSharesBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

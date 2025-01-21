@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
@@ -28,6 +29,7 @@ class RedeemCodeFragment : PermanentBaseFragment() {
     ): View {
 
         viewModel = ViewModelProvider(this)[RedeemCodeViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_REDEEM_GIFT, mapOf("page" to "Redeem Gift"))
 
         val promoCode = arguments?.getString(DEEPLINK_PROMO_CODE_KEY)
 

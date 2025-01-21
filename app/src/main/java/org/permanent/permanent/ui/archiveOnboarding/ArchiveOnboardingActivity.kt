@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityArchiveOnboardingBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
@@ -40,6 +41,8 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_archive_onboarding)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
+
+        viewModel.sendEvent(AccountEventAction.START_ONBOARDING)
     }
 
     private val onArchiveOnboardingDone = Observer<Void?> {

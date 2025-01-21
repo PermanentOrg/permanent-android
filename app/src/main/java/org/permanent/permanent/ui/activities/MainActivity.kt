@@ -39,6 +39,7 @@ import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
@@ -229,7 +230,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             override fun onDrawerOpened(drawerView: View) {
                 if (drawerView.id == binding.mainNavigationView.id) {
                     viewModel.updateCurrentArchiveHeader()
-                    EventsManager(applicationContext).trackPageView(EventPage.ArchiveMenu)
+                    viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_MENU)
                 }
             }
 

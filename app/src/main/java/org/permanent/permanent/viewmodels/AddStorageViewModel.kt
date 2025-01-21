@@ -6,7 +6,10 @@ import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.IStringDataListener
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IStorageRepository
 import org.permanent.permanent.repositories.StorageRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -26,6 +29,7 @@ class AddStorageViewModel(application: Application) : ObservableAndroidViewModel
     private val isBusy = MutableLiveData<Boolean>()
     private val onPaymentIntentRetrieved = SingleLiveEvent<String>()
     val storageRepository: IStorageRepository = StorageRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun getPaymentIntent() {
         val amountString = amount.value
@@ -44,6 +48,7 @@ class AddStorageViewModel(application: Application) : ObservableAndroidViewModel
                     override fun onSuccess(data: String?) {
                         isBusy.value = false
                         onPaymentIntentRetrieved.value = data
+                        sendEvent(AccountEventAction.PURCHASE_STORAGE)
                     }
 
                     override fun onFailed(error: String?) {
@@ -61,6 +66,14 @@ class AddStorageViewModel(application: Application) : ObservableAndroidViewModel
         this.gbEndowed.value = appContext.getString(
             R.string.storage_gb_endowed,
             if (enteredAmount >= 10) (enteredAmount / 10).toString() else "0"
+        )
+    }
+
+    fun sendEvent(action: AccountEventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
         )
     }
 

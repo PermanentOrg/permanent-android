@@ -26,7 +26,6 @@ import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
-import org.permanent.permanent.network.IEventsService
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.AccountRepositoryImpl
@@ -115,7 +114,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                     getArchive(defaultArchiveId)
                 }
 
-                sendEvent()
+                sendEvent(AccountEventAction.LOGIN)
             }
 
             override fun onFailed(error: String?) {
@@ -343,6 +342,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                     prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
 
                     onAccountCreated.call()
+                    sendEvent(AccountEventAction.CREATE)
                 }
 
                 override fun onFailed(error: String?) {
@@ -483,9 +483,9 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         }
     }
 
-    private fun sendEvent() {
-        eventsRepository.sendAccountEvent(
-            eventAction = AccountEventAction.LOGIN,
+    fun sendEvent(action: AccountEventAction) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
             accountId = prefsHelper.getAccountId(),
             data = mapOf()
         )

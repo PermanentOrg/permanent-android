@@ -13,11 +13,14 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
@@ -33,6 +36,7 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
     private val showError = SingleLiveEvent<String>()
     private val existsYourArchives = MutableLiveData(false)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private val onYourArchivesRetrieved = MutableLiveData<List<Archive>>()
     private val onPopularArchivesRetrieved = MutableLiveData<List<Archive>>()
 
@@ -140,6 +144,14 @@ class PublicGalleryViewModel(application: Application) : ObservableAndroidViewMo
         )
         clipboard.setPrimaryClip(clip)
         showMessage.value = appContext.getString(R.string.share_management_link_copied)
+    }
+
+    fun sendEvent(action: AccountEventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
     }
 
     companion object {

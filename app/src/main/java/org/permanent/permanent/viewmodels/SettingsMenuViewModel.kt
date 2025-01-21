@@ -8,11 +8,14 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.INotificationRepository
 import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -38,6 +41,7 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun updateArchiveAndAccountDetails() {
         archiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
@@ -115,6 +119,14 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
                 error?.let { errorMessage.value = it }
             }
         })
+    }
+
+    fun sendEvent(action: AccountEventAction) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = mapOf("page" to "Account Menu")
+        )
     }
 
     fun getIsBusy() = isBusy

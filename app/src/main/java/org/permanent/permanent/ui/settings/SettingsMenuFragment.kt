@@ -18,6 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.composeComponents.PartialScreenLayout
@@ -39,6 +40,7 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[SettingsMenuViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_ACCOUNT_MENU)
 
         return ComposeView(requireContext()).apply {
             setContent {

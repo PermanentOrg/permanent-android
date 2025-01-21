@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.EventType
 import org.permanent.permanent.EventsManager
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
@@ -57,6 +58,7 @@ class AuthenticationFragment : PermanentBaseFragment() {
                 AuthPage.BIOMETRICS.value -> {
                     if (!prefsHelper.isBiometricsLogIn() || viewModel.skipLogin()) {
                         navigateToMainActivity()
+                        viewModel.sendEvent(AccountEventAction.LOGIN)
                         return
                     } else if (!prefsHelper.isUserLoggedIn()) {
                         onLoggedOut()

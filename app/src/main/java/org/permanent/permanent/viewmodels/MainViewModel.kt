@@ -6,11 +6,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
@@ -32,6 +35,7 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
         )
     )
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun switchCurrentArchiveTo(archiveNr: String?) {
         if (isBusy.value != null && isBusy.value!!) {
@@ -72,6 +76,14 @@ class MainViewModel(application: Application) : ObservableAndroidViewModel(appli
     fun updateCurrentArchiveHeader() {
         archiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
         archiveName.value = prefsHelper.getCurrentArchiveFullName()
+    }
+
+    fun sendEvent(action: AccountEventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
     }
 
     fun getCurrentArchive() : Archive = prefsHelper.getCurrentArchive()

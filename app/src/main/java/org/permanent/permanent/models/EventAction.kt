@@ -28,6 +28,7 @@ enum class AccountEventAction(private val actionValue: String) : EventAction {
     OPEN_VERIFY_EMAIL("open_verify_email"),
     OPEN_BILLING_INFO("open_billing_info"),
     UPDATE("update"),
+    INITIATE_UPLOAD("initiate_upload"),
     OPEN_LEGACY_CONTACT("open_legacy_contact"),
     OPEN_ARCHIVE_STEWARD("open_archive_steward"),
     OPEN_PRIVATE_WORKSPACE("open_private_workspace"),
@@ -57,6 +58,7 @@ enum class AccountEventAction(private val actionValue: String) : EventAction {
             OPEN_VERIFY_EMAIL -> "Verify Email"
             OPEN_BILLING_INFO -> "View Billing Info"
             UPDATE -> "Edit Address"
+            INITIATE_UPLOAD -> "Initiate Upload"
             OPEN_LEGACY_CONTACT -> "View Legacy Contact"
             OPEN_ARCHIVE_STEWARD -> "View Archive Steward"
             OPEN_PRIVATE_WORKSPACE -> "View Private Workspace"
@@ -75,7 +77,6 @@ enum class AccountEventAction(private val actionValue: String) : EventAction {
 }
 
 enum class RecordEventAction(private val actionValue: String) : EventAction {
-    INITIATE_UPLOAD("initiate_upload"),
     SUBMIT("submit"),
     MOVE("move"),
     COPY("copy");
@@ -84,7 +85,6 @@ enum class RecordEventAction(private val actionValue: String) : EventAction {
 
     override val event: String
         get() = when (this) {
-            INITIATE_UPLOAD -> "Initiate Upload"
             SUBMIT -> "Finalize Upload"
             MOVE -> "Move Record"
             COPY -> "Copy Record"

@@ -30,6 +30,7 @@ import org.permanent.permanent.databinding.DialogCancelUploadsBinding
 import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
@@ -89,6 +90,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel = ViewModelProvider(this)[MyFilesViewModel::class.java]
         renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
 
+        viewModel.sendEvent(AccountEventAction.OPEN_PRIVATE_WORKSPACE, data = mapOf("workspace" to "Private Files"))
         val displayMetrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
         islandExpandedWidth = displayMetrics.widthPixels - 50

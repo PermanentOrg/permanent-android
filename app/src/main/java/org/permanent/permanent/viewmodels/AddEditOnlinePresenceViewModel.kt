@@ -8,9 +8,13 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.EventType
 import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.ProfileItemEventAction
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IProfileItemListener
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -29,6 +33,7 @@ class AddEditOnlinePresenceViewModel(application: Application) :
     private val onlinePresence = MutableLiveData("")
     private var socialMediaProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var isEdit: Boolean? = false
     private var isAddEmail: Boolean? = false
 
@@ -72,7 +77,7 @@ class AddEditOnlinePresenceViewModel(application: Application) :
             listOf(profileItemToUpdate), false,
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
-                    EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
+                    sendEvent(ProfileItemEventAction.UPDATE, profileItemToUpdate.id.toString())
                     isBusy.value = false
                     profileItemToUpdate.id = profileItem.id
                     showMessage.value = appContext.getString(
@@ -88,6 +93,15 @@ class AddEditOnlinePresenceViewModel(application: Application) :
                     showError.value = error
                 }
             })
+    }
+
+    fun sendEvent(action: EventAction, entityId: String?) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            entityId = entityId,
+            data = mapOf()
+        )
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy

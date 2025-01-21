@@ -12,13 +12,15 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.ProfileItemEventAction
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -49,6 +51,7 @@ class AddEditMilestoneViewModel(application: Application) :
     private var isNewLocation = false
     private var milestoneProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var isEdit: Boolean = true
     private var isStartDatePicked: Boolean = true
 
@@ -183,7 +186,7 @@ class AddEditMilestoneViewModel(application: Application) :
             listOf(profileItemToUpdate), false,
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
-                    EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
+                    sendEvent(ProfileItemEventAction.UPDATE, profileItemToUpdate.id.toString())
                     isBusy.value = false
                     showMessage.value = appContext.getString(
                         R.string.add_edit_milestone_success,
@@ -198,6 +201,15 @@ class AddEditMilestoneViewModel(application: Application) :
                     error?.let { showError.value = it }
                 }
             })
+    }
+
+    fun sendEvent(action: EventAction, entityId: String?) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            entityId = entityId,
+            data = mapOf()
+        )
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy

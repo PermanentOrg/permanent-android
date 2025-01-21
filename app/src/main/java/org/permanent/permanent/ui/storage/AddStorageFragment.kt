@@ -23,6 +23,7 @@ import org.permanent.permanent.EventType
 import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentAddStorageBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.AddStorageViewModel
 import org.permanent.permanent.viewmodels.AddStorageViewModel.Companion.DONATION_AMOUNT_10_VALUE
@@ -43,6 +44,7 @@ class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListe
     ): View {
         EventsManager(requireContext()).trackPageView(EventPage.Storage)
         viewModel = ViewModelProvider(this)[AddStorageViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_STORAGE_MODAL, mapOf("page" to "Storage"))
         binding = FragmentAddStorageBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
