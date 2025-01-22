@@ -267,6 +267,7 @@
     <string name="file_sort_menu_item_type_desc">File Type ↓</string>
 
     <string name="login_bad_credentials">Incorrect username or password</string>
+    <string name="incorrect_password">Incorrect password</string>
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
 
