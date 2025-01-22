@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="blue25">#F4F6FD</color>
     <color name="blue50">#E7E8ED</color>
+    <color name="blue100">#D0D1DB</color>
     <color name="blue200">#A1A4B7</color>
     <color name="blue400">#898DA4</color>
     <color name="blue600">#5A5F80</color>
     <color name="blue900">#131B4A</color>
-    <color name="colorPrimary">#131B4A</color>
+    <color name="blue">#42496E</color>
+    <color name="blueGrey">#465084</color>
+    <color name="superLightBlue">#F4F6FD</color>
+    <color name="darkBlue">#010A3F</color>
     <color name="blueLighter">#323f88</color>
+    <color name="colorPrimary">#131B4A</color>
     <color name="colorPrimary200">#B8BBC9</color>
     <color name="colorPrimaryDarker">#0f163b</color>
     <color name="colorPrimaryLighter">#1c2451</color>
-    <color name="superLightBlue">#F4F6FD</color>
-    <color name="blueGrey">#465084</color>
-    <color name="darkBlue">#010A3F</color>
     <color name="errorLight">#FEE4E2</color>
     <color name="error25">#FFFBFA</color>
     <color name="error200">#FECDCA</color>
     <color name="error500">#F04438</color>
     <color name="red">#FF3D3D</color>
+    <color name="darkRed">#B42318</color>
     <color name="deepRed">#A10000</color>
     <color name="barneyPurple">#800080</color>
     <color name="barneyPurpleLight">#B843A6</color>
@@ -26,6 +30,9 @@
     <color name="colorAccent">#FF9933</color>
     <color name="colorAccentDark">#ff8000</color>
     <color name="orange">#F17400</color>
+    <color name="warning500">#F79009</color>
+    <color name="lightGreen">#D1FADF</color>
+    <color name="textGreen">#027A48</color>
     <color name="green">#34C759</color>
     <color name="deepGreen">#167D14</color>
     <color name="dotGreen">#1BC917</color>
