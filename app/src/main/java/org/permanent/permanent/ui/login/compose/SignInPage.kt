@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,18 +58,28 @@ import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CustomSnackbar
 import org.permanent.permanent.ui.composeComponents.CustomTextButton
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
+import java.time.LocalDate
 
 @Composable
 fun SignInPage(
     viewModel: AuthenticationViewModel, pagerState: PagerState
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    val keyboardState by keyboardAsState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
     val snackbarType by viewModel.snackbarType.collectAsState()
 
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val targetDate = LocalDate.of(2025, 1, 30)
+    val currentDate = LocalDate.now()
+    val shouldShowAlert = currentDate.isBefore(targetDate) || currentDate.isEqual(targetDate)
+
+    // Use rememberSaveable to persist the visibility state across recompositions
+    var isAlertVisible by rememberSaveable { mutableStateOf(shouldShowAlert) }
 
     var emailValueState by remember {
         mutableStateOf(
@@ -85,9 +96,6 @@ fun SignInPage(
             )
         )
     }
-
-    val keyboardState by keyboardAsState()
-    val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -268,6 +276,10 @@ fun SignInPage(
                     }
                 }
             }
+        }
+
+        if (isAlertVisible) {
+            DowntimeAlert { isAlertVisible = false }
         }
 
         CustomSnackbar(modifier = Modifier.align(Alignment.BottomCenter),

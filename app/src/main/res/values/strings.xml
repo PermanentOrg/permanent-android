@@ -5,7 +5,7 @@
     <string name="get_started">Get Started</string>
     <string name="toolbar_skip_button">Skip</string>
     <string name="toolbar_title">Permanent.org</string>
-    <string name="email_hint">Email</string>
+    <string name="email">Email</string>
     <string name="password_hint">Password</string>
     <string name="forgot_your_password_title">Forgot your password?</string>
     <string name="forgot_your_password_text">Enter the email address used to sign up for your account to receive instructions on how to reset your password.</string>
@@ -53,6 +53,8 @@
     <string name="i_agree_to_receive_updates">I agree to receive updates via email</string>
     <string name="i_agree_with">I agree with</string>
     <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="sign_in_with_fingerprint">Sign in with fingerprint</string>
+    <string name="sign_in_with_fingerprint_description">This option lets you securely sign in with your biometric credentials.</string>
     <string name="unlock_with_fingerprint">Unlock with fingerprint</string>
     <string name="unlock_with_credentials">Unlock with Sign in credentials</string>
 
@@ -119,10 +121,20 @@
     <string name="invitations">Invitations</string>
     <string name="activity_feed">Activity Feed</string>
     <string name="security">Security</string>
+    <string name="login_and_security">Login &amp; Security</string>
+    <string name="change_password">Change password</string>
+    <string name="change_password_description">Update your password to keep your account secure.</string>
     <string name="legacy_planning">Legacy Planning</string>
     <string name="gift_storage">Gift storage</string>
     <string name="contact_support">Contact support</string>
     <string name="sign_out">Sign out</string>
+    <string name="two_step_verification">Two-step verification</string>
+    <string name="two_step_verification_description">Enhance account security by requiring a login verification code.</string>
+    <string name="two_step_verification_disabled">Two-step verification is disabled.</string>
+    <string name="two_step_verification_enabled">Two-step verification is enabled.</string>
+    <string name="add_two_step_verification">Add two-step verification method</string>
+    <string name="change_verification_method">Change verification method</string>
+    <string name="two_step_verification_help_text">To disable two-step verification, you must remove all existing two-step verification methods you have previously added.</string>
 
     <string name="main_navigation_title_archives">Archives</string>
     <string name="main_navigation_title_my_files">My Files</string>
@@ -256,6 +268,7 @@
     <string name="file_sort_menu_item_type_desc">File Type ↓</string>
 
     <string name="login_bad_credentials">Incorrect username or password</string>
+    <string name="incorrect_password">Incorrect password</string>
     <string name="server_error">Server Error</string>
     <string name="no_api_key">No api key</string>
 
@@ -715,6 +728,8 @@
     <string name="code_invalid">The code is invalid.</string>
     <string name="enter_new_code">Enter a new code.</string>
     <string name="new_label">new</string>
+    <string name="off">off</string>
+    <string name="on">on</string>
 
     <string name="file_names">File names</string>
     <string name="edit_file_names">Edit file names</string>
@@ -753,5 +768,11 @@
     <string name="date_confirmation_substring">Are you sure you want to set a new date &amp; time for the selected items?</string>
     <string name="set_date_and_time">Set date and time</string>
     <string name="file_names_updated">File names updated successfully</string>
-
+    <string name="text_message_sms">Text message (SMS)</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="confirm_your_password">Confirm your password</string>
+    <string name="confirm_your_password_description">Enter your Permanent account password to continue adding a two-step verification method.</string>
+    <string name="permanent_down_start">The Permanent app may be down briefly on</string>
+    <string name="permanent_down_middle">January 30th, 9:00 PM MST</string>
+    <string name="permanent_down_end">for updates (5–10 minutes).\nThank you for your patience.</string>
 </resources>
