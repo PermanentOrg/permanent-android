@@ -772,7 +772,7 @@
     <string name="confirm_password">Confirm password</string>
     <string name="confirm_your_password">Confirm your password</string>
     <string name="confirm_your_password_description">Enter your Permanent account password to continue adding a two-step verification method.</string>
-    <string name="permanent_down_start">The Permanent app may be down briefly on</string>
-    <string name="permanent_down_middle">January 30th, 9:00 PM MST</string>
-    <string name="permanent_down_end">for updates (5–10 minutes).\nThank you for your patience.</string>
+    <string name="permanent_down_start">The Permanent app may be briefly unavailable on</string>
+    <string name="permanent_down_middle">January 30th at 9:00 PM MST</string>
+    <string name="permanent_down_end">for routine maintenance.\nThank you for your patience.</string>
 </resources>
