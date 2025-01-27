@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
 import org.permanent.permanent.models.Account
@@ -456,7 +455,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         authRepository.logout(object : IAuthenticationRepository.IOnLogoutListener {
             override fun onSuccess() {
                 _isBusyState.value = false
-                EventsManager(appContext).resetUser()
                 _navigateToPage.value = AuthPage.SIGN_IN
             }
 

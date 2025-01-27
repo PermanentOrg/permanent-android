@@ -5,8 +5,6 @@ import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem

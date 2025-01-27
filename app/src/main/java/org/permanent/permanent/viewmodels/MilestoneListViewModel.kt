@@ -4,14 +4,16 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.ProfileItemEventAction
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -30,6 +32,7 @@ class MilestoneListViewModel(application: Application) : ObservableAndroidViewMo
     private var onMilestonesRetrieved = MutableLiveData<List<ProfileItem>>()
     private var addMilestoneRequest = SingleLiveEvent<Void?>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun getProfileItems() {
         if (isBusy.value != null && isBusy.value!!) {
@@ -72,7 +75,7 @@ class MilestoneListViewModel(application: Application) : ObservableAndroidViewMo
         isBusy.value = true
         profileRepository.deleteProfileItem(profileItem, object : IProfileItemListener {
             override fun onSuccess(profileItem: ProfileItem) {
-                EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
+                sendEvent(ProfileItemEventAction.UPDATE, profileItem.id.toString())
                 isBusy.value = false
                 getProfileItems()
                 showMessage.value = appContext.getString(R.string.milestone_delete_success)
@@ -83,6 +86,15 @@ class MilestoneListViewModel(application: Application) : ObservableAndroidViewMo
                 error?.let { showError.value = it }
             }
         })
+    }
+
+    fun sendEvent(action: EventAction, entityId: String?) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            entityId = entityId,
+            data = mapOf()
+        )
     }
 
     fun onAddMilestoneBtnClick() {

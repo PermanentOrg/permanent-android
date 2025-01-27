@@ -29,8 +29,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
-import org.permanent.permanent.EventPage
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NAME_KEY
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NR_KEY
@@ -327,7 +325,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 settingsFragment?.show(
                     supportFragmentManager, settingsFragment?.tag
                 ) // settings item
-                EventsManager(applicationContext).trackPageView(EventPage.AccountMenu)
             }
         }
         return true

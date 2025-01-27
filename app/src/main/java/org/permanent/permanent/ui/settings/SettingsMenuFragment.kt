@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.models.LegacyContact
@@ -79,7 +78,6 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
                             },
                             onSignOutClick = {
                                 viewModel.deleteDeviceToken()
-                                EventsManager(context).resetUser()
                             })
                     }
                 }
@@ -100,7 +98,6 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
     }
 
     private val onLoggedOut = Observer<Void?> {
-        context?.let { ctx -> EventsManager(ctx).resetUser() }
         startActivity(Intent(context, AuthenticationActivity::class.java))
         activity?.finish()
     }
