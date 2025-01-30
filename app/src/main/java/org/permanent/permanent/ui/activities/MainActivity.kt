@@ -228,7 +228,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             override fun onDrawerOpened(drawerView: View) {
                 if (drawerView.id == binding.mainNavigationView.id) {
                     viewModel.updateCurrentArchiveHeader()
-                    viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_MENU, mapOf("page" to " Archive Menu"))
+                    viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_MENU, mapOf("page" to "Archive Menu"))
                 }
             }
 
