@@ -2,6 +2,7 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.app.DatePickerDialog
+import android.content.Context
 import android.text.Editable
 import android.view.KeyEvent
 import android.view.View
@@ -12,14 +13,19 @@ import androidx.lifecycle.MutableLiveData
 import okhttp3.internal.trimSubstring
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.shareManagement.ShareListener
 
 
@@ -27,6 +33,9 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     ShareListener, DatePickerDialog.OnDateSetListener {
 
     private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private lateinit var record: Record
     private val recordName = MutableLiveData<String>()
     private var shareByUrlVO: Shareby_urlVO? = null
@@ -53,6 +62,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val onShareApproved = SingleLiveEvent<Share>()
     private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun setRecord(record: Record) {
         this.record = record
@@ -287,6 +297,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 showSnackbar.value = error
             }
         })
+    }
+
+    fun sendEvent(action: EventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
     }
 
     fun onShareRemoved(share: Share) {

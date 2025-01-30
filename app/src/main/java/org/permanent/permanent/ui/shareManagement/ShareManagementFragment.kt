@@ -27,6 +27,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.FragmentShareManagementBinding
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.models.Shareby_urlVO
@@ -148,6 +149,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
 
         val shareIntent = Intent.createChooser(sendIntent, null)
         startActivity(shareIntent)
+        viewModel.sendEvent(AccountEventAction.COPY_SHARE_LINK)
     }
 
     private val onRevokeLinkRequest = Observer<Void?> {

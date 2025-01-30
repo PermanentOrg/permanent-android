@@ -11,11 +11,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import org.permanent.permanent.EventPage
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.public.PublicViewPagerAdapter.Companion.IS_VIEW_ONLY_MODE
@@ -33,8 +33,8 @@ class PublicProfileFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        EventsManager(requireContext()).trackPageView(EventPage.ArchiveProfile)
         viewModel = ViewModelProvider(this)[PublicProfileViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_PROFILE, data = mapOf("page" to "Archive Profile"))
         binding = FragmentPublicProfileBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

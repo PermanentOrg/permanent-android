@@ -10,8 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
@@ -57,6 +56,7 @@ class AuthenticationFragment : PermanentBaseFragment() {
                 AuthPage.BIOMETRICS.value -> {
                     if (!prefsHelper.isBiometricsLogIn() || viewModel.skipLogin()) {
                         navigateToMainActivity()
+                        viewModel.sendEvent(AccountEventAction.LOGIN)
                         return
                     } else if (!prefsHelper.isUserLoggedIn()) {
                         onLoggedOut()
@@ -73,12 +73,10 @@ class AuthenticationFragment : PermanentBaseFragment() {
     }
 
     private fun onLoggedOut() {
-        EventsManager(requireContext()).resetUser()
         // Navigate to Sign in after this
     }
 
     private val onSignedIn = Observer<Void?> {
-        logSignInEvents()
         navigateToMainActivity()
     }
 
@@ -87,7 +85,6 @@ class AuthenticationFragment : PermanentBaseFragment() {
     }
 
     private val onAccountCreated = Observer<Void?> {
-        logSignUpEvents()
         startArchiveOnboardingActivity()
     }
 
@@ -98,21 +95,6 @@ class AuthenticationFragment : PermanentBaseFragment() {
     private fun startArchiveOnboardingActivity() {
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
-    }
-
-    private fun logSignInEvents() {
-        EventsManager(requireContext()).setUserProfile(
-            prefsHelper.getAccountId(), prefsHelper.getAccountEmail()
-        )
-        EventsManager(requireContext()).sendToMixpanel(EventType.SignIn)
-    }
-
-    private fun logSignUpEvents() {
-        EventsManager(requireContext()).setUserProfile(
-            prefsHelper.getAccountId(),
-            prefsHelper.getAccountEmail()
-        )
-        EventsManager(requireContext()).sendToMixpanel(EventType.SignUp)
     }
 
     private fun navigateToMainActivity() {

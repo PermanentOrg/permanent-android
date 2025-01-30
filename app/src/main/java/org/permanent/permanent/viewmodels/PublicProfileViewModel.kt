@@ -1,20 +1,25 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.ProfileItemEventAction
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
@@ -22,6 +27,9 @@ import java.util.TimeZone
 class PublicProfileViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private val isBusy = MutableLiveData(false)
     private val showMessage = SingleLiveEvent<String?>()
     private var isViewOnlyMode = MutableLiveData(false)
@@ -53,6 +61,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val onEditMilestonesRequest = SingleLiveEvent<Void?>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void?>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var archive: Archive? = null
 
     fun setArchive(archive: Archive?) {
@@ -181,7 +190,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
                 getProfileItemsToUpdateVisibility(checked), true,
                 object : IProfileItemListener {
                     override fun onSuccess(profileItem: ProfileItem) {
-                        EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
+                        sendEvent(ProfileItemEventAction.UPDATE, profileItem.id.toString())
                         isBusy.value = false
                         isProfilePublic.value = checked
                     }
@@ -209,6 +218,19 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         }
 
         return filteredItems
+    }
+
+    fun sendEvent(action: EventAction, data: Map<String, String> = mapOf()) {
+        sendEvent(action, prefsHelper.getAccountId().toString(), data)
+    }
+
+    fun sendEvent(action: EventAction, entityId: String?, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            entityId = entityId,
+            data = data
+        )
     }
 
     fun onReadAboutBtnClick() {

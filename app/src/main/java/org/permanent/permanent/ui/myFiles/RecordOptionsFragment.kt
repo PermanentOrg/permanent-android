@@ -24,6 +24,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentRecordOptionsBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.MenuSharesAdapter
@@ -154,6 +155,8 @@ class RecordOptionsFragment : PermanentBottomSheetFragment() {
             downloadingAlert?.show()
             viewModel.downloadFileForSharing(this)
         }
+
+        viewModel.sendEvent(AccountEventAction.OPEN_SHARE_MODAL)
     }
 
     private val onFileDownloadedForSharing = Observer<String> { contentType ->
