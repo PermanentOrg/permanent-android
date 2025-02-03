@@ -37,23 +37,23 @@ fun CenteredTextAndIconButton(
     fontSize: TextUnit = 16.sp,
     icon: Painter? = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
     iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
-    showButtonEnabled: Boolean = true,
+    enabled: Boolean = true,
+    disabledColor: Color = colorResource(id = R.color.whiteSuperTransparent),
     onButtonClick: () -> Unit
 ) {
     val primaryColor = colorResource(id = R.color.colorPrimary)
-    val whiteTransparentColor = colorResource(id = R.color.whiteSuperTransparent)
 
     Button(modifier = Modifier
         .fillMaxWidth()
         .height(56.dp)
         .border(
             1.dp,
-            if (buttonColor == ButtonColor.TRANSPARENT) whiteTransparentColor else Color.Transparent,
+            if (buttonColor == ButtonColor.TRANSPARENT) colorResource(id = R.color.whiteSuperTransparent) else Color.Transparent,
             RoundedCornerShape(12.dp)
         ),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = if (!showButtonEnabled) whiteTransparentColor else if (buttonColor == ButtonColor.LIGHT) Color.White else if (buttonColor == ButtonColor.TRANSPARENT) Color.Transparent else primaryColor),
-        onClick = { if (showButtonEnabled) onButtonClick() }) {
+        colors = ButtonDefaults.buttonColors(containerColor = if (!enabled) disabledColor else if (buttonColor == ButtonColor.LIGHT) Color.White else if (buttonColor == ButtonColor.TRANSPARENT) Color.Transparent else primaryColor),
+        onClick = { if (enabled) onButtonClick() }) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

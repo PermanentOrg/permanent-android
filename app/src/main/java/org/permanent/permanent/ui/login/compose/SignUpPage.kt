@@ -350,7 +350,7 @@ fun SignUpPage(
                 CenteredTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT,
                     text = stringResource(id = R.string.sign_up),
-                    showButtonEnabled = fullNameValueState.text.isNotEmpty() && emailValueState.text.isNotEmpty() && passwordValueState.text.isNotEmpty() && isTermToggleChecked
+                    enabled = fullNameValueState.text.isNotEmpty() && emailValueState.text.isNotEmpty() && passwordValueState.text.isNotEmpty() && isTermToggleChecked
                 ) {
                     keyboardController?.hide()
                     viewModel.clearSnackbar()

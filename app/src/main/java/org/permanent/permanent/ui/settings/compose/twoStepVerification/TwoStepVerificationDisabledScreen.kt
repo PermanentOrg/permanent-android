@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.settings.compose
+package org.permanent.permanent.ui.settings.compose.twoStepVerification
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

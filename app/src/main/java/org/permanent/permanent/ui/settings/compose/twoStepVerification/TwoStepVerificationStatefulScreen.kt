@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package org.permanent.permanent.ui.settings.compose
+package org.permanent.permanent.ui.settings.compose.twoStepVerification
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -25,11 +25,10 @@ fun TwoStepVerificationStatefulScreen(
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true // Ensures it opens fully
     )
-    var onPasswordConfirmed by remember { mutableStateOf({}) }
     var showBottomSheet by remember { mutableStateOf(false) } // Controls visibility
 
     if (showBottomSheet) {
-        PasswordConfirmationBottomSheet(
+        BottomSheetContainer(
             viewModel,
             sheetState = bottomSheetState,
             onDismiss = {
@@ -37,22 +36,12 @@ fun TwoStepVerificationStatefulScreen(
                     bottomSheetState.hide() // Hides the sheet with animation
                     showBottomSheet = false // Ensure it can be reopened later
                 }
-            },
-            onConfirm = { password ->
-                viewModel.verifyPassword(password) { errorMessage ->
-                    if (errorMessage == null) {
-                        onPasswordConfirmed()
-                    }
-                }
             }
         )
     }
 
     if (isTwoFAEnabled) {
         TwoStepVerificationEnabledScreen(viewModel, onChangeVerificationMethodClick = {
-            onPasswordConfirmed = {
-                // Navigate to change verification method screen
-            }
             scope.launch {
                 if (!bottomSheetState.isVisible) {
                     showBottomSheet = true
@@ -62,9 +51,6 @@ fun TwoStepVerificationStatefulScreen(
         })
     } else {
         TwoStepVerificationDisabledScreen(onAddTwoStepVerificationClick = {
-            onPasswordConfirmed = {
-                // Navigate to enable 2FA screen
-            }
             scope.launch {
                 if (!bottomSheetState.isVisible) {
                     showBottomSheet = true
