@@ -53,8 +53,10 @@ class AccountFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onError = Observer<String> {
-        Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+    private val onError = Observer<String?> {
+        it?.let { message ->
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private val onToast = Observer<String> {
