@@ -23,7 +23,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private val isBusy = MutableLiveData<Boolean>()
-    private val showMessage = MutableLiveData<String>()
+    private val showMessage = MutableLiveData<String?>()
     private val showDeleteAccountDialog = SingleLiveEvent<Void?>()
     private var account: Account? = null
     private val name = MutableLiveData<String>()
@@ -87,7 +87,7 @@ class AccountViewModel(application: Application) : ObservableAndroidViewModel(ap
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
-    fun getShowMessage(): LiveData<String> = showMessage
+    fun getShowMessage(): LiveData<String?> = showMessage
 
     fun getName(): LiveData<String> = name
 
