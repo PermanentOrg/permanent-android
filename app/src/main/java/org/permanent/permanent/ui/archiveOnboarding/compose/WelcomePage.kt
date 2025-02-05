@@ -186,7 +186,7 @@ private fun TabletBody(
                 ) {
                     CenteredTextAndIconButton(buttonColor = ButtonColor.LIGHT,
                         text = stringResource(id = if (archives.isEmpty()) R.string.get_started else R.string.next),
-                        showButtonEnabled = archives.isEmpty() || archives.any { it.status == Status.OK }) {
+                        enabled = archives.isEmpty() || archives.any { it.status == Status.OK }) {
                         val nextPage =
                             if (archives.isEmpty()) OnboardingPage.ARCHIVE_TYPE.value else {
                                 viewModel.setAcceptedArchiveFlow()
@@ -302,7 +302,7 @@ private fun PhoneBody(
 
             CenteredTextAndIconButton(buttonColor = ButtonColor.LIGHT,
                 text = stringResource(id = if (archives.isEmpty()) R.string.get_started else R.string.next),
-                showButtonEnabled = archives.isEmpty() || archives.any { it.status == Status.OK }
+                enabled = archives.isEmpty() || archives.any { it.status == Status.OK }
             ) {
                 val nextPage =
                     if (archives.isEmpty()) OnboardingPage.ARCHIVE_TYPE.value else {

@@ -218,7 +218,7 @@ private fun TabletBody(
                     CenteredTextAndIconButton(
                         buttonColor = ButtonColor.LIGHT,
                         text = stringResource(id = R.string.next),
-                        showButtonEnabled = textFieldValueState.text.isNotEmpty()
+                        enabled = textFieldValueState.text.isNotEmpty()
                     ) {
                         if (textFieldValueState.text.isNotEmpty()) {
                             coroutineScope.launch {
@@ -373,7 +373,7 @@ private fun PhoneBody(
                 CenteredTextAndIconButton(
                     buttonColor = ButtonColor.LIGHT,
                     text = stringResource(id = R.string.next),
-                    showButtonEnabled = textFieldValueState.text.isNotEmpty()
+                    enabled = textFieldValueState.text.isNotEmpty()
                 ) {
                     if (textFieldValueState.text.isNotEmpty()) {
                         coroutineScope.launch {

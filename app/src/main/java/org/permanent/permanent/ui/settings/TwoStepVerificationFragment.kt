@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.settings.compose.TwoStepVerificationStatefulScreen
+import org.permanent.permanent.ui.settings.compose.twoStepVerification.TwoStepVerificationStatefulScreen
 import org.permanent.permanent.viewmodels.TwoStepVerificationViewModel
 
 class TwoStepVerificationFragment : PermanentBaseFragment() {
