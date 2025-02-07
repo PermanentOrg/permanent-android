@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.CustomSnackbar
+import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.viewmodels.TwoStepVerificationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,40 +57,48 @@ fun BottomSheetContainer(
             ) { page ->
                 when (page) {
                     TwoStepVerificationPage.PASSWORD_CONFIRMATION.value -> {
-                        PasswordConfirmationPage(viewModel, onDismiss, onConfirm = { password ->
-                            viewModel.verifyPassword(password) { errorMessage ->
-                                if (errorMessage == null) {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_CHOOSING.value)
-                                    }
+                        PasswordConfirmationPage(onDismiss, onConfirm = { password ->
+                            viewModel.verifyPassword(password) {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
                                 }
                             }
                         })
                     }
 
-                    TwoStepVerificationPage.METHOD_CHOOSING.value -> {
-                        MethodChoosingPage(viewModel, onDismiss, onContinue = { verificationMethod ->
+                    TwoStepVerificationPage.METHOD_SELECTION.value -> {
+                        MethodChoosingPage(onDismiss, onContinue = { verificationMethod ->
                             coroutineScope.launch {
-                                if (verificationMethod == "email") {
-                                    pagerState.animateScrollToPage(TwoStepVerificationPage.EMAIL_VERIFICATION.value)
+                                if (verificationMethod == VerificationMethod.EMAIL) {
+                                    pagerState.animateScrollToPage(TwoStepVerificationPage.EMAIL_ADDRESS_INPUT.value)
                                 } else {
-                                    pagerState.animateScrollToPage(TwoStepVerificationPage.TEXT_VERIFICATION.value)
+                                    pagerState.animateScrollToPage(TwoStepVerificationPage.PHONE_NUMBER_INPUT.value)
                                 }
                             }
                         })
                     }
 
-                    TwoStepVerificationPage.EMAIL_VERIFICATION.value -> {
-                        EmailVerificationPage(viewModel, onDismiss, onContinue = {
-//                            viewModel.setVerificationMethod(it)
-//                            onMethodChosen()
+                    TwoStepVerificationPage.EMAIL_ADDRESS_INPUT.value -> {
+                        EmailVerificationPage(onDismiss = onDismiss, onBack = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
+                            }
+                        }, onSendCodeOn = { emailAddress ->
+                            viewModel.sendEnableCode(emailAddress, successCallback = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
+                                }
+                            })
                         })
                     }
 
-                    TwoStepVerificationPage.TEXT_VERIFICATION.value -> {
-                        EmailVerificationPage(viewModel, onDismiss, onContinue = {
-//                            viewModel.setVerificationMethod(it)
-//                            onMethodChosen()
+                    TwoStepVerificationPage.CODE_VERIFICATION.value -> {
+                        CodeVerificationPage(viewModel, onDismiss, onSendCodeOn = { emailAddress ->
+                            viewModel.sendEnableCode(emailAddress, successCallback = {
+//                                    coroutineScope.launch {
+//                                        pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
+//                                    }
+                            })
                         })
                     }
                 }
@@ -98,7 +107,7 @@ fun BottomSheetContainer(
             // Full-Sheet Overlay with CircularProgressIndicator
             if (isBusyState) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(overlayColor = OverlayColor.LIGHT)
                 }
             }
 
@@ -115,7 +124,7 @@ fun BottomSheetContainer(
 }
 
 enum class TwoStepVerificationPage(val value: Int) {
-    PASSWORD_CONFIRMATION(0), METHOD_CHOOSING(1), EMAIL_VERIFICATION(2), TEXT_VERIFICATION(3), CODE_VERIFICATION(
+    PASSWORD_CONFIRMATION(0), METHOD_SELECTION(1), EMAIL_ADDRESS_INPUT(2), PHONE_NUMBER_INPUT(3), CODE_VERIFICATION(
         4
     )
 }

@@ -7,9 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.TwoFAVO
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.StelaAccountRepository
+import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
@@ -34,19 +37,20 @@ class TwoStepVerificationViewModel(application: Application) :
 
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
+    private var stelaAccountRepository: StelaAccountRepository =
+        StelaAccountRepositoryImpl(application)
 
     fun updateTwoFAList(newList: List<TwoFAVO>) {
         prefsHelper.setTwoFAList(newList)
         _twoFAList.value = newList
     }
 
-    fun verifyPassword(password: String, errorMessageCallback: (String?) -> Unit) {
+    fun verifyPassword(password: String, successCallback: () -> Unit) {
         if (_isBusyState.value) {
             return
         }
         if (!Validator.isValidPassword(password, null)) {
             _snackbarMessage.value = appContext.getString(R.string.the_entered_data_is_invalid)
-            errorMessageCallback(appContext.getString(R.string.the_entered_data_is_invalid))
             return
         }
 
@@ -54,13 +58,12 @@ class TwoStepVerificationViewModel(application: Application) :
         if (email != null) {
             clearSnackbar()
             _isBusyState.value = true
-            authRepository.login(
-                email,
+            authRepository.login(email,
                 password,
                 object : IAuthenticationRepository.IOnLoginListener {
                     override fun onSuccess() {
                         _isBusyState.value = false
-                        errorMessageCallback(null)
+                        successCallback()
                     }
 
                     override fun onFailed(error: String?) {
@@ -69,38 +72,49 @@ class TwoStepVerificationViewModel(application: Application) :
                             Constants.ERROR_UNKNOWN_SIGNIN -> {
                                 _snackbarMessage.value =
                                     appContext.getString(R.string.incorrect_password)
-                                errorMessageCallback(
-                                    appContext.getString(R.string.incorrect_password)
-                                )
                             }
 
                             Constants.ERROR_SERVER_ERROR -> {
                                 _snackbarMessage.value = appContext.getString(R.string.server_error)
-                                errorMessageCallback(
-                                    appContext.getString(R.string.server_error)
-                                )
                             }
 
                             Constants.ERROR_MFA_TOKEN -> {
-                                errorMessageCallback(null)
+                                successCallback()
                             }
 
                             else -> {
                                 if (error != null) {
                                     _snackbarMessage.value = error
-                                    errorMessageCallback(error)
                                 } else {
                                     _snackbarMessage.value =
                                         appContext.getString(R.string.generic_error)
-                                    errorMessageCallback(
-                                        appContext.getString(R.string.generic_error)
-                                    )
                                 }
                             }
                         }
                     }
                 })
         }
+    }
+
+    fun sendEnableCode(it: String, successCallback: () -> Unit) {
+        if (_isBusyState.value) {
+            return
+        }
+        clearSnackbar()
+        _isBusyState.value = true
+        val twoFAVO = TwoFAVO(method = "email", value = it)
+        stelaAccountRepository.sendEnableCode(twoFAVO, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                successCallback()
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let { _snackbarMessage.value = it }
+            }
+        })
     }
 
     fun clearSnackbar() {

@@ -777,4 +777,7 @@
     <string name="permanent_down_end">for routine maintenance.\nThank you for your patience.</string>
     <string name="usa_only">USA only</string>
     <string name="add_email_verification_method">Add email verification method</string>
+    <string name="add_email_verification_description">Enter your email address and click the button to send a one-time use code.</string>
+    <string name="send_code">Send code</string>
+    <string name="example_email">example@email.com</string>
 </resources>
