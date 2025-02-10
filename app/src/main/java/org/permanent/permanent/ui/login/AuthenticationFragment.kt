@@ -1,15 +1,22 @@
 package org.permanent.permanent.ui.login
 
+import android.app.Activity
+import android.app.AlertDialog
+import android.app.ProgressDialog.show
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import org.permanent.permanent.R
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -72,6 +79,25 @@ class AuthenticationFragment : PermanentBaseFragment() {
         }
     }
 
+    private fun showOpenSettingsQuestionDialog() {
+        val activityContext = context as? Activity  // Safe cast to Activity
+
+        if (activityContext != null && !activityContext.isFinishing && !activityContext.isDestroyed) {
+            AlertDialog.Builder(activityContext).apply { // Use the Activity context
+                setTitle(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_title))
+                setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
+                setPositiveButton(R.string.yes_button) { _, _ ->
+                    activityContext.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
+                }
+                setNegativeButton(R.string.button_cancel) { _, _ -> }
+                create()
+                show()
+            }
+        } else {
+            Log.w("AlertDialog", "Cannot show dialog: Activity context is invalid.")
+        }
+    }
+
     private fun onLoggedOut() {
         // Navigate to Sign in after this
     }
@@ -92,6 +118,10 @@ class AuthenticationFragment : PermanentBaseFragment() {
         startArchiveOnboardingActivity()
     }
 
+    private val onShowSettingsDialog = Observer<Void?> {
+        showOpenSettingsQuestionDialog()
+    }
+
     private fun startArchiveOnboardingActivity() {
         startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
         activity?.finish()
@@ -107,6 +137,7 @@ class AuthenticationFragment : PermanentBaseFragment() {
         viewModel.getOnSignedIn().observe(this, onSignedIn)
         viewModel.getOnAuthenticated().observe(this, onAuthenticated)
         viewModel.getOnUserMissingDefaultArchive().observe(this, userMissingDefaultArchiveObserver)
+        viewModel.getOnShowSettingsDialog().observe(this, onShowSettingsDialog)
     }
 
     override fun disconnectViewModelEvents() {
@@ -114,6 +145,7 @@ class AuthenticationFragment : PermanentBaseFragment() {
         viewModel.getOnSignedIn().removeObserver(onSignedIn)
         viewModel.getOnAuthenticated().removeObserver(onAuthenticated)
         viewModel.getOnUserMissingDefaultArchive().removeObserver(userMissingDefaultArchiveObserver)
+        viewModel.getOnShowSettingsDialog().removeObserver(onShowSettingsDialog)
     }
 
     override fun onResume() {

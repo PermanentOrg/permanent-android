@@ -1,12 +1,15 @@
 package org.permanent.permanent.viewmodels
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import co.infinum.goldfinger.Goldfinger
@@ -62,6 +65,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     val snackbarType: StateFlow<SnackbarType> = _snackbarType
     private val _navigateToPage = MutableStateFlow<AuthPage?>(null)
     val navigateToPage: StateFlow<AuthPage?> = _navigateToPage
+    private val onShowSettingsDialog = SingleLiveEvent<Void?>()
 
     private lateinit var promptParams: Goldfinger.PromptParams
     private var goldFinger = Goldfinger.Builder(appContext).build()
@@ -394,7 +398,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
             Goldfinger.Reason.USER_CANCELED -> messageId = 0
             Goldfinger.Reason.AUTHENTICATION_START -> messageId = 0
             Goldfinger.Reason.AUTHENTICATION_SUCCESS -> onAuthenticated.call()
-            Goldfinger.Reason.NO_BIOMETRICS -> showOpenSettingsQuestionDialog()
+            Goldfinger.Reason.NO_BIOMETRICS -> onShowSettingsDialog.call()
             Goldfinger.Reason.HW_NOT_PRESENT ->
                 messageId = R.string.login_biometric_error_no_biometric_hardware
             Goldfinger.Reason.HARDWARE_UNAVAILABLE ->
@@ -472,18 +476,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         })
     }
 
-    private fun showOpenSettingsQuestionDialog() {
-        AlertDialog.Builder(appContext).apply {
-            setTitle(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_title))
-            setMessage(context.getString(R.string.login_biometric_error_no_biometrics_enrolled_message))
-            setPositiveButton(R.string.yes_button) { _, _ ->
-                appContext.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) }
-            setNegativeButton(R.string.button_cancel) { _, _ -> }
-            create()
-            show()
-        }
-    }
-
     fun sendEvent(action: AccountEventAction) {
         eventsRepository.sendEventAction(
             eventAction = action,
@@ -513,4 +505,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     fun getOnAuthenticated(): MutableLiveData<Void?> = onAuthenticated
 
     fun getOnAccountCreated(): MutableLiveData<Void?> = onAccountCreated
+
+    fun getOnShowSettingsDialog(): MutableLiveData<Void?> = onShowSettingsDialog
 }
