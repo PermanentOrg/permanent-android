@@ -31,29 +31,40 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
+import org.permanent.permanent.Validator
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 
 @Composable
-fun PasswordConfirmationPage(
-    onDismiss: () -> Unit, onConfirm: (String) -> Unit
+fun EmailVerificationPage(
+    onBack: () -> Unit, onDismiss: () -> Unit, onSendCodeOn: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Header with Centered Title and Close Button
+        // Header
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
+            // Custom Back Button
+            IconButton(
+                onClick = onBack, modifier = Modifier.align(Alignment.TopStart)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_back_rounded_white),
+                    contentDescription = "Back",
+                    tint = colorResource(R.color.blue900),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
             // Centered Title
             Text(
-                text = stringResource(R.string.confirm_your_password),
+                text = stringResource(R.string.add_email_verification_method),
                 color = colorResource(R.color.blue900),
                 fontFamily = FontFamily(Font(R.font.usual_medium)),
                 fontSize = 16.sp,
@@ -89,7 +100,7 @@ fun PasswordConfirmationPage(
         ) {
             // Instruction Text
             Text(
-                text = stringResource(R.string.confirm_your_password_description),
+                text = stringResource(R.string.add_email_verification_description),
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
                 fontFamily = FontFamily(Font(R.font.usual_regular)),
@@ -98,7 +109,7 @@ fun PasswordConfirmationPage(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            var password by remember { mutableStateOf("") }
+            var email by remember { mutableStateOf("") }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -107,8 +118,8 @@ fun PasswordConfirmationPage(
                     ), verticalAlignment = Alignment.CenterVertically
             ) {
                 TextField(
-                    value = password,
-                    onValueChange = { value -> password = value },
+                    value = email,
+                    onValueChange = { value -> email = value },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
@@ -116,18 +127,17 @@ fun PasswordConfirmationPage(
                     singleLine = true,
                     placeholder = {
                         Text(
-                            text = stringResource(id = R.string.password).uppercase(),
-                            color = colorResource(R.color.blue900),
-                            fontSize = 10.sp,
-                            lineHeight = 16.sp,
+                            text = stringResource(id = R.string.example_email),
+                            color = colorResource(R.color.colorPrimary200),
+                            fontSize = 14.sp,
+                            lineHeight = 24.sp,
                             fontFamily = FontFamily(Font(R.font.usual_regular))
                         )
                     },
                     textStyle = TextStyle(
                         fontSize = 16.sp,
                         lineHeight = 24.sp,
-                        fontFamily = FontFamily(Font(R.font.usual_regular)),
-                        fontWeight = FontWeight(600),
+                        fontFamily = FontFamily(Font(R.font.usual_regular))
                     ),
                     colors = TextFieldDefaults.colors(
                         focusedTextColor = colorResource(R.color.blue900),
@@ -137,8 +147,7 @@ fun PasswordConfirmationPage(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         cursorColor = colorResource(id = R.color.blue400)
-                    ),
-                    visualTransformation = PasswordVisualTransformation()
+                    )
                 )
             }
 
@@ -147,10 +156,12 @@ fun PasswordConfirmationPage(
             // Confirm Button
             CenteredTextAndIconButton(
                 buttonColor = ButtonColor.DARK,
-                text = stringResource(id = R.string.confirm_password),
-                icon = null
+                text = stringResource(id = R.string.send_code),
+                icon = null,
+                enabled = Validator.isValidEmail(null, email, null, null),
+                disabledColor = colorResource(R.color.colorPrimary200)
             ) {
-                onConfirm(password)
+                onSendCodeOn(email)
             }
         }
     }

@@ -767,6 +767,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun getTwoFAMethod(): Call<List<TwoFAVO>> = stelaAccountService.getTwoFAMethod()
 
+    fun sendEnableCode(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.sendEnableCode(twoFAVO)
+
     fun getPaymentIntent(
         accountId: Int,
         accountEmail: String?,

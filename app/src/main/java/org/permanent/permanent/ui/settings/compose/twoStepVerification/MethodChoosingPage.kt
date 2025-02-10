@@ -30,13 +30,13 @@ import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
-import org.permanent.permanent.viewmodels.TwoStepVerificationViewModel
 
 @Composable
 fun MethodChoosingPage(
-    viewModel: TwoStepVerificationViewModel, onDismiss: () -> Unit, onContinue: (String) -> Unit
+    onDismiss: () -> Unit,
+    onContinue: (VerificationMethod) -> Unit
 ) {
-    var selectedMethod by remember { mutableStateOf<String?>(null) }
+    var selectedMethod by remember { mutableStateOf<VerificationMethod?>(null) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -64,7 +64,7 @@ fun MethodChoosingPage(
                     painter = painterResource(R.drawable.ic_close_middle_grey),
                     contentDescription = "Close",
                     tint = colorResource(R.color.blue900),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -82,21 +82,25 @@ fun MethodChoosingPage(
                 .weight(1f) // Pushes remaining content to the top
         ) {
             // Email option
-            MethodMenuItem(iconResource = painterResource(id = R.drawable.ic_email_blue),
+            MethodMenuItem(
+                iconResource = painterResource(id = R.drawable.ic_email_blue),
                 text = stringResource(id = R.string.email),
-                selected = selectedMethod == "email",
-                onSelectedChange = { selectedMethod = "email" })
+                selected = selectedMethod == VerificationMethod.EMAIL,
+                onSelectedChange = { selectedMethod = VerificationMethod.EMAIL }
+            )
 
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(), color = colorResource(R.color.blue50)
             )
 
             // SMS option
-            MethodMenuItem(iconResource = painterResource(id = R.drawable.ic_sms_blue),
+            MethodMenuItem(
+                iconResource = painterResource(id = R.drawable.ic_sms_blue),
                 text = stringResource(id = R.string.text_message_sms),
-                selected = selectedMethod == "sms",
+                selected = selectedMethod == VerificationMethod.SMS,
                 showUSAOnlyLabel = true,
-                onSelectedChange = { selectedMethod = "sms" })
+                onSelectedChange = { selectedMethod = VerificationMethod.SMS }
+            )
         }
 
         // Continue Button
@@ -116,4 +120,8 @@ fun MethodChoosingPage(
             }
         }
     }
+}
+
+enum class VerificationMethod {
+    EMAIL, SMS
 }

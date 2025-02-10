@@ -21,11 +21,11 @@ import androidx.compose.ui.res.painterResource
 import org.permanent.permanent.R
 
 @Composable
-fun CircularProgressIndicator() {
+fun CircularProgressIndicator(overlayColor: OverlayColor = OverlayColor.DARK) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.5f))
+            .background(if (overlayColor == OverlayColor.DARK) Color.Black.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.5f))
             .clickable(enabled = false) {}, contentAlignment = Alignment.Center
     ) {
         val infiniteTransition = rememberInfiniteTransition(label = "")
@@ -45,4 +45,9 @@ fun CircularProgressIndicator() {
             contentDescription = null,
             modifier = Modifier.graphicsLayer { rotationZ = rotation })
     }
+}
+
+enum class OverlayColor {
+    LIGHT,
+    DARK
 }
