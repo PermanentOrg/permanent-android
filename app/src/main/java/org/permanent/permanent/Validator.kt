@@ -63,17 +63,17 @@ class Validator {
             }
         }
 
-        fun isValidPhone(context: Context?, phone: String?, phoneError: MutableLiveData<String>): Boolean {
+        fun isValidPhone(context: Context?, phone: String?, phoneError: MutableLiveData<String>?): Boolean {
             return if (!phone.isNullOrEmpty()) {
                 if(!Pattern.matches("^[+]?[0-9]{8,13}\$", phone)) {
-                    phoneError.value = context?.getString(R.string.invalid_phone_error)
+                    phoneError?.value = context?.getString(R.string.invalid_phone_error)
                     false
                 } else {
-                    phoneError.value = null
+                    phoneError?.value = null
                     true
                 }
             } else {
-                phoneError.value = null
+                phoneError?.value = null
                 true
             }
         }

@@ -15,6 +15,7 @@ import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.settings.compose.twoStepVerification.VerificationMethod
 
 class TwoStepVerificationViewModel(application: Application) :
     ObservableAndroidViewModel(application) {
@@ -96,13 +97,13 @@ class TwoStepVerificationViewModel(application: Application) :
         }
     }
 
-    fun sendEnableCode(it: String, successCallback: () -> Unit) {
+    fun sendEnableCode(method: VerificationMethod, value: String, successCallback: () -> Unit) {
         if (_isBusyState.value) {
             return
         }
         clearSnackbar()
         _isBusyState.value = true
-        val twoFAVO = TwoFAVO(method = "email", value = it)
+        val twoFAVO = TwoFAVO(method = method.name.lowercase(), value = value)
         stelaAccountRepository.sendEnableCode(twoFAVO, object : IResponseListener {
 
             override fun onSuccess(message: String?) {

@@ -778,6 +778,9 @@
     <string name="usa_only">USA only</string>
     <string name="add_email_verification_method">Add email verification method</string>
     <string name="add_email_verification_description">Enter your email address and click the button to send a one-time use code.</string>
+    <string name="add_text_verification_method">Add text verification method</string>
+    <string name="add_text_verification_description">Enter your phone number and click the button to send a one-time use code. At this time, we can only accept North American cell phone numbers for text message verification.</string>
     <string name="send_code">Send code</string>
     <string name="example_email">example@email.com</string>
+    <string name="example_phone_number">+1 (123) 456 – 7890</string>
 </resources>
