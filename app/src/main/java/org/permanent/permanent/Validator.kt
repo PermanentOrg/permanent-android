@@ -13,10 +13,10 @@ class Validator {
         fun isValidName(
             context: Context?,
             name: String?,
-            intError: MutableLiveData<Int>?,
-            stringError: MutableLiveData<String>?
+            intError: MutableLiveData<Int?>?,
+            stringError: MutableLiveData<String?>?
         ): Boolean {
-            return if (name.isNullOrEmpty()) {
+            return if (name?.isNullOrEmpty() == true) {
                 if (intError != null) intError.value = R.string.invalid_name_error
                 else stringError?.value = context?.getString(R.string.invalid_name_error)
                 false
@@ -30,8 +30,8 @@ class Validator {
         fun isValidEmail(
             context: Context?,
             email: String?,
-            intError: MutableLiveData<Int>?,
-            stringError: MutableLiveData<String>?
+            intError: MutableLiveData<Int?>?,
+            stringError: MutableLiveData<String?>?
         ): Boolean {
             return if (email.isNullOrEmpty()
                 || !PatternsCompat.EMAIL_ADDRESS.matcher(email).matches()
@@ -63,7 +63,7 @@ class Validator {
             }
         }
 
-        fun isValidPhone(context: Context?, phone: String?, phoneError: MutableLiveData<String>?): Boolean {
+        fun isValidPhone(context: Context?, phone: String?, phoneError: MutableLiveData<String?>?): Boolean {
             return if (!phone.isNullOrEmpty()) {
                 if(!Pattern.matches("^[+]?[0-9]{8,13}\$", phone)) {
                     phoneError?.value = context?.getString(R.string.invalid_phone_error)

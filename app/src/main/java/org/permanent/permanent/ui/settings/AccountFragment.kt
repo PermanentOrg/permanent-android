@@ -15,6 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.databinding.DialogDeleteAccountBinding
 import org.permanent.permanent.databinding.FragmentAccountBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.login.START_DESTINATION_PAGE_VALUE_KEY
@@ -38,6 +39,7 @@ class AccountFragment : PermanentBaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this).get(AccountViewModel::class.java)
+        viewModel.sendEvent(AccountEventAction.OPEN_LOGIN_INFO)
         binding = FragmentAccountBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -51,8 +53,10 @@ class AccountFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onError = Observer<String> {
-        Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+    private val onError = Observer<String?> {
+        it?.let { message ->
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private val onToast = Observer<String> {

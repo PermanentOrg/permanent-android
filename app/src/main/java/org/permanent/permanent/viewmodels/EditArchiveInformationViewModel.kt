@@ -12,14 +12,16 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.ProfileItemEventAction
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IProfileItemListener
 import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -81,6 +83,7 @@ class EditArchiveInformationViewModel(application: Application) :
     private var genderProfileItem: ProfileItem? = null
     private var dateAndLocationProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun displayProfileItems(profileItems: MutableList<ProfileItem>) {
         for (profileItem in profileItems) {
@@ -249,7 +252,7 @@ class EditArchiveInformationViewModel(application: Application) :
             listOf(profileItemToUpdate), false,
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
-                    EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
+                    sendEvent(ProfileItemEventAction.UPDATE, profileItem.id.toString())
                     isBusy.value = false
                     profileItemToUpdate.id = profileItem.id
                     showMessage.value = appContext.getString(R.string.edit_about_update_success)
@@ -260,6 +263,15 @@ class EditArchiveInformationViewModel(application: Application) :
                     error?.let { showError.value = it }
                 }
             })
+    }
+
+    fun sendEvent(action: EventAction, entityId: String?) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            entityId = entityId,
+            data = mapOf()
+        )
     }
 
     fun getCurrentArchiveType(): ArchiveType = currentArchiveType

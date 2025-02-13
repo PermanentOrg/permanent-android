@@ -5,12 +5,14 @@ import android.content.Context
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
+import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
+import org.permanent.permanent.models.ProfileItemEventAction
 import org.permanent.permanent.models.ProfileItemName
 import org.permanent.permanent.network.IProfileItemListener
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IProfileRepository
 import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -44,6 +46,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     private var shortDescriptionProfileItem: ProfileItem? = null
     private var longDescriptionProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun displayProfileItems(profileItems: MutableList<ProfileItem>) {
         for (profileItem in profileItems) {
@@ -103,7 +106,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
             listOf(profileItemToUpdate), false,
             object : IProfileItemListener {
                 override fun onSuccess(profileItem: ProfileItem) {
-                    EventsManager(appContext).sendToMixpanel(EventType.EditArchiveProfile)
+                    sendEvent(ProfileItemEventAction.UPDATE, profileItemToUpdate.id.toString())
                     isBusy.value = false
                     profileItemToUpdate.id = profileItem.id
                     showMessage.value = appContext.getString(R.string.edit_about_update_success)
@@ -114,6 +117,15 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
                     error?.let { showError.value = it }
                 }
             })
+    }
+
+    fun sendEvent(action: EventAction, entityId: String?) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            entityId = entityId,
+            data = mapOf()
+        )
     }
 
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy

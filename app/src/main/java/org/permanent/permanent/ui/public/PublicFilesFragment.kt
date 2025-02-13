@@ -30,6 +30,7 @@ import org.permanent.permanent.databinding.DialogCancelUploadsBinding
 import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentPublicFilesBinding
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
@@ -92,6 +93,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        viewModel.sendEvent(AccountEventAction.OPEN_PUBLIC_WORKSPACE, data = mapOf("workspace" to "Public Files"))
 
         viewModel.set(parentFragmentManager)
         viewModel.initUploadsRecyclerView(binding.rvUploads, this)

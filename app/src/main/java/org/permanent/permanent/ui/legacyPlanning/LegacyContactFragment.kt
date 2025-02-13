@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.legacyPlanning.compose.LegacyContactScreen
@@ -25,6 +26,7 @@ class LegacyContactFragment : PermanentBaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[LegacyContactViewModel::class.java]
+        viewModel.sendEvent(AccountEventAction.OPEN_LEGACY_CONTACT)
         val lifecycleOwner = viewLifecycleOwner
 
         return ComposeView(requireContext()).apply {

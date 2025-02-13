@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.IResponseListener
@@ -27,9 +27,11 @@ import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.INotificationRepository
 import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -69,6 +71,9 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         AuthenticationRepositoryImpl(application)
     private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
+//    private var stelaAccountRepository: StelaAccountRepository =
+//        StelaAccountRepositoryImpl(application)
 
     enum class SnackbarType {
         SUCCESS, ERROR, NONE
@@ -106,6 +111,8 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                 } else {
                     getArchive(defaultArchiveId)
                 }
+
+                sendEvent(AccountEventAction.LOGIN)
             }
 
             override fun onFailed(error: String?) {
@@ -308,16 +315,18 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                 override fun onSuccess(account: Account) {
                     _isBusyState.value = false
 
-                    prefsHelper.saveAuthToken(account.token)
-                    prefsHelper.saveAccountInfo(
-                        account.id,
-                        account.primaryEmail,
-                        password,
-                        account.fullName
-                    )
-                    prefsHelper.saveDefaultArchiveId(account.defaultArchiveId)
+                    //need to do a login call since the send event call doesn't work with the sign up authentication token
+                    authRepository.login(email, password, object : IAuthenticationRepository.IOnLoginListener {
+                        override fun onSuccess() {
+                            onAccountCreated.call()
+                            sendEvent(AccountEventAction.CREATE)
+                        }
 
-                    onAccountCreated.call()
+                        override fun onFailed(error: String?) {
+                            _isBusyState.value = false
+                            error?.let { showErrorMessage(it) }
+                        }
+                    })
                 }
 
                 override fun onFailed(error: String?) {
@@ -431,7 +440,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
         authRepository.logout(object : IAuthenticationRepository.IOnLogoutListener {
             override fun onSuccess() {
                 _isBusyState.value = false
-                EventsManager(appContext).resetUser()
                 _navigateToPage.value = AuthPage.SIGN_IN
             }
 
@@ -448,6 +456,14 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
 
     private fun showOpenSettingsQuestionDialog() {
         onShowEnrollBiometricsDialog.value = true
+    }
+
+    fun sendEvent(action: AccountEventAction) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = mapOf()
+        )
     }
 
     fun clearSnackbar() {
