@@ -79,12 +79,26 @@ fun BottomSheetContainer(
                     }
 
                     TwoStepVerificationPage.EMAIL_ADDRESS_INPUT.value -> {
-                        EmailVerificationPage(onDismiss = onDismiss, onBack = {
+                        EmailAddressInputPage(onDismiss = onDismiss, onBack = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
                             }
                         }, onSendCodeOn = { emailAddress ->
-                            viewModel.sendEnableCode(emailAddress, successCallback = {
+                            viewModel.sendEnableCode(VerificationMethod.EMAIL, emailAddress, successCallback = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
+                                }
+                            })
+                        })
+                    }
+
+                    TwoStepVerificationPage.PHONE_NUMBER_INPUT.value -> {
+                        PhoneNumberInputPage(onDismiss = onDismiss, onBack = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
+                            }
+                        }, onSendCodeOn = { phoneNumber ->
+                            viewModel.sendEnableCode(VerificationMethod.SMS, phoneNumber, successCallback = {
                                 coroutineScope.launch {
                                     pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
                                 }
@@ -94,7 +108,7 @@ fun BottomSheetContainer(
 
                     TwoStepVerificationPage.CODE_VERIFICATION.value -> {
                         CodeVerificationPage(viewModel, onDismiss, onSendCodeOn = { emailAddress ->
-                            viewModel.sendEnableCode(emailAddress, successCallback = {
+                            viewModel.sendEnableCode(VerificationMethod.EMAIL, emailAddress, successCallback = {
 //                                    coroutineScope.launch {
 //                                        pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
 //                                    }
