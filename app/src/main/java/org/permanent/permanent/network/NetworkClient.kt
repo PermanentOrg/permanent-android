@@ -1,5 +1,6 @@
 package org.permanent.permanent.network
 
+import EventsPayload
 import android.content.Context
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -53,6 +54,7 @@ import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import java.io.File
 import java.util.Date
 
@@ -72,6 +74,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val locationService: ILocationService
     private val tagService: ITagService
     private val profileService: IProfileService
+    private val eventsService: IEventsService
     private val storageService: IStorageService
     private val legacyPlanningService: ILegacyPlanningService
     private val billingService: IBillingService
@@ -150,6 +153,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         tagService = retrofit.create(ITagService::class.java)
         profileService = retrofit.create(IProfileService::class.java)
         storageService = retrofit.create(IStorageService::class.java)
+        eventsService = retrofitStelaBaseUrl.create(IEventsService::class.java)
         legacyPlanningService = retrofitStelaBaseUrl.create(ILegacyPlanningService::class.java)
         billingService = retrofitStelaBaseUrl.create(IBillingService::class.java)
         stelaAccountService = retrofitStelaBaseUrl.create(StelaAccountService::class.java)
@@ -764,6 +768,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     }
 
     fun addRemoveTags(tags: Tags): Call<ResponseVO> = stelaAccountService.addRemoveTags(tags)
+
+    fun sendEvents(events: EventsPayload) = eventsService.sendEvent(events)
 
     fun getTwoFAMethod(): Call<List<TwoFAVO>> = stelaAccountService.getTwoFAMethod()
 

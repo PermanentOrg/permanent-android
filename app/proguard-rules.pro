@@ -41,6 +41,9 @@
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
 -keep public class com.android.vending.licensing.ILicensingService
+-keep class EventsBodyPayload { *; }
+-keep class EventsBodyPayload$EventsAnalyticPayload { *; }  # Important for nested classes
+-keep class EventsPayload { *; }
 -dontnote com.android.vending.licensing.ILicensingService
 
 # Explicitly preserve all serialization members. The Serializable interface

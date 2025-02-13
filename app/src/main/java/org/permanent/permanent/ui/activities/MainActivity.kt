@@ -29,8 +29,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_GOOGLE_API_AVAILABILITY
-import org.permanent.permanent.EventPage
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NAME_KEY
 import org.permanent.permanent.RECIPIENT_ARCHIVE_NR_KEY
@@ -39,6 +37,7 @@ import org.permanent.permanent.databinding.ActivityMainBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
@@ -228,7 +227,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             override fun onDrawerOpened(drawerView: View) {
                 if (drawerView.id == binding.mainNavigationView.id) {
                     viewModel.updateCurrentArchiveHeader()
-                    EventsManager(applicationContext).trackPageView(EventPage.ArchiveMenu)
+                    viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_MENU, mapOf("page" to "Archive Menu"))
                 }
             }
 
@@ -325,7 +324,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 settingsFragment?.show(
                     supportFragmentManager, settingsFragment?.tag
                 ) // settings item
-                EventsManager(applicationContext).trackPageView(EventPage.AccountMenu)
             }
         }
         return true

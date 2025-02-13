@@ -2,6 +2,7 @@ package org.permanent.permanent.viewmodels
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.fragment.app.FragmentManager
@@ -18,11 +19,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
-import org.permanent.permanent.EventType
-import org.permanent.permanent.EventsManager
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.*
@@ -30,6 +28,8 @@ import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.*
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.*
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -67,6 +67,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private var showScreenSimplified = MutableLiveData(false)
 
     protected var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     protected var folderPathStack: Stack<Record> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var downloadQueue: DownloadQueue
@@ -74,6 +75,9 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     protected lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
     protected lateinit var lifecycleOwner: LifecycleOwner
+    private val prefsHelper = PreferencesHelper(
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
 
     init {
         PermanentApplication.instance.relocateData?.let {
@@ -284,9 +288,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     private fun uploadTo(folder: NavigationFolder, uris: List<Uri>) {
-        val properties = JSONObject()
-        properties.put("workspace", folderName.value)
-        EventsManager(appContext).sendToMixpanel(EventType.InitiateUpload, properties = properties)
+        folderName.value?.let { sendEvent(AccountEventAction.INITIATE_UPLOAD, data = mapOf("workspace" to it)) }
         folder.getUploadQueue()?.upload(uris)
     }
 
@@ -310,9 +312,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {
-        val properties = JSONObject()
-        properties.put("workspace", folderName.value)
-        EventsManager(appContext).sendToMixpanel(EventType.FinalizeUpload, properties)
+        folderName.value?.let { sendEvent(RecordEventAction.SUBMIT, data = mapOf("workspace" to it)) }
         currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
 
@@ -403,6 +403,14 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
                 }
             })
         })
+    }
+
+    fun sendEvent(action: EventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
     }
 
     fun getFolderName(): MutableLiveData<String> = folderName

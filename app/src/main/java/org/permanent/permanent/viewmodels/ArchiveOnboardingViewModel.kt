@@ -12,6 +12,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.Status
@@ -22,9 +23,11 @@ import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IAuthenticationRepository
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
@@ -59,6 +62,7 @@ class ArchiveOnboardingViewModel(application: Application) :
         AuthenticationRepositoryImpl(application)
     private var stelaAccountRepository: StelaAccountRepository =
         StelaAccountRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     private val _isFirstProgressBarEmpty = MutableStateFlow(false)
     val isFirstProgressBarEmpty: StateFlow<Boolean> = _isFirstProgressBarEmpty
@@ -345,6 +349,14 @@ class ArchiveOnboardingViewModel(application: Application) :
 
     override fun onMakeDefaultBtnClick(archive: Archive) {
 //        setNewArchiveAsDefault(archive)
+    }
+
+    fun sendEvent(action: AccountEventAction) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = mapOf()
+        )
     }
 
     fun getShowMessage(): LiveData<String> = showMessage
