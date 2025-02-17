@@ -312,11 +312,13 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {
-        folderName.value?.let { sendEvent(RecordEventAction.SUBMIT, data = mapOf("workspace" to it)) }
         currentFolder.value?.getUploadQueue()?.removeFinishedUpload(upload)
         uploadsAdapter.remove(upload)
 
-        if (succeeded) addFakeItemToFilesList(upload)
+        if (succeeded) {
+            addFakeItemToFilesList(upload)
+            folderName.value?.let { sendEvent(RecordEventAction.SUBMIT, data = mapOf("workspace" to it)) }
+        }
         if (uploadsAdapter.itemCount == 0) {
             existsFiles.value = true
             refreshJob?.cancel()
