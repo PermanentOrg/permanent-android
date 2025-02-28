@@ -36,6 +36,7 @@ import org.permanent.permanent.repositories.INotificationRepository
 import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.ui.login.compose.AuthPage
 
 class AuthenticationViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -74,10 +75,6 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 //    private var stelaAccountRepository: StelaAccountRepository =
 //        StelaAccountRepositoryImpl(application)
-
-    enum class SnackbarType {
-        SUCCESS, ERROR, NONE
-    }
 
     init {
         isTablet = prefsHelper.isTablet()

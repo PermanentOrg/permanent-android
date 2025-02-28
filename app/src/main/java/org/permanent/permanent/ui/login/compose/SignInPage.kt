@@ -57,6 +57,7 @@ import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CustomSnackbar
 import org.permanent.permanent.ui.composeComponents.CustomTextButton
+import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
 import java.time.LocalDate
 
@@ -283,7 +284,7 @@ fun SignInPage(
         }
 
         CustomSnackbar(modifier = Modifier.align(Alignment.BottomCenter),
-            isForError = snackbarType == AuthenticationViewModel.SnackbarType.ERROR,
+            isForError = snackbarType == SnackbarType.ERROR,
             message = snackbarMessage,
             buttonText = stringResource(id = R.string.ok),
             onButtonClick = {

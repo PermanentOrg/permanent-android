@@ -29,7 +29,8 @@ fun DigitTextField(
     focusRequester: FocusRequester,
     previousFocusRequester: FocusRequester?,  // Add previous focus requester for backspace handling
     nextFocusRequester: FocusRequester?,      // Keep next focus requester to move forward
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    colors: DigitTextFieldColor = DigitTextFieldColor.TRANSPARENT,
 ) {
     TextField(
         value = value,
@@ -68,14 +69,19 @@ fun DigitTextField(
             fontWeight = FontWeight(400),
         ),
         colors = TextFieldDefaults.colors(
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            focusedContainerColor = colorResource(id = R.color.whiteUltraTransparent),
-            unfocusedContainerColor = colorResource(id = R.color.whiteUltraTransparent),
+            focusedTextColor = if (colors == DigitTextFieldColor.TRANSPARENT) Color.White else colorResource(id = R.color.blue900),
+            unfocusedTextColor = if (colors == DigitTextFieldColor.TRANSPARENT) Color.White else colorResource(id = R.color.blue900),
+            focusedContainerColor = colorResource(id = if (colors == DigitTextFieldColor.TRANSPARENT) R.color.whiteUltraTransparent else R.color.white),
+            unfocusedContainerColor = colorResource(id = if (colors == DigitTextFieldColor.TRANSPARENT) R.color.whiteUltraTransparent else R.color.white),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = colorResource(id = R.color.blue400),
+            cursorColor = colorResource(id = if (colors == DigitTextFieldColor.TRANSPARENT) R.color.blue400 else R.color.blue200),
         ),
         maxLines = 1
     )
+}
+
+enum class DigitTextFieldColor {
+    TRANSPARENT,
+    LIGHT
 }

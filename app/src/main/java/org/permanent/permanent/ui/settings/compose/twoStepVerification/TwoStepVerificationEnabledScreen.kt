@@ -37,11 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
 import org.permanent.permanent.network.models.TwoFAVO
-import org.permanent.permanent.viewmodels.TwoStepVerificationViewModel
+import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 @Composable
 fun TwoStepVerificationEnabledScreen(
-    viewModel: TwoStepVerificationViewModel,
+    viewModel: LoginAndSecurityViewModel,
     onChangeVerificationMethodClick: () -> Unit
 ) {
     val twoFAList by viewModel.twoFAList.collectAsState()  // Collect 2FA methods

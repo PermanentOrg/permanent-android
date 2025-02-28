@@ -54,7 +54,6 @@ import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.create
 import java.io.File
 import java.util.Date
 
@@ -774,6 +773,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun getTwoFAMethod(): Call<List<TwoFAVO>> = stelaAccountService.getTwoFAMethod()
 
     fun sendEnableCode(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.sendEnableCode(twoFAVO)
+
+    fun enableTwoFactor(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.enableTwoFactor(twoFAVO)
 
     fun getPaymentIntent(
         accountId: Int,

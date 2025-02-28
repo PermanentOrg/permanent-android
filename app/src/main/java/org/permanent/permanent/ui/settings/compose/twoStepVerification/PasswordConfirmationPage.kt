@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +45,8 @@ import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 fun PasswordConfirmationPage(
     onDismiss: () -> Unit, onConfirm: (String) -> Unit
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -150,6 +153,7 @@ fun PasswordConfirmationPage(
                 text = stringResource(id = R.string.confirm_password),
                 icon = null
             ) {
+                keyboardController?.hide()
                 onConfirm(password)
             }
         }

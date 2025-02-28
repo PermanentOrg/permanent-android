@@ -12,4 +12,6 @@ interface StelaAccountRepository {
     fun getTwoFAMethod(listener: ITwoFAListener)
 
     fun sendEnableCode(twoFAVO: TwoFAVO, listener: IResponseListener)
+
+    fun enableTwoFactor(twoFAVO: TwoFAVO, listener: IResponseListener)
 }

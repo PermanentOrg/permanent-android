@@ -27,15 +27,17 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.CustomSnackbar
 import org.permanent.permanent.ui.composeComponents.OverlayColor
-import org.permanent.permanent.viewmodels.TwoStepVerificationViewModel
+import org.permanent.permanent.ui.composeComponents.SnackbarType
+import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetContainer(
-    viewModel: TwoStepVerificationViewModel, sheetState: SheetState, onDismiss: () -> Unit
+    viewModel: LoginAndSecurityViewModel, sheetState: SheetState, onDismiss: () -> Unit
 ) {
     val isBusyState by viewModel.isBusyState.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+    val snackbarType by viewModel.snackbarType.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val pagerState =
         rememberPagerState(initialPage = TwoStepVerificationPage.PASSWORD_CONFIRMATION.value,
@@ -79,17 +81,15 @@ fun BottomSheetContainer(
                     }
 
                     TwoStepVerificationPage.EMAIL_ADDRESS_INPUT.value -> {
-                        EmailAddressInputPage(onDismiss = onDismiss, onBack = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
-                            }
-                        }, onSendCodeOn = { emailAddress ->
-                            viewModel.sendEnableCode(VerificationMethod.EMAIL, emailAddress, successCallback = {
+                        EmailAddressInputPage(
+                            viewModel = viewModel,
+                            onDismiss = onDismiss,
+                            onBack = {
                                 coroutineScope.launch {
-                                    pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
+                                    pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
                                 }
-                            })
-                        })
+                            }
+                        )
                     }
 
                     TwoStepVerificationPage.PHONE_NUMBER_INPUT.value -> {
@@ -98,21 +98,27 @@ fun BottomSheetContainer(
                                 pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
                             }
                         }, onSendCodeOn = { phoneNumber ->
-                            viewModel.sendEnableCode(VerificationMethod.SMS, phoneNumber, successCallback = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
-                                }
-                            })
+                            viewModel.sendEnableCode(
+                                VerificationMethod.SMS,
+                                phoneNumber,
+                                successCallback = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
+                                    }
+                                })
                         })
                     }
 
                     TwoStepVerificationPage.CODE_VERIFICATION.value -> {
                         CodeVerificationPage(viewModel, onDismiss, onSendCodeOn = { emailAddress ->
-                            viewModel.sendEnableCode(VerificationMethod.EMAIL, emailAddress, successCallback = {
+                            viewModel.sendEnableCode(
+                                VerificationMethod.EMAIL,
+                                emailAddress,
+                                successCallback = {
 //                                    coroutineScope.launch {
 //                                        pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
 //                                    }
-                            })
+                                })
                         })
                     }
                 }
@@ -128,6 +134,7 @@ fun BottomSheetContainer(
             CustomSnackbar(modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp),
+                isForError = snackbarType == SnackbarType.ERROR,
                 message = snackbarMessage,
                 buttonText = stringResource(id = R.string.ok),
                 onButtonClick = {
