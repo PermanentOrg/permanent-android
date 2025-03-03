@@ -7,6 +7,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -64,6 +66,7 @@ fun CustomSnackbar(
         Box(
             modifier = modifier
                 .fillMaxWidth()
+                .border(1.dp, if (isForError) Color.Transparent else colorResource(id = R.color.success200), RoundedCornerShape(12))
                 .background(
                     color = colorResource(id = if (isForError) R.color.errorLight else R.color.successLight),
                     shape = RoundedCornerShape(size = 12.dp)
@@ -73,7 +76,7 @@ fun CustomSnackbar(
                 verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
             ) {
                 Image(
-                    painter = painterResource(id = if (isForError) R.drawable.ic_error_cercle else R.drawable.ic_done_white),
+                    painter = painterResource(id = if (isForError) R.drawable.ic_error_cercle else R.drawable.ic_done_green),
                     contentDescription = "error",
                     colorFilter = ColorFilter.tint(
                         if (isForError) colorResource(id = R.color.error500) else colorResource(
@@ -90,7 +93,7 @@ fun CustomSnackbar(
                 Text(
                     text = message,
                     color = if (isForError) colorResource(id = R.color.error500) else colorResource(
-                        id = R.color.successDark
+                        id = R.color.blue900
                     ),
                     modifier = Modifier.weight(1f),
                     fontFamily = FontFamily(Font(R.font.open_sans_regular_ttf)),
@@ -128,10 +131,15 @@ fun CustomSnackbar(
     }
 }
 
+enum class SnackbarType {
+    SUCCESS, ERROR, NONE
+}
+
 @Preview
 @Composable
 fun CustomSnackbarPreview() {
-    CustomSnackbar(message = "The entered data is invalid",
+    CustomSnackbar(
+        message = "The entered data is invalid",
         buttonText = "OK",
         onButtonClick = { /*TODO*/ })
 }

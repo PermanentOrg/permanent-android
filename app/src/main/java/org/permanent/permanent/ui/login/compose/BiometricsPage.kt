@@ -32,6 +32,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CustomSnackbar
+import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
 
 
@@ -101,7 +102,7 @@ fun BiometricsPage(
         }
 
         CustomSnackbar(modifier = Modifier.align(Alignment.BottomCenter),
-            isForError = snackbarType == AuthenticationViewModel.SnackbarType.ERROR,
+            isForError = snackbarType == SnackbarType.ERROR,
             message = snackbarMessage,
             buttonText = stringResource(id = R.string.ok),
             onButtonClick = {

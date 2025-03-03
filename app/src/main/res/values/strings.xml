@@ -783,4 +783,7 @@
     <string name="send_code">Send code</string>
     <string name="example_email">example@email.com</string>
     <string name="example_phone_number">+1 (123) 456 – 7890</string>
+    <string name="enable">Enable</string>
+    <string name="enter_code_description">Enter the 4-digit code you received.</string>
+    <string name="code_sent">Code sent.</string>
 </resources>

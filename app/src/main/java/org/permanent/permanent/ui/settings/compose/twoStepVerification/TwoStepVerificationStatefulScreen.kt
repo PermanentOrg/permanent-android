@@ -12,11 +12,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
-import org.permanent.permanent.viewmodels.TwoStepVerificationViewModel
+import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 @Composable
 fun TwoStepVerificationStatefulScreen(
-    viewModel: TwoStepVerificationViewModel
+    viewModel: LoginAndSecurityViewModel
 ) {
     val isTwoFAEnabled by viewModel.isTwoFAEnabled.collectAsState()
     val scope = rememberCoroutineScope()
