@@ -55,6 +55,11 @@ class LoginAndSecurityViewModel(application: Application) :
         prefsHelper.setBiometricsLogIn(enabled)
     }
 
+    fun updateTwoFAEnabled(enabled: Boolean) {
+        prefsHelper.setIsTwoFAEnabled(enabled)
+        _isTwoFAEnabled.value = enabled
+    }
+
     fun updateTwoFAList(newList: List<TwoFAVO>) {
         prefsHelper.setTwoFAList(newList)
         _twoFAList.value = newList
@@ -154,11 +159,13 @@ class LoginAndSecurityViewModel(application: Application) :
 
             override fun onSuccess(message: String?) {
                 _isBusyState.value = false
-                _isTwoFAEnabled.value = true
-                prefsHelper.setIsTwoFAEnabled(true)
+
                 val twoFAListSaved = prefsHelper.getTwoFAList()
-                twoFAListSaved.toMutableList().add(twoFAVO)
-                prefsHelper.setTwoFAList(twoFAListSaved)
+                val updatedList = twoFAListSaved.toMutableList()
+                updatedList.add(twoFAVO)
+
+                updateTwoFAEnabled(true)
+                updateTwoFAList(updatedList)
                 successCallback()
             }
 
