@@ -96,7 +96,7 @@ fun MethodChoosingPage(
             // SMS option
             MethodMenuItem(
                 iconResource = painterResource(id = R.drawable.ic_sms_blue),
-                text = stringResource(id = R.string.text_message_sms),
+                text = stringResource(id = R.string.text_message),
                 selected = selectedMethod == VerificationMethod.SMS,
                 showUSAOnlyLabel = true,
                 onSelectedChange = { selectedMethod = VerificationMethod.SMS }
@@ -107,7 +107,7 @@ fun MethodChoosingPage(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(32.dp)
+                .padding(top = 32.dp, bottom = 48.dp, start = 32.dp, end = 32.dp)
         ) {
             CenteredTextAndIconButton(
                 buttonColor = ButtonColor.DARK,
