@@ -767,7 +767,7 @@
     <string name="date_confirmation_substring">Are you sure you want to set a new date &amp; time for the selected items?</string>
     <string name="set_date_and_time">Set date and time</string>
     <string name="file_names_updated">File names updated successfully</string>
-    <string name="text_message_sms">Text message (SMS)</string>
+    <string name="text_message">Text message</string>
     <string name="confirm_password">Confirm password</string>
     <string name="confirm_your_password">Confirm your password</string>
     <string name="choose_a_verification_method">Choose a verification method</string>
@@ -786,4 +786,5 @@
     <string name="enable">Enable</string>
     <string name="enter_code_description">Enter the 4-digit code you received.</string>
     <string name="code_sent">Code sent.</string>
+    <string name="default_label">default</string>
 </resources>

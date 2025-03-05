@@ -183,16 +183,16 @@ fun VerificationItemCard(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = stringResource(if (item.method == "sms") R.string.text_message_sms else R.string.email),
+                        text = stringResource(if (item.method == VerificationMethod.SMS.name.lowercase()) R.string.text_message else R.string.email),
                         fontSize = 14.sp,
                         lineHeight = 24.sp,
                         fontFamily = FontFamily(Font(R.font.usual_medium)),
                         color = colorResource(R.color.blue900)
                     )
-                    if (item.method == "sms") { // We show "default" label if it's sms
+                    if (item.method == VerificationMethod.SMS.name.lowercase()) { // We show "default" label if it's sms
                         Spacer(modifier = Modifier.width(8.dp)) // Small spacing between title and DEFAULT
                         Text(
-                            text = "DEFAULT",
+                            text = stringResource(R.string.default_label).uppercase(),
                             color = colorResource(R.color.blue900),
                             fontSize = 10.sp,
                             lineHeight = 24.sp,
