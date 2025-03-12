@@ -69,8 +69,10 @@ fun TextAndIconButton(
 
 enum class ButtonColor {
     LIGHT,
+    LIGHT_BLUE,
     DARK,
-    TRANSPARENT
+    TRANSPARENT,
+    RED
 }
 
 @Preview

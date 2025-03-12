@@ -22,14 +22,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
 
 @Composable
-fun TwoStepVerificationDisabledScreen(
+fun TwoStepDisabledScreen(
     onAddTwoStepVerificationClick: () -> Unit
 ) {
     Column(
@@ -54,7 +58,12 @@ fun TwoStepVerificationDisabledScreen(
             Spacer(modifier = Modifier.width(16.dp))
 
             Text(
-                text = stringResource(id = R.string.two_step_verification_disabled),
+                text = buildAnnotatedString {
+                    append(stringResource(id = R.string.two_step_verification_is))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(" " + stringResource(id = R.string.disabled) + ".")
+                    }
+                },
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
                 color = colorResource(id = R.color.darkRed),

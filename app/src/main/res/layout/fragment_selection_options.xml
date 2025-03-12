@@ -129,7 +129,7 @@
                 android:fontFamily="@font/open_sans"
                 android:letterSpacing="-0.01"
                 android:paddingStart="0dp"
-                android:text="@string/delete_button"
+                android:text="@string/delete"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textColor="@color/red"

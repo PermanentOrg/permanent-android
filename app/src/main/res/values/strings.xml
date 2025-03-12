@@ -129,8 +129,9 @@
     <string name="sign_out">Sign out</string>
     <string name="two_step_verification">Two-step verification</string>
     <string name="two_step_verification_description">Enhance account security by requiring a login verification code.</string>
-    <string name="two_step_verification_disabled">Two-step verification is disabled.</string>
-    <string name="two_step_verification_enabled">Two-step verification is enabled.</string>
+    <string name="two_step_verification_is">Two-step verification is</string>
+    <string name="enabled">enabled</string>
+    <string name="disabled">disabled</string>
     <string name="add_two_step_verification">Add two-step verification method</string>
     <string name="change_verification_method">Change verification method</string>
     <string name="two_step_verification_help_text">To disable two-step verification, you must remove all existing two-step verification methods you have previously added.</string>
@@ -284,7 +285,7 @@
     <string name="button_publish">Publish</string>
     <string name="create_button">Create</string>
     <string name="button_cancel_all">Cancel all</string>
-    <string name="delete_button">Delete</string>
+    <string name="delete">Delete</string>
     <string name="share_button">Share</string>
     <string name="more_button">More</string>
     <string name="save_button">Save</string>
@@ -784,7 +785,13 @@
     <string name="example_email">example@email.com</string>
     <string name="example_phone_number">+1 (123) 456 – 7890</string>
     <string name="enable">Enable</string>
-    <string name="enter_code_description">Enter the 4-digit code you received.</string>
+    <string name="enter_code_received">Enter the 4-digit code you received.</string>
+    <string name="enter_code_to_confirm">Enter the 4-digit code to confirm your action.</string>
     <string name="code_sent">Code sent.</string>
     <string name="default_label">default</string>
+    <string name="remove_sms_verification_method">Are you sure you want to delete your Text message (SMS) two-step verification method?</string>
+    <string name="remove_email_verification_method">Are you sure you want to delete your Email two-step verification method?</string>
+    <string name="text_message_sms">Text message (SMS)</string>
+    <string name="text_verification_disabled">Text verification was disabled.</string>
+    <string name="email_verification_disabled">Email verification was disabled.</string>
 </resources>

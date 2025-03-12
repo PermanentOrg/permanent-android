@@ -54,7 +54,7 @@ class ItemOptionsFragment : PermanentBottomSheetFragment() {
         viewModel.setMember(arguments?.getParcelable(PARCELABLE_ACCOUNT_KEY))
         val profileItem: ProfileItem? = arguments?.getParcelable(PARCELABLE_PROFILE_ITEM_KEY)
         viewModel.setProfileItem(profileItem)
-        if (profileItem != null) binding.btnDelete.setText(R.string.delete_button)
+        if (profileItem != null) binding.btnDelete.setText(R.string.delete)
 
         return binding.root
     }

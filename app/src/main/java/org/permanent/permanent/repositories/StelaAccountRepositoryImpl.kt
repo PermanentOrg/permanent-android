@@ -90,8 +90,11 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
                                 Gson().fromJson(errorJson, ErrorResponse::class.java)
                             var errorMessage = errorResponse.error.details[0].message
 
-                            errorMessage =
-                                errorMessage.replace("value", twoFAVO.value, ignoreCase = true)
+                            twoFAVO.value?.let {
+                                errorMessage = errorMessage.replace(
+                                    "value", it, ignoreCase = true
+                                )
+                            }
 
                             listener.onFailed(errorMessage)
                         } catch (e: Exception) {
@@ -109,6 +112,67 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
 
     override fun enableTwoFactor(twoFAVO: TwoFAVO, listener: IResponseListener) {
         NetworkClient.instance().enableTwoFactor(twoFAVO).enqueue(object : Callback<ResponseBody> {
+
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    val responseVO = response.body()
+                    if (responseVO != null) {
+                        listener.onSuccess("")
+                    } else {
+                        listener.onFailed(appContext.getString(R.string.generic_error))
+                    }
+                } else {
+                    listener.onFailed("The code is not valid.")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun sendDisableCode(twoFAVO: TwoFAVO, listener: IResponseListener) {
+        NetworkClient.instance().sendDisableCode(twoFAVO).enqueue(object : Callback<ResponseBody> {
+
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    val responseVO = response.body()
+                    if (responseVO != null) {
+                        listener.onSuccess("")
+                    } else {
+                        listener.onFailed(appContext.getString(R.string.generic_error))
+                    }
+                } else {
+                    response.errorBody()?.let { errorBody ->
+                        val errorJson = errorBody.string()
+                        try {
+                            val errorResponse =
+                                Gson().fromJson(errorJson, ErrorResponse::class.java)
+                            var errorMessage = errorResponse.error.details[0].message
+
+                            twoFAVO.value?.let {
+                                errorMessage = errorMessage.replace(
+                                    "value", it, ignoreCase = true
+                                )
+                            }
+
+                            listener.onFailed(errorMessage)
+                        } catch (e: Exception) {
+                            listener.onFailed("Failed to parse error JSON")
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun disableTwoFactor(twoFAVO: TwoFAVO, listener: IResponseListener) {
+        NetworkClient.instance().disableTwoFactor(twoFAVO).enqueue(object : Callback<ResponseBody> {
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {

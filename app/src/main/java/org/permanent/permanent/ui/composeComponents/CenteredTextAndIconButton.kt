@@ -52,7 +52,7 @@ fun CenteredTextAndIconButton(
             RoundedCornerShape(12.dp)
         ),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = if (!enabled) disabledColor else if (buttonColor == ButtonColor.LIGHT) Color.White else if (buttonColor == ButtonColor.TRANSPARENT) Color.Transparent else primaryColor),
+        colors = ButtonDefaults.buttonColors(containerColor = if (!enabled) disabledColor else if (buttonColor == ButtonColor.TRANSPARENT) Color.Transparent else if (buttonColor == ButtonColor.LIGHT) Color.White else if (buttonColor == ButtonColor.LIGHT_BLUE) colorResource(R.color.blue25) else if (buttonColor == ButtonColor.RED) colorResource(R.color.error500) else primaryColor),
         onClick = { if (enabled) onButtonClick() }) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -72,7 +72,7 @@ fun CenteredTextAndIconButton(
 
             Text(
                 text = text,
-                color = if (buttonColor == ButtonColor.LIGHT) primaryColor else Color.White,
+                color = if (buttonColor == ButtonColor.LIGHT || buttonColor == ButtonColor.LIGHT_BLUE) primaryColor else Color.White,
                 fontSize = fontSize,
                 fontFamily = FontFamily(Font(R.font.open_sans_semibold_ttf)),
             )

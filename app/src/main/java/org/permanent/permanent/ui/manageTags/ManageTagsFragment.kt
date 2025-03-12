@@ -122,7 +122,7 @@ class ManageTagsFragment : PermanentBaseFragment(), ManageTagListener {
 
         dialogBinding.tvTitle.text = getString(R.string.delete_tags_title)
         dialogBinding.tvText.text = getString(R.string.delete_tags_text)
-        dialogBinding.btnPositive.text = getString(R.string.delete_button)
+        dialogBinding.btnPositive.text = getString(R.string.delete)
         dialogBinding.btnPositive.setOnClickListener {
             viewModel.deleteTag(tag)
             alert.dismiss()

@@ -776,6 +776,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun enableTwoFactor(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.enableTwoFactor(twoFAVO)
 
+    fun sendDisableCode(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.sendDisableCode(twoFAVO)
+
+    fun disableTwoFactor(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.disableTwoFactor(twoFAVO)
+
     fun getPaymentIntent(
         accountId: Int,
         accountEmail: String?,
