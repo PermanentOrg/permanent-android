@@ -41,7 +41,7 @@
                     android:paddingTop="8dp"
                     android:paddingRight="0dp"
                     android:paddingBottom="8dp"
-                    android:text="@string/delete_button"
+                    android:text="@string/delete"
                     android:textAllCaps="false"
                     android:textSize="12sp"
                     app:cornerRadius="0dp"

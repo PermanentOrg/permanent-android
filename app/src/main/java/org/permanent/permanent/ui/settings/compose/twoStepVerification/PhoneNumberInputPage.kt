@@ -184,12 +184,11 @@ fun PhoneNumberInputPage(
                                 return@TextField
                             }
 
-                            val (newFormattedText, newCursorPosition) = formatPhoneNumber(
-                                newValue.text, phoneNrState.text
-                            )
+                            val (newFormattedText, _) = formatPhoneNumber(newValue.text, phoneNrState.text)
 
                             phoneNrState = TextFieldValue(
-                                text = newFormattedText, selection = TextRange(newCursorPosition)
+                                text = newFormattedText,
+                                selection = TextRange(newFormattedText.length) // Move cursor to end
                             )
                         },
                         modifier = Modifier
@@ -233,7 +232,7 @@ fun PhoneNumberInputPage(
                 if (isCodeSent) {
                     // Resend code Button
                     TimerButton(
-                        text = stringResource(id = R.string.resend_code), startImmediately = true
+                        text = stringResource(id = R.string.resend_code)
                     ) {
                         keyboardController?.hide()
                         viewModel.sendEnableCode(VerificationMethod.SMS,
@@ -269,7 +268,7 @@ fun PhoneNumberInputPage(
                         .padding(32.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.enter_code_description),
+                        text = stringResource(R.string.enter_code_received),
                         fontSize = 14.sp,
                         lineHeight = 24.sp,
                         fontFamily = FontFamily(Font(R.font.usual_regular)),

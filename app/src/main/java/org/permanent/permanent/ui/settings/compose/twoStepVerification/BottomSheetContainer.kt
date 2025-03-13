@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -33,15 +33,15 @@ import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetContainer(
-    viewModel: LoginAndSecurityViewModel, sheetState: SheetState, onDismiss: () -> Unit
+    viewModel: LoginAndSecurityViewModel,
+    sheetState: SheetState,
+    pagerState: PagerState,
+    onDismiss: () -> Unit
 ) {
     val isBusyState by viewModel.isBusyState.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
     val snackbarType by viewModel.snackbarType.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    val pagerState =
-        rememberPagerState(initialPage = TwoStepVerificationPage.PASSWORD_CONFIRMATION.value,
-            pageCount = { TwoStepVerificationPage.values().size })
 
     ModalBottomSheet(
         sheetState = sheetState,
@@ -55,7 +55,7 @@ fun BottomSheetContainer(
             modifier = Modifier.fillMaxSize()
         ) {
             HorizontalPager(
-                state = pagerState, beyondBoundsPageCount = 2, userScrollEnabled = false
+                state = pagerState, beyondBoundsPageCount = 3, userScrollEnabled = false
             ) { page ->
                 when (page) {
                     TwoStepVerificationPage.PASSWORD_CONFIRMATION.value -> {
@@ -81,7 +81,8 @@ fun BottomSheetContainer(
                     }
 
                     TwoStepVerificationPage.EMAIL_ADDRESS_INPUT.value -> {
-                        EmailAddressInputPage(viewModel = viewModel,
+                        EmailAddressInputPage(
+                            viewModel = viewModel,
                             onDismiss = onDismiss,
                             onBack = {
                                 coroutineScope.launch {
@@ -91,7 +92,8 @@ fun BottomSheetContainer(
                     }
 
                     TwoStepVerificationPage.PHONE_NUMBER_INPUT.value -> {
-                        PhoneNumberInputPage(viewModel = viewModel,
+                        PhoneNumberInputPage(
+                            viewModel = viewModel,
                             onDismiss = onDismiss,
                             onBack = {
                                 coroutineScope.launch {
@@ -101,15 +103,9 @@ fun BottomSheetContainer(
                     }
 
                     TwoStepVerificationPage.CODE_VERIFICATION.value -> {
-                        CodeVerificationPage(viewModel, onDismiss, onSendCodeOn = { emailAddress ->
-                            viewModel.sendEnableCode(VerificationMethod.EMAIL,
-                                emailAddress,
-                                successCallback = {
-//                                    coroutineScope.launch {
-//                                        pagerState.animateScrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
-//                                    }
-                                })
-                        })
+                        CodeVerificationPage(
+                            viewModel = viewModel, pagerState = pagerState, onDismiss = onDismiss
+                        )
                     }
                 }
             }

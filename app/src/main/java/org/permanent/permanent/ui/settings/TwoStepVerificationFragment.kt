@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.activityViewModels
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.settings.compose.twoStepVerification.TwoStepVerificationStatefulScreen
+import org.permanent.permanent.ui.settings.compose.twoStepVerification.TwoStepStatefulScreen
 import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 class TwoStepVerificationFragment : PermanentBaseFragment() {
@@ -21,7 +21,7 @@ class TwoStepVerificationFragment : PermanentBaseFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    TwoStepVerificationStatefulScreen(viewModel)
+                    TwoStepStatefulScreen(viewModel)
                 }
             }
         }
@@ -40,6 +40,7 @@ class TwoStepVerificationFragment : PermanentBaseFragment() {
 
     override fun onPause() {
         super.onPause()
+        viewModel.clearSnackbar()
         disconnectViewModelEvents()
     }
 }

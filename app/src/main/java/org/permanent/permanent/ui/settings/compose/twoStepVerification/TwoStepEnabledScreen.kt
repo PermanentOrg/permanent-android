@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package org.permanent.permanent.ui.settings.compose.twoStepVerification
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,10 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,26 +27,58 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
 import org.permanent.permanent.network.models.TwoFAVO
+import org.permanent.permanent.ui.composeComponents.ButtonColor
+import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
+import org.permanent.permanent.ui.composeComponents.ConfirmationBottomSheet
 import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 @Composable
-fun TwoStepVerificationEnabledScreen(
+fun TwoStepEnabledScreen(
     viewModel: LoginAndSecurityViewModel,
-    onChangeVerificationMethodClick: () -> Unit
+    onChangeVerificationMethodClick: () -> Unit,
+    onDeleteVerificationMethodClick: () -> Unit
 ) {
-    val twoFAList by viewModel.twoFAList.collectAsState()  // Collect 2FA methods
+    val twoFAList by viewModel.twoFAList.collectAsState()
+    var confirmationSheetMessageRes by remember { mutableStateOf<Int?>(null) }
+    var confirmationSheetBoldTextRes by remember { mutableStateOf<Int?>(null) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedItemIndex by remember { mutableStateOf<Int?>(null) }
+
+    val confirmationSheetMessage = confirmationSheetMessageRes?.let { stringResource(it) } ?: ""
+    val confirmationSheetBoldText = confirmationSheetBoldTextRes?.let { stringResource(it) } ?: ""
+
+    if (showBottomSheet) {
+        ConfirmationBottomSheet(message = confirmationSheetMessage,
+            boldText = confirmationSheetBoldText,
+            onConfirm = {
+                selectedItemIndex?.let { index ->
+                    val twoFAVO = twoFAList.toMutableList()[index]
+                    viewModel.updateTwoFAMethodToDisable(twoFAVO)
+                    showBottomSheet = false
+                    onDeleteVerificationMethodClick()
+                }
+            },
+            onDismiss = { showBottomSheet = false })
+    }
 
     Column(
         modifier = Modifier
@@ -70,7 +104,12 @@ fun TwoStepVerificationEnabledScreen(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Text(
-                    text = stringResource(id = R.string.two_step_verification_enabled),
+                    text = buildAnnotatedString {
+                        append(stringResource(id = R.string.two_step_verification_is))
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(" " + stringResource(id = R.string.enabled) + ".")
+                        }
+                    },
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     color = colorResource(id = R.color.textGreen),
@@ -100,9 +139,20 @@ fun TwoStepVerificationEnabledScreen(
                     VerificationItemCard(
                         item = item,
                         onRemove = {
-                            // Update the list to remove the item
-                            val updatedList = twoFAList.toMutableList().apply { removeAt(index) }
-                            viewModel.updateTwoFAList(updatedList)
+                            selectedItemIndex = index
+                            confirmationSheetMessageRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.remove_sms_verification_method
+                                } else {
+                                    R.string.remove_email_verification_method
+                                }
+                            confirmationSheetBoldTextRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.text_message_sms
+                                } else {
+                                    R.string.email
+                                }
+                            showBottomSheet = true
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -114,22 +164,17 @@ fun TwoStepVerificationEnabledScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (twoFAList.size == 1) {
-                // Action Button
-                Button(
-                    onClick = onChangeVerificationMethodClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.colorPrimary)),
+                // Change Verification Method Button
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
-                        .padding(horizontal = 24.dp),
-                    shape = RoundedCornerShape(12.dp)
+                        .padding(horizontal = 32.dp)
                 ) {
-                    Text(
+                    CenteredTextAndIconButton(
+                        buttonColor = ButtonColor.DARK,
                         text = stringResource(id = R.string.change_verification_method),
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        lineHeight = 24.sp,
-                        fontFamily = FontFamily(Font(R.font.usual_medium))
+                        icon = null,
+                        onButtonClick = onChangeVerificationMethodClick
                     )
                 }
             }
@@ -161,23 +206,19 @@ fun TwoStepVerificationEnabledScreen(
 
 @Composable
 fun VerificationItemCard(
-    item: TwoFAVO,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier
+    item: TwoFAVO, onRemove: () -> Unit, modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.border(
             width = 1.dp,
             color = colorResource(R.color.blue50),
             shape = RoundedCornerShape(size = 12.dp)
-        ),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        ), colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier
                 .padding(top = 24.dp, bottom = 24.dp, start = 24.dp, end = 10.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Content Column
             Column {
@@ -209,21 +250,22 @@ fun VerificationItemCard(
                 }
 
                 // Value text
-                Text(
-                    text = item.value,
-                    fontSize = 14.sp,
-                    lineHeight = 24.sp,
-                    fontFamily = FontFamily(Font(R.font.usual_regular)),
-                    color = colorResource(R.color.blue600)
-                )
+                item.value?.let {
+                    Text(
+                        text = it,
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.blue600)
+                    )
+                }
             }
 
             // Align IconButton at the top
             IconButton(
-                onClick = onRemove,
-                modifier = Modifier
+                onClick = onRemove, modifier = Modifier
                     .align(Alignment.Top)
-                    .padding(top = 4.dp) // Optional: Adjust top padding for fine-tuning
+                    .padding(top = 4.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_delete_red),

@@ -120,6 +120,7 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
         super.onResume()
         viewModel.updateArchiveAndAccountDetails()
         viewModel.updateUsedStorage()
+        viewModel.updateTwoFA()
         connectViewModelEvents()
     }
 

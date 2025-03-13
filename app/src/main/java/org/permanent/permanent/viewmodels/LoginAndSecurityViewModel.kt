@@ -8,6 +8,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ITwoFAListener
 import org.permanent.permanent.network.models.TwoFAVO
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.IAuthenticationRepository
@@ -42,6 +43,8 @@ class LoginAndSecurityViewModel(application: Application) :
     private val _twoFAList = MutableStateFlow(prefsHelper.getTwoFAList())
     val twoFAList: StateFlow<List<TwoFAVO>> = _twoFAList
 
+    private var twoFAMethodToDisable = TwoFAVO()
+
     private val _codeValues = MutableStateFlow(List(4) { "" })
     val codeValues: StateFlow<List<String>> = _codeValues
 
@@ -63,6 +66,10 @@ class LoginAndSecurityViewModel(application: Application) :
     fun updateTwoFAList(newList: List<TwoFAVO>) {
         prefsHelper.setTwoFAList(newList)
         _twoFAList.value = newList
+    }
+
+    fun updateTwoFAMethodToDisable(twoFAVO: TwoFAVO) {
+        twoFAMethodToDisable = twoFAVO
     }
 
     fun verifyPassword(password: String, successCallback: () -> Unit) {
@@ -122,6 +129,25 @@ class LoginAndSecurityViewModel(application: Application) :
         }
     }
 
+    private fun updateTwoFA(successCallback: () -> Unit) {
+        stelaAccountRepository.getTwoFAMethod(object : ITwoFAListener {
+
+            override fun onSuccess(twoFAVOList: List<TwoFAVO>?) {
+                updateTwoFAEnabled(!twoFAVOList.isNullOrEmpty())
+                updateTwoFAList(twoFAVOList ?: emptyList())
+                successCallback()
+            }
+
+            override fun onFailed(error: String?) {
+                error?.let {
+                    _snackbarMessage.value = it
+                } ?: run { _snackbarMessage.value = appContext.getString(R.string.generic_error) }
+                _snackbarType.value = SnackbarType.ERROR
+            }
+        })
+    }
+
+
     fun sendEnableCode(method: VerificationMethod, value: String, successCallback: () -> Unit) {
         if (_isBusyState.value) {
             return
@@ -148,7 +174,9 @@ class LoginAndSecurityViewModel(application: Application) :
         })
     }
 
-    fun enableTwoFactor(method: VerificationMethod, value: String, code: String, successCallback: () -> Unit) {
+    fun enableTwoFactor(
+        method: VerificationMethod, value: String, code: String, successCallback: () -> Unit
+    ) {
         if (_isBusyState.value) {
             return
         }
@@ -166,7 +194,86 @@ class LoginAndSecurityViewModel(application: Application) :
 
                 updateTwoFAEnabled(true)
                 updateTwoFAList(updatedList)
+                updateCodeValues(List(4) { "" })
                 successCallback()
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let {
+                    _snackbarMessage.value = it
+                    _snackbarType.value = SnackbarType.ERROR
+                }
+            }
+        })
+    }
+
+    fun sendTwoFADisableCode(successCallback: () -> Unit) {
+        if (_isBusyState.value) {
+            return
+        }
+        clearSnackbar()
+        _isBusyState.value = true
+        if (twoFAMethodToDisable.methodId == null) {
+            updateTwoFA(successCallback = {
+                val matchingTwoFA = twoFAList.value.find { it.method == twoFAMethodToDisable.method }
+                if (matchingTwoFA != null) {
+                    twoFAMethodToDisable = matchingTwoFA
+                    sendDisableCode(successCallback)
+                }
+            })
+        } else {
+            sendDisableCode(successCallback)
+        }
+    }
+
+    private fun sendDisableCode(successCallback: () -> Unit) {
+        val twoFAVO = TwoFAVO(methodId = twoFAMethodToDisable.methodId)
+        stelaAccountRepository.sendDisableCode(twoFAVO, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                successCallback()
+                _snackbarMessage.value = appContext.getString(R.string.code_sent)
+                _snackbarType.value = SnackbarType.SUCCESS
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let {
+                    _snackbarMessage.value = it
+                    _snackbarType.value = SnackbarType.ERROR
+                }
+            }
+        })
+    }
+
+    fun disableTwoFactor(code: String, successCallback: () -> Unit) {
+        if (_isBusyState.value) {
+            return
+        }
+        clearSnackbar()
+        _isBusyState.value = true
+        val twoFAVO = TwoFAVO(methodId = twoFAMethodToDisable.methodId, code = code)
+        stelaAccountRepository.disableTwoFactor(twoFAVO, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+
+                val twoFAVOList = twoFAList.value.toMutableList()
+                twoFAVOList.removeIf { it.methodId == twoFAMethodToDisable.methodId }
+                updateTwoFAEnabled(twoFAVOList.isNotEmpty())
+                updateTwoFAList(twoFAVOList)
+                updateCodeValues(List(4) { "" })
+                successCallback()
+
+                _snackbarMessage.value =
+                    if (twoFAMethodToDisable.method == VerificationMethod.EMAIL.name.lowercase()) appContext.getString(
+                        R.string.email_verification_disabled
+                    )
+                    else appContext.getString(R.string.text_verification_disabled)
+                _snackbarType.value = SnackbarType.SUCCESS
+                twoFAMethodToDisable = TwoFAVO()
             }
 
             override fun onFailed(error: String?) {

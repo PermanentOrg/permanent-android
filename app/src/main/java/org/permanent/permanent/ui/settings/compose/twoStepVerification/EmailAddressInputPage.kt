@@ -198,7 +198,7 @@ fun EmailAddressInputPage(
                 if (isCodeSent) {
                     // Resend code Button
                     TimerButton(
-                        text = stringResource(id = R.string.resend_code), startImmediately = true
+                        text = stringResource(id = R.string.resend_code)
                     ) {
                         keyboardController?.hide()
                         viewModel.sendEnableCode(VerificationMethod.EMAIL,
@@ -233,7 +233,7 @@ fun EmailAddressInputPage(
                         .padding(32.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.enter_code_description),
+                        text = stringResource(R.string.enter_code_received),
                         fontSize = 14.sp,
                         lineHeight = 24.sp,
                         fontFamily = FontFamily(Font(R.font.usual_regular)),

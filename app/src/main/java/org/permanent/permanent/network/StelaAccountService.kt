@@ -23,4 +23,10 @@ interface StelaAccountService {
 
     @POST("api/v2/idpuser/enable-two-factor")
     fun enableTwoFactor(@Body twoFAVO: TwoFAVO): Call<ResponseBody>
+
+    @POST("api/v2/idpuser/send-disable-code")
+    fun sendDisableCode(@Body twoFAVO: TwoFAVO): Call<ResponseBody>
+
+    @POST("api/v2/idpuser/disable-two-factor")
+    fun disableTwoFactor(@Body twoFAVO: TwoFAVO): Call<ResponseBody>
 }

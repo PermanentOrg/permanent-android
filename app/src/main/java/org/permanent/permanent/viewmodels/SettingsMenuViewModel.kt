@@ -10,6 +10,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.ITwoFAListener
+import org.permanent.permanent.network.models.TwoFAVO
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
 import org.permanent.permanent.repositories.EventsRepositoryImpl
@@ -18,6 +20,8 @@ import org.permanent.permanent.repositories.IAuthenticationRepository
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.INotificationRepository
 import org.permanent.permanent.repositories.NotificationRepositoryImpl
+import org.permanent.permanent.repositories.StelaAccountRepository
+import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
@@ -43,6 +47,8 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     private var authRepository: IAuthenticationRepository =
         AuthenticationRepositoryImpl(application)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
+    private var stelaAccountRepository: StelaAccountRepository =
+        StelaAccountRepositoryImpl(application)
 
     fun updateArchiveAndAccountDetails() {
         archiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
@@ -72,35 +78,49 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
         })
     }
 
+    fun updateTwoFA() {
+        stelaAccountRepository.getTwoFAMethod(object : ITwoFAListener {
+
+            override fun onSuccess(twoFAVOList: List<TwoFAVO>?) {
+                isTwoFAEnabled.value = !twoFAVOList.isNullOrEmpty()
+                prefsHelper.setIsTwoFAEnabled(!twoFAVOList.isNullOrEmpty())
+                prefsHelper.setTwoFAList(twoFAVOList ?: emptyList())
+            }
+
+            override fun onFailed(error: String?) {
+                error?.let { showError.value = it }
+            }
+        })
+    }
+
     fun deleteDeviceToken() {
         if (isBusy.value != null && isBusy.value!!) {
             return
         }
         isBusy.value = true
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (!task.isSuccessful) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                isBusy.value = false
+                Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
+                return@OnCompleteListener
+            }
+            val notificationsRepository: INotificationRepository =
+                NotificationRepositoryImpl(appContext)
+
+            notificationsRepository.deleteDevice(task.result, object : IResponseListener {
+
+                override fun onSuccess(message: String?) {
                     isBusy.value = false
-                    Log.e(TAG, "Fetching FCM token failed: ${task.exception}")
-                    return@OnCompleteListener
+                    logout()
                 }
-                val notificationsRepository: INotificationRepository =
-                    NotificationRepositoryImpl(appContext)
 
-                notificationsRepository.deleteDevice(task.result, object : IResponseListener {
-
-                    override fun onSuccess(message: String?) {
-                        isBusy.value = false
-                        logout()
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        Log.e(TAG, "Deleting Device FCM token failed: $error")
-                        logout()
-                    }
-                })
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    Log.e(TAG, "Deleting Device FCM token failed: $error")
+                    logout()
+                }
             })
+        })
     }
 
     fun logout() {
