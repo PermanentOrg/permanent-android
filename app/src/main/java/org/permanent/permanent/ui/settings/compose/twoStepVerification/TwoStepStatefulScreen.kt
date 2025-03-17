@@ -70,6 +70,9 @@ fun TwoStepStatefulScreen(
                         bottomSheetState.show() // Animates the sheet to visible
                     }
                 }
+                coroutineScope.launch { // This needs to be in a separate coroutine scope or it doesn't work
+                    pagerState.scrollToPage(TwoStepVerificationPage.CODE_VERIFICATION.value)
+                }
             }, onDeleteVerificationMethodClick = {
                 viewModel.clearSnackbar()
                 coroutineScope.launch {

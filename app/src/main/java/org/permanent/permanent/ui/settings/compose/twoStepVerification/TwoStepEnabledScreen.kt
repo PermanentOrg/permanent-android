@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,6 +61,7 @@ fun TwoStepEnabledScreen(
     val twoFAList by viewModel.twoFAList.collectAsState()
     var confirmationSheetMessageRes by remember { mutableStateOf<Int?>(null) }
     var confirmationSheetBoldTextRes by remember { mutableStateOf<Int?>(null) }
+    var confirmationSheetButtonTextRes by remember { mutableIntStateOf(R.string.delete) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedItemIndex by remember { mutableStateOf<Int?>(null) }
 
@@ -69,12 +71,19 @@ fun TwoStepEnabledScreen(
     if (showBottomSheet) {
         ConfirmationBottomSheet(message = confirmationSheetMessage,
             boldText = confirmationSheetBoldText,
+            confirmationButtonText = stringResource(id = confirmationSheetButtonTextRes),
             onConfirm = {
                 selectedItemIndex?.let { index ->
                     val twoFAVO = twoFAList.toMutableList()[index]
                     viewModel.updateTwoFAMethodToDisable(twoFAVO)
                     showBottomSheet = false
-                    onDeleteVerificationMethodClick()
+                    if (confirmationSheetButtonTextRes == R.string.delete) {
+                        viewModel.setIsChangeVerificationMethod(false)
+                        onDeleteVerificationMethodClick()
+                    } else {
+                        viewModel.setIsChangeVerificationMethod(true)
+                        onChangeVerificationMethodClick()
+                    }
                 }
             },
             onDismiss = { showBottomSheet = false })
@@ -152,6 +161,7 @@ fun TwoStepEnabledScreen(
                                 } else {
                                     R.string.email
                                 }
+                            confirmationSheetButtonTextRes = R.string.delete
                             showBottomSheet = true
                         },
                         modifier = Modifier
@@ -170,12 +180,27 @@ fun TwoStepEnabledScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp)
                 ) {
-                    CenteredTextAndIconButton(
-                        buttonColor = ButtonColor.DARK,
+                    CenteredTextAndIconButton(buttonColor = ButtonColor.DARK,
                         text = stringResource(id = R.string.change_verification_method),
                         icon = null,
-                        onButtonClick = onChangeVerificationMethodClick
-                    )
+                        onButtonClick = {
+                            selectedItemIndex = 0
+                            val item = twoFAList[0]
+                            confirmationSheetMessageRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.change_sms_verification_method
+                                } else {
+                                    R.string.change_email_verification_method
+                                }
+                            confirmationSheetBoldTextRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.sms_verification_method
+                                } else {
+                                    R.string.email_verification_method
+                                }
+                            confirmationSheetButtonTextRes = R.string.button_continue
+                            showBottomSheet = true
+                        })
                 }
             }
         }

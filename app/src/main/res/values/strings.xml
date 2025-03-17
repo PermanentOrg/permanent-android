@@ -789,9 +789,13 @@
     <string name="enter_code_to_confirm">Enter the 4-digit code to confirm your action.</string>
     <string name="code_sent">Code sent.</string>
     <string name="default_label">default</string>
-    <string name="remove_sms_verification_method">Are you sure you want to delete your Text message (SMS) two-step verification method?</string>
+    <string name="remove_sms_verification_method">Are you sure you want to delete your Text message two-step verification method?</string>
     <string name="remove_email_verification_method">Are you sure you want to delete your Email two-step verification method?</string>
-    <string name="text_message_sms">Text message (SMS)</string>
+    <string name="text_message_sms">Text message</string>
     <string name="text_verification_disabled">Text verification was disabled.</string>
     <string name="email_verification_disabled">Email verification was disabled.</string>
+    <string name="change_email_verification_method">To change the two-step verification method, you must first disable the currently enabled method.\nAre you sure you want to delete email verification method?</string>
+    <string name="change_sms_verification_method">To change the two-step verification method, you must first disable the currently enabled method.\nAre you sure you want to delete text message verification method?</string>
+    <string name="email_verification_method">email verification method</string>
+    <string name="sms_verification_method">text message verification method</string>
 </resources>
