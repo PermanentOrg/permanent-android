@@ -81,8 +81,7 @@ fun BottomSheetContainer(
                     }
 
                     TwoStepVerificationPage.EMAIL_ADDRESS_INPUT.value -> {
-                        EmailAddressInputPage(
-                            viewModel = viewModel,
+                        EmailAddressInputPage(viewModel = viewModel,
                             onDismiss = onDismiss,
                             onBack = {
                                 coroutineScope.launch {
@@ -92,8 +91,7 @@ fun BottomSheetContainer(
                     }
 
                     TwoStepVerificationPage.PHONE_NUMBER_INPUT.value -> {
-                        PhoneNumberInputPage(
-                            viewModel = viewModel,
+                        PhoneNumberInputPage(viewModel = viewModel,
                             onDismiss = onDismiss,
                             onBack = {
                                 coroutineScope.launch {
@@ -104,7 +102,13 @@ fun BottomSheetContainer(
 
                     TwoStepVerificationPage.CODE_VERIFICATION.value -> {
                         CodeVerificationPage(
-                            viewModel = viewModel, pagerState = pagerState, onDismiss = onDismiss
+                            viewModel = viewModel, pagerState = pagerState,
+                            onMethodDisabled = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(TwoStepVerificationPage.METHOD_SELECTION.value)
+                                }
+                            },
+                            onDismiss = onDismiss,
                         )
                     }
                 }

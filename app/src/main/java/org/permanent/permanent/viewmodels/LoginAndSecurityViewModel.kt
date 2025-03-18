@@ -44,6 +44,8 @@ class LoginAndSecurityViewModel(application: Application) :
     val twoFAList: StateFlow<List<TwoFAVO>> = _twoFAList
 
     private var twoFAMethodToDisable = TwoFAVO()
+    private val _isChangeVerificationMethod = MutableStateFlow(false)
+    val isChangeVerificationMethod: StateFlow<Boolean> = _isChangeVerificationMethod
 
     private val _codeValues = MutableStateFlow(List(4) { "" })
     val codeValues: StateFlow<List<String>> = _codeValues
@@ -70,6 +72,10 @@ class LoginAndSecurityViewModel(application: Application) :
 
     fun updateTwoFAMethodToDisable(twoFAVO: TwoFAVO) {
         twoFAMethodToDisable = twoFAVO
+    }
+
+    fun setIsChangeVerificationMethod(value: Boolean) {
+        _isChangeVerificationMethod.value = value
     }
 
     fun verifyPassword(password: String, successCallback: () -> Unit) {

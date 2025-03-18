@@ -29,6 +29,7 @@ import org.permanent.permanent.R
 fun ConfirmationBottomSheet(
     message: String,
     boldText: String,
+    confirmationButtonText: String = stringResource(id = R.string.delete),
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -71,7 +72,7 @@ fun ConfirmationBottomSheet(
             // Delete Button
             CenteredTextAndIconButton(
                 buttonColor = ButtonColor.RED,
-                text = stringResource(id = R.string.delete),
+                text = confirmationButtonText,
                 icon = null,
                 onButtonClick = onConfirm
             )
