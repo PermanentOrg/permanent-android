@@ -8,7 +8,9 @@ enum class ArchiveType(val backendString: String) : Parcelable {
     PERSON("type.archive.person"),
     FAMILY("type.archive.group"), // this was previously "type.archive.family"
     ORGANIZATION("type.archive.organization"),
-    NONPROFIT("type.archive.nonprofit");
+    NONPROFIT("type.archive.nonprofit"),
+    OTHER("type.archive.person"),
+    UNSURE("type.archive.person");
 
     fun toTitleCase(): String = this.name.lowercase(Locale.getDefault())
         .replaceFirstChar { it.titlecase(Locale.getDefault()) }

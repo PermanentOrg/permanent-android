@@ -98,7 +98,19 @@ fun ArchiveTypeDropdown(
             R.drawable.ic_organization_empty_primary,
             R.string.organization,
             R.string.organization_description
-        )
+        ),
+        UIArchive(
+            ArchiveType.OTHER,
+            R.drawable.ic_other_primary,
+            R.string.other,
+            R.string.other_description
+        ),
+        UIArchive(
+            ArchiveType.UNSURE,
+            R.drawable.ic_unsure_primary,
+            R.string.unsure,
+            R.string.unsure_description
+        ),
     )
 
     var currentArchiveType by remember { mutableStateOf(listItems[0]) }
