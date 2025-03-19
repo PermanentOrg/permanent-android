@@ -23,8 +23,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     )
 
     override fun getArchivesByNr(archiveNrs: List<String?>, listener: IDataListener) {
-        NetworkClient.instance().getArchivesByNr(archiveNrs)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().getArchivesByNr(archiveNrs).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -63,8 +62,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
             prefsHelper.getCurrentArchiveId(),
             prefsHelper.getCurrentArchiveType(),
             thumbRecord.archiveNr
-        )
-            .enqueue(object : Callback<ResponseVO> {
+        ).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -82,8 +80,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun getAllArchives(listener: IDataListener) {
-        NetworkClient.instance().getAllArchives()
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().getAllArchives().enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -100,8 +97,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun acceptArchives(archives: List<Archive>, listener: IResponseListener) {
-        NetworkClient.instance().acceptArchives(archives)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().acceptArchives(archives).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -118,8 +114,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun declineArchive(archive: Archive, listener: IResponseListener) {
-        NetworkClient.instance().declineArchive(archive)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().declineArchive(archive).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -136,8 +131,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun switchToArchive(archiveNr: String, listener: IDataListener) {
-        NetworkClient.instance().switchToArchive(archiveNr)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().switchToArchive(archiveNr).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -154,9 +148,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun createNewArchive(
-        name: String,
-        type: ArchiveType,
-        listener: IArchiveRepository.IArchiveListener
+        name: String, type: ArchiveType, listener: IArchiveRepository.IArchiveListener
     ) {
         NetworkClient.instance().createNewArchive(name, type)
             .enqueue(object : Callback<ResponseVO> {
@@ -176,8 +168,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun deleteArchive(archiveNr: String, listener: IResponseListener) {
-        NetworkClient.instance().deleteArchive(archiveNr)
-            .enqueue(object : Callback<ResponseVO> {
+        NetworkClient.instance().deleteArchive(archiveNr).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
@@ -194,8 +185,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
     }
 
     override fun getMembers(listener: IDataListener) {
-        NetworkClient.instance()
-            .getMembers(prefsHelper.getCurrentArchiveNr())
+        NetworkClient.instance().getMembers(prefsHelper.getCurrentArchiveNr())
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
@@ -220,10 +210,12 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
                 val responseVO = response.body()
                 if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
                     listener.onSuccess(context.getString(R.string.members_member_added_successfully))
-                } else if (responseVO?.getMessages()
-                        ?.get(0) == Constants.ERROR_MEMBER_ALREADY_ADDED
+                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_MEMBER_ALREADY_ADDED
                 ) {
                     listener.onFailed(context.getString(R.string.members_member_already_added))
+                } else if (responseVO?.getMessages()?.get(0) == Constants.ERROR_ARCHIVE_NO_EMAIL_FOUND
+                ) {
+                    listener.onFailed(context.getString(R.string.no_account_found))
                 } else listener.onFailed(responseVO?.getMessages()?.get(0))
             }
 

@@ -17,7 +17,7 @@ class EditAccessLevelViewModel(application: Application) : ObservableAndroidView
     private val onItemEdited = SingleLiveEvent<Void?>()
     private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
     private val showSnackbarSuccess = MutableLiveData<String>()
-    private val showSnackbar = MutableLiveData<String>()
+    private val showErrorSnackbar = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun setMember(member: Account?) {
@@ -58,7 +58,7 @@ class EditAccessLevelViewModel(application: Application) : ObservableAndroidView
 
                 override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showSnackbar.value = error
+                    showErrorSnackbar.value = error
                 }
             })
         }
@@ -85,7 +85,7 @@ class EditAccessLevelViewModel(application: Application) : ObservableAndroidView
 
                     override fun onFailed(error: String?) {
                         isBusy.value = false
-                        showSnackbar.value = error
+                        showErrorSnackbar.value = error
                     }
                 })
         }
@@ -103,5 +103,5 @@ class EditAccessLevelViewModel(application: Application) : ObservableAndroidView
 
     fun getShowSuccessSnackbar(): LiveData<String> = showSnackbarSuccess
 
-    fun getShowSnackbar(): LiveData<String> = showSnackbar
+    fun getShowErrorSnackbar(): LiveData<String> = showErrorSnackbar
 }

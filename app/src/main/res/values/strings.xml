@@ -396,6 +396,7 @@
     <string name="members_member_email_hint">Member Email</string>
     <string name="members_member_added_successfully">Member added successfully</string>
     <string name="members_member_already_added">This account already has access to the Permanent Archive</string>
+    <string name="no_account_found">No account found for this email address</string>
     <string name="members_member_updated_successfully">Member updated successfully</string>
     <string name="members_ownership_transfer_request_sent_successfully">Ownership transfer request sent</string>
     <string name="members_owner_already_pending">There is already a pending owner for this Permanent Archive</string>
