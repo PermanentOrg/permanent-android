@@ -29,7 +29,7 @@ import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.viewmodels.AddMemberViewModel
 import org.permanent.permanent.viewmodels.EditAccessLevelViewModel
 import org.permanent.permanent.viewmodels.MembersViewModel
-import java.util.*
+import java.util.Locale
 
 
 const val SNACKBAR_DURATION_MILLIS = 5000
@@ -167,7 +167,7 @@ class MembersFragment : PermanentBaseFragment() {
             view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepGreen))
             snackBar.setTextColor(ContextCompat.getColor(it, R.color.paleGreen))
         }
-        val snackbarTextTextView = view.findViewById(R.id.snackbar_text) as TextView
+        val snackbarTextTextView: TextView = view.findViewById(R.id.snackbar_text)
         snackbarTextTextView.setTypeface(snackbarTextTextView.typeface, Typeface.BOLD)
         snackBar.show()
     }
@@ -177,9 +177,14 @@ class MembersFragment : PermanentBaseFragment() {
         Snackbar.make(binding.root, it, SNACKBAR_DURATION_MILLIS).show()
     }
 
-    private val onShowSnackbar = Observer<String> {
+    private val showErrorSnackbarObserver = Observer<String> { message ->
         alertDialog?.dismiss()
-        Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val view: View = snackBar.view
+        context?.let { view.setBackgroundColor(ContextCompat.getColor(it, R.color.deepRed))
+            snackBar.setTextColor(ContextCompat.getColor(it, R.color.white))
+        }
+        snackBar.show()
     }
 
     private val onShowAddMemberDialog = Observer<Void?> {
@@ -291,7 +296,7 @@ class MembersFragment : PermanentBaseFragment() {
         viewModel.getOnEditorsRetrieved().observe(this, onEditorsRetrieved)
         viewModel.getOnContributorsRetrieved().observe(this, onContributorsRetrieved)
         viewModel.getOnViewersRetrieved().observe(this, onViewersRetrieved)
-        viewModel.getShowSnackbar().observe(this, onShowSnackbar)
+        viewModel.getShowErrorSnackbar().observe(this, showErrorSnackbarObserver)
         viewModel.getShowSnackbarLong().observe(this, onShowSnackbarLong)
         viewModel.getShowAddMemberDialogRequest().observe(this, onShowAddMemberDialog)
         viewModel.getShowMemberOptionsFragmentRequest().observe(this, onShowMemberOptionsFragment)
@@ -299,12 +304,12 @@ class MembersFragment : PermanentBaseFragment() {
             .observe(this, onOwnershipTransferRequest)
         addDialogViewModel.getOnMemberAddedConclusion().observe(this, onMembersUpdated)
         addDialogViewModel.getShowSuccessSnackbar().observe(this, showSuccessSnackbarObserver)
-        addDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
+        addDialogViewModel.getShowErrorSnackbar().observe(this, showErrorSnackbarObserver)
         editDialogViewModel.getOnItemEdited().observe(this, onMembersUpdated)
         editDialogViewModel.getOnOwnershipTransferRequest()
             .observe(this, onOwnershipTransferRequest)
         editDialogViewModel.getShowSuccessSnackbar().observe(this, showSuccessSnackbarObserver)
-        editDialogViewModel.getShowSnackbar().observe(this, onShowSnackbar)
+        editDialogViewModel.getShowErrorSnackbar().observe(this, showErrorSnackbarObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -313,7 +318,7 @@ class MembersFragment : PermanentBaseFragment() {
         viewModel.getOnEditorsRetrieved().removeObserver(onEditorsRetrieved)
         viewModel.getOnContributorsRetrieved().removeObserver(onContributorsRetrieved)
         viewModel.getOnViewersRetrieved().removeObserver(onViewersRetrieved)
-        viewModel.getShowSnackbar().removeObserver(onShowSnackbar)
+        viewModel.getShowErrorSnackbar().removeObserver(showErrorSnackbarObserver)
         viewModel.getShowSnackbarLong().removeObserver(onShowSnackbarLong)
         viewModel.getShowAddMemberDialogRequest().removeObserver(onShowAddMemberDialog)
         viewModel.getShowMemberOptionsFragmentRequest().removeObserver(onShowMemberOptionsFragment)
@@ -321,12 +326,12 @@ class MembersFragment : PermanentBaseFragment() {
             .removeObserver(onOwnershipTransferRequest)
         addDialogViewModel.getOnMemberAddedConclusion().removeObserver(onMembersUpdated)
         addDialogViewModel.getShowSuccessSnackbar().removeObserver(showSuccessSnackbarObserver)
-        addDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
+        addDialogViewModel.getShowErrorSnackbar().removeObserver(showErrorSnackbarObserver)
         editDialogViewModel.getOnItemEdited().removeObserver(onMembersUpdated)
         editDialogViewModel.getOnOwnershipTransferRequest()
             .removeObserver(onOwnershipTransferRequest)
         editDialogViewModel.getShowSuccessSnackbar().removeObserver(showSuccessSnackbarObserver)
-        editDialogViewModel.getShowSnackbar().removeObserver(onShowSnackbar)
+        editDialogViewModel.getShowErrorSnackbar().removeObserver(showErrorSnackbarObserver)
         itemOptionsFragment?.getShowEditMemberDialogRequest()
             ?.removeObserver(onShowEditMemberDialog)
         itemOptionsFragment?.getOnMemberRemoved()?.removeObserver(onMemberRemoved)

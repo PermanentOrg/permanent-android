@@ -21,7 +21,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
     private val onOwnershipTransferRequest = SingleLiveEvent<Boolean>()
     private val onMemberAddedConclusion = SingleLiveEvent<Void?>()
     private val showSnackbarSuccess = MutableLiveData<String>()
-    private val showSnackbar = MutableLiveData<String>()
+    private val showErrorSnackbar = MutableLiveData<String>()
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
 
     fun onEmailTextChanged(email: Editable) {
@@ -65,7 +65,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
                 override fun onFailed(error: String?) {
                     isBusy.value = false
                     onMemberAddedConclusion.call()
-                    showSnackbar.value = error
+                    showErrorSnackbar.value = error
                 }
             })
         }
@@ -90,7 +90,7 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
                 override fun onFailed(error: String?) {
                     isBusy.value = false
                     onMemberAddedConclusion.call()
-                    showSnackbar.value = error
+                    showErrorSnackbar.value = error
                 }
             })
         }
@@ -130,5 +130,5 @@ class AddMemberViewModel(application: Application) : ObservableAndroidViewModel(
 
     fun getShowSuccessSnackbar(): LiveData<String> = showSnackbarSuccess
 
-    fun getShowSnackbar(): LiveData<String> = showSnackbar
+    fun getShowErrorSnackbar(): LiveData<String> = showErrorSnackbar
 }

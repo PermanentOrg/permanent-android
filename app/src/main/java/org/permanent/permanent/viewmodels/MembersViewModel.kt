@@ -35,7 +35,7 @@ class MembersViewModel(application: Application
     private val isBusy = MutableLiveData(false)
     private val isArchiveShareAvailable =
         CurrentArchivePermissionsManager.instance.isArchiveShareAvailable()
-    private val showSnackbar = MutableLiveData<String>()
+    private val showErrorSnackbar = MutableLiveData<String>()
     private val showSnackbarLong = MutableLiveData<Int>()
     private val showAddMemberDialogRequest = SingleLiveEvent<Void?>()
     private val showMemberOptionsFragmentRequest = MutableLiveData<Account>()
@@ -60,7 +60,7 @@ class MembersViewModel(application: Application
 
             override fun onFailed(error: String?) {
                 isBusy.value = false
-                showSnackbar.value = error
+                showErrorSnackbar.value = error
             }
         })
     }
@@ -155,7 +155,7 @@ class MembersViewModel(application: Application
 
     fun getIsArchiveShareAvailable(): Boolean = isArchiveShareAvailable
 
-    fun getShowSnackbar(): LiveData<String> = showSnackbar
+    fun getShowErrorSnackbar(): LiveData<String> = showErrorSnackbar
 
     fun getShowAddMemberDialogRequest(): LiveData<Void?> = showAddMemberDialogRequest
 

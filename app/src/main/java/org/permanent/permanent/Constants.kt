@@ -33,6 +33,7 @@ class Constants {
         const val ERROR_OWNER_ALREADY_PENDING = "error.pr.pending_owner"
         const val ERROR_PENDING_OWNER_NOT_EDITABLE = "error.pr.update_share_owner"
         const val ERROR_MEMBER_ALREADY_ADDED = "error.pr.duplicate_share"
+        const val ERROR_ARCHIVE_NO_EMAIL_FOUND = "warning.archive.no_email_found"
         const val ERROR_NO_API_KEY = "error.api.no_key"
         const val ERROR_PHONE_INVALID = "warning.validation.phone"
         const val ERROR_EMAIL_DUPLICATED = "[duplicate]user.email"
