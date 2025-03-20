@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -230,7 +231,8 @@ fun ArchiveTypeDropdown(
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f),
-                    verticalArrangement = Arrangement.Top
+                    verticalArrangement = Arrangement.Top,
+                    contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
                     items(listItems.size) { index ->
                         val item = listItems[index]
