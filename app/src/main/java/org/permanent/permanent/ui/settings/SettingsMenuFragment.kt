@@ -1,7 +1,6 @@
 package org.permanent.permanent.ui.settings
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -86,15 +85,38 @@ class SettingsMenuFragment : PermanentBottomSheetFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val bottomSheetDialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
-        bottomSheetDialog.setOnShowListener { dialog: DialogInterface ->
-            val sheetDialog = dialog as BottomSheetDialog
+        return BottomSheetDialog(requireContext(), theme)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        dialog?.let { bottomSheetDialog ->
             val bottomSheet =
-                sheetDialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
-            BottomSheetBehavior.from(bottomSheet as FrameLayout)
-                .setState(BottomSheetBehavior.STATE_EXPANDED)
+                bottomSheetDialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+
+            bottomSheet?.let {
+                val behavior = BottomSheetBehavior.from(it)
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED // Always expand by default
+
+                val displayMetrics = resources.displayMetrics
+                val screenWidth = displayMetrics.widthPixels
+
+                val isTablet = resources.configuration.smallestScreenWidthDp >= 600
+                if (isTablet) {
+                    val sheetWidth = (screenWidth * 0.4).toInt() // 40% of screen width
+
+                    // Set width
+                    val layoutParams = it.layoutParams as ViewGroup.MarginLayoutParams
+                    layoutParams.width = sheetWidth
+
+                    // Align to the right
+                    layoutParams.marginStart = screenWidth - sheetWidth
+
+                    it.layoutParams = layoutParams
+                }
+            }
         }
-        return bottomSheetDialog
     }
 
     private val onLoggedOut = Observer<Void?> {

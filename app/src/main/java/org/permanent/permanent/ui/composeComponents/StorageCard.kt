@@ -2,7 +2,7 @@ package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -50,17 +50,14 @@ fun StorageCard(
             .background(
                 brush = if (style == StorageCardStyle.LIGHT) Brush.horizontalGradient(
                     colors = listOf(
-                        whiteColor,
-                        whiteColor
+                        whiteColor, whiteColor
                     )
                 ) else Brush.horizontalGradient(
                     colors = listOf(
-                        purpleColor,
-                        accentColor
+                        purpleColor, accentColor
                     )
                 ), RoundedCornerShape(16.dp)
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally
+            ), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -83,19 +80,20 @@ fun StorageCard(
             )
         }
 
-        Box(
-            modifier = Modifier.padding(16.dp)
+        BoxWithConstraints(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
         ) {
             CustomLinearProgressIndicator(
                 Modifier
                     .clip(shape = RoundedCornerShape(3.dp))
                     .height(8.dp),
-                336.dp,
+                width = maxWidth,
                 if (style == StorageCardStyle.LIGHT) lightBlueColor else whiteTransparentColor,
                 if (style == StorageCardStyle.LIGHT) Brush.horizontalGradient(
                     listOf(
-                        purpleColor,
-                        accentColor
+                        purpleColor, accentColor
                     )
                 ) else Brush.horizontalGradient(listOf(whiteColor, whiteColor)),
                 spaceUsedPercentage
@@ -105,6 +103,5 @@ fun StorageCard(
 }
 
 enum class StorageCardStyle {
-    LIGHT,
-    COLORFUL
+    LIGHT, COLORFUL
 }
