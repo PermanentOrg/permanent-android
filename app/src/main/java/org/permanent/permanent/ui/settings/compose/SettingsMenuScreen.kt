@@ -179,7 +179,7 @@ private fun Header(
         )
 
         Column(
-            modifier = Modifier.weight(1.0f, fill = false),
+            modifier = Modifier.weight(1.0f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.Start,
         ) {
