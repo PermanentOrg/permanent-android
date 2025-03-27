@@ -26,6 +26,7 @@ class LoginAndSecurityViewModel(application: Application) :
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
+    private var isTablet = prefsHelper.isTablet()
 
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
@@ -300,4 +301,6 @@ class LoginAndSecurityViewModel(application: Application) :
         _snackbarMessage.value = ""
         _snackbarType.value = SnackbarType.NONE
     }
+
+    fun isTablet() = isTablet
 }
