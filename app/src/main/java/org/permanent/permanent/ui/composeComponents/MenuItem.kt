@@ -1,13 +1,20 @@
 package org.permanent.permanent.ui.composeComponents
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -38,6 +45,7 @@ fun MenuItem(
     iconSize: Dp = 18.dp,
     title: String,
     subtitle: String,
+    isSelected: Boolean = false,
     showNewLabel: Boolean = false,
     showOffLabel: Boolean = false,
     showOnLabel: Boolean = false,
@@ -57,16 +65,29 @@ fun MenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 24.dp),
+            .padding(end = 24.dp)
+            .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.SpaceBetween,
 
         ) {
+        // Selection Indicator (Colored Bar)
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .fillMaxHeight()
+                .background(if (isSelected) blue900Color else Color.Transparent)
+        )
+
+        Spacer(Modifier.width(20.dp))
+
         Image(
             painter = iconResource,
             contentDescription = "",
             colorFilter = ColorFilter.tint(blue900Color),
-            modifier = Modifier.padding(top = 26.dp).size(iconSize)
+            modifier = Modifier
+                .padding(top = 26.dp)
+                .size(iconSize)
         )
         Column(
             modifier = Modifier
@@ -89,16 +110,13 @@ fun MenuItem(
                 )
 
                 if (showNewLabel) MenuLabel(
-                    colorResource(id = R.color.colorAccent),
-                    stringResource(id = R.string.new_label)
+                    colorResource(id = R.color.colorAccent), stringResource(id = R.string.new_label)
                 )
                 if (showOffLabel) MenuLabel(
-                    colorResource(id = R.color.error500),
-                    stringResource(id = R.string.off)
+                    colorResource(id = R.color.error500), stringResource(id = R.string.off)
                 )
                 if (showOnLabel) MenuLabel(
-                    colorResource(id = R.color.success500),
-                    stringResource(id = R.string.on)
+                    colorResource(id = R.color.success500), stringResource(id = R.string.on)
                 )
             }
             Text(
@@ -114,7 +132,9 @@ fun MenuItem(
             Image(
                 painter = painterResource(id = R.drawable.ic_arrow_select_light_blue),
                 contentDescription = "Next",
-                modifier = Modifier.padding(top = 26.dp).size(14.dp)
+                modifier = Modifier
+                    .padding(top = 26.dp)
+                    .size(14.dp)
             )
         }
 
@@ -126,7 +146,9 @@ fun MenuItem(
                     checkedThumbColor = colorResource(id = R.color.white),
                     checkedTrackColor = colorResource(id = R.color.success500),
                 ),
-                modifier = Modifier.padding(top = 14.dp).scale(0.7f)
+                modifier = Modifier
+                    .padding(top = 14.dp)
+                    .scale(0.7f)
             )
         }
     }
@@ -135,10 +157,10 @@ fun MenuItem(
 @Preview
 @Composable
 fun SimpleComposablePreview() {
-    MenuItem(
-        iconResource = painterResource(id = R.drawable.ic_plus_primary),
+    MenuItem(iconResource = painterResource(id = R.drawable.ic_plus_primary),
         title = "Add storage!",
         subtitle = "Increase your space easily by adding more storage.",
+        isSelected = true,
         showNewLabel = true,
         showSwitch = true,
         onClick = { })

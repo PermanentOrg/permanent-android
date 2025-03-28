@@ -121,6 +121,7 @@
     <string name="invitations">Invitations</string>
     <string name="activity_feed">Activity Feed</string>
     <string name="login_and_security">Login &amp; Security</string>
+    <string name="login_and_security_description">Choose one of your account security settings.</string>
     <string name="change_password">Change password</string>
     <string name="change_password_description">Update your password to keep your account secure.</string>
     <string name="legacy_planning">Legacy Planning</string>
