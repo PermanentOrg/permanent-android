@@ -33,8 +33,8 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     )
     val showError = MutableLiveData<String>()
     private val isBusy = MutableLiveData(false)
+    private val isTablet = prefsHelper.isTablet()
     private var spaceTotalBytes = MutableLiveData(0L)
-    private var spaceLeftBytes = MutableLiveData(0L)
     private var spaceUsedBytes = MutableLiveData(0L)
     private var spaceUsedPercentage = MutableLiveData(0)
     private var archiveThumb = MutableLiveData("")
@@ -42,6 +42,8 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     private var accountEmail = MutableLiveData("")
     private var isTwoFAEnabled = MutableLiveData(false)
     private val errorMessage = MutableLiveData<String>()
+    private val _showBottomSheet = MutableLiveData(false)
+    val showBottomSheet: LiveData<Boolean> = _showBottomSheet
     private val onLoggedOut = SingleLiveEvent<Void?>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private var authRepository: IAuthenticationRepository =
@@ -50,21 +52,32 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     private var stelaAccountRepository: StelaAccountRepository =
         StelaAccountRepositoryImpl(application)
 
-    fun updateArchiveAndAccountDetails() {
+    fun openAccountMenuSheet() {
+        _showBottomSheet.value = true
+        sendEvent(AccountEventAction.OPEN_ACCOUNT_MENU)
+        updateArchiveAndAccountDetails()
+        updateUsedStorage()
+        updateTwoFA()
+    }
+
+    fun closeAccountMenuSheet() {
+        _showBottomSheet.value = false
+    }
+
+    private fun updateArchiveAndAccountDetails() {
         archiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
         accountName.value = prefsHelper.getAccountName()
         accountEmail.value = prefsHelper.getAccountEmail()
         isTwoFAEnabled.value = prefsHelper.isTwoFAEnabled()
     }
 
-    fun updateUsedStorage() {
+    private fun updateUsedStorage() {
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
             override fun onSuccess(account: Account) {
                 val spaceTotal = account.spaceTotal
                 val spaceLeft = account.spaceLeft
                 if (spaceTotal != null && spaceLeft != null) {
                     spaceTotalBytes.value = spaceTotal
-                    spaceLeftBytes.value = spaceLeft
                     val spaceUsed = spaceTotal - spaceLeft
                     spaceUsedBytes.value = spaceUsed
                     val spaceUsedPercentageFloat = spaceUsed.toFloat() / spaceTotal.toFloat() * 100
@@ -78,7 +91,7 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
         })
     }
 
-    fun updateTwoFA() {
+    private fun updateTwoFA() {
         stelaAccountRepository.getTwoFAMethod(object : ITwoFAListener {
 
             override fun onSuccess(twoFAVOList: List<TwoFAVO>?) {
@@ -153,9 +166,9 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getIsBusy() = isBusy
 
-    fun getSpaceTotal() = spaceTotalBytes
+    fun isTablet() = isTablet
 
-    fun getSpaceLeft() = spaceLeftBytes
+    fun getSpaceTotal() = spaceTotalBytes
 
     fun getSpaceUsed() = spaceUsedBytes
 

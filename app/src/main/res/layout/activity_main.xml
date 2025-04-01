@@ -82,6 +82,16 @@
             </com.google.android.material.navigation.NavigationView>
         </androidx.drawerlayout.widget.DrawerLayout>
 
+        <!-- ComposeView for BottomSheet -->
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/bottomSheetComposeView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar"
             style="@style/Widget.AppCompat.ProgressBar"

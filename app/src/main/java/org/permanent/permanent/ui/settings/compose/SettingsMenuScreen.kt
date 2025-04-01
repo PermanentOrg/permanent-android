@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package org.permanent.permanent.ui.settings.compose
 
 import androidx.compose.foundation.Image
@@ -13,18 +15,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.SettingsMenuItem
 import org.permanent.permanent.ui.composeComponents.StorageCard
@@ -45,7 +54,7 @@ import org.permanent.permanent.viewmodels.SettingsMenuViewModel
 @Composable
 fun SettingsMenuScreen(
     viewModel: SettingsMenuViewModel,
-    onCloseScreenClick: () -> Unit,
+    onDismiss: () -> Unit,
     onAccountClick: () -> Unit,
     onStorageClick: () -> Unit,
     onMyArchivesClick: () -> Unit,
@@ -56,6 +65,7 @@ fun SettingsMenuScreen(
     onSignOutClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
 
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
@@ -71,83 +81,101 @@ fun SettingsMenuScreen(
 
     val isTwoFAEnabled by viewModel.isTwoFAEnabled().observeAsState(initial = false)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(lightBlueColor)
-            .padding(vertical = 24.dp),
-        verticalArrangement = Arrangement.Top
-    ) {
-        Header(
-            archiveThumbURL = archiveThumb,
-            accountName = accountName,
-            accountEmail = accountEmail,
-        ) { onCloseScreenClick() }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
 
+    ModalBottomSheet(
+        onDismissRequest = {
+            scope.launch { sheetState.hide() }
+            onDismiss()
+        },
+        sheetState = sheetState,
+        dragHandle = null,
+        modifier = Modifier
+            .fillMaxHeight(0.95f)
+            .then(
+                if (viewModel.isTablet()) Modifier.width(configuration.screenWidthDp.dp * 0.5f) // 50% of the screen width for tablets
+                else Modifier.fillMaxWidth() // Full width for phones
+            )
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxHeight()
-                .padding(top = 24.dp)
-                .background(whiteColor),
+                .fillMaxSize()
+                .background(lightBlueColor)
+                .padding(top = 24.dp),
             verticalArrangement = Arrangement.Top
         ) {
+            Header(
+                archiveThumbURL = archiveThumb,
+                accountName = accountName,
+                accountEmail = accountEmail,
+            ) { onDismiss() }
 
-            Spacer(modifier = Modifier.padding(top = 8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(top = 24.dp)
+                    .background(whiteColor),
+                verticalArrangement = Arrangement.Top
+            ) {
 
-            StorageCard(
-                spaceUsedBytes,
-                spaceTotalBytes,
-                spaceUsedPercentage,
-                StorageCardStyle.LIGHT
-            )
+                Spacer(modifier = Modifier.padding(top = 8.dp))
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_account_circle_white),
-                stringResource(R.string.account),
-            ) { onAccountClick() }
+                StorageCard(
+                    spaceUsedBytes,
+                    spaceTotalBytes,
+                    spaceUsedPercentage,
+                    StorageCardStyle.LIGHT
+                )
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_storage_primary),
-                stringResource(R.string.storage),
-            ) { onStorageClick() }
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_account_circle_white),
+                    stringResource(R.string.account),
+                ) { onAccountClick() }
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_archives_primary),
-                stringResource(R.string.my_archives),
-            ) { onMyArchivesClick() }
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_storage_primary),
+                    stringResource(R.string.storage),
+                ) { onStorageClick() }
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_invitations_primary),
-                stringResource(R.string.invitations),
-            ) { onInvitationsClick() }
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_archives_primary),
+                    stringResource(R.string.my_archives),
+                ) { onMyArchivesClick() }
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_activity_feed_primary),
-                stringResource(R.string.activity_feed),
-            ) { onActivityFeedClick() }
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_invitations_primary),
+                    stringResource(R.string.invitations),
+                ) { onInvitationsClick() }
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_security_primary),
-                stringResource(R.string.login_and_security),
-                showWarning = !isTwoFAEnabled,
-            ) { onLoginAndSecurityClick() }
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_activity_feed_primary),
+                    stringResource(R.string.activity_feed),
+                ) { onActivityFeedClick() }
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_legacy_plannning_empty_primary),
-                stringResource(R.string.legacy_planning),
-            ) { onLegacyPlanningClick() }
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_security_primary),
+                    stringResource(R.string.login_and_security),
+                    showWarning = !isTwoFAEnabled,
+                ) { onLoginAndSecurityClick() }
 
-            Spacer(modifier = Modifier.weight(1.0f))
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_legacy_plannning_empty_primary),
+                    stringResource(R.string.legacy_planning),
+                ) { onLegacyPlanningClick() }
 
-            Divider(modifier = Modifier.padding(bottom = 16.dp))
+                Spacer(modifier = Modifier.weight(1.0f))
 
-            SettingsMenuItem(
-                painterResource(id = R.drawable.ic_sign_out_red),
-                stringResource(R.string.sign_out),
-                error500Color,
-            ) { onSignOutClick() }
+                HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
 
-            Spacer(modifier = Modifier.height(24.dp))
+                SettingsMenuItem(
+                    painterResource(id = R.drawable.ic_sign_out_red),
+                    stringResource(R.string.sign_out),
+                    error500Color,
+                ) { onSignOutClick() }
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }

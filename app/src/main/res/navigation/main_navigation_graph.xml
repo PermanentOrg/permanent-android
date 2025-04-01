@@ -207,7 +207,7 @@
     <fragment
         android:id="@+id/twoStepVerificationFragment"
         android:name="org.permanent.permanent.ui.settings.TwoStepVerificationFragment"
-        android:label="@string/two_step_verification"></fragment>
+        android:label="@string/two_step_verification" />
 
     <activity
         android:id="@+id/fileActivity"

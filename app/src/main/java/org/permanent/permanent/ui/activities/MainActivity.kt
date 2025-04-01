@@ -14,6 +14,10 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
@@ -42,22 +46,24 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.computeWindowSizeClasses
+import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
-import org.permanent.permanent.ui.settings.SettingsMenuFragment
+import org.permanent.permanent.ui.settings.compose.SettingsMenuScreen
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.viewmodels.MainViewModel
+import org.permanent.permanent.viewmodels.SettingsMenuViewModel
 
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var viewModel: MainViewModel
+    private lateinit var settingsMenuViewModel: SettingsMenuViewModel
     lateinit var binding: ActivityMainBinding
     private lateinit var headerMainBinding: NavMainHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
-    private var settingsFragment: SettingsMenuFragment? = null
     private var isSubmenuVisible = false
 
     private val onArchiveSwitched = Observer<Void?> {
@@ -131,6 +137,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         // MainActivity binding
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        settingsMenuViewModel = ViewModelProvider(this)[SettingsMenuViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
@@ -170,31 +177,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         // Toolbar Settings menu click listener
         binding.toolbar.setOnMenuItemClickListener(this)
 
-        when (intent?.action) {
-            Intent.ACTION_SEND -> {
-                handleSendFile(intent) // Handle single file being sent
-            }
-
-            Intent.ACTION_SEND_MULTIPLE -> {
-                handleSendMultipleFiles(intent) // Handle multiple files being sent
-            }
-
-            else -> {
-                // Custom start destination fragment from notification
-                val intentExtras = intent.extras
-                val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
-                if (startDestFragmentId != null && startDestFragmentId != 0) {
-                    val recipientArchiveNr = intentExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
-                    if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
-                        showArchiveSwitchDialog(recipientArchiveNr)
-                        startWithCustomDestination(true)
-                    } else {
-                        startWithCustomDestination(false)
-                    }
-                }
-            }
-        }
-
         // NavViews setup
         binding.mainNavigationView.setupWithNavController(navController)
         binding.mainNavigationView.setNavigationItemSelectedListener { menuItem ->
@@ -220,6 +202,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             true
         }
 
+        // Archive menu setup
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
             }
@@ -227,7 +210,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             override fun onDrawerOpened(drawerView: View) {
                 if (drawerView.id == binding.mainNavigationView.id) {
                     viewModel.updateCurrentArchiveHeader()
-                    viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_MENU, mapOf("page" to "Archive Menu"))
+                    viewModel.sendEvent(
+                        AccountEventAction.OPEN_ARCHIVE_MENU, mapOf("page" to "Archive Menu")
+                    )
                 }
             }
 
@@ -237,6 +222,83 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             override fun onDrawerStateChanged(newState: Int) {
             }
         })
+
+        // Account menu setup
+        binding.bottomSheetComposeView.setContent {
+            val showBottomSheet by settingsMenuViewModel.showBottomSheet.observeAsState(false)
+
+            MaterialTheme {
+                if (showBottomSheet) {
+                    SettingsMenuScreen(
+                        viewModel = settingsMenuViewModel,
+                        onDismiss = { settingsMenuViewModel.closeAccountMenuSheet() },
+                        onAccountClick = {
+                            navController.navigate(R.id.accountFragment)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
+                        onStorageClick = {
+                            navController.navigate(R.id.storageMenuFragment)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
+                        onMyArchivesClick = {
+                            navController.navigate(R.id.archivesFragment)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
+                        onInvitationsClick = {
+                            navController.navigate(R.id.invitationsFragment)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
+                        onActivityFeedClick = {
+                            navController.navigate(R.id.activityFeedFragment)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
+                        onLoginAndSecurityClick = {
+                            navController.navigate(R.id.loginAndSecurityFragment)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
+                        onLegacyPlanningClick = {
+                            navController.navigate(R.id.legacyLoadingFragment)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
+                        onSignOutClick = {
+                            settingsMenuViewModel.deleteDeviceToken()
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        }
+                    )
+                }
+            }
+
+            // Sync visibility with state
+            LaunchedEffect(showBottomSheet) {
+                binding.bottomSheetComposeView.visibility = if (showBottomSheet) View.VISIBLE else View.GONE
+            }
+        }
+
+        // Intent handling
+        when (intent?.action) {
+            Intent.ACTION_SEND -> {
+                handleSendFile(intent) // Handle single file being sent
+            }
+
+            Intent.ACTION_SEND_MULTIPLE -> {
+                handleSendMultipleFiles(intent) // Handle multiple files being sent
+            }
+
+            else -> {
+                // Custom start destination fragment from notification
+                val intentExtras = intent.extras
+                val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
+                if (startDestFragmentId != null && startDestFragmentId != 0) {
+                    val recipientArchiveNr = intentExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
+                    if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
+                        showArchiveSwitchDialog(recipientArchiveNr)
+                        startWithCustomDestination(true)
+                    } else {
+                        startWithCustomDestination(false)
+                    }
+                }
+            }
+        }
 
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
@@ -319,12 +381,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         when (menuItem?.itemId) {
             R.id.moreItem, R.id.doneItem -> sendEventToFragment()
             R.id.closeItem -> navController.navigate(R.id.myFilesFragment)
-            else -> {
-                settingsFragment = SettingsMenuFragment()
-                settingsFragment?.show(
-                    supportFragmentManager, settingsFragment?.tag
-                ) // settings item
-            }
+            else -> settingsMenuViewModel.openAccountMenuSheet()
         }
         return true
     }
@@ -364,16 +421,25 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         return true
     }
 
+    private val onLoggedOut = Observer<Void?> {
+        startActivity(Intent(this, AuthenticationActivity::class.java))
+        this.finish()
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getOnArchiveSwitched().observe(this, onArchiveSwitched)
         viewModel.getOnViewProfile().observe(this, onViewProfile)
         viewModel.getErrorMessage().observe(this, onErrorMessage)
+        settingsMenuViewModel.getOnLoggedOut().observe(this, onLoggedOut)
+        settingsMenuViewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnArchiveSwitched().removeObserver(onArchiveSwitched)
         viewModel.getOnViewProfile().removeObserver(onViewProfile)
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
+        settingsMenuViewModel.getOnLoggedOut().removeObserver(onLoggedOut)
+        settingsMenuViewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 
     override fun onResume() {
