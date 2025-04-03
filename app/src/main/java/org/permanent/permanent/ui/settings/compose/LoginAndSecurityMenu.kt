@@ -36,14 +36,14 @@ fun LoginAndSecurityMenu(
     val isFingerprintEnabled by viewModel.isBiometricsEnabled.collectAsState()
 
     if (isTablet) {
-        LoginAndSecurityTabletMenu(
+        TabletBody(
             viewModel = viewModel,
             isTwoFAEnabled = isTwoFAEnabled,
             isFingerprintEnabled = isFingerprintEnabled,
             onChangePasswordClick = onChangePasswordClick,
         )
     } else {
-        LoginAndSecurityPhoneMenu(
+        PhoneBody(
             viewModel = viewModel,
             isTwoFAEnabled = isTwoFAEnabled,
             isFingerprintEnabled = isFingerprintEnabled,
@@ -54,7 +54,7 @@ fun LoginAndSecurityMenu(
 }
 
 @Composable
-fun LoginAndSecurityTabletMenu(
+private fun TabletBody(
     viewModel: LoginAndSecurityViewModel,
     isTwoFAEnabled: Boolean,
     isFingerprintEnabled: Boolean,
@@ -139,7 +139,7 @@ enum class SelectedScreen {
 }
 
 @Composable
-fun LoginAndSecurityPhoneMenu(
+private fun PhoneBody(
     viewModel: LoginAndSecurityViewModel,
     isTwoFAEnabled: Boolean,
     isFingerprintEnabled: Boolean,

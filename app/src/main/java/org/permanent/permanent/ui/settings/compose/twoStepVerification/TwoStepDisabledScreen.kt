@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -34,6 +35,108 @@ import org.permanent.permanent.R
 
 @Composable
 fun TwoStepDisabledScreen(
+    isTablet: Boolean,
+    onAddTwoStepVerificationClick: () -> Unit
+) {
+    if (isTablet) {
+        TabletBody(onAddTwoStepVerificationClick)
+    } else {
+        PhoneBody(onAddTwoStepVerificationClick)
+    }
+}
+
+@Composable
+private fun TabletBody(
+    onAddTwoStepVerificationClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorResource(id = R.color.superLightBlue))
+            .padding(horizontal = 128.dp, vertical = 64.dp)
+    ) {
+        // Title Text
+        Text(
+            text = stringResource(id = R.string.two_step_verification),
+            color = colorResource(id = R.color.colorPrimary),
+            fontSize = 24.sp,
+            lineHeight = 32.sp,
+            fontFamily = FontFamily(Font(R.font.usual_medium)),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(64.dp))
+
+        // Top banner
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = colorResource(id = R.color.errorLight),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .clip(RoundedCornerShape(12.dp))
+                .padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_lock_open_red),
+                contentDescription = "Next",
+                modifier = Modifier.size(20.dp)
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(id = R.string.two_step_verification_is))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(" " + stringResource(id = R.string.disabled) + ".")
+                    }
+                },
+                fontSize = 14.sp,
+                lineHeight = 24.sp,
+                color = colorResource(id = R.color.darkRed),
+                fontFamily = FontFamily(Font(R.font.usual_regular))
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Description Text
+        Text(
+            text = stringResource(id = R.string.two_step_verification_description),
+            color = colorResource(id = R.color.colorPrimary),
+            fontSize = 16.sp,
+            lineHeight = 24.sp,
+            fontFamily = FontFamily(Font(R.font.usual_medium)),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Action Button
+        Button(
+            onClick = onAddTwoStepVerificationClick,
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.colorPrimary)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.add_two_step_verification),
+                color = Color.White,
+                fontSize = 14.sp,
+                lineHeight = 24.sp,
+                fontFamily = FontFamily(Font(R.font.usual_medium))
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhoneBody(
     onAddTwoStepVerificationClick: () -> Unit
 ) {
     Column(
@@ -41,7 +144,7 @@ fun TwoStepDisabledScreen(
             .fillMaxSize()
             .background(colorResource(id = R.color.superLightBlue))
     ) {
-        // Top Snackbar-style banner
+        // Top banner
         Row(
             modifier = Modifier
                 .fillMaxWidth()

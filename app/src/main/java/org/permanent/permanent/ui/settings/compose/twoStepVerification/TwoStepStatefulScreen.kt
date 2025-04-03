@@ -32,6 +32,7 @@ import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 fun TwoStepStatefulScreen(
     viewModel: LoginAndSecurityViewModel
 ) {
+    val isTablet = viewModel.isTablet()
     val isTwoFAEnabled by viewModel.isTwoFAEnabled.collectAsState()
     val isBusyState by viewModel.isBusyState.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
@@ -48,7 +49,8 @@ fun TwoStepStatefulScreen(
     var showBottomSheet by remember { mutableStateOf(false) } // Controls visibility
 
     if (showBottomSheet) {
-        BottomSheetContainer(viewModel,
+        BottomSheetContainer(
+            viewModel,
             sheetState = bottomSheetState,
             pagerState = pagerState,
             onDismiss = {
@@ -84,7 +86,7 @@ fun TwoStepStatefulScreen(
                 }
             })
         } else {
-            TwoStepDisabledScreen(onAddTwoStepVerificationClick = {
+            TwoStepDisabledScreen(isTablet = isTablet, onAddTwoStepVerificationClick = {
                 viewModel.clearSnackbar()
                 coroutineScope.launch {
                     if (!bottomSheetState.isVisible) {
