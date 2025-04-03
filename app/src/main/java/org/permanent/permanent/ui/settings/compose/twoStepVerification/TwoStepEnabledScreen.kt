@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -54,6 +55,205 @@ import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 @Composable
 fun TwoStepEnabledScreen(
+    viewModel: LoginAndSecurityViewModel,
+    onChangeVerificationMethodClick: () -> Unit,
+    onDeleteVerificationMethodClick: () -> Unit
+) {
+    if (viewModel.isTablet()) {
+        TabletBody(viewModel, onChangeVerificationMethodClick, onDeleteVerificationMethodClick)
+    } else {
+        PhoneBody(viewModel, onChangeVerificationMethodClick, onDeleteVerificationMethodClick)
+    }
+}
+
+@Composable
+private fun TabletBody(
+    viewModel: LoginAndSecurityViewModel,
+    onChangeVerificationMethodClick: () -> Unit,
+    onDeleteVerificationMethodClick: () -> Unit
+) {
+    val twoFAList by viewModel.twoFAList.collectAsState()
+    var confirmationSheetMessageRes by remember { mutableStateOf<Int?>(null) }
+    var confirmationSheetBoldTextRes by remember { mutableStateOf<Int?>(null) }
+    var confirmationSheetButtonTextRes by remember { mutableIntStateOf(R.string.delete) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedItemIndex by remember { mutableStateOf<Int?>(null) }
+
+    val confirmationSheetMessage = confirmationSheetMessageRes?.let { stringResource(it) } ?: ""
+    val confirmationSheetBoldText = confirmationSheetBoldTextRes?.let { stringResource(it) } ?: ""
+
+    if (showBottomSheet) {
+        ConfirmationBottomSheet(message = confirmationSheetMessage,
+            boldText = confirmationSheetBoldText,
+            confirmationButtonText = stringResource(id = confirmationSheetButtonTextRes),
+            onConfirm = {
+                selectedItemIndex?.let { index ->
+                    val twoFAVO = twoFAList.toMutableList()[index]
+                    viewModel.updateTwoFAMethodToDisable(twoFAVO)
+                    showBottomSheet = false
+                    if (confirmationSheetButtonTextRes == R.string.delete) {
+                        viewModel.setIsChangeVerificationMethod(false)
+                        onDeleteVerificationMethodClick()
+                    } else {
+                        viewModel.setIsChangeVerificationMethod(true)
+                        onChangeVerificationMethodClick()
+                    }
+                }
+            },
+            onDismiss = { showBottomSheet = false })
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorResource(id = R.color.superLightBlue))
+            .padding(horizontal = 128.dp, vertical = 64.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            // Title Text
+            Text(
+                text = stringResource(id = R.string.two_step_verification),
+                color = colorResource(id = R.color.colorPrimary),
+                fontSize = 24.sp,
+                lineHeight = 32.sp,
+                fontFamily = FontFamily(Font(R.font.usual_medium)),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            // Top banner
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(id = R.color.lightGreen),
+                        shape = RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
+                    .padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_lock_closed_green),
+                    contentDescription = "Enabled Lock",
+                    modifier = Modifier.size(20.dp)
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    text = buildAnnotatedString {
+                        append(stringResource(id = R.string.two_step_verification_is))
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(" " + stringResource(id = R.string.enabled) + ".")
+                        }
+                    },
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    color = colorResource(id = R.color.textGreen),
+                    fontFamily = FontFamily(Font(R.font.usual_regular))
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Description Text
+            Text(
+                text = stringResource(id = R.string.two_step_verification_description),
+                color = colorResource(id = R.color.colorPrimary),
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontFamily = FontFamily(Font(R.font.usual_medium)),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Verification Methods List
+            if (twoFAList.isNotEmpty()) {
+                twoFAList.forEachIndexed { index, item ->
+                    VerificationItemCard(
+                        item = item,
+                        onRemove = {
+                            selectedItemIndex = index
+                            confirmationSheetMessageRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.remove_sms_verification_method
+                                } else {
+                                    R.string.remove_email_verification_method
+                                }
+                            confirmationSheetBoldTextRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.text_message_sms
+                                } else {
+                                    R.string.email
+                                }
+                            confirmationSheetButtonTextRes = R.string.delete
+                            showBottomSheet = true
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (twoFAList.size == 1) {
+                // Change Verification Method Button
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    CenteredTextAndIconButton(buttonColor = ButtonColor.DARK,
+                        text = stringResource(id = R.string.change_verification_method),
+                        icon = null,
+                        onButtonClick = {
+                            selectedItemIndex = 0
+                            val item = twoFAList[0]
+                            confirmationSheetMessageRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.change_sms_verification_method
+                                } else {
+                                    R.string.change_email_verification_method
+                                }
+                            confirmationSheetBoldTextRes =
+                                if (item.method == VerificationMethod.SMS.name.lowercase()) {
+                                    R.string.sms_verification_method
+                                } else {
+                                    R.string.email_verification_method
+                                }
+                            confirmationSheetButtonTextRes = R.string.button_continue
+                            showBottomSheet = true
+                        })
+                }
+            }
+        }
+
+        // Bottom Section
+        Column(modifier = Modifier.padding(bottom = 24.dp)) {
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = colorResource(id = R.color.dividerBlue)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(id = R.string.two_step_verification_help_text),
+                color = colorResource(id = R.color.blue),
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontFamily = FontFamily(Font(R.font.usual_regular)),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhoneBody(
     viewModel: LoginAndSecurityViewModel,
     onChangeVerificationMethodClick: () -> Unit,
     onDeleteVerificationMethodClick: () -> Unit
