@@ -49,7 +49,7 @@ fun TwoStepStatefulScreen(
     var showBottomSheet by remember { mutableStateOf(false) } // Controls visibility
 
     if (showBottomSheet) {
-        BottomSheetContainer(
+        TwoStepModalContainer(
             viewModel,
             sheetState = bottomSheetState,
             pagerState = pagerState,

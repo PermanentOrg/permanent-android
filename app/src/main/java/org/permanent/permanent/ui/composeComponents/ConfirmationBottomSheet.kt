@@ -51,12 +51,13 @@ fun ConfirmationBottomSheet(
 
     ModalBottomSheet(
         containerColor = Color.White,
-        onDismissRequest = onDismiss
+        onDismissRequest = onDismiss,
+        dragHandle = null
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 32.dp, end = 32.dp, bottom = 48.dp)
+                .padding(start = 32.dp, end = 32.dp, top = 32.dp, bottom = 48.dp)
         ) {
             Text(
                 text = annotatedMessage,
