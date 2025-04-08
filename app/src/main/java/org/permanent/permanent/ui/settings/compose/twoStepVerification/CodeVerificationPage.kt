@@ -93,6 +93,8 @@ fun CodeVerificationPage(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Header
         Box(
             modifier = Modifier.fillMaxWidth()

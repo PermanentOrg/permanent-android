@@ -41,6 +41,8 @@ fun MethodChoosingPage(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Header with Centered Title and Close Button
         Box(
             modifier = Modifier.fillMaxWidth()

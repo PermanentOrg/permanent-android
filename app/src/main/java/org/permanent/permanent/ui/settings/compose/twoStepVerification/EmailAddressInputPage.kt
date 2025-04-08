@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.settings.compose.twoStepVerification
 
+import android.view.ViewTreeObserver
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -7,15 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,10 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,6 +60,7 @@ import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 fun EmailAddressInputPage(
     viewModel: LoginAndSecurityViewModel, onBack: () -> Unit, onDismiss: () -> Unit
 ) {
+    val isTablet = viewModel.isTablet()
     var email by remember { mutableStateOf("") }
     var isCodeSent by remember { mutableStateOf(false) }
     val codeValues by viewModel.codeValues.collectAsState()
@@ -68,9 +69,9 @@ fun EmailAddressInputPage(
     val scrollState = rememberScrollState()
 
     // Detect keyboard visibility
-    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-    LaunchedEffect(imeVisible) {
-        if (imeVisible) {
+    val isKeyboardVisible = rememberKeyboardVisibility()
+    LaunchedEffect(isKeyboardVisible) {
+        if (isKeyboardVisible) {
             viewModel.clearSnackbar()
         }
     }
@@ -78,6 +79,8 @@ fun EmailAddressInputPage(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Header
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -148,63 +151,65 @@ fun EmailAddressInputPage(
                     .background(colorResource(R.color.white))
                     .padding(32.dp)
             ) {
-                // Instruction Text
-                Text(
-                    text = stringResource(R.string.add_email_verification_description),
-                    fontSize = 14.sp,
-                    lineHeight = 24.sp,
-                    fontFamily = FontFamily(Font(R.font.usual_regular)),
-                    color = colorResource(R.color.blue)
-                )
+                if (!(isKeyboardVisible && isTablet && isCodeSent)) {
+                    // Instruction Text
+                    Text(
+                        text = stringResource(R.string.add_email_verification_description),
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.blue)
+                    )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            1.dp, colorResource(R.color.blue100), RoundedCornerShape(12.dp)
-                        ), verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextField(
-                        value = email,
-                        onValueChange = { value -> email = value },
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp)
-                            .weight(1.0f),
-                        singleLine = true,
-                        enabled = !isCodeSent, // Disable input when code is sent
-                        placeholder = {
-                            Text(
-                                text = stringResource(id = R.string.example_email),
-                                color = colorResource(R.color.colorPrimary200),
-                                fontSize = 14.sp,
+                            .border(
+                                1.dp, colorResource(R.color.blue100), RoundedCornerShape(12.dp)
+                            ), verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextField(
+                            value = email,
+                            onValueChange = { value -> email = value },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .weight(1.0f),
+                            singleLine = true,
+                            enabled = !isCodeSent, // Disable input when code is sent
+                            placeholder = {
+                                Text(
+                                    text = stringResource(id = R.string.example_email),
+                                    color = colorResource(R.color.colorPrimary200),
+                                    fontSize = 14.sp,
+                                    lineHeight = 24.sp,
+                                    fontFamily = FontFamily(Font(R.font.usual_regular))
+                                )
+                            },
+                            textStyle = TextStyle(
+                                fontSize = 16.sp,
                                 lineHeight = 24.sp,
                                 fontFamily = FontFamily(Font(R.font.usual_regular))
+                            ),
+                            colors = TextFieldDefaults.colors(
+                                focusedTextColor = colorResource(R.color.blue900),
+                                unfocusedTextColor = colorResource(R.color.blue900),
+                                disabledTextColor = colorResource(R.color.blueGreyLight),
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                disabledContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                cursorColor = colorResource(id = R.color.blue400)
                             )
-                        },
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 24.sp,
-                            fontFamily = FontFamily(Font(R.font.usual_regular))
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = colorResource(R.color.blue900),
-                            unfocusedTextColor = colorResource(R.color.blue900),
-                            disabledTextColor = colorResource(R.color.blueGreyLight),
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            disabledContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            cursorColor = colorResource(id = R.color.blue400)
                         )
-                    )
-                }
+                    }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 if (isCodeSent) {
                     // Resend code Button
@@ -212,7 +217,8 @@ fun EmailAddressInputPage(
                         text = stringResource(id = R.string.resend_code)
                     ) {
                         keyboardController?.hide()
-                        viewModel.sendEnableCode(VerificationMethod.EMAIL,
+                        viewModel.sendEnableCode(
+                            VerificationMethod.EMAIL,
                             email,
                             successCallback = {
                                 isCodeSent = true
@@ -228,7 +234,8 @@ fun EmailAddressInputPage(
                         disabledColor = colorResource(R.color.colorPrimary200)
                     ) {
                         keyboardController?.hide()
-                        viewModel.sendEnableCode(VerificationMethod.EMAIL,
+                        viewModel.sendEnableCode(
+                            VerificationMethod.EMAIL,
                             email,
                             successCallback = {
                                 isCodeSent = true
@@ -255,7 +262,7 @@ fun EmailAddressInputPage(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         codeValues.forEachIndexed { index, codeValue ->
                             DigitTextField(
@@ -269,13 +276,14 @@ fun EmailAddressInputPage(
                                 previousFocusRequester = if (index > 0) focusRequesters[index - 1] else null,
                                 nextFocusRequester = if (index < 3) focusRequesters[index + 1] else null,
                                 modifier = Modifier
-                                    .height(64.dp)
-                                    .width(70.dp)
+                                    .height(56.dp)
+                                    .weight(1f)
                                     .border(
                                         1.dp,
                                         colorResource(id = R.color.blue100),
                                         RoundedCornerShape(12.dp)
-                                    ),
+                                    )
+                                    .clip(RoundedCornerShape(12.dp)),
                                 colors = DigitTextFieldColor.LIGHT
                             )
                         }
@@ -292,7 +300,8 @@ fun EmailAddressInputPage(
                         disabledColor = colorResource(R.color.colorPrimary200)
                     ) {
                         val code = codeValues.joinToString("")
-                        viewModel.enableTwoFactor(VerificationMethod.EMAIL,
+                        viewModel.enableTwoFactor(
+                            VerificationMethod.EMAIL,
                             email,
                             code,
                             successCallback = {
@@ -304,4 +313,28 @@ fun EmailAddressInputPage(
             }
         }
     }
+}
+
+@Composable
+fun rememberKeyboardVisibility(): Boolean {
+    val rootView = LocalView.current
+    var isKeyboardVisible by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        val listener = ViewTreeObserver.OnGlobalLayoutListener {
+            val rect = android.graphics.Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+            isKeyboardVisible =
+                keypadHeight > screenHeight * 0.15 // Threshold for detecting keyboard
+        }
+        rootView.viewTreeObserver.addOnGlobalLayoutListener(listener)
+
+        onDispose {
+            rootView.viewTreeObserver.removeOnGlobalLayoutListener(listener)
+        }
+    }
+
+    return isKeyboardVisible
 }
