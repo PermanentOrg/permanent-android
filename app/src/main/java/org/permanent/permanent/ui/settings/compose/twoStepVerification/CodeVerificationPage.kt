@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -151,7 +152,8 @@ fun CodeVerificationPage(
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 codeValues.forEachIndexed { index, codeValue ->
                     DigitTextField(
@@ -165,11 +167,14 @@ fun CodeVerificationPage(
                         previousFocusRequester = if (index > 0) focusRequesters[index - 1] else null,
                         nextFocusRequester = if (index < 3) focusRequesters[index + 1] else null,
                         modifier = Modifier
-                            .height(64.dp)
-                            .width(70.dp)
+                            .height(56.dp)
+                            .weight(1f)
                             .border(
-                                1.dp, colorResource(id = R.color.blue100), RoundedCornerShape(12.dp)
-                            ),
+                                1.dp,
+                                colorResource(id = R.color.blue100),
+                                RoundedCornerShape(12.dp)
+                            )
+                            .clip(RoundedCornerShape(12.dp)),
                         colors = DigitTextFieldColor.LIGHT
                     )
                 }

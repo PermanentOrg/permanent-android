@@ -7,15 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,9 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -66,6 +63,7 @@ import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 fun PhoneNumberInputPage(
     viewModel: LoginAndSecurityViewModel, onBack: () -> Unit, onDismiss: () -> Unit
 ) {
+    val isTablet = viewModel.isTablet()
     var isCodeSent by remember { mutableStateOf(false) }
     val codeValues by viewModel.codeValues.collectAsState()
     val focusRequesters = remember { List(4) { FocusRequester() } }
@@ -76,9 +74,9 @@ fun PhoneNumberInputPage(
     val phoneNumberRegex = "^\\+1 \\([0-9]{3}\\) [0-9]{3} - [0-9]{4}$".toRegex()
 
     // Detect keyboard visibility
-    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-    LaunchedEffect(imeVisible) {
-        if (imeVisible) {
+    val isKeyboardVisible = rememberKeyboardVisibility()
+    LaunchedEffect(isKeyboardVisible) {
+        if (isKeyboardVisible) {
             viewModel.clearSnackbar()
         }
     }
@@ -158,89 +156,95 @@ fun PhoneNumberInputPage(
                     .background(colorResource(R.color.white))
                     .padding(32.dp)
             ) {
-                // Instruction Text
-                Text(
-                    text = buildAnnotatedString {
-                        val fullText = stringResource(R.string.add_text_verification_description)
-                        val boldText = "North American"
-                        val startIndex = fullText.indexOf(boldText)
-                        val endIndex = startIndex + boldText.length
+                if (!(isKeyboardVisible && isTablet && isCodeSent)) {
+                    // Instruction Text
+                    Text(
+                        text = buildAnnotatedString {
+                            val fullText =
+                                stringResource(R.string.add_text_verification_description)
+                            val boldText = "North American"
+                            val startIndex = fullText.indexOf(boldText)
+                            val endIndex = startIndex + boldText.length
 
-                        append(fullText)
+                            append(fullText)
 
-                        addStyle(
-                            style = SpanStyle(fontWeight = FontWeight.Bold),
-                            start = startIndex,
-                            end = endIndex
-                        )
-                    },
-                    fontSize = 14.sp,
-                    lineHeight = 24.sp,
-                    fontFamily = FontFamily(Font(R.font.usual_regular)),
-                    color = colorResource(R.color.blue)
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            1.dp, colorResource(R.color.blue100), RoundedCornerShape(12.dp)
-                        ), verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextField(
-                        value = phoneNrState,
-                        onValueChange = { newValue ->
-                            if (newValue.text.length < 3) {
-                                phoneNrState = TextFieldValue("+1 ", selection = TextRange(3))
-                                return@TextField
-                            }
-
-                            val (newFormattedText, _) = formatPhoneNumber(newValue.text, phoneNrState.text)
-
-                            phoneNrState = TextFieldValue(
-                                text = newFormattedText,
-                                selection = TextRange(newFormattedText.length) // Move cursor to end
+                            addStyle(
+                                style = SpanStyle(fontWeight = FontWeight.Bold),
+                                start = startIndex,
+                                end = endIndex
                             )
                         },
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.blue)
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp)
-                            .weight(1.0f),
-                        singleLine = true,
-                        enabled = !isCodeSent,
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                        placeholder = {
-                            Text(
-                                text = stringResource(R.string.example_phone_number),
-                                color = colorResource(R.color.colorPrimary200),
-                                fontSize = 14.sp,
+                            .border(
+                                1.dp, colorResource(R.color.blue100), RoundedCornerShape(12.dp)
+                            ), verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextField(
+                            value = phoneNrState,
+                            onValueChange = { newValue ->
+                                if (newValue.text.length < 3) {
+                                    phoneNrState = TextFieldValue("+1 ", selection = TextRange(3))
+                                    return@TextField
+                                }
+
+                                val (newFormattedText, _) = formatPhoneNumber(
+                                    newValue.text,
+                                    phoneNrState.text
+                                )
+
+                                phoneNrState = TextFieldValue(
+                                    text = newFormattedText,
+                                    selection = TextRange(newFormattedText.length) // Move cursor to end
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .weight(1.0f),
+                            singleLine = true,
+                            enabled = !isCodeSent,
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                            placeholder = {
+                                Text(
+                                    text = stringResource(R.string.example_phone_number),
+                                    color = colorResource(R.color.colorPrimary200),
+                                    fontSize = 14.sp,
+                                    lineHeight = 24.sp,
+                                    fontFamily = FontFamily(Font(R.font.usual_regular))
+                                )
+                            },
+                            textStyle = TextStyle(
+                                fontSize = 16.sp,
                                 lineHeight = 24.sp,
                                 fontFamily = FontFamily(Font(R.font.usual_regular))
+                            ),
+                            colors = TextFieldDefaults.colors(
+                                focusedTextColor = colorResource(R.color.blue900),
+                                unfocusedTextColor = colorResource(R.color.blue900),
+                                disabledTextColor = colorResource(R.color.blueGreyLight),
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                disabledContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                cursorColor = colorResource(id = R.color.blue400)
                             )
-                        },
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            lineHeight = 24.sp,
-                            fontFamily = FontFamily(Font(R.font.usual_regular))
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = colorResource(R.color.blue900),
-                            unfocusedTextColor = colorResource(R.color.blue900),
-                            disabledTextColor = colorResource(R.color.blueGreyLight),
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            disabledContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            cursorColor = colorResource(id = R.color.blue400)
                         )
-                    )
-                }
+                    }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 if (isCodeSent) {
                     // Resend code Button
@@ -292,7 +296,7 @@ fun PhoneNumberInputPage(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         codeValues.forEachIndexed { index, codeValue ->
                             DigitTextField(
@@ -306,13 +310,14 @@ fun PhoneNumberInputPage(
                                 previousFocusRequester = if (index > 0) focusRequesters[index - 1] else null,
                                 nextFocusRequester = if (index < 3) focusRequesters[index + 1] else null,
                                 modifier = Modifier
-                                    .height(64.dp)
-                                    .width(70.dp)
+                                    .height(56.dp)
+                                    .weight(1f)
                                     .border(
                                         1.dp,
                                         colorResource(id = R.color.blue100),
                                         RoundedCornerShape(12.dp)
-                                    ),
+                                    )
+                                    .clip(RoundedCornerShape(12.dp)),
                                 colors = DigitTextFieldColor.LIGHT
                             )
                         }
