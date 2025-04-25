@@ -299,7 +299,6 @@ class LoginAndSecurityViewModel(application: Application) :
 
     fun clearSnackbar() {
         _snackbarMessage.value = ""
-        _snackbarType.value = SnackbarType.NONE
     }
 
     fun isTablet() = isTablet

@@ -32,7 +32,7 @@ fun NewTagView(onClick: () -> Unit) {
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val primaryColorTransparent = primaryColor.copy(alpha = 0.1f)
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-    val unselectedBackgroundColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val unselectedBackgroundColor = Color(ContextCompat.getColor(context, R.color.blue25))
 
     Box(modifier = Modifier
         .padding(top = 8.dp)

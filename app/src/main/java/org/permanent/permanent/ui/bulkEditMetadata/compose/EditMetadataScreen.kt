@@ -72,7 +72,7 @@ fun EditMetadataScreen(
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val redColor = Color(ContextCompat.getColor(context, R.color.red))
     val blackColor = Color(ContextCompat.getColor(context, R.color.black))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))

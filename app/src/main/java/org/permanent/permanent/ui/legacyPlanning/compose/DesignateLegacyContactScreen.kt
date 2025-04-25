@@ -53,7 +53,7 @@ fun DesignateContactOrStewardScreen(
 
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val blackColor = Color(ContextCompat.getColor(context, R.color.black))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))

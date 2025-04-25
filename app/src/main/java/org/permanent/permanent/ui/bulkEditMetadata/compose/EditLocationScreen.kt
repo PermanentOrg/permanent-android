@@ -59,7 +59,7 @@ fun EditLocationScreen(
     val context = LocalContext.current
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-    val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val superLightBlue = Color(ContextCompat.getColor(context, R.color.blue25))
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(viewModel.selectedLocation.value, 12f)

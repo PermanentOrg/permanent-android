@@ -99,7 +99,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                 PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
 
             val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
             okHttpClient = OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)

@@ -149,7 +149,7 @@ private fun PhoneBody(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.superLightBlue))
+            .background(colorResource(id = R.color.blue25))
     ) {
         Column(
             modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top

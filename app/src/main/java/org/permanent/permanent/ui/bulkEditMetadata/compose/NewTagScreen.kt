@@ -63,7 +63,7 @@ fun NewTagScreen(viewModel: NewTagViewModel, onCancelBtnClick: () -> Unit) {
 
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val blackColor = Color(ContextCompat.getColor(context, R.color.black))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))

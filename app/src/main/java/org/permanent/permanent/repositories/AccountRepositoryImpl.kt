@@ -197,7 +197,7 @@ class AccountRepositoryImpl(context: Context) : IAccountRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (response.isSuccessful && responseVO?.isSuccessful!!) {
-                        listener.onSuccess(appContext.getString(R.string.security_password_update_success))
+                        listener.onSuccess(appContext.getString(R.string.password_updated))
                     } else {
                         val errorMessage: String? =
                             when (val responseMessage = responseVO?.getMessages()?.get(0)) {

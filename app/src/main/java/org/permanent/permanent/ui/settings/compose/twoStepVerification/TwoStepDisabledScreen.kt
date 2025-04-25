@@ -52,7 +52,7 @@ private fun TabletBody(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.superLightBlue))
+            .background(colorResource(id = R.color.blue25))
             .padding(horizontal = 128.dp, vertical = 64.dp)
     ) {
         // Title Text
@@ -142,7 +142,7 @@ private fun PhoneBody(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.superLightBlue))
+            .background(colorResource(id = R.color.blue25))
     ) {
         // Top banner
         Row(

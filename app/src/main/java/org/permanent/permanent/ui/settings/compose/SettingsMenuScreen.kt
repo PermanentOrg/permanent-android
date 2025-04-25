@@ -68,7 +68,7 @@ fun SettingsMenuScreen(
     val configuration = LocalConfiguration.current
 
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val error500Color = Color(ContextCompat.getColor(context, R.color.error500))
 
     val archiveThumb by viewModel.getArchiveThumb().observeAsState("")

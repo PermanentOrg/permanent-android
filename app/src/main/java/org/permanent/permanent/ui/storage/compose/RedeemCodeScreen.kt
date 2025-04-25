@@ -56,7 +56,7 @@ fun RedeemCodeScreen(viewModel: RedeemCodeViewModel) {
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val primaryColor200 = Color(ContextCompat.getColor(context, R.color.colorPrimary200))
     val error200Color = Color(ContextCompat.getColor(context, R.color.error200))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val lightGreyColor = Color(ContextCompat.getColor(context, R.color.lightGrey))
     val lighterGreyColor = Color(ContextCompat.getColor(context, R.color.lighterGrey))
     val whiteColor = Color(ContextCompat.getColor(context, R.color.white))

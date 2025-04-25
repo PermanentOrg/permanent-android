@@ -1,90 +1,56 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.text.Editable
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.ui.composeComponents.SnackbarType
 
 class ChangePasswordViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var appContext = application.applicationContext
 
-    private val isBusy = MutableLiveData<Boolean>()
-    private val showMessage = MutableLiveData<String>()
-    private val onPasswordChanged = SingleLiveEvent<Void?>()
-    private val currentPassword = MutableLiveData<String>()
-    private val newPassword = MutableLiveData<String>()
-    private val retypeNewPassword = MutableLiveData<String>()
+    private val _isBusyState = MutableStateFlow(false)
+    val isBusyState: StateFlow<Boolean> = _isBusyState
+    private val _snackbarMessage = MutableStateFlow("")
+    val snackbarMessage: StateFlow<String> = _snackbarMessage
+    private val _snackbarType = MutableStateFlow(SnackbarType.NONE)
+    val snackbarType: StateFlow<SnackbarType> = _snackbarType
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
-    fun onCurrentPasswordTextChanged(password: Editable) {
-        currentPassword.value = password.toString().trim { it <= ' ' }
-    }
-
-    fun onNewPasswordTextChanged(password: Editable) {
-        newPassword.value = password.toString().trim { it <= ' ' }
-    }
-
-    fun onRetypeNewPasswordTextChanged(password: Editable) {
-        retypeNewPassword.value = password.toString().trim { it <= ' ' }
-    }
-
-    fun onUpdatePasswordClick() {
-        if (isBusy.value != null && isBusy.value!!) {
+    fun changePassword(currentPassword: String, newPassword: String, retypedNewPassword: String, onSuccess: () -> Unit = {}) {
+        if (_isBusyState.value) {
             return
         }
 
-        val oldPass = currentPassword.value
-        val newPass = newPassword.value
-        val retypedPass = retypeNewPassword.value
-
-        if (oldPass.isNullOrEmpty()) {
-            showMessage.value = appContext.getString(R.string.invalid_current_password_error)
-            return
-        }
-
-        if (newPass.isNullOrEmpty()) {
-            showMessage.value = appContext.getString(R.string.invalid_new_password_error)
-            return
-        }
-
-        if (retypedPass.isNullOrEmpty()) {
-            showMessage.value = appContext.getString(R.string.invalid_retype_new_password_error)
-            return
-        }
-
-        isBusy.value = true
-        accountRepository.changePassword(oldPass, newPass, retypedPass,
+        _isBusyState.value = true
+        accountRepository.changePassword(currentPassword, newPassword, retypedNewPassword,
             object : IResponseListener {
                 override fun onSuccess(message: String?) {
-                    isBusy.value = false
-                    showMessage.value = message
-                    onPasswordChanged.call()
-                    currentPassword.value = ""
-                    newPassword.value = ""
-                    retypeNewPassword.value = ""
+                    _isBusyState.value = false
+                    _snackbarMessage.value = message ?: appContext.getString(R.string.generic_error)
+                    _snackbarType.value = SnackbarType.SUCCESS
+                    onSuccess()
                 }
 
                 override fun onFailed(error: String?) {
-                    isBusy.value = false
-                    showMessage.value = error
+                    _isBusyState.value = false
+                    _snackbarMessage.value = if (error == null || error == Constants.ERROR_GENERIC_INTERNAL) appContext.getString(R.string.generic_error) else error
+                    _snackbarType.value = SnackbarType.ERROR
                 }
             }
         )
     }
 
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
+    fun showSnackbar(message: String, type: SnackbarType = SnackbarType.ERROR) {
+        _snackbarMessage.value = message
+        _snackbarType.value = type
+    }
 
-    fun getShowMessage(): LiveData<String> = showMessage
-
-    fun getOnPasswordChanged(): LiveData<Void?> = onPasswordChanged
-
-    fun getCurrentPassword(): MutableLiveData<String> = currentPassword
-
-    fun getNewPassword(): MutableLiveData<String> = newPassword
-
-    fun getRetypeNewPassword(): MutableLiveData<String> = retypeNewPassword
+    fun clearSnackbar() {
+        _snackbarMessage.value = ""
+    }
 }

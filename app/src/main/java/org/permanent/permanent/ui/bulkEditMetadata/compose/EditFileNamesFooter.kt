@@ -35,7 +35,7 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState,
                         cancel: () -> Unit,
                         apply: () -> Unit) {
     val context = LocalContext.current
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val lightGrey = Color(ContextCompat.getColor(context, R.color.lightGrey))
     val middleGrey = Color(ContextCompat.getColor(context, R.color.middleGrey))
     val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
