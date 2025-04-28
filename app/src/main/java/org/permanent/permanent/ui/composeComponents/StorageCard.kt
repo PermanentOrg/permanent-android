@@ -40,7 +40,7 @@ fun StorageCard(
     val blackColor = Color(ContextCompat.getColor(context, R.color.black))
     val whiteTransparentColor =
         Color(ContextCompat.getColor(context, R.color.whiteSuperExtraTransparent))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val semiboldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val superSmallTextSize = 13.sp
 

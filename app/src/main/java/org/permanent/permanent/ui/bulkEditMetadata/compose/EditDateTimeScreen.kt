@@ -58,7 +58,7 @@ fun EditDateTimeScreen(
     viewModel: EditDateTimeViewModel,
     cancel: () -> Unit) {
 
-    val superLightBlue = colorResource(id = R.color.superLightBlue)
+    val superLightBlue = colorResource(id = R.color.blue25)
     val blue900 = colorResource(R.color.blue900)
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 

@@ -27,7 +27,7 @@ fun DefaultInfoScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.superLightBlue)),
+            .background(colorResource(id = R.color.blue25)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

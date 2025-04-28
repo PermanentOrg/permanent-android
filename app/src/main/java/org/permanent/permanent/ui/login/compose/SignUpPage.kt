@@ -56,9 +56,9 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
-import org.permanent.permanent.ui.composeComponents.CustomSnackbar
 import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
 
@@ -410,7 +410,8 @@ fun SignUpPage(
             }
         }
 
-        CustomSnackbar(modifier = Modifier.align(Alignment.BottomCenter),
+        AnimatedSnackbar(
+            modifier = Modifier.align(Alignment.BottomCenter),
             isForError = snackbarType == SnackbarType.ERROR,
             message = snackbarMessage,
             buttonText = stringResource(id = R.string.ok),

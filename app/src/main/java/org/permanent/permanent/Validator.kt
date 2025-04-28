@@ -53,7 +53,7 @@ class Validator {
                     false
                 }
                 password.length < MIN_PASSWORD_LENGTH -> {
-                    passwordError?.value = R.string.password_too_short_error
+                    passwordError?.value = R.string.password_min_length_error
                     false
                 }
                 else -> {

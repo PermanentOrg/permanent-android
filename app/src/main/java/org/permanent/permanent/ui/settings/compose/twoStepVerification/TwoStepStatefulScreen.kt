@@ -22,8 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
-import org.permanent.permanent.ui.composeComponents.CustomSnackbar
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
@@ -107,9 +107,10 @@ fun TwoStepStatefulScreen(
             }
         }
 
-        CustomSnackbar(modifier = Modifier
-            .align(Alignment.BottomCenter)
-            .padding(16.dp),
+        AnimatedSnackbar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(32.dp),
             isForError = snackbarType == SnackbarType.ERROR,
             message = snackbarMessage,
             buttonText = stringResource(id = R.string.ok),

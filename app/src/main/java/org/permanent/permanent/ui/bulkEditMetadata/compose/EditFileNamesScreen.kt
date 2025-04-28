@@ -54,7 +54,7 @@ fun EditFileNamesScreen(
     var selectedIndex by remember { mutableStateOf(0) }
 
     val context = LocalContext.current
-    val superLightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val superLightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
     val uiState by viewModel.uiState.collectAsState()

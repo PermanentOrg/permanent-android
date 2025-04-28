@@ -44,7 +44,7 @@ fun ReplaceFileNamesScreen(uiState: EditFileNamesUIState,
     var replaceText by remember { mutableStateOf("") }
     val context = LocalContext.current
     val middleGrey = Color(ContextCompat.getColor(context, R.color.middleGrey))
-    val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val superLightBlue = Color(ContextCompat.getColor(context, R.color.blue25))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
     val openAlertDialog = remember { mutableStateOf(false) }
 

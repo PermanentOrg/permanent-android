@@ -41,7 +41,7 @@ fun StorageMenuScreen(
 ) {
     val context = LocalContext.current
 
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
 
     val spaceTotalBytes by viewModel.getSpaceTotal().observeAsState(initial = 0L)
     val spaceUsedBytes by viewModel.getSpaceUsed().observeAsState(initial = 0L)

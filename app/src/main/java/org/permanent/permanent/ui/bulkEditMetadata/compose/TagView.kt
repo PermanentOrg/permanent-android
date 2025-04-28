@@ -45,7 +45,7 @@ fun TagView(
     val unselectedBackgroundColor = if (isDisplayedInNewTagScreen) Color(
         ContextCompat.getColor(context, R.color.colorAccent)
     ).copy(alpha = 0.05f) else
-        Color(ContextCompat.getColor(context, R.color.superLightBlue))
+        Color(ContextCompat.getColor(context, R.color.blue25))
 
     Box(
         modifier = Modifier

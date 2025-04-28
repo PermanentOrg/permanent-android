@@ -28,7 +28,7 @@ fun EmailChipCard(text: String,
                   onDelete: (text: String) -> Unit) {
 
     val context = LocalContext.current
-    val superLightBlue = Color(ContextCompat.getColor(context, R.color.superLightBlue))
+    val superLightBlue = Color(ContextCompat.getColor(context, R.color.blue25))
     val colorPrimary = Color(ContextCompat.getColor(context, R.color.colorPrimary))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
 
