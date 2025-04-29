@@ -23,28 +23,30 @@ import androidx.compose.ui.unit.dp
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.MenuItem
 import org.permanent.permanent.ui.settings.compose.twoStepVerification.TwoStepStatefulScreen
+import org.permanent.permanent.viewmodels.ChangePasswordViewModel
 import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 @Composable
 fun LoginAndSecurityMenu(
-    viewModel: LoginAndSecurityViewModel,
+    loginAndSecurityViewModel: LoginAndSecurityViewModel,
+    changePasswordViewModel: ChangePasswordViewModel,
     onChangePasswordClick: () -> Unit,
     onTwoStepVerificationClick: () -> Unit
 ) {
-    val isTablet = viewModel.isTablet()
-    val isTwoFAEnabled by viewModel.isTwoFAEnabled.collectAsState()
-    val isFingerprintEnabled by viewModel.isBiometricsEnabled.collectAsState()
+    val isTablet = loginAndSecurityViewModel.isTablet()
+    val isTwoFAEnabled by loginAndSecurityViewModel.isTwoFAEnabled.collectAsState()
+    val isFingerprintEnabled by loginAndSecurityViewModel.isBiometricsEnabled.collectAsState()
 
     if (isTablet) {
         TabletBody(
-            viewModel = viewModel,
+            loginAndSecurityViewModel = loginAndSecurityViewModel,
+            changePasswordViewModel = changePasswordViewModel,
             isTwoFAEnabled = isTwoFAEnabled,
             isFingerprintEnabled = isFingerprintEnabled,
-            onChangePasswordClick = onChangePasswordClick,
         )
     } else {
         PhoneBody(
-            viewModel = viewModel,
+            viewModel = loginAndSecurityViewModel,
             isTwoFAEnabled = isTwoFAEnabled,
             isFingerprintEnabled = isFingerprintEnabled,
             onChangePasswordClick = onChangePasswordClick,
@@ -55,10 +57,10 @@ fun LoginAndSecurityMenu(
 
 @Composable
 private fun TabletBody(
-    viewModel: LoginAndSecurityViewModel,
+    loginAndSecurityViewModel: LoginAndSecurityViewModel,
+    changePasswordViewModel: ChangePasswordViewModel,
     isTwoFAEnabled: Boolean,
-    isFingerprintEnabled: Boolean,
-    onChangePasswordClick: () -> Unit
+    isFingerprintEnabled: Boolean
 ) {
     var selectedScreen by remember { mutableStateOf<SelectedScreen?>(null) }
 
@@ -102,9 +104,9 @@ private fun TabletBody(
                     showSwitch = true,
                     switchChecked = isFingerprintEnabled,
                     onSwitchCheckedChange = { isChecked ->
-                        viewModel.updateBiometricsEnabled(isChecked)
+                        loginAndSecurityViewModel.updateBiometricsEnabled(isChecked)
                     },
-                    onClick = { viewModel.updateBiometricsEnabled(!viewModel.isBiometricsEnabled.value) })
+                    onClick = { loginAndSecurityViewModel.updateBiometricsEnabled(!loginAndSecurityViewModel.isBiometricsEnabled.value) })
 
                 HorizontalDivider()
             }
@@ -120,11 +122,11 @@ private fun TabletBody(
         ) {
             when (selectedScreen) {
                 SelectedScreen.ChangePassword -> {
-                    onChangePasswordClick()
+                    ChangePasswordScreen(changePasswordViewModel)
                 }
 
                 SelectedScreen.TwoStepVerification -> {
-                    TwoStepStatefulScreen(viewModel)
+                    TwoStepStatefulScreen(loginAndSecurityViewModel)
                 }
 
                 null -> DefaultInfoScreen() // Placeholder when nothing is selected

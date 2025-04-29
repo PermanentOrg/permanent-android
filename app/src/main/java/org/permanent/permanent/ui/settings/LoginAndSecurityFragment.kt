@@ -11,11 +11,13 @@ import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.settings.compose.LoginAndSecurityMenu
+import org.permanent.permanent.viewmodels.ChangePasswordViewModel
 import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 class LoginAndSecurityFragment : PermanentBaseFragment() {
 
-    private val viewModel: LoginAndSecurityViewModel by activityViewModels()
+    private val loginAndSecurityViewModel: LoginAndSecurityViewModel by activityViewModels()
+    private val changePasswordViewModel: ChangePasswordViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -23,9 +25,12 @@ class LoginAndSecurityFragment : PermanentBaseFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    LoginAndSecurityMenu(viewModel,
-                        onChangePasswordClick = { findNavController().navigate(R.id.action_loginAndSecurityFragment_to_changePasswordFragment) }
-                    ) { findNavController().navigate(R.id.action_loginAndSecurityFragment_to_twoStepVerificationFragment) }
+                    LoginAndSecurityMenu(
+                        loginAndSecurityViewModel = loginAndSecurityViewModel,
+                        changePasswordViewModel = changePasswordViewModel,
+                        onChangePasswordClick = { findNavController().navigate(R.id.action_loginAndSecurityFragment_to_changePasswordFragment) },
+                        onTwoStepVerificationClick = { findNavController().navigate(R.id.action_loginAndSecurityFragment_to_twoStepVerificationFragment) }
+                    )
                 }
             }
         }

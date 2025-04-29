@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -31,9 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -47,7 +46,6 @@ import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
-import org.permanent.permanent.ui.composeComponents.CustomLinearProgressIndicator
 import org.permanent.permanent.ui.composeComponents.PasswordInputField
 import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.ui.settings.compose.twoStepVerification.rememberKeyboardVisibility
@@ -55,11 +53,11 @@ import org.permanent.permanent.viewmodels.ChangePasswordViewModel
 
 @Composable
 fun ChangePasswordScreen(viewModel: ChangePasswordViewModel) {
-    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val isKeyboardVisible = rememberKeyboardVisibility()
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val isTablet = viewModel.isTablet()
     val isBusyState by viewModel.isBusyState.collectAsState()
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
@@ -77,6 +75,11 @@ fun ChangePasswordScreen(viewModel: ChangePasswordViewModel) {
 
     val strength = getPasswordStrength(newPassword)
 
+    val topPadding = if (isTablet) 64.dp else 32.dp
+    val startPadding = if (isTablet) 128.dp else 32.dp
+    val endPadding = if (isTablet) 128.dp else 32.dp
+    val bottomPadding = if (isTablet) 32.dp else 32.dp
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +89,9 @@ fun ChangePasswordScreen(viewModel: ChangePasswordViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(colorResource(id = R.color.blue25))
-                .padding(32.dp)
+                .padding(
+                    top = topPadding, start = startPadding, end = endPadding, bottom = bottomPadding
+                )
                 .verticalScroll(scrollState)
                 .imePadding(),
             verticalArrangement = Arrangement.Top
@@ -164,14 +169,19 @@ fun ChangePasswordScreen(viewModel: ChangePasswordViewModel) {
 
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         PasswordProgressIndicator(
-                            color = strength.color, isEmpty = false
+                            modifier = Modifier.weight(1f),
+                            color = strength.color,
+                            isEmpty = false
                         )
 
                         PasswordProgressIndicator(
-                            color = strength.color, isEmpty = strength == PasswordStrength.WEAK
+                            modifier = Modifier.weight(1f),
+                            color = strength.color,
+                            isEmpty = strength == PasswordStrength.WEAK
                         )
 
                         PasswordProgressIndicator(
+                            modifier = Modifier.weight(1f),
                             color = strength.color,
                             isEmpty = strength == PasswordStrength.WEAK || strength == PasswordStrength.MEDIUM
                         )
@@ -204,7 +214,8 @@ fun ChangePasswordScreen(viewModel: ChangePasswordViewModel) {
 
             PasswordInputField(
                 value = retypedNewPassword,
-                onValueChange = { retypedNewPassword = it })
+                onValueChange = { retypedNewPassword = it }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -212,47 +223,12 @@ fun ChangePasswordScreen(viewModel: ChangePasswordViewModel) {
                 text = stringResource(id = R.string.change_password),
                 icon = null,
                 onButtonClick = {
-                    keyboardController?.hide()
-                    when {
-                        currentPassword.isBlank() -> {
-                            viewModel.showSnackbar(
-                                message = context.getString(R.string.current_password_required),
-                                type = SnackbarType.ERROR
-                            )
-                        }
-
-                        newPassword.length < 8 -> {
-                            viewModel.showSnackbar(
-                                message = context.getString(R.string.password_min_length_error),
-                                type = SnackbarType.ERROR
-                            )
-                        }
-
-                        newPassword != retypedNewPassword -> {
-                            viewModel.showSnackbar(
-                                message = context.getString(R.string.passwords_do_not_match),
-                                type = SnackbarType.ERROR
-                            )
-                        }
-
-                        newPassword == currentPassword -> {
-                            viewModel.showSnackbar(
-                                message = context.getString(R.string.new_password_same_as_current),
-                                type = SnackbarType.ERROR
-                            )
-                        }
-
-                        else -> {
-
-                            viewModel.changePassword(currentPassword,
-                                newPassword,
-                                retypedNewPassword,
-                                onSuccess = {
-                                    currentPassword = ""
-                                    newPassword = ""
-                                    retypedNewPassword = ""
-                                })
-                        }
+                    viewModel.handleChangePassword(
+                        currentPassword, newPassword, retypedNewPassword, keyboardController
+                    ) {
+                        currentPassword = ""
+                        newPassword = ""
+                        retypedNewPassword = ""
                     }
                 })
         }
@@ -296,25 +272,23 @@ fun getPasswordStrength(password: String): PasswordStrength {
 
 @Composable
 fun PasswordProgressIndicator(
-    color: Int, isEmpty: Boolean
+    modifier: Modifier, color: Int, isEmpty: Boolean
 ) {
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp.dp
-    val horizontalPaddingDp = 56.dp
-    val spacerPaddingDp = 4.dp
     val foregroundColor = colorResource(id = color)
 
-    CustomLinearProgressIndicator(
-        modifier = Modifier
+    Box(
+        modifier = modifier
+            .background(colorResource(R.color.blue50))
             .clip(shape = RoundedCornerShape(3.dp))
-            .height(4.dp),
-        width = (screenWidthDp - horizontalPaddingDp - horizontalPaddingDp - spacerPaddingDp - spacerPaddingDp) / 3,
-        backgroundColor = colorResource(R.color.blue50),
-        foregroundColor = Brush.horizontalGradient(
-            listOf(
-                foregroundColor, foregroundColor
+            .height(4.dp)
+    ) {
+        if (!isEmpty) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .background(foregroundColor)
             )
-        ),
-        percent = if (isEmpty) 0 else 100
-    )
+        }
+    }
 }
