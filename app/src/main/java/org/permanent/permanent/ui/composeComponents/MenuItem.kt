@@ -25,7 +25,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import org.permanent.permanent.R
 
 @Composable
@@ -55,16 +53,14 @@ fun MenuItem(
     onSwitchCheckedChange: (Boolean) -> Unit = {},
     onClick: () -> Unit
 ) {
-
-    val context = LocalContext.current
-
-    val blue900Color = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-    val middleGreyColor = Color(ContextCompat.getColor(context, R.color.middleGrey))
+    val blue900Color = colorResource(id = R.color.blue900)
+    val middleGreyColor = colorResource(id = R.color.middleGrey)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
+            .background(if (isSelected) colorResource(id = R.color.blue25).copy(alpha = 0.5f) else Color.Transparent)
             .padding(end = 24.dp)
             .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.Top,

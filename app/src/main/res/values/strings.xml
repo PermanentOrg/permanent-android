@@ -444,7 +444,7 @@
     <string name="password_updated">Password updated.</string>
     <string name="change_password">Change password</string>
     <string name="secure_your_account">Secure your account</string>
-    <string name="change_password_description">Enter your current password and set new and strong password to enhance security.</string>
+    <string name="change_password_description">Enter your current password and set a new and strong password to enhance security.</string>
 
     <string name="account_screen_account_name">Account Name</string>
     <string name="account_screen_primary_email">Primary Email</string>
