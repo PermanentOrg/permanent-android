@@ -136,6 +136,7 @@ class MyFilesFragment : PermanentBaseFragment() {
                 viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
                 viewModel.loadRootFiles()
                 initDownloadsRecyclerView(binding.rvDownloads)
+                viewModel.getHideChecklist()
                 viewModel.registerDeviceForFCM()
 
                 arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {

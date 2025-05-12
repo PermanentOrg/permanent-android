@@ -1,9 +1,12 @@
 package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.view.View
+import android.view.ViewTreeObserver
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
@@ -11,7 +14,11 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.BindingAdapter
+import androidx.transition.TransitionManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import org.permanent.permanent.R
@@ -39,6 +46,7 @@ fun setNotificationIcon(view: ImageView, notificationType: Notification.Type) {
         else -> view.setImageResource(R.drawable.ic_notification_account_blue)
     }
 }
+
 @BindingAdapter("archiveTypeIcon")
 fun setArchiveTypeIcon(view: ImageView, archiveType: ArchiveType?) {
     when (archiveType) {
@@ -151,3 +159,72 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
         }
     }
 }
+
+@BindingAdapter("animateAboveChecklistIfShown")
+fun FloatingActionButton.animateAboveChecklistIfShown(showChecklist: Boolean) {
+    val parent = parent as? ConstraintLayout ?: return
+    val fabChecklist = parent.findViewById<View>(R.id.fabChecklist) ?: return
+    val fabAddId = id
+    val fabChecklistId = R.id.fabChecklist
+
+    val set = ConstraintSet().apply { clone(parent) }
+
+    if (showChecklist) {
+        if (fabChecklist.visibility != View.VISIBLE) {
+            fabChecklist.alpha = 0f
+            fabChecklist.visibility = View.INVISIBLE // allow layout
+            fabChecklist.viewTreeObserver.addOnGlobalLayoutListener(object :
+                ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    fabChecklist.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    fabChecklist.translationY = fabChecklist.height.toFloat() + 100f
+                    fabChecklist.visibility = View.VISIBLE
+                    fabChecklist.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(300)
+                        .start()
+                }
+            })
+        }
+
+        // Animate fabAdd above checklist right away
+        set.clear(fabAddId, ConstraintSet.BOTTOM)
+        set.connect(
+            fabAddId,
+            ConstraintSet.BOTTOM,
+            fabChecklistId,
+            ConstraintSet.TOP,
+            16.dp
+        )
+    } else {
+        if (fabChecklist.visibility == View.VISIBLE) {
+            fabChecklist.animate()
+                .alpha(0f)
+                .translationY(fabChecklist.height.toFloat() + 100f)
+                .setDuration(300)
+                .withEndAction {
+                    fabChecklist.visibility = View.GONE
+                }
+                .start()
+        }
+
+        // Move fabAdd back to bottom of screen
+        set.clear(fabAddId, ConstraintSet.BOTTOM)
+        set.connect(
+            fabAddId,
+            ConstraintSet.BOTTOM,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.BOTTOM,
+            32.dp
+        )
+    }
+
+    // Always animate the constraint changes
+    TransitionManager.beginDelayedTransition(parent)
+    set.applyTo(parent)
+}
+
+// Extension to convert dp to px
+val Int.dp: Int
+    get() = (this * Resources.getSystem().displayMetrics.density).toInt()
