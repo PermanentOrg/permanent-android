@@ -34,6 +34,7 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
+import org.permanent.permanent.network.models.ChecklistResponse
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.LegacyContact
@@ -769,6 +770,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun addRemoveTags(tags: Tags): Call<ResponseVO> = stelaAccountService.addRemoveTags(tags)
 
     fun sendEvents(events: EventsPayload) = eventsService.sendEvent(events)
+
+    fun getCheckList(): Call<ChecklistResponse>  = eventsService.getCheckList()
 
     fun getTwoFAMethod(): Call<List<TwoFAVO>> = stelaAccountService.getTwoFAMethod()
 

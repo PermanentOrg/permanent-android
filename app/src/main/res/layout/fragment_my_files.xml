@@ -147,10 +147,10 @@
                         android:layout_height="32dp"
                         android:layout_marginEnd="10dp"
                         android:onClick="@{() -> viewModel.onViewModeBtnClick()}"
+                        android:visibility="@{viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
                         app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
-                        android:visibility="@{viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
                         app:viewModeIcon="@{viewModel.isListViewMode}" />
 
                     <TextView
@@ -341,8 +341,7 @@
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{()-> viewModel.onAddFabClick()}"
-            android:visibility="@{viewModel.isCreateAvailable == false || viewModel.isRelocationMode || viewModel.isSelectionMode || viewModel.showScreenSimplified ? View.GONE: View.VISIBLE}"
-            app:animateAboveChecklistIfShown="@{viewModel.showChecklistFab &amp;&amp; !viewModel.isRelocationMode &amp;&amp; !viewModel.isSelectionMode &amp;&amp; !viewModel.showScreenSimplified}"
+            app:showFabAddAnimated="@{viewModel.isCreateAvailable &amp;&amp; !viewModel.isRelocationMode &amp;&amp; !viewModel.isSelectionMode &amp;&amp; !viewModel.showScreenSimplified}"
             app:backgroundTint="@color/blue900"
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -361,8 +360,9 @@
             android:layout_marginBottom="32dp"
             android:clickable="true"
             android:focusable="true"
-            android:onClick="@{()-> viewModel.onChecklistFabClick()}"
-            android:visibility="gone"
+            android:onClick="@{() -> viewModel.onChecklistFabClick()}"
+            android:visibility="invisible"
+            app:showChecklistFabAnimated="@{viewModel.showChecklistFab &amp;&amp; !viewModel.isRelocationMode &amp;&amp; !viewModel.isSelectionMode &amp;&amp; !viewModel.showScreenSimplified}"
             app:backgroundTint="@color/success500"
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"

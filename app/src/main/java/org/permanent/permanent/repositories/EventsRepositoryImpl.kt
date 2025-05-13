@@ -4,8 +4,11 @@ import EventsBodyPayload
 import EventsPayload
 import android.content.Context
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.R
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.network.NetworkClient
+import org.permanent.permanent.network.models.ChecklistResponse
+import org.permanent.permanent.network.models.IChecklistListener
 import org.permanent.permanent.network.models.ResponseVO
 import retrofit2.Call
 import retrofit2.Callback
@@ -58,4 +61,29 @@ class EventsRepositoryImpl(val context: Context) : IEventsRepository {
         })
     }
 
+    override fun getCheckList(listener: IChecklistListener) {
+        NetworkClient.instance().getCheckList().enqueue(object : Callback<ChecklistResponse> {
+
+            override fun onResponse(call: Call<ChecklistResponse>, response: Response<ChecklistResponse>) {
+                if (response.isSuccessful) {
+                    val checklistItems = response.body()?.checklistItems
+                    if (checklistItems != null) {
+                        listener.onSuccess(checklistItems)
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                } else {
+                    try {
+                        listener.onFailed(response.errorBody().toString())
+                    } catch (e: Exception) {
+                        listener.onFailed(e.message)
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ChecklistResponse>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
 }
