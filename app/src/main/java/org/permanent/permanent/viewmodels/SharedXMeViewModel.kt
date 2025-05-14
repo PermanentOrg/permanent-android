@@ -19,9 +19,22 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
-import org.permanent.permanent.models.*
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.NavigationFolder
+import org.permanent.permanent.models.NavigationFolderIdentifier
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.ChecklistItem
+import org.permanent.permanent.network.models.IChecklistListener
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -32,7 +45,8 @@ import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Stack
 
 class SharedXMeViewModel(application: Application) : SelectionViewModel(application),
     CancelListener, OnFinishedListener, RecordListener {
@@ -69,11 +83,14 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     private val showRelocationCancellationDialog = SingleLiveEvent<Void?>()
     private val onRecordSelected = SingleLiveEvent<Record>()
     private var showScreenSimplified = MutableLiveData(false)
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private val showChecklistFab = MutableLiveData(false)
+    private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
+    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsAdapter: UploadsAdapter
     private lateinit var uploadsRecyclerView: RecyclerView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     fun initSwipeRefreshLayout(refreshLayout: SwipeRefreshLayout) {
         this.swipeRefreshLayout = refreshLayout
@@ -112,6 +129,36 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             layoutManager = LinearLayoutManager(context)
             adapter = uploadsAdapter
         }
+    }
+
+    fun getHideChecklist() {
+        swipeRefreshLayout.isRefreshing = true
+        accountRepository.getAccount(object : IAccountRepository.IAccountListener {
+
+            override fun onSuccess(account: Account) {
+                if (account.hideChecklist != null && !account.hideChecklist!!) getChecklist()
+            }
+
+            override fun onFailed(error: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    private fun getChecklist() {
+        eventsRepository.getCheckList(object : IChecklistListener {
+
+            override fun onSuccess(checklistList: List<ChecklistItem>) {
+                swipeRefreshLayout.isRefreshing = false
+                showChecklistFab.value = checklistList.any { !it.completed }
+            }
+
+            override fun onFailed(error: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                showMessage.value = error
+            }
+        })
     }
 
     override fun onRecordClick(record: Record) {
@@ -208,6 +255,9 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     fun onAddFabClick() {
         onShowAddOptionsFragment.value = currentFolder.value?.getFolderIdentifier()
+    }
+
+    fun onChecklistFabClick() {
     }
 
     fun upload(uris: List<Uri>) {
@@ -424,4 +474,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
 
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
+
+    fun getShowChecklistFab(): MutableLiveData<Boolean> = showChecklistFab
 }

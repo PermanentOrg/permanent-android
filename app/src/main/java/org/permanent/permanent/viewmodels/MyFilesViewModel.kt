@@ -23,18 +23,39 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
-import org.permanent.permanent.models.*
+import org.permanent.permanent.models.Account
+import org.permanent.permanent.models.AccountEventAction
+import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.EventAction
+import org.permanent.permanent.models.NavigationFolder
+import org.permanent.permanent.models.NavigationFolderIdentifier
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordEventAction
+import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.ChecklistItem
+import org.permanent.permanent.network.models.IChecklistListener
 import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.repositories.*
+import org.permanent.permanent.repositories.AccountRepositoryImpl
+import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
+import org.permanent.permanent.repositories.IEventsRepository
+import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.INotificationRepository
+import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.myFiles.*
+import org.permanent.permanent.ui.myFiles.CancelListener
+import org.permanent.permanent.ui.myFiles.OnFinishedListener
+import org.permanent.permanent.ui.myFiles.RecordListener
+import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Stack
 
 open class MyFilesViewModel(application: Application) : SelectionViewModel(application),
     RecordListener, CancelListener, OnFinishedListener {
@@ -65,6 +86,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
     private val onRecordSelected = SingleLiveEvent<Record>()
     private var showScreenSimplified = MutableLiveData(false)
+    private val showChecklistFab = MutableLiveData(false)
 
     protected var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
@@ -122,6 +144,36 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
                 error?.let { showMessage.value = it }
+            }
+        })
+    }
+
+    fun getHideChecklist() {
+        swipeRefreshLayout.isRefreshing = true
+        accountRepository.getAccount(object : IAccountRepository.IAccountListener {
+
+            override fun onSuccess(account: Account) {
+                if (account.hideChecklist != null && !account.hideChecklist!!) getChecklist()
+            }
+
+            override fun onFailed(error: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                showMessage.value = error
+            }
+        })
+    }
+
+    private fun getChecklist() {
+        eventsRepository.getCheckList(object : IChecklistListener {
+
+            override fun onSuccess(checklistList: List<ChecklistItem>) {
+                swipeRefreshLayout.isRefreshing = false
+                showChecklistFab.value = checklistList.any { !it.completed }
+            }
+
+            override fun onFailed(error: String?) {
+                swipeRefreshLayout.isRefreshing = false
+                showMessage.value = error
             }
         })
     }
@@ -192,6 +244,9 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     fun onAddFabClick() {
         onShowAddOptionsFragment.value = currentFolder.value?.getFolderIdentifier()
+    }
+
+    fun onChecklistFabClick() {
     }
 
     override fun onRecordOptionsClick(record: Record) {
@@ -465,6 +520,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
+
+    fun getShowChecklistFab(): MutableLiveData<Boolean> = showChecklistFab
 
     companion object {
         const val MILLIS_UNTIL_REFRESH_AFTER_UPLOAD = 9000L

@@ -95,6 +95,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
         initDownloadsRecyclerView(binding.rvDownloads)
         initRecordsRecyclerView(binding.rvShares)
+        viewModel.getHideChecklist()
+
         arguments?.takeIf { it.containsKey(SHARED_X_ME_NO_ITEMS_MESSAGE_KEY) }?.apply {
             getString(SHARED_X_ME_NO_ITEMS_MESSAGE_KEY).also { binding.tvNoShares.text = it }
         }

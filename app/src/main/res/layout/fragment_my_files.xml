@@ -14,6 +14,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -146,10 +147,10 @@
                         android:layout_height="32dp"
                         android:layout_marginEnd="10dp"
                         android:onClick="@{() -> viewModel.onViewModeBtnClick()}"
+                        android:visibility="@{viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
                         app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
-                        android:visibility="@{viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
                         app:viewModeIcon="@{viewModel.isListViewMode}" />
 
                     <TextView
@@ -231,9 +232,10 @@
                             android:layout_marginTop="12dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1.0"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/tvUploadsTitle"
-                            app:layout_constraintVertical_bias="0.0" />
+                            app:layout_constraintVertical_bias="1.0" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <TextView
@@ -339,15 +341,36 @@
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{()-> viewModel.onAddFabClick()}"
-            android:visibility="@{viewModel.isCreateAvailable == false || viewModel.isRelocationMode || viewModel.isSelectionMode || viewModel.showScreenSimplified ? View.GONE: View.VISIBLE}"
-            app:backgroundTint="@color/colorAccent"
+            app:showFabAddAnimated="@{viewModel.isCreateAvailable &amp;&amp; !viewModel.isRelocationMode &amp;&amp; !viewModel.isSelectionMode &amp;&amp; !viewModel.showScreenSimplified}"
+            app:backgroundTint="@color/blue900"
             app:fabSize="auto"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:maxImageSize="40dp"
+            app:maxImageSize="24dp"
             app:srcCompat="@drawable/ic_plus_white"
+            app:tint="@null" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabChecklist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{() -> viewModel.onChecklistFabClick()}"
+            android:visibility="invisible"
+            app:showChecklistFabAnimated="@{viewModel.showChecklistFab &amp;&amp; !viewModel.isRelocationMode &amp;&amp; !viewModel.isSelectionMode &amp;&amp; !viewModel.showScreenSimplified}"
+            app:backgroundTint="@color/success500"
+            app:fabSize="auto"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:maxImageSize="24dp"
+            app:srcCompat="@drawable/ic_checklist_white"
             app:tint="@null" />
 
         <ImageView

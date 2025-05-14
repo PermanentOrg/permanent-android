@@ -4,14 +4,20 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.view.View
 import android.view.animation.Animation
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.BindingAdapter
+import androidx.transition.TransitionManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import org.permanent.permanent.R
@@ -39,6 +45,7 @@ fun setNotificationIcon(view: ImageView, notificationType: Notification.Type) {
         else -> view.setImageResource(R.drawable.ic_notification_account_blue)
     }
 }
+
 @BindingAdapter("archiveTypeIcon")
 fun setArchiveTypeIcon(view: ImageView, archiveType: ArchiveType?) {
     when (archiveType) {
@@ -149,5 +156,118 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
         path?.let {
             loadUrl(path)
         }
+    }
+}
+
+@BindingAdapter("showFabAddAnimated")
+fun showFabAddAnimated(fabAdd: FloatingActionButton, show: Boolean) {
+    val parent = fabAdd.parent as? ConstraintLayout ?: return
+    val checklist = parent.findViewById<FloatingActionButton>(R.id.fabChecklist)
+    val offset = 300f
+    val duration = 300L
+
+    if (show) {
+        fabAdd.post {
+            fabAdd.translationY = offset
+            fabAdd.alpha = 0f
+            fabAdd.visibility = View.VISIBLE
+
+            // Animate into view
+            fabAdd.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(duration)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+
+            // Update constraint based on checklist visibility
+            val constraintSet = ConstraintSet()
+            constraintSet.clone(parent)
+            constraintSet.clear(R.id.fabAdd, ConstraintSet.BOTTOM)
+            if (checklist?.visibility == View.VISIBLE) {
+                constraintSet.connect(
+                    R.id.fabAdd, ConstraintSet.BOTTOM,
+                    R.id.fabChecklist, ConstraintSet.TOP, 16
+                )
+            } else {
+                constraintSet.connect(
+                    R.id.fabAdd, ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 32
+                )
+            }
+            TransitionManager.beginDelayedTransition(parent)
+            constraintSet.applyTo(parent)
+        }
+    } else {
+        fabAdd.animate()
+            .translationY(offset)
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                fabAdd.visibility = View.GONE
+            }
+            .start()
+    }
+}
+
+@BindingAdapter("showChecklistFabAnimated")
+fun showChecklistFabAnimated(fabChecklist: FloatingActionButton, show: Boolean) {
+    val parent = fabChecklist.parent as? ConstraintLayout ?: return
+    val fabAdd = parent.findViewById<FloatingActionButton>(R.id.fabAdd)
+    val offset = 300f
+    val duration = 300L
+
+    if (show) {
+        fabChecklist.post {
+            fabChecklist.translationY = offset
+            fabChecklist.alpha = 0f
+            fabChecklist.visibility = View.VISIBLE
+
+            fabChecklist.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(duration)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+
+            // Reposition fabAdd above checklist if fabAdd is visible
+            fabAdd?.let {
+                if (it.visibility == View.VISIBLE) {
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(parent)
+                    constraintSet.clear(R.id.fabAdd, ConstraintSet.BOTTOM)
+                    constraintSet.connect(
+                        R.id.fabAdd, ConstraintSet.BOTTOM,
+                        R.id.fabChecklist, ConstraintSet.TOP, 16
+                    )
+                    TransitionManager.beginDelayedTransition(parent)
+                    constraintSet.applyTo(parent)
+                }
+            }
+        }
+    } else {
+        fabChecklist.animate()
+            .translationY(offset)
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                fabChecklist.visibility = View.GONE
+
+                // Reposition fabAdd to bottom if it's still visible
+                fabAdd?.let {
+                    if (it.visibility == View.VISIBLE) {
+                        val constraintSet = ConstraintSet()
+                        constraintSet.clone(parent)
+                        constraintSet.clear(R.id.fabAdd, ConstraintSet.BOTTOM)
+                        constraintSet.connect(
+                            R.id.fabAdd, ConstraintSet.BOTTOM,
+                            ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 32
+                        )
+                        TransitionManager.beginDelayedTransition(parent)
+                        constraintSet.applyTo(parent)
+                    }
+                }
+            }
+            .start()
     }
 }

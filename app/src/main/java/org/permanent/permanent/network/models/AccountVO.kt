@@ -22,6 +22,7 @@ class AccountVO() {
     var spaceTotal: Long? = null
     var spaceLeft: Long? = null
     var token: String? = null
+    var hideChecklist: Boolean? = null
 
     constructor(account: Account) : this() {
         accountId = account.id

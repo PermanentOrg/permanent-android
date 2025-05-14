@@ -100,6 +100,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.initSwipeRefreshLayout(binding.swipeRefreshLayout)
         viewModel.loadRootFiles()
         initDownloadsRecyclerView(binding.rvDownloads)
+        viewModel.getHideChecklist()
         initFilesRecyclerView(binding.rvFiles)
 
         val displayMetrics = DisplayMetrics()
