@@ -40,6 +40,7 @@ const val PREFS_DEEP_LINK_FILE_ARCHIVE_NR = "preferences_deep_link_file_archive_
 const val PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR = "preferences_deep_link_folder_archive_nr"
 const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id"
 const val KEY_TWO_FA_LIST = "key_two_fa_list"
+const val KEY_CHECKLIST_TOOLTIP_SHOWN = "key_checklist_tooltip_shown"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -431,9 +432,19 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    // Retrieve 2FA methods
     fun getTwoFAList(): List<TwoFAVO> {
         val json = sharedPreferences.getString(KEY_TWO_FA_LIST, null) ?: return emptyList()
         return json.toTwoFAVOList().sortedByDescending { it.method == "sms" }
+    }
+
+    fun setChecklistTooltipShown(shown: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(KEY_CHECKLIST_TOOLTIP_SHOWN, shown)
+            apply()
+        }
+    }
+
+    fun isChecklistTooltipShown(): Boolean {
+        return sharedPreferences.getBoolean(KEY_CHECKLIST_TOOLTIP_SHOWN, false)
     }
 }

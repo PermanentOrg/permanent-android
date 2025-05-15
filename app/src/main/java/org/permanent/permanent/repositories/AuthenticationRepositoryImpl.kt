@@ -81,6 +81,7 @@ class AuthenticationRepositoryImpl(val application: Application) : IAuthenticati
                     prefsHelper.saveAuthToken("")
                     prefsHelper.saveUserLoggedIn(false)
                     prefsHelper.saveDefaultArchiveId(0)
+                    prefsHelper.setChecklistTooltipShown(false)
                     listener.onSuccess()
                 } else {
                     listener.onFailed(

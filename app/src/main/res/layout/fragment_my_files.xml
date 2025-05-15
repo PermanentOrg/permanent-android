@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -372,6 +373,44 @@
             app:maxImageSize="24dp"
             app:srcCompat="@drawable/ic_checklist_white"
             app:tint="@null" />
+
+        <LinearLayout
+            android:id="@+id/tooltipBubble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_tooltip_bubble"
+            android:elevation="6dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="16dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/fabChecklist"
+            app:layout_constraintEnd_toStartOf="@+id/fabChecklist"
+            app:layout_constraintVertical_bias="1.0"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/tooltipText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/set_up_your_account"
+                android:textColor="#2D2D2D"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/tooltipArrow"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginStart="-5dp"
+            android:src="@drawable/ic_tooltip_arrow_right"
+            android:visibility="invisible"
+            android:elevation="6dp"
+            app:layout_constraintBottom_toBottomOf="@+id/tooltipBubble"
+            app:layout_constraintStart_toEndOf="@id/tooltipBubble"
+            app:layout_constraintTop_toTopOf="@+id/tooltipBubble" />
 
         <ImageView
             android:id="@+id/ivNoFiles"
