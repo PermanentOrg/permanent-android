@@ -28,13 +28,9 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.network.models.ChecklistItem
-import org.permanent.permanent.network.models.IChecklistListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.AccountRepositoryImpl
-import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IAccountRepository
-import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -85,7 +81,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     private var showScreenSimplified = MutableLiveData(false)
     private val showChecklistFab = MutableLiveData(false)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
-    private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsAdapter: UploadsAdapter
@@ -136,22 +131,8 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
 
             override fun onSuccess(account: Account) {
-                if (account.hideChecklist != null && !account.hideChecklist!!) getChecklist()
-            }
-
-            override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                showMessage.value = error
-            }
-        })
-    }
-
-    private fun getChecklist() {
-        eventsRepository.getCheckList(object : IChecklistListener {
-
-            override fun onSuccess(checklistList: List<ChecklistItem>) {
-                swipeRefreshLayout.isRefreshing = false
-                showChecklistFab.value = checklistList.any { !it.completed }
+                showChecklistFab.value = account.hideChecklist != null && !account.hideChecklist!!
             }
 
             override fun onFailed(error: String?) {

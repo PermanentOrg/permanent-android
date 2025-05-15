@@ -35,8 +35,6 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.network.models.ChecklistItem
-import org.permanent.permanent.network.models.IChecklistListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.EventsRepositoryImpl
@@ -153,22 +151,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         accountRepository.getAccount(object : IAccountRepository.IAccountListener {
 
             override fun onSuccess(account: Account) {
-                if (account.hideChecklist != null && !account.hideChecklist!!) getChecklist()
-            }
-
-            override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                showMessage.value = error
-            }
-        })
-    }
-
-    private fun getChecklist() {
-        eventsRepository.getCheckList(object : IChecklistListener {
-
-            override fun onSuccess(checklistList: List<ChecklistItem>) {
-                swipeRefreshLayout.isRefreshing = false
-                showChecklistFab.value = checklistList.any { !it.completed }
+                showChecklistFab.value = account.hideChecklist != null && !account.hideChecklist!!
             }
 
             override fun onFailed(error: String?) {
