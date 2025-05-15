@@ -1,9 +1,12 @@
 package org.permanent.permanent.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
@@ -213,7 +216,14 @@ fun showFabAddAnimated(fabAdd: FloatingActionButton, show: Boolean) {
 @BindingAdapter("showChecklistFabAnimated")
 fun showChecklistFabAnimated(fabChecklist: FloatingActionButton, show: Boolean) {
     val parent = fabChecklist.parent as? ConstraintLayout ?: return
+    val context = fabChecklist.context
     val fabAdd = parent.findViewById<FloatingActionButton>(R.id.fabAdd)
+    val tooltipBubble = parent.findViewById<View>(R.id.tooltipBubble)
+    val tooltipArrow = parent.findViewById<View>(R.id.tooltipArrow)
+
+    val prefs = PreferencesHelper(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE))
+    val tooltipShown = prefs.isChecklistTooltipShown()
+
     val offset = 300f
     val duration = 300L
 
@@ -230,7 +240,51 @@ fun showChecklistFabAnimated(fabChecklist: FloatingActionButton, show: Boolean) 
                 .setInterpolator(DecelerateInterpolator())
                 .start()
 
-            // Reposition fabAdd above checklist if fabAdd is visible
+            // Tooltip logic - show only once
+            if (!tooltipShown) {
+                    tooltipBubble?.apply {
+                        translationY = offset
+                        alpha = 0f
+                        visibility = View.VISIBLE
+                        animate()
+                            .translationY(0f)
+                            .alpha(1f)
+                            .setDuration(duration)
+                            .setInterpolator(DecelerateInterpolator())
+                            .start()
+                    }
+
+                    tooltipArrow?.apply {
+                        translationY = offset
+                        alpha = 0f
+                        visibility = View.VISIBLE
+                        animate()
+                            .translationY(0f)
+                            .alpha(1f)
+                            .setDuration(duration)
+                            .setInterpolator(DecelerateInterpolator())
+                            .start()
+                    }
+
+                    // Auto-dismiss after 5 seconds
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        tooltipBubble?.animate()
+                            ?.alpha(0f)
+                            ?.setDuration(300)
+                            ?.withEndAction { tooltipBubble.visibility = View.GONE }
+                            ?.start()
+
+                        tooltipArrow?.animate()
+                            ?.alpha(0f)
+                            ?.setDuration(300)
+                            ?.withEndAction { tooltipArrow.visibility = View.GONE }
+                            ?.start()
+
+                        prefs.setChecklistTooltipShown(true)
+                    }, 5000)
+            }
+
+            // Reposition fabAdd
             fabAdd?.let {
                 if (it.visibility == View.VISIBLE) {
                     val constraintSet = ConstraintSet()
@@ -252,22 +306,36 @@ fun showChecklistFabAnimated(fabChecklist: FloatingActionButton, show: Boolean) 
             .setDuration(200)
             .withEndAction {
                 fabChecklist.visibility = View.GONE
-
-                // Reposition fabAdd to bottom if it's still visible
-                fabAdd?.let {
-                    if (it.visibility == View.VISIBLE) {
-                        val constraintSet = ConstraintSet()
-                        constraintSet.clone(parent)
-                        constraintSet.clear(R.id.fabAdd, ConstraintSet.BOTTOM)
-                        constraintSet.connect(
-                            R.id.fabAdd, ConstraintSet.BOTTOM,
-                            ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 32
-                        )
-                        TransitionManager.beginDelayedTransition(parent)
-                        constraintSet.applyTo(parent)
-                    }
-                }
             }
             .start()
+
+        tooltipBubble?.animate()
+            ?.translationY(offset)
+            ?.alpha(0f)
+            ?.setDuration(200)
+            ?.withEndAction { tooltipBubble.visibility = View.GONE }
+            ?.start()
+
+        tooltipArrow?.animate()
+            ?.translationY(offset)
+            ?.alpha(0f)
+            ?.setDuration(200)
+            ?.withEndAction { tooltipArrow.visibility = View.GONE }
+            ?.start()
+
+        // Reposition fabAdd to bottom if it's still visible
+        fabAdd?.let {
+            if (it.visibility == View.VISIBLE) {
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(parent)
+                constraintSet.clear(R.id.fabAdd, ConstraintSet.BOTTOM)
+                constraintSet.connect(
+                    R.id.fabAdd, ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 32
+                )
+                TransitionManager.beginDelayedTransition(parent)
+                constraintSet.applyTo(parent)
+            }
+        }
     }
 }

@@ -809,4 +809,5 @@
     <string name="change_sms_verification_method">To change the two-step verification method, you must first disable the currently enabled method.\nAre you sure you want to delete text message verification method?</string>
     <string name="email_verification_method">email verification method</string>
     <string name="sms_verification_method">text message verification method</string>
+    <string name="set_up_your_account">Set up your account</string>
 </resources>
