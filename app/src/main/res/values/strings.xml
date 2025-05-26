@@ -810,4 +810,8 @@
     <string name="email_verification_method">email verification method</string>
     <string name="sms_verification_method">text message verification method</string>
     <string name="set_up_your_account">Set up your account</string>
+    <string name="getting_started">Getting started</string>
+    <string name="getting_started_description">Let’s finish setting up your account</string>
+    <string name="account_set_up">Account set up</string>
+    <string name="dont_show_again">Don’t show me this again</string>
 </resources>

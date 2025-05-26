@@ -41,6 +41,7 @@ import org.permanent.permanent.ui.SelectionOptionsFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.hideKeyboardFrom
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragment
 import org.permanent.permanent.ui.public.PublicFragment
@@ -372,6 +373,11 @@ class MyFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_myFilesFragment_to_editMetadataFragment, bundle)
     }
 
+    private val openChecklistBottomSheetObserver = Observer<Void?> {
+        val bottomSheet = ChecklistBottomSheetFragment()
+        bottomSheet.show(parentFragmentManager, "ChecklistBottomSheet")
+    }
+
     private val onSelectionRelocateObserver = Observer<ModificationType> {
         viewModel.onSelectionRelocationBtnClick(it)
     }
@@ -499,6 +505,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
+        viewModel.getOpenChecklistBottomSheet().observe(this, openChecklistBottomSheetObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -529,6 +536,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
+        viewModel.getOpenChecklistBottomSheet().removeObserver(openChecklistBottomSheetObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
