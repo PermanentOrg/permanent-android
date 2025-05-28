@@ -139,7 +139,7 @@ fun SettingsMenuScreen(
                 ) { onStorageClick() }
 
                 SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_archives_primary),
+                    painterResource(id = R.drawable.ic_archives_blue),
                     stringResource(R.string.my_archives),
                 ) { onMyArchivesClick() }
 

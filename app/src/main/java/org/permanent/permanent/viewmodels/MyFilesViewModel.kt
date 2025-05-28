@@ -83,6 +83,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
     private val onRecordSelected = SingleLiveEvent<Record>()
+    private val openChecklistBottomSheet = SingleLiveEvent<Void?>()
     private var showScreenSimplified = MutableLiveData(false)
     private val showChecklistFab = MutableLiveData(false)
 
@@ -231,6 +232,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     fun onChecklistFabClick() {
+        openChecklistBottomSheet.call()
     }
 
     override fun onRecordOptionsClick(record: Record) {
@@ -497,6 +499,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getOnShowSortOptionsFragment(): MutableLiveData<SortType> = onShowSortOptionsFragment
 
     fun getOnShowRecordSearchFragment(): MutableLiveData<Void?> = onShowRecordSearchFragment
+
+    fun getOpenChecklistBottomSheet(): MutableLiveData<Void?> = openChecklistBottomSheet
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment

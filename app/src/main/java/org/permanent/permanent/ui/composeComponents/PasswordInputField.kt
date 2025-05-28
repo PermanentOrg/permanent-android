@@ -66,7 +66,7 @@ fun PasswordInputField(
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
                         painter = painterResource(
-                            id = if (passwordVisible) R.drawable.ic_eye_cut_blue
+                            id = if (passwordVisible) R.drawable.ic_eye_off_blue
                             else R.drawable.ic_eye_blue
                         ), contentDescription = null, tint = Color.Unspecified
                     )
