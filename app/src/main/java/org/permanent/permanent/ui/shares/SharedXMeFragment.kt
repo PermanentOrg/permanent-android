@@ -49,6 +49,7 @@ import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
 import org.permanent.permanent.ui.myFiles.SortOptionsFragment
 import org.permanent.permanent.ui.myFiles.SortType
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
@@ -75,6 +76,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private var recordOptionsFragment: RecordOptionsFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionOptionsFragment: SelectionOptionsFragment? = null
+    private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var islandExpandedWidth = 960
 
@@ -374,6 +376,16 @@ class SharedXMeFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_sharesFragment_to_editMetadataFragment, bundle)
     }
 
+    private val openChecklistBottomSheetObserver = Observer<Void?> {
+        bottomSheetFragment = ChecklistBottomSheetFragment()
+        bottomSheetFragment?.show(parentFragmentManager, "ChecklistBottomSheet")
+        bottomSheetFragment?.getHideChecklistButton()?.observe(this, onHideChecklistButtonObserver)
+    }
+
+    private val onHideChecklistButtonObserver = Observer<Void?> {
+        viewModel.hideChecklistButton()
+    }
+
     private val onSelectionRelocateObserver = Observer<ModificationType> {
         viewModel.onSelectionRelocationBtnClick(it)
     }
@@ -502,6 +514,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
+        viewModel.getOpenChecklistBottomSheet().observe(this, openChecklistBottomSheetObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
@@ -530,6 +543,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
+        viewModel.getOpenChecklistBottomSheet().removeObserver(openChecklistBottomSheetObserver)
+        bottomSheetFragment?.getHideChecklistButton()?.removeObserver(onHideChecklistButtonObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)

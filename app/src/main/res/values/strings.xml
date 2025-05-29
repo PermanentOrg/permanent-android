@@ -814,4 +814,5 @@
     <string name="getting_started_description">Let’s finish setting up your account</string>
     <string name="account_set_up">Account set up</string>
     <string name="dont_show_again">Don’t show me this again</string>
+    <string name="dont_show_again_description">You will no longer receive account setup progress reminders. Are you sure you want to hide this checklist?</string>
 </resources>

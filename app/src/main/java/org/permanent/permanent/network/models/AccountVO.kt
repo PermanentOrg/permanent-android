@@ -39,5 +39,6 @@ class AccountVO() {
         accessRole = account.accessRole?.backendString
         status = account.status?.toBackendString()
         spaceTotal = account.spaceTotal
+        hideChecklist = account.hideChecklist
     }
 }
