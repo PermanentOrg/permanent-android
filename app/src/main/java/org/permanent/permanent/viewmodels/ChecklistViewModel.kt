@@ -1,17 +1,27 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Account
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.network.models.IChecklistListener
+import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IEventsRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.composeComponents.SnackbarType
 
 class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val appContext = application.applicationContext
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
 
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
@@ -23,6 +33,7 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
     val checklistItems: StateFlow<List<ChecklistItem>> = _checklistItems
 
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
+    private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     private val checklistIconMap = mapOf(
         "archiveCreated" to R.drawable.ic_archives_blue,
@@ -70,7 +81,25 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
 
     }
 
-    fun dismissForeverChecklist() {
+    fun dismissForeverChecklist(onDismiss: () -> Unit) {
+        val accountId = prefsHelper.getAccountId()
+        val email = prefsHelper.getAccountEmail()
+        val account = Account(accountId, email)
+        account.hideChecklist = true
 
+        _isBusyState.value = true
+        accountRepository.update(account, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                onDismiss()
+            }
+
+            override fun onFailed(error: String?) {
+                _snackbarMessage.value = error ?: appContext.getString(R.string.generic_error)
+                _snackbarType.value = SnackbarType.ERROR
+                _isBusyState.value = false
+            }
+        })
     }
 }

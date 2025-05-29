@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package org.permanent.permanent.ui.myFiles.checklist
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
@@ -22,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,12 +38,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import org.permanent.permanent.R
 import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
+import org.permanent.permanent.ui.composeComponents.ButtonColor
+import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.composeComponents.SnackbarType
@@ -50,6 +60,9 @@ fun ChecklistBottomSheetContent(viewModel: ChecklistViewModel, onClose: () -> Un
     val checklistItems by viewModel.checklistItems.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
     val snackbarType by viewModel.snackbarType.collectAsState()
+    val pagerState = rememberPagerState(initialPage = ChecklistPage.BODY.value,
+        pageCount = { ChecklistPage.values().size })
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -67,10 +80,37 @@ fun ChecklistBottomSheetContent(viewModel: ChecklistViewModel, onClose: () -> Un
                 }
 
                 else -> {
-                    ChecklistBody(viewModel = viewModel,
-                        checklistItems = checklistItems,
-                        onItemClick = { viewModel.onChecklistItemClicked(it) },
-                        onDismissForeverClick = { viewModel.dismissForeverChecklist() })
+                    HorizontalPager(
+                        state = pagerState,
+                        beyondBoundsPageCount = 2,
+                        userScrollEnabled = false,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        when (page) {
+                            ChecklistPage.BODY.value -> {
+                                ChecklistBodyPage(viewModel = viewModel,
+                                    checklistItems = checklistItems,
+                                    onItemClick = { viewModel.onChecklistItemClicked(it) },
+                                    onDismissForeverClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(ChecklistPage.CONFIRMATION.value)
+                                        }
+                                    })
+                            }
+
+                            ChecklistPage.CONFIRMATION.value -> {
+                                ConfirmationPage(onConfirmClick = {
+                                    viewModel.dismissForeverChecklist {
+                                        onClose()
+                                    }
+                                }, onDismissClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(ChecklistPage.BODY.value)
+                                    }
+                                })
+                            }
+                        }
+                    }
                 }
             }
 
@@ -160,7 +200,7 @@ fun ChecklistHeader(
 }
 
 @Composable
-fun ChecklistBody(
+fun ChecklistBodyPage(
     viewModel: ChecklistViewModel,
     checklistItems: List<ChecklistItem>,
     onItemClick: (ChecklistItem) -> Unit,
@@ -237,8 +277,7 @@ fun ChecklistBody(
                 modifier = Modifier.padding(horizontal = 8.dp),
                 painter = painterResource(R.drawable.ic_eye_off_blue),
                 contentDescription = null,
-                tint = colorResource(R.color.blue900),
-//                modifier = Modifier.size(20.dp)
+                tint = colorResource(R.color.blue900)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -333,4 +372,58 @@ fun RoundedLinearProgressIndicator(
             trackColor = Color.Transparent,
         )
     }
+}
+
+@Composable
+fun ConfirmationPage(
+    onConfirmClick: () -> Unit, onDismissClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp)
+    ) {
+        Icon(
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .align(Alignment.CenterHorizontally),
+            painter = painterResource(R.drawable.ic_eye_off),
+            contentDescription = null,
+            tint = colorResource(R.color.blue400)
+        )
+
+        Text(
+            text = stringResource(R.string.dont_show_again_description),
+            textAlign = TextAlign.Center,
+            style = TextStyle(
+                fontSize = 14.sp,
+                lineHeight = 24.sp,
+                fontFamily = FontFamily(Font(R.font.usual_regular)),
+                color = colorResource(R.color.blue700)
+            )
+        )
+
+        // Spacer to push buttons to bottom of remaining space
+        Spacer(modifier = Modifier.weight(1f))
+
+        CenteredTextAndIconButton(
+            buttonColor = ButtonColor.DARK,
+            text = stringResource(id = R.string.yes_button),
+            icon = null,
+            onButtonClick = onConfirmClick
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CenteredTextAndIconButton(
+            buttonColor = ButtonColor.LIGHT_BLUE,
+            text = stringResource(id = R.string.button_cancel),
+            icon = null,
+            onButtonClick = onDismissClick
+        )
+    }
+}
+
+enum class ChecklistPage(val value: Int) {
+    BODY(0), SUCCESS(1), CONFIRMATION(2), ERROR(3)
 }

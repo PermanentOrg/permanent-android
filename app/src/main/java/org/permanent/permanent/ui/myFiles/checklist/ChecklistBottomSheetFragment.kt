@@ -8,29 +8,30 @@ import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.ChecklistViewModel
+import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
 
     private val viewModel: ChecklistViewModel by viewModels()
+    private val hideChecklistButton = SingleLiveEvent<Void?>()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
             )
             setContent {
                 MaterialTheme {
-                    ChecklistBottomSheetContent(
-                        viewModel = viewModel,
-                        onClose = { dismiss() }
-                    )
+                    ChecklistBottomSheetContent(viewModel = viewModel, onClose = {
+                        hideChecklistButton.call()
+                        dismiss()
+                    })
                 }
             }
         }
@@ -55,6 +56,8 @@ class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
             }
         }
     }
+
+    fun getHideChecklistButton(): MutableLiveData<Void?> = hideChecklistButton
 
     override fun connectViewModelEvents() {
     }

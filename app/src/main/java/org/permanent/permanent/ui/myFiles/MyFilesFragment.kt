@@ -77,6 +77,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var shareManagementFragment: ShareManagementFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionOptionsFragment: SelectionOptionsFragment? = null
+    private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
@@ -374,8 +375,13 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val openChecklistBottomSheetObserver = Observer<Void?> {
-        val bottomSheet = ChecklistBottomSheetFragment()
-        bottomSheet.show(parentFragmentManager, "ChecklistBottomSheet")
+        bottomSheetFragment = ChecklistBottomSheetFragment()
+        bottomSheetFragment?.show(parentFragmentManager, "ChecklistBottomSheet")
+        bottomSheetFragment?.getHideChecklistButton()?.observe(this, onHideChecklistButtonObserver)
+    }
+
+    private val onHideChecklistButtonObserver = Observer<Void?> {
+        viewModel.hideChecklistButton()
     }
 
     private val onSelectionRelocateObserver = Observer<ModificationType> {
@@ -537,6 +543,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
         viewModel.getOpenChecklistBottomSheet().removeObserver(openChecklistBottomSheetObserver)
+        bottomSheetFragment?.getHideChecklistButton()?.removeObserver(onHideChecklistButtonObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
