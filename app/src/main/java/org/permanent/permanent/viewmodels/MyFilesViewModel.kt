@@ -163,6 +163,10 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         })
     }
 
+    fun hideChecklistButton() {
+        showChecklistFab.value = false
+    }
+
     fun setExistsDownloads(existsDownloads: MutableLiveData<Boolean>) {
         this.existsDownloads = existsDownloads
     }
@@ -200,6 +204,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
                             parentName.equals(
                                 Constants.PUBLIC_FILES_FOLDER
                             ) -> Constants.PUBLIC_FILES
+
                             else -> parentName
                         }
 
@@ -273,6 +278,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
                 folderPathStack.push(record)
                 loadFilesAndUploadsOf(record)
             }
+
             else -> {
                 if (showScreenSimplified.value == false) {
                     record.displayFirstInCarousel = true

@@ -78,6 +78,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     private val onFileViewRequest = SingleLiveEvent<Record>()
     private val showRelocationCancellationDialog = SingleLiveEvent<Void?>()
     private val onRecordSelected = SingleLiveEvent<Record>()
+    private val openChecklistBottomSheet = SingleLiveEvent<Void?>()
     private var showScreenSimplified = MutableLiveData(false)
     private val showChecklistFab = MutableLiveData(false)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -140,6 +141,10 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
                 showMessage.value = error
             }
         })
+    }
+
+    fun hideChecklistButton() {
+        showChecklistFab.value = false
     }
 
     override fun onRecordClick(record: Record) {
@@ -239,6 +244,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     }
 
     fun onChecklistFabClick() {
+        openChecklistBottomSheet.call()
     }
 
     fun upload(uris: List<Uri>) {
@@ -457,4 +463,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 
     fun getShowChecklistFab(): MutableLiveData<Boolean> = showChecklistFab
+
+    fun getOpenChecklistBottomSheet(): MutableLiveData<Void?> = openChecklistBottomSheet
 }
