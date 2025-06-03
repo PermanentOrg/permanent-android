@@ -91,6 +91,7 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
         accountRepository.update(account, object : IResponseListener {
 
             override fun onSuccess(message: String?) {
+                prefsHelper.saveAccountHideChecklist(true)
                 _isBusyState.value = false
                 onDismiss()
             }
@@ -102,4 +103,6 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
             }
         })
     }
+
+    fun getAccountHideChecklist() = prefsHelper.getAccountHideChecklist()
 }

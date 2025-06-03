@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -33,7 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -41,7 +42,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
@@ -55,6 +55,7 @@ import org.permanent.permanent.viewmodels.SettingsMenuViewModel
 fun SettingsMenuScreen(
     viewModel: SettingsMenuViewModel,
     onDismiss: () -> Unit,
+    onFinishAccountSetupClick: () -> Unit,
     onAccountClick: () -> Unit,
     onStorageClick: () -> Unit,
     onMyArchivesClick: () -> Unit,
@@ -64,12 +65,7 @@ fun SettingsMenuScreen(
     onLegacyPlanningClick: () -> Unit,
     onSignOutClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val configuration = LocalConfiguration.current
-
-    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
-    val error500Color = Color(ContextCompat.getColor(context, R.color.error500))
 
     val archiveThumb by viewModel.getArchiveThumb().observeAsState("")
     val accountName by viewModel.getAccountName().observeAsState("")
@@ -80,6 +76,7 @@ fun SettingsMenuScreen(
     val spaceUsedPercentage by viewModel.getSpaceUsedPercentage().observeAsState(initial = 0)
 
     val isTwoFAEnabled by viewModel.isTwoFAEnabled().observeAsState(initial = false)
+    val checklist = viewModel.checklistItems.value
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -101,7 +98,7 @@ fun SettingsMenuScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(lightBlueColor)
+                .background(colorResource(R.color.blue25))
                 .padding(top = 24.dp),
             verticalArrangement = Arrangement.Top
         ) {
@@ -111,11 +108,41 @@ fun SettingsMenuScreen(
                 accountEmail = accountEmail,
             ) { onDismiss() }
 
+            if (checklist.any { !it.completed }) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                HorizontalDivider(color = colorResource(R.color.blue50))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 24.dp)
+                        .clickable { onFinishAccountSetupClick() },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        painter = painterResource(R.drawable.ic_list_blue),
+                        contentDescription = null
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = stringResource(R.string.finish_account_setup),
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.blue900)
+                    )
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(top = 24.dp)
-                    .background(whiteColor),
+                    .background(Color.White),
                 verticalArrangement = Arrangement.Top
             ) {
 
@@ -171,7 +198,7 @@ fun SettingsMenuScreen(
                 SettingsMenuItem(
                     painterResource(id = R.drawable.ic_sign_out_red),
                     stringResource(R.string.sign_out),
-                    error500Color,
+                    colorResource(R.color.error500),
                 ) { onSignOutClick() }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -187,9 +214,6 @@ private fun Header(
     accountEmail: String?,
     onCloseClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val blue900Color = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -214,7 +238,7 @@ private fun Header(
             if (accountName != null) {
                 Text(
                     text = accountName,
-                    color = blue900Color,
+                    color = colorResource(R.color.blue900),
                     fontFamily = FontFamily(Font(R.font.usual_medium)),
                     fontSize = 16.sp,
                     maxLines = 1,
@@ -225,7 +249,7 @@ private fun Header(
             if (accountEmail != null) {
                 Text(
                     text = accountEmail,
-                    color = blue900Color,
+                    color = colorResource(R.color.blue900),
                     fontFamily = FontFamily(Font(R.font.usual_regular)),
                     fontSize = 14.sp,
                     maxLines = 1,
@@ -237,7 +261,7 @@ private fun Header(
         Image(
             painter = painterResource(id = R.drawable.ic_close_middle_grey),
             contentDescription = "Plus",
-            colorFilter = ColorFilter.tint(blue900Color),
+            colorFilter = ColorFilter.tint(colorResource(R.color.blue900)),
             modifier = Modifier
                 .size(22.dp)
                 .clickable { onCloseClick() },

@@ -47,12 +47,19 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.AuthenticationActivity
+import org.permanent.permanent.ui.myFiles.MyFilesFragment
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
 import org.permanent.permanent.ui.public.LocationSearchFragment
+import org.permanent.permanent.ui.public.PublicFilesFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
 import org.permanent.permanent.ui.settings.compose.SettingsMenuScreen
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
+import org.permanent.permanent.ui.shares.SharesFragment
 import org.permanent.permanent.viewmodels.MainViewModel
+import org.permanent.permanent.viewmodels.MyFilesViewModel
+import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.SettingsMenuViewModel
+import org.permanent.permanent.viewmodels.SharedXMeViewModel
 
 
 class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
@@ -64,6 +71,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var headerMainBinding: NavMainHeaderBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+    private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private var isSubmenuVisible = false
 
     private val onArchiveSwitched = Observer<Void?> {
@@ -232,6 +240,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     SettingsMenuScreen(
                         viewModel = settingsMenuViewModel,
                         onDismiss = { settingsMenuViewModel.closeAccountMenuSheet() },
+                        onFinishAccountSetupClick = {
+                            bottomSheetFragment = ChecklistBottomSheetFragment()
+                            bottomSheetFragment?.show(supportFragmentManager, "ChecklistBottomSheet")
+                            bottomSheetFragment?.getHideChecklistButton()?.observe(this, onHideChecklistButtonObserver)
+                            settingsMenuViewModel.closeAccountMenuSheet()
+                        },
                         onAccountClick = {
                             navController.navigate(R.id.accountFragment)
                             settingsMenuViewModel.closeAccountMenuSheet()
@@ -302,6 +316,22 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
+    }
+
+    private val onHideChecklistButtonObserver = Observer<Void?> {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
+        val currentFragment = navHostFragment.childFragmentManager.fragments
+            .firstOrNull { it.isVisible }
+
+        currentFragment?.let { fragment ->
+            when (fragment) {
+                is MyFilesFragment -> ViewModelProvider(fragment)[MyFilesViewModel::class.java]
+                is PublicFilesFragment -> ViewModelProvider(fragment)[PublicFilesViewModel::class.java]
+                is SharesFragment -> ViewModelProvider(fragment)[SharedXMeViewModel::class.java]
+                else -> null // Not a known fragment, or doesn't support ChecklistButtonViewModel
+            }?.hideChecklistButton()
+        }
     }
 
     private fun setSubmenuVisibility(visible: Boolean) {
@@ -440,6 +470,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
         settingsMenuViewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         settingsMenuViewModel.getErrorMessage().removeObserver(onErrorMessage)
+        bottomSheetFragment?.getHideChecklistButton()?.removeObserver(onHideChecklistButtonObserver)
     }
 
     override fun onResume() {

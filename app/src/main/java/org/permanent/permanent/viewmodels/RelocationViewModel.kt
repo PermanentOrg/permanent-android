@@ -14,7 +14,7 @@ import org.permanent.permanent.ui.RelocationIslandState
 import org.permanent.permanent.ui.myFiles.ModificationType
 
 abstract class RelocationViewModel(application: Application) :
-    ObservableAndroidViewModel(application) {
+    ChecklistButtonViewModel(application) {
 
     val relocationIslandState = MutableLiveData(RelocationIslandState.BLANK)
     val isRelocationMode = MutableLiveData(false)
@@ -25,7 +25,6 @@ abstract class RelocationViewModel(application: Application) :
     val existsFiles = MutableLiveData(false)
     private val shrinkIslandRequest = SingleLiveEvent<Void?>()
     val onNewTemporaryFiles = SingleLiveEvent<MutableList<Record>>()
-    protected val showMessage = SingleLiveEvent<String>()
     var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setRelocationMode(relocationPair: Pair<MutableList<Record>, ModificationType>) {
