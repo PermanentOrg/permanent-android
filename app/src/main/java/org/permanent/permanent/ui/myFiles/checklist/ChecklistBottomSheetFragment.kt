@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.myFiles.checklist
 
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.ChecklistViewModel
@@ -29,6 +29,8 @@ class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
             setContent {
                 MaterialTheme {
                     ChecklistBottomSheetContent(viewModel = viewModel, onClose = {
+                        dismiss()
+                    }, onHideChecklistButton = {
                         hideChecklistButton.call()
                         dismiss()
                     })
@@ -41,14 +43,8 @@ class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
         super.onStart()
 
         dialog?.let { dialog ->
-            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            val bottomSheet = dialog.findViewById<View>(R.id.design_bottom_sheet)
             bottomSheet?.let {
-                val screenHeight = Resources.getSystem().displayMetrics.heightPixels
-                val desiredHeight = (screenHeight * 0.80).toInt()
-
-                it.layoutParams.height = desiredHeight
-                it.requestLayout()
-
                 BottomSheetBehavior.from(it).apply {
                     state = BottomSheetBehavior.STATE_EXPANDED
                     skipCollapsed = true

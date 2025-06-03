@@ -20,7 +20,6 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
-import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolder
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -29,8 +28,6 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.repositories.AccountRepositoryImpl
-import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
@@ -80,8 +77,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     private val onRecordSelected = SingleLiveEvent<Record>()
     private val openChecklistBottomSheet = SingleLiveEvent<Void?>()
     private var showScreenSimplified = MutableLiveData(false)
-    private val showChecklistFab = MutableLiveData(false)
-    private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
     private lateinit var downloadQueue: DownloadQueue
     private lateinit var uploadsAdapter: UploadsAdapter
@@ -125,26 +120,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             layoutManager = LinearLayoutManager(context)
             adapter = uploadsAdapter
         }
-    }
-
-    fun getHideChecklist() {
-        swipeRefreshLayout.isRefreshing = true
-        accountRepository.getAccount(object : IAccountRepository.IAccountListener {
-
-            override fun onSuccess(account: Account) {
-                swipeRefreshLayout.isRefreshing = false
-                showChecklistFab.value = account.hideChecklist != null && !account.hideChecklist!!
-            }
-
-            override fun onFailed(error: String?) {
-                swipeRefreshLayout.isRefreshing = false
-                showMessage.value = error
-            }
-        })
-    }
-
-    fun hideChecklistButton() {
-        showChecklistFab.value = false
     }
 
     override fun onRecordClick(record: Record) {
@@ -461,8 +436,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
 
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
-
-    fun getShowChecklistFab(): MutableLiveData<Boolean> = showChecklistFab
 
     fun getOpenChecklistBottomSheet(): MutableLiveData<Void?> = openChecklistBottomSheet
 }

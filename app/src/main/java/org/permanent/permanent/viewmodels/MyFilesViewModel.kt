@@ -23,7 +23,6 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
-import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.EventAction
@@ -36,9 +35,7 @@ import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
-import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.EventsRepositoryImpl
-import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.INotificationRepository
@@ -85,9 +82,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val onRecordSelected = SingleLiveEvent<Record>()
     private val openChecklistBottomSheet = SingleLiveEvent<Void?>()
     private var showScreenSimplified = MutableLiveData(false)
-    private val showChecklistFab = MutableLiveData(false)
 
-    protected var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     protected var folderPathStack: Stack<Record> = Stack()
     private lateinit var uploadsAdapter: UploadsAdapter
@@ -145,26 +140,6 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
                 error?.let { showMessage.value = it }
             }
         })
-    }
-
-    fun getHideChecklist() {
-        swipeRefreshLayout.isRefreshing = true
-        accountRepository.getAccount(object : IAccountRepository.IAccountListener {
-
-            override fun onSuccess(account: Account) {
-                swipeRefreshLayout.isRefreshing = false
-                showChecklistFab.value = account.hideChecklist != null && !account.hideChecklist!!
-            }
-
-            override fun onFailed(error: String?) {
-                swipeRefreshLayout.isRefreshing = false
-                showMessage.value = error
-            }
-        })
-    }
-
-    fun hideChecklistButton() {
-        showChecklistFab.value = false
     }
 
     fun setExistsDownloads(existsDownloads: MutableLiveData<Boolean>) {
@@ -514,8 +489,6 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
-
-    fun getShowChecklistFab(): MutableLiveData<Boolean> = showChecklistFab
 
     companion object {
         const val MILLIS_UNTIL_REFRESH_AFTER_UPLOAD = 9000L

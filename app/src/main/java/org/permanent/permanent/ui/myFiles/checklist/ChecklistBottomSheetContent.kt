@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +56,9 @@ import org.permanent.permanent.viewmodels.ChecklistViewModel
 import kotlin.math.roundToInt
 
 @Composable
-fun ChecklistBottomSheetContent(viewModel: ChecklistViewModel, onClose: () -> Unit) {
+fun ChecklistBottomSheetContent(
+    viewModel: ChecklistViewModel, onClose: () -> Unit, onHideChecklistButton: () -> Unit
+) {
     val isBusyState by viewModel.isBusyState.collectAsState()
     val checklistItems by viewModel.checklistItems.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
@@ -101,7 +104,7 @@ fun ChecklistBottomSheetContent(viewModel: ChecklistViewModel, onClose: () -> Un
                             ChecklistPage.CONFIRMATION.value -> {
                                 ConfirmationPage(onConfirmClick = {
                                     viewModel.dismissForeverChecklist {
-                                        onClose()
+                                        onHideChecklistButton()
                                     }
                                 }, onDismissClick = {
                                     coroutineScope.launch {
@@ -177,7 +180,7 @@ fun ChecklistHeader(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = stringResource(R.string.getting_started_description), style = TextStyle(
+                text = stringResource(R.string.finish_account_setup), style = TextStyle(
                     fontSize = 12.sp,
                     lineHeight = 16.sp,
                     fontFamily = FontFamily(Font(R.font.usual_regular)),
@@ -206,6 +209,7 @@ fun ChecklistBodyPage(
     onItemClick: (ChecklistItem) -> Unit,
     onDismissForeverClick: () -> Unit
 ) {
+    val hideChecklist = remember { viewModel.getAccountHideChecklist() }
     val completedCount = checklistItems.count { it.completed }
     val progress =
         if (checklistItems.isNotEmpty()) completedCount.toFloat() / checklistItems.size else 0f
@@ -261,35 +265,37 @@ fun ChecklistBodyPage(
         // Spacer to push divider to bottom of remaining space
         Spacer(modifier = Modifier.weight(1f))
 
-        // Custom divider
-        HorizontalDivider(
-            thickness = 1.dp, color = colorResource(R.color.blue50)
-        )
-
-        // Dismiss row
-        Row(modifier = Modifier
-            .clickable { onDismissForeverClick() }
-            .fillMaxWidth()
-            .padding(vertical = 32.dp, horizontal = 24.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-
-            Icon(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                painter = painterResource(R.drawable.ic_eye_off_blue),
-                contentDescription = null,
-                tint = colorResource(R.color.blue900)
+        if (!hideChecklist) {
+            // Custom divider
+            HorizontalDivider(
+                thickness = 1.dp, color = colorResource(R.color.blue50)
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            // Dismiss row
+            Row(modifier = Modifier
+                .clickable { onDismissForeverClick() }
+                .fillMaxWidth()
+                .padding(vertical = 32.dp, horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically) {
 
-            Text(
-                text = stringResource(R.string.dont_show_again), style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 24.sp,
-                    fontFamily = FontFamily(Font(R.font.usual_regular)),
-                    color = colorResource(R.color.blue900)
+                Icon(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    painter = painterResource(R.drawable.ic_eye_off_blue),
+                    contentDescription = null,
+                    tint = colorResource(R.color.blue900)
                 )
-            )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    text = stringResource(R.string.dont_show_again), style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.blue900)
+                    )
+                )
+            }
         }
     }
 }

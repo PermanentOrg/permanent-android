@@ -3,6 +3,7 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.tasks.OnCompleteListener
@@ -11,6 +12,8 @@ import org.permanent.permanent.models.Account
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITwoFAListener
+import org.permanent.permanent.network.models.ChecklistItem
+import org.permanent.permanent.network.models.IChecklistListener
 import org.permanent.permanent.network.models.TwoFAVO
 import org.permanent.permanent.repositories.AccountRepositoryImpl
 import org.permanent.permanent.repositories.AuthenticationRepositoryImpl
@@ -44,6 +47,7 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
     private val errorMessage = MutableLiveData<String>()
     private val _showBottomSheet = MutableLiveData(false)
     val showBottomSheet: LiveData<Boolean> = _showBottomSheet
+    val checklistItems = mutableStateOf<List<ChecklistItem>>(emptyList())
     private val onLoggedOut = SingleLiveEvent<Void?>()
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private var authRepository: IAuthenticationRepository =
@@ -58,6 +62,7 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
         updateArchiveAndAccountDetails()
         updateUsedStorage()
         updateTwoFA()
+        getChecklist()
     }
 
     fun closeAccountMenuSheet() {
@@ -98,6 +103,22 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
                 isTwoFAEnabled.value = !twoFAVOList.isNullOrEmpty()
                 prefsHelper.setIsTwoFAEnabled(!twoFAVOList.isNullOrEmpty())
                 prefsHelper.setTwoFAList(twoFAVOList ?: emptyList())
+            }
+
+            override fun onFailed(error: String?) {
+                error?.let { showError.value = it }
+            }
+        })
+    }
+
+    private fun getChecklist() {
+        eventsRepository.getCheckList(object : IChecklistListener {
+
+            override fun onSuccess(checklistList: List<ChecklistItem>) {
+                val updatedList = checklistList.map {
+                    if (it.id == "archiveCreated") it.copy(completed = true) else it
+                }
+                checklistItems.value = updatedList
             }
 
             override fun onFailed(error: String?) {

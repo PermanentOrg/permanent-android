@@ -25,6 +25,7 @@ const val PREFS_PUBLIC_RECORD_THUMB_URL_2000 = "preferences_public_record_thumb_
 const val PREFS_ACCOUNT_EMAIL = "preferences_user_email"
 const val PREFS_ACCOUNT_PASSWORD = "preferences_user_password"
 const val PREFS_ACCOUNT_NAME = "preferences_user_name"
+const val PREFS_ACCOUNT_HIDE_CHECKLIST = "preferences_hide_checklist"
 const val PREFS_DEFAULT_ARCHIVE_ID = "preferences_default_archive_id"
 const val PREFS_CURRENT_ARCHIVE_ID = "preferences_current_archive_id"
 const val PREFS_CURRENT_ARCHIVE_NUMBER = "preferences_current_archive_number"
@@ -114,6 +115,17 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun getAccountName(): String? {
         return sharedPreferences.getString(PREFS_ACCOUNT_NAME, "")
+    }
+
+    fun getAccountHideChecklist(): Boolean {
+        return sharedPreferences.getBoolean(PREFS_ACCOUNT_HIDE_CHECKLIST, false)
+    }
+
+    fun saveAccountHideChecklist(hideChecklist: Boolean) {
+        with(sharedPreferences.edit()) {
+            putBoolean(PREFS_ACCOUNT_HIDE_CHECKLIST, hideChecklist)
+            apply()
+        }
     }
 
     fun saveDefaultArchiveId(id: Int?) {
