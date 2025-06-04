@@ -2,8 +2,12 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.content.Context
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Account
 import org.permanent.permanent.network.IResponseListener
@@ -31,6 +35,9 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
     val snackbarType: StateFlow<SnackbarType> = _snackbarType
     private val _checklistItems = MutableStateFlow<List<ChecklistItem>>(emptyList())
     val checklistItems: StateFlow<List<ChecklistItem>> = _checklistItems
+    val allItemsCompleted: StateFlow<Boolean> = _checklistItems
+        .map { items -> items.isNotEmpty() && items.all { it.completed } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)

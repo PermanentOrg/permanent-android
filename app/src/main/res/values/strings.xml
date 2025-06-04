@@ -815,4 +815,6 @@
     <string name="finish_account_setup">Let’s finish setting up your account</string>
     <string name="dont_show_again">Don’t show me this again</string>
     <string name="dont_show_again_description">You will no longer receive account setup progress reminders. Are you sure you want to hide this checklist?</string>
+    <string name="you_re_all_set">You’re all set!</string>
+    <string name="you_re_all_set_description">You’ve completed your account setup and are ready to make the most of Permanent. Create. Share. Preserve.</string>
 </resources>
