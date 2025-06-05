@@ -39,13 +39,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
-import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
-import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.ui.myFiles.checklist.compose.ChecklistBodyPage
 import org.permanent.permanent.ui.myFiles.checklist.compose.ChecklistCompletedPage
 import org.permanent.permanent.ui.myFiles.checklist.compose.ChecklistConfirmationPage
+import org.permanent.permanent.ui.myFiles.checklist.compose.ChecklistErrorPage
 import org.permanent.permanent.viewmodels.ChecklistViewModel
 
 @Composable
@@ -54,16 +53,14 @@ fun ChecklistBottomSheetContent(
 ) {
     val isBusyState by viewModel.isBusyState.collectAsState()
     val checklistItems by viewModel.checklistItems.collectAsState()
-    val allItemsCompleted by viewModel.allItemsCompleted.collectAsState()
-    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
-    val snackbarType by viewModel.snackbarType.collectAsState()
+    val currentPage by viewModel.currentPage.collectAsState()
     val pagerState = rememberPagerState(initialPage = ChecklistPage.BODY.value,
         pageCount = { ChecklistPage.values().size })
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(allItemsCompleted) {
-        if (allItemsCompleted) {
-            pagerState.animateScrollToPage(ChecklistPage.COMPLETED.value)
+    LaunchedEffect(currentPage) {
+        if (pagerState.currentPage != currentPage.value) {
+            pagerState.animateScrollToPage(currentPage.value)
         }
     }
 
@@ -123,20 +120,14 @@ fun ChecklistBottomSheetContent(
                                     }
                                 })
                             }
+
+                            ChecklistPage.ERROR.value -> {
+                                ChecklistErrorPage(viewModel = viewModel)
+                            }
                         }
                     }
                 }
             }
-
-            AnimatedSnackbar(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(32.dp),
-                isForError = snackbarType == SnackbarType.ERROR,
-                message = snackbarMessage,
-                buttonText = stringResource(id = R.string.ok),
-                onButtonClick = {
-                    viewModel.clearSnackbar()
-                })
         }
     }
 }
