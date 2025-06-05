@@ -305,7 +305,7 @@
                         android:id="@+id/rvFiles"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="156dp"
+                        android:paddingBottom="320dp"
                         android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.VISIBLE : View.GONE}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
