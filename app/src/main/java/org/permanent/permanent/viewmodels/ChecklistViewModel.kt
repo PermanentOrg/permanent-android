@@ -15,22 +15,19 @@ import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.composeComponents.SnackbarType
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistPage
 
 class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(application) {
-    private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
 
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
-    private val _snackbarMessage = MutableStateFlow("")
-    val snackbarMessage: StateFlow<String> = _snackbarMessage
-    private val _snackbarType = MutableStateFlow(SnackbarType.NONE)
-    val snackbarType: StateFlow<SnackbarType> = _snackbarType
     private val _checklistItems = MutableStateFlow<List<ChecklistItem>>(emptyList())
     val checklistItems: StateFlow<List<ChecklistItem>> = _checklistItems
+    private val _currentPage = MutableStateFlow(ChecklistPage.BODY)
+    val currentPage: StateFlow<ChecklistPage> = _currentPage
 
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
@@ -49,7 +46,7 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
         getChecklist()
     }
 
-    private fun getChecklist() {
+    fun getChecklist() {
         _isBusyState.value = true
         eventsRepository.getCheckList(object : IChecklistListener {
 
@@ -59,23 +56,21 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
                 }.sortedByDescending { it.completed }
 
                 _checklistItems.value = updatedList
+                val allCompleted = _checklistItems.value.all { it.completed }
+                _currentPage.value =
+                    if (allCompleted) ChecklistPage.COMPLETED else ChecklistPage.BODY
                 _isBusyState.value = false
             }
 
             override fun onFailed(error: String?) {
                 _isBusyState.value = false
-                _snackbarMessage.value = error ?: appContext.getString(R.string.generic_error)
-                _snackbarType.value = SnackbarType.ERROR
+                _currentPage.value = ChecklistPage.ERROR
             }
         })
     }
 
     fun getIconForItem(id: String): Int =
         checklistIconMap[id] ?: R.drawable.ic_archives_blue
-
-    fun clearSnackbar() {
-        _snackbarMessage.value = ""
-    }
 
     fun onChecklistItemClicked(item: ChecklistItem) {
 
@@ -97,8 +92,7 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
             }
 
             override fun onFailed(error: String?) {
-                _snackbarMessage.value = error ?: appContext.getString(R.string.generic_error)
-                _snackbarType.value = SnackbarType.ERROR
+                _currentPage.value = ChecklistPage.ERROR
                 _isBusyState.value = false
             }
         })

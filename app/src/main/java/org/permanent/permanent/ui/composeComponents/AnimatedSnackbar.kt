@@ -78,7 +78,7 @@ fun AnimatedSnackbar(
                 verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth().padding(16.dp)
             ) {
                 Image(
-                    painter = painterResource(id = if (isForError) R.drawable.ic_error_cercle else R.drawable.ic_check_circle_green),
+                    painter = painterResource(id = if (isForError) R.drawable.ic_error_circle_full else R.drawable.ic_check_circle_green),
                     contentDescription = "error",
                     colorFilter = ColorFilter.tint(
                         if (isForError) colorResource(id = R.color.error500) else colorResource(

@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +38,7 @@ fun CenteredTextAndIconButton(
     fontSize: TextUnit = 16.sp,
     icon: Painter? = painterResource(id = R.drawable.ic_arrow_next_rounded_primary),
     iconAlignment: ButtonIconAlignment = ButtonIconAlignment.END,
+    iconSize: Dp = 16.dp,
     enabled: Boolean = true,
     disabledColor: Color = colorResource(id = R.color.whiteSuperTransparent),
     onButtonClick: () -> Unit
@@ -64,7 +66,7 @@ fun CenteredTextAndIconButton(
                     painter = icon,
                     colorFilter = ColorFilter.tint(if (buttonColor == ButtonColor.LIGHT) primaryColor else Color.White),
                     contentDescription = "Back",
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(iconSize)
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -84,7 +86,7 @@ fun CenteredTextAndIconButton(
                     painter = icon,
                     colorFilter = ColorFilter.tint(if (buttonColor == ButtonColor.LIGHT) primaryColor else Color.White),
                     contentDescription = "Next",
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(iconSize)
                 )
             }
         }
