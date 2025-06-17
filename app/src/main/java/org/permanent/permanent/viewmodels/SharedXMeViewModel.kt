@@ -20,6 +20,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolder
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -438,4 +439,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 
     fun getOpenChecklistBottomSheet(): MutableLiveData<Void?> = openChecklistBottomSheet
+
+    fun getCurrentArchive() : Archive = prefsHelper.getCurrentArchive()
 }

@@ -15,6 +15,7 @@ import org.permanent.permanent.repositories.IAccountRepository
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistPage
 
 class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -32,16 +33,6 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
 
-    private val checklistIconMap = mapOf(
-        "archiveCreated" to R.drawable.ic_archives_blue,
-        "storageRedeemed" to R.drawable.ic_gift_blue_light,
-        "firstUpload" to R.drawable.ic_file_upload_blue_light,
-        "archiveSteward" to R.drawable.ic_archive_steward_blue,
-        "legacyContact" to R.drawable.ic_legacy_contact_blue,
-        "archiveProfile" to R.drawable.ic_archive_profile_blue,
-        "publishContent" to R.drawable.ic_public_blue
-    )
-
     init {
         getChecklist()
     }
@@ -52,7 +43,7 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
 
             override fun onSuccess(checklistList: List<ChecklistItem>) {
                 val updatedList = checklistList.map {
-                    if (it.id == "archiveCreated") it.copy(completed = true) else it
+                    if (it.id == ChecklistItemType.ARCHIVE_CREATED.id) it.copy(completed = true) else it
                 }.sortedByDescending { it.completed }
 
                 _checklistItems.value = updatedList
@@ -70,11 +61,7 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
     }
 
     fun getIconForItem(id: String): Int =
-        checklistIconMap[id] ?: R.drawable.ic_archives_blue
-
-    fun onChecklistItemClicked(item: ChecklistItem) {
-
-    }
+        ChecklistItemType.fromId(id)?.iconResId ?: R.drawable.ic_archives_blue
 
     fun dismissForeverChecklist(onDismiss: () -> Unit) {
         val accountId = prefsHelper.getAccountId()

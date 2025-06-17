@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import com.google.android.material.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.ChecklistViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -17,6 +18,7 @@ import org.permanent.permanent.viewmodels.SingleLiveEvent
 class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
 
     private val viewModel: ChecklistViewModel by viewModels()
+    private val onChecklistItemClick = SingleLiveEvent<ChecklistItem>()
     private val hideChecklistButton = SingleLiveEvent<Void?>()
 
     override fun onCreateView(
@@ -28,12 +30,18 @@ class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
             )
             setContent {
                 MaterialTheme {
-                    ChecklistBottomSheetContent(viewModel = viewModel, onClose = {
-                        dismiss()
-                    }, onHideChecklistButton = {
-                        hideChecklistButton.call()
-                        dismiss()
-                    })
+                    ChecklistBottomSheetContent(viewModel = viewModel,
+                        onItemClick = {
+                            onChecklistItemClick.value = it
+                            dismiss()
+                        },
+                        onClose = {
+                            dismiss()
+                        }, onHideChecklistButton = {
+                            hideChecklistButton.call()
+                            dismiss()
+                        }
+                    )
                 }
             }
         }
@@ -52,6 +60,8 @@ class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
             }
         }
     }
+
+    fun getOnChecklistItemClick(): MutableLiveData<ChecklistItem> = onChecklistItemClick
 
     fun getHideChecklistButton(): MutableLiveData<Void?> = hideChecklistButton
 

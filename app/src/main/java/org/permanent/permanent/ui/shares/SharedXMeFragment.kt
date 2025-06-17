@@ -34,11 +34,13 @@ import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.SelectionOptionsFragment
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.myFiles.AddOptionsFragment
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.MyFilesFragment
@@ -50,6 +52,8 @@ import org.permanent.permanent.ui.myFiles.RecordsListAdapter
 import org.permanent.permanent.ui.myFiles.SortOptionsFragment
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
+import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
@@ -379,7 +383,23 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private val openChecklistBottomSheetObserver = Observer<Void?> {
         bottomSheetFragment = ChecklistBottomSheetFragment()
         bottomSheetFragment?.show(parentFragmentManager, "ChecklistBottomSheet")
+        bottomSheetFragment?.getOnChecklistItemClick()?.observe(this, onChecklistItemClickObserver)
         bottomSheetFragment?.getHideChecklistButton()?.observe(this, onHideChecklistButtonObserver)
+    }
+
+    private val onChecklistItemClickObserver = Observer<ChecklistItem> {
+        when (it.toChecklistType()) {
+            ChecklistItemType.STORAGE_REDEEMED -> findNavController().navigate(R.id.redeemCodeFragment)
+            ChecklistItemType.LEGACY_CONTACT -> findNavController().navigate(R.id.legacyContactFragment)
+            ChecklistItemType.ARCHIVE_STEWARD -> {
+                val bundle = bundleOf(PARCELABLE_ARCHIVE_KEY to viewModel.getCurrentArchive())
+                findNavController().navigate(R.id.archiveStewardFragment, bundle)
+            }
+            ChecklistItemType.FIRST_UPLOAD -> {}
+            ChecklistItemType.ARCHIVE_PROFILE -> {}
+            ChecklistItemType.PUBLISH_CONTENT -> {}
+            ChecklistItemType.ARCHIVE_CREATED, null -> {}
+        }
     }
 
     private val onHideChecklistButtonObserver = Observer<Void?> {
@@ -544,6 +564,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
         viewModel.getOpenChecklistBottomSheet().removeObserver(openChecklistBottomSheetObserver)
+        bottomSheetFragment?.getOnChecklistItemClick()?.removeObserver(onChecklistItemClickObserver)
         bottomSheetFragment?.getHideChecklistButton()?.removeObserver(onHideChecklistButtonObserver)
         recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
