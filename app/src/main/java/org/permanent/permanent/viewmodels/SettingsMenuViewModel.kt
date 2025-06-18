@@ -27,6 +27,7 @@ import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
 
 class SettingsMenuViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val TAG = SettingsMenuViewModel::class.java.simpleName
@@ -116,7 +117,7 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
 
             override fun onSuccess(checklistList: List<ChecklistItem>) {
                 val updatedList = checklistList.map {
-                    if (it.id == "archiveCreated") it.copy(completed = true) else it
+                    if (it.id == ChecklistItemType.ARCHIVE_CREATED.id) it.copy(completed = true) else it
                 }
                 checklistItems.value = updatedList
             }

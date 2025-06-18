@@ -60,7 +60,7 @@ fun ChecklistBodyPage(
             ChecklistItemRow(
                 item = item,
                 viewModel = viewModel,
-                onClick = { onItemClick(item) })
+                onClick = { if (!item.completed) onItemClick(item) })
         }
 
         // Spacer to push divider to bottom of remaining space

@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.permanent.permanent.R
+import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.myFiles.checklist.compose.ChecklistBodyPage
@@ -49,7 +50,10 @@ import org.permanent.permanent.viewmodels.ChecklistViewModel
 
 @Composable
 fun ChecklistBottomSheetContent(
-    viewModel: ChecklistViewModel, onClose: () -> Unit, onHideChecklistButton: () -> Unit
+    viewModel: ChecklistViewModel,
+    onItemClick: (ChecklistItem) -> Unit,
+    onClose: () -> Unit,
+    onHideChecklistButton: () -> Unit
 ) {
     val isBusyState by viewModel.isBusyState.collectAsState()
     val checklistItems by viewModel.checklistItems.collectAsState()
@@ -90,7 +94,7 @@ fun ChecklistBottomSheetContent(
                             ChecklistPage.BODY.value -> {
                                 ChecklistBodyPage(viewModel = viewModel,
                                     checklistItems = checklistItems,
-                                    onItemClick = { viewModel.onChecklistItemClicked(it) },
+                                    onItemClick = onItemClick,
                                     onDismissForeverClick = {
                                         coroutineScope.launch {
                                             pagerState.animateScrollToPage(ChecklistPage.CONFIRMATION.value)

@@ -24,6 +24,7 @@ import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccountEventAction
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.NavigationFolder
@@ -489,6 +490,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
 
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
+
+    fun getCurrentArchive() : Archive = prefsHelper.getCurrentArchive()
 
     companion object {
         const val MILLIS_UNTIL_REFRESH_AFTER_UPLOAD = 9000L

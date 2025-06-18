@@ -42,6 +42,7 @@ import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.NavMainHeaderBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.AccountEventAction
+import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
@@ -49,6 +50,8 @@ import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.myFiles.MyFilesFragment
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
+import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
+import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFilesFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
@@ -193,7 +196,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     isSubmenuVisible = !isSubmenuVisible
                     setSubmenuVisibility(isSubmenuVisible)
                     setArchiveSettingsIcon(menuItem, isSubmenuVisible)
-                    true
                 }
 
                 R.id.archiveStewardFragment -> {
@@ -243,6 +245,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                         onFinishAccountSetupClick = {
                             bottomSheetFragment = ChecklistBottomSheetFragment()
                             bottomSheetFragment?.show(supportFragmentManager, "ChecklistBottomSheet")
+                            bottomSheetFragment?.getOnChecklistItemClick()?.observe(this, onChecklistItemClickObserver)
                             bottomSheetFragment?.getHideChecklistButton()?.observe(this, onHideChecklistButtonObserver)
                             settingsMenuViewModel.closeAccountMenuSheet()
                         },
@@ -316,6 +319,21 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
+    }
+
+    private val onChecklistItemClickObserver = Observer<ChecklistItem> {
+        when (it.toChecklistType()) {
+            ChecklistItemType.STORAGE_REDEEMED -> navController.navigate(R.id.redeemCodeFragment)
+            ChecklistItemType.LEGACY_CONTACT -> navController.navigate(R.id.legacyContactFragment)
+            ChecklistItemType.ARCHIVE_STEWARD -> {
+                val bundle = bundleOf(PARCELABLE_ARCHIVE_KEY to viewModel.getCurrentArchive())
+                navController.navigate(R.id.archiveStewardFragment, bundle)
+            }
+            ChecklistItemType.FIRST_UPLOAD -> {}
+            ChecklistItemType.ARCHIVE_PROFILE -> {}
+            ChecklistItemType.PUBLISH_CONTENT -> {}
+            ChecklistItemType.ARCHIVE_CREATED, null -> {}
+        }
     }
 
     private val onHideChecklistButtonObserver = Observer<Void?> {
@@ -470,6 +488,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         viewModel.getErrorMessage().removeObserver(onErrorMessage)
         settingsMenuViewModel.getOnLoggedOut().removeObserver(onLoggedOut)
         settingsMenuViewModel.getErrorMessage().removeObserver(onErrorMessage)
+        bottomSheetFragment?.getOnChecklistItemClick()?.removeObserver(onChecklistItemClickObserver)
         bottomSheetFragment?.getHideChecklistButton()?.removeObserver(onHideChecklistButtonObserver)
     }
 
