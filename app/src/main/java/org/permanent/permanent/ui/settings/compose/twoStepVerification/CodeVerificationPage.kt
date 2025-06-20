@@ -58,6 +58,7 @@ import org.permanent.permanent.ui.composeComponents.CustomTextButton
 import org.permanent.permanent.ui.composeComponents.DigitTextField
 import org.permanent.permanent.ui.composeComponents.DigitTextFieldColor
 import org.permanent.permanent.ui.composeComponents.TimerButton
+import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.viewmodels.LoginAndSecurityViewModel
 
 @Composable
@@ -253,11 +254,7 @@ fun CodeVerificationPage(
                 style = ButtonColor.TRANSPARENT,
                 text = stringResource(id = R.string.contact_support),
             ) {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://permanent.zohodesk.com/portal/en/newticket")
-                )
-                context.startActivity(intent)
+                context.openLink("https://permanent.zohodesk.com/portal/en/newticket")
             }
         }
     }

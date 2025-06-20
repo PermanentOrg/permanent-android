@@ -45,6 +45,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.CustomTextButton
+import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
 
 @Composable
@@ -204,10 +205,7 @@ private fun LeftSideView(
                         text = stringResource(id = R.string.start_exploring_now),
                         icon = painterResource(id = R.drawable.ic_arrow_next_rounded_primary)
                     ) {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW, Uri.parse("https://www.permanent.org/gallery")
-                        )
-                        context.startActivity(intent)
+                        context.openLink("https://www.permanent.org/gallery")
                     }
                 }
 

@@ -22,6 +22,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentAddStorageBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.viewmodels.AddStorageViewModel
 import org.permanent.permanent.viewmodels.AddStorageViewModel.Companion.DONATION_AMOUNT_10_VALUE
 import org.permanent.permanent.viewmodels.AddStorageViewModel.Companion.DONATION_AMOUNT_20_VALUE
@@ -151,19 +152,9 @@ class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListe
             R.string.button_go_to_wallet
         ) { _, _ ->
             try {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("market://details?id=$GOOGLE_WALLET_APP_ID")
-                    )
-                )
+                context?.openLink("market://details?id=$GOOGLE_WALLET_APP_ID")
             } catch (e: ActivityNotFoundException) {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://play.google.com/store/apps/details?id=$GOOGLE_WALLET_APP_ID")
-                    )
-                )
+                context?.openLink("https://play.google.com/store/apps/details?id=$GOOGLE_WALLET_APP_ID")
             }
         }
         alertDialog.setNegativeButton(R.string.button_cancel) { _, _ -> }
