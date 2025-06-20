@@ -124,6 +124,13 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
             setArchive(arguments?.getParcelable(ARCHIVE) ?: prefsHelper.getCurrentArchive())
         }
 
+        val shouldOpenProfileTab = arguments?.getBoolean(OPEN_PROFILE_TAB) == true
+        if (shouldOpenProfileTab) {
+            binding.vpPublic.post {
+                binding.vpPublic.currentItem = 1
+            }
+        }
+
         return binding.root
     }
 
@@ -200,5 +207,6 @@ class PublicFragment : PermanentBaseFragment(), View.OnClickListener {
         const val FOLDER_ARCHIVE_NR = "folder_archive_nr"
         const val FOLDER_LINK_ID = "folder_link_id"
         const val FILE_ARCHIVE_NR = "file_archive_nr"
+        const val OPEN_PROFILE_TAB = "open_profile_tab"
     }
 }

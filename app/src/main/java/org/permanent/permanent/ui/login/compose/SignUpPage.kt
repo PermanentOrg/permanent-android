@@ -60,6 +60,7 @@ import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.SnackbarType
+import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
 
 @Composable
@@ -324,8 +325,7 @@ fun SignUpPage(
                         annotatedText.getStringAnnotations(
                             tag = "URL", start = offset, end = offset
                         ).firstOrNull()?.let {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.item))
-                            context.startActivity(intent)
+                            context.openLink(it.item)
                         }
                     })
 
