@@ -3,6 +3,7 @@ package org.permanent.permanent.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
 import android.os.IBinder
@@ -41,6 +42,14 @@ fun Context.assetSize(resourceUri: Uri): Long {
     } catch (e: Resources.NotFoundException) {
         return 0
     }
+}
+
+fun Context.openLink(uriString: String) {
+    val intent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse(uriString)
+    )
+    startActivity(intent)
 }
 
 fun Activity.computeWindowSizeClasses(): WindowSizeClass {

@@ -184,7 +184,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onIsProfilePublicChanged(checked: Boolean) {
-        if (isViewOnlyMode.value == false) {
+        if (isViewOnlyMode.value == false && isProfilePublic.value != checked) {
             isBusy.value = true
             profileRepository.safeAddUpdateProfileItems(
                 getProfileItemsToUpdateVisibility(checked), true,

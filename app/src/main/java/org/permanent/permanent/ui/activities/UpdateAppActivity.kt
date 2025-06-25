@@ -11,6 +11,7 @@ import org.permanent.permanent.databinding.ActivityUpdateAppBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.computeWindowSizeClasses
+import org.permanent.permanent.ui.openLink
 
 class UpdateAppActivity : PermanentBaseActivity() {
 
@@ -34,20 +35,10 @@ class UpdateAppActivity : PermanentBaseActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_update_app)
         binding.btnUpdate.setOnClickListener {
             try {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("market://details?id=$packageName")
-//                        Uri.parse("market://details?id=org.permanent.PermanentArchive")
-                    )
-                )
+                openLink("market://details?id=$packageName")
+//                openLink("market://details?id=org.permanent.PermanentArchive")
             } catch (e: ActivityNotFoundException) {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                    )
-                )
+                openLink("https://play.google.com/store/apps/details?id=$packageName")
             }
         }
     }

@@ -48,6 +48,7 @@ import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
 import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragment
+import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
@@ -393,9 +394,12 @@ class MyFilesFragment : PermanentBaseFragment() {
                 val bundle = bundleOf(PARCELABLE_ARCHIVE_KEY to viewModel.getCurrentArchive())
                 findNavController().navigate(R.id.archiveStewardFragment, bundle)
             }
-            ChecklistItemType.FIRST_UPLOAD -> {}
-            ChecklistItemType.ARCHIVE_PROFILE -> {}
-            ChecklistItemType.PUBLISH_CONTENT -> {}
+            ChecklistItemType.FIRST_UPLOAD -> context?.openLink("https://permanent.zohodesk.com/portal/en/kb/articles/uploading-files-mobile-apps")
+            ChecklistItemType.ARCHIVE_PROFILE -> {
+                val bundle = bundleOf(PublicFragment.OPEN_PROFILE_TAB to true)
+                findNavController().navigate(R.id.publicFragment, bundle)
+            }
+            ChecklistItemType.PUBLISH_CONTENT -> context?.openLink("https://permanent.zohodesk.com/portal/en/kb/articles/how-to-publish-a-file-or-folder-mobile")
             ChecklistItemType.ARCHIVE_CREATED, null -> {}
         }
     }
