@@ -8,12 +8,53 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.EditAboutViewModel" />
+            type="org.permanent.permanent.viewmodels.EditArchiveBasicInfoViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvArchiveNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/archive_name"
+            android:textColor="@color/middleGrey"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/tvArchiveNameText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:afterTextChanged="@{(editable)->viewModel.onArchiveNameTextChanged(editable)}"
+            android:background="@drawable/rounded_grey_border_white_background"
+            android:fontFamily="@font/open_sans"
+            android:letterSpacing="-0.01"
+            android:hint="@string/archive_name"
+            android:maxLength="200"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="4dp"
+            android:text="@{viewModel.archiveName}"
+            android:textColor="@color/middleGrey"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvArchiveNameLabel" />
 
         <TextView
             android:id="@+id/tvShortDescriptionTitle"
@@ -23,13 +64,13 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="sans-serif"
-            android:text="@string/edit_about_short_description"
+            android:text="@string/about_this_archive"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/tvArchiveNameText" />
 
         <EditText
             android:id="@+id/etShortDescription"
@@ -64,7 +105,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:fontFamily="sans-serif"
-            android:text="@{viewModel.longDescriptionLabel}"
+            android:text="@string/archive_purpose"
             android:textColor="@color/middleGrey"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"

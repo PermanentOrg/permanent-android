@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccountEventAction
@@ -56,7 +57,12 @@ class RedeemCodeFragment : PermanentBaseFragment() {
 
     private val onGiftStorageRedeemedObserver = Observer<Int> {
         val bundle = bundleOf(PROMO_SIZE_IN_MB_KEY to it)
-        findNavController().navigate(R.id.action_redeemCodeFragment_to_storageMenuFragment, bundle)
+        val options = NavOptions.Builder() // Fixes a nav bug when opened from member checklist
+            .setLaunchSingleTop(true)
+            .setPopUpTo(R.id.redeemCodeFragment, true)
+            .build()
+
+        findNavController().navigate(R.id.action_redeemCodeFragment_to_storageMenuFragment, bundle, options)
     }
 
     override fun connectViewModelEvents() {

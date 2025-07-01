@@ -11,24 +11,24 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentEditAboutBinding
+import org.permanent.permanent.databinding.FragmentEditArchiveBasicInfoBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
-import org.permanent.permanent.viewmodels.EditAboutViewModel
+import org.permanent.permanent.viewmodels.EditArchiveBasicInfoViewModel
 
-class EditAboutFragment : PermanentBaseFragment() {
+class EditArchiveBasicInfoFragment : PermanentBaseFragment() {
 
-    private lateinit var binding: FragmentEditAboutBinding
-    private lateinit var viewModel: EditAboutViewModel
+    private lateinit var binding: FragmentEditArchiveBasicInfoBinding
+    private lateinit var viewModel: EditArchiveBasicInfoViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(EditAboutViewModel::class.java)
-        binding = FragmentEditAboutBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(EditArchiveBasicInfoViewModel::class.java)
+        binding = FragmentEditArchiveBasicInfoBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel

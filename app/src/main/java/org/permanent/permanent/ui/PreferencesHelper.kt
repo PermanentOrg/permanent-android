@@ -186,6 +186,15 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         }
     }
 
+    fun updateCurrentArchiveName(name: String?) {
+        name?.let {
+            with(sharedPreferences.edit()) {
+                putString(PREFS_CURRENT_ARCHIVE_FULL_NAME, "The $name Archive")
+                apply()
+            }
+        }
+    }
+
     fun updateCurrentArchiveThumbURL(thumbURL: String?) {
         with(sharedPreferences.edit()) {
             putString(PREFS_CURRENT_ARCHIVE_THUMB_URL, thumbURL)

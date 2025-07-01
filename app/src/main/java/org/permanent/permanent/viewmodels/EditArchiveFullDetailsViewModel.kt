@@ -29,7 +29,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import java.text.DecimalFormat
 import java.text.NumberFormat
 
-class EditArchiveInformationViewModel(application: Application) :
+class EditArchiveFullDetailsViewModel(application: Application) :
     ObservableAndroidViewModel(application), DatePickerDialog.OnDateSetListener,
     GoogleMap.OnMapClickListener, OnMapReadyCallback {
     private val appContext = application.applicationContext
@@ -45,7 +45,7 @@ class EditArchiveInformationViewModel(application: Application) :
         when (currentArchiveType) {
             ArchiveType.FAMILY -> application.getString(R.string.public_profile_family_name_label)
             ArchiveType.ORGANIZATION -> application.getString(R.string.public_profile_organization_name_label)
-            else -> application.getString(R.string.public_profile_full_name_hint)
+            else -> application.getString(R.string.full_name_hint)
         }
     )
     private val aliasesLabel = MutableLiveData(
@@ -148,7 +148,7 @@ class EditArchiveInformationViewModel(application: Application) :
                 googleMap.apply {
                     addMarker(MarkerOptions().position(latLng))
                     animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 9.9f))
-                    setOnMapClickListener(this@EditArchiveInformationViewModel)
+                    setOnMapClickListener(this@EditArchiveFullDetailsViewModel)
                 }
             }
         }
