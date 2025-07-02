@@ -53,7 +53,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             app:layout_constraintVertical_bias="0.0"
-            android:hint="@string/archive_archive_name_hint"
+            android:hint="@string/archive_name"
             app:setError="@{viewModel.nameError}">
 
             <com.google.android.material.textfield.TextInputEditText

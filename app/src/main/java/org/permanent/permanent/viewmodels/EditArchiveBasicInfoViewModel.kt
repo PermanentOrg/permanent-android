@@ -18,7 +18,7 @@ import org.permanent.permanent.repositories.ProfileRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 
-class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(application) {
+class EditArchiveBasicInfoViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -26,16 +26,11 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     private val isBusy = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     private val showError = MutableLiveData<String>()
+    private val archiveName = MutableLiveData("")
+    private val shortDescription = MutableLiveData("")
     private val shortDescriptionCharsNr =
         MutableLiveData(appContext.getString(R.string.edit_about_character_limit, 0))
-    private val shortDescription = MutableLiveData("")
     private val currentArchiveType = prefsHelper.getCurrentArchiveType()
-    private val longDescriptionLabel = MutableLiveData(
-        application.getString(
-            R.string.edit_about_long_description,
-            currentArchiveType.toTitleCase()
-        )
-    )
     private val longDescriptionHint = MutableLiveData(
         application.getString(
             R.string.edit_about_long_description_hint,
@@ -43,6 +38,7 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
         )
     )
     private val longDescription = MutableLiveData("")
+    private var archiveNameProfileItem: ProfileItem? = null
     private var shortDescriptionProfileItem: ProfileItem? = null
     private var longDescriptionProfileItem: ProfileItem? = null
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
@@ -51,6 +47,10 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     fun displayProfileItems(profileItems: MutableList<ProfileItem>) {
         for (profileItem in profileItems) {
             when (profileItem.fieldName) {
+                ProfileItemName.BASIC -> {
+                    archiveNameProfileItem = profileItem
+                    profileItem.string1?.let { archiveName.value = it }
+                }
                 ProfileItemName.SHORT_DESCRIPTION -> {
                     shortDescriptionProfileItem = profileItem
                     profileItem.string1?.let { shortDescription.value = it }
@@ -67,6 +67,14 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     fun onSaveInfoBtnClick() {
         if (isBusy.value != null && isBusy.value!!) {
             return
+        }
+
+        archiveNameProfileItem?.let {
+            val archiveName = archiveName.value?.trim()
+            if (!it.string1.contentEquals(archiveName) && archiveName?.isNotEmpty() == true) {
+                it.string1 = archiveName
+                addUpdateProfileItem(archiveNameProfileItem!!)
+            }
         }
 
         shortDescriptionProfileItem?.let {
@@ -110,6 +118,9 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
                     isBusy.value = false
                     profileItemToUpdate.id = profileItem.id
                     showMessage.value = appContext.getString(R.string.edit_about_update_success)
+                    if (profileItemToUpdate.fieldName == ProfileItemName.BASIC) {
+                        prefsHelper.updateCurrentArchiveName(profileItemToUpdate.string1)
+                    }
                 }
 
                 override fun onFailed(error: String?) {
@@ -117,6 +128,20 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
                     error?.let { showError.value = it }
                 }
             })
+    }
+
+    fun onArchiveNameTextChanged(text: Editable) {
+        archiveName.value = text.toString()
+    }
+
+    fun onShortDescriptionTextChanged(text: Editable) {
+        shortDescription.value = text.toString()
+        shortDescriptionCharsNr.value =
+            appContext.getString(R.string.edit_about_character_limit, text.length)
+    }
+
+    fun onLongDescriptionTextChanged(text: Editable) {
+        longDescription.value = text.toString()
     }
 
     fun sendEvent(action: EventAction, entityId: String?) {
@@ -131,23 +156,16 @@ class EditAboutViewModel(application: Application) : ObservableAndroidViewModel(
     fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getShowMessage(): LiveData<String> = showMessage
+
     fun getShowError(): LiveData<String> = showError
+
+    fun getArchiveName(): LiveData<String> = archiveName
 
     fun getShortDescription(): LiveData<String> = shortDescription
 
     fun getShortDescriptionCharsNr(): LiveData<String> = shortDescriptionCharsNr
 
-    fun getLongDescriptionLabel(): LiveData<String> = longDescriptionLabel
     fun getLongDescriptionHint(): LiveData<String> = longDescriptionHint
+
     fun getLongDescription(): LiveData<String> = longDescription
-
-    fun onShortDescriptionTextChanged(text: Editable) {
-        shortDescription.value = text.toString()
-        shortDescriptionCharsNr.value =
-            appContext.getString(R.string.edit_about_character_limit, text.length)
-    }
-
-    fun onLongDescriptionTextChanged(text: Editable) {
-        longDescription.value = text.toString()
-    }
 }

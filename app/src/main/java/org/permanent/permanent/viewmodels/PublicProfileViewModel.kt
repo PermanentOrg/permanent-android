@@ -36,7 +36,9 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private var archiveType: ArchiveType? = null
     private var profileItems: MutableList<ProfileItem> = ArrayList()
     private val isProfilePublic = MutableLiveData<Boolean>()
-    private val shortAndLongDescription = MutableLiveData("")
+    private val archiveName = MutableLiveData("")
+    private val shortDescription = MutableLiveData("")
+    private val longDescription = MutableLiveData("")
     private val archiveInfoLabel = MutableLiveData("")
     private val nameLabel = MutableLiveData("")
     private val aliasesLabel = MutableLiveData("")
@@ -53,11 +55,10 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     private val existsMilestones = MutableLiveData(false)
     private val onMilestonesRetrieved = SingleLiveEvent<MutableList<ProfileItem>>()
     private val isAboutExtended = MutableLiveData(false)
-    private val onReadAbout = SingleLiveEvent<Boolean>()
     private val isOnlinePresenceExtended = MutableLiveData(false)
     private val onShowOnlinePresence = SingleLiveEvent<Boolean>()
-    private val onEditAboutRequest = SingleLiveEvent<MutableList<ProfileItem>>()
-    private val onEditArchiveInformationRequest = SingleLiveEvent<MutableList<ProfileItem>>()
+    private val onEditArchiveBasicInfoRequest = SingleLiveEvent<MutableList<ProfileItem>>()
+    private val onEditArchiveFullDetailsRequest = SingleLiveEvent<MutableList<ProfileItem>>()
     private val onEditMilestonesRequest = SingleLiveEvent<Void?>()
     private val onEditOnlinePresenceRequest = SingleLiveEvent<Void?>()
     private var profileRepository: IProfileRepository = ProfileRepositoryImpl()
@@ -75,7 +76,7 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         nameLabel.value = when (archiveType) {
             ArchiveType.FAMILY -> appContext.getString(R.string.public_profile_family_name_label)
             ArchiveType.ORGANIZATION -> appContext.getString(R.string.public_profile_organization_name_label)
-            else -> appContext.getString(R.string.public_profile_full_name_hint)
+            else -> appContext.getString(R.string.full_name_hint)
         }
         aliasesLabel.value = when (archiveType) {
             ArchiveType.FAMILY -> appContext.getString(R.string.public_profile_family_aliases_label)
@@ -112,7 +113,8 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     private fun displayProfileItems(dataList: List<Datum>) {
         val milestones: MutableList<ProfileItem> = ArrayList()
-        shortAndLongDescription.value = ""
+        shortDescription.value = ""
+        longDescription.value = ""
         profileItems = ArrayList()
         for (datum in dataList) {
             val profileItem = ProfileItem(datum.Profile_itemVO, true)
@@ -121,25 +123,16 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
             when (profileItem.fieldName) {
                 ProfileItemName.SHORT_DESCRIPTION -> {
                     profileItem.string1?.let {
-                        shortAndLongDescription.value =
-                            when {
-                                shortAndLongDescription.value?.isEmpty() == true -> it
-                                it.isEmpty() -> shortAndLongDescription.value
-                                else -> it + "\n\n" + shortAndLongDescription.value
-                            }
+                        shortDescription.value = it
                     }
                 }
                 ProfileItemName.DESCRIPTION -> {
                     profileItem.textData1?.let {
-                        shortAndLongDescription.value =
-                            when {
-                                shortAndLongDescription.value?.isEmpty() == true -> it
-                                it.isEmpty() -> shortAndLongDescription.value
-                                else -> shortAndLongDescription.value + "\n\n" + it
-                            }
+                        longDescription.value = it
                     }
                 }
                 ProfileItemName.BASIC -> {
+                    profileItem.string1?.let { archiveName.value = it }
                     profileItem.string2?.let { name.value = it }
                     profileItem.string3?.let { aliases.value = it }
                 }
@@ -234,7 +227,6 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun onReadAboutBtnClick() {
-        onReadAbout.value = !isAboutExtended.value!!
         isAboutExtended.value = !isAboutExtended.value!!
     }
 
@@ -243,12 +235,12 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
         isOnlinePresenceExtended.value = !isOnlinePresenceExtended.value!!
     }
 
-    fun onEditAboutBtnClick() {
-        onEditAboutRequest.value = profileItems
+    fun onEditArchiveBasicInfoBtnClick() {
+        onEditArchiveBasicInfoRequest.value = profileItems
     }
 
-    fun onEditArchiveInformationBtnClick() {
-        onEditArchiveInformationRequest.value = profileItems
+    fun onEditArchiveFullDetailsBtnClick() {
+        onEditArchiveFullDetailsRequest.value = profileItems
     }
 
     fun onEditOnlinePresenceBtnClick() {
@@ -261,10 +253,9 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getArchiveType(): ArchiveType? = archiveType
 
-    fun getOnEditAboutRequest(): LiveData<MutableList<ProfileItem>> = onEditAboutRequest
+    fun getOnEditArchiveBasicInfoRequest(): LiveData<MutableList<ProfileItem>> = onEditArchiveBasicInfoRequest
 
-    fun getOnEditArchiveInformationRequest(): LiveData<MutableList<ProfileItem>> =
-        onEditArchiveInformationRequest
+    fun getOnEditArchiveFullDetailsRequest(): LiveData<MutableList<ProfileItem>> = onEditArchiveFullDetailsRequest
 
     fun getOnEditMilestonesRequest(): LiveData<Void?> = onEditMilestonesRequest
 
@@ -278,9 +269,13 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getIsProfilePublic(): LiveData<Boolean> = isProfilePublic
 
-    fun getShortAndLongDescription(): LiveData<String> = shortAndLongDescription
+    fun getShortDescription(): LiveData<String> = shortDescription
+
+    fun getLongDescription(): LiveData<String> = longDescription
 
     fun getArchiveInfoLabel(): LiveData<String> = archiveInfoLabel
+
+    fun getArchiveName(): LiveData<String> = archiveName
 
     fun getNameLabel(): LiveData<String> = nameLabel
     fun getName(): LiveData<String> = name
@@ -302,7 +297,6 @@ class PublicProfileViewModel(application: Application) : ObservableAndroidViewMo
     fun getOnMilestonesRetrieved(): LiveData<MutableList<ProfileItem>> = onMilestonesRetrieved
 
     fun getIsAboutExtended(): MutableLiveData<Boolean> = isAboutExtended
-    fun getOnReadAbout(): LiveData<Boolean> = onReadAbout
 
     fun getIsOnlinePresenceExtended(): MutableLiveData<Boolean> = isOnlinePresenceExtended
     fun getOnShowOnlinePresence(): LiveData<Boolean> = onShowOnlinePresence

@@ -15,7 +15,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicProfileBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Archive
-import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.public.PublicViewPagerAdapter.Companion.IS_VIEW_ONLY_MODE
@@ -50,14 +49,14 @@ class PublicProfileFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onEditAboutRequest = Observer<MutableList<ProfileItem>> {
+    private val onEditArchiveBasicInfoRequest = Observer<MutableList<ProfileItem>> {
         val bundle = bundleOf(PARCELABLE_PROFILE_ITEM_LIST_KEY to it)
-        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editAboutFragment, bundle)
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editArchiveBasicInfoFragment, bundle)
     }
 
-    private val onEditArchiveInformationRequest = Observer<MutableList<ProfileItem>> {
+    private val onEditArchiveFullDetailsRequest = Observer<MutableList<ProfileItem>> {
         val bundle = bundleOf(PARCELABLE_PROFILE_ITEM_LIST_KEY to it)
-        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editArchiveInformationFragment, bundle)
+        requireParentFragment().findNavController().navigate(R.id.action_publicFragment_to_editArchiveFullDetailsFragment, bundle)
     }
 
     private val onEditMilestonesRequest = Observer<Void?> {
@@ -74,10 +73,6 @@ class PublicProfileFragment : PermanentBaseFragment() {
 
     private val onMilestonesRetrieved = Observer<MutableList<ProfileItem>> {
         milestonesAdapter.set(it)
-    }
-
-    private val onReadAbout = Observer<Boolean> { isMore ->
-        binding.tvAboutText.maxLines = if (isMore) MAX_LINES_NO_LIMIT else MAX_LINES_ABOUT
     }
 
     private val onShowOnlinePresence = Observer<Boolean> { isMore ->
@@ -97,10 +92,9 @@ class PublicProfileFragment : PermanentBaseFragment() {
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getOnMilestonesRetrieved().observe(this, onMilestonesRetrieved)
-        viewModel.getOnReadAbout().observe(this, onReadAbout)
         viewModel.getOnShowOnlinePresence().observe(this, onShowOnlinePresence)
-        viewModel.getOnEditAboutRequest().observe(this, onEditAboutRequest)
-        viewModel.getOnEditArchiveInformationRequest().observe(this, onEditArchiveInformationRequest)
+        viewModel.getOnEditArchiveBasicInfoRequest().observe(this, onEditArchiveBasicInfoRequest)
+        viewModel.getOnEditArchiveFullDetailsRequest().observe(this, onEditArchiveFullDetailsRequest)
         viewModel.getOnEditMilestonesRequest().observe(this, onEditMilestonesRequest)
         viewModel.getOnEditOnlinePresenceRequest().observe(this, onEditOnlinePresenceRequest)
     }
@@ -108,10 +102,9 @@ class PublicProfileFragment : PermanentBaseFragment() {
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getOnMilestonesRetrieved().removeObserver(onMilestonesRetrieved)
-        viewModel.getOnReadAbout().removeObserver(onReadAbout)
         viewModel.getOnShowOnlinePresence().removeObserver(onShowOnlinePresence)
-        viewModel.getOnEditAboutRequest().removeObserver(onEditAboutRequest)
-        viewModel.getOnEditArchiveInformationRequest().removeObserver(onEditArchiveInformationRequest)
+        viewModel.getOnEditArchiveBasicInfoRequest().removeObserver(onEditArchiveBasicInfoRequest)
+        viewModel.getOnEditArchiveFullDetailsRequest().removeObserver(onEditArchiveFullDetailsRequest)
         viewModel.getOnEditMilestonesRequest().removeObserver(onEditMilestonesRequest)
         viewModel.getOnEditOnlinePresenceRequest().removeObserver(onEditOnlinePresenceRequest)
     }
@@ -128,7 +121,6 @@ class PublicProfileFragment : PermanentBaseFragment() {
     }
 
     companion object {
-        const val MAX_LINES_ABOUT = 5
         const val MAX_LINES_ONLINE_PRESENCE = 3
         const val MAX_LINES_NO_LIMIT = 900
         const val PARCELABLE_PROFILE_ITEM_KEY = "parcelable_profile_items_key"

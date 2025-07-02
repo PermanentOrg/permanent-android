@@ -18,19 +18,19 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.MapView
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentEditArchiveInformationBinding
+import org.permanent.permanent.databinding.FragmentEditArchiveFullDetailsBinding
 import org.permanent.permanent.models.ProfileItem
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.public.PublicProfileFragment.Companion.PARCELABLE_PROFILE_ITEM_KEY
-import org.permanent.permanent.viewmodels.EditArchiveInformationViewModel
-import java.util.*
+import org.permanent.permanent.viewmodels.EditArchiveFullDetailsViewModel
+import java.util.Calendar
 
-class EditArchiveInformationFragment : PermanentBaseFragment() {
+class EditArchiveFullDetailsFragment : PermanentBaseFragment() {
 
-    private lateinit var binding: FragmentEditArchiveInformationBinding
-    private lateinit var viewModel: EditArchiveInformationViewModel
+    private lateinit var binding: FragmentEditArchiveFullDetailsBinding
+    private lateinit var viewModel: EditArchiveFullDetailsViewModel
     private var mapView: MapView? = null
 
     override fun onCreateView(
@@ -38,8 +38,8 @@ class EditArchiveInformationFragment : PermanentBaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(EditArchiveInformationViewModel::class.java)
-        binding = FragmentEditArchiveInformationBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(EditArchiveFullDetailsViewModel::class.java)
+        binding = FragmentEditArchiveFullDetailsBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
@@ -47,7 +47,7 @@ class EditArchiveInformationFragment : PermanentBaseFragment() {
         mapView?.onCreate(savedInstanceState)
 
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(
-            R.string.edit_archive_information_label,
+            R.string.edit_x_information_label,
             viewModel.getCurrentArchiveType().toTitleCase()
         )
 
@@ -99,7 +99,7 @@ class EditArchiveInformationFragment : PermanentBaseFragment() {
     private val onShowLocationSearch = Observer<ProfileItem?> {
         val bundle = bundleOf(PARCELABLE_PROFILE_ITEM_KEY to it)
         findNavController()
-            .navigate(R.id.action_editArchiveInformationFragment_to_locationSearchFragment, bundle)
+            .navigate(R.id.action_editArchiveFullDetailsFragment_to_locationSearchFragment, bundle)
     }
 
     override fun connectViewModelEvents() {

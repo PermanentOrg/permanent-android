@@ -52,9 +52,11 @@ import org.permanent.permanent.ui.myFiles.MyFilesFragment
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
 import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
+import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.LocationSearchFragment
 import org.permanent.permanent.ui.public.PublicFilesFragment
 import org.permanent.permanent.ui.public.PublicFolderFragment
+import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.settings.compose.SettingsMenuScreen
 import org.permanent.permanent.ui.shares.RECORD_ID_TO_NAVIGATE_TO_KEY
 import org.permanent.permanent.ui.shares.SharesFragment
@@ -94,7 +96,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private val onDestinationChangedListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.editAboutFragment, R.id.editArchiveInformationFragment, R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
+                R.id.editArchiveBasicInfoFragment, R.id.editArchiveFullDetailsFragment, R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                     binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible = false
                 }
@@ -329,9 +331,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                 val bundle = bundleOf(PARCELABLE_ARCHIVE_KEY to viewModel.getCurrentArchive())
                 navController.navigate(R.id.archiveStewardFragment, bundle)
             }
-            ChecklistItemType.FIRST_UPLOAD -> {}
-            ChecklistItemType.ARCHIVE_PROFILE -> {}
-            ChecklistItemType.PUBLISH_CONTENT -> {}
+            ChecklistItemType.FIRST_UPLOAD -> openLink("https://permanent.zohodesk.com/portal/en/kb/articles/uploading-files-mobile-apps")
+            ChecklistItemType.ARCHIVE_PROFILE -> {
+                val bundle = bundleOf(PublicFragment.OPEN_PROFILE_TAB to true)
+                navController.navigate(R.id.publicFragment, bundle)
+            }
+            ChecklistItemType.PUBLISH_CONTENT -> openLink("https://permanent.zohodesk.com/portal/en/kb/articles/how-to-publish-a-file-or-folder-mobile")
             ChecklistItemType.ARCHIVE_CREATED, null -> {}
         }
     }

@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_activity_navigation"
+    android:id="@+id/main_nav_graph"
     app:startDestination="@id/myFilesFragment">
 
     <fragment
@@ -257,13 +257,13 @@
             android:id="@+id/action_publicFragment_to_publicFolderFragment"
             app:destination="@id/publicFolderFragment" />
         <action
-            android:id="@+id/action_publicFragment_to_editAboutFragment"
-            app:destination="@id/editAboutFragment"
+            android:id="@+id/action_publicFragment_to_editArchiveBasicInfoFragment"
+            app:destination="@id/editArchiveBasicInfoFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
-            android:id="@+id/action_publicFragment_to_editArchiveInformationFragment"
-            app:destination="@id/editArchiveInformationFragment"
+            android:id="@+id/action_publicFragment_to_editArchiveFullDetailsFragment"
+            app:destination="@id/editArchiveFullDetailsFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
         <action
@@ -322,17 +322,17 @@
     </fragment>
 
     <fragment
-        android:id="@+id/editAboutFragment"
-        android:name="org.permanent.permanent.ui.public.EditAboutFragment"
-        android:label="@string/edit_about_label"
-        tools:layout="@layout/fragment_edit_about" />
-    <fragment
-        android:id="@+id/editArchiveInformationFragment"
-        android:name="org.permanent.permanent.ui.public.EditArchiveInformationFragment"
+        android:id="@+id/editArchiveBasicInfoFragment"
+        android:name="org.permanent.permanent.ui.public.EditArchiveBasicInfoFragment"
         android:label="@string/edit_archive_information_label"
-        tools:layout="@layout/fragment_edit_archive_information">
+        tools:layout="@layout/fragment_edit_archive_basic_info" />
+    <fragment
+        android:id="@+id/editArchiveFullDetailsFragment"
+        android:name="org.permanent.permanent.ui.public.EditArchiveFullDetailsFragment"
+        android:label="@string/edit_x_information_label"
+        tools:layout="@layout/fragment_edit_archive_full_details">
         <action
-            android:id="@+id/action_editArchiveInformationFragment_to_locationSearchFragment"
+            android:id="@+id/action_editArchiveFullDetailsFragment_to_locationSearchFragment"
             app:destination="@id/locationSearchFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
@@ -387,7 +387,7 @@
         <action
             android:id="@+id/action_loadingFragment_to_statusFragment"
             app:destination="@id/statusFragment"
-            app:popUpTo="@id/main_activity_navigation"
+            app:popUpTo="@id/main_nav_graph"
             app:popUpToInclusive="false" />
     </fragment>
 

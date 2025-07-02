@@ -9,7 +9,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.EditArchiveInformationViewModel" />
+            type="org.permanent.permanent.viewmodels.EditArchiveFullDetailsViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -54,7 +54,7 @@
             android:background="@drawable/rounded_grey_border_white_background"
             android:fontFamily="@font/open_sans"
             android:letterSpacing="-0.01"
-            android:hint="@string/public_profile_full_name_hint"
+            android:hint="@string/full_name_hint"
             android:includeFontPadding="true"
             android:paddingStart="5dp"
             android:paddingTop="4dp"
