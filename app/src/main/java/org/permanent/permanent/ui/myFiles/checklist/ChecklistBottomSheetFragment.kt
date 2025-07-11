@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles.checklist
 
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -50,15 +51,21 @@ class ChecklistBottomSheetFragment : PermanentBottomSheetFragment() {
     override fun onStart() {
         super.onStart()
 
-        dialog?.let { dialog ->
-            val bottomSheet = dialog.findViewById<View>(R.id.design_bottom_sheet)
-            bottomSheet?.let {
-                BottomSheetBehavior.from(it).apply {
-                    state = BottomSheetBehavior.STATE_EXPANDED
-                    skipCollapsed = true
-                }
-            }
+        val dialog = dialog ?: return
+        val bottomSheet = dialog.findViewById<View>(R.id.design_bottom_sheet) ?: return
+        val window = dialog.window ?: return
+
+        BottomSheetBehavior.from(bottomSheet).apply {
+            state = BottomSheetBehavior.STATE_EXPANDED
+            skipCollapsed = true
         }
+
+        val screenWidth = Resources.getSystem().displayMetrics.widthPixels
+        val isTablet = viewModel.isTablet()
+
+        val targetWidth = if (isTablet) screenWidth / 2 else ViewGroup.LayoutParams.MATCH_PARENT
+
+        window.setLayout(targetWidth, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
     fun getOnChecklistItemClick(): MutableLiveData<ChecklistItem> = onChecklistItemClick
