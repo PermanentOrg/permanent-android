@@ -23,6 +23,7 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
 
+    private val isTablet = prefsHelper.isTablet()
     private val _isBusyState = MutableStateFlow(false)
     val isBusyState: StateFlow<Boolean> = _isBusyState
     private val _checklistItems = MutableStateFlow<List<ChecklistItem>>(emptyList())
@@ -84,6 +85,8 @@ class ChecklistViewModel(application: Application) : ObservableAndroidViewModel(
             }
         })
     }
+
+    fun isTablet() = isTablet
 
     fun getAccountHideChecklist() = prefsHelper.getAccountHideChecklist()
 }
