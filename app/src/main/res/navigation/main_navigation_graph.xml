@@ -421,6 +421,10 @@
             android:id="@+id/action_archiveStewardFragment_to_statusFragment"
             app:destination="@id/statusFragment"
             app:popUpTo="@id/archiveStewardFragment" />
+        <action
+            android:id="@+id/action_archiveStewardFragment_to_introFragment"
+            app:destination="@id/introFragment"
+            app:popUpTo="@id/archiveStewardFragment" />
     </fragment>
 
     <fragment

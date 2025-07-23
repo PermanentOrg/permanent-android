@@ -32,6 +32,7 @@ class ArchiveStewardFragment : PermanentBaseFragment() {
 
         viewModel = ViewModelProvider(this)[ArchiveStewardViewModel::class.java]
         viewModel.sendEvent(AccountEventAction.OPEN_ARCHIVE_STEWARD)
+        viewModel.getLegacyContact()
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -46,7 +47,11 @@ class ArchiveStewardFragment : PermanentBaseFragment() {
                             addEditArchiveStewardFragment?.getOnArchiveStewardUpdated()?.observe(this@ArchiveStewardFragment, onArchiveStewardUpdatedObserver) },
                         openLegacyScreen = {
                             findNavController().navigate(R.id.action_archiveStewardFragment_to_statusFragment)
-                        })
+                        },
+                        openIntroScreen = {
+                            findNavController().navigate(R.id.action_archiveStewardFragment_to_introFragment)
+                        }
+                    )
                 }
             }
         }
