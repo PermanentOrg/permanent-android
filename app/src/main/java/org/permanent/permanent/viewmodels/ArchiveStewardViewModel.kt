@@ -2,10 +2,13 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.network.IArchiveStewardsListener
+import org.permanent.permanent.network.ILegacyContactsListener
 import org.permanent.permanent.network.models.ArchiveSteward
+import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.ILegacyPlanningRepository
@@ -19,12 +22,25 @@ class ArchiveStewardViewModel(application: Application) : ObservableAndroidViewM
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
+    private val _hasLegacyContact = MutableLiveData<Boolean>()
+    val hasLegacyContact: LiveData<Boolean> = _hasLegacyContact
     private val onArchiveStewardReady = SingleLiveEvent<ArchiveSteward?>()
     private var legacyPlanningRepository: ILegacyPlanningRepository =
         LegacyPlanningRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     val contactName = MutableLiveData<String?>()
     val contactEmail = MutableLiveData<String?>()
+
+    fun getLegacyContact() {
+        legacyPlanningRepository.getLegacyContact(object : ILegacyContactsListener {
+            override fun onSuccess(dataList: List<LegacyContact>) {
+                _hasLegacyContact.postValue(dataList.isNotEmpty())
+            }
+
+            override fun onFailed(error: String?) {
+            }
+        })
+    }
 
     fun getArchiveSteward(archiveId: Int) {
         legacyPlanningRepository.getArchiveSteward(archiveId = archiveId, object :

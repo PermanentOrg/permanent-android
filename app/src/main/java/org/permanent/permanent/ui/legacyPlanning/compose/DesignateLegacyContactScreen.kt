@@ -24,7 +24,9 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -47,25 +49,20 @@ fun DesignateContactOrStewardScreen(
     cardButtonName: String,
     openAddEditScreen: () -> Unit,
     openLegacyScreen: () -> Unit,
+    hideLegacyPlanningButton: Boolean = false
 ) {
-    val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    val primaryColor = Color(ContextCompat.getColor(context, R.color.colorPrimary))
-    val blackColor = Color(ContextCompat.getColor(context, R.color.black))
-    val lightBlueColor = Color(ContextCompat.getColor(context, R.color.blue25))
-    val whiteColor = Color(ContextCompat.getColor(context, R.color.white))
     val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
     val boldFont = FontFamily(Font(R.font.open_sans_bold_ttf))
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
     val smallTextSize = 11.sp
-    val subTitleTextSize = 16.sp
     val titleTextSize = 19.sp
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(lightBlueColor)
+            .background(colorResource(R.color.blue25))
             .padding(horizontal = 32.dp)
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.Top,
@@ -74,7 +71,7 @@ fun DesignateContactOrStewardScreen(
         Text(
             text = title.uppercase(),
             fontSize = smallTextSize,
-            color = primaryColor,
+            color = colorResource(R.color.colorPrimary),
             fontFamily = boldFont,
             modifier = Modifier
                 .align(Alignment.Start)
@@ -84,7 +81,7 @@ fun DesignateContactOrStewardScreen(
         Text(
             text = subtitle,
             fontSize = titleTextSize,
-            color = primaryColor,
+            color = colorResource(R.color.colorPrimary),
             fontFamily = semiBoldFont,
             modifier = Modifier.align(Alignment.Start)
         )
@@ -95,21 +92,21 @@ fun DesignateContactOrStewardScreen(
             cardTitle,
             cardSubtitle,
             cardButtonName,
-            whiteColor,
-            primaryColor,
             semiBoldFont,
-            blackColor,
             regularFont,
             boldFont,
-            openAddEditScreen
+            openAddEditScreen,
+            hideLegacyPlanningButton
         )
         Spacer(modifier = Modifier.weight(1.0f))
 
-        TextAndIconButton(
-            ButtonColor.DARK,
-            text = stringResource(R.string.button_go_to_legacy_planning)
-        ) {
-            openLegacyScreen()
+        if (!hideLegacyPlanningButton) {
+            TextAndIconButton(
+                ButtonColor.DARK,
+                text = stringResource(R.string.button_go_to_legacy_planning)
+            ) {
+                openLegacyScreen()
+            }
         }
 
         Spacer(modifier = Modifier.height(36.dp))
@@ -123,13 +120,11 @@ fun LegacyContactCard(
     cardTitle: String,
     cardSubtitle: String,
     cardButtonName: String,
-    cardColor: Color,
-    textColor: Color,
     semiBoldFont: FontFamily,
-    blackColor: Color,
     regularFont: FontFamily,
     boldFont: FontFamily,
-    openAddEditScreen: () -> Unit
+    openAddEditScreen: () -> Unit,
+    disableArchiveStewardButton: Boolean
 ) {
     val mediumTextSize = 14.sp
     val subTitleTextSize = 16.sp
@@ -138,7 +133,7 @@ fun LegacyContactCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Row(
@@ -153,7 +148,7 @@ fun LegacyContactCard(
                 Text(
                     text = cardTitle,
                     fontSize = subTitleTextSize,
-                    color = textColor,
+                    color = colorResource(R.color.colorPrimary),
                     fontFamily = semiBoldFont
                 )
             }
@@ -161,7 +156,7 @@ fun LegacyContactCard(
             Text(
                 text = cardSubtitle,
                 fontSize = mediumTextSize,
-                color = blackColor,
+                color = Color.Black,
                 fontFamily = regularFont,
                 modifier = Modifier.align(Alignment.Start)
             )
@@ -178,7 +173,7 @@ fun LegacyContactCard(
                         Text(
                             text = it,
                             fontSize = mediumTextSize,
-                            color = textColor,
+                            color = colorResource(R.color.colorPrimary),
                             fontFamily = boldFont
                         )
                         email.value?.let {
@@ -201,19 +196,25 @@ fun LegacyContactCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { openAddEditScreen() },
+                        .clickable { if (!disableArchiveStewardButton) openAddEditScreen() },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = cardButtonName,
                         fontSize = mediumTextSize,
-                        color = textColor,
+                        color = if (disableArchiveStewardButton) colorResource(R.color.lightGrey) else colorResource(
+                            R.color.colorPrimary
+                        ),
                         fontFamily = boldFont
                     )
                     Image(
                         painter = painterResource(id = R.drawable.ic_account_add_primary),
-                        contentDescription = "Account add",
+                        colorFilter = ColorFilter.tint(
+                            if (disableArchiveStewardButton) colorResource(R.color.lightGrey
+                            ) else colorResource(R.color.colorPrimary)
+                        ),
+                        contentDescription = "Archive Steward add",
                         modifier = Modifier.size(24.dp)
                     )
                 }

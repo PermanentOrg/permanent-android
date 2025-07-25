@@ -35,6 +35,8 @@
     <color name="colorAccentDark">#ff8000</color>
     <color name="orange">#F17400</color>
     <color name="warning500">#F79009</color>
+    <color name="warning100">#FEF0C7</color>
+    <color name="warning200">#FEDF89</color>
     <color name="lightGreen">#D1FADF</color>
     <color name="textGreen">#027A48</color>
     <color name="green">#34C759</color>
@@ -55,8 +57,8 @@
     <color name="whiteSuperExtraTransparent">#20FFFFFF</color>
     <color name="whiteUltraTransparent">#0AFFFFFF</color>
     <color name="superLightGrey">#EBEBEB</color>
-    <color name="lightGrey">#B4B4B4</color>
     <color name="lighterGrey">#DADADA</color>
+    <color name="lightGrey">#B4B4B4</color>
     <color name="middleGrey">#606060</color>
     <color name="mardiGras">#8D0085</color>
     <color name="black">#000000</color>

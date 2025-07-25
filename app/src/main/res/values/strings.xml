@@ -672,6 +672,7 @@
     <string name="add_legacy_contact">Add Legacy Contact</string>
     <string name="save_account_legacy_plan">Save account Legacy Plan</string>
     <string name="button_go_to_legacy_planning">Go to Legacy Planning</string>
+    <string name="designate_a_legacy_contact_before_steward">Before you can add an Archive Steward for this archive below, designate a Legacy Contact first.</string>
     <string name="designate_an_archive_steward">Designate an Archive Steward</string>
     <string name="designate_archive_title">Who should be the owner of this archive in the event of your death or incapacitation?</string>
     <string name="a_trusted_archive_steward_title">A trusted archive steward</string>
