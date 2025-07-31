@@ -10,6 +10,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivityFileBinding
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
@@ -63,6 +64,11 @@ class FileActivity : PermanentBaseActivity() {
         }
     }
 
+    fun setToolbarAndStatusBarColor(colorId: Int) {
+        binding.fileToolbar.setBackgroundColor(ContextCompat.getColor(this, colorId))
+        window.statusBarColor = ContextCompat.getColor(this, colorId)
+    }
+
     override fun connectViewModelEvents() {
     }
 
@@ -78,9 +84,9 @@ class FileActivity : PermanentBaseActivity() {
         super.onPause()
         disconnectViewModelEvents()
     }
-    
-    fun setToolbarAndStatusBarColor(colorId: Int) {
-        binding.fileToolbar.setBackgroundColor(ContextCompat.getColor(this, colorId))
-        window.statusBarColor = ContextCompat.getColor(this, colorId)
+
+    override fun onDestroy() {
+        super.onDestroy()
+        FileSessionData.records = null
     }
 }

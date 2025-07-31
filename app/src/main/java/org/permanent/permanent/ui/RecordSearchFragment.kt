@@ -16,11 +16,11 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentRecordSearchBinding
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.fileView.FileInfoFragment
-import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
 import org.permanent.permanent.viewmodels.RecordSearchViewModel
 
@@ -89,7 +89,7 @@ class RecordSearchFragment : PermanentBaseFragment() {
             if (record.displayFirstInCarousel) recordToView = record
         }
         val intent = Intent(context, FileActivity::class.java)
-        intent.putExtra(PARCELABLE_FILES_KEY, it)
+        FileSessionData.records = it
         startActivityForResult(intent, FileInfoFragment.ACTIVITY_RESULT_REQUEST_CODE)
 
     }

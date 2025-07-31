@@ -32,6 +32,7 @@ import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentPublicFilesBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.ChecklistItem
@@ -259,8 +260,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
     }
 
     private val onFileViewRequest = Observer<ArrayList<Record>> {
-        val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
-        findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity, bundle)
+        FileSessionData.records = it
+        findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity)
     }
 
     private val shrinkIslandRequestObserver = Observer<Void?> {

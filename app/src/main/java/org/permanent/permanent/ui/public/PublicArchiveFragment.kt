@@ -15,12 +15,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicArchiveBinding
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
@@ -86,9 +86,9 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
     }
 
     private val onFileViewRequest = Observer<ArrayList<Record>> {
-        val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
+        FileSessionData.records = it
         requireParentFragment().findNavController()
-            .navigate(R.id.action_publicFragment_to_fileActivity, bundle)
+            .navigate(R.id.action_publicFragment_to_fileActivity)
     }
 
     private val onFolderViewRequest = Observer<Record> {
