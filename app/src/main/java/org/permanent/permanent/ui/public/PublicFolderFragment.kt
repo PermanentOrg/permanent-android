@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -16,13 +15,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicFolderBinding
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.fileView.FileViewOptionsFragment
-import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
@@ -66,9 +65,9 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     }
 
     private val onFileViewRequest = Observer<ArrayList<Record>> {
-        val bundle = bundleOf(PARCELABLE_FILES_KEY to it)
+        FileSessionData.records = it
         requireParentFragment().findNavController()
-            .navigate(R.id.action_publicFolderFragment_to_fileActivity, bundle)
+            .navigate(R.id.action_publicFolderFragment_to_fileActivity)
     }
 
     private val onFolderNameChanged = Observer<String> {

@@ -1,14 +1,18 @@
 package org.permanent.permanent.ui.fileView
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFilesContainerBinding
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.viewmodels.FilesContainerViewModel
 
 class FilesContainerFragment : PermanentBaseFragment() {
@@ -42,7 +46,8 @@ class FilesContainerFragment : PermanentBaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        arguments?.getParcelableArrayList<Record>(PARCELABLE_FILES_KEY)?.let {
+        val records = FileSessionData.records
+        records?.let {
             viewAdapter = FilesContainerPagerAdapter(this, it)
             val viewPager = binding.vpFileView
             viewPager.adapter = viewAdapter
@@ -51,7 +56,7 @@ class FilesContainerFragment : PermanentBaseFragment() {
         }
     }
 
-    private fun getFileIndexToStartWith(files: ArrayList<Record>): Int {
+    private fun getFileIndexToStartWith(files: List<Record>): Int {
         for ((index, file) in files.withIndex())
             if (file.displayFirstInCarousel) return index
         return 0

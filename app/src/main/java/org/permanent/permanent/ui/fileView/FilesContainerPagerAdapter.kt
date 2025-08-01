@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 
-class FilesContainerPagerAdapter(val fragment: Fragment, private val files: MutableList<Record>
+class FilesContainerPagerAdapter(val fragment: Fragment, private val files: List<Record>
 ) : FragmentStatePagerAdapter(fragment.childFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getCount(): Int = files.size

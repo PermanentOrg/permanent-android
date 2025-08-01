@@ -32,6 +32,7 @@ import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.ChecklistItem
@@ -301,9 +302,9 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private val onFileViewRequest = Observer<Record> {
         val files = ArrayList<Record>()
         files.add(it)
-        val bundle = bundleOf(PARCELABLE_FILES_KEY to files)
+        FileSessionData.records = files
         requireParentFragment().findNavController()
-            .navigate(R.id.action_sharesFragment_to_fileActivity, bundle)
+            .navigate(R.id.action_sharesFragment_to_fileActivity)
     }
 
     private val relocationCancellationObserver = Observer<Void?> {
