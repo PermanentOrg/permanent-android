@@ -86,7 +86,7 @@ fun ChecklistBottomSheetContent(
                 else -> {
                     HorizontalPager(
                         state = pagerState,
-                        beyondBoundsPageCount = 2,
+                        beyondViewportPageCount = 2,
                         userScrollEnabled = false,
                         modifier = Modifier.fillMaxSize()
                     ) { page ->

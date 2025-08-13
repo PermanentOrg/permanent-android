@@ -4,6 +4,6 @@ enum class FileType {
     VIDEO, IMAGE, PDF, UNKNOWN;
 
     override fun toString(): String {
-        return super.toString().toLowerCase()
+        return super.toString().lowercase()
     }
 }

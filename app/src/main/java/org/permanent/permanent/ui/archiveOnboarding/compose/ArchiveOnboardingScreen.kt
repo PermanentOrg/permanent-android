@@ -54,8 +54,9 @@ fun ArchiveOnboardingScreen(
 ) {
     val context = LocalContext.current
 
-    val pagerState = rememberPagerState(initialPage = OnboardingPage.WELCOME.value,
-        pageCount = { OnboardingPage.values().size })
+    val pagerState = rememberPagerState(
+        initialPage = OnboardingPage.WELCOME.value,
+        pageCount = { OnboardingPage.entries.size })
     val isTablet = viewModel.isTablet()
 
     val blue900Color = remember { Color(ContextCompat.getColor(context, R.color.blue900)) }
@@ -96,7 +97,7 @@ fun ArchiveOnboardingScreen(
     }, restore = { restoredGoals ->
         restoredGoals.map {
             OnboardingGoal(
-                type = OnboardingGoalType.values()[it[0] as Int],
+                type = OnboardingGoalType.entries[it[0] as Int],
                 description = it[1] as String,
                 isChecked = mutableStateOf(it[2] as Boolean)
             )
@@ -104,7 +105,7 @@ fun ArchiveOnboardingScreen(
     })) {
         viewModel.createOnboardingGoals(context).map { (ordinal, description) ->
             OnboardingGoal(
-                type = OnboardingGoalType.values()[ordinal],
+                type = OnboardingGoalType.entries[ordinal],
                 description = description,
                 isChecked = mutableStateOf(false)
             )
@@ -120,7 +121,7 @@ fun ArchiveOnboardingScreen(
     }, restore = { restoredPriorities ->
         restoredPriorities.map {
             OnboardingPriority(
-                type = OnboardingPriorityType.values()[it[0] as Int],
+                type = OnboardingPriorityType.entries[it[0] as Int],
                 description = it[1] as String,
                 isChecked = mutableStateOf(it[2] as Boolean)
             )
@@ -128,7 +129,7 @@ fun ArchiveOnboardingScreen(
     })) {
         viewModel.createOnboardingPriorities(context).map { (ordinal, description) ->
             OnboardingPriority(
-                type = OnboardingPriorityType.values()[ordinal],
+                type = OnboardingPriorityType.entries[ordinal],
                 description = description,
                 isChecked = mutableStateOf(false)
             )
@@ -179,8 +180,8 @@ fun ArchiveOnboardingScreen(
                     painter = painterResource(id = R.drawable.img_logo),
                     contentDescription = "Logo",
                     modifier = Modifier
-                        .size(40.dp)
                         .padding(horizontal = horizontalPaddingDp)
+                        .size(40.dp)
                 )
 
                 Box(
@@ -213,7 +214,7 @@ fun ArchiveOnboardingScreen(
                 }
 
                 HorizontalPager(
-                    state = pagerState, beyondBoundsPageCount = 2 , userScrollEnabled = false
+                    state = pagerState, beyondViewportPageCount = 2, userScrollEnabled = false
                 ) { page ->
                     when (page) {
                         OnboardingPage.WELCOME.value -> {
@@ -226,7 +227,8 @@ fun ArchiveOnboardingScreen(
                         }
 
                         OnboardingPage.ARCHIVE_TYPE.value -> {
-                            ArchiveTypePage(isTablet = isTablet,
+                            ArchiveTypePage(
+                                isTablet = isTablet,
                                 pagerState = pagerState,
                                 onArchiveTypeClick = { type: ArchiveType, typeName: String ->
                                     newArchive = newArchive.copy(type = type, typeName = typeName)

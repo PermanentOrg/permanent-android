@@ -90,7 +90,7 @@ fun PagerContent(
     ) {
         HorizontalPager(
             state = pagerState,
-            beyondBoundsPageCount = 3,
+            beyondViewportPageCount = 3,
             userScrollEnabled = false,
             modifier = Modifier.fillMaxSize()
         ) { page ->

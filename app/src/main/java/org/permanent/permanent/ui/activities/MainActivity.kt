@@ -19,6 +19,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -161,6 +164,18 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         headerMainBinding.executePendingBindings()
         headerMainBinding.lifecycleOwner = this
         headerMainBinding.viewModel = viewModel
+
+        // Apply insets top for status bar and bottom for navigation/gesture area
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainNavigationView)) { view, insets ->
+            val sysBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            view.updatePadding(
+                top = sysBars.top,
+                bottom = sysBars.bottom
+            )
+
+            insets
+        }
 
         // NavController setupOnDestinationChangedListener
         val navHostFragment =
@@ -399,7 +414,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         if (startDestFragmentId != null && startDestFragmentId != 0) {
             if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
             val navGraph = navController.graph
-            navGraph.startDestination = startDestFragmentId
+            navGraph.setStartDestination(startDestFragmentId)
             navController.setGraph(navGraph, intentExtras)
         }
     }
