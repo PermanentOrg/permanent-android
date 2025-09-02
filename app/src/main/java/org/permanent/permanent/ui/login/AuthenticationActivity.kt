@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -58,10 +59,13 @@ class AuthenticationActivity : PermanentBaseActivity() {
         }
 
         // NavController setup
+        val startPage = intent.getIntExtra(START_DESTINATION_PAGE_VALUE_KEY, -1)
+        val args = bundleOf(START_DESTINATION_PAGE_VALUE_KEY to startPage)
+
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.authenticationNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
-        navController.setGraph(R.navigation.authentication_navigation_graph, intent.extras)
+        navController.setGraph(R.navigation.authentication_navigation_graph, args)
     }
 
     override fun connectViewModelEvents() {

@@ -66,6 +66,7 @@ import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
+import androidx.core.net.toUri
 
 class PublicFilesFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentPublicFilesBinding
@@ -138,7 +139,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
             R.string.yes_button
         ) { _, _ ->
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(BuildConfig.ADD_STORAGE_URL)
+            intent.data = BuildConfig.ADD_STORAGE_URL.toUri()
             startActivity(intent)
         }
         alertDialog.setNegativeButton(

@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
@@ -139,7 +140,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
             R.string.yes_button
         ) { _, _ ->
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(BuildConfig.ADD_STORAGE_URL)
+            intent.data = BuildConfig.ADD_STORAGE_URL.toUri()
             startActivity(intent)
         }
         alertDialog.setNegativeButton(

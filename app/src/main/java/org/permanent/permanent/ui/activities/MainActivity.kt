@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -121,7 +120,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.legacyLoadingFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment, R.id.loginAndSecurityFragment, R.id.changePasswordFragment, R.id.twoStepVerificationFragment -> {
+                R.id.accountFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment, R.id.archivesFragment, R.id.invitationsFragment, R.id.activityFeedFragment, R.id.loginAndSecurityFragment, R.id.changePasswordFragment, R.id.twoStepVerificationFragment, R.id.legacyLoadingFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -177,25 +176,66 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             insets
         }
 
-        // NavController setupOnDestinationChangedListener
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.mainNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
 
+        val normalizedExtras = intent.extras?.let { Bundle(it) } ?: Bundle()
+
+        when (intent?.action) {
+            Intent.ACTION_SEND_MULTIPLE -> {
+                val uris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+                if (!uris.isNullOrEmpty()) {
+                    normalizedExtras.putParcelableArrayList(
+                        SAVE_TO_PERMANENT_FILE_URIS_KEY,
+                        uris
+                    )
+                }
+            }
+
+            Intent.ACTION_SEND -> {
+                intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let { singleUri ->
+                    normalizedExtras.putParcelableArrayList(
+                        SAVE_TO_PERMANENT_FILE_URIS_KEY,
+                        arrayListOf(singleUri)
+                    )
+                }
+            }
+
+            else -> {
+                // Custom start destination fragment from notification
+                val startDestFragmentId =
+                    normalizedExtras.getInt(START_DESTINATION_FRAGMENT_ID_KEY, 0)
+                if (startDestFragmentId != 0) {
+                    val recipientArchiveNr = normalizedExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
+                    if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
+                        showArchiveSwitchDialog(recipientArchiveNr)
+                        startWithCustomDestination(true, normalizedExtras)
+                    } else {
+                        startWithCustomDestination(false, normalizedExtras)
+                    }
+                }
+            }
+        }
+
+        if (savedInstanceState == null) {
+            val inflater = navController.navInflater
+            val graph = inflater.inflate(R.navigation.main_navigation_graph)
+
+            navController.setGraph(graph, normalizedExtras)
+        }
+
+        // NavController setupOnDestinationChangedListener
         navController.addOnDestinationChangedListener(onDestinationChangedListener)
 
         // Toolbar & ActionBar & AppBarConfiguration setup
         setSupportActionBar(binding.toolbar)
         val topLevelDestinations = setOf(
-            R.id.archivesFragment,
             R.id.myFilesFragment,
             R.id.sharesFragment,
             R.id.archiveSettings,
             R.id.manageTagsFragment,
             R.id.membersFragment,
-            R.id.activityFeedFragment,
-            R.id.invitationsFragment,
-            R.id.accountFragment,
             R.id.publicFilesFragment,
             R.id.publicGalleryFragment
         )
@@ -308,32 +348,6 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             }
         }
 
-        // Intent handling
-        when (intent?.action) {
-            Intent.ACTION_SEND -> {
-                handleSendFile(intent) // Handle single file being sent
-            }
-
-            Intent.ACTION_SEND_MULTIPLE -> {
-                handleSendMultipleFiles(intent) // Handle multiple files being sent
-            }
-
-            else -> {
-                // Custom start destination fragment from notification
-                val intentExtras = intent.extras
-                val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
-                if (startDestFragmentId != null && startDestFragmentId != 0) {
-                    val recipientArchiveNr = intentExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
-                    if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
-                        showArchiveSwitchDialog(recipientArchiveNr)
-                        startWithCustomDestination(true)
-                    } else {
-                        startWithCustomDestination(false)
-                    }
-                }
-            }
-        }
-
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
     }
@@ -391,31 +405,21 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         archiveSettingsRightIcon?.setImageResource(icon)
     }
 
-    private fun handleSendFile(intent: Intent) {
-        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
-            startDestinationWithArgs(arrayListOf(it))
-        }
-    }
+    private fun startWithCustomDestination(
+        removeRecordId: Boolean,
+        extras: Bundle? = intent.extras
+    ) {
+        if (extras == null) return
 
-    private fun handleSendMultipleFiles(intent: Intent) {
-        intent.getParcelableArrayListExtra<Parcelable>(Intent.EXTRA_STREAM)?.let {
-            startDestinationWithArgs(it)
-        }
-    }
+        val startDestFragmentId = extras.getInt(START_DESTINATION_FRAGMENT_ID_KEY, 0)
+        if (startDestFragmentId != 0) {
+            if (removeRecordId) extras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
 
-    private fun startDestinationWithArgs(it: List<Parcelable>) {
-        val bundle = bundleOf(SAVE_TO_PERMANENT_FILE_URIS_KEY to it)
-        navController.setGraph(navController.graph, bundle)
-    }
-
-    private fun startWithCustomDestination(removeRecordId: Boolean) {
-        val intentExtras = intent.extras
-        val startDestFragmentId = intentExtras?.getInt(START_DESTINATION_FRAGMENT_ID_KEY)
-        if (startDestFragmentId != null && startDestFragmentId != 0) {
-            if (removeRecordId) intentExtras.remove(RECORD_ID_TO_NAVIGATE_TO_KEY)
-            val navGraph = navController.graph
+            val inflater = navController.navInflater
+            val navGraph = inflater.inflate(R.navigation.main_navigation_graph)
             navGraph.setStartDestination(startDestFragmentId)
-            navController.setGraph(navGraph, intentExtras)
+
+            navController.setGraph(navGraph, extras)
         }
     }
 
