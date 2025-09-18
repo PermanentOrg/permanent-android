@@ -110,9 +110,9 @@ dependencies {
     //==============================================================================================
 
     //====================================== NAVIGATION COMPONENTS =================================
-    implementation 'androidx.fragment:fragment-ktx:1.8.8'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.9.3'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.4'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.4'
     //==============================================================================================
 
     //====================================== JETPACK COMPOSE =======================================
