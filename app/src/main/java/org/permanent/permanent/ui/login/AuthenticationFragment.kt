@@ -54,8 +54,13 @@ class AuthenticationFragment : PermanentBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val startDestPageValue = args.startDestinationPageValueKey
+        var startDestPageValue = args.startDestinationPageValueKey
+        val inviteCode = args.inviteCode
 
+        if (inviteCode.isNotEmpty()) {
+            viewModel.setInviteCode(args.inviteCode)
+            startDestPageValue = AuthPage.SIGN_UP.value
+        }
         val targetPage = when (startDestPageValue) {
             AuthPage.SIGN_UP.value -> AuthPage.SIGN_UP
             AuthPage.BIOMETRICS.value -> {

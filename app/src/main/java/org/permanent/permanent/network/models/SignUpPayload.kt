@@ -7,5 +7,6 @@ data class SignUpPayload(
     val optIn: Boolean,
     val primaryEmail: String,
     val password: String,
-    val passwordVerify: String
+    val passwordVerify: String,
+    val inviteCode: String
 )

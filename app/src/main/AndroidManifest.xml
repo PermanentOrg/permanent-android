@@ -92,7 +92,8 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="@string/screen_orientation"
-            android:resizeableActivity="false">
+            android:resizeableActivity="false" >
+        <nav-graph android:value="@navigation/authentication_navigation_graph" />
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
