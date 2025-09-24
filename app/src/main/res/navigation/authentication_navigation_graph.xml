@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/login_navigation"
+    android:id="@+id/authentication_navigation_graph"
     app:startDestination="@id/authenticationFragment">
 
     <fragment
@@ -14,6 +14,18 @@
             android:name="start_destination_page_value_key"
             app:argType="integer"
             android:defaultValue="-1" />
+        <argument
+            android:name="invite_code"
+            app:argType="string"
+            android:defaultValue="" />
+        <deepLink
+            android:autoVerify="true"
+            app:action="android.intent.action.VIEW"
+            app:uri="https://staging.permanent.org/app/auth/signup?inviteCode={invite_code}" />
+        <deepLink
+            android:autoVerify="true"
+            app:action="android.intent.action.VIEW"
+            app:uri="https://www.permanent.org/app/auth/signup?inviteCode={invite_code}" />
     </fragment>
 
     <fragment

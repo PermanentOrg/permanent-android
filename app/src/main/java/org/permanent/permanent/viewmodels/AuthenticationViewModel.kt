@@ -55,6 +55,8 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     val isBusyState: StateFlow<Boolean> = _isBusyState
     private val _codeValues = MutableStateFlow(List(4) { "" })
     val codeValues: StateFlow<List<String>> = _codeValues
+    var inviteCode: String = ""
+        private set
     private val _snackbarMessage = MutableStateFlow("")
     val snackbarMessage: StateFlow<String> = _snackbarMessage
     private val _snackbarType = MutableStateFlow(SnackbarType.NONE)
@@ -73,11 +75,14 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
     private val archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var accountRepository: IAccountRepository = AccountRepositoryImpl(application)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
-//    private var stelaAccountRepository: StelaAccountRepository =
-//        StelaAccountRepositoryImpl(application)
 
     init {
         isTablet = prefsHelper.isTablet()
+    }
+
+
+    fun setInviteCode(code: String) {
+        inviteCode = code
     }
 
     fun login(withNavigation: Boolean, email: String, password: String) {
@@ -307,6 +312,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
             email,
             password,
             optIn,
+            inviteCode,
             object : IAccountRepository.IAccountListener {
 
                 override fun onSuccess(account: Account) {

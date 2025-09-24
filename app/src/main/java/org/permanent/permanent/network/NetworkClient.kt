@@ -208,7 +208,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return authServiceWithCookies.verifyCode(requestBody)
     }
 
-    fun signUp(fullName: String, email: String, password: String, optIn: Boolean): Call<AccountVO> {
+    fun signUp(fullName: String, email: String, password: String, optIn: Boolean, inviteCode: String): Call<AccountVO> {
         val payload = SignUpPayload(
             agreed = true,
             createArchive = false,
@@ -216,7 +216,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
             optIn = optIn,
             primaryEmail = email,
             password = password,
-            passwordVerify = password
+            passwordVerify = password,
+            inviteCode = inviteCode
         )
         val adapter = Moshi.Builder().build().adapter(SignUpPayload::class.java)
         val req = adapter.toJson(payload)
