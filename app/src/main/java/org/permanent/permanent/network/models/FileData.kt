@@ -3,7 +3,6 @@ package org.permanent.permanent.network.models
 import android.os.Parcel
 import android.os.Parcelable
 import org.permanent.permanent.models.AccessRole
-import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Tag
 
 class FileData private constructor() : Parcelable {
@@ -40,15 +39,24 @@ class FileData private constructor() : Parcelable {
         archiveId = recordVO.archiveId ?: -1
         archiveNr = recordVO.archiveNbr
         accessRole = AccessRole.createFromBackendString(recordVO.accessRole)
-        // First we check for the converted video to mp4
-        val fileVO: FileVO? = if (recordVO.type?.contains(FileType.VIDEO.toString()) == true
-            && recordVO.FileVOs?.size!! > 1
-        ) {
-            fileName = recordVO.displayName + ".mp4"
-            recordVO.FileVOs?.get(1)
-        } else {
-            fileName = recordVO.uploadFileName
-            recordVO.FileVOs?.get(0)
+        val fileVOs = recordVO.FileVOs ?: emptyList()
+
+        val fileVO: FileVO? = when {
+            // Prefer converted MP4 if available
+            fileVOs.any { it.contentType?.equals("video/mp4", true) == true } -> {
+                fileName = recordVO.displayName + ".mp4"
+                fileVOs.first { it.contentType?.equals("video/mp4", true) == true }
+            }
+            // Fallback to any other video type
+            fileVOs.any { it.contentType?.startsWith("video/", true) == true } -> {
+                fileName = recordVO.uploadFileName
+                fileVOs.first { it.contentType?.startsWith("video/", true) == true }
+            }
+            // Otherwise just take the first available file
+            else -> {
+                fileName = recordVO.uploadFileName
+                fileVOs.firstOrNull()
+            }
         }
         displayName = recordVO.displayName
         description = recordVO.description

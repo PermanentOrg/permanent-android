@@ -24,6 +24,7 @@ import org.permanent.permanent.models.Archive
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.public.PublicFragment.Companion.ARCHIVE
 import org.permanent.permanent.viewmodels.PublicGalleryViewModel
+import androidx.core.net.toUri
 
 class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
     private lateinit var viewModel: PublicGalleryViewModel
@@ -79,7 +80,7 @@ class PublicGalleryFragment : PermanentBaseFragment(), PublicArchiveListener {
         }
         binding.clNoPublicArchives.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(Constants.HOW_TO_PUBLISH_ARCHIVE_URL)
+            intent.data = Constants.HOW_TO_PUBLISH_ARCHIVE_URL.toUri()
             startActivity(intent)
         }
         initYourArchivesRecyclerView(binding.rvYourPublicArchives)

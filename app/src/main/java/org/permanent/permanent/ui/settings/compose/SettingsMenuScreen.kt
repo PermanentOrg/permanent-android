@@ -201,7 +201,7 @@ fun SettingsMenuScreen(
                     colorResource(R.color.error500),
                 ) { onSignOutClick() }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

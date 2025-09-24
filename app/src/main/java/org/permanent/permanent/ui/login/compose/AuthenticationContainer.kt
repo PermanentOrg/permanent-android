@@ -2,8 +2,6 @@
 
 package org.permanent.permanent.ui.login.compose
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -98,7 +96,7 @@ fun AuthenticationContainer(
                 }
 
                 HorizontalPager(
-                    state = pagerState, beyondBoundsPageCount = 3, userScrollEnabled = false
+                    state = pagerState, beyondViewportPageCount = 3, userScrollEnabled = false
                 ) { page ->
                     when (page) {
                         AuthPage.SIGN_IN.value -> {

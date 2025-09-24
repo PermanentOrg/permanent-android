@@ -1,7 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.net.Uri
+import android.content.Context
 import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -20,7 +20,6 @@ import java.io.File
 class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private lateinit var record: Record
-    private var file: File? = null
     private var fileData = MutableLiveData<FileData>()
     private val filePath = MutableLiveData<String>()
     private val isVideo = MutableLiveData<Boolean>()
@@ -47,18 +46,33 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                     isBusy.value = false
                     isError.value = false
                     fileData.value = response.body()?.getFileData()
-                    fileData.value?.let {
-                        isPDF.value = it.contentType?.contains(FileType.PDF.toString())
-                        isVideo.value = it.contentType?.contains(FileType.VIDEO.toString())
-                        file = File(
-                            Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_DOWNLOADS
-                            ), it.fileName
+                    fileData.value?.let { data ->
+                        isPDF.value = data.contentType?.contains(FileType.PDF.toString())
+                        isVideo.value = data.contentType?.contains(FileType.VIDEO.toString())
+
+                        val externalFile = File(
+                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                            data.fileName
                         )
-                        filePath.value = when {
-                            file?.exists() == true -> Uri.fromFile(file).toString()
-                            it.contentType?.contains(FileType.IMAGE.toString()) == true -> it.thumbURL2000
-                            else -> it.fileURL
+
+                        val cacheFile = File(
+                            getApplication<Application>().cacheDir,
+                            data.fileName
+                        )
+
+                        try {
+                            if (externalFile.exists()) {
+                                clearCache(getApplication())
+                                externalFile.copyTo(cacheFile, overwrite = true)
+                                filePath.value = "file://${cacheFile.absolutePath}"
+                            } else if (data.contentType?.contains(FileType.IMAGE.toString()) == true) {
+                                filePath.value = data.thumbURL2000
+                            } else {
+                                filePath.value = data.fileURL
+                            }
+                        } catch (e: Exception) {
+                            Log.e("FileViewViewModel", "File copy failed", e)
+                            filePath.value = data.fileURL // fallback
                         }
                     }
                 }
@@ -68,7 +82,20 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                     isError.value = true
                 }
             })
-        } else Log.e("FileViewViewModel", "folderLinkId or recordId is null")
+        } else {
+            Log.e("FileViewViewModel", "folderLinkId or recordId is null")
+        }
+    }
+
+    fun clearCache(context: Context) {
+        try {
+            val cacheDir = context.cacheDir
+            if (cacheDir != null && cacheDir.isDirectory) {
+                cacheDir.listFiles()?.forEach { it.deleteRecursively() }
+            }
+        } catch (e: Exception) {
+            Log.e("FileViewViewModel", "Failed to clear cache", e)
+        }
     }
 
     fun onRetryBtnClick() {

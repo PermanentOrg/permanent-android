@@ -3,6 +3,9 @@ package org.permanent.permanent.ui.archiveOnboarding
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,11 +39,22 @@ class ArchiveOnboardingActivity : PermanentBaseActivity() {
         val windowWidthSizeClass = computeWindowSizeClasses().windowWidthSizeClass
         prefsHelper.saveWindowWidthSizeClass(windowWidthSizeClass)
 
+        // Let content draw under system bars
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         viewModel = ViewModelProvider(this)[ArchiveOnboardingViewModel::class.java]
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_archive_onboarding)
         binding.executePendingBindings()
         binding.lifecycleOwner = this
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rootLayout)) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+            view.setPadding(0, statusBarHeight, 0, navBarHeight)
+            insets
+        }
 
         viewModel.sendEvent(AccountEventAction.START_ONBOARDING)
     }

@@ -9,6 +9,11 @@
         android:id="@+id/authenticationFragment"
         android:name="org.permanent.permanent.ui.login.AuthenticationFragment"
         android:label="AuthenticationFragment">
+
+        <argument
+            android:name="start_destination_page_value_key"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 
     <fragment

@@ -136,6 +136,7 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
     settings.allowContentAccess = true
     settings.allowFileAccess = true
     setBackgroundColor(Color.BLACK)
+
     if (isVideo == true) {
         loadDataWithBaseURL(
             path,

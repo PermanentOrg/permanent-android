@@ -27,6 +27,7 @@ import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.AccessRolesViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
+import androidx.core.net.toUri
 
 class AccessRolesFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentAccessRolesBinding
@@ -121,7 +122,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
 
     private val showAccessRolesDocObserver = Observer<Void?> {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse(BuildConfig.ACCESS_ROLES_URL)
+        intent.data = BuildConfig.ACCESS_ROLES_URL.toUri()
         startActivity(intent)
     }
 

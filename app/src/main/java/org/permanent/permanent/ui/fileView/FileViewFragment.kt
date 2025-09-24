@@ -3,7 +3,11 @@ package org.permanent.permanent.ui.fileView
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -79,7 +83,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         fileData = it
         (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
 
-        if (it != null && it.contentType?.contains(FileType.PDF.toString()) == true) {
+        if (it.contentType?.contains(FileType.PDF.toString()) == true) {
 
             Thread {
                 try {

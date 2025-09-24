@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.navArgs
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
@@ -28,6 +29,8 @@ const val START_DESTINATION_PAGE_VALUE_KEY = "start_destination_page_value_key"
 class AuthenticationFragment : PermanentBaseFragment() {
     private lateinit var viewModel: AuthenticationViewModel
     private lateinit var prefsHelper: PreferencesHelper
+
+    private val args: AuthenticationFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -51,28 +54,26 @@ class AuthenticationFragment : PermanentBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val extras = arguments
-        val startDestPageValue = extras?.getInt(START_DESTINATION_PAGE_VALUE_KEY)
-        startDestPageValue?.let {
-            val targetPage = when (it) {
-                AuthPage.SIGN_UP.value -> AuthPage.SIGN_UP
-                AuthPage.BIOMETRICS.value -> {
-                    if (!prefsHelper.isBiometricsLogIn() || viewModel.skipLogin()) {
-                        navigateToMainActivity()
-                        viewModel.sendEvent(AccountEventAction.LOGIN)
-                        return
-                    } else if (!prefsHelper.isUserLoggedIn()) {
-                        onLoggedOut()
-                        AuthPage.SIGN_IN
-                    } else {
-                        viewModel.authenticateUser()
-                        AuthPage.BIOMETRICS
-                    }
+        val startDestPageValue = args.startDestinationPageValueKey
+
+        val targetPage = when (startDestPageValue) {
+            AuthPage.SIGN_UP.value -> AuthPage.SIGN_UP
+            AuthPage.BIOMETRICS.value -> {
+                if (!prefsHelper.isBiometricsLogIn() || viewModel.skipLogin()) {
+                    navigateToMainActivity()
+                    viewModel.sendEvent(AccountEventAction.LOGIN)
+                    return
+                } else if (!prefsHelper.isUserLoggedIn()) {
+                    onLoggedOut()
+                    AuthPage.SIGN_IN
+                } else {
+                    viewModel.authenticateUser()
+                    AuthPage.BIOMETRICS
                 }
-                else -> AuthPage.SIGN_IN
             }
-            viewModel.setNavigateToPage(targetPage)
+            else -> AuthPage.SIGN_IN
         }
+        viewModel.setNavigateToPage(targetPage)
     }
 
     private fun onLoggedOut() {

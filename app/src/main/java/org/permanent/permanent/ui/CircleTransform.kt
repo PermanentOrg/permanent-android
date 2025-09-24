@@ -1,6 +1,11 @@
 package org.permanent.permanent.ui
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapShader
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Shader
+import androidx.core.graphics.createBitmap
 import com.squareup.picasso.Transformation
 
 
@@ -16,7 +21,7 @@ class CircleTransform : Transformation {
             source.recycle()
         }
 
-        val bitmap = Bitmap.createBitmap(size, size, source.config)
+        val bitmap = createBitmap(size, size, source.config ?: Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(bitmap)
         val paint = Paint()

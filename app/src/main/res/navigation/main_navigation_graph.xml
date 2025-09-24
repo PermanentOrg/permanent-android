@@ -12,11 +12,11 @@
         tools:layout="@layout/fragment_archives">
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://www.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://staging.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
         <action
             android:id="@+id/action_archivesFragment_to_archiveStewardFragment"
@@ -85,11 +85,11 @@
             app:argType="string" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://staging.permanent.org/share/{url_token}" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://www.permanent.org/share/{url_token}" />
         <action
             android:id="@+id/action_sharePreviewFragment_to_sharesFragment"
@@ -170,11 +170,11 @@
             app:destination="@id/storageMenuFragment" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://staging.permanent.org/app/(private//dialog:storage/promo)?promoCode={promo_code}" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://www.permanent.org/app/(private//dialog:storage/promo)?promoCode={promo_code}" />
     </fragment>
 
@@ -201,8 +201,7 @@
     <fragment
         android:id="@+id/changePasswordFragment"
         android:name="org.permanent.permanent.ui.settings.ChangePasswordFragment"
-        android:label="@string/change_password"
-        tools:layout="@layout/fragment_change_password" />
+        android:label="@string/change_password" />
 
     <fragment
         android:id="@+id/twoStepVerificationFragment"
@@ -228,27 +227,27 @@
             app:argType="string" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://staging.permanent.org/p/archive/{archive_nr}/profile" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://staging.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://staging.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://www.permanent.org/p/archive/{archive_nr}/profile" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
         <deepLink
             android:autoVerify="true"
-            app:action="ACTION_VIEW"
+            app:action="android.intent.action.VIEW"
             app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
         <action
             android:id="@+id/action_publicFragment_to_fileActivity"
