@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
@@ -66,7 +67,6 @@ import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
-import androidx.core.net.toUri
 
 class PublicFilesFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentPublicFilesBinding
@@ -273,23 +273,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         resizeIslandWidthAnimated(binding.flFloatingActionIsland.width, islandExpandedWidth)
     }
 
-    private val deleteRecordsObserver = Observer<Void?> {
-        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_delete, null, false
-        )
-        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-        dialogBinding.tvTitle.text = getString(R.string.delete_records_title)
-        dialogBinding.btnDelete.setOnClickListener {
-            viewModel.deleteSelectedRecords()
-            alert.dismiss()
-        }
-        dialogBinding.btnCancel.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
-    }
-
     private val refreshCurrentFolderObserver = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
@@ -298,7 +281,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         selectionOptionsFragment = SelectionOptionsFragment()
         selectionOptionsFragment?.setBundleArguments(it)
         selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
-        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.observe(this, onSelectionRelocateObserver)
+        selectionOptionsFragment?.getOnSelectionModifyRequest()?.observe(this, onSelectionModifyObserver)
     }
 
     private val showEditMetadataScreenObserver = Observer<MutableList<Record>> {
@@ -335,8 +318,25 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.hideChecklistButton()
     }
 
-    private val onSelectionRelocateObserver = Observer<ModificationType> {
-        viewModel.onSelectionRelocationBtnClick(it)
+    private val onSelectionModifyObserver = Observer<ModificationType> { modificationType ->
+        if (modificationType == ModificationType.DELETE) {
+            val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
+                LayoutInflater.from(context), R.layout.dialog_delete, null, false
+            )
+            val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+            dialogBinding.tvTitle.text = getString(R.string.delete_records_title)
+            dialogBinding.btnDelete.setOnClickListener {
+                viewModel.onSelectionModifyBtnClick(modificationType)
+                alert.dismiss()
+            }
+            dialogBinding.btnCancel.setOnClickListener {
+                alert.dismiss()
+            }
+            alert.show()
+        } else {
+            viewModel.onSelectionModifyBtnClick(modificationType)
+        }
     }
 
     private val onRecordRelocateRequest = Observer<Pair<Record, ModificationType>> {
@@ -470,7 +470,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         viewModel.getOnRootFolderReady().observe(this, onRootFolderReadyObserver)
         viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
-        viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
@@ -499,7 +498,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         viewModel.getOnRootFolderReady().removeObserver(onRootFolderReadyObserver)
         viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
-        viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
@@ -515,7 +513,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
         recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
-        selectionOptionsFragment?.getOnSelectionRelocateRequest()?.removeObserver(onSelectionRelocateObserver)
+        selectionOptionsFragment?.getOnSelectionModifyRequest()?.removeObserver(onSelectionModifyObserver)
     }
 
     override fun onResume() {
