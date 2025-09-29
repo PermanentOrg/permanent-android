@@ -22,7 +22,6 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     val selectedRecordsSize = MutableLiveData(0)
     private val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
     private val expandIslandRequest = SingleLiveEvent<Void?>()
-    private val deleteRecordsRequest = SingleLiveEvent<Void?>()
     private val showSelectionOptionsRequest = SingleLiveEvent<Pair<Int, Boolean>>()
     private val showEditMetadataRequest = SingleLiveEvent<MutableList<Record>>()
     private val refreshCurrentFolderRequest = SingleLiveEvent<Void?>()
@@ -94,7 +93,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         }
     }
 
-    fun onSelectionRelocationBtnClick(type: ModificationType) {
+    fun onSelectionModifyBtnClick(type: ModificationType) {
         when (type) {
             ModificationType.DELETE -> {
                 deleteSelectedRecords()
@@ -229,8 +228,6 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     }
 
     fun getExpandIslandRequest(): SingleLiveEvent<Void?> = expandIslandRequest
-
-    fun getDeleteRecordsRequest(): SingleLiveEvent<Void?> = deleteRecordsRequest
 
     fun getShowSelectionOptionsRequest(): SingleLiveEvent<Pair<Int, Boolean>> = showSelectionOptionsRequest
 

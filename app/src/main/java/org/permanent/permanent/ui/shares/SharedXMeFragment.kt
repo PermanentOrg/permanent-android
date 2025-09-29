@@ -346,23 +346,6 @@ class SharedXMeFragment : PermanentBaseFragment() {
         )
     }
 
-    private val deleteRecordsObserver = Observer<Void?> {
-        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_delete, null, false
-        )
-        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-        dialogBinding.tvTitle.text = getString(R.string.delete_records_title)
-        dialogBinding.btnDelete.setOnClickListener {
-            viewModel.deleteSelectedRecords()
-            alert.dismiss()
-        }
-        dialogBinding.btnCancel.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
-    }
-
     private val refreshCurrentFolderObserver = Observer<Void?> {
         viewModel.refreshCurrentFolder()
     }
@@ -375,8 +358,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         selectionOptionsFragment = SelectionOptionsFragment()
         selectionOptionsFragment?.setBundleArguments(it)
         selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
-        selectionOptionsFragment?.getOnSelectionRelocateRequest()
-            ?.observe(this, onSelectionRelocateObserver)
+        selectionOptionsFragment?.getOnSelectionModifyRequest()
+            ?.observe(this, onSelectionModifyObserver)
     }
 
     private val showEditMetadataScreenObserver = Observer<MutableList<Record>> {
@@ -413,8 +396,25 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.hideChecklistButton()
     }
 
-    private val onSelectionRelocateObserver = Observer<ModificationType> {
-        viewModel.onSelectionRelocationBtnClick(it)
+    private val onSelectionModifyObserver = Observer<ModificationType> { modificationType ->
+        if (modificationType == ModificationType.DELETE) {
+            val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
+                LayoutInflater.from(context), R.layout.dialog_delete, null, false
+            )
+            val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
+
+            dialogBinding.tvTitle.text = getString(R.string.delete_records_title)
+            dialogBinding.btnDelete.setOnClickListener {
+                viewModel.onSelectionModifyBtnClick(modificationType)
+                alert.dismiss()
+            }
+            dialogBinding.btnCancel.setOnClickListener {
+                alert.dismiss()
+            }
+            alert.show()
+        } else {
+            viewModel.onSelectionModifyBtnClick(modificationType)
+        }
     }
 
     private val onRecordRelocateObserver = Observer<Pair<Record, ModificationType>> {
@@ -537,7 +537,6 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().observe(this, onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
-        viewModel.getDeleteRecordsRequest().observe(this, deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
@@ -566,7 +565,6 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnRecordSelected().removeObserver(onRecordSelectedObserver)
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
-        viewModel.getDeleteRecordsRequest().removeObserver(deleteRecordsObserver)
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
         viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
@@ -582,8 +580,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
-        selectionOptionsFragment?.getOnSelectionRelocateRequest()
-            ?.removeObserver(onSelectionRelocateObserver)
+        selectionOptionsFragment?.getOnSelectionModifyRequest()
+            ?.removeObserver(onSelectionModifyObserver)
     }
 
     override fun onResume() {

@@ -68,7 +68,7 @@ class SelectionOptionsFragment : PermanentBottomSheetFragment(), View.OnClickLis
         disconnectViewModelEvents()
     }
 
-    fun getOnSelectionRelocateRequest(): MutableLiveData<ModificationType> = onModifyRequest
+    fun getOnSelectionModifyRequest(): MutableLiveData<ModificationType> = onModifyRequest
 
     companion object {
         const val SELECTION_SIZE_KEY = "selection_size_key"
