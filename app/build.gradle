@@ -122,8 +122,6 @@ dependencies {
     implementation 'androidx.compose.ui:ui-tooling:1.6.7'
     implementation "androidx.compose.ui:ui:1.6.7"
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
-    // For embedding xml code in compose
-//    implementation 'androidx.compose.ui:ui-viewbinding:1.4.3'
     // Integration with activities
     implementation 'androidx.activity:activity-compose:1.7.2'
     // Integration with ViewModels
@@ -143,11 +141,6 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.github.chthai64:SwipeRevealLayout:1.4.0'
-
-    //==============================================================================================
-
-    //=================================== ONBOARDING DOT INDICATOR =================================
-    implementation 'ru.tinkoff.scrollingpagerindicator:scrollingpagerindicator:1.2.0'
     //==============================================================================================
 
     //========================================= FIREBASE ===========================================

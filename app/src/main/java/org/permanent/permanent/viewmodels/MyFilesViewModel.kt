@@ -44,6 +44,7 @@ import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
+import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
@@ -76,7 +77,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
     private val onShowRecordSearchFragment = SingleLiveEvent<Void?>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
-    private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
+    private val onShowRecordMenuFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
@@ -217,7 +218,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     override fun onRecordOptionsClick(record: Record) {
-        onShowRecordOptionsFragment.value = record
+        onShowRecordMenuFragment.value = record
     }
 
     override fun onRecordCheckBoxClick(record: Record) {
@@ -391,6 +392,28 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
+    fun publishRecord(record: Record) {
+        val folderLinkId = prefsHelper.getPublicRecordFolderLinkId()
+
+        if (folderLinkId != 0) {
+            swipeRefreshLayout.isRefreshing = true
+            fileRepository.relocateRecords(mutableListOf(record),
+                folderLinkId,
+                ModificationType.PUBLISH,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        message?.let { showMessage.value = it }
+                    }
+
+                    override fun onFailed(error: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        error?.let { showMessage.value = it }
+                    }
+                })
+        }
+    }
+
     fun delete(record: Record) {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.deleteRecords(mutableListOf(record), object : IResponseListener {
@@ -487,7 +510,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment
 
-    fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
+    fun getOnShowRecordMenuFragment(): MutableLiveData<Record> = onShowRecordMenuFragment
 
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
 
