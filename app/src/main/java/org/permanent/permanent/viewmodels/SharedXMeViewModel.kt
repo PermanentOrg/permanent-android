@@ -33,6 +33,7 @@ import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
+import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
@@ -65,7 +66,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     private val showQuotaExceeded = SingleLiveEvent<Void?>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
-    private val onShowRecordOptionsFragment = SingleLiveEvent<Record>()
+    private val onShowRecordMenuFragment = SingleLiveEvent<Record>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
@@ -144,7 +145,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     }
 
     override fun onRecordOptionsClick(record: Record) {
-        onShowRecordOptionsFragment.value = record
+        onShowRecordMenuFragment.value = record
     }
 
     fun onBackBtnClick() {
@@ -324,6 +325,28 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         showQuotaExceeded.call()
     }
 
+    fun publishRecord(record: Record) {
+        val folderLinkId = prefsHelper.getPublicRecordFolderLinkId()
+
+        if (folderLinkId != 0) {
+            swipeRefreshLayout.isRefreshing = true
+            fileRepository.relocateRecords(mutableListOf(record),
+                folderLinkId,
+                ModificationType.PUBLISH,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        message?.let { showMessage.value = it }
+                    }
+
+                    override fun onFailed(error: String?) {
+                        swipeRefreshLayout.isRefreshing = false
+                        error?.let { showMessage.value = it }
+                    }
+                })
+        }
+    }
+
     fun delete(record: Record) {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.deleteRecords(mutableListOf(record), object : IResponseListener {
@@ -377,7 +400,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             upload(uris)
         }
     }
-
 
     override fun onRecordCheckBoxClick(record: Record) {
         super.onRecordChecked(record)
@@ -436,7 +458,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
 
-    fun getOnShowRecordOptionsFragment(): MutableLiveData<Record> = onShowRecordOptionsFragment
+    fun getOnShowRecordMenuFragment(): MutableLiveData<Record> = onShowRecordMenuFragment
 
     fun getOpenChecklistBottomSheet(): MutableLiveData<Void?> = openChecklistBottomSheet
 

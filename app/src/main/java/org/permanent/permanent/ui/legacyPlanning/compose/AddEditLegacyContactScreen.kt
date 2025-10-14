@@ -288,7 +288,7 @@ private fun BottomSheetHeader(
         TextButton(onClick = { onSaveBtnClick() }
         ) {
             Text(
-                text = stringResource(R.string.button_save),
+                text = stringResource(R.string.save),
                 fontSize = subTitleTextSize,
                 fontFamily = regularFont,
                 color = whiteColor

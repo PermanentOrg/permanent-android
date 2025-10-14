@@ -29,6 +29,7 @@ open class Record : Parcelable {
     var thumbURL2000: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
+    var size: Long = -1L
     var accessRole: AccessRole? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
     var isSelectMode: MutableLiveData<Boolean>? = null
@@ -57,6 +58,7 @@ open class Record : Parcelable {
         thumbURL2000 = parcel.readString()
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
+        size = parcel.readLong()
         accessRole = parcel.readParcelable(AccessRole::class.java.classLoader)
         shares = parcel.createTypedArrayList(Share)
         displayFirstInCarousel = parcel.readValue(Boolean::class.java.classLoader) as Boolean
@@ -80,6 +82,7 @@ open class Record : Parcelable {
         thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
+        size = recordInfo.size ?: -1L
         accessRole = AccessRole.createFromBackendString(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
@@ -216,6 +219,7 @@ open class Record : Parcelable {
         parcel.writeString(thumbURL2000)
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
+        parcel.writeLong(size)
         parcel.writeParcelable(accessRole, flags)
         parcel.writeTypedList(shares)
         parcel.writeValue(displayFirstInCarousel)

@@ -264,7 +264,7 @@
             android:layout_marginBottom="24dp"
             android:fontFamily="@font/open_sans_bold"
             android:insetBottom="0dp"
-            android:text="@string/save_button"
+            android:text="@string/save"
             android:textAllCaps="false"
             android:textSize="18sp"
             android:textStyle="bold"
