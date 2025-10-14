@@ -616,8 +616,6 @@
     <string name="invited_as">Invited as</string>
     <string name="new_archive">New archive</string>
 
-    <string name="leave_share">Leave share</string>
-
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>
     <string name="save_to_permanent_choose_folder">Choose Folder</string>
@@ -820,8 +818,10 @@
     <string name="publish_on_the_web">Publish on the web</string>
     <string name="send_a_copy">Send a copy</string>
     <string name="save">Save</string>
+    <string name="download">Download</string>
     <string name="rename">Rename</string>
     <string name="move_to_another_folder">Move to another folder</string>
     <string name="copy_to_another_folder">Copy to another folder</string>
     <string name="delete">Delete</string>
+    <string name="leave_share">Leave share</string>
 </resources>

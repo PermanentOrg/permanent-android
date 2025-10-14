@@ -96,9 +96,9 @@ fun RecordMenuScreen(
                                     text = stringResource(R.string.send_a_copy),
                                 ) { onItemClick(item) }
 
-                                RecordMenuItem.Save -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_save_primary),
-                                    text = stringResource(R.string.save),
+                                RecordMenuItem.Download -> SettingsMenuItem(
+                                    iconResource = painterResource(id = R.drawable.ic_download_primary),
+                                    text = stringResource(R.string.download),
                                 ) { onItemClick(item) }
 
                                 RecordMenuItem.Rename -> SettingsMenuItem(
@@ -124,6 +124,18 @@ fun RecordMenuScreen(
                                     SettingsMenuItem(
                                         iconResource = painterResource(id = R.drawable.ic_delete_large_red),
                                         text = stringResource(R.string.delete),
+                                        itemColor = colorResource(R.color.error500),
+                                    ) { onItemClick(item) }
+                                }
+
+                                RecordMenuItem.LeaveShare -> {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(vertical = 16.dp),
+                                        color = colorResource(R.color.blue50)
+                                    )
+                                    SettingsMenuItem(
+                                        iconResource = painterResource(id = R.drawable.ic_leave_share_red),
+                                        text = stringResource(R.string.leave_share),
                                         itemColor = colorResource(R.color.error500),
                                     ) { onItemClick(item) }
                                 }

@@ -253,7 +253,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordMenuFragment = RecordMenuFragment()
         recordMenuFragment?.setBundleArguments(it, Workspace.PRIVATE_FILES)
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
-//        recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
+//        recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)
         recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
         recordMenuFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameObserver)
         recordMenuFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateObserver)
@@ -267,7 +267,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
     }
 
-    private val onFileDownloadRequest = Observer<Record> {
+    private val onFileDownloadObserver = Observer<Record> {
         viewModel.download(it)
     }
 

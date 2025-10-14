@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.Record
@@ -59,11 +60,8 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     private val _recordDate = MutableStateFlow("")
     val recordDate: StateFlow<String> = _recordDate
     private val allSharesSize = MutableLiveData(0)
-    private val showViewAllBtn = MutableLiveData(false)
     private val recordPermission = MutableLiveData<String>()
-    private val sharedWithLabelTxt = MutableLiveData<String>()
     private var shareByUrlVO: Shareby_urlVO? = null
-    private val shareLink = MutableLiveData("")
     private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
     private val allShares = mutableListOf<Share>()
     private val onSharesRetrieved = SingleLiveEvent<MutableList<Share>>()
@@ -92,6 +90,10 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         this.workspace = workspace
         this.isFragmentShownInSharedWithMe.value = isShownInSharedWithMe
         this.isFragmentShownInRootFolder.value = isShownInRootFolder
+        actualAccessRole =
+            record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole())
+                ?: AccessRole.VIEWER
+        recordPermission.value = actualAccessRole.toTitleCase()
 
         _recordName.value = record.displayName ?: ""
         _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
@@ -106,23 +108,102 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             RecordMenuItem.Share,
             RecordMenuItem.Publish,
             RecordMenuItem.SendACopy,
-            RecordMenuItem.Save,
+            RecordMenuItem.Download,
             RecordMenuItem.Rename,
             RecordMenuItem.Move,
             RecordMenuItem.Copy,
-            RecordMenuItem.Delete
+            RecordMenuItem.Delete,
+            RecordMenuItem.LeaveShare
         )
 
-        return when (record.type) {
-            RecordType.FOLDER -> baseItems.filterNot {
-                it in listOf(
-                    RecordMenuItem.SendACopy,
-                    RecordMenuItem.Save
-                )
+        // Mutable set of hidden options
+        val hidden = mutableSetOf<RecordMenuItem>()
+
+        // --- Record type specific rules ---
+        if (record.type == RecordType.FOLDER) {
+            hidden.add(RecordMenuItem.SendACopy)
+            hidden.add(RecordMenuItem.Download)
+        }
+
+        // --- Workspace-specific rules ---
+        when (workspace) {
+            Workspace.PRIVATE_FILES -> {
+                hidden.add(RecordMenuItem.LeaveShare)
+
+                val perms = CurrentArchivePermissionsManager.instance
+                if (!perms.isOwnershipAvailable()) hidden.add(RecordMenuItem.Share)
+                if (!perms.isPublishAvailable()) hidden.add(RecordMenuItem.Publish)
+                if (!perms.isEditAvailable()) hidden.add(RecordMenuItem.Rename)
+                if (!perms.isMoveAvailable()) hidden.add(RecordMenuItem.Move)
+                if (!perms.isCreateAvailable()) hidden.add(RecordMenuItem.Copy)
+                if (!perms.isDeleteAvailable()) hidden.add(RecordMenuItem.Delete)
             }
 
-            else -> baseItems
+            Workspace.PUBLIC_FILES -> {
+                hidden.addAll(
+                    listOf(
+                        RecordMenuItem.Share,
+                        RecordMenuItem.Publish,
+                        RecordMenuItem.LeaveShare
+                    )
+                )
+
+                val perms = CurrentArchivePermissionsManager.instance
+                if (!perms.isEditAvailable()) hidden.add(RecordMenuItem.Rename)
+                if (!perms.isMoveAvailable()) hidden.add(RecordMenuItem.Move)
+                if (!perms.isCreateAvailable()) hidden.add(RecordMenuItem.Copy)
+                if (!perms.isDeleteAvailable()) hidden.add(RecordMenuItem.Delete)
+            }
+
+            Workspace.SHARES -> {
+                hidden.addAll(
+                    listOf(
+                        RecordMenuItem.Publish,
+                        RecordMenuItem.SendACopy
+                    )
+                )
+
+                val isSharedWithMe = isFragmentShownInSharedWithMe.value == true
+                val isRoot = isFragmentShownInRootFolder.value == true
+                val role = actualAccessRole
+
+                if (!role.isOwnershipAvailable() || isSharedWithMe)
+                    hidden.add(RecordMenuItem.Share)
+
+                if (!role.isEditAvailable())
+                    hidden.add(RecordMenuItem.Rename)
+
+                if (!role.isMoveAvailable() || isRoot)
+                    hidden.add(RecordMenuItem.Move)
+
+                if (!role.isCreateAvailable() || isRoot)
+                    hidden.add(RecordMenuItem.Copy)
+
+                if (!role.isDeleteAvailable() || (isSharedWithMe && isRoot))
+                    hidden.add(RecordMenuItem.Delete)
+
+                if (!isSharedWithMe || !isRoot)
+                    hidden.add(RecordMenuItem.LeaveShare)
+            }
+
+            else -> { // Public Archive
+                hidden.addAll(
+                    listOf(
+                        RecordMenuItem.Share,
+                        RecordMenuItem.Publish,
+                        RecordMenuItem.Download,
+                        RecordMenuItem.Rename,
+                        RecordMenuItem.Move,
+                        RecordMenuItem.Copy,
+                        RecordMenuItem.Delete,
+                        RecordMenuItem.LeaveShare
+                    )
+                )
+            }
         }
+
+        // --- Final visible menu items ---
+        return baseItems.filterNot { it in hidden }
     }
 
     fun onMenuItemClick(item: RecordMenuItem) {
@@ -130,38 +211,15 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             RecordMenuItem.Share -> {} //onManageSharingRequest.call()
             RecordMenuItem.Publish -> onPublishRequest.call()
             RecordMenuItem.SendACopy -> {} //onShareToAnotherAppRequest.postValue(record.id)
-            RecordMenuItem.Save -> {} //onFileDownloadRequest.call()
+            RecordMenuItem.Download -> {} //onFileDownloadRequest.call()
             RecordMenuItem.Rename -> onRenameRequest.call()
             RecordMenuItem.Move -> onRelocateRequest.postValue(ModificationType.MOVE)
             RecordMenuItem.Copy -> onRelocateRequest.postValue(ModificationType.COPY)
             RecordMenuItem.Delete -> onDeleteRequest.call()
+            RecordMenuItem.LeaveShare -> {} //onLeaveShareRequest.call()
         }
     }
 
-//    private fun updateSharedWithBtnTxt(sharesSize: Int?) {
-//        sharesSize?.let {
-//            sharedWithLabelTxt.value = appContext.getString(R.string.record_options_shared_with, it)
-//        }
-//    }
-//
-//    private fun initShares(record: Record?) {
-//        record?.shares?.let {
-//            allShares.addAll(it)
-//            allSharesSize.value = allShares.size
-//
-//            if (allShares.size != 0) updateSharesUI()
-//        }
-//    }
-//
-//    private fun updateSharesUI() {
-//        val fewShares = mutableListOf<Share>()
-//
-//        if (allShares.size > 0) fewShares.add(allShares[0])
-//        if (allShares.size > 1) fewShares.add(allShares[1])
-//        onSharesRetrieved.value = fewShares
-//        showViewAllBtn.value = allShares.size > DEFAULT_NR_OF_VISIBLE_SHARES
-//    }
-//
 //    fun onDownloadBtnClick() {
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
 //            && !DevicePermissionsHelper().hasWriteStoragePermission(appContext)
@@ -211,26 +269,6 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 //
 //    fun onRenameBtnClick() {
 //        onRenameRequest.call()
-//    }
-//
-//    private fun checkForExistingLink(record: Record) {
-//        if (isBusy.value != null && isBusy.value!!) {
-//            return
-//        }
-//
-//        isBusy.value = true
-//        shareRepository.requestShareLink(record, ShareRequestType.GET,
-//            object : IShareRepository.IShareByUrlListener {
-//                override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-//                    isBusy.value = false
-//                    this@RecordOptionsViewModel.shareByUrlVO = shareByUrlVO
-//                    shareByUrlVO?.shareUrl?.let { shareLink.value = it }
-//                }
-//
-//                override fun onFailed(error: String?) {
-//                    isBusy.value = false
-//                }
-//            })
 //    }
 //
 //    fun onManageSharingBtnClick() {
@@ -405,9 +443,10 @@ enum class RecordMenuItem {
     Share,
     Publish,
     SendACopy,
-    Save,
+    Download,
     Rename,
     Move,
     Copy,
-    Delete
+    Delete,
+    LeaveShare
 }
