@@ -2,21 +2,35 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.DevicePermissionsHelper
+import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.EventAction
+import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordOption
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -31,6 +45,10 @@ import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.toDisplayDate
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.File
 
 class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel(application),
     OnFinishedListener {
@@ -212,22 +230,45 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         when (item) {
             RecordMenuItem.Share -> {} //onManageSharingRequest.call()
             RecordMenuItem.Publish -> onPublishRequest.call()
-            RecordMenuItem.SendACopy -> {} //onShareToAnotherAppRequest.postValue(record.id)
-            RecordMenuItem.Download -> {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-                    && !DevicePermissionsHelper().hasWriteStoragePermission(appContext)
-                ) {
-                    onRequestWritePermission.call()
-                } else {
-                    startFileDownload()
-                }
-            }
-
+            RecordMenuItem.SendACopy -> requestFileData()
+            RecordMenuItem.Download -> checkForPermission()
             RecordMenuItem.Rename -> onRenameRequest.call()
             RecordMenuItem.Move -> onRelocateRequest.postValue(ModificationType.MOVE)
             RecordMenuItem.Copy -> onRelocateRequest.postValue(ModificationType.COPY)
             RecordMenuItem.Delete -> onDeleteRequest.call()
             RecordMenuItem.LeaveShare -> {} //onLeaveShareRequest.call()
+        }
+    }
+
+    private fun requestFileData() {
+        val folderLinkId = record.folderLinkId
+        val recordId = record.recordId
+
+        if (folderLinkId != null && recordId != null) {
+            _isBusyState.value = true
+            fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    _isBusyState.value = false
+                    fileData = response.body()?.getFileData()
+                    onShareToAnotherAppRequest.value = fileData?.contentType
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    _isBusyState.value = false
+                    showSnackbar.value = t.message
+                }
+            })
+        }
+    }
+
+    private fun checkForPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+            && !DevicePermissionsHelper().hasWriteStoragePermission(appContext)
+        ) {
+            onRequestWritePermission.call()
+        } else {
+            startFileDownload()
         }
     }
 
@@ -239,48 +280,84 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         onFileDownloadRequest.call()
     }
 
-//    fun onLeaveShareBtnClick() {
-//        onLeaveShareRequest.call()
-//    }
-//
-//    fun onShareToAnotherAppBtnClick() {
-//        // Requesting FileData
-//        val folderLinkId = record.folderLinkId
-//        val recordId = record.recordId
-//
-//        if (folderLinkId != null && recordId != null) {
-//            isBusy.value = true
-//            fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
-//
-//                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-//                    isBusy.value = false
-//                    fileData = response.body()?.getFileData()
-//                    onShareToAnotherAppRequest.value = fileData?.contentType
-//                }
-//
-//                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-//                    isBusy.value = false
-//                    showSnackbar.value = t.message
-//                }
-//            })
-//        }
-//    }
-//
-//    fun downloadFileForSharing(lifecycleOwner: LifecycleOwner) {
-//        download = Download(appContext, record, this)
-//        download?.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
-//        download?.observeWorkInfoOn(lifecycleOwner)
-//    }
-//
-//    fun cancelDownload() {
-//        download?.cancel()
-//    }
-//
+    fun getUriForSharing(): Uri? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            var collection: Uri =
+                MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            var nameColumn = MediaStore.Downloads.DISPLAY_NAME
+            var idColumn = MediaStore.Downloads._ID
+
+            when {
+                fileData?.contentType?.contains(FileType.IMAGE.toString()) == true -> {
+                    collection =
+                        MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                    nameColumn = MediaStore.Images.Media.DISPLAY_NAME
+                    idColumn = MediaStore.Images.Media._ID
+                }
+
+                fileData?.contentType?.contains(FileType.VIDEO.toString()) == true -> {
+                    collection =
+                        MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                    nameColumn = MediaStore.Video.Media.DISPLAY_NAME
+                    idColumn = MediaStore.Video.Media._ID
+                }
+            }
+
+            val projection = arrayOf(nameColumn, idColumn)
+            appContext.contentResolver.query(
+                collection, projection, null, null, null, null
+            )?.use { cursor ->
+                val idIndex = cursor.getColumnIndex(idColumn)
+                val nameIndex = cursor.getColumnIndex(nameColumn)
+
+                while (cursor.moveToNext()) {
+                    val fileName = cursor.getString(nameIndex)
+                    if (fileName == fileData?.fileName) {
+                        val fileId = cursor.getString(idIndex)
+                        return "$collection/$fileId".toUri()
+                    }
+                }
+                cursor.close()
+                return null
+            }
+        } else {
+            val file = File(
+                Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS
+                ), fileData?.fileName
+            )
+            return if (file.exists()) {
+                FileProvider.getUriForFile(
+                    appContext,
+                    PermanentApplication.instance.packageName + Constants.FILE_PROVIDER_NAME,
+                    file
+                )
+            } else null
+        }
+        return null
+    }
+
+    fun downloadFileForSharing(lifecycleOwner: LifecycleOwner) {
+        download = Download(appContext, record, this)
+        download?.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
+        download?.observeWorkInfoOn(lifecycleOwner)
+        _isBusyState.value = true
+    }
+
+    fun sendEvent(action: EventAction, data: Map<String, String> = mapOf()) {
+        eventsRepository.sendEventAction(
+            eventAction = action,
+            accountId = prefsHelper.getAccountId(),
+            data = data
+        )
+    }
+
     override fun onFinished(download: Download, state: WorkInfo.State) {
-//        if (state == WorkInfo.State.SUCCEEDED) onFileDownloadedForSharing.value =
-//            fileData?.contentType
-//        else if (state == WorkInfo.State.FAILED)
-//            showSnackbar.value = appContext.getString(R.string.generic_error)
+        _isBusyState.value = false
+        if (state == WorkInfo.State.SUCCEEDED) onFileDownloadedForSharing.value =
+            fileData?.contentType
+        else if (state == WorkInfo.State.FAILED)
+            showSnackbar.value = appContext.getString(R.string.generic_error)
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {}
@@ -289,75 +366,11 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
     override fun onQuotaExceeded() {}
 
-//    fun getUriForSharing(): Uri? {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//            var collection: Uri =
-//                MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-//            var nameColumn = MediaStore.Downloads.DISPLAY_NAME
-//            var idColumn = MediaStore.Downloads._ID
-//
-//            when {
-//                fileData?.contentType?.contains(FileType.IMAGE.toString()) == true -> {
-//                    collection =
-//                        MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-//                    nameColumn = MediaStore.Images.Media.DISPLAY_NAME
-//                    idColumn = MediaStore.Images.Media._ID
-//                }
-//                fileData?.contentType?.contains(FileType.VIDEO.toString()) == true -> {
-//                    collection =
-//                        MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-//                    nameColumn = MediaStore.Video.Media.DISPLAY_NAME
-//                    idColumn = MediaStore.Video.Media._ID
-//                }
-//            }
-//
-//            val projection = arrayOf(nameColumn, idColumn)
-//            appContext.contentResolver.query(
-//                collection, projection, null, null, null, null
-//            )?.use { cursor ->
-//                val idIndex = cursor.getColumnIndex(idColumn)
-//                val nameIndex = cursor.getColumnIndex(nameColumn)
-//
-//                while (cursor.moveToNext()) {
-//                    val fileName = cursor.getString(nameIndex)
-//                    if (fileName == fileData?.fileName) {
-//                        val fileId = cursor.getString(idIndex)
-//                        return Uri.parse("$collection/$fileId")
-//                    }
-//                }
-//                cursor.close()
-//                return null
-//            }
-//        } else {
-//            val file = File(
-//                Environment.getExternalStoragePublicDirectory(
-//                    Environment.DIRECTORY_DOWNLOADS
-//                ), fileData?.fileName
-//            )
-//            return if (file.exists()) {
-//                FileProvider.getUriForFile(
-//                    appContext,
-//                    PermanentApplication.instance.packageName + Constants.FILE_PROVIDER_NAME,
-//                    file
-//                )
-//            } else null
-//        }
-//        return null
+//    fun onLeaveShareBtnClick() {
+//        onLeaveShareRequest.call()
 //    }
-//
-//    fun sendEvent(action: EventAction, data: Map<String, String> = mapOf()) {
-//        eventsRepository.sendEventAction(
-//            eventAction = action,
-//            accountId = prefsHelper.getAccountId(),
-//            data = data
-//        )
-//    }
-//
-//    fun getShowSnackbar(): LiveData<String> = showSnackbar
 //
 //    fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
-//
-//    fun getOnFileDownloadedForSharing(): LiveData<String> = onFileDownloadedForSharing
 //
 //    fun getRecord(): Record = record
 //
@@ -374,16 +387,11 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 //    fun getOnShareLinkRequest(): MutableLiveData<String> = onShareLinkRequest
 //
 //    fun getOnLeaveShareRequest(): MutableLiveData<Void?> = onLeaveShareRequest
-//
-//    fun getOnManageSharingRequest(): MutableLiveData<Void?> = onManageSharingRequest
-//
-//    fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
-//
-//    companion object {
-//        const val DEFAULT_NR_OF_VISIBLE_SHARES = 2
-//    }
 
+    fun getShowSnackbar(): LiveData<String> = showSnackbar
     fun getOnPublishRequest(): MutableLiveData<Void?> = onPublishRequest
+    fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
+    fun getOnFileDownloadedForSharing(): LiveData<String> = onFileDownloadedForSharing
     fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission
     fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
     fun getOnRenameRequest(): MutableLiveData<Void?> = onRenameRequest

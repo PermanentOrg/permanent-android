@@ -54,95 +54,94 @@ fun RecordMenuScreen(
     val recordDate by viewModel.recordDate.collectAsState()
     val menuItems by viewModel.menuItems.collectAsState()
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        RecordMenuHeader(
-            recordThumbURL = recordThumbURL,
-            recordName = recordName,
-            recordSize = recordSize,
-            recordDate = recordDate,
-            onCloseClick = onClose
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            RecordMenuHeader(
+                recordThumbURL = recordThumbURL,
+                recordName = recordName,
+                recordSize = recordSize,
+                recordDate = recordDate,
+                onCloseClick = onClose
+            )
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            when {
-                isBusyState -> {
-                    CircularProgressIndicator(overlayColor = OverlayColor.LIGHT)
-                }
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .background(Color.White)
+            ) {
+                menuItems.forEach { item ->
+                    when (item) {
+                        RecordMenuItem.Share -> SettingsMenuItem(
+                            iconResource = painterResource(id = R.drawable.ic_share_primary),
+                            text = stringResource(R.string.share_and_manage_access),
+                        ) { onItemClick(item) }
+                        RecordMenuItem.Publish -> SettingsMenuItem(
+                            iconResource = painterResource(id = R.drawable.ic_publish_primary),
+                            text = stringResource(R.string.publish_on_the_web),
+                        ) { onItemClick(item) }
+                        RecordMenuItem.SendACopy -> SettingsMenuItem(
+                            iconResource = painterResource(id = R.drawable.ic_send_primary),
+                            text = stringResource(R.string.send_a_copy),
+                        ) { onItemClick(item) }
+                        RecordMenuItem.Download -> SettingsMenuItem(
+                            iconResource = painterResource(id = R.drawable.ic_download_primary),
+                            text = stringResource(R.string.download),
+                        ) { onItemClick(item) }
+                        RecordMenuItem.Rename -> SettingsMenuItem(
+                            iconResource = painterResource(id = R.drawable.ic_rename_primary),
+                            text = stringResource(R.string.rename),
+                        ) { onItemClick(item) }
+                        RecordMenuItem.Move -> SettingsMenuItem(
+                            iconResource = painterResource(id = R.drawable.ic_move_primary),
+                            text = stringResource(R.string.move_to_another_folder),
+                        ) { onItemClick(item) }
+                        RecordMenuItem.Copy -> SettingsMenuItem(
+                            iconResource = painterResource(id = R.drawable.ic_copy_primary),
+                            text = stringResource(R.string.copy_to_another_folder),
+                        ) { onItemClick(item) }
 
-                else -> {
-                    Column(
-                        modifier = Modifier
-                            .padding(vertical = 16.dp)
-                            .background(Color.White)
-                    ) {
-                        menuItems.forEach { item ->
-                            when (item) {
-                                RecordMenuItem.Share -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_share_primary),
-                                    text = stringResource(R.string.share_and_manage_access),
-                                ) { onItemClick(item) }
+                        RecordMenuItem.Delete -> {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 16.dp),
+                                color = colorResource(R.color.blue50)
+                            )
+                            SettingsMenuItem(
+                                iconResource = painterResource(id = R.drawable.ic_delete_large_red),
+                                text = stringResource(R.string.delete),
+                                itemColor = colorResource(R.color.error500),
+                            ) { onItemClick(item) }
+                        }
 
-                                RecordMenuItem.Publish -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_publish_primary),
-                                    text = stringResource(R.string.publish_on_the_web),
-                                ) { onItemClick(item) }
-
-                                RecordMenuItem.SendACopy -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_send_primary),
-                                    text = stringResource(R.string.send_a_copy),
-                                ) { onItemClick(item) }
-
-                                RecordMenuItem.Download -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_download_primary),
-                                    text = stringResource(R.string.download),
-                                ) { onItemClick(item) }
-
-                                RecordMenuItem.Rename -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_rename_primary),
-                                    text = stringResource(R.string.rename),
-                                ) { onItemClick(item) }
-
-                                RecordMenuItem.Move -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_move_primary),
-                                    text = stringResource(R.string.move_to_another_folder),
-                                ) { onItemClick(item) }
-
-                                RecordMenuItem.Copy -> SettingsMenuItem(
-                                    iconResource = painterResource(id = R.drawable.ic_copy_primary),
-                                    text = stringResource(R.string.copy_to_another_folder),
-                                ) { onItemClick(item) }
-
-                                RecordMenuItem.Delete -> {
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(vertical = 16.dp),
-                                        color = colorResource(R.color.blue50)
-                                    )
-                                    SettingsMenuItem(
-                                        iconResource = painterResource(id = R.drawable.ic_delete_large_red),
-                                        text = stringResource(R.string.delete),
-                                        itemColor = colorResource(R.color.error500),
-                                    ) { onItemClick(item) }
-                                }
-
-                                RecordMenuItem.LeaveShare -> {
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(vertical = 16.dp),
-                                        color = colorResource(R.color.blue50)
-                                    )
-                                    SettingsMenuItem(
-                                        iconResource = painterResource(id = R.drawable.ic_leave_share_red),
-                                        text = stringResource(R.string.leave_share),
-                                        itemColor = colorResource(R.color.error500),
-                                    ) { onItemClick(item) }
-                                }
-                            }
+                        RecordMenuItem.LeaveShare -> {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 16.dp),
+                                color = colorResource(R.color.blue50)
+                            )
+                            SettingsMenuItem(
+                                iconResource = painterResource(id = R.drawable.ic_leave_share_red),
+                                text = stringResource(R.string.leave_share),
+                                itemColor = colorResource(R.color.error500),
+                            ) { onItemClick(item) }
                         }
                     }
                 }
+            }
+        }
+
+        if (isBusyState) {
+            Box(
+                modifier = Modifier.matchParentSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(overlayColor = OverlayColor.LIGHT)
             }
         }
     }
