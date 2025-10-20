@@ -67,7 +67,7 @@
             android:fontFamily="@font/open_sans"
             android:letterSpacing="-0.01"
             android:onClick="@{() -> viewModel.onSaveBtnClick()}"
-            android:text="@string/button_save"
+            android:text="@string/save"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/frameLayoutContainer"
