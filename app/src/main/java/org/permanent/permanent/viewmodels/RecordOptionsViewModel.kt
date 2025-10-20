@@ -422,8 +422,6 @@ class RecordOptionsViewModel(application: Application) : ObservableAndroidViewMo
 
     fun getRecord(): Record = record
 
-    fun getWorkspace(): Workspace = workspace
-
     fun getIsFragmentShownInSharedWithMe(): MutableLiveData<Boolean> = isFragmentShownInSharedWithMe
 
     fun getIsFragmentShownInRootFolder(): MutableLiveData<Boolean> = isFragmentShownInRootFolder

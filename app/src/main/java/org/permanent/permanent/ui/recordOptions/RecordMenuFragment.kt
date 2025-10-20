@@ -1,11 +1,13 @@
 package org.permanent.permanent.ui.recordOptions
 
 import android.app.Dialog
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +22,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.R
+import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
@@ -141,15 +145,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         }
     }
 
-//    private val onRequestWritePermission = Observer<Void?> {
-//        DevicePermissionsHelper().requestWriteStoragePermission(this)
-//    }
-//
-//    private val onFileDownloadRequestObserver = Observer<Void?> {
-//        dismiss()
-//        onFileDownloadRequest.value = record
-//    }
-//
 //    private val onShareToAnotherAppObserver = Observer<String> { contentType ->
 //        viewModel.getUriForSharing()?.let {
 //            shareFile(it, contentType)
@@ -220,25 +215,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
 //        dismiss()
 //    }
 //
-    //    @Deprecated("Deprecated in Java")
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int, permissions: Array<String>,
-//        grantResults: IntArray
-//    ) {
-//        when (requestCode) {
-//            REQUEST_CODE_WRITE_STORAGE_PERMISSION ->
-//                if (grantResults.isNotEmpty()
-//                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
-//                ) {
-//                    viewModel.onWritePermissionGranted()
-//                } else {
-//                    Toast.makeText(
-//                        context, R.string.download_no_permissions_error, Toast.LENGTH_LONG
-//                    ).show()
-//                }
-//        }
-//    }
-//
 //    private fun shareFile(sharingUri: Uri, mimeType: String) {
 //        val intent = Intent(Intent.ACTION_SEND)
 //        intent.putExtra(Intent.EXTRA_STREAM, sharingUri)
@@ -246,8 +222,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
 //        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 //        startActivity(Intent.createChooser(intent, ""))
 //    }
-//
-//    fun getOnFileDownloadRequest(): MutableLiveData<Record> = onFileDownloadRequest
 //
 //    fun getOnRecordLeaveShareRequest(): MutableLiveData<Record> = onRecordLeaveShareRequest
 
@@ -271,6 +245,33 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         alert.show()
     }
 
+    private val onRequestWritePermission = Observer<Void?> {
+        DevicePermissionsHelper().requestWriteStoragePermission(this)
+    }
+
+    private val onFileDownloadRequestObserver = Observer<Void?> {
+        onFileDownloadRequest.value = record
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            REQUEST_CODE_WRITE_STORAGE_PERMISSION ->
+                if (grantResults.isNotEmpty()
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
+                    viewModel.onWritePermissionGranted()
+                } else {
+                    Toast.makeText(
+                        context, R.string.download_no_permissions_error, Toast.LENGTH_LONG
+                    ).show()
+                }
+        }
+    }
+
     private val onRenameObserver = Observer<Void?> {
         onRecordRenameRequest.value = record
     }
@@ -284,6 +285,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     }
 
     fun getOnRecordPublishRequest(): MutableLiveData<Record> = onRecordPublishRequest
+    fun getOnFileDownloadRequest(): MutableLiveData<Record> = onFileDownloadRequest
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
 
     fun getOnRecordRelocateRequest(): MutableLiveData<Pair<Record, ModificationType>> =
@@ -294,14 +296,14 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     override fun connectViewModelEvents() {
         //        viewModel.getShowSnackbar().observe(this, showSnackbar)
 //        viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
-//        viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
-//        viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
 //        viewModel.getOnLeaveShareRequest().observe(this, onLeaveShareObserver)
 //        viewModel.getOnManageSharingRequest().observe(this, onManageSharingObserver)
 //        viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
 //        viewModel.getOnShareLinkRequest().observe(this, onShareLinkObserver)
 //        viewModel.getOnFileDownloadedForSharing().observe(this, onFileDownloadedForSharing)
         viewModel.getOnPublishRequest().observe(this, onPublishRequestObserver)
+        viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
+        viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnRenameRequest().observe(this, onRenameObserver)
         viewModel.getOnRelocateRequest().observe(this, onRelocateRequestObserver)
         viewModel.getOnDeleteRequest().observe(this, onDeleteObserver)
@@ -310,13 +312,13 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     override fun disconnectViewModelEvents() {
 //        viewModel.getShowSnackbar().observe(this, showSnackbar)
 //        viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
-//        viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
-//        viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
 //        viewModel.getOnManageSharingRequest().removeObserver(onManageSharingObserver)
 //        viewModel.getOnShareToAnotherAppRequest().removeObserver(onShareToAnotherAppObserver)
 //        viewModel.getOnShareLinkRequest().removeObserver(onShareLinkObserver)
 //        viewModel.getOnFileDownloadedForSharing().removeObserver(onFileDownloadedForSharing)
         viewModel.getOnPublishRequest().removeObserver(onPublishRequestObserver)
+        viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
+        viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
         viewModel.getOnRenameRequest().removeObserver(onRenameObserver)
         viewModel.getOnRelocateRequest().removeObserver(onRelocateRequestObserver)
         viewModel.getOnDeleteRequest().removeObserver(onDeleteObserver)

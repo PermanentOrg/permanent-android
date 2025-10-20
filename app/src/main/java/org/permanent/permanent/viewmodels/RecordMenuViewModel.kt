@@ -2,11 +2,13 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import androidx.work.WorkInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.Record
@@ -211,7 +213,16 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             RecordMenuItem.Share -> {} //onManageSharingRequest.call()
             RecordMenuItem.Publish -> onPublishRequest.call()
             RecordMenuItem.SendACopy -> {} //onShareToAnotherAppRequest.postValue(record.id)
-            RecordMenuItem.Download -> {} //onFileDownloadRequest.call()
+            RecordMenuItem.Download -> {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                    && !DevicePermissionsHelper().hasWriteStoragePermission(appContext)
+                ) {
+                    onRequestWritePermission.call()
+                } else {
+                    startFileDownload()
+                }
+            }
+
             RecordMenuItem.Rename -> onRenameRequest.call()
             RecordMenuItem.Move -> onRelocateRequest.postValue(ModificationType.MOVE)
             RecordMenuItem.Copy -> onRelocateRequest.postValue(ModificationType.COPY)
@@ -220,59 +231,16 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         }
     }
 
-//    fun onDownloadBtnClick() {
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-//            && !DevicePermissionsHelper().hasWriteStoragePermission(appContext)
-//        ) {
-//            onRequestWritePermission.call()
-//        } else {
-//            startFileDownload()
-//        }
-//    }
-//
-//    fun onWritePermissionGranted() {
-//        startFileDownload()
-//    }
-//
-//    private fun startFileDownload() {
-//        onFileDownloadRequest.call()
-//    }
-//
-//    fun onCopyBtnClick() {
-//        onRelocateRequest.value = ModificationType.COPY
-//    }
-//
-//    fun onMoveBtnClick() {
-//        onRelocateRequest.value = ModificationType.MOVE
-//    }
-//
-//    fun onPublishBtnClick() {
-//        onPublishRequest.call()
-//    }
-//
-//    fun onShareLinkBtnClick() {
-//        onShareLinkRequest.value = shareLink.value.toString()
-//    }
-//
-//    fun onViewAllBtnClick() {
-//        onSharesRetrieved.value = allShares
-//        showViewAllBtn.value = false
-//    }
-//
-//    fun onDeleteBtnClick() {
-//        onDeleteRequest.call()
-//    }
-//
+    fun onWritePermissionGranted() {
+        startFileDownload()
+    }
+
+    private fun startFileDownload() {
+        onFileDownloadRequest.call()
+    }
+
 //    fun onLeaveShareBtnClick() {
 //        onLeaveShareRequest.call()
-//    }
-//
-//    fun onRenameBtnClick() {
-//        onRenameRequest.call()
-//    }
-//
-//    fun onManageSharingBtnClick() {
-//        onManageSharingRequest.call()
 //    }
 //
 //    fun onShareToAnotherAppBtnClick() {
@@ -393,19 +361,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 //
 //    fun getRecord(): Record = record
 //
-//    fun getWorkspace(): Workspace = workspace
-//
-//    fun getIsFragmentShownInSharedWithMe(): MutableLiveData<Boolean> = isFragmentShownInSharedWithMe
-//
-//    fun getIsFragmentShownInRootFolder(): MutableLiveData<Boolean> = isFragmentShownInRootFolder
-//
-//    fun getSharesSize(): MutableLiveData<Int> = allSharesSize
-//
-//    fun getShowViewAllBtn(): MutableLiveData<Boolean> = showViewAllBtn
-//
 //    fun getRecordPermission(): MutableLiveData<String> = recordPermission
-//
-//    fun getSharedWithLabelTxt(): MutableLiveData<String> = sharedWithLabelTxt
 //
 //    fun getShareByUrlVO(): Shareby_urlVO? = shareByUrlVO
 //
@@ -414,10 +370,6 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 //    fun getHiddenOptions(): MutableLiveData<MutableList<RecordOption>> = hiddenOptions
 //
 //    fun getOnSharesRetrieved(): MutableLiveData<MutableList<Share>> = onSharesRetrieved
-//
-//    fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission
-//
-//    fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
 //
 //    fun getOnShareLinkRequest(): MutableLiveData<String> = onShareLinkRequest
 //
@@ -432,6 +384,8 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 //    }
 
     fun getOnPublishRequest(): MutableLiveData<Void?> = onPublishRequest
+    fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission
+    fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
     fun getOnRenameRequest(): MutableLiveData<Void?> = onRenameRequest
     fun getOnRelocateRequest(): MutableLiveData<ModificationType> = onRelocateRequest
     fun getOnDeleteRequest(): MutableLiveData<Void?> = onDeleteRequest
