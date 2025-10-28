@@ -824,4 +824,7 @@
     <string name="copy_to_another_folder">Copy to another folder</string>
     <string name="delete">Delete</string>
     <string name="leave_share">Leave share</string>
+    <string name="confirm">Confirm</string>
+    <string name="confirm_delete_message">Are you sure you want to delete "%1$s"?</string>
+    <string name="confirm_leave_share_message">Are you sure you want to give up your access to the "%1$s" item?</string>
 </resources>

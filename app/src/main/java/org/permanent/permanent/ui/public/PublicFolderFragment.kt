@@ -25,7 +25,7 @@ import org.permanent.permanent.ui.fileView.FileViewOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
-import org.permanent.permanent.ui.recordOptions.RecordMenuFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicFolderViewModel
 

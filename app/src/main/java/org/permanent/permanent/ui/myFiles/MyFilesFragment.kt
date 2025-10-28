@@ -52,7 +52,7 @@ import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragment
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
-import org.permanent.permanent.ui.recordOptions.RecordMenuFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
@@ -272,20 +272,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordDeleteObserver = Observer<Record> { record ->
-        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_delete, null, false
-        )
-        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-        dialogBinding.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
-        dialogBinding.btnDelete.setOnClickListener {
-            viewModel.delete(record)
-            alert.dismiss()
-        }
-        dialogBinding.btnCancel.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
+        viewModel.delete(record)
     }
 
     private val onRecordPublishObserver = Observer<Record> { record ->

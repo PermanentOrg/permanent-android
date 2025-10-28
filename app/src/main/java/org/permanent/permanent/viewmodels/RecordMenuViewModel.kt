@@ -25,9 +25,7 @@ import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.models.RecordOption
 import org.permanent.permanent.models.RecordType
-import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
@@ -42,7 +40,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.bytesToHumanReadableString
-import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.toDisplayDate
 import retrofit2.Call
@@ -53,7 +50,7 @@ import java.io.File
 class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel(application),
     OnFinishedListener {
 
-    private val appContext = application.applicationContext
+    private val ctx = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
@@ -79,25 +76,16 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     val recordSize: StateFlow<String> = _recordSize
     private val _recordDate = MutableStateFlow("")
     val recordDate: StateFlow<String> = _recordDate
-    private val allSharesSize = MutableLiveData(0)
     private val recordPermission = MutableLiveData<String>()
     private var shareByUrlVO: Shareby_urlVO? = null
-    private val hiddenOptions = MutableLiveData<MutableList<RecordOption>>(mutableListOf())
-    private val allShares = mutableListOf<Share>()
-    private val onSharesRetrieved = SingleLiveEvent<MutableList<Share>>()
     private val onRequestWritePermission = SingleLiveEvent<Void?>()
     private val onFileDownloadRequest = SingleLiveEvent<Void?>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
-    private val onDeleteRequest = SingleLiveEvent<Void?>()
-    private val onLeaveShareRequest = SingleLiveEvent<Void?>()
-    private val onRenameRequest = SingleLiveEvent<Void?>()
     private val onManageSharingRequest = SingleLiveEvent<Void?>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
-    private val onRelocateRequest = MutableLiveData<ModificationType>()
-    private val onPublishRequest = SingleLiveEvent<Void?>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
-    private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
+    private var shareRepository: IShareRepository = ShareRepositoryImpl(ctx)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun initWith(
@@ -226,18 +214,12 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         return baseItems.filterNot { it in hidden }
     }
 
-    fun onMenuItemClick(item: RecordMenuItem) {
-        when (item) {
-            RecordMenuItem.Share -> {} //onManageSharingRequest.call()
-            RecordMenuItem.Publish -> onPublishRequest.call()
-            RecordMenuItem.SendACopy -> requestFileData()
-            RecordMenuItem.Download -> checkForPermission()
-            RecordMenuItem.Rename -> onRenameRequest.call()
-            RecordMenuItem.Move -> onRelocateRequest.postValue(ModificationType.MOVE)
-            RecordMenuItem.Copy -> onRelocateRequest.postValue(ModificationType.COPY)
-            RecordMenuItem.Delete -> onDeleteRequest.call()
-            RecordMenuItem.LeaveShare -> {} //onLeaveShareRequest.call()
-        }
+    fun onSendACopyClick() {
+        requestFileData()
+    }
+
+    fun onDownloadClick() {
+        checkForPermission()
     }
 
     private fun requestFileData() {
@@ -264,19 +246,15 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
     private fun checkForPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-            && !DevicePermissionsHelper().hasWriteStoragePermission(appContext)
+            && !DevicePermissionsHelper().hasWriteStoragePermission(ctx)
         ) {
             onRequestWritePermission.call()
         } else {
-            startFileDownload()
+            onFileDownloadRequest.call()
         }
     }
 
     fun onWritePermissionGranted() {
-        startFileDownload()
-    }
-
-    private fun startFileDownload() {
         onFileDownloadRequest.call()
     }
 
@@ -304,7 +282,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             }
 
             val projection = arrayOf(nameColumn, idColumn)
-            appContext.contentResolver.query(
+            ctx.contentResolver.query(
                 collection, projection, null, null, null, null
             )?.use { cursor ->
                 val idIndex = cursor.getColumnIndex(idColumn)
@@ -328,7 +306,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             )
             return if (file.exists()) {
                 FileProvider.getUriForFile(
-                    appContext,
+                    ctx,
                     PermanentApplication.instance.packageName + Constants.FILE_PROVIDER_NAME,
                     file
                 )
@@ -338,8 +316,8 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     }
 
     fun downloadFileForSharing(lifecycleOwner: LifecycleOwner) {
-        download = Download(appContext, record, this)
-        download?.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
+        download = Download(ctx, record, this)
+        download?.getWorkRequest()?.let { WorkManager.getInstance(ctx).enqueue(it) }
         download?.observeWorkInfoOn(lifecycleOwner)
         _isBusyState.value = true
     }
@@ -357,7 +335,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         if (state == WorkInfo.State.SUCCEEDED) onFileDownloadedForSharing.value =
             fileData?.contentType
         else if (state == WorkInfo.State.FAILED)
-            showSnackbar.value = appContext.getString(R.string.generic_error)
+            showSnackbar.value = ctx.getString(R.string.generic_error)
     }
 
     override fun onFinished(upload: Upload, succeeded: Boolean) {}
@@ -366,10 +344,30 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
     override fun onQuotaExceeded() {}
 
-//    fun onLeaveShareBtnClick() {
-//        onLeaveShareRequest.call()
-//    }
-//
+    fun getConfirmationMessageFor(item: RecordMenuItem): String {
+        return when (item) {
+            RecordMenuItem.Delete -> ctx.getString(R.string.confirm_delete_message, record.displayName)
+            RecordMenuItem.LeaveShare -> ctx.getString(R.string.confirm_leave_share_message, record.displayName)
+            else -> ""
+        }
+    }
+
+    fun getConfirmationBoldTextFor(item: RecordMenuItem): String {
+        return when (item) {
+            RecordMenuItem.Delete,
+            RecordMenuItem.LeaveShare -> record.displayName ?: ""
+            else -> ""
+        }
+    }
+
+    fun getConfirmationButtonLabelFor(item: RecordMenuItem): String {
+        return when (item) {
+            RecordMenuItem.Delete -> ctx.getString(R.string.delete)
+            RecordMenuItem.LeaveShare -> ctx.getString(R.string.leave_share)
+            else -> ctx.getString(R.string.confirm)
+        }
+    }
+
 //    fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
 //
 //    fun getRecord(): Record = record
@@ -386,17 +384,11 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 //
 //    fun getOnShareLinkRequest(): MutableLiveData<String> = onShareLinkRequest
 //
-//    fun getOnLeaveShareRequest(): MutableLiveData<Void?> = onLeaveShareRequest
-
     fun getShowSnackbar(): LiveData<String> = showSnackbar
-    fun getOnPublishRequest(): MutableLiveData<Void?> = onPublishRequest
     fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
     fun getOnFileDownloadedForSharing(): LiveData<String> = onFileDownloadedForSharing
     fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission
     fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
-    fun getOnRenameRequest(): MutableLiveData<Void?> = onRenameRequest
-    fun getOnRelocateRequest(): MutableLiveData<ModificationType> = onRelocateRequest
-    fun getOnDeleteRequest(): MutableLiveData<Void?> = onDeleteRequest
 
     fun isTablet() = isTablet
 }

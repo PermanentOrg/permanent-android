@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.recordOptions.compose
+package org.permanent.permanent.ui.recordMenu.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

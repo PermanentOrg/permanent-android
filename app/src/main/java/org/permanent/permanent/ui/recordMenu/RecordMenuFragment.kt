@@ -1,6 +1,7 @@
-package org.permanent.permanent.ui.recordOptions
+package org.permanent.permanent.ui.recordMenu
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -30,6 +31,7 @@ import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.ui.ConfirmationDialogFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.IS_SHOWN_IN_ROOT_FOLDER
@@ -37,7 +39,7 @@ import org.permanent.permanent.ui.myFiles.IS_SHOWN_IN_SHARED_WITH_ME
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.SHOWN_IN_WHICH_WORKSPACE
-import org.permanent.permanent.ui.recordOptions.compose.RecordMenuScreen
+import org.permanent.permanent.ui.recordMenu.compose.RecordMenuScreen
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.RecordMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuViewModel
@@ -52,6 +54,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, ModificationType>>()
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val viewModel: RecordMenuViewModel by viewModels()
+    private var pendingConfirmationItem: RecordMenuItem? = null
 
     fun setBundleArguments(
         record: Record,
@@ -116,13 +119,44 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 ) {
                     RecordMenuScreen(
                         viewModel = viewModel,
-                        onItemClick = { item ->
-                            viewModel.onMenuItemClick(item)
-                            if (item != RecordMenuItem.SendACopy) dismiss()
-                        },
+                        onItemClick = { item -> handleMenuClick(item) },
                         onClose = { dismiss() }
                     )
                 }
+            }
+        }
+    }
+
+    private fun handleMenuClick(item: RecordMenuItem) {
+        when (item) {
+            RecordMenuItem.Share -> {
+                dismiss()
+            }
+            RecordMenuItem.Publish -> {
+                showConfirmationDialogForPublish()
+                dismiss()
+            }
+            RecordMenuItem.Rename -> {
+                onRecordRenameRequest.value = record
+                dismiss()
+            }
+            RecordMenuItem.Move -> {
+                onRecordRelocateRequest.value = Pair(record, ModificationType.MOVE)
+                dismiss()
+            }
+            RecordMenuItem.Copy -> {
+                onRecordRelocateRequest.value = Pair(record, ModificationType.COPY)
+                dismiss()
+            }
+            RecordMenuItem.Delete,
+            RecordMenuItem.LeaveShare -> {
+                pendingConfirmationItem = item
+                dismiss()
+            }
+            RecordMenuItem.SendACopy -> viewModel.onSendACopyClick()
+            RecordMenuItem.Download -> {
+                viewModel.onDownloadClick()
+                dismiss()
             }
         }
     }
@@ -146,6 +180,37 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         bottomSheet.post {
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+
+        pendingConfirmationItem?.let { item ->
+            showConfirmationBottomSheetFor(item)
+            pendingConfirmationItem = null
+        }
+    }
+
+    private fun showConfirmationBottomSheetFor(item: RecordMenuItem) {
+        val message = viewModel.getConfirmationMessageFor(item)
+        val boldText = viewModel.getConfirmationBoldTextFor(item)
+        val confirmText = viewModel.getConfirmationButtonLabelFor(item)
+
+        val sheet = ConfirmationDialogFragment.newInstance(
+            message = message,
+            boldText = boldText,
+            confirmLabel = confirmText
+        )
+
+        sheet.onConfirm = {
+            when (item) {
+                RecordMenuItem.Delete -> onRecordDeleteRequest.value = record
+                RecordMenuItem.LeaveShare -> onRecordLeaveShareRequest.value = record
+                else -> Unit
+            }
+        }
+
+        sheet.show(parentFragmentManager, "confirmation_sheet")
     }
 
 //    private val showSnackbarSuccess = Observer<String> { message ->
@@ -173,10 +238,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
 //        val shareIntent = Intent.createChooser(sendIntent, null)
 //        startActivity(shareIntent)
 //    }
-//    private val onLeaveShareObserver = Observer<Void?> {
-//        dismiss()
-//        onRecordLeaveShareRequest.value = record
-//    }
 //
 //    private val onManageSharingObserver = Observer<Void?> {
 //        shareManagementFragment = ShareManagementFragment()
@@ -185,7 +246,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
 //        dismiss()
 //    }
 //
-//    fun getOnRecordLeaveShareRequest(): MutableLiveData<Record> = onRecordLeaveShareRequest
 
     private val showSnackbar = Observer<String> { message ->
         dialog?.window?.decorView?.let {
@@ -193,7 +253,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onPublishRequestObserver = Observer<Void?> {
+    private fun showConfirmationDialogForPublish() {
         val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
         )
@@ -264,18 +324,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         }
     }
 
-    private val onRenameObserver = Observer<Void?> {
-        onRecordRenameRequest.value = record
-    }
-
-    private val onRelocateRequestObserver = Observer<ModificationType> {
-        onRecordRelocateRequest.value = Pair(record, it)
-    }
-
-    private val onDeleteObserver = Observer<Void?> {
-        onRecordDeleteRequest.value = record
-    }
-
     fun getOnRecordPublishRequest(): MutableLiveData<Record> = onRecordPublishRequest
     fun getOnFileDownloadRequest(): MutableLiveData<Record> = onFileDownloadRequest
     fun getOnRecordRenameRequest(): MutableLiveData<Record> = onRecordRenameRequest
@@ -285,20 +333,17 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
 
     fun getOnRecordDeleteRequest(): MutableLiveData<Record> = onRecordDeleteRequest
 
+    fun getOnRecordLeaveShareRequest(): MutableLiveData<Record> = onRecordLeaveShareRequest
+
     override fun connectViewModelEvents() {
         viewModel.getShowSnackbar().observe(this, showSnackbar)
 //        viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
-//        viewModel.getOnLeaveShareRequest().observe(this, onLeaveShareObserver)
 //        viewModel.getOnManageSharingRequest().observe(this, onManageSharingObserver)
 //        viewModel.getOnShareLinkRequest().observe(this, onShareLinkObserver)
-        viewModel.getOnPublishRequest().observe(this, onPublishRequestObserver)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
         viewModel.getOnFileDownloadedForSharing().observe(this, onFileDownloadedForSharing)
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
-        viewModel.getOnRenameRequest().observe(this, onRenameObserver)
-        viewModel.getOnRelocateRequest().observe(this, onRelocateRequestObserver)
-        viewModel.getOnDeleteRequest().observe(this, onDeleteObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -306,14 +351,10 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
 //        viewModel.getShowSnackbarSuccess().observe(this, showSnackbarSuccess)
 //        viewModel.getOnManageSharingRequest().removeObserver(onManageSharingObserver)
 //        viewModel.getOnShareLinkRequest().removeObserver(onShareLinkObserver)
-        viewModel.getOnPublishRequest().removeObserver(onPublishRequestObserver)
         viewModel.getOnShareToAnotherAppRequest().removeObserver(onShareToAnotherAppObserver)
         viewModel.getOnFileDownloadedForSharing().removeObserver(onFileDownloadedForSharing)
         viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
-        viewModel.getOnRenameRequest().removeObserver(onRenameObserver)
-        viewModel.getOnRelocateRequest().removeObserver(onRelocateRequestObserver)
-        viewModel.getOnDeleteRequest().removeObserver(onDeleteObserver)
     }
 
     override fun onResume() {

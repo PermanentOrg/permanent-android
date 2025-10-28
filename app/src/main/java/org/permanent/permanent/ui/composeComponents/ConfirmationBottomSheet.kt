@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -52,7 +53,8 @@ fun ConfirmationBottomSheet(
     ModalBottomSheet(
         containerColor = Color.White,
         onDismissRequest = onDismiss,
-        dragHandle = null
+        dragHandle = null,
+        shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
     ) {
         Column(
             modifier = Modifier

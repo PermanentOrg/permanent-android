@@ -27,7 +27,7 @@ import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.public.PublicFragment.Companion.FILE_ARCHIVE_NR
 import org.permanent.permanent.ui.public.PublicFragment.Companion.FOLDER_ARCHIVE_NR
 import org.permanent.permanent.ui.public.PublicFragment.Companion.FOLDER_LINK_ID
-import org.permanent.permanent.ui.recordOptions.RecordMenuFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicArchiveViewModel
 

@@ -58,7 +58,7 @@ import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
-import org.permanent.permanent.ui.recordOptions.RecordMenuFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -165,8 +165,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
             record, Workspace.SHARES, isSharedWithMeFragment, viewModel.isRoot.value ?: false
         )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
-//        recordMenuFragment?.getOnRecordLeaveShareRequest()
-//            ?.observe(this, onRecordLeaveShareRequest)
+        recordMenuFragment?.getOnRecordLeaveShareRequest()?.observe(this, onRecordLeaveShareObserver)
         recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordMenuFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameObserver)
@@ -223,39 +222,11 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     private val onRecordDeleteObserver = Observer<Record> { record ->
-        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_delete, null, false
-        )
-        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-        dialogBinding.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
-        dialogBinding.btnDelete.setOnClickListener {
-            viewModel.delete(record)
-            alert.dismiss()
-        }
-        dialogBinding.btnCancel.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
+        viewModel.delete(record)
     }
 
-    private val onRecordLeaveShareRequest = Observer<Record> { record ->
-        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_delete, null, false
-        )
-        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-        dialogBinding.tvTitle.text =
-            getString(R.string.leave_share_record_title, record.displayName)
-        dialogBinding.btnDelete.text = getString(R.string.leave_share)
-        dialogBinding.btnDelete.setOnClickListener {
-            viewModel.unshare(record)
-            alert.dismiss()
-        }
-        dialogBinding.btnCancel.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
+    private val onRecordLeaveShareObserver = Observer<Record> { record ->
+        viewModel.unshare(record)
     }
 
     private val onRecordPublishObserver = Observer<Record> { record ->
@@ -580,6 +551,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordMenuFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameObserver)
         recordMenuFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
         recordMenuFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteObserver)
+        recordMenuFragment?.getOnRecordLeaveShareRequest()?.removeObserver(onRecordLeaveShareObserver)
         renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
