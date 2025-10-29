@@ -90,7 +90,7 @@
                 android:letterSpacing="-0.01"
                 android:onClick="@{() -> viewModel.onDeleteBtnClick()}"
                 android:paddingStart="2dp"
-                android:text="@string/record_options_menu_item_delete"
+                android:text="@string/delete"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textColor="@color/deepRed"

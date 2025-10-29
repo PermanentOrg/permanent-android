@@ -53,7 +53,8 @@ fun SettingsMenuItem(
             text = text,
             fontSize = 15.sp,
             color = itemColor,
-            fontFamily = FontFamily(Font(R.font.usual_medium))
+            fontFamily = FontFamily(Font(R.font.usual_regular)),
+            letterSpacing = (-0.01).sp
         )
 
         if (showWarning) {

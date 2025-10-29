@@ -51,7 +51,6 @@ import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.RESIZE_DURATION_MILLIS
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
-import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
 import org.permanent.permanent.ui.myFiles.RecordsAdapter
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
@@ -62,6 +61,7 @@ import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
 import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
+import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
@@ -83,7 +83,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private lateinit var prefsHelper: PreferencesHelper
     private var shouldRefreshCurrentFolder: Boolean = false
     private var addOptionsFragment: AddOptionsFragment? = null
-    private var recordOptionsFragment: RecordOptionsFragment? = null
+    private var recordMenuFragment: RecordMenuFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionOptionsFragment: SelectionOptionsFragment? = null
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
@@ -184,14 +184,15 @@ class PublicFilesFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowRecordOptionsFragment = Observer<Record> {
-        recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(it, Workspace.PUBLIC_FILES)
-        recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
-        recordOptionsFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
-        recordOptionsFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteRequest)
-        recordOptionsFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateRequest)
+    private val onShowRecordMenuFragment = Observer<Record> {
+        recordMenuFragment = RecordMenuFragment()
+        recordMenuFragment?.setBundleArguments(it, Workspace.PUBLIC_FILES)
+        recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
+        recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
+        recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)
+        recordMenuFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameObserver)
+        recordMenuFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateObserver)
+        recordMenuFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteObserver)
     }
 
     private val onShowSortOptionsFragment = Observer<SortType> {
@@ -201,28 +202,19 @@ class PublicFilesFragment : PermanentBaseFragment() {
         sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
     }
 
-    private val onFileDownloadRequest = Observer<Record> {
+    private val onFileDownloadObserver = Observer<Record> {
         viewModel.download(it)
     }
 
-    private val onRecordDeleteRequest = Observer<Record> { record ->
-        val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_delete, null, false
-        )
-        val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-        dialogBinding.tvTitle.text = getString(R.string.delete_record_title, record.displayName)
-        dialogBinding.btnDelete.setOnClickListener {
-            viewModel.delete(record)
-            alert.dismiss()
-        }
-        dialogBinding.btnCancel.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
+    private val onRecordDeleteObserver = Observer<Record> { record ->
+        viewModel.delete(record)
     }
 
-    private val onRecordRenameRequest = Observer<Record> { record ->
+    private val onRecordPublishObserver = Observer<Record> { record ->
+        viewModel.publishRecord(record)
+    }
+
+    private val onRecordRenameObserver = Observer<Record> { record ->
         renameDialogBinding = DataBindingUtil.inflate(
             LayoutInflater.from(context), R.layout.dialog_rename_record, null, false
         )
@@ -339,7 +331,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onRecordRelocateRequest = Observer<Pair<Record, ModificationType>> {
+    private val onRecordRelocateObserver = Observer<Pair<Record, ModificationType>> {
         viewModel.setRelocationMode(Pair(mutableListOf(it.first), it.second))
         lifecycleScope.launch {
             delay(DELAY_TO_RESIZE_MILLIS)
@@ -460,10 +452,10 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().observe(this, onNewTemporaryFiles)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
-        viewModel.getOnShowRecordOptionsFragment().observe(this, onShowRecordOptionsFragment)
+        viewModel.getOnShowRecordMenuFragment().observe(this, onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().observe(this, onShowRecordSearchFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
-        viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteRequest)
+        viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteObserver)
         viewModel.getOnCancelAllUploads().observe(this, onCancelAllUploads)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
@@ -488,10 +480,10 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().removeObserver(onNewTemporaryFiles)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
-        viewModel.getOnShowRecordOptionsFragment().removeObserver(onShowRecordOptionsFragment)
+        viewModel.getOnShowRecordMenuFragment().removeObserver(onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().removeObserver(onShowRecordSearchFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
-        viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteRequest)
+        viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteObserver)
         viewModel.getOnCancelAllUploads().removeObserver(onCancelAllUploads)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
@@ -508,10 +500,11 @@ class PublicFilesFragment : PermanentBaseFragment() {
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
-        recordOptionsFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
-        recordOptionsFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteRequest)
-        recordOptionsFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameRequest)
-        recordOptionsFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateRequest)
+        recordMenuFragment?.getOnRecordPublishRequest()?.removeObserver(onRecordPublishObserver)
+        recordMenuFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadObserver)
+        recordMenuFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameObserver)
+        recordMenuFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
+        recordMenuFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteObserver)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
         selectionOptionsFragment?.getOnSelectionModifyRequest()?.removeObserver(onSelectionModifyObserver)
     }

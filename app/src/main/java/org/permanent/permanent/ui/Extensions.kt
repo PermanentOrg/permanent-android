@@ -20,7 +20,10 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 
 
 fun Context.hideKeyboardFrom(windowToken: IBinder) {
@@ -103,7 +106,8 @@ fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String 
         ++i
     }
 
-    val resultString = if (showDecimal) String.format("%.1f", result) else result.toInt().toString()
+    val resultString =
+        if (showDecimal) String.format(Locale.US, "%.1f", result) else result.toInt().toString()
 
     return with(StringBuilder(9)) {
         append(resultString)
@@ -111,6 +115,18 @@ fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String 
         append(unitsToUse[i])
         append("B")
     }.toString()
+}
+
+fun String?.toDisplayDate(): String {
+    if (this.isNullOrBlank()) return ""
+    return try {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US)
+        val outputFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)
+        val date = LocalDateTime.parse(this, inputFormatter)
+        date.format(outputFormatter)
+    } catch (e: Exception) {
+        "" // return empty if parsing fails
+    }
 }
 
 @SuppressLint("SimpleDateFormat")

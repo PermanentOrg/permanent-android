@@ -24,8 +24,8 @@ import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.fileView.FileViewOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.RecordListener
-import org.permanent.permanent.ui.myFiles.RecordOptionsFragment
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
+import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.viewmodels.PublicFolderViewModel
 
@@ -36,7 +36,7 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     private lateinit var recordsRecyclerView: RecyclerView
     private lateinit var recordsAdapter: RecordsGridAdapter
     private lateinit var prefsHelper: PreferencesHelper
-    private var recordOptionsFragment: RecordOptionsFragment? = null
+    private var recordMenuFragment: RecordMenuFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -107,9 +107,9 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     }
 
     override fun onRecordOptionsClick(record: Record) {
-        recordOptionsFragment = RecordOptionsFragment()
-        recordOptionsFragment?.setBundleArguments(record, Workspace.PUBLIC_ARCHIVES)
-        recordOptionsFragment?.show(parentFragmentManager, recordOptionsFragment?.tag)
+        recordMenuFragment = RecordMenuFragment()
+        recordMenuFragment?.setBundleArguments(record, Workspace.PUBLIC_ARCHIVES)
+        recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
     }
 
     override fun onRecordCheckBoxClick(record: Record) {}

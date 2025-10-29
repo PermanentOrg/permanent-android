@@ -241,9 +241,7 @@
     <string name="record_options_menu_item_copy">Copy to another location</string>
     <string name="record_options_menu_item_move">Move to another location</string>
     <string name="record_options_menu_item_edit">Edit files metadata</string>
-    <string name="record_options_menu_item_delete">Delete</string>
     <string name="record_options_menu_item_leave_share">Leave share</string>
-    <string name="record_options_menu_item_rename">Rename</string>
     <string name="record_options_menu_item_publish">Publish to public archive</string>
     <string name="record_options_menu_item_copy_link">Copy Link</string>
     <string name="record_options_menu_item_share_link_via_permanent">Share link via Permanent</string>
@@ -284,20 +282,16 @@
     <string name="yes_button">Yes</string>
     <string name="button_transfer">Transfer</string>
     <string name="button_upload">Upload</string>
-    <string name="button_rename">Rename</string>
     <string name="button_retry">Retry</string>
     <string name="button_publish">Publish</string>
     <string name="create_button">Create</string>
     <string name="button_cancel_all">Cancel all</string>
-    <string name="delete">Delete</string>
     <string name="share_button">Share</string>
     <string name="more_button">More</string>
-    <string name="save_button">Save</string>
     <string name="ok">OK</string>
     <string name="button_send">Send</string>
     <string name="button_approve">Approve</string>
     <string name="button_deny">Deny</string>
-    <string name="button_save">Save</string>
     <string name="button_go_to_wallet">Go to wallet</string>
     <string name="button_select">Select</string>
     <string name="button_select_all">Select all</string>
@@ -622,8 +616,6 @@
     <string name="invited_as">Invited as</string>
     <string name="new_archive">New archive</string>
 
-    <string name="leave_share">Leave share</string>
-
     <string name="save_to_permanent_selected_files">Selected files:</string>
     <string name="save_to_permanent_upload_to_destination">Upload selected files to this destination:</string>
     <string name="save_to_permanent_choose_folder">Choose Folder</string>
@@ -821,4 +813,18 @@
     <string name="refresh">Refresh</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="something_went_wrong_description">We encountered an issue while trying to fetch your checklist. Please refresh the list by pressing the button below.</string>
+
+    <string name="share_and_manage_access">Share and manage access</string>
+    <string name="publish_on_the_web">Publish on the web</string>
+    <string name="send_a_copy">Send a copy</string>
+    <string name="save">Save</string>
+    <string name="download">Download</string>
+    <string name="rename">Rename</string>
+    <string name="move_to_another_folder">Move to another folder</string>
+    <string name="copy_to_another_folder">Copy to another folder</string>
+    <string name="delete">Delete</string>
+    <string name="leave_share">Leave share</string>
+    <string name="confirm">Confirm</string>
+    <string name="confirm_delete_message">Are you sure you want to delete "%1$s"?</string>
+    <string name="confirm_leave_share_message">Are you sure you want to give up your access to the "%1$s" item?</string>
 </resources>
