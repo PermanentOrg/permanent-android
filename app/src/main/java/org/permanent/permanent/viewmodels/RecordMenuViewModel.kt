@@ -396,6 +396,7 @@ enum class RecordMenuItem {
     SendACopy,
     Download,
     Rename,
+    EditMetadata,
     Move,
     Copy,
     Delete,

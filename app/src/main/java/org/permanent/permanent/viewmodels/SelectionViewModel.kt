@@ -12,6 +12,7 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.ui.RelocationIslandState
 import org.permanent.permanent.ui.myFiles.ModificationType
+import org.permanent.permanent.ui.recordMenu.RecordUiModel
 
 abstract class SelectionViewModel(application: Application) : RelocationViewModel(application) {
 
@@ -22,7 +23,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     val selectedRecordsSize = MutableLiveData(0)
     private val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
     private val expandIslandRequest = SingleLiveEvent<Void?>()
-    private val showSelectionOptionsRequest = SingleLiveEvent<Pair<Int, Boolean>>()
+    private val showSelectionOptionsRequest = SingleLiveEvent<List<RecordUiModel>>()
     private val showEditMetadataRequest = SingleLiveEvent<MutableList<Record>>()
     private val refreshCurrentFolderRequest = SingleLiveEvent<Void?>()
 
@@ -119,18 +120,21 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     }
 
     fun onSelectionOptionsBtnClick() {
-        showSelectionOptionsRequest.value = Pair(selectedRecordsSize.value!!, isSelectionContainingFolders())
-    }
+        val currentSelection = selectedRecords.value ?: emptyList()
+        if (currentSelection.isEmpty()) return
 
-    private fun isSelectionContainingFolders(): Boolean {
-        val selectedRecords = selectedRecords.value
-        if (!selectedRecords.isNullOrEmpty()) {
-            for (record in selectedRecords) {
-                if (record.type == RecordType.FOLDER) return true
-            }
-            return false
+        val uiModels = currentSelection.map { record ->
+            RecordUiModel(
+                id = record.id ?: 0,
+                name = record.displayName ?: "",
+                isFolder = record.type == RecordType.FOLDER,
+                thumbUrl = if (record.type == RecordType.FILE) record.thumbURL200 else null,
+                sizeBytes = record.size,
+                createdDate = record.displayDate ?: ""
+            )
         }
-        return true
+
+        showSelectionOptionsRequest.value = uiModels
     }
 
     fun onPasteOrMoveBtnClick() {
@@ -229,7 +233,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
 
     fun getExpandIslandRequest(): SingleLiveEvent<Void?> = expandIslandRequest
 
-    fun getShowSelectionOptionsRequest(): SingleLiveEvent<Pair<Int, Boolean>> = showSelectionOptionsRequest
+    fun getShowSelectionOptionsRequest(): SingleLiveEvent<List<RecordUiModel>> = showSelectionOptionsRequest
 
     fun getShowEditMetadataScreenRequest(): SingleLiveEvent<MutableList<Record>> = showEditMetadataRequest
 

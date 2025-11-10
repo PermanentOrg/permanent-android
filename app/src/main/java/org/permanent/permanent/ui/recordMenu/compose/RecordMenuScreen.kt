@@ -63,6 +63,7 @@ fun RecordMenuScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .background(Color.White)
         ) {
             RecordMenuHeader(
                 recordThumbURL = recordThumbURL,
@@ -75,7 +76,6 @@ fun RecordMenuScreen(
             Column(
                 modifier = Modifier
                     .padding(vertical = 16.dp)
-                    .background(Color.White)
             ) {
                 menuItems.forEach { item ->
                     when (item) {
@@ -107,7 +107,6 @@ fun RecordMenuScreen(
                             iconResource = painterResource(id = R.drawable.ic_copy_primary),
                             text = stringResource(R.string.copy_to_another_folder),
                         ) { onItemClick(item) }
-
                         RecordMenuItem.Delete -> {
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 16.dp),
@@ -119,7 +118,6 @@ fun RecordMenuScreen(
                                 itemColor = colorResource(R.color.error500),
                             ) { onItemClick(item) }
                         }
-
                         RecordMenuItem.LeaveShare -> {
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 16.dp),
@@ -131,6 +129,8 @@ fun RecordMenuScreen(
                                 itemColor = colorResource(R.color.error500),
                             ) { onItemClick(item) }
                         }
+
+                        else -> {}
                     }
                 }
             }

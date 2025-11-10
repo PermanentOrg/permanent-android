@@ -21,7 +21,7 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.MyFilesFragment
-import org.permanent.permanent.ui.myFiles.SHOWN_IN_WHICH_WORKSPACE
+import org.permanent.permanent.ui.recordMenu.SHOWN_IN_WHICH_WORKSPACE
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.MyFilesContainerViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
