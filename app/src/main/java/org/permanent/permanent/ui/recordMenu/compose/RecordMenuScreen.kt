@@ -176,7 +176,7 @@ fun RecordMenuHeader(
     archiveThumb: String,
     archiveName: String,
     accessRole: AccessRole,
-    onCloseClick: () -> Unit
+    onCloseClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
@@ -244,12 +244,14 @@ fun RecordMenuHeader(
             Spacer(modifier = Modifier.width(16.dp))
 
             // Close Icon
-            IconButton(onClick = onCloseClick) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_close_light_blue),
-                    contentDescription = "Close",
-                    tint = colorResource(R.color.blue400),
-                )
+            if (onCloseClick != null) {
+                IconButton(onClick = onCloseClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_close_light_blue),
+                        contentDescription = "Close",
+                        tint = colorResource(R.color.blue400),
+                    )
+                }
             }
         }
 
