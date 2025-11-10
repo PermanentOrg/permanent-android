@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
-import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.AccountEventAction
@@ -40,7 +39,6 @@ import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.SelectionOptionsFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
@@ -53,6 +51,8 @@ import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragmen
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
+import org.permanent.permanent.ui.recordMenu.RecordUiModel
+import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
@@ -84,7 +84,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var saveToPermanentFragment: SaveToPermanentFragment? = null
     private var shareManagementFragment: ShareManagementFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
-    private var selectionOptionsFragment: SelectionOptionsFragment? = null
+    private var selectionMenuFragment: SelectionMenuFragment? = null
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var shouldRefreshCurrentFolder = false
@@ -346,11 +346,11 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.refreshCurrentFolder()
     }
 
-    private val showSelectionOptionsObserver = Observer<Pair<Int, Boolean>> {
-        selectionOptionsFragment = SelectionOptionsFragment()
-        selectionOptionsFragment?.setBundleArguments(it)
-        selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
-        selectionOptionsFragment?.getOnSelectionModifyRequest()?.observe(this, onSelectionModifyObserver)
+    private val showSelectionMenuObserver = Observer<List<RecordUiModel>> {
+        selectionMenuFragment = SelectionMenuFragment()
+        selectionMenuFragment?.setSelectedRecords(it)
+        selectionMenuFragment?.show(parentFragmentManager, selectionMenuFragment?.tag)
+        selectionMenuFragment?.getOnSelectionModifyRequest()?.observe(this, onSelectionModifyObserver)
     }
 
     private val showEditMetadataScreenObserver = Observer<MutableList<Record>> {
@@ -388,24 +388,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onSelectionModifyObserver = Observer<ModificationType> { modificationType ->
-        if (modificationType == ModificationType.DELETE) {
-            val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-                LayoutInflater.from(context), R.layout.dialog_delete, null, false
-            )
-            val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-            dialogBinding.tvTitle.text = getString(R.string.delete_records_title)
-            dialogBinding.btnDelete.setOnClickListener {
-                viewModel.onSelectionModifyBtnClick(modificationType)
-                alert.dismiss()
-            }
-            dialogBinding.btnCancel.setOnClickListener {
-                alert.dismiss()
-            }
-            alert.show()
-        } else {
-            viewModel.onSelectionModifyBtnClick(modificationType)
-        }
+        viewModel.onSelectionModifyBtnClick(modificationType)
     }
 
     private val onRecordRelocateObserver = Observer<Pair<Record, ModificationType>> {
@@ -528,7 +511,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getShrinkIslandRequest().observe(this, shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().observe(this, expandIslandRequestObserver)
         viewModel.getRefreshCurrentFolderRequest().observe(this, refreshCurrentFolderObserver)
-        viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
+        viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionMenuObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
         viewModel.getOpenChecklistBottomSheet().observe(this, openChecklistBottomSheetObserver)
         renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
@@ -558,7 +541,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getShrinkIslandRequest().removeObserver(shrinkIslandRequestObserver)
         viewModel.getExpandIslandRequest().removeObserver(expandIslandRequestObserver)
         viewModel.getRefreshCurrentFolderRequest().removeObserver(refreshCurrentFolderObserver)
-        viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionOptionsObserver)
+        viewModel.getShowSelectionOptionsRequest().removeObserver(showSelectionMenuObserver)
         viewModel.getShowEditMetadataScreenRequest().removeObserver(showEditMetadataScreenObserver)
         viewModel.getOpenChecklistBottomSheet().removeObserver(openChecklistBottomSheetObserver)
         bottomSheetFragment?.getOnChecklistItemClick()?.removeObserver(onChecklistItemClickObserver)
@@ -576,7 +559,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordMenuFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
         recordMenuFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteObserver)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
-        selectionOptionsFragment?.getOnSelectionModifyRequest()?.removeObserver(onSelectionModifyObserver)
+        selectionMenuFragment?.getOnSelectionModifyRequest()?.removeObserver(onSelectionModifyObserver)
     }
 
     override fun onResume() {

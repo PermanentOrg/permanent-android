@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
-import org.permanent.permanent.databinding.DialogDeleteBinding
 import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
@@ -40,7 +39,6 @@ import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.SelectionOptionsFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.myFiles.AddOptionsFragment
@@ -59,6 +57,8 @@ import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
+import org.permanent.permanent.ui.recordMenu.RecordUiModel
+import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -83,7 +83,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordMenuFragment: RecordMenuFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
-    private var selectionOptionsFragment: SelectionOptionsFragment? = null
+    private var selectionMenuFragment: SelectionMenuFragment? = null
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var islandExpandedWidth = 960
@@ -330,11 +330,11 @@ class SharedXMeFragment : PermanentBaseFragment() {
         onRecordSelectedEvent.value = it
     }
 
-    private val showSelectionOptionsObserver = Observer<Pair<Int, Boolean>> {
-        selectionOptionsFragment = SelectionOptionsFragment()
-        selectionOptionsFragment?.setBundleArguments(it)
-        selectionOptionsFragment?.show(parentFragmentManager, selectionOptionsFragment?.tag)
-        selectionOptionsFragment?.getOnSelectionModifyRequest()
+    private val showSelectionOptionsObserver = Observer<List<RecordUiModel>> {
+        selectionMenuFragment = SelectionMenuFragment()
+        selectionMenuFragment?.setSelectedRecords(it)
+        selectionMenuFragment?.show(parentFragmentManager, selectionMenuFragment?.tag)
+        selectionMenuFragment?.getOnSelectionModifyRequest()
             ?.observe(this, onSelectionModifyObserver)
     }
 
@@ -373,24 +373,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     private val onSelectionModifyObserver = Observer<ModificationType> { modificationType ->
-        if (modificationType == ModificationType.DELETE) {
-            val dialogBinding: DialogDeleteBinding = DataBindingUtil.inflate(
-                LayoutInflater.from(context), R.layout.dialog_delete, null, false
-            )
-            val alert = AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-            dialogBinding.tvTitle.text = getString(R.string.delete_records_title)
-            dialogBinding.btnDelete.setOnClickListener {
-                viewModel.onSelectionModifyBtnClick(modificationType)
-                alert.dismiss()
-            }
-            dialogBinding.btnCancel.setOnClickListener {
-                alert.dismiss()
-            }
-            alert.show()
-        } else {
-            viewModel.onSelectionModifyBtnClick(modificationType)
-        }
+        viewModel.onSelectionModifyBtnClick(modificationType)
     }
 
     private val onRecordRelocateObserver = Observer<Pair<Record, ModificationType>> {
@@ -556,7 +539,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
-        selectionOptionsFragment?.getOnSelectionModifyRequest()?.removeObserver(onSelectionModifyObserver)
+        selectionMenuFragment?.getOnSelectionModifyRequest()?.removeObserver(onSelectionModifyObserver)
     }
 
     override fun onResume() {

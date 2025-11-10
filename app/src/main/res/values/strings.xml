@@ -240,7 +240,7 @@
     <string name="record_options_menu_item_download_to_device">Download to device</string>
     <string name="record_options_menu_item_copy">Copy to another location</string>
     <string name="record_options_menu_item_move">Move to another location</string>
-    <string name="record_options_menu_item_edit">Edit files metadata</string>
+    <string name="edit_files_metadata">Edit files metadata</string>
     <string name="record_options_menu_item_leave_share">Leave share</string>
     <string name="record_options_menu_item_publish">Publish to public archive</string>
     <string name="record_options_menu_item_copy_link">Copy Link</string>
@@ -826,5 +826,6 @@
     <string name="leave_share">Leave share</string>
     <string name="confirm">Confirm</string>
     <string name="confirm_delete_message">Are you sure you want to delete "%1$s"?</string>
+    <string name="the_selected_items">the selected items</string>
     <string name="confirm_leave_share_message">Are you sure you want to give up your access to the "%1$s" item?</string>
 </resources>

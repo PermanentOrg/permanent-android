@@ -34,15 +34,16 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.ConfirmationDialogFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.myFiles.IS_SHOWN_IN_ROOT_FOLDER
-import org.permanent.permanent.ui.myFiles.IS_SHOWN_IN_SHARED_WITH_ME
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
-import org.permanent.permanent.ui.myFiles.SHOWN_IN_WHICH_WORKSPACE
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuScreen
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.RecordMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuViewModel
+
+const val SHOWN_IN_WHICH_WORKSPACE = "shown_in_which_workspace_key"
+const val IS_SHOWN_IN_SHARED_WITH_ME = "is_shown_in_shared_with_me_key"
+const val IS_SHOWN_IN_ROOT_FOLDER = "is_shown_in_root_folder_key"
 
 class RecordMenuFragment : PermanentBottomSheetFragment() {
     private lateinit var record: Record
@@ -159,6 +160,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 viewModel.onDownloadClick()
                 dismiss()
             }
+            else -> {}
         }
     }
 
