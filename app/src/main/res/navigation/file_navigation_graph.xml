@@ -14,11 +14,6 @@
             app:destination="@id/fileMetadataFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
-        <action
-            android:id="@+id/action_filesContainerFragment_to_shareLinkFragment"
-            app:destination="@id/shareLinkFragment"
-            app:popEnterAnim="@android:anim/slide_in_left"
-            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -35,13 +30,6 @@
             app:destination="@id/addEditFileTagsFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/shareLinkFragment"
-        android:name="org.permanent.permanent.ui.shareManagement.ShareManagementFragment"
-        android:label="@string/main_navigation_title_share_link"
-        tools:layout="@layout/fragment_share_management">
     </fragment>
 
     <fragment

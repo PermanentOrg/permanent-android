@@ -9,11 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.models.Record
@@ -72,22 +70,9 @@ class ShareLinkFragment : PermanentBottomSheetFragment()  {
         (requireView().parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
     }
 
-    override fun connectViewModelEvents() {
-//        viewModel.getShowSnackbar().observe(this, showSnackbar)
-//        viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
-//        viewModel.getOnFileDownloadedForSharing().observe(this, onFileDownloadedForSharing)
-//        viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
-//        viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
-    }
+    override fun connectViewModelEvents() {}
 
-    override fun disconnectViewModelEvents() {
-//        viewModel.getShowSnackbar().observe(this, showSnackbar)
-//        viewModel.getOnShareToAnotherAppRequest().removeObserver(onShareToAnotherAppObserver)
-//        viewModel.getOnFileDownloadedForSharing().removeObserver(onFileDownloadedForSharing)
-//        viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
-//        viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
-    }
-
+    override fun disconnectViewModelEvents() {}
 
     companion object {
         const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
