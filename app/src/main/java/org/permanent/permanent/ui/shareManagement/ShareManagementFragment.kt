@@ -35,6 +35,7 @@ import org.permanent.permanent.ui.AccessRolesFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.shareManagement.ShareLinkFragment.Companion.SHARE_BY_URL_VO_KEY
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 import java.util.Calendar
 
@@ -259,8 +260,4 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         disconnectViewModelEvents()
     }
 
-    companion object {
-        const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
-        const val SHARE_BY_URL_VO_KEY = "share_by_url_vo_key"
-    }
 }

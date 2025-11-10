@@ -2,6 +2,8 @@ package org.permanent.permanent.viewmodels
 
 import android.app.Application
 import android.app.DatePickerDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.text.Editable
 import android.view.KeyEvent
@@ -10,11 +12,16 @@ import android.view.inputmethod.EditorInfo
 import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import okhttp3.internal.trimSubstring
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IResponseListener
@@ -26,7 +33,9 @@ import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.shareManagement.ShareListener
+import org.permanent.permanent.ui.toDisplayDate
 
 
 class ShareManagementViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -37,9 +46,23 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
     private lateinit var record: Record
-    private val recordName = MutableLiveData<String>()
+    private val _recordThumb = MutableStateFlow("")
+    val recordThumb: StateFlow<String> = _recordThumb
+    private val _recordSize = MutableStateFlow("")
+    val recordSize: StateFlow<String> = _recordSize
+    private val _recordDate = MutableStateFlow("")
+    val recordDate: StateFlow<String> = _recordDate
+    private val _recordName = MutableStateFlow("")
+    val recordName: StateFlow<String> = _recordName
+    private val _shareLink = MutableStateFlow("")
+    val shareLink: StateFlow<String> = _shareLink
+    private val _isCreatingLinkState = MutableStateFlow(false)
+    val isCreatingLinkState: StateFlow<Boolean> = _isCreatingLinkState
+
+    private val _isLinkSharedState = MutableStateFlow(false)
+    val isLinkSharedState: StateFlow<Boolean> = _isLinkSharedState
+
     private var shareByUrlVO: Shareby_urlVO? = null
-    private val shareLink = MutableLiveData("")
     private var shares = mutableListOf<Share>()
     private var pendingShares = mutableListOf<Share>()
     private val sharesSize = MutableLiveData(0)
@@ -52,7 +75,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val showDatePicker = SingleLiveEvent<Void?>()
     private val sharedWithLabelTxt = MutableLiveData<String>()
     private val areLinkSettingsVisible = MutableLiveData(false)
-    private val isBusy = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
@@ -66,7 +88,12 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun setRecord(record: Record) {
         this.record = record
-        recordName.value = record.displayName
+
+        _recordName.value = record.displayName ?: ""
+        _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
+        _recordDate.value = record.displayDate.toDisplayDate()
+        _recordThumb.value = if (record.type == RecordType.FILE) record.thumbURL200 ?: "" else ""
+
         initShares(record.shares)
         sharedWithLabelTxt.value =
             appContext.getString(R.string.record_options_shared_with, shares.size)
@@ -91,7 +118,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     private fun init(shareByUrlVO: Shareby_urlVO) {
         this.shareByUrlVO = shareByUrlVO
-        this.shareLink.value = shareByUrlVO.shareUrl ?: ""
+        _shareLink.value = shareByUrlVO.shareUrl ?: ""
+        _isLinkSharedState.value = _shareLink.value != ""
         sharePreview.value = shareByUrlVO.previewToggle == 1
         autoApprove.value = shareByUrlVO.autoApproveToggle == 1
         maxUses.value = (shareByUrlVO.maxUses ?: 0).toString()
@@ -100,48 +128,67 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     private fun checkForExistingLink(record: Record) {
-        if (isBusy.value != null && isBusy.value!!) {
+        if (isCreatingLinkState.value != null && isCreatingLinkState.value!!) {
             return
         }
 
-        isBusy.value = true
+        _isCreatingLinkState.value = true
         shareRepository.requestShareLink(record, ShareRequestType.GET,
             object : IShareRepository.IShareByUrlListener {
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-                    isBusy.value = false
+                    _isCreatingLinkState.value = false
+                    _isLinkSharedState.value = true
                     shareByUrlVO?.let { init(it) }
                 }
 
                 override fun onFailed(error: String?) {
-                    isBusy.value = false
+                    _isCreatingLinkState.value = false
                     showSnackbar.value = error
                 }
             })
     }
 
     fun onCreateLinkBtnClick() {
-        if (isBusy.value != null && isBusy.value!!) {
+        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
             return
         }
 
-        isBusy.value = true
+        _isCreatingLinkState.value = true
         shareRepository.requestShareLink(record, ShareRequestType.GENERATE,
             object : IShareRepository.IShareByUrlListener {
                 override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-                    isBusy.value = false
+                    _isCreatingLinkState.value = false
+                    _isLinkSharedState.value = true
                     this@ShareManagementViewModel.shareByUrlVO = shareByUrlVO
                     shareByUrlVO?.shareUrl?.let {
-                        shareLink.value = it
+                        _shareLink.value = it
+                        _isLinkSharedState.value = _shareLink.value != ""
                         onShowLinkSettingsBtnClick()
                     }
                 }
 
                 override fun onFailed(error: String?) {
-                    isBusy.value = false
+                    _isCreatingLinkState.value = false
+                    _isLinkSharedState.value = false
                     showSnackbar.value = error
                 }
             })
     }
+
+    fun copyLinkToClipboard() {
+
+        val clipboard = appContext.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText(
+            appContext.getString(R.string.share_management_share_link), _shareLink.value
+        )
+        clipboard.setPrimaryClip(clip)
+        //showMessage.value = appContext.getString(R.string.share_management_link_copied)
+    }
+
+    fun cleanUrlRegex(url: String): String {
+        return url.replace(Regex("^https?://(www\\.)?"), "")
+    }
+
 
     fun onShareLinkBtnClick() {
         onShareLinkRequest.value = shareLink.value.toString()
@@ -196,24 +243,25 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     fun deleteShareLink() {
-        if (isBusy.value != null && isBusy.value!!) {
+        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
             return
         }
 
         shareByUrlVO?.let {
-            isBusy.value = true
+            _isCreatingLinkState.value = true
             shareRepository.modifyShareLink(
                 it,
                 ShareRequestType.DELETE,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
-                        isBusy.value = false
+                        _isCreatingLinkState.value = false
                         this@ShareManagementViewModel.shareByUrlVO = null
-                        shareLink.value = ""
+                        _shareLink.value = ""
+                        _isLinkSharedState.value = false
                     }
 
                     override fun onFailed(error: String?) {
-                        isBusy.value = false
+                        _isCreatingLinkState.value = false
                         showSnackbar.value = error
                     }
                 })
@@ -221,7 +269,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     private fun saveChanges() {
-        if (isBusy.value != null && isBusy.value!!) {
+        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
             return
         }
         shareByUrlVO?.let {
@@ -230,16 +278,16 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             it.maxUses = if (maxUses.value.isNullOrBlank()) 0 else maxUses.value!!.toInt()
             it.expiresDT = expirationDate.value
 
-            isBusy.value = true
+            _isCreatingLinkState.value = true
             shareRepository.modifyShareLink(it, ShareRequestType.UPDATE,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
-                        isBusy.value = false
+                        _isCreatingLinkState.value = false
                         showSnackbar.value = message
                     }
 
                     override fun onFailed(error: String?) {
-                        isBusy.value = false
+                        _isCreatingLinkState.value = false
                         showSnackbar.value = error
                     }
                 })
@@ -251,14 +299,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     override fun onApproveClick(share: Share) {
-        if (isBusy.value != null && isBusy.value!!) {
+        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
             return
         }
 
-        isBusy.value = true
+        _isCreatingLinkState.value = true
         shareRepository.updateShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
-                isBusy.value = false
+                _isCreatingLinkState.value = false
                 share.status.value = Status.OK // This hides the Approve and Deny buttons
                 pendingShares.remove(share)
                 shares.add(share)
@@ -271,21 +319,21 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
+                _isCreatingLinkState.value = false
                 showSnackbar.value = error
             }
         })
     }
 
     override fun onDenyClick(share: Share) {
-        if (isBusy.value != null && isBusy.value!!) {
+        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
             return
         }
 
-        isBusy.value = true
+        _isCreatingLinkState.value = true
         shareRepository.deleteShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
-                isBusy.value = false
+                _isCreatingLinkState.value = false
                 pendingShares.remove(share)
                 pendingSharesSize.value = pendingShares.size
                 showSnackbarSuccess.value = message
@@ -293,7 +341,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             }
 
             override fun onFailed(error: String?) {
-                isBusy.value = false
+                _isCreatingLinkState.value = false
                 showSnackbar.value = error
             }
         })
@@ -324,15 +372,9 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun getRecord(): Record = record
 
-    fun getRecordName(): MutableLiveData<String> = recordName
-
-    fun getShareLink(): MutableLiveData<String> = shareLink
-
     fun getSharesSize(): MutableLiveData<Int> = sharesSize
 
     fun getPendingSharesSize(): MutableLiveData<Int> = pendingSharesSize
-
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
 
     fun getAreLinkSettingsVisible(): MutableLiveData<Boolean> = areLinkSettingsVisible
 

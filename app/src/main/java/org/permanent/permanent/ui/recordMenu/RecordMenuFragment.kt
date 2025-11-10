@@ -37,6 +37,8 @@ import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuScreen
+import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
+import org.permanent.permanent.ui.shareManagement.shareLink.ShareLinkScreen
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.RecordMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuViewModel
@@ -49,7 +51,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     private lateinit var record: Record
     private val onFileDownloadRequest = MutableLiveData<Record>()
     private val onRecordLeaveShareRequest = MutableLiveData<Record>()
-    private var shareManagementFragment: ShareManagementFragment? = null
     private val onRecordPublishRequest = MutableLiveData<Record>()
     private val onRecordRenameRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, ModificationType>>()
@@ -217,9 +218,9 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     }
 
     private fun showShareManagementFragment() {
-        shareManagementFragment = ShareManagementFragment()
-        shareManagementFragment?.setBundleArguments(record, viewModel.getShareByUrlVO())
-        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
+        val shareManagementScreen = ShareLinkFragment()
+        shareManagementScreen.setBundleArguments(record, viewModel.getShareByUrlVO())
+        shareManagementScreen.show(parentFragmentManager, shareManagementScreen.tag)
     }
 
     private fun showConfirmationDialogForPublish() {

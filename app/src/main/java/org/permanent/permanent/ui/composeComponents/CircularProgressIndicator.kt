@@ -21,10 +21,9 @@ import androidx.compose.ui.res.painterResource
 import org.permanent.permanent.R
 
 @Composable
-fun CircularProgressIndicator(overlayColor: OverlayColor = OverlayColor.DARK) {
+fun CircularProgressIndicator(overlayColor: OverlayColor = OverlayColor.DARK, modifier: Modifier = Modifier.fillMaxSize()) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .background(if (overlayColor == OverlayColor.DARK) Color.Black.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.5f))
             .clickable(enabled = false) {}, contentAlignment = Alignment.Center
     ) {
