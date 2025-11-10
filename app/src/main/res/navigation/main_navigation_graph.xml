@@ -69,12 +69,6 @@
         tools:layout="@layout/fragment_record_search" />
 
     <fragment
-        android:id="@+id/shareLinkFragment"
-        android:name="org.permanent.permanent.ui.shareManagement.ShareManagementFragment"
-        android:label="@string/main_navigation_title_share_link"
-        tools:layout="@layout/fragment_share_management" />
-
-    <fragment
         android:id="@+id/sharePreviewFragment"
         android:name="org.permanent.permanent.ui.shares.SharePreviewFragment"
         android:label="@string/share_management_share_preview"

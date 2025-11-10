@@ -39,7 +39,6 @@ import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuScreen
 import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.ui.shareManagement.shareLink.ShareLinkScreen
-import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.RecordMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuViewModel
 

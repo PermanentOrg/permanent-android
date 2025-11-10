@@ -53,7 +53,6 @@ import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
-import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
@@ -83,7 +82,6 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordMenuFragment: RecordMenuFragment? = null
     private var saveToPermanentFragment: SaveToPermanentFragment? = null
-    private var shareManagementFragment: ShareLinkFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionMenuFragment: SelectionMenuFragment? = null
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null

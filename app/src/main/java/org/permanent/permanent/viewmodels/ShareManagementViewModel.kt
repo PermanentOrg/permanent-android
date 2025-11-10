@@ -58,11 +58,11 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     val shareLink: StateFlow<String> = _shareLink
     private val _isCreatingLinkState = MutableStateFlow(false)
     val isCreatingLinkState: StateFlow<Boolean> = _isCreatingLinkState
-
     private val _isLinkSharedState = MutableStateFlow(false)
     val isLinkSharedState: StateFlow<Boolean> = _isLinkSharedState
-
     private var shareByUrlVO: Shareby_urlVO? = null
+
+
     private var shares = mutableListOf<Share>()
     private var pendingShares = mutableListOf<Share>()
     private val sharesSize = MutableLiveData(0)
@@ -128,7 +128,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     private fun checkForExistingLink(record: Record) {
-        if (isCreatingLinkState.value != null && isCreatingLinkState.value!!) {
+        if (isCreatingLinkState.value!!) {
             return
         }
 
@@ -149,7 +149,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     fun onCreateLinkBtnClick() {
-        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
+        if (_isCreatingLinkState.value!!) {
             return
         }
 
