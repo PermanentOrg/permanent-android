@@ -53,7 +53,7 @@ import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
-import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
+import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
@@ -82,7 +82,6 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordMenuFragment: RecordMenuFragment? = null
     private var saveToPermanentFragment: SaveToPermanentFragment? = null
-    private var shareManagementFragment: ShareManagementFragment? = null
     private var sortOptionsFragment: SortOptionsFragment? = null
     private var selectionMenuFragment: SelectionMenuFragment? = null
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
@@ -329,9 +328,9 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private fun showShareManagementFragment(record: Record?) {
-        shareManagementFragment = ShareManagementFragment()
-        shareManagementFragment?.setBundleArguments(record, null)
-        shareManagementFragment?.show(parentFragmentManager, shareManagementFragment?.tag)
+        val shareManagementScreen = ShareLinkFragment()
+        shareManagementScreen.setBundleArguments(record, null)
+        shareManagementScreen.show(parentFragmentManager, shareManagementScreen.tag)
     }
 
     private val shrinkIslandRequestObserver = Observer<Void?> {

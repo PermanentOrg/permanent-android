@@ -828,4 +828,10 @@
     <string name="confirm_delete_message">Are you sure you want to delete "%1$s"?</string>
     <string name="the_selected_items">the selected items</string>
     <string name="confirm_leave_share_message">Are you sure you want to give up your access to the "%1$s" item?</string>
+
+    <string name="create_link_to_sare">Create link to share</string>
+    <string name="creating_link">Creating link...</string>
+    <string name="create_link_description">Generate a link to send via text or email to invite people to share this content.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

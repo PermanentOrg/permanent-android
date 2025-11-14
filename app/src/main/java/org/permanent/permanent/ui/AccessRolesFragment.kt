@@ -24,10 +24,10 @@ import org.permanent.permanent.databinding.FragmentAccessRolesBinding
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.models.Shareby_urlVO
-import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.viewmodels.AccessRolesViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 import androidx.core.net.toUri
+import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 
 class AccessRolesFragment : PermanentBottomSheetFragment() {
     private lateinit var binding: FragmentAccessRolesBinding
@@ -38,7 +38,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         shareByUrlVo: Shareby_urlVO,
     ) {
         val bundle = Bundle()
-        bundle.putParcelable(ShareManagementFragment.SHARE_BY_URL_VO_KEY, shareByUrlVo)
+        bundle.putParcelable(ShareLinkFragment.SHARE_BY_URL_VO_KEY, shareByUrlVo)
         this.arguments = bundle
     }
 
@@ -46,7 +46,7 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         share: Share,
     ) {
         val bundle = Bundle()
-        bundle.putParcelable(ShareManagementFragment.PARCELABLE_SHARE_KEY, share)
+        bundle.putParcelable(ShareLinkFragment.PARCELABLE_SHARE_KEY, share)
         this.arguments = bundle
     }
 
@@ -60,8 +60,8 @@ class AccessRolesFragment : PermanentBottomSheetFragment() {
         binding.executePendingBindings()
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        viewModel.setShareLink(arguments?.getParcelable(ShareManagementFragment.SHARE_BY_URL_VO_KEY))
-        viewModel.setShare(arguments?.getParcelable(ShareManagementFragment.PARCELABLE_SHARE_KEY))
+        viewModel.setShareLink(arguments?.getParcelable(ShareLinkFragment.SHARE_BY_URL_VO_KEY))
+        viewModel.setShare(arguments?.getParcelable(ShareLinkFragment.PARCELABLE_SHARE_KEY))
         initCurrentAccessRole()
 
         return binding.root
