@@ -41,6 +41,8 @@ import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.ProfileItemsRequestContainer
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.ShareLinkVO
+import org.permanent.permanent.network.models.ShareLinkVOResponse
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.network.models.SimpleRequestContainer
 import org.permanent.permanent.network.models.StorageGift
@@ -55,6 +57,7 @@ import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.Query
 import java.io.File
 import java.util.Date
 
@@ -783,6 +786,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun sendDisableCode(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.sendDisableCode(twoFAVO)
 
     fun disableTwoFactor(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.disableTwoFactor(twoFAVO)
+
+    fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?): Call<ShareLinkVOResponse> = stelaAccountService.getShareLink(shareTokens,shareLinkIds)
+
+    fun generateShareLink(shareLink: ShareLinkVO): Call<ResponseVO> = stelaAccountService.generateShareLink(shareLink)
 
     fun getPaymentIntent(
         accountId: Int,
