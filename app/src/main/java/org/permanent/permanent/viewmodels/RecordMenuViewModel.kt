@@ -76,6 +76,12 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     val recordSize: StateFlow<String> = _recordSize
     private val _recordDate = MutableStateFlow("")
     val recordDate: StateFlow<String> = _recordDate
+    private val _archiveThumb = MutableStateFlow("")
+    val archiveThumb: StateFlow<String> = _archiveThumb
+    private val _archiveName = MutableStateFlow("")
+    val archiveName: StateFlow<String> = _archiveName
+    private val _accessRole = MutableStateFlow(AccessRole.VIEWER)
+    val accessRole: StateFlow<AccessRole> = _accessRole
     private var shareByUrlVO: Shareby_urlVO? = null
     private val onRequestWritePermission = SingleLiveEvent<Void?>()
     private val onFileDownloadRequest = SingleLiveEvent<Void?>()
@@ -104,6 +110,9 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
         _recordDate.value = record.displayDate.toDisplayDate()
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbURL200 ?: "" else ""
+        _archiveThumb.value = record.archiveThumbURL200?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""
+        _archiveName.value = record.archiveFullName?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""
+        _accessRole.value = actualAccessRole
 
         _menuItems.value = buildMenuItems()
     }

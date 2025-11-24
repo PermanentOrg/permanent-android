@@ -35,11 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.ui.composeComponents.AccessRoleLabel
+import org.permanent.permanent.ui.composeComponents.AccessRoleLabelColor
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.composeComponents.SettingsMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuViewModel
+import java.util.Locale
 
 @Composable
 fun RecordMenuScreen(
@@ -52,6 +56,9 @@ fun RecordMenuScreen(
     val recordName by viewModel.recordName.collectAsState()
     val recordSize by viewModel.recordSize.collectAsState()
     val recordDate by viewModel.recordDate.collectAsState()
+    val archiveThumb by viewModel.archiveThumb.collectAsState()
+    val archiveName by viewModel.archiveName.collectAsState()
+    val accessRole by viewModel.accessRole.collectAsState()
     val menuItems by viewModel.menuItems.collectAsState()
 
     Box(
@@ -70,12 +77,14 @@ fun RecordMenuScreen(
                 recordName = recordName,
                 recordSize = recordSize,
                 recordDate = recordDate,
+                archiveThumb = archiveThumb,
+                archiveName = archiveName,
+                accessRole = accessRole,
                 onCloseClick = onClose
             )
 
             Column(
-                modifier = Modifier
-                    .padding(vertical = 16.dp)
+                modifier = Modifier.padding(vertical = 16.dp)
             ) {
                 menuItems.forEach { item ->
                     when (item) {
@@ -83,46 +92,58 @@ fun RecordMenuScreen(
                             iconResource = painterResource(id = R.drawable.ic_share_primary),
                             text = stringResource(R.string.share_and_manage_access),
                         ) { onItemClick(item) }
+
                         RecordMenuItem.Publish -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_publish_primary),
                             text = stringResource(R.string.publish_on_the_web),
                         ) { onItemClick(item) }
+
                         RecordMenuItem.SendACopy -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_send_primary),
                             text = stringResource(R.string.send_a_copy),
                         ) { onItemClick(item) }
+
                         RecordMenuItem.Download -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_download_primary),
                             text = stringResource(R.string.download),
                         ) { onItemClick(item) }
+
                         RecordMenuItem.Rename -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_rename_primary),
                             text = stringResource(R.string.rename),
                         ) { onItemClick(item) }
+
                         RecordMenuItem.Move -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_move_primary),
                             text = stringResource(R.string.move_to_another_folder),
                         ) { onItemClick(item) }
+
                         RecordMenuItem.Copy -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_copy_primary),
                             text = stringResource(R.string.copy_to_another_folder),
                         ) { onItemClick(item) }
+
                         RecordMenuItem.Delete -> {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 16.dp),
-                                color = colorResource(R.color.blue50)
-                            )
+                            if (menuItems.size > 1) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 16.dp),
+                                    color = colorResource(R.color.blue50)
+                                )
+                            }
                             SettingsMenuItem(
                                 iconResource = painterResource(id = R.drawable.ic_delete_large_red),
                                 text = stringResource(R.string.delete),
                                 itemColor = colorResource(R.color.error500),
                             ) { onItemClick(item) }
                         }
+
                         RecordMenuItem.LeaveShare -> {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 16.dp),
-                                color = colorResource(R.color.blue50)
-                            )
+                            if (menuItems.size > 1) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 16.dp),
+                                    color = colorResource(R.color.blue50)
+                                )
+                            }
                             SettingsMenuItem(
                                 iconResource = painterResource(id = R.drawable.ic_leave_share_red),
                                 text = stringResource(R.string.leave_share),
@@ -138,8 +159,7 @@ fun RecordMenuScreen(
 
         if (isBusyState) {
             Box(
-                modifier = Modifier.matchParentSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.matchParentSize(), contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(overlayColor = OverlayColor.LIGHT)
             }
@@ -153,83 +173,136 @@ fun RecordMenuHeader(
     recordName: String,
     recordSize: String,
     recordDate: String,
+    archiveThumb: String,
+    archiveName: String,
+    accessRole: AccessRole,
     onCloseClick: () -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
             .background(colorResource(R.color.blue25))
             .padding(start = 24.dp, top = 24.dp, bottom = 24.dp, end = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon
-        if (recordThumbURL.isNotEmpty()) {
-            AsyncImage(
-                model = recordThumbURL,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(6.dp))
-            )
-        } else {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_folder_purple_gradient),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(6.dp))
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Texts
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .height(40.dp)
-                .padding(top = 4.dp)
-                .align(Alignment.CenterVertically)
+        Row(
+            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = recordName, style = TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 24.sp,
-                    fontFamily = FontFamily(Font(R.font.usual_medium)),
-                    color = colorResource(R.color.blue900),
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            val infoText = listOf(recordSize, recordDate)
-                .filter { it.isNotBlank() }
-                .joinToString(" • ")
-
-            Text(
-                text = infoText,
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    fontFamily = FontFamily(Font(R.font.usual_regular)),
-                    color = colorResource(R.color.blue400),
+            // Icon
+            if (recordThumbURL.isNotEmpty()) {
+                AsyncImage(
+                    model = recordThumbURL,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(6.dp))
                 )
-            )
+            } else {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_folder_purple_gradient),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Texts
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp)
+                    .padding(top = 4.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = recordName, style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_medium)),
+                        color = colorResource(R.color.blue900),
+                    ), maxLines = 1, overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                val infoText =
+                    listOf(recordSize, recordDate).filter { it.isNotBlank() }.joinToString(" • ")
+
+                Text(
+                    text = infoText, style = TextStyle(
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.blue400),
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Close Icon
+            IconButton(onClick = onCloseClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_close_light_blue),
+                    contentDescription = "Close",
+                    tint = colorResource(R.color.blue400),
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        if (archiveThumb.isNotEmpty() && archiveName.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, top = 24.dp, end = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Icon
+                AsyncImage(
+                    model = archiveThumb,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                )
 
-        // Close Icon
-        IconButton(onClick = onCloseClick) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_close_light_blue),
-                contentDescription = "Close",
-                tint = colorResource(R.color.blue400),
-            )
+                Spacer(modifier = Modifier.width(24.dp))
+
+                // Texts
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(24.dp)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        text = stringResource(R.string.from).uppercase(Locale.getDefault()),
+                        style = TextStyle(
+                            fontSize = 10.sp,
+                            lineHeight = 8.sp,
+                            fontFamily = FontFamily(Font(R.font.usual_regular)),
+                            color = colorResource(R.color.blue400),
+                        )
+                    )
+
+                    Text(
+                        text = archiveName, style = TextStyle(
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.usual_medium)),
+                            color = colorResource(R.color.blue900),
+                        ), maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                AccessRoleLabel(accessRole = accessRole, color = AccessRoleLabelColor.LIGHT)
+            }
         }
     }
 }
