@@ -20,7 +20,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -115,6 +117,21 @@ fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String 
         append(unitsToUse[i])
         append("B")
     }.toString()
+}
+
+private val BACKEND_DATE_TIME_FORMATTER: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+/**
+ * Convert a LocalDate to a backend datetime string.
+ *
+ * @param useEndOfDay if true, result will be at 23:59:59 of the date (default = true).
+ *                    if false, result will be at 00:00:00 of the date.
+ */
+fun LocalDate.toBackendDateTimeString(useEndOfDay: Boolean = true): String? {
+    val time = if (useEndOfDay) LocalTime.of(23, 59, 59) else LocalTime.MIDNIGHT
+    val dt = LocalDateTime.of(this, time)
+    return dt.format(BACKEND_DATE_TIME_FORMATTER)
 }
 
 fun String?.toDisplayDate(): String {

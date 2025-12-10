@@ -360,7 +360,7 @@
     <string name="share_management_pending_requests">Pending requests</string>
 
     <string name="access_roles_title">Access Roles</string>
-    <string name="access_roles_link_settings_title">Link Settings</string>
+    <string name="link_settings">Link Settings</string>
     <string name="access_roles_whats_this">What\'s this</string>
     <string name="access_roles_viewer">Viewer</string>
     <string name="access_roles_contributor">Contributor</string>
@@ -825,13 +825,36 @@
     <string name="delete">Delete</string>
     <string name="leave_share">Leave share</string>
     <string name="confirm">Confirm</string>
+    <string name="copy">Copy</string>
     <string name="confirm_delete_message">Are you sure you want to delete "%1$s"?</string>
     <string name="the_selected_items">the selected items</string>
     <string name="confirm_leave_share_message">Are you sure you want to give up your access to the "%1$s" item?</string>
 
     <string name="create_link_to_sare">Create link to share</string>
-    <string name="creating_link">Creating link...</string>
+    <string name="creating_link">Creating link…</string>
     <string name="create_link_description">Generate a link to send via text or email to invite people to share this content.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="revoke_link">Revoke link</string>
+    <string name="confirm_revoke_link_message">Are you sure you want to revoke this share link?</string>
+    <string name="revoke_this_share_link">revoke this share link</string>
+    <string name="anyone_can_view">Anyone can view</string>
+    <string name="anyone_can_view_description">Anyone with the link can view and download.</string>
+    <string name="restricted">Restricted</string>
+    <string name="restricted_description">The user must have an account and be logged in to view.</string>
+    <string name="general_access">General access</string>
+    <string name="default_access_role">Default access role</string>
+    <string name="link_expiration">Link expiration</string>
+    <string name="one_day">One day</string>
+    <string name="one_month">One month</string>
+    <string name="one_year">One year</string>
+    <string name="never">Never</string>
+    <string name="link_never_expires">The link will never expire.</string>
+    <string name="link_expires_on">The link will expire on %1$s.</string>
+    <string name="select_access_role">Select access role</string>
+    <string name="owner_description">Has ultimate control: manages roles, settings, and full archive access, including deletion.</string>
+    <string name="curator_description">Trusted member with full control: edit, organize, delete, publish, share, and manage archive membership.</string>
+    <string name="editor_description">Can upload and edit metadata but cannot delete materials, publish them, or share anything.</string>
+    <string name="contributor_description">Can upload new materials but cannot edit metadata, delete items, publish content, or share.</string>
+    <string name="viewer_description">Can view all materials but cannot edit, delete, upload, publish, or share anything.</string>
+    <string name="link_settings_updated">Link settings has been updated.</string>
+    <string name="link_revoked">Link has been revoked.</string>
 </resources>

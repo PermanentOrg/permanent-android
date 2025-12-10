@@ -5,20 +5,20 @@ data class ShareLinkVOResponse(
     val items: List<ShareLinkVO>
 )
 
-class ShareLinkVO {
-    var Id:  String? = null
-    var itemId:  String? = null
-    var itemType:  String? = null
-    var permissionsLevel:  String? = null
-    var accessRestrictions: String? = null
+data class ShareLinkVO (
+    var id:  String? = null,
+    var itemId:  String? = null,
+    var itemType:  String? = null,
+    var permissionsLevel:  String? = null,
+    var accessRestrictions: String? = null,
 
-    var token: String? = null
+    var token: String? = null,
 
-    var maxUses: Int? = null // can be 0 for unlimited uses
+    var maxUses: Int? = null, // can be 0 for unlimited uses
 
-    var usesExpended: Int? = null
-    var expirationTimestamp: String? = null // can be null for no expiration
+    var usesExpended: Int? = null,
+    var expirationTimestamp: String? = null, // can be null for no expiration, or this format: "2026-11-17 13:56:31"
 
-    var createdAt: String? = null
-    var updatedAt: String? = null
-}
+    var createdAt: String? = null,
+    var updatedAt: String? = null,
+)

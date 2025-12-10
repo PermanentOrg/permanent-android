@@ -19,6 +19,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONObject
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
@@ -57,7 +58,6 @@ import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Query
 import java.io.File
 import java.util.Date
 
@@ -790,6 +790,26 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?): Call<ShareLinkVOResponse> = stelaAccountService.getShareLink(shareTokens,shareLinkIds)
 
     fun generateShareLink(shareLink: ShareLinkVO): Call<ResponseVO> = stelaAccountService.generateShareLink(shareLink)
+
+    fun updateShareLink(shareLink: ShareLinkVO): Call<ResponseVO> {
+        val json = JSONObject()
+
+        shareLink.permissionsLevel?.let { json.put("permissionsLevel", it) }
+        shareLink.accessRestrictions?.let { json.put("accessRestrictions", it) }
+        if (shareLink.expirationTimestamp == null) {
+            json.put("expirationTimestamp", JSONObject.NULL)
+        } else {
+            json.put("expirationTimestamp", shareLink.expirationTimestamp)
+        }
+        val body = json.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        return stelaAccountService.updateShareLink(shareLink.id, body)
+    }
+
+    fun deleteShareLink(shareLinkId: String): Call<ResponseVO> {
+        return stelaAccountService.deleteShareLink(shareLinkId)
+    }
 
     fun getPaymentIntent(
         accountId: Int,

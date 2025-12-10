@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -60,7 +61,7 @@ fun ShareLinkScreen(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.9f)
+            .fillMaxHeight()
             .background(colorResource(R.color.blue25))
             .wrapContentHeight(Alignment.Top)
     ) {
@@ -84,7 +85,9 @@ fun ShareLinkScreen(
                 CreatingLinkRow()
             } else {
                 if (isLinkSharedState) {
-                    SharedLinkRow(shareLink = viewModel.cleanUrlRegex(shareLink), onSettingClick = {}, onCopyClick = {
+                    SharedLinkRow(shareLink = viewModel.cleanUrlRegex(shareLink), onSettingClick = {
+                        viewModel.onLinkSettingsBtnClick()
+                    }, onCopyClick = {
                         viewModel.copyLinkToClipboard()
                     })
                 } else {
@@ -106,7 +109,6 @@ fun CreatingLinkRow() {
             .padding(start = 36.dp, top = 24.dp, bottom = 24.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         CircularProgressIndicator(
             overlayColor = OverlayColor.LIGHT, modifier = Modifier
                 .height(16.dp)
@@ -263,34 +265,40 @@ fun CreateLinkRow(onClick: () -> Unit) {
 fun SheetHeader(
     title: String, onCloseClick: (() -> Unit)? = null
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorResource(R.color.white))
-            .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = title, style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                fontFamily = FontFamily(Font(R.font.usual_medium)),
-                color = colorResource(R.color.blue900),
-                textAlign = TextAlign.Center
-            ), maxLines = 1, overflow = TextOverflow.Ellipsis
-        )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(colorResource(R.color.white))
+                .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = title, style = TextStyle(
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_medium)),
+                    color = colorResource(R.color.blue900),
+                    textAlign = TextAlign.Center
+                ), maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
 
-        if (onCloseClick != null) {
-            IconButton(
-                onClick = onCloseClick, modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_close_light_blue),
-                    contentDescription = "Close",
-                    tint = colorResource(R.color.blue400),
-                )
+            if (onCloseClick != null) {
+                IconButton(
+                    onClick = onCloseClick, modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_close_light_blue),
+                        contentDescription = "Close",
+                        tint = colorResource(R.color.blue200),
+                    )
+                }
             }
         }
+
+        HorizontalDivider(
+            thickness = 1.dp, color = colorResource(R.color.blue50)
+        )
     }
 }
 

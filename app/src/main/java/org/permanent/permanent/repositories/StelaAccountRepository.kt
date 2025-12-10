@@ -24,4 +24,7 @@ interface StelaAccountRepository {
 
     fun generateShareLink(shareLinkVO: ShareLinkVO, listener: IResponseListener)
 
+    fun updateShareLink(shareLinkVO: ShareLinkVO, listener: IResponseListener)
+
+    fun deleteShareLink(shareLinkId: String, listener: IResponseListener)
 }

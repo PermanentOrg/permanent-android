@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.text.Editable
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -15,10 +16,8 @@ import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import okhttp3.internal.trimSubstring
-import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
-import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
@@ -26,16 +25,25 @@ import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
+import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
+import org.permanent.permanent.repositories.StelaAccountRepository
+import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.bytesToHumanReadableString
+import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.ui.shareManagement.ShareListener
+import org.permanent.permanent.ui.shareManagement.compose.AccessType
+import org.permanent.permanent.ui.shareManagement.compose.LinkDuration
+import org.permanent.permanent.ui.shareManagement.compose.SharePage
+import org.permanent.permanent.ui.toBackendDateTimeString
 import org.permanent.permanent.ui.toDisplayDate
+import java.time.LocalDate
 
 
 class ShareManagementViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -60,9 +68,21 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     val isCreatingLinkState: StateFlow<Boolean> = _isCreatingLinkState
     private val _isLinkSharedState = MutableStateFlow(false)
     val isLinkSharedState: StateFlow<Boolean> = _isLinkSharedState
+    private val _selectedGeneralAccessType = MutableStateFlow(AccessType.ANYONE_CAN_VIEW)
+    val selectedGeneralAccessType: StateFlow<AccessType> = _selectedGeneralAccessType
+    private val _selectedAccessRole = MutableStateFlow(AccessRole.VIEWER)
+    val selectedAccessRole: StateFlow<AccessRole> = _selectedAccessRole
+    private val _selectedLinkDuration = MutableStateFlow(LinkDuration.NEVER)
+    val selectedLinkDuration: StateFlow<LinkDuration> = _selectedLinkDuration
+    private val _isBusyState = MutableStateFlow(false)
+    val isBusyState: StateFlow<Boolean> = _isBusyState
+    private val _snackbarMessage = MutableStateFlow("")
+    val snackbarMessage: StateFlow<String> = _snackbarMessage
+    private val _snackbarType = MutableStateFlow(SnackbarType.NONE)
+    val snackbarType: StateFlow<SnackbarType> = _snackbarType
     private var shareByUrlVO: Shareby_urlVO? = null
-
-
+    private val _navigateToPage = MutableStateFlow<SharePage?>(null)
+    val navigateToPage: StateFlow<SharePage?> = _navigateToPage
     private var shares = mutableListOf<Share>()
     private var pendingShares = mutableListOf<Share>()
     private val sharesSize = MutableLiveData(0)
@@ -74,17 +94,17 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val expirationDate = MutableLiveData<String>()
     private val showDatePicker = SingleLiveEvent<Void?>()
     private val sharedWithLabelTxt = MutableLiveData<String>()
-    private val areLinkSettingsVisible = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
     private val onShareLinkRequest = SingleLiveEvent<String>()
-    private val onRevokeLinkRequest = SingleLiveEvent<Void?>()
     private val showAccessRolesForLink = SingleLiveEvent<Shareby_urlVO>()
     private val showAccessRolesForShare = SingleLiveEvent<Share>()
     private val onShareApproved = SingleLiveEvent<Share>()
     private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
+    private var stelaAccountRepository: StelaAccountRepository =
+        StelaAccountRepositoryImpl(application)
 
     fun setRecord(record: Record) {
         this.record = record
@@ -163,7 +183,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                     shareByUrlVO?.shareUrl?.let {
                         _shareLink.value = it
                         _isLinkSharedState.value = _shareLink.value != ""
-                        onShowLinkSettingsBtnClick()
+                        onLinkSettingsBtnClick()
                     }
                 }
 
@@ -194,12 +214,111 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         onShareLinkRequest.value = shareLink.value.toString()
     }
 
-    fun onShowLinkSettingsBtnClick() {
-        areLinkSettingsVisible.value = true
+    fun onLinkSettingsBtnClick() {
+        _navigateToPage.value = SharePage.LINK_SETTINGS
     }
 
-    fun onHideLinkSettingsBtnClick() {
-        areLinkSettingsVisible.value = false
+    fun onBackBtnClick(fromPage: SharePage) {
+        when (fromPage) {
+            SharePage.LINK_SETTINGS -> {
+                _navigateToPage.value = SharePage.SHARE_ITEM
+            }
+
+            SharePage.GENERAL_ACCESS, SharePage.ACCESS_ROLES -> {
+                _navigateToPage.value = SharePage.LINK_SETTINGS
+            }
+
+            else -> {
+                Log.d("ShareManagementViewModel", "onBackBtnClick: ${_navigateToPage.value}")
+            }
+        }
+    }
+
+    fun onGeneralAccessClick() {
+        _navigateToPage.value = SharePage.GENERAL_ACCESS
+    }
+
+    fun onGeneralAccessItemClick(type: AccessType) {
+        _selectedGeneralAccessType.value = type
+        _navigateToPage.value = SharePage.LINK_SETTINGS
+    }
+
+    fun onDefaultAccessRoleClick() {
+        _navigateToPage.value = SharePage.ACCESS_ROLES
+    }
+
+    fun onAccessRoleClick(role: AccessRole) {
+        _selectedAccessRole.value = role
+        _navigateToPage.value = SharePage.LINK_SETTINGS
+    }
+
+    fun onLinkDurationSelected(duration: LinkDuration) {
+        _selectedLinkDuration.value = duration
+    }
+
+    fun revokeLink() {
+        if (_isBusyState.value) {
+            return
+        }
+        _isBusyState.value = true
+        val shareId: String = shareByUrlVO?.shareby_urlId.toString()
+        stelaAccountRepository.deleteShareLink(shareId, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                _isLinkSharedState.value = false
+                _navigateToPage.value = SharePage.SHARE_ITEM
+                _snackbarMessage.value = appContext.getString(R.string.link_revoked)
+                _snackbarType.value = SnackbarType.SUCCESS
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let {
+                    _snackbarMessage.value = it
+                    _snackbarType.value = SnackbarType.ERROR
+                }
+            }
+        })
+    }
+
+    fun onDoneBtnClick() {
+        if (_isBusyState.value) {
+            return
+        }
+        val shareId: String = shareByUrlVO?.shareby_urlId.toString()
+        val accessRestrictions = _selectedGeneralAccessType.value.backendValue
+        val permissionLevel =
+            if (_selectedGeneralAccessType.value == AccessType.ANYONE_CAN_VIEW) AccessRole.VIEWER.name.lowercase() else
+                if (_selectedAccessRole.value == AccessRole.CURATOR) AccessRole.MANAGER.name.lowercase() else
+                    _selectedAccessRole.value.name.lowercase()
+        val expirationTimestamp =
+            _selectedLinkDuration.value.expirationDate(LocalDate.now())?.toBackendDateTimeString()
+
+        _isBusyState.value = true
+        val shareLinkVO = ShareLinkVO(
+            id = shareId,
+            permissionsLevel = permissionLevel,
+            accessRestrictions = accessRestrictions,
+            expirationTimestamp = expirationTimestamp
+        )
+        stelaAccountRepository.updateShareLink(shareLinkVO, object : IResponseListener {
+
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                _navigateToPage.value = SharePage.SHARE_ITEM
+                _snackbarMessage.value = appContext.getString(R.string.link_settings_updated)
+                _snackbarType.value = SnackbarType.SUCCESS
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let {
+                    _snackbarMessage.value = it
+                    _snackbarType.value = SnackbarType.ERROR
+                }
+            }
+        })
     }
 
     fun onDefaultAccessRoleBtnClick() {
@@ -236,10 +355,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
         expirationDate.value = "$year-${month + 1}-$day"
         saveChanges()
-    }
-
-    fun onRevokeLinkBtnClick() {
-        onRevokeLinkRequest.call()
     }
 
     fun deleteShareLink() {
@@ -366,6 +481,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         defaultAccessRole.value = accessRole
     }
 
+    fun clearPageNavigation() {
+        _navigateToPage.value = null
+    }
+
+    fun clearSnackbar() {
+        _snackbarMessage.value = ""
+    }
+
     fun getShares(): List<Share> = shares
 
     fun getPendingShares(): List<Share> = pendingShares
@@ -375,8 +498,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     fun getSharesSize(): MutableLiveData<Int> = sharesSize
 
     fun getPendingSharesSize(): MutableLiveData<Int> = pendingSharesSize
-
-    fun getAreLinkSettingsVisible(): MutableLiveData<Boolean> = areLinkSettingsVisible
 
     fun getSharePreview(): MutableLiveData<Boolean> = sharePreview
 
@@ -399,8 +520,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     fun getOnShareLinkRequest(): LiveData<String> = onShareLinkRequest
 
     fun getSharedWithLabelTxt(): MutableLiveData<String> = sharedWithLabelTxt
-
-    fun getOnRevokeLinkRequest(): LiveData<Void?> = onRevokeLinkRequest
 
     fun getShowAccessRolesForShare(): LiveData<Share> = showAccessRolesForShare
 

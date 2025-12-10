@@ -238,4 +238,53 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
             }
         })
     }
+
+    override fun updateShareLink(shareLinkVO: ShareLinkVO, listener: IResponseListener) {
+        NetworkClient.instance().updateShareLink(shareLinkVO)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    if (response.isSuccessful) {
+                        val responseVO = response.body()
+                        if (responseVO != null) {
+                            listener.onSuccess("")
+                        } else {
+                            listener.onFailed(appContext.getString(R.string.generic_error))
+                        }
+                    } else {
+                        try {
+                            listener.onFailed(response.errorBody().toString())
+                        } catch (e: Exception) {
+                            listener.onFailed(e.message)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun deleteShareLink(shareLinkId: String, listener: IResponseListener) {
+        NetworkClient.instance().deleteShareLink(shareLinkId)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    if (response.isSuccessful) {
+                        listener.onSuccess("")
+                    } else {
+                        try {
+                            listener.onFailed(response.errorBody().toString())
+                        } catch (e: Exception) {
+                            listener.onFailed(e.message)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
 }

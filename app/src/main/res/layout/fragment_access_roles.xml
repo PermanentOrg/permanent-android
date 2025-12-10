@@ -67,7 +67,7 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/open_sans_bold"
                     android:maxLines="1"
-                    android:text="@string/access_roles_link_settings_title"
+                    android:text="@string/link_settings"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:visibility="@{viewModel.shareByUrlVO != null ? View.VISIBLE : View.GONE}"
