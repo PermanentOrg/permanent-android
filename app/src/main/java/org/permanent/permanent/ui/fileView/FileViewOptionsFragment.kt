@@ -52,9 +52,9 @@ class FileViewOptionsFragment : PermanentBottomSheetFragment() {
 
     private val onShareViaPermanentObserver = Observer<Void?> {
         val bundle = bundleOf(PARCELABLE_RECORD_KEY to record)
-        //TODO Replace with new Share Link Settings
-        // requireParentFragment().requireParentFragment().findNavController()
-        // .navigate(R.id.action_filesContainerFragment_to_shareLinkFragment, bundle)
+
+         requireParentFragment().requireParentFragment().findNavController()
+         .navigate(R.id.action_filesContainerFragment_to_shareLinkFragment, bundle)
         dismiss()
     }
 

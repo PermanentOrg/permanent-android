@@ -19,20 +19,21 @@ import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.shareManagement.shareLink.ShareLinkScreen
+import org.permanent.permanent.viewmodels.ShareLinkViewModel
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 
 class ShareLinkFragment : PermanentBottomSheetFragment()  {
 
     private var record: Record? = null
 
-    private lateinit var viewModel: ShareManagementViewModel
+    private lateinit var viewModel: ShareLinkViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[ShareManagementViewModel::class.java]
+        viewModel = ViewModelProvider(this)[ShareLinkViewModel::class.java]
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         record?.let {
             viewModel.setRecord(it)

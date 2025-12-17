@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -37,15 +38,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuHeader
-import org.permanent.permanent.viewmodels.ShareManagementViewModel
+import org.permanent.permanent.viewmodels.ShareLinkViewModel
 
 @Composable
 fun ShareLinkScreen(
-    viewModel: ShareManagementViewModel,
+    viewModel: ShareLinkViewModel,
     onClose: () -> Unit,
 ) {
 
@@ -60,7 +62,7 @@ fun ShareLinkScreen(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.9f)
+            .fillMaxHeight(0.95f)
             .background(colorResource(R.color.blue25))
             .wrapContentHeight(Alignment.Top)
     ) {
@@ -70,8 +72,9 @@ fun ShareLinkScreen(
                 .wrapContentHeight()
         ) {
             SheetHeader(
-                title = "Share Item", onCloseClick = onClose
+                title = stringResource(R.string.share_link_item), onCloseClick = onClose
             )
+            HorizontalDivider()
 
             RecordMenuHeader(
                 recordThumbURL = recordThumbURL,
