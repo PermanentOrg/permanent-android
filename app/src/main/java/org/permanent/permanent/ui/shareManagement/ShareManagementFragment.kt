@@ -35,12 +35,12 @@ import org.permanent.permanent.ui.AccessRolesFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
-import org.permanent.permanent.viewmodels.ShareManagementViewModel
+import org.permanent.permanent.viewmodels.ShareManagementViewModelOld
 import java.util.Calendar
 
 class ShareManagementFragment : PermanentBottomSheetFragment() {
 
-    private lateinit var viewModel: ShareManagementViewModel
+    private lateinit var viewModel: ShareManagementViewModelOld
     private lateinit var binding: FragmentShareManagementBinding
     private lateinit var pendingSharesRecyclerView: RecyclerView
     private lateinit var pendingSharesAdapter: SharesAdapter
@@ -60,7 +60,7 @@ class ShareManagementFragment : PermanentBottomSheetFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[ShareManagementViewModel::class.java]
+        viewModel = ViewModelProvider(this)[ShareManagementViewModelOld::class.java]
         binding = FragmentShareManagementBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
         binding.lifecycleOwner = this

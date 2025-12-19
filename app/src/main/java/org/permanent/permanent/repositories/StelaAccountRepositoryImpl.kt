@@ -5,11 +5,15 @@ import com.google.gson.Gson
 import okhttp3.ResponseBody
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Tags
+import org.permanent.permanent.network.ILinkListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITwoFAListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ErrorResponse
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.ShareLinkVO
+import org.permanent.permanent.network.models.ShareLinkVOResponse
+import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.TwoFAVO
 import retrofit2.Call
 import retrofit2.Callback
@@ -188,6 +192,50 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?, listener: IResponseListener) {
+        NetworkClient.instance().getShareLink(shareTokens, shareLinkIds).enqueue( object : Callback<ShareLinkVOResponse> {
+
+            override fun onResponse(call: Call<ShareLinkVOResponse>, response: Response<ShareLinkVOResponse>) {
+                if (response.isSuccessful) {
+                    val responseVO = response.body()
+                    if (responseVO != null) {
+                        listener.onSuccess("")
+                    } else {
+                        listener.onFailed(appContext.getString(R.string.generic_error))
+                    }
+                } else {
+                    listener.onFailed("No Link detected")
+                }
+            }
+
+            override fun onFailure(call: Call<ShareLinkVOResponse>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    override fun generateShareLink(shareLinkVO: ShareLinkVO, listener: ILinkListener) {
+        NetworkClient.instance().generateShareLink(shareLinkVO).enqueue( object : Callback<ShareLinkResponse> {
+
+            override fun onResponse(call: Call<ShareLinkResponse>, response: Response<ShareLinkResponse>) {
+                if (response.isSuccessful) {
+                    val responseVO = response.body()
+                    if (responseVO != null) {
+                        listener.onSuccess(responseVO.data)
+                    } else {
+                        listener.onFailed(appContext.getString(R.string.generic_error))
+                    }
+                } else {
+                    listener.onFailed("No Link detected")
+                }
+            }
+
+            override fun onFailure(call: Call<ShareLinkResponse>, t: Throwable) {
                 listener.onFailed(t.message)
             }
         })

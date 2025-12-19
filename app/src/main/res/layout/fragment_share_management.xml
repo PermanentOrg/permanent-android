@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="org.permanent.permanent.viewmodels.ShareManagementViewModel" />
+            type="org.permanent.permanent.viewmodels.ShareManagementViewModelOld" />
     </data>
 
     <androidx.core.widget.NestedScrollView
@@ -698,3 +698,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>
+

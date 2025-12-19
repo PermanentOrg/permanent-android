@@ -43,7 +43,6 @@
         android:label="@string/main_navigation_title_share_link"
         tools:layout="@layout/fragment_share_management">
     </fragment>
-
     <fragment
         android:id="@+id/locationSearchFragment"
         android:name="org.permanent.permanent.ui.fileView.LocationSearchFragment"
