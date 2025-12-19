@@ -43,5 +43,8 @@ class Constants {
         const val SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED"
         // This is also used in manifest
         const val FILE_PROVIDER_NAME = ".fileprovider"
+
+        const val SHARED_LINK_URL = "https://www.permanent.org/share/"
+
     }
 }

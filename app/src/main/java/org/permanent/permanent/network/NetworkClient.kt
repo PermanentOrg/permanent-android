@@ -41,6 +41,7 @@ import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.ProfileItemsRequestContainer
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.ShareLinkVOResponse
 import org.permanent.permanent.network.models.Shareby_urlVO
@@ -789,7 +790,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?): Call<ShareLinkVOResponse> = stelaAccountService.getShareLink(shareTokens,shareLinkIds)
 
-    fun generateShareLink(shareLink: ShareLinkVO): Call<ResponseVO> = stelaAccountService.generateShareLink(shareLink)
+    fun generateShareLink(shareLink: ShareLinkVO): Call<ShareLinkResponse> = stelaAccountService.generateShareLink(shareLink)
 
     fun getPaymentIntent(
         accountId: Int,

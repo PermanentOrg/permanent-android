@@ -5,8 +5,11 @@ data class ShareLinkVOResponse(
     val items: List<ShareLinkVO>
 )
 
+data class ShareLinkResponse(
+    val data: ShareLinkVO
+)
 class ShareLinkVO {
-    var Id:  String? = null
+    var id:  String? = null
     var itemId:  String? = null
     var itemType:  String? = null
     var permissionsLevel:  String? = null

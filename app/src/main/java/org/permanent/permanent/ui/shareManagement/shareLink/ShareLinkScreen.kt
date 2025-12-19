@@ -40,14 +40,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuHeader
-import org.permanent.permanent.viewmodels.ShareLinkViewModel
+import org.permanent.permanent.viewmodels.ShareManagementViewModel
+import kotlin.String
 
 @Composable
 fun ShareLinkScreen(
-    viewModel: ShareLinkViewModel,
+    viewModel: ShareManagementViewModel,
     onClose: () -> Unit,
 ) {
 
@@ -80,7 +82,10 @@ fun ShareLinkScreen(
                 recordThumbURL = recordThumbURL,
                 recordName = recordName,
                 recordSize = recordSize,
-                recordDate = recordDate
+                recordDate = recordDate,
+                archiveThumb = "",
+                archiveName = "",
+                accessRole = AccessRole.VIEWER
             )
 
             if (creatingLink) {

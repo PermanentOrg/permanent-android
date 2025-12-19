@@ -20,6 +20,4 @@ class Datum {
     var TagVO: TagVO? = null
     var TagLinkVO: TagLinkVO? = null
     var PromoVO: PromoVO? = null
-    var ShareLinkVO: ShareLinkVO? = null
-
 }

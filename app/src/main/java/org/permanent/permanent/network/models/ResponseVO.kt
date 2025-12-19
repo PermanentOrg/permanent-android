@@ -85,8 +85,4 @@ class ResponseVO {
     fun getPromoVO(): PromoVO? {
         return getData()?.get(0)?.PromoVO
     }
-
-    fun getShareLinkVO(): ShareLinkVO? {
-        return getData()?.get(0)?.ShareLinkVO
-    }
 }
