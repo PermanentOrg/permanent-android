@@ -6,6 +6,7 @@ import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.ShareLinkVOResponse
+import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.TwoFAVO
 import retrofit2.Call
 import retrofit2.http.Body
@@ -25,7 +26,7 @@ interface StelaAccountService {
     ): Call<ShareLinkVOResponse>
 
     @POST("api/v2/share-links")
-    fun generateShareLink(@Body shareLink: ShareLinkVO): Call<ResponseVO>
+    fun generateShareLink(@Body shareLink: ShareLinkVO): Call<ShareLinkResponse>
 
     @PATCH("api/v2/share-links/{shareLinkId}")
     fun updateShareLink(@Path("shareLinkId") shareLinkId: String?,  @Body body: RequestBody): Call<ResponseVO>

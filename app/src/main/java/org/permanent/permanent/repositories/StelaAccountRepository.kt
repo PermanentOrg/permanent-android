@@ -1,6 +1,7 @@
 package org.permanent.permanent.repositories
 
 import org.permanent.permanent.models.Tags
+import org.permanent.permanent.network.ILinkListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITwoFAListener
 import org.permanent.permanent.network.models.ShareLinkVO
@@ -22,7 +23,7 @@ interface StelaAccountRepository {
 
     fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?, listener: IResponseListener)
 
-    fun generateShareLink(shareLinkVO: ShareLinkVO, listener: IResponseListener)
+    fun generateShareLink(shareLinkVO: ShareLinkVO, listener: ILinkListener)
 
     fun updateShareLink(shareLinkVO: ShareLinkVO, listener: IResponseListener)
 

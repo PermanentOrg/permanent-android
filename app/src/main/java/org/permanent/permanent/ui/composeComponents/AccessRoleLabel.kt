@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,27 +21,30 @@ import org.permanent.permanent.models.AccessRole
 
 @Composable
 fun AccessRoleLabel(
-    accessRole: AccessRole?
+    accessRole: AccessRole,
+    color: AccessRoleLabelColor = AccessRoleLabelColor.TRANSPARENT
 ) {
-    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
-
     Column(
         modifier = Modifier
             .wrapContentSize()
             .clip(RoundedCornerShape(6.dp))
-            .background(Color.White.copy(alpha = 0.14f))
+            .background(if (color == AccessRoleLabelColor.TRANSPARENT) Color.White.copy(alpha = 0.14f) else Color.White)
             .padding(horizontal = 6.dp)
     ) {
-        accessRole?.name?.let {
-            Text(
-                text = it,
-                color = Color.White,
-                fontFamily = regularFont,
-                fontSize = 10.sp,
-                lineHeight = 24.sp
-            )
-        }
+        Text(
+            text = accessRole.name,
+            color = if (color == AccessRoleLabelColor.TRANSPARENT) Color.White else colorResource(R.color.colorPrimary),
+            fontFamily = FontFamily(Font(R.font.usual_regular)),
+            fontSize = 10.sp,
+            lineHeight = 24.sp,
+            letterSpacing = 1.28.sp
+        )
     }
+}
+
+enum class AccessRoleLabelColor {
+    LIGHT,
+    TRANSPARENT,
 }
 
 @Preview

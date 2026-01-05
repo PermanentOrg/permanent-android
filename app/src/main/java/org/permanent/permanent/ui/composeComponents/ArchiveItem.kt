@@ -34,7 +34,7 @@ fun ArchiveItem(
     isForWelcomePage: Boolean = false,
     iconURL: String? = null,
     title: String,
-    accessRole: AccessRole?,
+    accessRole: AccessRole,
     showSubtitle: Boolean = true,
     showSeparator: Boolean = true,
     showAcceptButton: Boolean = false,
