@@ -76,4 +76,9 @@ enum class AccessType(val value: Int) {
             ANYONE_CAN_VIEW -> "none"
             RESTRICTED -> "approval"
         }
+
+    companion object {
+        fun fromBackendValue(value: String): AccessType? =
+            entries.firstOrNull { it.backendValue == value }
+    }
 }

@@ -42,8 +42,8 @@ import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.ProfileItemsRequestContainer
 import org.permanent.permanent.network.models.ResponseVO
-import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.ShareLinkResponse
+import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.ShareLinkVOResponse
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.network.models.SimpleRequestContainer
@@ -788,7 +788,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun disableTwoFactor(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.disableTwoFactor(twoFAVO)
 
-    fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?): Call<ShareLinkVOResponse> = stelaAccountService.getShareLink(shareTokens,shareLinkIds)
+    fun getShareLink(shareLinkIds: List<Int>): Call<ShareLinkVOResponse> = stelaAccountService.getShareLink(shareLinkIds)
 
     fun generateShareLink(shareLink: ShareLinkVO): Call<ShareLinkResponse> = stelaAccountService.generateShareLink(shareLink)
 

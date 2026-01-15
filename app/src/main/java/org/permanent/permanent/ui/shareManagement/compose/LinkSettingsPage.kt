@@ -58,6 +58,8 @@ import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.ConfirmationBottomSheet
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
+import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -70,6 +72,7 @@ fun LinkSettingsPage(
     val selectedGeneralAccessType by viewModel.selectedGeneralAccessType.collectAsState()
     val selectedAccessRole by viewModel.selectedAccessRole.collectAsState()
     val selectedLinkDuration by viewModel.selectedLinkDuration.collectAsState()
+    val createdAtDate by viewModel.createdAtDate.collectAsState()
     var showRevokeConfirmation by remember { mutableStateOf(false) }
     val durationOptions = remember { LinkDuration.entries }
 
@@ -354,7 +357,7 @@ fun LinkSettingsPage(
 
                     Spacer(Modifier.height(16.dp))
 
-                    InfoBanner(duration = selectedLinkDuration)
+                    InfoBanner(duration = selectedLinkDuration, createdAt = createdAtDate)
 
                     Spacer(Modifier.height(24.dp))
 
@@ -576,13 +579,13 @@ private fun DurationOption(
 
 @Composable
 private fun InfoBanner(
-    duration: LinkDuration, today: LocalDate = LocalDate.now()
+    duration: LinkDuration, createdAt: LocalDate
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofPattern("MMMM d, yyyy") }
     val infoText = when (duration) {
         LinkDuration.NEVER -> stringResource(R.string.link_never_expires)
         else -> {
-            val date = duration.expirationDate(today)!!
+            val date = duration.expirationDate(createdAt)!!
             stringResource(R.string.link_expires_on, date.format(dateFormatter))
         }
     }
@@ -669,5 +672,26 @@ enum class LinkDuration(
         ONE_MONTH -> from.plusMonths(1)
         ONE_YEAR -> from.plusYears(1)
         NEVER -> null
+    }
+
+    companion object {
+        fun fromBackend(
+            createdAt: String?,
+            expirationTimestamp: String?
+        ): LinkDuration {
+            if (createdAt == null || expirationTimestamp == null) return NEVER
+
+            val created = Instant.parse(createdAt)
+            val expires = Instant.parse(expirationTimestamp)
+
+            val duration = Duration.between(created, expires)
+
+            return when {
+                duration.toDays() <= 1 -> ONE_DAY
+                duration.toDays() in 28..31 -> ONE_MONTH
+                duration.toDays() in 360..370 -> ONE_YEAR
+                else -> NEVER
+            }
+        }
     }
 }

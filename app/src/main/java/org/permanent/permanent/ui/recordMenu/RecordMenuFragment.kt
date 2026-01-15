@@ -38,7 +38,6 @@ import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuScreen
 import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
-import org.permanent.permanent.ui.shareManagement.shareLink.ShareLinkScreen
 import org.permanent.permanent.viewmodels.RecordMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuViewModel
 
@@ -218,7 +217,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
 
     private fun showShareManagementFragment() {
         val shareManagementScreen = ShareLinkFragment()
-        shareManagementScreen.setBundleArguments(record, viewModel.getShareByUrlVO())
+        shareManagementScreen.setBundleArguments(record)
         shareManagementScreen.show(parentFragmentManager, shareManagementScreen.tag)
     }
 

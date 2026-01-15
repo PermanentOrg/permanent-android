@@ -83,7 +83,7 @@ open class Record : Parcelable {
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
         size = recordInfo.size ?: -1L
-        accessRole = AccessRole.createFromBackendString(recordInfo.accessRole)
+        accessRole = AccessRole.fromBackendValue(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
@@ -109,7 +109,7 @@ open class Record : Parcelable {
         thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = RecordType.FOLDER
-        accessRole = AccessRole.createFromBackendString(recordInfo.accessRole)
+        accessRole = AccessRole.fromBackendValue(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
@@ -138,7 +138,7 @@ open class Record : Parcelable {
         thumbURL2000 = itemVO.thumbURL2000
         isThumbBlurred = false
         type = if (itemVO.folderId != null) RecordType.FOLDER else RecordType.FILE
-        accessRole = AccessRole.createFromBackendString(itemVO.accessRole)
+        accessRole = AccessRole.fromBackendValue(itemVO.accessRole)
         initShares(itemVO.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = itemVO.thumbURL200.isNullOrEmpty()

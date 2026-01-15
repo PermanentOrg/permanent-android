@@ -11,9 +11,9 @@ import org.permanent.permanent.network.ITwoFAListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ErrorResponse
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.ShareLinkVOResponse
-import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.TwoFAVO
 import retrofit2.Call
 import retrofit2.Callback
@@ -197,14 +197,14 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
         })
     }
 
-    override fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?, listener: IResponseListener) {
-        NetworkClient.instance().getShareLink(shareTokens, shareLinkIds).enqueue( object : Callback<ShareLinkVOResponse> {
+    override fun getShareLink(shareLinkIds: List<Int>, listener: ILinkListener) {
+        NetworkClient.instance().getShareLink(shareLinkIds).enqueue( object : Callback<ShareLinkVOResponse> {
 
             override fun onResponse(call: Call<ShareLinkVOResponse>, response: Response<ShareLinkVOResponse>) {
                 if (response.isSuccessful) {
                     val responseVO = response.body()
                     if (responseVO != null) {
-                        listener.onSuccess("")
+                        listener.onSuccess(responseVO.items[0])
                     } else {
                         listener.onFailed(appContext.getString(R.string.generic_error))
                     }

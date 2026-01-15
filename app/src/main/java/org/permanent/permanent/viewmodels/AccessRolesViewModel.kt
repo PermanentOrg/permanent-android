@@ -31,7 +31,7 @@ class AccessRolesViewModel(application: Application) : ObservableAndroidViewMode
     fun setShareLink(shareByUrlVO: Shareby_urlVO?) {
         this.shareByUrlVO = shareByUrlVO
         shareByUrlVO?.let {
-            checkedAccessRole.value = AccessRole.createFromBackendString(it.defaultAccessRole)
+            checkedAccessRole.value = AccessRole.fromBackendValue(it.defaultAccessRole)
         }
     }
 

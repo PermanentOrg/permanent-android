@@ -27,7 +27,6 @@ import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
-import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.Shareby_urlVO
@@ -35,8 +34,6 @@ import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IFileRepository
-import org.permanent.permanent.repositories.IShareRepository
-import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
@@ -88,7 +85,6 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
-    private var shareRepository: IShareRepository = ShareRepositoryImpl(ctx)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun initWith(
@@ -104,32 +100,18 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         actualAccessRole =
             record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole())
                 ?: AccessRole.VIEWER
-        if (workspace == Workspace.PRIVATE_FILES) checkForExistingLink(record)
 
         _recordName.value = record.displayName ?: ""
         _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
         _recordDate.value = record.displayDate.toDisplayDate()
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbURL200 ?: "" else ""
-        _archiveThumb.value = record.archiveThumbURL200?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""
-        _archiveName.value = record.archiveFullName?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""
+        _archiveThumb.value =
+            record.archiveThumbURL200?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""
+        _archiveName.value =
+            record.archiveFullName?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""
         _accessRole.value = actualAccessRole
 
         _menuItems.value = buildMenuItems()
-    }
-
-    private fun checkForExistingLink(record: Record) {
-        _isBusyState.value = true
-        shareRepository.requestShareLink(record, ShareRequestType.GET,
-            object : IShareRepository.IShareByUrlListener {
-                override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-                    _isBusyState.value = false
-                    this@RecordMenuViewModel.shareByUrlVO = shareByUrlVO
-                }
-
-                override fun onFailed(error: String?) {
-                    _isBusyState.value = false
-                }
-            })
     }
 
     private fun buildMenuItems(): List<RecordMenuItem> {

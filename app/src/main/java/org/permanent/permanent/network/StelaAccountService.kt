@@ -4,9 +4,9 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.ShareLinkVOResponse
-import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.TwoFAVO
 import retrofit2.Call
 import retrofit2.http.Body
@@ -21,9 +21,7 @@ import retrofit2.http.Query
 interface StelaAccountService {
 
     @GET("api/v2/share-links")
-    fun getShareLink(@Query("shareTokens[]") shareTokens: List<String>?,
-                     @Query("shareLinkIds[]") shareLinkIds: List<String>?
-    ): Call<ShareLinkVOResponse>
+    fun getShareLink(@Query("shareLinkIds[]") shareLinkIds: List<Int>): Call<ShareLinkVOResponse>
 
     @POST("api/v2/share-links")
     fun generateShareLink(@Body shareLink: ShareLinkVO): Call<ShareLinkResponse>

@@ -44,7 +44,6 @@ import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuHeader
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
-import kotlin.String
 
 @Composable
 fun ShareLinkScreen(
@@ -244,7 +243,7 @@ fun CreateLinkRow(onClick: () -> Unit) {
                 .align(Alignment.CenterVertically)
         ) {
             Text(
-                text = stringResource(R.string.create_link_to_sare), style = TextStyle(
+                text = stringResource(R.string.create_link_to_share), style = TextStyle(
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     fontFamily = FontFamily(Font(R.font.usual_medium)),

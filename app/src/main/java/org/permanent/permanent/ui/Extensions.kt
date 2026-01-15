@@ -20,9 +20,11 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -133,6 +135,11 @@ fun LocalDate.toBackendDateTimeString(useEndOfDay: Boolean = true): String? {
     val dt = LocalDateTime.of(this, time)
     return dt.format(BACKEND_DATE_TIME_FORMATTER)
 }
+
+fun String.toLocalDateUtc(): LocalDate =
+    Instant.parse(this)
+        .atZone(ZoneOffset.UTC)
+        .toLocalDate()
 
 fun String?.toDisplayDate(): String {
     if (this.isNullOrBlank()) return ""
