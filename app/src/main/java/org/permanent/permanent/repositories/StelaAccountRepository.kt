@@ -21,8 +21,11 @@ interface StelaAccountRepository {
 
     fun disableTwoFactor(twoFAVO: TwoFAVO, listener: IResponseListener)
 
-    fun getShareLink(shareTokens: List<String>?,shareLinkIds: List<String>?, listener: IResponseListener)
+    fun getShareLink(shareLinkIds: List<Int>, listener: ILinkListener)
 
     fun generateShareLink(shareLinkVO: ShareLinkVO, listener: ILinkListener)
 
+    fun updateShareLink(shareLinkVO: ShareLinkVO, listener: IResponseListener)
+
+    fun deleteShareLink(shareLinkId: String, listener: IResponseListener)
 }

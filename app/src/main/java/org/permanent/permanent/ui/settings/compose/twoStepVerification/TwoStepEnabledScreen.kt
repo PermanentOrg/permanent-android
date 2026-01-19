@@ -235,7 +235,7 @@ private fun TabletBody(
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 1.dp,
-                color = colorResource(id = R.color.dividerBlue)
+                color = colorResource(id = R.color.blue100)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -410,7 +410,7 @@ private fun PhoneBody(
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 1.dp,
-                color = colorResource(id = R.color.dividerBlue)
+                color = colorResource(id = R.color.blue100)
             )
 
             Spacer(modifier = Modifier.height(24.dp))

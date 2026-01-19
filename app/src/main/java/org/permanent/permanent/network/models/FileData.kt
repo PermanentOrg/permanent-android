@@ -38,7 +38,7 @@ class FileData private constructor() : Parcelable {
         folderLinkId = recordVO.folder_linkId ?: -1
         archiveId = recordVO.archiveId ?: -1
         archiveNr = recordVO.archiveNbr
-        accessRole = AccessRole.createFromBackendString(recordVO.accessRole)
+        accessRole = AccessRole.fromBackendValue(recordVO.accessRole)
         val fileVOs = recordVO.FileVOs ?: emptyList()
 
         val fileVO: FileVO? = when {

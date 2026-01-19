@@ -18,7 +18,6 @@
     <color name="colorPrimary200">#B8BBC9</color>
     <color name="colorPrimaryDarker">#0f163b</color>
     <color name="colorPrimaryLighter">#1c2451</color>
-    <color name="dividerBlue">#D0D1DB</color>
     <color name="errorSuperLight">#FEF3F2</color>
     <color name="errorLight">#FEE4E2</color>
     <color name="error25">#FFFBFA</color>
@@ -34,9 +33,11 @@
     <color name="colorAccent">#FF9933</color>
     <color name="colorAccentDark">#ff8000</color>
     <color name="orange">#F17400</color>
-    <color name="warning500">#F79009</color>
+    <color name="warning50">#FFFAEB</color>
     <color name="warning100">#FEF0C7</color>
     <color name="warning200">#FEDF89</color>
+    <color name="warning500">#F79009</color>
+    <color name="warning800">#93370D</color>
     <color name="lightGreen">#D1FADF</color>
     <color name="textGreen">#027A48</color>
     <color name="green">#34C759</color>
@@ -45,9 +46,9 @@
     <color name="dullGreen">#82B15F</color>
     <color name="paleGreen">#CAE5C9</color>
     <color name="success25">#F6FEF9</color>
+    <color name="success50">#ECFDF3</color>
     <color name="success200">#A6F4C5</color>
     <color name="success500">#12B76A</color>
-    <color name="successLight">#ECFDF3</color>
     <color name="success">#32D583</color>
     <color name="successDark">#039855</color>
     <color name="white">#FFFFFF</color>

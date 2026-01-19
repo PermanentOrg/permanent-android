@@ -38,14 +38,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuHeader
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
-import kotlin.String
 
 @Composable
 fun ShareLinkScreen(
@@ -64,7 +62,7 @@ fun ShareLinkScreen(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.95f)
+            .fillMaxHeight()
             .background(colorResource(R.color.blue25))
             .wrapContentHeight(Alignment.Top)
     ) {
@@ -74,9 +72,8 @@ fun ShareLinkScreen(
                 .wrapContentHeight()
         ) {
             SheetHeader(
-                title = stringResource(R.string.share_link_item), onCloseClick = onClose
+                title = "Share Item", onCloseClick = onClose
             )
-            HorizontalDivider()
 
             RecordMenuHeader(
                 recordThumbURL = recordThumbURL,
@@ -92,7 +89,9 @@ fun ShareLinkScreen(
                 CreatingLinkRow()
             } else {
                 if (isLinkSharedState) {
-                    SharedLinkRow(shareLink = viewModel.cleanUrlRegex(shareLink), onSettingClick = {}, onCopyClick = {
+                    SharedLinkRow(shareLink = viewModel.cleanUrlRegex(shareLink), onSettingClick = {
+                        viewModel.onLinkSettingsBtnClick()
+                    }, onCopyClick = {
                         viewModel.copyLinkToClipboard()
                     })
                 } else {
@@ -114,7 +113,6 @@ fun CreatingLinkRow() {
             .padding(start = 36.dp, top = 24.dp, bottom = 24.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         CircularProgressIndicator(
             overlayColor = OverlayColor.LIGHT, modifier = Modifier
                 .height(16.dp)
@@ -271,34 +269,40 @@ fun CreateLinkRow(onClick: () -> Unit) {
 fun SheetHeader(
     title: String, onCloseClick: (() -> Unit)? = null
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorResource(R.color.white))
-            .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = title, style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                fontFamily = FontFamily(Font(R.font.usual_medium)),
-                color = colorResource(R.color.blue900),
-                textAlign = TextAlign.Center
-            ), maxLines = 1, overflow = TextOverflow.Ellipsis
-        )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(colorResource(R.color.white))
+                .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = title, style = TextStyle(
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_medium)),
+                    color = colorResource(R.color.blue900),
+                    textAlign = TextAlign.Center
+                ), maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
 
-        if (onCloseClick != null) {
-            IconButton(
-                onClick = onCloseClick, modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_close_light_blue),
-                    contentDescription = "Close",
-                    tint = colorResource(R.color.blue400),
-                )
+            if (onCloseClick != null) {
+                IconButton(
+                    onClick = onCloseClick, modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_close_light_blue),
+                        contentDescription = "Close",
+                        tint = colorResource(R.color.blue200),
+                    )
+                }
             }
         }
+
+        HorizontalDivider(
+            thickness = 1.dp, color = colorResource(R.color.blue50)
+        )
     }
 }
 

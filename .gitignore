@@ -40,3 +40,6 @@ hs_err_pid*
 .externalNativeBuild
 fastlane/.env.staging
 fastlane/.env.production
+
+# Kotlin compiler cache
+.kotlin/

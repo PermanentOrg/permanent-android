@@ -70,7 +70,7 @@ fun AnimatedSnackbar(
                 .fillMaxWidth()
                 .border(1.dp, colorResource(id = if (isForError) R.color.errorLight else  R.color.success200), RoundedCornerShape(12.dp))
                 .background(
-                    color = colorResource(id = if (isForError) R.color.errorSuperLight else R.color.successLight),
+                    color = colorResource(id = if (isForError) R.color.errorSuperLight else R.color.success50),
                     shape = RoundedCornerShape(size = 12.dp)
                 ), contentAlignment = Alignment.Center
         ) {

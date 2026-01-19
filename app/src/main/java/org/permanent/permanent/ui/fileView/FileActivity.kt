@@ -70,7 +70,6 @@ class FileActivity : PermanentBaseActivity() {
                 this@FileActivity.finish()
                 true
             }
-
             R.id.shareLinkFragment -> {
                 navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
                 setToolbarAndStatusBarColor(R.color.black)

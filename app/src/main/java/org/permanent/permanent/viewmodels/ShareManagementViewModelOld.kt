@@ -95,7 +95,7 @@ class ShareManagementViewModelOld(application: Application) : ObservableAndroidV
         sharePreview.value = shareByUrlVO.previewToggle == 1
         autoApprove.value = shareByUrlVO.autoApproveToggle == 1
         maxUses.value = (shareByUrlVO.maxUses ?: 0).toString()
-        defaultAccessRole.value = AccessRole.createFromBackendString(shareByUrlVO.defaultAccessRole)
+        defaultAccessRole.value = AccessRole.fromBackendValue(shareByUrlVO.defaultAccessRole)
         shareByUrlVO.expiresDT.let { expirationDate.value = it?.trimSubstring() }
     }
 

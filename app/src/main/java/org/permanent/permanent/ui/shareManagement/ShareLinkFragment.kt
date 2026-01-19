@@ -15,10 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.models.Record
-import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
-import org.permanent.permanent.ui.shareManagement.shareLink.ShareLinkScreen
+import org.permanent.permanent.ui.shareManagement.compose.ShareManagementContainer
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 
 class ShareLinkFragment : PermanentBottomSheetFragment()  {
@@ -37,7 +36,6 @@ class ShareLinkFragment : PermanentBottomSheetFragment()  {
         record?.let {
             viewModel.setRecord(it)
         }
-        viewModel.setShareLink(arguments?.getParcelable(SHARE_BY_URL_VO_KEY))
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -45,7 +43,7 @@ class ShareLinkFragment : PermanentBottomSheetFragment()  {
                     Surface(
                         shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
                         ) {
-                        ShareLinkScreen(
+                        ShareManagementContainer(
                             viewModel = viewModel,
                             onClose = { dismiss() }
                         )
@@ -55,9 +53,8 @@ class ShareLinkFragment : PermanentBottomSheetFragment()  {
         }
     }
 
-    fun setBundleArguments(record: Record?, shareByUrlVO: Shareby_urlVO?) {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to record, SHARE_BY_URL_VO_KEY to shareByUrlVO)
-        this.arguments = bundle
+    fun setBundleArguments(record: Record?) {
+        this.arguments = bundleOf(PARCELABLE_RECORD_KEY to record)
     }
 
     override fun onStart() {
@@ -65,8 +62,13 @@ class ShareLinkFragment : PermanentBottomSheetFragment()  {
         (dialog as? BottomSheetDialog)?.behavior?.apply {
             state = BottomSheetBehavior.STATE_EXPANDED
             skipCollapsed = true
+            isHideable = false
+            try {
+                this.isDraggable = false
+            } catch (ignored: Throwable) {
+            }
         }
-        // Optional: transparent background so your Compose Surface can draw rounded corners
+        // transparent background so Compose Surface can draw rounded corners
         (requireView().parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
     }
 

@@ -3,7 +3,7 @@ package org.permanent.permanent.models
 import android.os.Parcel
 import android.os.Parcelable
 import org.permanent.permanent.ArchivePermission
-import java.util.*
+import java.util.Locale
 
 enum class AccessRole(val backendString: String) : Parcelable {
     OWNER("access.role.owner") {
@@ -113,7 +113,7 @@ enum class AccessRole(val backendString: String) : Parcelable {
     fun toTitleCase(): String = this.name.lowercase(Locale.getDefault())
         .replaceFirstChar { it.titlecase(Locale.getDefault()) }
 
-    fun toLowerCase(): String = this.name.lowercase(Locale.getDefault())
+    fun lowerCase(): String = this.name.lowercase(Locale.getDefault())
 
     fun getInferior(otherAccessRole: AccessRole): AccessRole {
         return if (otherAccessRole in inferiors()) otherAccessRole else this
@@ -153,13 +153,24 @@ enum class AccessRole(val backendString: String) : Parcelable {
             return values()[parcel.readInt()]
         }
 
-        fun createFromBackendString(accessRoleString: String?): AccessRole {
+        fun fromBackendValue(accessRoleString: String?): AccessRole {
             return when (accessRoleString) {
                 OWNER.backendString -> OWNER
                 MANAGER.backendString -> MANAGER
                 CURATOR.backendString -> CURATOR
                 EDITOR.backendString -> EDITOR
                 CONTRIBUTOR.backendString -> CONTRIBUTOR
+                else -> VIEWER
+            }
+        }
+
+        fun fromStelaBackendValue(accessRoleString: String?): AccessRole {
+            return when (accessRoleString) {
+                OWNER.lowerCase() -> OWNER
+                MANAGER.lowerCase() -> MANAGER
+                CURATOR.lowerCase() -> CURATOR
+                EDITOR.lowerCase() -> EDITOR
+                CONTRIBUTOR.lowerCase() -> CONTRIBUTOR
                 else -> VIEWER
             }
         }
