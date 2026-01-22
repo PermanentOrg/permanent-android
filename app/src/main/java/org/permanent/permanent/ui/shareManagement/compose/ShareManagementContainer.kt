@@ -21,7 +21,6 @@ import org.permanent.permanent.R
 import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.SnackbarType
-import org.permanent.permanent.ui.shareManagement.shareLink.ShareLinkScreen
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 
 @Composable
@@ -56,7 +55,7 @@ fun ShareManagementContainer(
             ) { page ->
                 when (page) {
                     SharePage.SHARE_ITEM.value -> {
-                        ShareLinkScreen(
+                        ShareItemPage(
                             viewModel = viewModel, onClose = { onClose() })
                     }
 
@@ -72,6 +71,11 @@ fun ShareManagementContainer(
 
                     SharePage.ACCESS_ROLES.value -> {
                         AccessRolesPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
+
+                    SharePage.ARCHIVE_ACCESS.value -> {
+                        ArchiveAccessPage(
                             viewModel = viewModel, onClose = { onClose() })
                     }
                 }
@@ -96,5 +100,5 @@ fun ShareManagementContainer(
 }
 
 enum class SharePage(val value: Int) {
-    SHARE_ITEM(0), LINK_SETTINGS(1), GENERAL_ACCESS(2), ACCESS_ROLES(3)
+    SHARE_ITEM(0), LINK_SETTINGS(1), GENERAL_ACCESS(2), ACCESS_ROLES(3), ARCHIVE_ACCESS(4);
 }

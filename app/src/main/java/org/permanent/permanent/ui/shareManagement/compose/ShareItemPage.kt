@@ -1,4 +1,4 @@
-package org.permanent.permanent.ui.shareManagement.shareLink
+package org.permanent.permanent.ui.shareManagement.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,25 +30,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Share
+import org.permanent.permanent.ui.composeComponents.AccessRoleLabel
+import org.permanent.permanent.ui.composeComponents.AccessRoleLabelColor
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuHeader
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 
 @Composable
-fun ShareLinkScreen(
+fun ShareItemPage(
     viewModel: ShareManagementViewModel,
     onClose: () -> Unit,
 ) {
@@ -58,6 +67,8 @@ fun ShareLinkScreen(
     val shareLink by viewModel.shareLink.collectAsState()
     val creatingLink by viewModel.isCreatingLinkState.collectAsState()
     val isLinkSharedState by viewModel.isLinkSharedState.collectAsState()
+    val pendingShares by viewModel.pendingShares.collectAsState()
+    val approvedShares by viewModel.approvedShares.collectAsState()
 
     Box(
         modifier = Modifier
@@ -100,6 +111,168 @@ fun ShareLinkScreen(
                     })
                 }
             }
+
+            ShareList(
+                pendingShares = pendingShares,
+                approvedShares = approvedShares,
+                modifier = Modifier.weight(1f),
+                onEditClick = { share -> viewModel.onEditClick(share) })
+        }
+    }
+}
+
+@Composable
+fun ShareList(
+    pendingShares: List<Share>,
+    approvedShares: List<Share>,
+    modifier: Modifier = Modifier,
+    onEditClick: (Share) -> Unit
+) {
+    if (pendingShares.isEmpty() && approvedShares.isEmpty()) return
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colorResource(R.color.white))
+            .padding(start = 24.dp, end = 16.dp, top = 32.dp, bottom = 32.dp)
+    ) {
+
+        item {
+            ShareListTitle()
+        }
+
+        items(
+            approvedShares, key = { it.id ?: it.hashCode() }) { share ->
+            ApprovedShareItem(share) { onEditClick(share) }
+        }
+
+        items(
+            pendingShares, key = { it.id ?: it.hashCode() }) { share ->
+            PendingShareItem(share)
+        }
+    }
+}
+
+@Composable
+fun ShareListTitle() {
+    Text(
+        text = stringResource(R.string.current_requests_and_access).toUpperCase(Locale.current),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 24.dp),
+        style = TextStyle(
+            fontSize = 10.sp,
+            lineHeight = 8.sp,
+            fontFamily = FontFamily(Font(R.font.usual_regular)),
+            color = colorResource(R.color.blue900),
+            letterSpacing = 1.6.sp,
+        )
+    )
+}
+
+@Composable
+fun PendingShareItem(share: Share) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorResource(R.color.white))
+            .padding(horizontal = 24.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = share.archive?.fullName ?: "",
+                fontSize = 14.sp,
+                color = colorResource(R.color.blue900)
+            )
+            Text(
+                text = "pending", fontSize = 12.sp, color = colorResource(R.color.blue400)
+            )
+        }
+
+        IconButton(onClick = { /* approve */ }) {
+            Icon(
+                painter = painterResource(R.drawable.ic_done_white),
+                tint = colorResource(R.color.green),
+                contentDescription = null
+            )
+        }
+
+        IconButton(onClick = { /* deny */ }) {
+            Icon(
+                painter = painterResource(R.drawable.ic_close_white),
+                tint = colorResource(R.color.green),
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Composable
+fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Thumb
+        val thumbURL = share.archive?.thumbURL200
+        if (thumbURL?.isNotEmpty() == true) {
+            AsyncImage(
+                model = thumbURL,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(6.dp))
+            )
+        } else {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_archive_placeholder_multicolor),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(6.dp))
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Texts
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .height(40.dp)
+                .padding(top = 4.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            Text(
+                text = share.archive?.fullName ?: "", style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_medium)),
+                    color = colorResource(R.color.blue900),
+                ), maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            share.accessRole?.let {
+                AccessRoleLabel(accessRole = it, fontSize = 8.sp, lineHeight = 16.sp, cornerSize = 4.dp, color = AccessRoleLabelColor.LIGHT_BLUE)
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Edit Icon
+        IconButton(onClick = { onEditClick() }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_edit_primary),
+                contentDescription = "Close",
+                tint = Color.Unspecified
+            )
         }
     }
 }

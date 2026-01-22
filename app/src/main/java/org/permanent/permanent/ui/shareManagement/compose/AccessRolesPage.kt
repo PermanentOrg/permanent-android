@@ -25,7 +25,7 @@ fun AccessRolesPage(
     viewModel: ShareManagementViewModel,
     onClose: () -> Unit,
 ) {
-    val selectedAccessRole by viewModel.selectedAccessRole.collectAsState()
+    val selectedAccessRole by viewModel.activeAccessRole.collectAsState()
 
     Box(
         modifier = Modifier

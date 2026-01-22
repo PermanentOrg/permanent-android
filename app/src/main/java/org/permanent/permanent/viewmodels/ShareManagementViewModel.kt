@@ -1,20 +1,18 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.app.DatePickerDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.text.Editable
 import android.util.Log
-import android.view.KeyEvent
-import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
@@ -86,29 +84,43 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val _snackbarType = MutableStateFlow(SnackbarType.NONE)
     val snackbarType: StateFlow<SnackbarType> = _snackbarType
     private var shareLinkVO: ShareLinkVO? = null
+    private val _editingShare = MutableStateFlow<Share?>(null)
+    val editingShare: StateFlow<Share?> = _editingShare
+
+    private val _editingArchiveAccessRole = MutableStateFlow<AccessRole>(AccessRole.VIEWER)
+    val editingArchiveAccessRole: StateFlow<AccessRole> = _editingArchiveAccessRole
+    private val _accessRolesOpenedFrom = MutableStateFlow<SharePage?>(null)
     private val _navigateToPage = MutableStateFlow<SharePage?>(null)
     val navigateToPage: StateFlow<SharePage?> = _navigateToPage
-    private var shares = mutableListOf<Share>()
-    private var pendingShares = mutableListOf<Share>()
-    private val sharesSize = MutableLiveData(0)
-    private val pendingSharesSize = MutableLiveData(0)
-    private val sharePreview = MutableLiveData(false)
-    private val autoApprove = MutableLiveData(false)
-    private val maxUses = MutableLiveData("0")
-    private val defaultAccessRole = MutableLiveData(AccessRole.VIEWER)
-    private val expirationDate = MutableLiveData<String>()
-    private val showDatePicker = SingleLiveEvent<Void?>()
+    private val _pendingShares = MutableStateFlow<List<Share>>(emptyList())
+    val pendingShares: StateFlow<List<Share>> = _pendingShares
+    private val _approvedShares = MutableStateFlow<List<Share>>(emptyList())
+    val approvedShares: StateFlow<List<Share>> = _approvedShares
     private val areLinkSettingsVisible = MutableLiveData(false)
     private val showSnackbar = MutableLiveData<String>()
     private val showSnackbarSuccess = MutableLiveData<String>()
-    private val onShareLinkRequest = SingleLiveEvent<String>()
-    private val showAccessRolesForShare = SingleLiveEvent<Share>()
     private val onShareApproved = SingleLiveEvent<Share>()
     private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var stelaAccountRepository: StelaAccountRepository =
         StelaAccountRepositoryImpl(application)
+
+    val activeAccessRole: StateFlow<AccessRole> =
+        combine(
+            selectedAccessRole,
+            editingArchiveAccessRole,
+            _accessRolesOpenedFrom
+        ) { linkRole, archiveRole, openedFrom ->
+            when (openedFrom) {
+                SharePage.ARCHIVE_ACCESS -> archiveRole
+                else -> linkRole
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = selectedAccessRole.value
+        )
 
     fun setRecord(record: Record) {
         this.record = record
@@ -123,12 +135,16 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     private fun initShares(shares: MutableList<Share>?) {
-        this.shares =
-            shares?.filter { it.status.value != Status.PENDING }?.toMutableList() ?: mutableListOf()
-        this.pendingShares =
-            shares?.filter { it.status.value == Status.PENDING }?.toMutableList() ?: mutableListOf()
-        sharesSize.value = this.shares.size
-        pendingSharesSize.value = this.pendingShares.size
+        val pending = shares
+            ?.filter { it.status.value == Status.PENDING }
+            ?: emptyList()
+
+        val approved = shares
+            ?.filter { it.status.value != Status.PENDING }
+            ?: emptyList()
+
+        _pendingShares.value = pending
+        _approvedShares.value = approved
     }
 
     private fun checkForExistingLink(record: Record) {
@@ -246,10 +262,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         return url.replace(Regex("^https?://(www\\.)?"), "")
     }
 
-    fun onShareLinkBtnClick() {
-        onShareLinkRequest.value = shareLink.value.toString()
-    }
-
     fun onLinkSettingsBtnClick() {
         _navigateToPage.value = SharePage.LINK_SETTINGS
     }
@@ -260,12 +272,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun onBackBtnClick(fromPage: SharePage) {
         when (fromPage) {
-            SharePage.LINK_SETTINGS -> {
-                _navigateToPage.value = SharePage.SHARE_ITEM
-            }
+            SharePage.LINK_SETTINGS, SharePage.ARCHIVE_ACCESS -> _navigateToPage.value =
+                SharePage.SHARE_ITEM
 
-            SharePage.GENERAL_ACCESS, SharePage.ACCESS_ROLES -> {
-                _navigateToPage.value = SharePage.LINK_SETTINGS
+            SharePage.GENERAL_ACCESS -> _navigateToPage.value = SharePage.LINK_SETTINGS
+
+            SharePage.ACCESS_ROLES -> {
+                _navigateToPage.value = _accessRolesOpenedFrom.value
+                _accessRolesOpenedFrom.value = null
             }
 
             else -> {
@@ -284,12 +298,23 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     fun onDefaultAccessRoleClick() {
+        _accessRolesOpenedFrom.value = SharePage.LINK_SETTINGS
+        _navigateToPage.value = SharePage.ACCESS_ROLES
+    }
+
+    fun onArchiveAccessRoleClick() {
+        _accessRolesOpenedFrom.value = SharePage.ARCHIVE_ACCESS
         _navigateToPage.value = SharePage.ACCESS_ROLES
     }
 
     fun onAccessRoleClick(role: AccessRole) {
-        _selectedAccessRole.value = role
-        _navigateToPage.value = SharePage.LINK_SETTINGS
+        if (_accessRolesOpenedFrom.value == SharePage.ARCHIVE_ACCESS) {
+            _editingArchiveAccessRole.value = role
+        } else {
+            _selectedAccessRole.value = role
+        }
+        _navigateToPage.value = _accessRolesOpenedFrom.value ?: SharePage.SHARE_ITEM
+        _accessRolesOpenedFrom.value = null
     }
 
     fun onLinkDurationSelected(duration: LinkDuration) {
@@ -365,8 +390,39 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         }
     }
 
+    fun onSaveBtnClick() {
+        if (_isBusyState.value) {
+            return
+        }
+
+        _isBusyState.value = true
+        _editingShare.value?.let {
+            it.accessRole = _editingArchiveAccessRole.value
+            shareRepository.updateShare(it, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    _isBusyState.value = false
+                    showSnackbar.value = "archive role updated"
+                    _snackbarType.value = SnackbarType.SUCCESS
+                    _navigateToPage.value = SharePage.SHARE_ITEM
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    error?.let { errorMsg ->
+                        showSnackbar.value = errorMsg
+                        _snackbarType.value = SnackbarType.ERROR
+                    }
+                }
+            })
+        }
+    }
+
     override fun onEditClick(share: Share) {
-        showAccessRolesForShare.value = share
+        _editingShare.value = share
+        _editingArchiveAccessRole.value = share.accessRole ?: AccessRole.VIEWER
+
+        _accessRolesOpenedFrom.value = SharePage.ARCHIVE_ACCESS
+        _navigateToPage.value = SharePage.ARCHIVE_ACCESS
     }
 
     override fun onApproveClick(share: Share) {
@@ -379,10 +435,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             override fun onSuccess(message: String?) {
                 _isCreatingLinkState.value = false
                 share.status.value = Status.OK // This hides the Approve and Deny buttons
-                pendingShares.remove(share)
-                shares.add(share)
-                pendingSharesSize.value = pendingShares.size
-                sharesSize.value = shares.size
+//                pendingShares.remove(share)
+//                shares.add(share)
                 onShareApproved.value = share
                 showSnackbarSuccess.value = message
             }
@@ -403,8 +457,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         shareRepository.deleteShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 _isCreatingLinkState.value = false
-                pendingShares.remove(share)
-                pendingSharesSize.value = pendingShares.size
+//                pendingShares.remove(share)
                 showSnackbarSuccess.value = message
                 onShareDenied.value = share // Removes share from adapter
             }
@@ -425,12 +478,11 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     fun onShareRemoved(share: Share) {
-        shares.remove(share)
-        sharesSize.value = shares.size
+//        shares.remove(share)
     }
 
-    fun onAccessRoleUpdated(accessRole: AccessRole) {
-        defaultAccessRole.value = accessRole
+    fun clearEditingShare() {
+        _editingShare.value = null
     }
 
     fun clearPageNavigation() {
@@ -441,37 +493,11 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         _snackbarMessage.value = ""
     }
 
-    fun getShares(): List<Share> = shares
+//    fun getShares(): List<Share> = shares
 
-    fun getPendingShares(): List<Share> = pendingShares
+//    fun getPendingShares(): List<Share> = pendingShares
 
     fun getRecord(): Record = record
 
-    fun getSharesSize(): MutableLiveData<Int> = sharesSize
-
-    fun getPendingSharesSize(): MutableLiveData<Int> = pendingSharesSize
-
-    fun getSharePreview(): MutableLiveData<Boolean> = sharePreview
-
-    fun getAutoApprove(): MutableLiveData<Boolean> = autoApprove
-
-    fun getMaxUses(): MutableLiveData<String> = maxUses
-
-    fun getAccessRole(): MutableLiveData<AccessRole> = defaultAccessRole
-
-    fun getExpirationDate(): MutableLiveData<String> = expirationDate
-
-    fun getShowDatePicker(): LiveData<Void?> = showDatePicker
-
     fun getShowSnackbar(): LiveData<String> = showSnackbar
-
-    fun getShowSnackbarSuccess(): LiveData<String> = showSnackbarSuccess
-
-    fun getOnShareLinkRequest(): LiveData<String> = onShareLinkRequest
-
-    fun getShowAccessRolesForShare(): LiveData<Share> = showAccessRolesForShare
-
-    fun getOnShareApproved(): MutableLiveData<Share> = onShareApproved
-
-    fun getOnShareDenied(): MutableLiveData<Share> = onShareDenied
 }
