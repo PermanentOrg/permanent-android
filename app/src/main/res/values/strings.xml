@@ -360,7 +360,7 @@
     <string name="share_management_pending_requests">Pending requests</string>
 
     <string name="access_roles_title">Access Roles</string>
-    <string name="link_settings">Link Settings</string>
+    <string name="link_settings">Link settings</string>
     <string name="access_roles_whats_this">What\'s this</string>
     <string name="access_roles_viewer">Viewer</string>
     <string name="access_roles_contributor">Contributor</string>
@@ -832,9 +832,10 @@
     <string name="from">from</string>
     <string name="create_link_to_share">Create link to share</string>
     <string name="creating_link">Creating link...</string>
-    <string name="share_link_item">Share Item</string>
+    <string name="share_link_item">Share item</string>
     <string name="create_link_description">Generate a link to send via text or email to invite people to share this content.</string>
     <string name="revoke_link">Revoke link</string>
+    <string name="revoke_access">Revoke access</string>
     <string name="confirm_revoke_link_message">Are you sure you want to revoke this share link?</string>
     <string name="revoke_this_share_link">revoke this share link</string>
     <string name="anyone_can_view">Anyone can view</string>
@@ -842,6 +843,8 @@
     <string name="restricted">Restricted</string>
     <string name="restricted_description">The user must have an account and be logged in to view.</string>
     <string name="general_access">General access</string>
+    <string name="edit_archive_access">Edit Archive access</string>
+    <string name="grant_access_to_archive">Grant access to Archive</string>
     <string name="default_access_role">Default access role</string>
     <string name="link_expiration">Link expiration</string>
     <string name="one_day">One day</string>
@@ -851,11 +854,18 @@
     <string name="link_never_expires">The link will never expire.</string>
     <string name="link_expires_on">The link will expire on %1$s.</string>
     <string name="select_access_role">Select access role</string>
+    <string name="access_role">Access role</string>
     <string name="owner_description">Has ultimate control: manages roles, settings, and full archive access, including deletion.</string>
     <string name="curator_description">Trusted member with full control: edit, organize, delete, publish, share, and manage archive membership.</string>
     <string name="editor_description">Can upload and edit metadata but cannot delete materials, publish them, or share anything.</string>
     <string name="contributor_description">Can upload new materials but cannot edit metadata, delete items, publish content, or share.</string>
     <string name="viewer_description">Can view all materials but cannot edit, delete, upload, publish, or share anything.</string>
     <string name="link_settings_updated">Link settings has been updated.</string>
+    <string name="link_settings_update_failed">Failed to update link settings. Please try again.</string>
     <string name="link_revoked">Link has been revoked.</string>
+    <string name="no_internet_connection">No internet connection. Check your connection and try again.</string>
+    <string name="current_requests_and_access">Current requests and access:</string>
+    <string name="archive_role_updated">Archive access role has been updated</string>
+    <string name="confirm_revoke_access_message">Are you sure you want to revoke access from %s? This action will immediately remove all permissions granted.</string>
+    <string name="access_revoked">Access has been revoked.</string>
 </resources>
