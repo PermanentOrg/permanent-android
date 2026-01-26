@@ -36,7 +36,7 @@ import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.bytesToHumanReadableString
-import org.permanent.permanent.ui.composeComponents.SnackbarType
+import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
 import org.permanent.permanent.ui.shareManagement.ShareListener
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
 import org.permanent.permanent.ui.shareManagement.compose.LinkDuration
@@ -81,8 +81,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     val isBusyState: StateFlow<Boolean> = _isBusyState
     private val _snackbarMessage = MutableStateFlow("")
     val snackbarMessage: StateFlow<String> = _snackbarMessage
-    private val _snackbarType = MutableStateFlow(SnackbarType.NONE)
-    val snackbarType: StateFlow<SnackbarType> = _snackbarType
+    private val _snackbarType = MutableStateFlow(TemporarySnackbarType.NONE)
+    val snackbarType: StateFlow<TemporarySnackbarType> = _snackbarType
     private var shareLinkVO: ShareLinkVO? = null
     private val _editingShare = MutableStateFlow<Share?>(null)
     val editingShare: StateFlow<Share?> = _editingShare
@@ -334,18 +334,43 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                     _isLinkSharedState.value = false
                     _navigateToPage.value = SharePage.SHARE_ITEM
                     _snackbarMessage.value = appContext.getString(R.string.link_revoked)
-                    _snackbarType.value = SnackbarType.SUCCESS
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
                 }
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
                     error?.let {
                         _snackbarMessage.value = it
-                        _snackbarType.value = SnackbarType.ERROR
+                        _snackbarType.value = TemporarySnackbarType.ERROR
                     }
                 }
             })
         }
+    }
+
+    fun revokeAccess(share: Share) {
+        if (_isBusyState.value) {
+            return
+        }
+
+        _isBusyState.value = true
+        shareRepository.deleteShare(share, object : IResponseListener {
+            override fun onSuccess(message: String?) {
+                _isBusyState.value = false
+                _approvedShares.value = _approvedShares.value.filterNot { it.id == share.id }
+                _navigateToPage.value = SharePage.SHARE_ITEM
+                _snackbarMessage.value = appContext.getString(R.string.access_revoked)
+                _snackbarType.value = TemporarySnackbarType.SUCCESS
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                error?.let {
+                    _snackbarMessage.value = it
+                    _snackbarType.value = TemporarySnackbarType.ERROR
+                }
+            }
+        })
     }
 
     fun onDoneBtnClick() {
@@ -376,14 +401,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                     _isBusyState.value = false
                     _navigateToPage.value = SharePage.SHARE_ITEM
                     _snackbarMessage.value = appContext.getString(R.string.link_settings_updated)
-                    _snackbarType.value = SnackbarType.SUCCESS
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
                 }
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
                     error?.let {
                         _snackbarMessage.value = it
-                        _snackbarType.value = SnackbarType.ERROR
+                        _snackbarType.value = TemporarySnackbarType.ERROR
                     }
                 }
             })
@@ -401,16 +426,16 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             shareRepository.updateShare(it, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     _isBusyState.value = false
-                    showSnackbar.value = "archive role updated"
-                    _snackbarType.value = SnackbarType.SUCCESS
+                    _snackbarMessage.value = appContext.getString(R.string.archive_role_updated)
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
                     _navigateToPage.value = SharePage.SHARE_ITEM
                 }
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
                     error?.let { errorMsg ->
-                        showSnackbar.value = errorMsg
-                        _snackbarType.value = SnackbarType.ERROR
+                        _snackbarMessage.value = errorMsg
+                        _snackbarType.value = TemporarySnackbarType.ERROR
                     }
                 }
             })

@@ -47,6 +47,7 @@ import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
+import org.permanent.permanent.ui.composeComponents.ConfirmationBottomSheet
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 
 @Composable
@@ -102,6 +103,22 @@ fun ArchiveAccessPage(
 
                 ButtonsRow(viewModel)
             }
+        }
+    }
+
+    if (showRevokeConfirmation) {
+        share?.archive?.fullName?.let {
+            ConfirmationBottomSheet(
+                message = stringResource(R.string.confirm_revoke_access_message, it),
+                boldText = it,
+                confirmationButtonText = stringResource(id = R.string.revoke_access),
+                onConfirm = {
+                    showRevokeConfirmation = false
+                    viewModel.revokeAccess(share!!)
+                },
+                onDismiss = {
+                    showRevokeConfirmation = false
+                })
         }
     }
 }

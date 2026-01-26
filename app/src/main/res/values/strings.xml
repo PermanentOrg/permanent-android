@@ -861,6 +861,11 @@
     <string name="contributor_description">Can upload new materials but cannot edit metadata, delete items, publish content, or share.</string>
     <string name="viewer_description">Can view all materials but cannot edit, delete, upload, publish, or share anything.</string>
     <string name="link_settings_updated">Link settings has been updated.</string>
+    <string name="link_settings_update_failed">Failed to update link settings. Please try again.</string>
     <string name="link_revoked">Link has been revoked.</string>
+    <string name="no_internet_connection">No internet connection. Check your connection and try again.</string>
     <string name="current_requests_and_access">Current requests and access:</string>
+    <string name="archive_role_updated">Archive access role has been updated</string>
+    <string name="confirm_revoke_access_message">Are you sure you want to revoke access from %s? This action will immediately remove all permissions granted.</string>
+    <string name="access_revoked">Access has been revoked.</string>
 </resources>

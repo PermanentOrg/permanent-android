@@ -15,12 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.permanent.permanent.R
-import org.permanent.permanent.ui.composeComponents.AnimatedSnackbar
+import org.permanent.permanent.ui.composeComponents.AnimatedTemporarySnackbar
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
-import org.permanent.permanent.ui.composeComponents.SnackbarType
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
 
 @Composable
@@ -82,13 +80,12 @@ fun ShareManagementContainer(
             }
         }
 
-        AnimatedSnackbar(
+        AnimatedTemporarySnackbar(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(32.dp),
-            isForError = snackbarType == SnackbarType.ERROR,
+            type = snackbarType,
             message = snackbarMessage,
-            buttonText = stringResource(id = R.string.ok),
             onButtonClick = {
                 viewModel.clearSnackbar()
             })

@@ -22,6 +22,7 @@
     <color name="errorLight">#FEE4E2</color>
     <color name="error25">#FFFBFA</color>
     <color name="error200">#FECDCA</color>
+    <color name="error400">#F97066</color>
     <color name="error500">#F04438</color>
     <color name="red">#FF3D3D</color>
     <color name="darkRed">#B42318</color>
@@ -36,6 +37,7 @@
     <color name="warning50">#FFFAEB</color>
     <color name="warning100">#FEF0C7</color>
     <color name="warning200">#FEDF89</color>
+    <color name="warning400">#FDB022</color>
     <color name="warning500">#F79009</color>
     <color name="warning800">#93370D</color>
     <color name="lightGreen">#D1FADF</color>
@@ -62,5 +64,6 @@
     <color name="lightGrey">#B4B4B4</color>
     <color name="middleGrey">#606060</color>
     <color name="mardiGras">#8D0085</color>
+    <color name="darkGrey">#292929</color>
     <color name="black">#000000</color>
 </resources>
