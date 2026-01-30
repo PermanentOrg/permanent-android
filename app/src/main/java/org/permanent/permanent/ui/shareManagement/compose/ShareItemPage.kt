@@ -24,6 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +53,7 @@ import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.composeComponents.AccessRoleLabel
 import org.permanent.permanent.ui.composeComponents.AccessRoleLabelColor
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
+import org.permanent.permanent.ui.composeComponents.ConfirmationBottomSheet
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuHeader
 import org.permanent.permanent.viewmodels.ShareManagementViewModel
@@ -69,6 +73,8 @@ fun ShareItemPage(
     val isLinkSharedState by viewModel.isLinkSharedState.collectAsState()
     val pendingShares by viewModel.pendingShares.collectAsState()
     val approvedShares by viewModel.approvedShares.collectAsState()
+    var showDenyConfirmation by remember { mutableStateOf(false) }
+    var selectedShare by remember { mutableStateOf<Share?>(null) }
 
     Box(
         modifier = Modifier
@@ -116,7 +122,34 @@ fun ShareItemPage(
                 pendingShares = pendingShares,
                 approvedShares = approvedShares,
                 modifier = Modifier.weight(1f),
-                onEditClick = { share -> viewModel.onEditClick(share) })
+                onEditClick = { share -> viewModel.onEditClick(share) },
+                onApproveClick = { share -> viewModel.onApproveClick(share) },
+                onDenyClick = { share ->
+                    selectedShare = share
+                    showDenyConfirmation = true
+                }
+            )
+        }
+    }
+
+    if (showDenyConfirmation) {
+        selectedShare?.archive?.fullName?.let {
+            ConfirmationBottomSheet(
+                message = stringResource(R.string.confirm_deny_access_message, it),
+                boldText = it,
+                confirmationButtonText = stringResource(id = R.string.deny_access),
+                onConfirm = {
+                    selectedShare?.let { share ->
+                        viewModel.onDenyClick(share)
+                    }
+                    selectedShare = null
+                    showDenyConfirmation = false
+                },
+                onDismiss = {
+                    selectedShare = null
+                    showDenyConfirmation = false
+                }
+            )
         }
     }
 }
@@ -126,7 +159,9 @@ fun ShareList(
     pendingShares: List<Share>,
     approvedShares: List<Share>,
     modifier: Modifier = Modifier,
-    onEditClick: (Share) -> Unit
+    onEditClick: (Share) -> Unit,
+    onApproveClick: (Share) -> Unit,
+    onDenyClick: (Share) -> Unit
 ) {
     if (pendingShares.isEmpty() && approvedShares.isEmpty()) return
 
@@ -148,7 +183,11 @@ fun ShareList(
 
         items(
             pendingShares, key = { it.id ?: it.hashCode() }) { share ->
-            PendingShareItem(share)
+            PendingShareItem(
+                share,
+                onApproveClick = { onApproveClick(share) },
+                onDenyClick = { onDenyClick(share) }
+            )
         }
     }
 }
@@ -168,44 +207,6 @@ fun ShareListTitle() {
             letterSpacing = 1.6.sp,
         )
     )
-}
-
-@Composable
-fun PendingShareItem(share: Share) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorResource(R.color.white))
-            .padding(horizontal = 24.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = share.archive?.fullName ?: "",
-                fontSize = 14.sp,
-                color = colorResource(R.color.blue900)
-            )
-            Text(
-                text = "pending", fontSize = 12.sp, color = colorResource(R.color.blue400)
-            )
-        }
-
-        IconButton(onClick = { /* approve */ }) {
-            Icon(
-                painter = painterResource(R.drawable.ic_done_white),
-                tint = colorResource(R.color.green),
-                contentDescription = null
-            )
-        }
-
-        IconButton(onClick = { /* deny */ }) {
-            Icon(
-                painter = painterResource(R.drawable.ic_close_white),
-                tint = colorResource(R.color.green),
-                contentDescription = null
-            )
-        }
-    }
 }
 
 @Composable
@@ -229,12 +230,9 @@ fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
             )
         } else {
             Icon(
-                painter = painterResource(id = R.drawable.ic_archive_placeholder_multicolor),
+                painter = painterResource(id = R.drawable.ic_archive_placeholder_blue),
                 contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                tint = Color.Unspecified
             )
         }
 
@@ -260,7 +258,13 @@ fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
             Spacer(modifier = Modifier.height(4.dp))
 
             share.accessRole?.let {
-                AccessRoleLabel(accessRole = it, fontSize = 8.sp, lineHeight = 16.sp, cornerSize = 4.dp, color = AccessRoleLabelColor.LIGHT_BLUE)
+                AccessRoleLabel(
+                    accessRole = it,
+                    fontSize = 8.sp,
+                    lineHeight = 16.sp,
+                    cornerSize = 4.dp,
+                    color = AccessRoleLabelColor.LIGHT_BLUE
+                )
             }
         }
 
@@ -272,6 +276,63 @@ fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
                 painter = painterResource(id = R.drawable.ic_edit_primary),
                 contentDescription = "Close",
                 tint = Color.Unspecified
+            )
+        }
+    }
+}
+
+@Composable
+fun PendingShareItem(share: Share, onApproveClick: () -> Unit, onDenyClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_archive_placeholder_blue),
+            contentDescription = null,
+            tint = Color.Unspecified
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = share.archive?.fullName ?: "", style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_medium)),
+                    color = colorResource(R.color.blue900),
+                ), maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(R.string.pending),
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_regular)),
+                    color = colorResource(R.color.warning500),
+                )
+            )
+        }
+
+        IconButton(onClick = { onApproveClick() }, modifier = Modifier.size(40.dp)) {
+            Icon(
+                painter = painterResource(R.drawable.ic_done_white),
+                tint = colorResource(R.color.success500),
+                contentDescription = "Approve"
+            )
+        }
+
+        IconButton(onClick = { onDenyClick() }) {
+            Icon(
+                painter = painterResource(R.drawable.ic_deny),
+                tint = Color.Unspecified,
+                contentDescription = "Deny"
             )
         }
     }
