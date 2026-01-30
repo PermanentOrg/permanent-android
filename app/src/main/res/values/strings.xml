@@ -836,6 +836,7 @@
     <string name="create_link_description">Generate a link to send via text or email to invite people to share this content.</string>
     <string name="revoke_link">Revoke link</string>
     <string name="revoke_access">Revoke access</string>
+    <string name="deny_access">Deny access</string>
     <string name="confirm_revoke_link_message">Are you sure you want to revoke this share link?</string>
     <string name="revoke_this_share_link">revoke this share link</string>
     <string name="anyone_can_view">Anyone can view</string>
@@ -865,7 +866,10 @@
     <string name="link_revoked">Link has been revoked.</string>
     <string name="no_internet_connection">No internet connection. Check your connection and try again.</string>
     <string name="current_requests_and_access">Current requests and access:</string>
-    <string name="archive_role_updated">Archive access role has been updated</string>
+    <string name="archive_role_updated">Archive access role has been updated.</string>
+    <string name="archive_approved">Archive has been approved.</string>
     <string name="confirm_revoke_access_message">Are you sure you want to revoke access from %s? This action will immediately remove all permissions granted.</string>
     <string name="access_revoked">Access has been revoked.</string>
+    <string name="pending">Pending…</string>
+    <string name="confirm_deny_access_message">Are you sure you want to deny access from %s?</string>
 </resources>

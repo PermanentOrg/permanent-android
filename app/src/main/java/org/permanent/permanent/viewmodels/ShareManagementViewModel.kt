@@ -5,7 +5,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +36,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
-import org.permanent.permanent.ui.shareManagement.ShareListener
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
 import org.permanent.permanent.ui.shareManagement.compose.LinkDuration
 import org.permanent.permanent.ui.shareManagement.compose.SharePage
@@ -47,8 +45,7 @@ import org.permanent.permanent.ui.toLocalDateUtc
 import java.time.LocalDate
 
 
-class ShareManagementViewModel(application: Application) : ObservableAndroidViewModel(application),
-    ShareListener {
+class ShareManagementViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
@@ -97,10 +94,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val _approvedShares = MutableStateFlow<List<Share>>(emptyList())
     val approvedShares: StateFlow<List<Share>> = _approvedShares
     private val areLinkSettingsVisible = MutableLiveData(false)
-    private val showSnackbar = MutableLiveData<String>()
-    private val showSnackbarSuccess = MutableLiveData<String>()
-    private val onShareApproved = SingleLiveEvent<Share>()
-    private val onShareDenied = SingleLiveEvent<Share>()
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var stelaAccountRepository: StelaAccountRepository =
@@ -164,7 +157,10 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
                 override fun onFailed(error: String?) {
                     _isBusyState.value = false
-                    error?.let { showSnackbar.value = error }
+                    error?.let {
+                        _snackbarMessage.value = it
+                        _snackbarType.value = TemporarySnackbarType.ERROR
+                    }
                 }
             })
     }
@@ -190,7 +186,10 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
                     override fun onFailed(error: String?) {
                         _isBusyState.value = false
-                        error?.let { showSnackbar.value = error }
+                        error?.let {
+                            _snackbarMessage.value = it
+                            _snackbarType.value = TemporarySnackbarType.ERROR
+                        }
                     }
                 })
         }
@@ -244,7 +243,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 _isCreatingLinkState.value = false
                 _isLinkSharedState.value = false
                 error?.let {
-                    showSnackbar.value = error
+                    _snackbarMessage.value = it
+                    _snackbarType.value = TemporarySnackbarType.ERROR
                 }
             }
         })
@@ -442,7 +442,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         }
     }
 
-    override fun onEditClick(share: Share) {
+    fun onEditClick(share: Share) {
         _editingShare.value = share
         _editingArchiveAccessRole.value = share.accessRole ?: AccessRole.VIEWER
 
@@ -450,46 +450,56 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         _navigateToPage.value = SharePage.ARCHIVE_ACCESS
     }
 
-    override fun onApproveClick(share: Share) {
-        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
+    fun onApproveClick(share: Share) {
+        if (_isBusyState.value) {
             return
         }
 
-        _isCreatingLinkState.value = true
+        _isBusyState.value = true
         shareRepository.updateShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
-                _isCreatingLinkState.value = false
+                _isBusyState.value = false
                 share.status.value = Status.OK // This hides the Approve and Deny buttons
-//                pendingShares.remove(share)
-//                shares.add(share)
-                onShareApproved.value = share
-                showSnackbarSuccess.value = message
+                _pendingShares.value = _pendingShares.value.filterNot { it.id == share.id }
+                _approvedShares.value = _approvedShares.value + share
+                message?.let {
+                    _snackbarMessage.value = it
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
+                }
             }
 
             override fun onFailed(error: String?) {
-                _isCreatingLinkState.value = false
-                showSnackbar.value = error
+                _isBusyState.value = false
+                error?.let { errorMsg ->
+                    _snackbarMessage.value = errorMsg
+                    _snackbarType.value = TemporarySnackbarType.ERROR
+                }
             }
         })
     }
 
-    override fun onDenyClick(share: Share) {
-        if (_isCreatingLinkState.value != null && _isCreatingLinkState.value!!) {
+    fun onDenyClick(share: Share) {
+        if (_isBusyState.value) {
             return
         }
 
-        _isCreatingLinkState.value = true
+        _isBusyState.value = true
         shareRepository.deleteShare(share, object : IResponseListener {
             override fun onSuccess(message: String?) {
-                _isCreatingLinkState.value = false
-//                pendingShares.remove(share)
-                showSnackbarSuccess.value = message
-                onShareDenied.value = share // Removes share from adapter
+                _isBusyState.value = false
+                _pendingShares.value = _pendingShares.value.filterNot { it.id == share.id }
+                message?.let {
+                    _snackbarMessage.value = it
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
+                }
             }
 
             override fun onFailed(error: String?) {
-                _isCreatingLinkState.value = false
-                showSnackbar.value = error
+                _isBusyState.value = false
+                error?.let { errorMsg ->
+                    _snackbarMessage.value = errorMsg
+                    _snackbarType.value = TemporarySnackbarType.ERROR
+                }
             }
         })
     }
@@ -500,10 +510,6 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             accountId = prefsHelper.getAccountId(),
             data = data
         )
-    }
-
-    fun onShareRemoved(share: Share) {
-//        shares.remove(share)
     }
 
     fun clearEditingShare() {
@@ -518,11 +524,5 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         _snackbarMessage.value = ""
     }
 
-//    fun getShares(): List<Share> = shares
-
-//    fun getPendingShares(): List<Share> = pendingShares
-
     fun getRecord(): Record = record
-
-    fun getShowSnackbar(): LiveData<String> = showSnackbar
 }
