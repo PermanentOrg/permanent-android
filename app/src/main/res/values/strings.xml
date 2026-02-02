@@ -872,4 +872,5 @@
     <string name="access_revoked">Access has been revoked.</string>
     <string name="pending">Pending…</string>
     <string name="confirm_deny_access_message">Are you sure you want to deny access from %s?</string>
+    <string name="download_complete">Download complete</string>
 </resources>

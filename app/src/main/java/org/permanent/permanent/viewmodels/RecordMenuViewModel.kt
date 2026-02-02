@@ -29,7 +29,6 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
-import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IEventsRepository
@@ -79,7 +78,6 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     val archiveName: StateFlow<String> = _archiveName
     private val _accessRole = MutableStateFlow(AccessRole.VIEWER)
     val accessRole: StateFlow<AccessRole> = _accessRole
-    private var shareByUrlVO: Shareby_urlVO? = null
     private val onRequestWritePermission = SingleLiveEvent<Void?>()
     private val onFileDownloadRequest = SingleLiveEvent<Void?>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
@@ -148,6 +146,18 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
                 if (!perms.isMoveAvailable()) hidden.add(RecordMenuItem.Move)
                 if (!perms.isCreateAvailable()) hidden.add(RecordMenuItem.Copy)
                 if (!perms.isDeleteAvailable()) hidden.add(RecordMenuItem.Delete)
+            }
+
+            Workspace.FILE_VIEW_PRIVATE_FILES -> {
+                hidden.add(RecordMenuItem.LeaveShare)
+
+                val perms = CurrentArchivePermissionsManager.instance
+                if (!perms.isOwnershipAvailable()) hidden.add(RecordMenuItem.Share)
+                if (!perms.isPublishAvailable()) hidden.add(RecordMenuItem.Publish)
+                hidden.add(RecordMenuItem.Rename)
+                hidden.add(RecordMenuItem.Move)
+                hidden.add(RecordMenuItem.Copy)
+                hidden.add(RecordMenuItem.Delete)
             }
 
             Workspace.PUBLIC_FILES -> {
@@ -372,7 +382,6 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     }
 
     fun getShowSnackbar(): LiveData<String> = showSnackbar
-    fun getShareByUrlVO(): Shareby_urlVO? = shareByUrlVO
     fun getOnShareToAnotherAppRequest(): MutableLiveData<String> = onShareToAnotherAppRequest
     fun getOnFileDownloadedForSharing(): LiveData<String> = onFileDownloadedForSharing
     fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission

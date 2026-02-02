@@ -21,7 +21,9 @@ import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.viewmodels.FileViewViewModel
 import java.io.IOException
 import java.io.InputStream
@@ -36,7 +38,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     private lateinit var binding: FragmentFileViewBinding
     private var record: Record? = null
     private var fileData: FileData? = null
-    private var fileViewOptionsFragment: FileViewOptionsFragment? = null
+    private var recordMenuFragment: RecordMenuFragment? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -48,6 +50,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         binding = FragmentFileViewBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         record?.let {
             viewModel.setRecord(it)
@@ -119,17 +122,29 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
                 super.onOptionsItemSelected(item)
             }
             R.id.moreItem -> {
-                showFileViewOptionsFragment()
+                showRecordMenuFragment()
                 super.onOptionsItemSelected(item)
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun showFileViewOptionsFragment() {
-        fileViewOptionsFragment = FileViewOptionsFragment()
-        fileViewOptionsFragment?.setBundleArguments(record, fileData)
-        fileViewOptionsFragment?.show(parentFragmentManager, fileViewOptionsFragment?.tag)
+    private fun showRecordMenuFragment() {
+        record?.let {
+            recordMenuFragment = RecordMenuFragment()
+            recordMenuFragment?.setBundleArguments(it, Workspace.FILE_VIEW_PRIVATE_FILES)
+            recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
+            recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
+            recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)
+        }
+    }
+
+    private val onRecordPublishObserver = Observer<Record> { record ->
+        viewModel.publishRecord(record)
+    }
+
+    private val onFileDownloadObserver = Observer<Record> {
+        viewModel.download(record = it, lifecycleOwner = this)
     }
 
     override fun connectViewModelEvents() {
@@ -140,6 +155,8 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     override fun disconnectViewModelEvents() {
         viewModel.getFileData().removeObserver(onFileData)
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        recordMenuFragment?.getOnRecordPublishRequest()?.removeObserver(onRecordPublishObserver)
+        recordMenuFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadObserver)
     }
 
     override fun onStart() {

@@ -5,6 +5,7 @@ import android.os.Parcelable
 
 enum class Workspace : Parcelable {
     PRIVATE_FILES,
+    FILE_VIEW_PRIVATE_FILES,
     PUBLIC_FILES,
     PUBLIC_ARCHIVES,
     SHARES,
