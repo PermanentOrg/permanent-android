@@ -149,15 +149,19 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             }
 
             Workspace.FILE_VIEW_PRIVATE_FILES -> {
-                hidden.add(RecordMenuItem.LeaveShare)
+                hidden.addAll(
+                    listOf(
+                        RecordMenuItem.Rename,
+                        RecordMenuItem.Move,
+                        RecordMenuItem.Copy,
+                        RecordMenuItem.Delete,
+                        RecordMenuItem.LeaveShare
+                    )
+                )
 
                 val perms = CurrentArchivePermissionsManager.instance
                 if (!perms.isOwnershipAvailable()) hidden.add(RecordMenuItem.Share)
                 if (!perms.isPublishAvailable()) hidden.add(RecordMenuItem.Publish)
-                hidden.add(RecordMenuItem.Rename)
-                hidden.add(RecordMenuItem.Move)
-                hidden.add(RecordMenuItem.Copy)
-                hidden.add(RecordMenuItem.Delete)
             }
 
             Workspace.PUBLIC_FILES -> {
@@ -174,6 +178,20 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
                 if (!perms.isMoveAvailable()) hidden.add(RecordMenuItem.Move)
                 if (!perms.isCreateAvailable()) hidden.add(RecordMenuItem.Copy)
                 if (!perms.isDeleteAvailable()) hidden.add(RecordMenuItem.Delete)
+            }
+
+            Workspace.FILE_VIEW_PUBLIC_FILES -> {
+                hidden.addAll(
+                    listOf(
+                        RecordMenuItem.Share,
+                        RecordMenuItem.Publish,
+                        RecordMenuItem.LeaveShare,
+                        RecordMenuItem.Rename,
+                        RecordMenuItem.Move,
+                        RecordMenuItem.Copy,
+                        RecordMenuItem.Delete
+                    )
+                )
             }
 
             Workspace.SHARES -> {
@@ -205,6 +223,26 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
                 if (!isSharedWithMe || !isRoot)
                     hidden.add(RecordMenuItem.LeaveShare)
+            }
+
+            Workspace.FILE_VIEW_SHARED_FILES -> {
+                hidden.addAll(
+                    listOf(
+                        RecordMenuItem.Publish,
+                        RecordMenuItem.SendACopy,
+                        RecordMenuItem.Rename,
+                        RecordMenuItem.Move,
+                        RecordMenuItem.Copy,
+                        RecordMenuItem.Delete,
+                        RecordMenuItem.LeaveShare,
+                    )
+                )
+
+                val isSharedWithMe = isFragmentShownInSharedWithMe.value == true
+                val role = actualAccessRole
+
+                if (!role.isOwnershipAvailable() || isSharedWithMe)
+                    hidden.add(RecordMenuItem.Share)
             }
 
             else -> { // Public Archive

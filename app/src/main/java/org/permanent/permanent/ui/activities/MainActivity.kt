@@ -47,6 +47,7 @@ import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.AuthenticationActivity
@@ -249,6 +250,25 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         binding.mainNavigationView.setupWithNavController(navController)
         binding.mainNavigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
+
+                R.id.myFilesFragment -> {
+                    prefsHelper.saveCurrentWorkspace(Workspace.PRIVATE_FILES)
+                    menuItem.onNavDestinationSelected(navController)
+                    binding.drawerLayout.closeDrawers()
+                }
+
+                R.id.sharesFragment -> {
+                    prefsHelper.saveCurrentWorkspace(Workspace.SHARES)
+                    menuItem.onNavDestinationSelected(navController)
+                    binding.drawerLayout.closeDrawers()
+                }
+
+                R.id.publicFilesFragment -> {
+                    prefsHelper.saveCurrentWorkspace(Workspace.PUBLIC_FILES)
+                    menuItem.onNavDestinationSelected(navController)
+                    binding.drawerLayout.closeDrawers()
+                }
+
                 R.id.archiveSettings -> {
                     isSubmenuVisible = !isSubmenuVisible
                     setSubmenuVisibility(isSubmenuVisible)

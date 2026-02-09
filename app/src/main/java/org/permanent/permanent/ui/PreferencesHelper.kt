@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import androidx.window.core.layout.WindowWidthSizeClass
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.models.AccessRole
@@ -42,6 +43,7 @@ const val PREFS_DEEP_LINK_FOLDER_ARCHIVE_NR = "preferences_deep_link_folder_arch
 const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id"
 const val KEY_TWO_FA_LIST = "key_two_fa_list"
 const val KEY_CHECKLIST_TOOLTIP_SHOWN = "key_checklist_tooltip_shown"
+private const val KEY_CURRENT_WORKSPACE = "key_current_workspace"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -467,5 +469,19 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
     fun isChecklistTooltipShown(): Boolean {
         return sharedPreferences.getBoolean(KEY_CHECKLIST_TOOLTIP_SHOWN, false)
+    }
+
+    fun saveCurrentWorkspace(workspace: Workspace) {
+        sharedPreferences.edit {
+            putString(KEY_CURRENT_WORKSPACE, workspace.name)
+        }
+    }
+
+    fun getCurrentWorkspace(): Workspace {
+        val value = sharedPreferences.getString(
+            KEY_CURRENT_WORKSPACE,
+            Workspace.PRIVATE_FILES.name
+        )
+        return Workspace.valueOf(value!!)
     }
 }

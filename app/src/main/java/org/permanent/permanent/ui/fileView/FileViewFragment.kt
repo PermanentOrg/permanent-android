@@ -1,6 +1,7 @@
 package org.permanent.permanent.ui.fileView
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,7 +21,9 @@ import org.permanent.permanent.databinding.FragmentFileViewBinding
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
@@ -39,6 +42,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     private var record: Record? = null
     private var fileData: FileData? = null
     private var recordMenuFragment: RecordMenuFragment? = null
+    private lateinit var prefsHelper: PreferencesHelper
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -50,6 +54,10 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         binding = FragmentFileViewBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
+        prefsHelper = PreferencesHelper(
+            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        )
 
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         record?.let {
@@ -131,8 +139,13 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
 
     private fun showRecordMenuFragment() {
         record?.let {
+
+            val workspace = if (prefsHelper.getCurrentWorkspace() == Workspace.PUBLIC_FILES) Workspace.FILE_VIEW_PUBLIC_FILES
+            else if (prefsHelper.getCurrentWorkspace() == Workspace.SHARES) Workspace.FILE_VIEW_SHARED_FILES
+            else Workspace.FILE_VIEW_PRIVATE_FILES
+
             recordMenuFragment = RecordMenuFragment()
-            recordMenuFragment?.setBundleArguments(it, Workspace.FILE_VIEW_PRIVATE_FILES)
+            recordMenuFragment?.setBundleArguments(it, workspace)
             recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
             recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
             recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)
