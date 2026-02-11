@@ -4,21 +4,33 @@ import android.app.Application
 import android.content.Context
 import android.os.Environment
 import android.util.Log
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import org.permanent.permanent.R
+import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Upload
+import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.ModificationType
+import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
-class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application) {
-
+class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application),
+    OnFinishedListener {
+    private val appContext = application.applicationContext
     private lateinit var record: Record
     private var fileData = MutableLiveData<FileData>()
     private val filePath = MutableLiveData<String>()
@@ -27,6 +39,9 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     private val isError = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
+    private val prefsHelper = PreferencesHelper(
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setRecord(record: Record) {
@@ -97,6 +112,50 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
             Log.e("FileViewViewModel", "Failed to clear cache", e)
         }
     }
+
+    fun publishRecord(record: Record) {
+        val folderLinkId = prefsHelper.getPublicRecordFolderLinkId()
+
+        if (folderLinkId != 0) {
+            isBusy.value = true
+            fileRepository.relocateRecords(
+                mutableListOf(record),
+                folderLinkId,
+                ModificationType.PUBLISH,
+                object : IResponseListener {
+                    override fun onSuccess(message: String?) {
+                        isBusy.value = false
+                        message?.let { showMessage.value = it }
+                    }
+
+                    override fun onFailed(error: String?) {
+                        isBusy.value = false
+                        error?.let { showMessage.value = it }
+                    }
+                })
+        }
+    }
+
+    fun download(record: Record, lifecycleOwner: LifecycleOwner) {
+        val download = Download(context = appContext, record = record, listener = this)
+        download.getWorkRequest()?.let { WorkManager.getInstance(appContext).enqueue(it) }
+        download.observeWorkInfoOn(lifecycleOwner)
+        isBusy.value = true
+    }
+
+    override fun onFinished(upload: Upload, succeeded: Boolean) {}
+
+    override fun onFinished(download: Download, state: WorkInfo.State) {
+        isBusy.value = false
+        if (state == WorkInfo.State.SUCCEEDED) showMessage.value =
+            appContext.getString(R.string.download_complete)
+        else if (state == WorkInfo.State.FAILED)
+            showMessage.value = appContext.getString(R.string.generic_error)
+    }
+
+    override fun onFailedUpload(message: String) {}
+
+    override fun onQuotaExceeded() {}
 
     fun onRetryBtnClick() {
         requestFileData()
