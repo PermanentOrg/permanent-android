@@ -44,6 +44,7 @@ jobs:
           PUBLISHABLE_KEY: ${{ secrets.PUBLISHABLE_KEY }}
           APP_ID: ${{ secrets.APP_ID }}
           FIREBASEAPPDISTRO_CLI_TOKEN: ${{ secrets.FIREBASEAPPDISTRO_CLI_TOKEN }}
+          FIRSERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
           KEYSTORE_FILE: '${{ github.workspace }}/permanent.keystore'
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
