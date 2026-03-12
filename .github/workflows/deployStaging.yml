@@ -36,6 +36,9 @@ jobs:
           bundler-cache: false
     - name: Install bundle gems
       run: bundle install
+    - name: Create Service Credentials File
+      run: |
+          echo "${{ secrets.SERVICE_ACCOUNT }}" | base64 --decode > service_credentials.json
     - name: Run Fastlane Firebase
       env:
           GMP_KEY: ${{ secrets.GMP_KEY }}
@@ -45,6 +48,7 @@ jobs:
           APP_ID: ${{ secrets.APP_ID }}
           FIREBASEAPPDISTRO_CLI_TOKEN: ${{ secrets.FIREBASEAPPDISTRO_CLI_TOKEN }}
           FIRSERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
+          FIRSERVICE_ACCOUNT_FILE: 'service_credentials.json'
           KEYSTORE_FILE: '${{ github.workspace }}/permanent.keystore'
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
