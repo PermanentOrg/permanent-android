@@ -30,7 +30,6 @@ platform :android do
   lane :firebase do
     latest_release = firebase_app_distribution_get_latest_release(
       app: ENV['APP_ID'],
-      service_credentials_file: ENV['FIRSERVICE_ACCOUNT_FILE']
     )
     
     if latest_release
@@ -49,7 +48,6 @@ platform :android do
     firebase_app_distribution(
       app: ENV['APP_ID'],
       android_artifact_type: "APK",
-      service_credentials_file: ENV['FIRSERVICE_ACCOUNT_FILE'],
       groups: "Android"
       )
   end
