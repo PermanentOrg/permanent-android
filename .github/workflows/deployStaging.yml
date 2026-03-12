@@ -36,9 +36,10 @@ jobs:
           bundler-cache: false
     - name: Install bundle gems
       run: bundle install
-    - name: Create Service Credentials File
-      run: |
-          echo "${{ secrets.SERVICE_ACCOUNT }}" | base64 --decode > service_credentials.json
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with: 
+          credentials_json: ‘${{ secrets.SERVICE_ACCOUNT }}’
     - name: Run Fastlane Firebase
       env:
           GMP_KEY: ${{ secrets.GMP_KEY }}
