@@ -173,8 +173,8 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         shareByUrlVO.shareby_urlId?.let { shareByUrlId ->
             _isBusyState.value = true
             stelaAccountRepository.getShareLink(
-                mutableListOf(shareByUrlId),
-                object : ILinkListener {
+                shareLinkIds = mutableListOf(shareByUrlId),
+                listener = object : ILinkListener {
 
                     override fun onSuccess(shareLink: ShareLinkVO?) {
                         _isBusyState.value = false
@@ -204,8 +204,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     private fun initLinkSettings(shareLink: ShareLinkVO) {
         shareLink.accessRestrictions?.let { accessRestriction ->
-            _selectedGeneralAccessType.value =
-                AccessType.fromBackendValue(accessRestriction) ?: AccessType.ANYONE_CAN_VIEW
+            _selectedGeneralAccessType.value = AccessType.fromBackendValue(accessRestriction)
         }
         _selectedAccessRole.value =
             if (shareLink.permissionsLevel == AccessRole.MANAGER.lowerCase()) AccessRole.CURATOR else AccessRole.fromStelaBackendValue(

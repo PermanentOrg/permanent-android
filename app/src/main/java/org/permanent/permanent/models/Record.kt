@@ -39,6 +39,7 @@ open class Record : Parcelable {
     var isProcessing = false
     var displayInShares = false
     var fileData: FileData? = null
+    var localDrawableRes: Int? = null
 
     constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int

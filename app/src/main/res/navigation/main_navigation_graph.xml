@@ -71,8 +71,7 @@
     <fragment
         android:id="@+id/sharePreviewFragment"
         android:name="org.permanent.permanent.ui.shares.SharePreviewFragment"
-        android:label="@string/share_management_share_preview"
-        tools:layout="@layout/fragment_share_preview">
+        android:label="">
         <argument
             android:name="url_token"
             android:defaultValue=""

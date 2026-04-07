@@ -4,12 +4,15 @@ import android.content.Context
 import com.google.gson.Gson
 import okhttp3.ResponseBody
 import org.permanent.permanent.R
+import org.permanent.permanent.mapper.toRecord
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.ILinkListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITwoFAListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ErrorResponse
+import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
@@ -197,8 +200,12 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
         })
     }
 
-    override fun getShareLink(shareLinkIds: List<Int>, listener: ILinkListener) {
-        NetworkClient.instance().getShareLink(shareLinkIds).enqueue( object : Callback<ShareLinkVOResponse> {
+    override fun getShareLink(
+        shareLinkIds: List<Int>?,
+        shareTokens: List<String>?,
+        listener: ILinkListener
+    ) {
+        NetworkClient.instance().getShareLink(shareLinkIds, shareTokens).enqueue( object : Callback<ShareLinkVOResponse> {
 
             override fun onResponse(call: Call<ShareLinkVOResponse>, response: Response<ShareLinkVOResponse>) {
                 if (response.isSuccessful) {
@@ -217,6 +224,46 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
                 listener.onFailed(t.message)
             }
         })
+    }
+
+    override fun getFolderChildren(
+        shareToken: String?,
+        folderId: Int,
+        pageSize: Int,
+        listener: IFolderChildrenListener
+    ) {
+        NetworkClient.instance()
+            .getFolderChildren(shareToken, folderId, pageSize)
+            .enqueue(object : Callback<FolderChildrenResponse> {
+
+                override fun onResponse(
+                    call: Call<FolderChildrenResponse>,
+                    response: Response<FolderChildrenResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val items = response.body()?.items
+
+                        if (items != null) {
+                            val records = items.map { it.toRecord() }
+                            listener.onSuccess(records)
+                        } else {
+                            listener.onSuccess(emptyList())
+                        }
+                    } else {
+                        listener.onFailed(
+                            response.errorBody()?.string()
+                                ?: appContext.getString(R.string.generic_error)
+                        )
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<FolderChildrenResponse>,
+                    t: Throwable
+                ) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 
     override fun generateShareLink(shareLinkVO: ShareLinkVO, listener: ILinkListener) {
