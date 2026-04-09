@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -19,8 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -81,6 +83,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     private lateinit var appBarConfig: AppBarConfiguration
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private var isSubmenuVisible = false
+    private var currentDestinationId: Int? = null
 
     private val onArchiveSwitched = Observer<Void?> {
         startWithCustomDestination(false)
@@ -98,6 +101,10 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
     private val onDestinationChangedListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
+
+            currentDestinationId = destination.id
+            invalidateOptionsMenu()
+
             when (destination.id) {
                 R.id.editArchiveBasicInfoFragment, R.id.editArchiveFullDetailsFragment, R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
@@ -121,7 +128,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
                 }
 
-                R.id.accountFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment, R.id.archivesFragment, R.id.invitationsFragment, R.id.activityFeedFragment, R.id.loginAndSecurityFragment, R.id.changePasswordFragment, R.id.twoStepVerificationFragment, R.id.legacyLoadingFragment -> {
+                R.id.accountFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment, R.id.archivesFragment, R.id.invitationsFragment, R.id.activityFeedFragment, R.id.loginAndSecurityFragment, R.id.changePasswordFragment, R.id.twoStepVerificationFragment, R.id.legacyLoadingFragment, R.id.sharePreviewFragment -> {
                     binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
                 }
 
@@ -138,6 +145,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
         // Setup orientation
@@ -165,13 +173,24 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         headerMainBinding.lifecycleOwner = this
         headerMainBinding.viewModel = viewModel
 
-        // Apply insets top for status bar and bottom for navigation/gesture area
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainNavigationView)) { view, insets ->
-            val sysBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { view, insets ->
+            val statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars())
 
-            view.updatePadding(
-                top = sysBars.top,
-                bottom = sysBars.bottom
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = statusBar.top
+            }
+
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainNavigationView) { view, insets ->
+            val statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+
+            view.setPadding(
+                view.paddingLeft,
+                statusBar.top,
+                view.paddingRight,
+                view.paddingBottom
             )
 
             insets
@@ -370,6 +389,16 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
         if (!isGooglePlayServicesAvailable(this)) GoogleApiAvailability.getInstance()
             .makeGooglePlayServicesAvailable(this)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val settingsItem = menu.findItem(R.id.settingsItem)
+
+        if (currentDestinationId == R.id.sharePreviewFragment) {
+            settingsItem?.isVisible = false
+        }
+
+        return super.onPrepareOptionsMenu(menu)
     }
 
     private val onChecklistItemClickObserver = Observer<ChecklistItem> {

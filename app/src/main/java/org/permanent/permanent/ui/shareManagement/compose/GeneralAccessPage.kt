@@ -78,7 +78,7 @@ enum class AccessType(val value: Int) {
         }
 
     companion object {
-        fun fromBackendValue(value: String): AccessType? =
-            entries.firstOrNull { it.backendValue == value }
+        fun fromBackendValue(value: String): AccessType =
+            entries.firstOrNull { it.backendValue == value } ?: RESTRICTED
     }
 }

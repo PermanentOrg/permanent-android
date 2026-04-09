@@ -54,7 +54,6 @@ import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
-import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
@@ -471,8 +470,6 @@ class MyFilesFragment : PermanentBaseFragment() {
             viewModel.getIsRelocationMode(),
             viewModel.getIsSelectionMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
-            isForSharePreviewScreen = false,
-            isForSharesScreen = false,
             recordListener = viewModel
         )
         val isListViewMode = prefsHelper.isListViewMode()

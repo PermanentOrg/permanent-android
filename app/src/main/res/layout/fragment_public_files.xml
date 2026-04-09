@@ -391,7 +391,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="@string/my_files_no_files"
+            android:text="@string/folder_is_empty"
             android:textColor="@color/lightGrey"
             android:textSize="18sp"
             android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false ? View.VISIBLE : View.GONE}"

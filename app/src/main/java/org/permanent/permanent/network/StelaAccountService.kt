@@ -3,6 +3,7 @@ package org.permanent.permanent.network
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.permanent.permanent.models.Tags
+import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
@@ -12,6 +13,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -21,7 +23,17 @@ import retrofit2.http.Query
 interface StelaAccountService {
 
     @GET("api/v2/share-links")
-    fun getShareLink(@Query("shareLinkIds[]") shareLinkIds: List<Int>): Call<ShareLinkVOResponse>
+    fun getShareLink(
+        @Query("shareLinkIds[]") shareLinkIds: List<Int>? = null,
+        @Query("shareTokens[]") shareTokens: List<String>? = null
+    ): Call<ShareLinkVOResponse>
+
+    @GET("api/v2/folder/{folderId}/children")
+    fun getFolderChildren(
+        @Header("X-Permanent-Share-Token") shareToken: String?,
+        @Path("folderId") folderId: Int,
+        @Query("pageSize") pageSize: Int = 99999999
+    ): Call<FolderChildrenResponse>
 
     @POST("api/v2/share-links")
     fun generateShareLink(@Body shareLink: ShareLinkVO): Call<ShareLinkResponse>

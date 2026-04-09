@@ -158,7 +158,7 @@
     <string name="my_files_sort_criteria_date">Date</string>
     <string name="my_files_sort_criteria_file_type">File Type</string>
     <string name="my_files_no_files_root">Files in your archive appear here first. Click the \"+\" button below to upload files.</string>
-    <string name="my_files_no_files">This folder is empty</string>
+    <string name="folder_is_empty">This folder is empty</string>
     <string name="my_files_quota_exceeded_title">Quota Exceeded</string>
     <string name="my_files_quota_exceeded_message">Do you want to add more storage?</string>
 
@@ -413,6 +413,10 @@
     <string name="share_preview_request_access_button">Request Access</string>
     <string name="share_preview_view_in_archive_button">View in Archive</string>
     <string name="share_preview_awaiting_approval">Your request is awaiting approval</string>
+    <string name="share_preview_shared_by">Shared by</string>
+    <string name="share_preview_from">from</string>
+    <string name="share_preview_view_shared_items_in">VIEW SHARED ITEMS IN</string>
+    <string name="share_preview_select_archive">Select an archive…</string>
 
     <string name="invitations_title">Give a gig, get a gig</string>
     <string name="invitations_description">Invite your friends and family and both of your accounts will be credited with one free gigabyte of storage when they sign up.</string>

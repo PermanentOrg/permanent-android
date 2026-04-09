@@ -296,7 +296,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:gravity="center"
-                    android:text="@string/my_files_no_files"
+                    android:text="@string/folder_is_empty"
                     android:textSize="16sp"
                     android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot == false ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"

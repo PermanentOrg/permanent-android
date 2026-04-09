@@ -13,6 +13,7 @@ class Constants {
         const val LOGIN_URL_SUFFIX = "auth/login"
         const val VERIFY_2FA_URL_SUFFIX = "auth/verify"
         const val SIGN_UP_URL_SUFFIX = "account/post"
+        const val SHARE_TOKENS_URL_SUFFIX = "shareTokens"
         const val S3_BASE_URL = "https://permanent-prod.s3.us-west-2.amazonaws.com"
         const val HOW_TO_PUBLISH_ARCHIVE_URL = "https://permanent.zohodesk.com/portal/en/kb/articles/public-archives-mobile"
         const val STRIPE_URL = "https://api.stripe.com/v1/payment_intents"

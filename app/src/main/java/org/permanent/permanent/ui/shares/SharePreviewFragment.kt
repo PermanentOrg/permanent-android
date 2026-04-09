@@ -5,22 +5,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.FragmentSharePreviewBinding
-import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.archives.ArchivesContainerFragment
 import org.permanent.permanent.ui.login.AuthenticationActivity
-import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
+import org.permanent.permanent.ui.shares.compose.SharePreviewScreen
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
 
@@ -32,9 +32,6 @@ const val SHOW_SCREEN_SIMPLIFIED_KEY = "show_screen_simplified"
 class SharePreviewFragment : PermanentBaseFragment() {
 
     private lateinit var prefsHelper: PreferencesHelper
-    private lateinit var recordsRecyclerView: RecyclerView
-    private lateinit var recordsAdapter: RecordsGridAdapter
-    private lateinit var binding: FragmentSharePreviewBinding
     private lateinit var viewModel: SharePreviewViewModel
     private var archivesContainerFragment: ArchivesContainerFragment? = null
     private var urlToken: String? = null
@@ -45,12 +42,6 @@ class SharePreviewFragment : PermanentBaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[SharePreviewViewModel::class.java]
-        binding = FragmentSharePreviewBinding.inflate(inflater, container, false)
-        binding.executePendingBindings()
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
-        initRecordsRecyclerView(binding.rvRecords)
-
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(
                 org.permanent.permanent.ui.PREFS_NAME, android.content.Context.MODE_PRIVATE
@@ -70,11 +61,30 @@ class SharePreviewFragment : PermanentBaseFragment() {
                 }
             }
         }
-        return binding.root
+
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MaterialTheme {
+                    SharePreviewScreen(
+                        viewModel = viewModel,
+//                        onChangeArchiveClick = { viewModel.onChangeArchiveBtnClick() },
+//                        onViewInArchiveClick = { viewModel.onViewInArchiveBtnClick() },
+//                        onOkClick = { viewModel.onOkBtnClick() }
+                    )
+                }
+            }
+        }
     }
 
-    private val onRecordsRetrieved = Observer<List<Record>> {
-        recordsAdapter.setRecords(it)
+    private val onRecordDisplayName = Observer<String> { title ->
+        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
+
+        lifecycleScope.launchWhenStarted {
+            if (!title.isNullOrEmpty()) {
+                toolbar.title = title
+            }
+        }
     }
 
     private val onChangeArchive = Observer<Void?> {
@@ -106,33 +116,15 @@ class SharePreviewFragment : PermanentBaseFragment() {
         findNavController().navigateUp()
     }
 
-    private fun initRecordsRecyclerView(rvRecords: RecyclerView) {
-        recordsRecyclerView = rvRecords
-        recordsAdapter = RecordsGridAdapter(
-            this, false,
-            MutableLiveData(false),
-            MutableLiveData(false),
-            viewModel.getCurrentState(),
-            isForSharePreviewScreen = true,
-            isForSharesScreen = false,
-            recordListener = viewModel
-        )
-        recordsRecyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = GridLayoutManager(context, 2)
-            adapter = recordsAdapter
-        }
-    }
-
     override fun connectViewModelEvents() {
-        viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
+        viewModel.getRecordDisplayName().observe(this, onRecordDisplayName)
         viewModel.getOnChangeArchive().observe(this, onChangeArchive)
         viewModel.getOnViewInArchive().observe(this, onViewInArchive)
         viewModel.getOnNavigateUp().observe(this, onNavigateUp)
     }
 
     override fun disconnectViewModelEvents() {
-        viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
+        viewModel.getRecordDisplayName().removeObserver(onRecordDisplayName)
         viewModel.getOnChangeArchive().removeObserver(onChangeArchive)
         viewModel.getOnViewInArchive().removeObserver(onViewInArchive)
         viewModel.getOnNavigateUp().removeObserver(onNavigateUp)

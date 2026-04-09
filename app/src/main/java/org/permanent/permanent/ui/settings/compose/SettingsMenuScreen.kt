@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -88,8 +89,9 @@ fun SettingsMenuScreen(
         },
         sheetState = sheetState,
         dragHandle = null,
+        windowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier
-            .fillMaxHeight(0.95f)
+            .fillMaxHeight(0.9f)
             .then(
                 if (viewModel.isTablet()) Modifier.width(configuration.screenWidthDp.dp * 0.5f) // 50% of the screen width for tablets
                 else Modifier.fillMaxWidth() // Full width for phones
@@ -201,7 +203,7 @@ fun SettingsMenuScreen(
                     colorResource(R.color.error500),
                 ) { onSignOutClick() }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

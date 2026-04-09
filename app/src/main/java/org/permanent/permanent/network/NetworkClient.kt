@@ -37,6 +37,7 @@ import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.ChecklistResponse
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.network.models.LocnVO
@@ -115,12 +116,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
                     val requestURL = request.url.toString()
                     if ((uploadURL.isNullOrEmpty() || !requestURL.contains(uploadURL)) &&
                         !requestURL.contains(Constants.SIGN_UP_URL_SUFFIX) &&
-                        !requestURL.contains(Constants.STRIPE_URL)
+                        !requestURL.contains(Constants.STRIPE_URL) &&
+                        !requestURL.contains(Constants.SHARE_TOKENS_URL_SUFFIX)
                     ) {
                         val requestBuilder: Request.Builder = request.newBuilder()
-                        requestBuilder.header(
-                            "Authorization", "Bearer ${prefsHelper.getAuthToken()}"
-                        )
+                        requestBuilder.header("Authorization", "Bearer ${prefsHelper.getAuthToken()}")
                         chain.proceed(requestBuilder.build())
                     } else chain.proceed(request)
                 }).build()
@@ -788,7 +788,16 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun disableTwoFactor(twoFAVO: TwoFAVO): Call<ResponseBody> = stelaAccountService.disableTwoFactor(twoFAVO)
 
-    fun getShareLink(shareLinkIds: List<Int>): Call<ShareLinkVOResponse> = stelaAccountService.getShareLink(shareLinkIds)
+    fun getShareLink(
+        shareLinkIds: List<Int>? = null,
+        shareTokens: List<String>? = null
+    ): Call<ShareLinkVOResponse> = stelaAccountService.getShareLink(shareLinkIds, shareTokens)
+
+    fun getFolderChildren(
+        shareToken: String?,
+        folderId: Int,
+        pageSize: Int = 99999999
+    ): Call<FolderChildrenResponse> = stelaAccountService.getFolderChildren(shareToken, folderId, pageSize)
 
     fun generateShareLink(shareLink: ShareLinkVO): Call<ShareLinkResponse> = stelaAccountService.generateShareLink(shareLink)
 
