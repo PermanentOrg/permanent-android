@@ -203,7 +203,7 @@ private fun LeftSideView(
                         text = stringResource(id = R.string.start_exploring_now),
                         icon = painterResource(id = R.drawable.ic_arrow_next_rounded_primary)
                     ) {
-                        context.openLink("https://www.permanent.org/gallery")
+                        context.openLink("https://app.permanent.org/gallery")
                     }
                 }
 
