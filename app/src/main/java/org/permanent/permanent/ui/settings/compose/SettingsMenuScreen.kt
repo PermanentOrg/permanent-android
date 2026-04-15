@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -89,121 +90,126 @@ fun SettingsMenuScreen(
         },
         sheetState = sheetState,
         dragHandle = null,
-        windowInsets = WindowInsets(0, 0, 0, 0),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
         modifier = Modifier
-            .fillMaxHeight(0.9f)
             .then(
                 if (viewModel.isTablet()) Modifier.width(configuration.screenWidthDp.dp * 0.5f) // 50% of the screen width for tablets
                 else Modifier.fillMaxWidth() // Full width for phones
             )
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(colorResource(R.color.blue25))
-                .padding(top = 24.dp),
-            verticalArrangement = Arrangement.Top
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f)
         ) {
-            Header(
-                archiveThumbURL = archiveThumb,
-                accountName = accountName,
-                accountEmail = accountEmail,
-            ) { onDismiss() }
-
-            if (checklist.any { !it.completed }) {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                HorizontalDivider(color = colorResource(R.color.blue50))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, top = 24.dp)
-                        .clickable { onFinishAccountSetupClick() },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        painter = painterResource(R.drawable.ic_list_blue),
-                        contentDescription = null
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Text(
-                        text = stringResource(R.string.finish_account_setup),
-                        fontSize = 14.sp,
-                        lineHeight = 24.sp,
-                        fontFamily = FontFamily(Font(R.font.usual_regular)),
-                        color = colorResource(R.color.blue900)
-                    )
-                }
-            }
-
             Column(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(top = 24.dp)
-                    .background(Color.White),
+                    .fillMaxSize()
+                    .background(colorResource(R.color.blue25))
+                    .padding(top = 24.dp),
                 verticalArrangement = Arrangement.Top
             ) {
+                Header(
+                    archiveThumbURL = archiveThumb,
+                    accountName = accountName,
+                    accountEmail = accountEmail,
+                ) { onDismiss() }
 
-                Spacer(modifier = Modifier.padding(top = 8.dp))
+                if (checklist.any { !it.completed }) {
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                StorageCard(
-                    spaceUsedBytes,
-                    spaceTotalBytes,
-                    spaceUsedPercentage,
-                    StorageCardStyle.LIGHT
-                )
+                    HorizontalDivider(color = colorResource(R.color.blue50))
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_account_circle_white),
-                    stringResource(R.string.account),
-                ) { onAccountClick() }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 24.dp, end = 24.dp, top = 24.dp)
+                            .clickable { onFinishAccountSetupClick() },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            painter = painterResource(R.drawable.ic_list_blue),
+                            contentDescription = null
+                        )
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_storage_primary),
-                    stringResource(R.string.storage),
-                ) { onStorageClick() }
+                        Spacer(modifier = Modifier.width(16.dp))
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_archives_blue),
-                    stringResource(R.string.my_archives),
-                ) { onMyArchivesClick() }
+                        Text(
+                            text = stringResource(R.string.finish_account_setup),
+                            fontSize = 14.sp,
+                            lineHeight = 24.sp,
+                            fontFamily = FontFamily(Font(R.font.usual_regular)),
+                            color = colorResource(R.color.blue900)
+                        )
+                    }
+                }
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_invitations_primary),
-                    stringResource(R.string.invitations),
-                ) { onInvitationsClick() }
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(top = 24.dp)
+                        .background(Color.White),
+                    verticalArrangement = Arrangement.Top
+                ) {
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_activity_feed_primary),
-                    stringResource(R.string.activity_feed),
-                ) { onActivityFeedClick() }
+                    Spacer(modifier = Modifier.padding(top = 8.dp))
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_security_primary),
-                    stringResource(R.string.login_and_security),
-                    showWarning = !isTwoFAEnabled,
-                ) { onLoginAndSecurityClick() }
+                    StorageCard(
+                        spaceUsedBytes,
+                        spaceTotalBytes,
+                        spaceUsedPercentage,
+                        StorageCardStyle.LIGHT
+                    )
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_legacy_plannning_empty_primary),
-                    stringResource(R.string.legacy_planning),
-                ) { onLegacyPlanningClick() }
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_account_circle_white),
+                        stringResource(R.string.account),
+                    ) { onAccountClick() }
 
-                Spacer(modifier = Modifier.weight(1.0f))
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_storage_primary),
+                        stringResource(R.string.storage),
+                    ) { onStorageClick() }
 
-                HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_archives_blue),
+                        stringResource(R.string.my_archives),
+                    ) { onMyArchivesClick() }
 
-                SettingsMenuItem(
-                    painterResource(id = R.drawable.ic_sign_out_red),
-                    stringResource(R.string.sign_out),
-                    colorResource(R.color.error500),
-                ) { onSignOutClick() }
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_invitations_primary),
+                        stringResource(R.string.invitations),
+                    ) { onInvitationsClick() }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_activity_feed_primary),
+                        stringResource(R.string.activity_feed),
+                    ) { onActivityFeedClick() }
+
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_security_primary),
+                        stringResource(R.string.login_and_security),
+                        showWarning = !isTwoFAEnabled,
+                    ) { onLoginAndSecurityClick() }
+
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_legacy_plannning_empty_primary),
+                        stringResource(R.string.legacy_planning),
+                    ) { onLegacyPlanningClick() }
+
+                    Spacer(modifier = Modifier.weight(1.0f))
+
+                    HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
+
+                    SettingsMenuItem(
+                        painterResource(id = R.drawable.ic_sign_out_red),
+                        stringResource(R.string.sign_out),
+                        colorResource(R.color.error500),
+                    ) { onSignOutClick() }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
             }
         }
     }
