@@ -106,7 +106,6 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
             MutableLiveData(false),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
-            isForSharesScreen = false,
             recordListener = this
         )
         recordsRecyclerView.apply {
