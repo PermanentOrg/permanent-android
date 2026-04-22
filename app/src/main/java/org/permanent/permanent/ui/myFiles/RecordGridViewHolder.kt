@@ -20,7 +20,6 @@ class RecordGridViewHolder(
     private val binding: ItemGridRecordBinding,
     private val showMyFilesSimplified: Boolean,
     private val isForSharePreviewScreen: Boolean,
-    private val isForSharesScreen: Boolean,
     private val recordListener: RecordListener
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -43,7 +42,7 @@ class RecordGridViewHolder(
             && previewState.value != PreviewState.ACCESS_GRANTED
         ) {
             Picasso.get()
-                .load(record.thumbURL200)
+                .load(record.thumbnail256 ?: record.thumbURL200)
                 .placeholder(R.drawable.ic_stop_light_grey)
                 .fit()
                 .transform(BlurTransformation(context, 25, 5))

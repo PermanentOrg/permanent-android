@@ -81,7 +81,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                                 externalFile.copyTo(cacheFile, overwrite = true)
                                 filePath.value = "file://${cacheFile.absolutePath}"
                             } else if (data.contentType?.contains(FileType.IMAGE.toString()) == true) {
-                                filePath.value = data.thumbURL2000
+                                filePath.value = data.thumbnail256 ?: data.thumbURL2000
                             } else {
                                 filePath.value = data.fileURL
                             }

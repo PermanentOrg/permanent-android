@@ -66,7 +66,7 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        prefsHelper.updateCurrentArchiveThumbURL(thumbRecord.thumbURL2000)
+                        prefsHelper.updateCurrentArchiveThumbURL(thumbRecord.thumbnail256 ?: thumbRecord.thumbURL2000)
                         listener.onSuccess("")
                     } else {
                         listener.onFailed(responseVO?.getMessages()?.get(0))

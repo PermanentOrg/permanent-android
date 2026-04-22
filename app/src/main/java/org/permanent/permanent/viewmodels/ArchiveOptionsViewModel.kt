@@ -22,7 +22,7 @@ class ArchiveOptionsViewModel(application: Application) : ObservableAndroidViewM
         isCurrentArchive.value = prefsHelper.getCurrentArchiveId() == archive?.id
         accessRole.value = archive?.accessRole
         archiveName.value = archive?.fullName
-        archiveThumb.value = archive?.thumbURL200
+        archiveThumb.value = archive?.thumbnail256 ?: archive?.thumbURL200
     }
 
     fun getIsCurrentArchive(): MutableLiveData<Boolean> = isCurrentArchive

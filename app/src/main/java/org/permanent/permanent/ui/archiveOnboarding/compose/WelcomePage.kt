@@ -147,7 +147,7 @@ private fun TabletBody(
                         ArchiveItem(
                             isTablet = true,
                             isForWelcomePage = true,
-                            iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
+                            iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbnail256 ?: archive.thumbURL200 else null,
                             title = archiveName,
                             accessRole = archiveAccessRole,
                             showSubtitle = true,

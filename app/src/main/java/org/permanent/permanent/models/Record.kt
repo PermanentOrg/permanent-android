@@ -26,6 +26,7 @@ open class Record : Parcelable {
     var archiveThumbURL200: String? = null
     var showArchiveThumb: Boolean? = null
     var thumbURL200: String? = null
+    var thumbnail256: String? = null
     var thumbURL2000: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
@@ -55,6 +56,7 @@ open class Record : Parcelable {
         archiveThumbURL200 = parcel.readString()
         showArchiveThumb = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         thumbURL200 = parcel.readString()
+        thumbnail256 = parcel.readString()
         thumbURL2000 = parcel.readString()
         isThumbBlurred = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         type = parcel.readParcelable(RecordType::class.java.classLoader)
@@ -79,6 +81,7 @@ open class Record : Parcelable {
         displayDate = recordInfo.displayDT?.replace("T", " ")
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
+        thumbnail256 = recordInfo.thumbnail256
         thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
@@ -106,6 +109,7 @@ open class Record : Parcelable {
         displayDate = recordInfo.displayDT?.replace("T", " ")
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
+        thumbnail256 = recordInfo.thumbnail256
         thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = RecordType.FOLDER
@@ -135,13 +139,14 @@ open class Record : Parcelable {
         archiveThumbURL200 = archiveVO.thumbURL200
         showArchiveThumb = showArchiveThumbnail
         thumbURL200 = itemVO.thumbURL200
+        thumbnail256 = itemVO.thumbnail256
         thumbURL2000 = itemVO.thumbURL2000
         isThumbBlurred = false
         type = if (itemVO.folderId != null) RecordType.FOLDER else RecordType.FILE
         accessRole = AccessRole.fromBackendValue(itemVO.accessRole)
         initShares(itemVO.ShareVOs)
         displayFirstInCarousel = false
-        isProcessing = itemVO.thumbURL200.isNullOrEmpty()
+        isProcessing = itemVO.thumbnail256.isNullOrEmpty() && itemVO.thumbURL200.isNullOrEmpty()
         displayInShares = true
     }
 
@@ -177,12 +182,13 @@ open class Record : Parcelable {
         displayName = recordInfo?.displayName
         displayDate = recordInfo?.displayDT?.replace("T", " ")
         thumbURL200 = recordInfo?.thumbURL200
+        thumbnail256 = recordInfo?.thumbnail256
         thumbURL2000 = recordInfo?.thumbURL2000
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
         type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
         initShares(recordInfo?.ShareVOs)
         displayFirstInCarousel = false
-        isProcessing = recordInfo?.thumbURL200.isNullOrEmpty()
+        isProcessing = recordInfo?.thumbnail256.isNullOrEmpty() && recordInfo?.thumbURL200.isNullOrEmpty()
         displayInShares = false
     }
 
@@ -216,6 +222,7 @@ open class Record : Parcelable {
         parcel.writeString(archiveThumbURL200)
         parcel.writeValue(showArchiveThumb)
         parcel.writeString(thumbURL200)
+        parcel.writeString(thumbnail256)
         parcel.writeString(thumbURL2000)
         parcel.writeValue(isThumbBlurred)
         parcel.writeParcelable(type, flags)
