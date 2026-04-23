@@ -12,6 +12,7 @@ class FolderVO {
     var type: String? = null
     var thumbStatus: String? = null
     var thumbURL200: String? = null
+    var thumbnail256: String? = null
     var thumbURL2000: String? = null
     var status: String? = null
     var parentFolderId: Int? = null

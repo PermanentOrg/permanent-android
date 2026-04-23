@@ -415,7 +415,6 @@ class SharedXMeFragment : PermanentBaseFragment() {
             viewModel.getIsSelectionMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             isForSharePreviewScreen = false,
-            isForSharesScreen = true,
             recordListener = viewModel
         )
         val isListViewMode = prefsHelper.isListViewMode()

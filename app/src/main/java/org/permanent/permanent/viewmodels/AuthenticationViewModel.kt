@@ -157,7 +157,7 @@ class AuthenticationViewModel(application: Application) : ObservableAndroidViewM
                                 archive.number,
                                 archive.type,
                                 archive.fullName,
-                                archive.thumbURL200,
+                                archive.thumbnail256 ?: archive.thumbURL200,
                                 archive.accessRole
                             )
                             prefsHelper.saveUserLoggedIn(true)

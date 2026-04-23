@@ -142,7 +142,7 @@ private fun GrantAccessToArchive(share: Share?) {
         modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
     ) {
         // Thumb
-        val thumbURL = share?.archive?.thumbURL200
+        val thumbURL = share?.archive?.thumbnail256 ?: share?.archive?.thumbURL200
         if (thumbURL?.isNotEmpty() == true) {
             AsyncImage(
                 model = thumbURL,

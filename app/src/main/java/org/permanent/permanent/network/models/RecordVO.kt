@@ -23,6 +23,7 @@ class RecordVO {
     var accessRole: String? = null
     var thumbStatus: String? = null
     var thumbURL200: String? = null
+    var thumbnail256: String? = null
     var thumbURL2000: String? = null
     var LocnVO: LocnVO? = null
     var FileVOs: List<FileVO>? = null

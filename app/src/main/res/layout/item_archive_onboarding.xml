@@ -24,7 +24,7 @@
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
             android:scaleType="centerCrop"
-            app:imageUrl="@{archive.thumbURL200}"
+            app:imageUrl="@{archive.thumbnail256 ?? archive.thumbURL200}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
