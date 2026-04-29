@@ -43,3 +43,9 @@ fastlane/.env.production
 
 # Kotlin compiler cache
 .kotlin/
+
+# Claude Code
+.claude/
+
+# IntelliJ IDEA
+.idea/
