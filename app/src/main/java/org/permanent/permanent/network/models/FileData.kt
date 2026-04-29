@@ -27,6 +27,7 @@ class FileData private constructor() : Parcelable {
     var longitude: Double = -1.0
     var fileURL: String? = null
     var downloadURL: String? = null
+    var thumbnail256: String? = null
     var thumbURL2000: String? = null
     var contentType: String? = null
     var width: Int = -1
@@ -75,6 +76,7 @@ class FileData private constructor() : Parcelable {
 
         fileURL = fileVO?.fileURL
         downloadURL = fileVO?.downloadURL
+        thumbnail256 = recordVO.thumbnail256
         thumbURL2000 = recordVO.thumbURL2000
         contentType = fileVO?.contentType
         width = fileVO?.width ?: -1
@@ -113,6 +115,7 @@ class FileData private constructor() : Parcelable {
         longitude = parcel.readDouble()
         fileURL = parcel.readString()
         downloadURL = parcel.readString()
+        thumbnail256 = parcel.readString()
         thumbURL2000 = parcel.readString()
         contentType = parcel.readString()
         width = parcel.readInt()
@@ -151,6 +154,7 @@ class FileData private constructor() : Parcelable {
         parcel.writeDouble(longitude)
         parcel.writeString(fileURL)
         parcel.writeString(downloadURL)
+        parcel.writeString(thumbnail256)
         parcel.writeString(thumbURL2000)
         parcel.writeString(contentType)
         parcel.writeInt(width)

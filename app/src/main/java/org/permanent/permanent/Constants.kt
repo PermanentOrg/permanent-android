@@ -45,7 +45,7 @@ class Constants {
         // This is also used in manifest
         const val FILE_PROVIDER_NAME = ".fileprovider"
 
-        const val SHARED_LINK_URL = "https://www.permanent.org/share/"
+        const val SHARED_LINK_URL = "https://app.permanent.org/share/"
 
     }
 }

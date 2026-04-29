@@ -86,7 +86,7 @@
                     android:layout_marginBottom="20dp"
                     android:scaleType="centerCrop"
                     android:visibility="@{viewModel.share != null ? View.VISIBLE : View.GONE}"
-                    app:imageUrl="@{viewModel.share.archive.thumbURL200}"
+                    app:imageUrl="@{viewModel.share.archive.thumbnail256 ?? viewModel.share.archive.thumbURL200}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

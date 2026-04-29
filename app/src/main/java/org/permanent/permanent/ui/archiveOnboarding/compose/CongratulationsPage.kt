@@ -262,7 +262,7 @@ private fun TabletBody(
                         if (archiveName != null && archiveAccessRole != null) {
                             ArchiveItem(
                                 isTablet = true,
-                                iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbURL200 else null,
+                                iconURL = if (archive.thumbStatus == ThumbStatus.OK) archive.thumbnail256 ?: archive.thumbURL200 else null,
                                 title = archiveName,
                                 accessRole = archiveAccessRole,
                                 showSubtitle = false

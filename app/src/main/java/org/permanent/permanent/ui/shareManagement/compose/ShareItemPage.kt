@@ -218,7 +218,7 @@ fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Thumb
-        val thumbURL = share.archive?.thumbURL200
+        val thumbURL = share.archive?.thumbnail256 ?: share.archive?.thumbURL200
         if (thumbURL?.isNotEmpty() == true) {
             AsyncImage(
                 model = thumbURL,

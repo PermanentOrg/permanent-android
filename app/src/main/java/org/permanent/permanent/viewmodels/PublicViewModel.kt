@@ -71,7 +71,7 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
         fileRepository.getPublicRoot(archive.number, object : IRecordListener {
             override fun onSuccess(record: Record) {
                 isBusy.value = false
-                setHeaderData(archive, record.thumbURL2000)
+                setHeaderData(archive, record.thumbnail256 ?: record.thumbURL2000)
             }
 
             override fun onFailed(error: String?) {
@@ -83,7 +83,7 @@ class PublicViewModel(application: Application) : ObservableAndroidViewModel(app
 
     fun setHeaderData(archive: Archive, bannerThumbURL: String?) {
         currentArchiveName.value = archive.fullName
-        currentArchiveThumb.value = archive.thumbURL200
+        currentArchiveThumb.value = archive.thumbnail256 ?: archive.thumbURL200
         bannerThumbURL?.let { profileBannerThumb.value = it }
     }
 

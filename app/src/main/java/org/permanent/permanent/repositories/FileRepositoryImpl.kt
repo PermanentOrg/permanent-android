@@ -44,7 +44,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                     publicRecord?.folderId,
                     publicRecord?.folderLinkId,
                     publicRecord?.archiveNr,
-                    publicRecord?.thumbURL2000
+                    publicRecord?.thumbnail256 ?: publicRecord?.thumbURL2000
                 )
                 val myFilesRecord = responseVO?.getMyFilesRecord()
 
@@ -157,7 +157,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             ).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    prefsHelper.updatePublicRecordThumbURL(thumbRecord.thumbURL2000)
+                    prefsHelper.updatePublicRecordThumbURL(thumbRecord.thumbnail256 ?: thumbRecord.thumbURL2000)
                     listener.onSuccess("")
                 }
 

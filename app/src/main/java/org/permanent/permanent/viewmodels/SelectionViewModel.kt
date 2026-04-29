@@ -128,7 +128,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
                 id = record.id ?: 0,
                 name = record.displayName ?: "",
                 isFolder = record.type == RecordType.FOLDER,
-                thumbUrl = if (record.type == RecordType.FILE) record.thumbURL200 else null,
+                thumbUrl = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 else null,
                 sizeBytes = record.size,
                 createdDate = record.displayDate ?: ""
             )

@@ -119,7 +119,7 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
             archive.number,
             archive.type,
             archive.fullName,
-            archive.thumbURL200,
+            archive.thumbnail256 ?: archive.thumbURL200,
             archive.accessRole
         )
     }
@@ -179,12 +179,12 @@ class ArchivesViewModel(application: Application) : ObservableAndroidViewModel(a
                         archive.number,
                         archive.type,
                         archive.fullName,
-                        archive.thumbURL200,
+                        archive.thumbnail256 ?: archive.thumbURL200,
                         archive.accessRole
                     )
                     refreshArchives()
                     isCurrentArchiveDefault.value = archive.id == prefsHelper.getDefaultArchiveId()
-                    currentArchiveThumb.value = archive.thumbURL200
+                    currentArchiveThumb.value = archive.thumbnail256 ?: archive.thumbURL200
                     currentArchiveName.value = archive.fullName
                     showMessage.value = appContext.getString(R.string.archive_current_archive_switch_success)
                     if (showScreenSimplified.value == true) onCurrentArchiveChanged.call()

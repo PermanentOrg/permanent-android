@@ -23,7 +23,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:scaleType="centerCrop"
-            app:imageUrl="@{archive.thumbURL200}"
+            app:imageUrl="@{archive.thumbnail256 ?? archive.thumbURL200}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/share_link_background_color" />

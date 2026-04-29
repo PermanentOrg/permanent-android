@@ -121,7 +121,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         _recordName.value = record.displayName ?: ""
         _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
         _recordDate.value = record.displayDate.toDisplayDate()
-        _recordThumb.value = if (record.type == RecordType.FILE) record.thumbURL200 ?: "" else ""
+        _recordThumb.value = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 ?: "" else ""
 
         checkForExistingLink(record)
         initShares(record.shares)
