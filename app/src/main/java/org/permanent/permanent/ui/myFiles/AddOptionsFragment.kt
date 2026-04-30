@@ -25,13 +25,11 @@ import org.permanent.permanent.Constants.Companion.REQUEST_CODE_VIDEO_CAPTURE
 import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.DialogCreateNewFolderBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentAddOptionsBinding
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.viewmodels.AddOptionsViewModel
-import org.permanent.permanent.viewmodels.NewFolderViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 import java.io.File
 import java.io.IOException
@@ -44,28 +42,11 @@ const val IS_SHOWN_IN_PUBLIC_FILES_KEY = "is_shown_in_public_files_key"
 class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener {
     private lateinit var binding: FragmentAddOptionsBinding
     private lateinit var viewModel: AddOptionsViewModel
-    private lateinit var dialogViewModel: NewFolderViewModel
-    private lateinit var dialogBinding: DialogCreateNewFolderBinding
     private lateinit var currentPhotoPath: String
     private lateinit var photoURI: Uri
-    private var alertDialog: AlertDialog? = null
+    private var nameInputFragment: NameInputFragment? = null
     private val filesToUpload = MutableLiveData<MutableList<Uri>>()
     private val onRefreshFolder = SingleLiveEvent<Void?>()
-
-    private val onErrorStringId = Observer<Int> { errorId ->
-        val errorMessage = this.resources.getString(errorId)
-        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
-    }
-
-    private val onErrorMessage = Observer<String> { errorMessage ->
-        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
-    }
-
-    private val onFolderCreated = Observer<Void?> {
-        onRefreshFolder.call()
-        alertDialog?.dismiss()
-        dismiss()
-    }
 
     fun setBundleArguments(
         folderIdentifier: NavigationFolderIdentifier?, isShownInPublicFiles: Boolean
@@ -84,7 +65,6 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this)[AddOptionsViewModel::class.java]
         binding.viewModel = viewModel
-        dialogViewModel = ViewModelProvider(this)[NewFolderViewModel::class.java]
         binding.btnNewFolder.setOnClickListener(this)
         binding.btnTakePhoto.setOnClickListener(this)
         binding.btnTakeVideo.setOnClickListener(this)
@@ -124,26 +104,13 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     }
 
     private fun showNewFolderDialog() {
-        dialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_create_new_folder, null, false
-        )
-        dialogBinding.executePendingBindings()
-        dialogBinding.lifecycleOwner = this
-        dialogBinding.viewModel = dialogViewModel
-        val thisContext = context
-
-        if (thisContext != null) {
-            alertDialog = AlertDialog.Builder(thisContext).setView(dialogBinding.root).create()
-            dialogBinding.btnCreate.setOnClickListener {
-                val currentFolderIdentifier =
-                    arguments?.getParcelable<NavigationFolderIdentifier>(FOLDER_IDENTIFIER_KEY)
-                dialogViewModel.createNewFolder(currentFolderIdentifier)
-            }
-            dialogBinding.btnCancel.setOnClickListener {
-                alertDialog?.dismiss()
-            }
-            alertDialog?.show()
+        val folderIdentifier = arguments?.getParcelable<NavigationFolderIdentifier>(FOLDER_IDENTIFIER_KEY)
+        nameInputFragment = NameInputFragment.forNewFolder(folderIdentifier)
+        nameInputFragment?.setOnCompletedCallback {
+            onRefreshFolder.call()
+            dismiss()
         }
+        nameInputFragment?.show(parentFragmentManager, nameInputFragment?.tag)
     }
 
     private fun showConfirmationDialog() {
@@ -272,15 +239,9 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
     fun getOnRefreshFolder(): MutableLiveData<Void?> = onRefreshFolder
 
     override fun connectViewModelEvents() {
-        dialogViewModel.getOnFolderCreated().observe(this, onFolderCreated)
-        dialogViewModel.getErrorStringId().observe(this, onErrorStringId)
-        dialogViewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
-        dialogViewModel.getOnFolderCreated().removeObserver(onFolderCreated)
-        dialogViewModel.getErrorStringId().removeObserver(onErrorStringId)
-        dialogViewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 
     override fun onResume() {

@@ -28,7 +28,6 @@ import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
-import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.ConfirmationDialogFragment
@@ -134,7 +133,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 dismiss()
             }
             RecordMenuItem.Publish -> {
-                showConfirmationDialogForPublish()
+                onRecordPublishRequest.value = record
                 dismiss()
             }
             RecordMenuItem.Rename -> {
@@ -221,27 +220,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         shareManagementScreen.show(parentFragmentManager, shareManagementScreen.tag)
     }
 
-    private fun showConfirmationDialogForPublish() {
-        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
-        )
-        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
-
-        dialogBinding.tvTitle.text =
-            getString(R.string.dialog_record_publish_confirmation_title, record.displayName)
-        dialogBinding.tvText.text = getString(R.string.dialog_record_publish_confirmation_text)
-        dialogBinding.btnPositive.text = getString(R.string.button_publish)
-        dialogBinding.btnPositive.setOnClickListener {
-            onRecordPublishRequest.value = record
-            alert.dismiss()
-        }
-        dialogBinding.btnNegative.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
-    }
-
-    private val showSnackbar = Observer<String> { message ->
+private val showSnackbar = Observer<String> { message ->
         dialog?.window?.decorView?.let {
             Snackbar.make(it, message, Snackbar.LENGTH_LONG).show()
         }

@@ -165,8 +165,10 @@
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
 
-    <string name="dialog_record_publish_confirmation_title">Publish \"%s\"?</string>
-    <string name="dialog_record_publish_confirmation_text">Create a publicly viewable copy of this item in your Public workspace and get a public link to share with anyone.</string>
+
+    <string name="publish_file_title">Publish file</string>
+    <string name="publish_confirmation_prefix">Are you sure you want to create a publicly viewable copy of </string>
+    <string name="publish_confirmation_suffix"> in your Public Workspace?</string>
     <string name="dialog_public_files_upload_title">Upload to Public?</string>
     <string name="dialog_public_files_upload_text">This is a public folder. Are you sure you want to upload here?</string>
     <string name="public_archive_title">Archive</string>
@@ -260,6 +262,7 @@
 
     <string name="rename_record_name_hint">Name</string>
     <string name="rename_record_title">Rename \"%s\"</string>
+    <string name="rename_file_title">Rename file</string>
     <string name="rename_record_rename_success">Record renamed successfully</string>
 
     <string name="file_sort_menu_item_name_asc">Name (A-Z)</string>

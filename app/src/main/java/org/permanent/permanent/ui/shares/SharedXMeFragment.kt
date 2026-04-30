@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
-import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Download
@@ -48,6 +47,8 @@ import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.RecordsAdapter
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
+import org.permanent.permanent.ui.myFiles.NameInputFragment
+import org.permanent.permanent.ui.myFiles.PublishFragment
 import org.permanent.permanent.ui.myFiles.SortOptionsFragment
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
@@ -59,7 +60,6 @@ import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
-import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
@@ -73,9 +73,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
-    private lateinit var renameDialogViewModel: RenameRecordViewModel
-    private lateinit var renameDialogBinding: DialogRenameRecordBinding
-    private var alertDialog: androidx.appcompat.app.AlertDialog? = null
+    private var nameInputFragment: NameInputFragment? = null
     private lateinit var record: Record
     private lateinit var prefsHelper: PreferencesHelper
     private var isSharedWithMeFragment = false
@@ -91,7 +89,6 @@ class SharedXMeFragment : PermanentBaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
         viewModel = ViewModelProvider(this)[SharedXMeViewModel::class.java]
         binding = FragmentSharedXMeBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
@@ -230,34 +227,15 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     private val onRecordPublishObserver = Observer<Record> { record ->
-        viewModel.publishRecord(record)
+        val fragment = PublishFragment.forRecord(record)
+        fragment.setOnPublishConfirmedCallback { viewModel.publishRecord(record) }
+        fragment.show(parentFragmentManager, fragment.tag)
     }
 
     private val onRecordRenameObserver = Observer<Record> { record ->
-        renameDialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_rename_record, null, false
-        )
-        renameDialogBinding.executePendingBindings()
-        renameDialogBinding.lifecycleOwner = this
-        renameDialogBinding.viewModel = renameDialogViewModel
-        renameDialogViewModel.setRecordName(record.displayName)
-
-        alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setView(renameDialogBinding.root).create()
-        renameDialogBinding.tvTitle.text =
-            getString(R.string.rename_record_title, record.displayName)
-        renameDialogBinding.btnRename.setOnClickListener {
-            renameDialogViewModel.renameRecord(record)
-        }
-        renameDialogBinding.btnCancel.setOnClickListener {
-            alertDialog?.dismiss()
-        }
-        alertDialog?.show()
-    }
-
-    private val onRecordRenamed = Observer<Void?> {
-        viewModel.refreshCurrentFolder()
-        alertDialog?.dismiss()
+        nameInputFragment = NameInputFragment.forRename(record)
+        nameInputFragment?.setOnCompletedCallback { viewModel.refreshCurrentFolder() }
+        nameInputFragment?.show(parentFragmentManager, nameInputFragment?.tag)
     }
 
     private val onCancelAllUploads = Observer<Void?> {
@@ -499,8 +477,6 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
         viewModel.getOpenChecklistBottomSheet().observe(this, openChecklistBottomSheetObserver)
-        renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
-        renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
@@ -534,8 +510,6 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordMenuFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
         recordMenuFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteObserver)
         recordMenuFragment?.getOnRecordLeaveShareRequest()?.removeObserver(onRecordLeaveShareObserver)
-        renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
-        renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         selectionMenuFragment?.getOnSelectionModifyRequest()?.removeObserver(onSelectionModifyObserver)
