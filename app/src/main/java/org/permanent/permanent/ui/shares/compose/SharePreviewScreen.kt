@@ -22,6 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -62,6 +65,9 @@ fun SharePreviewScreen(
     val records by viewModel.records.collectAsState()
     val isBusy by viewModel.isBusy.collectAsState()
     val accessType by viewModel.accessType.collectAsState()
+    val archives by viewModel.archives.collectAsState()
+    val selectedArchive by viewModel.selectedArchive.collectAsState()
+    var showArchivePickerSheet by remember { mutableStateOf(false) }
 
     val boldFont = FontFamily(Font(R.font.usual_bold))
     val mediumFont = FontFamily(Font(R.font.usual_medium))
@@ -108,6 +114,26 @@ fun SharePreviewScreen(
                     }
                 }
             }
+        }
+
+        if (currentState != PreviewState.ERROR) {
+            ArchivePickerCard(
+                selectedArchive = selectedArchive,
+                onClick = { showArchivePickerSheet = true },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 48.dp, vertical = 32.dp)
+                    .fillMaxWidth()
+            )
+        }
+
+        if (showArchivePickerSheet) {
+            ArchivePickerBottomSheet(
+                archives = archives,
+                selectedArchive = selectedArchive,
+                onArchiveSelected = { viewModel.onArchiveSelected(it) },
+                onDismiss = { showArchivePickerSheet = false }
+            )
         }
 
         if (isBusy) {

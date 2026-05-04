@@ -1,16 +1,20 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.permanent.permanent.R
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.ILinkListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.ShareVO
@@ -21,6 +25,8 @@ import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
 import org.permanent.permanent.ui.shares.PreviewState
@@ -47,6 +53,11 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val onNavigateUp = SingleLiveEvent<Void?>()
     private val _isBusy = MutableStateFlow(false)
     private val errorMessage = MutableLiveData<String>()
+    private val _archives = MutableStateFlow<List<Archive>>(emptyList())
+    private val _selectedArchive = MutableStateFlow<Archive?>(null)
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var stelaAccountRepository: StelaAccountRepository =
@@ -109,28 +120,19 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
                         }
                     })
 
-//                _isBusy.value = true
-//                archiveRepository.getAllArchives(object : IDataListener {
-//                    override fun onSuccess(dataList: List<Datum>?) {
-//                        _isBusy.value = false
-//                        if (!dataList.isNullOrEmpty()) {
-//                            var notPendingArchives = 0
-//
-//                            for (datum in dataList) {
-//                                val archive = Archive(datum.ArchiveVO)
-//                                if (archive.status != Status.PENDING) notPendingArchives++
-//                            }
-//
-//                            _showChangeArchiveButton.value = notPendingArchives > 1
-//                        }
-//                    }
-//
-//                    override fun onFailed(error: String?) {
-//                _isBusy.value = false
-//                _currentState.value = PreviewState.ERROR
-//                errorMessage.value = error
-//                    }
-//                })
+                archiveRepository.getAllArchives(object : IDataListener {
+                    override fun onSuccess(dataList: List<Datum>?) {
+                        val notPending = dataList
+                            ?.mapNotNull { it.ArchiveVO?.let(::Archive) }
+                            ?.filter { it.status != Status.PENDING }
+                            .orEmpty()
+                        _archives.value = notPending
+                    }
+
+                    override fun onFailed(error: String?) {
+                        // Silent — the picker sheet will simply show its empty state.
+                    }
+                })
 //
 //                // Loading data in the footer
 //                val shareVO = shareByUrlVO?.ShareVO
@@ -237,6 +239,38 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         onChangeArchive.call()
     }
 
+    fun onArchiveSelected(archive: Archive) {
+        if (_isBusy.value || archive.id == _selectedArchive.value?.id) return
+        val previous = _selectedArchive.value
+        _selectedArchive.value = archive
+        val archiveNr = archive.number
+        if (archiveNr.isNullOrEmpty()) {
+            _selectedArchive.value = previous
+            return
+        }
+        _isBusy.value = true
+        archiveRepository.switchToArchive(archiveNr, object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                prefsHelper.saveCurrentArchiveInfo(
+                    archive.id,
+                    archive.number,
+                    archive.type,
+                    archive.fullName,
+                    archive.thumbnail256 ?: archive.thumbURL200,
+                    archive.accessRole
+                )
+                _isBusy.value = false
+                checkShareLink(urlToken)
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusy.value = false
+                _selectedArchive.value = previous
+                errorMessage.value = error
+            }
+        })
+    }
+
     fun onRequestAccessBtnClick() {
         if (_isBusy.value) {
             return
@@ -335,4 +369,8 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     val records: StateFlow<List<Record>> = _records.asStateFlow()
 
     val accessType: StateFlow<AccessType?> = _accessType.asStateFlow()
+
+    val archives: StateFlow<List<Archive>> = _archives.asStateFlow()
+
+    val selectedArchive: StateFlow<Archive?> = _selectedArchive.asStateFlow()
 }

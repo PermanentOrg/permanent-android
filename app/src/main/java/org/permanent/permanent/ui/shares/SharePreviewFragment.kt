@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
@@ -18,7 +19,6 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.archives.ArchivesContainerFragment
 import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.shares.compose.SharePreviewScreen
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
@@ -33,7 +33,6 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var viewModel: SharePreviewViewModel
-    private var archivesContainerFragment: ArchivesContainerFragment? = null
     private var urlToken: String? = null
 
     override fun onCreateView(
@@ -87,20 +86,27 @@ class SharePreviewFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onChangeArchive = Observer<Void?> {
-        urlToken?.let { token ->
-            prefsHelper.saveShareLinkUrlToken(token)
-            archivesContainerFragment = ArchivesContainerFragment()
-            archivesContainerFragment?.show(parentFragmentManager, archivesContainerFragment?.tag)
-            archivesContainerFragment?.getOnCurrentArchiveChanged()?.observe(this, onArchiveChanged)
-        }
-    }
+    // VSP-1672: replaced by inline ArchivePickerBottomSheet in SharePreviewScreen. Kept commented for comparison.
+//    private val onChangeArchive = Observer<Void?> {
+//        urlToken?.let { token ->
+//            prefsHelper.saveShareLinkUrlToken(token)
+//            archivesContainerFragment = ArchivesContainerFragment()
+//            archivesContainerFragment?.show(parentFragmentManager, archivesContainerFragment?.tag)
+//            archivesContainerFragment?.getOnCurrentArchiveChanged()?.observe(this, onArchiveChanged)
+//        }
+//    }
+//
+//    private val onArchiveChanged = Observer<Void?> {
+//        val token = prefsHelper.getShareLinkUrlToken()
+//        if (!token.isNullOrEmpty()) {
+//            prefsHelper.saveShareLinkUrlToken("")
+//            viewModel.checkShareLink(token)
+//        }
+//    }
 
-    private val onArchiveChanged = Observer<Void?> {
-        val token = prefsHelper.getShareLinkUrlToken()
-        if (!token.isNullOrEmpty()) {
-            prefsHelper.saveShareLinkUrlToken("")
-            viewModel.checkShareLink(token)
+    private val onErrorMessage = Observer<String> { message ->
+        if (!message.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -118,17 +124,16 @@ class SharePreviewFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getRecordDisplayName().observe(this, onRecordDisplayName)
-        viewModel.getOnChangeArchive().observe(this, onChangeArchive)
         viewModel.getOnViewInArchive().observe(this, onViewInArchive)
         viewModel.getOnNavigateUp().observe(this, onNavigateUp)
+        viewModel.getErrorMessage().observe(this, onErrorMessage)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getRecordDisplayName().removeObserver(onRecordDisplayName)
-        viewModel.getOnChangeArchive().removeObserver(onChangeArchive)
         viewModel.getOnViewInArchive().removeObserver(onViewInArchive)
         viewModel.getOnNavigateUp().removeObserver(onNavigateUp)
-        archivesContainerFragment?.getOnCurrentArchiveChanged()?.removeObserver(onArchiveChanged)
+        viewModel.getErrorMessage().removeObserver(onErrorMessage)
     }
 
     override fun onResume() {
