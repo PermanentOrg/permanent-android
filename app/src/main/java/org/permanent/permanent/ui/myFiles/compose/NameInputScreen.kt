@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -119,6 +120,7 @@ fun NewFolderScreen(
         isConfirmEnabled = isEnabled,
         isBusy = isBusy,
         onClose = onClose,
+        iconRes = R.drawable.ic_folder_barney_purple,
         hint = stringResource(R.string.new_folder_hint)
     )
 }
@@ -134,6 +136,7 @@ private fun NameInputLayout(
     isBusy: Boolean,
     onClose: () -> Unit,
     thumbnailUrl: String? = null,
+    iconRes: Int? = null,
     hint: String? = null
 ) {
     Box {
@@ -153,6 +156,7 @@ private fun NameInputLayout(
                     name = name,
                     onNameChange = onNameChange,
                     thumbnailUrl = thumbnailUrl,
+                    iconRes = iconRes,
                     hint = hint
                 )
 
@@ -223,6 +227,7 @@ private fun NameInputField(
     name: String,
     onNameChange: (String) -> Unit,
     thumbnailUrl: String? = null,
+    iconRes: Int? = null,
     hint: String? = null
 ) {
     Row(
@@ -230,10 +235,9 @@ private fun NameInputField(
             .fillMaxWidth()
             .height(48.dp)
             .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, colorResource(R.color.blue50), RoundedCornerShape(12.dp))
             .background(Color.White)
-            .then(
-                Modifier.padding(start = 16.dp, end = 12.dp)
-            ),
+            .padding(start = 16.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (thumbnailUrl != null) {
@@ -245,16 +249,16 @@ private fun NameInputField(
                     .size(24.dp)
                     .clip(RoundedCornerShape(4.dp))
             )
+            Spacer(modifier = Modifier.width(12.dp))
+        }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .width(1.dp)
-                    .height(24.dp)
-                    .background(colorResource(R.color.blue900))
+        if (iconRes != null) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(24.dp)
             )
-
             Spacer(modifier = Modifier.width(12.dp))
         }
 
