@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.myFiles
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
@@ -12,24 +13,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.FileProvider
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.permanent.permanent.Constants.Companion.FILE_PROVIDER_NAME
-import org.permanent.permanent.Constants.Companion.REQUEST_CODE_FILE_SELECT
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_IMAGE_CAPTURE
+import org.permanent.permanent.Constants.Companion.REQUEST_CODE_PHOTO_LIBRARY_SELECT
 import org.permanent.permanent.Constants.Companion.REQUEST_CODE_VIDEO_CAPTURE
 import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
-import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
-import org.permanent.permanent.databinding.FragmentAddOptionsBinding
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
-import org.permanent.permanent.viewmodels.AddOptionsViewModel
+import org.permanent.permanent.ui.myFiles.compose.AddOptionsScreen
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 import java.io.File
 import java.io.IOException
@@ -39,9 +39,7 @@ import java.util.*
 const val FOLDER_IDENTIFIER_KEY = "folder_identifier"
 const val IS_SHOWN_IN_PUBLIC_FILES_KEY = "is_shown_in_public_files_key"
 
-class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener {
-    private lateinit var binding: FragmentAddOptionsBinding
-    private lateinit var viewModel: AddOptionsViewModel
+class AddOptionsFragment : PermanentBottomSheetFragment() {
     private lateinit var currentPhotoPath: String
     private lateinit var photoURI: Uri
     private var nameInputFragment: NameInputFragment? = null
@@ -57,48 +55,36 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         this.arguments = bundle
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentAddOptionsBinding.inflate(inflater, container, false)
-        binding.executePendingBindings()
-        binding.lifecycleOwner = this
-        viewModel = ViewModelProvider(this)[AddOptionsViewModel::class.java]
-        binding.viewModel = viewModel
-        binding.btnNewFolder.setOnClickListener(this)
-        binding.btnTakePhoto.setOnClickListener(this)
-        binding.btnTakeVideo.setOnClickListener(this)
-        binding.btnUpload.setOnClickListener(this)
-
-        return binding.root
+    override fun onCreateDialog(savedInstanceState: Bundle?): BottomSheetDialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(
+                com.google.android.material.R.id.design_bottom_sheet
+            )
+            bottomSheet?.let {
+                it.setBackgroundResource(android.R.color.transparent)
+                val behavior = BottomSheetBehavior.from(it)
+                behavior.skipCollapsed = true
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+        return dialog
     }
 
-    override fun onClick(view: View) {
-        val permissionHelper = DevicePermissionsHelper()
-        when (view.id) {
-            R.id.btnNewFolder -> showNewFolderDialog()
-            R.id.btnTakePhoto -> context?.let {
-                if (!permissionHelper.hasCameraPermission(it)) {
-                    permissionHelper.requestCameraPermission(this)
-                } else {
-                    dispatchTakePictureIntent()
-                }
-            }
-
-            R.id.btnTakeVideo -> context?.let {
-                if (!permissionHelper.hasCameraPermission(it)) {
-                    permissionHelper.requestCameraPermission(this)
-                } else {
-                    dispatchTakeVideoIntent()
-                }
-            }
-
-            R.id.btnUpload -> context?.let {
-                if (arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY) == true) {
-                    showConfirmationDialog()
-                } else {
-                    startFileSelectionActivity()
-                }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            MaterialTheme {
+                AddOptionsScreen(
+                    onNewFolder = { showNewFolderDialog() },
+                    onTakePhoto = { handleCameraAction { dispatchTakePictureIntent() } },
+                    onTakeVideo = { handleCameraAction { dispatchTakeVideoIntent() } },
+                    onUploadPhotos = { handlePhotoLibraryUpload() }
+                )
             }
         }
     }
@@ -113,31 +99,42 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         nameInputFragment?.show(parentFragmentManager, nameInputFragment?.tag)
     }
 
-    private fun showConfirmationDialog() {
-        val dialogBinding: DialogTitleTextTwoButtonsBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_title_text_two_buttons, null, false
-        )
-        val alert = android.app.AlertDialog.Builder(context).setView(dialogBinding.root).create()
+    private fun handleCameraAction(action: () -> Unit) {
+        val permissionHelper = DevicePermissionsHelper()
+        context?.let {
+            if (!permissionHelper.hasCameraPermission(it)) {
+                permissionHelper.requestCameraPermission(this)
+            } else {
+                action()
+            }
+        }
+    }
 
-        dialogBinding.tvTitle.text = getString(R.string.dialog_public_files_upload_title)
-        dialogBinding.tvText.text = getString(R.string.dialog_public_files_upload_text)
-        dialogBinding.btnPositive.text = getString(R.string.button_upload)
-        dialogBinding.btnPositive.setOnClickListener {
-            startFileSelectionActivity()
-            alert.dismiss()
+    private fun handlePhotoLibraryUpload() {
+        if (arguments?.getBoolean(IS_SHOWN_IN_PUBLIC_FILES_KEY) == true) {
+            showPublicFilesConfirmationDialog { startPhotoLibraryActivity() }
+        } else {
+            startPhotoLibraryActivity()
         }
-        dialogBinding.btnNegative.setOnClickListener {
-            alert.dismiss()
-        }
-        alert.show()
+    }
+
+    private fun showPublicFilesConfirmationDialog(onConfirmed: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.dialog_public_files_upload_title))
+            .setMessage(getString(R.string.dialog_public_files_upload_text))
+            .setPositiveButton(getString(R.string.button_upload)) { dialog, _ ->
+                onConfirmed()
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.button_cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun dispatchTakePictureIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            // Ensure that there's a camera activity to handle the intent
             context?.packageManager?.let {
-
-                // Create the File where the photo should go
                 val photoFile: File? = try {
                     createImageFile()
                 } catch (ex: IOException) {
@@ -156,7 +153,6 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
                     startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE)
                 }
             }
-
         }
     }
 
@@ -170,40 +166,37 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
         }
     }
 
-    private fun startFileSelectionActivity() {
+    private fun startPhotoLibraryActivity() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "*/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
-        startActivityForResult(intent, REQUEST_CODE_FILE_SELECT)
+        startActivityForResult(intent, REQUEST_CODE_PHOTO_LIBRARY_SELECT)
     }
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
         when (requestCode) {
-            REQUEST_CODE_FILE_SELECT -> if (resultCode == RESULT_OK) {
+            REQUEST_CODE_PHOTO_LIBRARY_SELECT -> if (resultCode == RESULT_OK) {
                 var urisToUpload = emptyList<Uri>().toMutableList()
                 if (intent?.data != null) {
                     urisToUpload.add(intent.data!!)
                 } else if (intent?.clipData != null) {
                     urisToUpload = getUris(intent)
                 }
-                // Requesting read uri permission
                 for (uri in urisToUpload) {
                     context?.contentResolver?.takePersistableUriPermission(
                         uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                 }
-                // Start uploading files
                 filesToUpload.value = urisToUpload
             }
-
             REQUEST_CODE_IMAGE_CAPTURE -> if (resultCode == RESULT_OK) {
                 filesToUpload.value = mutableListOf(photoURI)
             }
-
             REQUEST_CODE_VIDEO_CAPTURE -> if (resultCode == RESULT_OK) {
                 intent?.data?.let { filesToUpload.value = mutableListOf(it) }
             }
@@ -213,13 +206,9 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
 
     private fun getUris(intent: Intent): MutableList<Uri> {
         val clipData: ClipData = intent.clipData!!
-        val itemCount = clipData.itemCount
         val uris: MutableList<Uri> = ArrayList()
-        var i = 0
-        while (i < itemCount) {
-            val originalUri = clipData.getItemAt(i).uri
-            uris.add(originalUri)
-            i++
+        for (i in 0 until clipData.itemCount) {
+            uris.add(clipData.getItemAt(i).uri)
         }
         return uris
     }
@@ -238,11 +227,9 @@ class AddOptionsFragment : PermanentBottomSheetFragment(), View.OnClickListener 
 
     fun getOnRefreshFolder(): MutableLiveData<Void?> = onRefreshFolder
 
-    override fun connectViewModelEvents() {
-    }
+    override fun connectViewModelEvents() {}
 
-    override fun disconnectViewModelEvents() {
-    }
+    override fun disconnectViewModelEvents() {}
 
     override fun onResume() {
         super.onResume()

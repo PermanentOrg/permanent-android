@@ -8,6 +8,7 @@ class Constants {
         const val POSITION_DETAILS_FRAGMENT = 1
         const val REQUEST_CODE_FILE_SELECT = 200
         const val REQUEST_CODE_IMAGE_CAPTURE = 201
+        const val REQUEST_CODE_PHOTO_LIBRARY_SELECT = 202
         const val REQUEST_CODE_VIDEO_CAPTURE = 203
         const val REQUEST_CODE_GOOGLE_API_AVAILABILITY = 2404
         const val LOGIN_URL_SUFFIX = "auth/login"
