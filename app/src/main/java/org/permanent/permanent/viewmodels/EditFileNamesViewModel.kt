@@ -24,7 +24,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
         records.firstOrNull()?.let {
-            updateRecordThumb(it.thumbURL200)
+            updateRecordThumb(it.thumbnail256 ?: it.thumbURL200)
             updateFileName(it.displayName)
             updateRecordsCount(records.count())
             it.fileData?.size?.let { size -> updateFileSize(size) }

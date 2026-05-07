@@ -89,7 +89,7 @@ fun loadImage(view: ImageView, record: Record?) {
             when (record.type) {
                 RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
                 else -> Picasso.get()
-                    .load(record.thumbURL200)
+                    .load(record.thumbnail256 ?: record.thumbURL200)
                     .placeholder(R.drawable.ic_stop_light_grey)
                     .into(view)
             }
@@ -128,8 +128,8 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
 }
 
 @SuppressLint("SetJavaScriptEnabled")
-@BindingAdapter("webViewPath", "isVideo")
-fun WebView.updatePath(path: String?, isVideo: Boolean?) {
+@BindingAdapter("webViewPath", "isVideo", "isThumbnail256")
+fun WebView.updatePath(path: String?, isVideo: Boolean?, isThumbnail256: Boolean?) {
     settings.javaScriptEnabled = true
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
@@ -137,28 +137,51 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
     settings.allowFileAccess = true
     setBackgroundColor(Color.BLACK)
 
-    if (isVideo == true) {
-        loadDataWithBaseURL(
-            path,
-            "“<html><body>\n" +
-                    "<video controls>\n" +
-                    "<source src=\\“$path\\” type=\\“video/mp4\\“>\n" +
-                    "</video>\n" +
-                    "</body></html>”",
-            "video/mp4",
-            null,
-            null
-        )
-        webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
+    when {
+        isVideo == true -> {
+            loadDataWithBaseURL(
+                path,
+                "“<html><body>\n" +
+                        "<video controls>\n" +
+                        "<source src=\\“$path\\” type=\\“video/mp4\\“>\n" +
+                        "</video>\n" +
+                        "</body></html>”",
+                "video/mp4",
+                null,
+                null
+            )
+            webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView, url: String) {
+                    loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
+                }
             }
         }
-    } else {
-        settings.builtInZoomControls = true
-        settings.displayZoomControls = false
-        path?.let {
-            loadUrl(path)
+        isThumbnail256 == true && path != null -> {
+            settings.builtInZoomControls = true
+            settings.displayZoomControls = false
+            val html = """
+                <html>
+                  <head>
+                    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+                    <style>
+                      html, body { margin: 0; padding: 0; background: #000; height: 100%; }
+                      body { display: flex; align-items: center; justify-content: center; }
+                      img { display: block; width: 100%; height: auto; }
+                    </style>
+                  </head>
+                  <body>
+                    <img src="$path" />
+                  </body>
+                </html>
+            """.trimIndent()
+            loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
+        }
+        else -> {
+            settings.builtInZoomControls = true
+            settings.displayZoomControls = false
+            path?.let {
+                loadUrl(path)
+            }
         }
     }
 }

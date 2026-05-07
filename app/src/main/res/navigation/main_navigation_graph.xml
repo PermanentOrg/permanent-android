@@ -13,7 +13,7 @@
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
-            app:uri="https://www.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
+            app:uri="https://app.permanent.org/app/pr/manage?fullName={fullName}&amp;primaryEmail={email}" />
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
@@ -83,10 +83,12 @@
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
-            app:uri="https://www.permanent.org/share/{url_token}" />
+            app:uri="https://app.permanent.org/share/{url_token}" />
         <action
             android:id="@+id/action_sharePreviewFragment_to_sharesFragment"
             app:destination="@id/sharesFragment"
+            app:popUpTo="@id/sharePreviewFragment"
+            app:popUpToInclusive="true"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
@@ -168,7 +170,7 @@
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
-            app:uri="https://www.permanent.org/app/(private//dialog:storage/promo)?promoCode={promo_code}" />
+            app:uri="https://app.permanent.org/app/(private//dialog:storage/promo)?promoCode={promo_code}" />
     </fragment>
 
     <fragment
@@ -233,15 +235,15 @@
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
-            app:uri="https://www.permanent.org/p/archive/{archive_nr}/profile" />
+            app:uri="https://app.permanent.org/p/archive/{archive_nr}/profile" />
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
-            app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
+            app:uri="https://app.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}/record/{file_archive_nr}" />
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
-            app:uri="https://www.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
+            app:uri="https://app.permanent.org/p/archive/{archive_nr}/{folder_archive_nr}/{folder_link_id}" />
         <action
             android:id="@+id/action_publicFragment_to_fileActivity"
             app:destination="@id/fileActivity" />

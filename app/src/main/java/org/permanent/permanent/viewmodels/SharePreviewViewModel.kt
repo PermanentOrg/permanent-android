@@ -1,52 +1,63 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
-import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.ILinkListener
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.ShareLinkVO
-import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IShareRepository
+import org.permanent.permanent.repositories.RequestShareAccessResult
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
-import org.permanent.permanent.ui.myFiles.RecordListener
+import org.permanent.permanent.ui.PREFS_NAME
+import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
-import org.permanent.permanent.ui.shares.PreviewState
+import org.permanent.permanent.ui.shares.ShareActionUiState
+import org.permanent.permanent.ui.shares.SharePreviewNavEvent
 
-class SharePreviewViewModel(application: Application) : ObservableAndroidViewModel(application),
-    RecordListener {
+private const val ACCESS_RESTRICTION_NONE = "none"
+
+class SharePreviewViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private lateinit var urlToken: String
-    private var recordIdToView: Int? = null
+    private var cachedShareByUrl: Shareby_urlVO? = null
+    private var cachedAccessRestrictions: String? = null
+    private var cachedPermissionsLevel: String? = null
+    private var originalArchive: Archive? = null
+    private var openWasTapped: Boolean = false
+
     private val _archiveThumbURL = MutableStateFlow("")
     private val recordDisplayName = SingleLiveEvent<String>()
     private val _rawAccountName = MutableStateFlow("")
     private val _rawArchiveName = MutableStateFlow("")
     private val _records = MutableStateFlow<List<Record>>(emptyList())
     private val _accessType = MutableStateFlow<AccessType?>(null)
-    private val _currentState = MutableStateFlow(PreviewState.NO_ACCESS)
-    private val currentArchiveThumb = MutableLiveData<String>()
-    private val _currentArchiveName = MutableStateFlow("")
-    private val isCurrentArchiveDefault = MutableLiveData(false)
-    private val _showChangeArchiveButton = MutableStateFlow(false)
-    private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
-    private val onChangeArchive = SingleLiveEvent<Void?>()
-    private val onViewInArchive = SingleLiveEvent<Int?>()
-    private val onNavigateUp = SingleLiveEvent<Void?>()
+    private val _actionUiState =
+        MutableStateFlow<ShareActionUiState>(ShareActionUiState.SelectArchive)
+    private val onSharePreviewNavEvent = SingleLiveEvent<SharePreviewNavEvent>()
     private val _isBusy = MutableStateFlow(false)
     private val errorMessage = MutableLiveData<String>()
+    private val _archives = MutableStateFlow<List<Archive>>(emptyList())
+    private val _selectedArchive = MutableStateFlow<Archive?>(null)
+    private val prefsHelper = PreferencesHelper(
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    )
     private var shareRepository: IShareRepository = ShareRepositoryImpl(application)
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(application)
     private var stelaAccountRepository: StelaAccountRepository =
@@ -54,111 +65,159 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
 
     fun checkShareLink(urlToken: String) {
         this.urlToken = urlToken
-        if (_isBusy.value) {
-            return
-        }
+        if (_isBusy.value) return
 
         _isBusy.value = true
+        loadShareData(isFirstLoad = true)
+    }
+
+    private fun loadShareData(isFirstLoad: Boolean) {
         shareRepository.checkShareLink(urlToken, object : IShareRepository.IShareByUrlListener {
             override fun onSuccess(shareByUrlVO: Shareby_urlVO?) {
-                _isBusy.value = false
+                cachedShareByUrl = shareByUrlVO
                 // Loading data in the header
-                _archiveThumbURL.value = shareByUrlVO?.ArchiveVO?.thumbURL200 ?: ""
+                _archiveThumbURL.value =
+                    shareByUrlVO?.ArchiveVO?.thumbnail256
+                        ?: shareByUrlVO?.ArchiveVO?.thumbURL200
+                        ?: ""
                 _rawAccountName.value = shareByUrlVO?.AccountVO?.fullName ?: ""
                 _rawArchiveName.value = "The ${shareByUrlVO?.ArchiveVO?.fullName} Archive"
 
                 // Loading toolbar title
                 when {
-                    shareByUrlVO?.RecordVO != null -> {
+                    shareByUrlVO?.RecordVO != null ->
                         recordDisplayName.value = shareByUrlVO.RecordVO?.displayName ?: ""
-                    }
-                    shareByUrlVO?.FolderVO != null -> {
+                    shareByUrlVO?.FolderVO != null ->
                         recordDisplayName.value = shareByUrlVO.FolderVO?.displayName ?: ""
-                    }
                 }
 
-                // Get link from Stela for accessRestrictions (determines blur)
-                _isBusy.value = true
-                stelaAccountRepository.getShareLink(
-                    shareTokens = mutableListOf(urlToken),
-                    listener = object : ILinkListener {
-
-                        override fun onSuccess(shareLink: ShareLinkVO?) {
-                            _isBusy.value = false
-
-                            val access =
-                                shareLink?.accessRestrictions?.let { AccessType.fromBackendValue(it) }
-
-                            _accessType.value = access
-
-                            if (access != AccessType.ANYONE_CAN_VIEW) {
-                                _records.value = getFakeBlurredRecords()
-
-                            } else if (shareByUrlVO?.RecordVO != null) {
+                if (isFirstLoad) {
+                    fetchShareLinkAndArchives(shareByUrlVO)
+                } else {
+                    val newState = deriveActionUiState(shareByUrlVO)
+                    _actionUiState.value = newState
+                    val userHasAccess = newState is ShareActionUiState.Approved ||
+                        newState is ShareActionUiState.OwnedByMe
+                    if (userHasAccess) {
+                        when {
+                            shareByUrlVO?.RecordVO != null -> {
                                 _records.value = listOf(Record(shareByUrlVO))
-
-                            } else if (shareByUrlVO?.FolderVO?.folderId != null) {
+                                _isBusy.value = false
+                            }
+                            shareByUrlVO?.FolderVO?.folderId != null -> {
                                 loadRealFolderChildren(shareByUrlVO.FolderVO?.folderId!!)
                             }
+                            else -> {
+                                _isBusy.value = false
+                            }
                         }
-
-                        override fun onFailed(error: String?) {
-                            _isBusy.value = false
-                            _currentState.value = PreviewState.ERROR
-                            errorMessage.value = error
-                        }
-                    })
-
-//                _isBusy.value = true
-//                archiveRepository.getAllArchives(object : IDataListener {
-//                    override fun onSuccess(dataList: List<Datum>?) {
-//                        _isBusy.value = false
-//                        if (!dataList.isNullOrEmpty()) {
-//                            var notPendingArchives = 0
-//
-//                            for (datum in dataList) {
-//                                val archive = Archive(datum.ArchiveVO)
-//                                if (archive.status != Status.PENDING) notPendingArchives++
-//                            }
-//
-//                            _showChangeArchiveButton.value = notPendingArchives > 1
-//                        }
-//                    }
-//
-//                    override fun onFailed(error: String?) {
-//                _isBusy.value = false
-//                _currentState.value = PreviewState.ERROR
-//                errorMessage.value = error
-//                    }
-//                })
-//
-//                // Loading data in the footer
-//                val shareVO = shareByUrlVO?.ShareVO
-//                if (shareVO != null) {
-//                    val share = Share(shareVO)
-//
-//                    if (share.status.value == Status.PENDING) {
-//                        // Showing 'Awaiting for Access' text
-//                        _currentState.value = PreviewState.AWAITING_ACCESS
-//                    } else { // Showing 'View in Archive' button
-//                        _currentState.value = PreviewState.ACCESS_GRANTED
-//                    }
-//                } else {
-//                    // Showing 'Request Access' button
-//                    _currentState.value = PreviewState.NO_ACCESS
-//                }
-//                currentArchiveThumb.value = prefsHelper.getCurrentArchiveThumbURL()
-//                _currentArchiveName.value = prefsHelper.getCurrentArchiveFullName() ?: ""
-//                isCurrentArchiveDefault.value =
-//                    prefsHelper.getCurrentArchiveId() == prefsHelper.getDefaultArchiveId()
+                    } else {
+                        _records.value = getFakeBlurredRecords()
+                        _isBusy.value = false
+                    }
+                }
             }
 
             override fun onFailed(error: String?) {
                 _isBusy.value = false
-                _currentState.value = PreviewState.ERROR
+                _actionUiState.value = ShareActionUiState.Error
                 errorMessage.value = error
             }
         })
+    }
+
+    private fun fetchShareLinkAndArchives(shareByUrlVO: Shareby_urlVO?) {
+        stelaAccountRepository.getShareLink(
+            shareTokens = mutableListOf(urlToken),
+            listener = object : ILinkListener {
+
+                override fun onSuccess(shareLink: ShareLinkVO?) {
+                    cachedAccessRestrictions = shareLink?.accessRestrictions
+                    cachedPermissionsLevel = shareLink?.permissionsLevel
+
+                    val access =
+                        shareLink?.accessRestrictions?.let { AccessType.fromBackendValue(it) }
+                    _accessType.value = access
+
+                    val folderId = shareByUrlVO?.FolderVO?.folderId
+                    when {
+                        access != AccessType.ANYONE_CAN_VIEW -> {
+                            _records.value = getFakeBlurredRecords()
+                            _isBusy.value = false
+                        }
+                        shareByUrlVO?.RecordVO != null -> {
+                            _records.value = listOf(Record(shareByUrlVO))
+                            _isBusy.value = false
+                        }
+                        folderId != null -> loadRealFolderChildren(folderId)
+                        else -> _isBusy.value = false
+                    }
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusy.value = false
+                    _actionUiState.value = ShareActionUiState.Error
+                    errorMessage.value = error
+                }
+            }
+        )
+
+        archiveRepository.getAllArchives(object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                val notPending = dataList
+                    ?.mapNotNull { it.ArchiveVO?.let(::Archive) }
+                    ?.filter { it.status != Status.PENDING }
+                    .orEmpty()
+                _archives.value = notPending
+                if (originalArchive == null) {
+                    val currentId = prefsHelper.getCurrentArchiveId()
+                    originalArchive = notPending.firstOrNull { it.id == currentId }
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                // Silent — the picker sheet will simply show its empty state.
+            }
+        })
+    }
+
+    fun shouldRestoreArchiveOnBack(): Boolean {
+        if (openWasTapped) return false
+        val original = originalArchive ?: return false
+        if (original.number.isNullOrEmpty()) return false
+        return original.id != prefsHelper.getCurrentArchiveId()
+    }
+
+    fun restoreOriginalArchiveIfChanged(onComplete: () -> Unit) {
+        if (!shouldRestoreArchiveOnBack()) {
+            onComplete()
+            return
+        }
+        val original = originalArchive!!
+
+        _isBusy.value = true
+        saveCurrentArchive(original)
+        archiveRepository.switchToArchive(original.number!!, object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                _isBusy.value = false
+                onComplete()
+            }
+            override fun onFailed(error: String?) {
+                _isBusy.value = false
+                onComplete()
+            }
+        })
+    }
+
+    private fun saveCurrentArchive(archive: Archive) {
+        prefsHelper.saveCurrentArchiveInfo(
+            archive.id,
+            archive.number,
+            archive.type,
+            archive.fullName,
+            archive.thumbnail256 ?: archive.thumbURL200,
+            archive.accessRole
+        )
     }
 
     private fun loadRealFolderChildren(folderId: Int) {
@@ -176,7 +235,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
 
                 override fun onFailed(error: String?) {
                     _isBusy.value = false
-                    _currentState.value = PreviewState.ERROR
+                    _actionUiState.value = ShareActionUiState.Error
                     errorMessage.value = error
                 }
             }
@@ -187,14 +246,12 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         val folders = records.filter { it.type == RecordType.FOLDER }
         val images = records.filter { it.type == RecordType.FILE }
 
-        // Case 1: No images → show folders only (max 4)
         if (images.isEmpty()) {
             return folders.take(4)
         }
 
         val result = MutableList<Record?>(4) { null }
 
-        // Put first folder in position 0 (if exists)
         var usedFolders = 0
         if (folders.isNotEmpty()) {
             result[0] = folders[0]
@@ -221,7 +278,6 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
             }
         }
 
-        // ✅ Fill remaining empty slots with remaining folders
         val remainingFolders = folders.drop(usedFolders).iterator()
 
         for (i in result.indices) {
@@ -233,44 +289,107 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         return result.filterNotNull()
     }
 
-    fun onChangeArchiveBtnClick() {
-        onChangeArchive.call()
-    }
-
-    fun onRequestAccessBtnClick() {
-        if (_isBusy.value) {
+    fun onArchiveSelected(archive: Archive) {
+        if (_isBusy.value || archive.id == _selectedArchive.value?.id) return
+        val previous = _selectedArchive.value
+        _selectedArchive.value = archive
+        val archiveNr = archive.number
+        if (archiveNr.isNullOrEmpty()) {
+            _selectedArchive.value = previous
             return
         }
-
         _isBusy.value = true
-        shareRepository.requestShareAccess(urlToken, object : IShareRepository.IShareListener {
-            override fun onSuccess(shareVO: ShareVO?) {
-                _isBusy.value = false
-                if (shareVO != null && Share(shareVO).status.value == Status.OK) {
-                    _currentState.value = PreviewState.ACCESS_GRANTED
-                } else {
-                    _currentState.value = PreviewState.AWAITING_ACCESS
-                }
+        _actionUiState.value = ShareActionUiState.Loading
+        archiveRepository.switchToArchive(archiveNr, object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                saveCurrentArchive(archive)
+                loadShareData(isFirstLoad = false)
             }
 
             override fun onFailed(error: String?) {
                 _isBusy.value = false
-                _currentState.value = PreviewState.ERROR
+                _selectedArchive.value = previous
+                cachedShareByUrl?.let { _actionUiState.value = deriveActionUiState(it) }
                 errorMessage.value = error
             }
         })
     }
 
+    fun onRequestAccessBtnClick() {
+        if (_isBusy.value) return
+        _isBusy.value = true
+        _actionUiState.value = ShareActionUiState.Loading
+        shareRepository.requestShareAccess(urlToken) { result ->
+            when (result) {
+                is RequestShareAccessResult.Success,
+                RequestShareAccessResult.AlreadyExists -> {
+                    loadShareData(isFirstLoad = false)
+                }
+                is RequestShareAccessResult.Error -> {
+                    _isBusy.value = false
+                    errorMessage.value = result.message
+                    cachedShareByUrl?.let { _actionUiState.value = deriveActionUiState(it) }
+                }
+            }
+        }
+    }
+
+    fun onOpenBtnClick() {
+        val share = cachedShareByUrl ?: return
+        if (isCreator(share)) {
+            openWasTapped = true
+            onSharePreviewNavEvent.value =
+                SharePreviewNavEvent.OpenSharedByMe(share.FolderVO?.folderId)
+            return
+        }
+        if (_isBusy.value) return
+        _isBusy.value = true
+        shareRepository.requestShareAccess(urlToken) { result ->
+            when (result) {
+                is RequestShareAccessResult.Success,
+                RequestShareAccessResult.AlreadyExists -> {
+                    _isBusy.value = false
+                    openWasTapped = true
+                    val itemId = share.RecordVO?.recordId ?: share.FolderVO?.folderId
+                    onSharePreviewNavEvent.value = SharePreviewNavEvent.OpenSharedWithMe(itemId)
+                }
+                is RequestShareAccessResult.Error -> {
+                    _isBusy.value = false
+                    errorMessage.value = result.message
+                }
+            }
+        }
+    }
+
+    private fun isCreator(share: Shareby_urlVO): Boolean =
+        share.byAccountId == prefsHelper.getAccountId() &&
+            share.byArchiveId == prefsHelper.getCurrentArchiveId()
+
+    private fun deriveActionUiState(shareByUrl: Shareby_urlVO?): ShareActionUiState {
+        if (shareByUrl == null) return ShareActionUiState.Loading
+        if (isCreator(shareByUrl)) return ShareActionUiState.OwnedByMe
+
+        val isUnrestricted = cachedAccessRestrictions == ACCESS_RESTRICTION_NONE
+        val status = shareByUrl.ShareVO?.status?.lowercase().orEmpty()
+        return when {
+            "ok" in status || isUnrestricted -> ShareActionUiState.Approved(
+                accessRole = shareByUrl.ShareVO?.accessRole
+                    ?.let { AccessRole.fromBackendValue(it) }
+                    ?: cachedPermissionsLevel?.let { AccessRole.fromStelaBackendValue(it) }
+            )
+            "pending" in status -> ShareActionUiState.AccessRequested
+            else -> ShareActionUiState.RequestAccess
+        }
+    }
+
     private fun getFakeBlurredRecords(): List<Record> {
         return listOf(
-            // Fake folder (top-left)
             Record(recordId = -1, folderLinkId = -1).apply {
                 type = RecordType.FOLDER
                 displayName = "Folder"
                 isThumbBlurred = true
             },
 
-            // Fake images
             Record(recordId = -2, folderLinkId = -1).apply {
                 isThumbBlurred = true
                 localDrawableRes = R.drawable.img_share_preview_tall
@@ -286,43 +405,11 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
         )
     }
 
-    fun onViewInArchiveBtnClick() {
-        onViewInArchive.value = recordIdToView
-    }
-
-    fun onOkBtnClick() {
-        onNavigateUp.call()
-    }
-
-    override fun onRecordClick(record: Record) {}
-
-    override fun onRecordOptionsClick(record: Record) {}
-
-    override fun onRecordCheckBoxClick(record: Record) {}
-
-    override fun onRecordDeleteClick(record: Record) {}
-
     val archiveThumbURL: StateFlow<String> = _archiveThumbURL.asStateFlow()
 
     fun getRecordDisplayName(): MutableLiveData<String> = recordDisplayName
 
-    val currentState: StateFlow<PreviewState> = _currentState.asStateFlow()
-
-    fun getCurrentArchiveThumb(): MutableLiveData<String> = currentArchiveThumb
-
-    val currentArchiveName: StateFlow<String> = _currentArchiveName.asStateFlow()
-
-    fun getIsCurrentArchiveDefault(): MutableLiveData<Boolean> = isCurrentArchiveDefault
-
-    val showChangeArchiveButton: StateFlow<Boolean> = _showChangeArchiveButton.asStateFlow()
-
-    fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
-
-    fun getOnChangeArchive(): MutableLiveData<Void?> = onChangeArchive
-
-    fun getOnViewInArchive(): MutableLiveData<Int?> = onViewInArchive
-
-    fun getOnNavigateUp(): MutableLiveData<Void?> = onNavigateUp
+    fun getOnSharePreviewNavEvent(): MutableLiveData<SharePreviewNavEvent> = onSharePreviewNavEvent
 
     val isBusy: StateFlow<Boolean> = _isBusy.asStateFlow()
 
@@ -335,4 +422,10 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     val records: StateFlow<List<Record>> = _records.asStateFlow()
 
     val accessType: StateFlow<AccessType?> = _accessType.asStateFlow()
+
+    val archives: StateFlow<List<Archive>> = _archives.asStateFlow()
+
+    val selectedArchive: StateFlow<Archive?> = _selectedArchive.asStateFlow()
+
+    val actionUiState: StateFlow<ShareActionUiState> = _actionUiState.asStateFlow()
 }

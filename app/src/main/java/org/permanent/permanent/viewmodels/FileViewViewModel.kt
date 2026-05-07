@@ -36,6 +36,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     private val filePath = MutableLiveData<String>()
     private val isVideo = MutableLiveData<Boolean>()
     private val isPDF = MutableLiveData<Boolean>()
+    private val isThumbnail256 = MutableLiveData<Boolean>()
     private val isError = MutableLiveData(false)
     private val showMessage = MutableLiveData<String>()
     val isBusy = MutableLiveData(false)
@@ -64,6 +65,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                     fileData.value?.let { data ->
                         isPDF.value = data.contentType?.contains(FileType.PDF.toString())
                         isVideo.value = data.contentType?.contains(FileType.VIDEO.toString())
+                        isThumbnail256.value = false
 
                         val externalFile = File(
                             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
@@ -81,7 +83,12 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                                 externalFile.copyTo(cacheFile, overwrite = true)
                                 filePath.value = "file://${cacheFile.absolutePath}"
                             } else if (data.contentType?.contains(FileType.IMAGE.toString()) == true) {
-                                filePath.value = data.thumbURL2000
+                                if (data.thumbnail256 != null) {
+                                    filePath.value = data.thumbnail256
+                                    isThumbnail256.value = true
+                                } else {
+                                    filePath.value = data.thumbURL2000
+                                }
                             } else {
                                 filePath.value = data.fileURL
                             }
@@ -170,6 +177,8 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     fun getShowMessage(): LiveData<String> = showMessage
 
     fun getIsPDF(): MutableLiveData<Boolean> = isPDF
+
+    fun getIsThumbnail256(): MutableLiveData<Boolean> = isThumbnail256
 
     fun getIsError(): MutableLiveData<Boolean> = isError
 }

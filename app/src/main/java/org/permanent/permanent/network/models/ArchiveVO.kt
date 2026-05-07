@@ -12,6 +12,7 @@ class ArchiveVO() {
     var thumbStatus: String? = null
     var type: String? = null
     var thumbURL200: String? = null
+    var thumbnail256: String? = null
     var status: String? = null
     var public: Int? = null
 
@@ -23,6 +24,7 @@ class ArchiveVO() {
         type = archive.type?.backendString
         fullName = archive.fullName
         thumbURL200 = archive.thumbURL200
+        thumbnail256 = archive.thumbnail256
         accessRole = archive.accessRole?.backendString
         status = archive.status?.toBackendString()
         public = archive.isPublic

@@ -175,7 +175,7 @@ fun ArchiveCard(info: Pair<Archive, ArchiveSteward?>,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             AsyncImage(
-                model = info.first.thumbURL200,
+                model = info.first.thumbnail256 ?: info.first.thumbURL200,
                 contentDescription = null,
                 modifier = Modifier
                     .size(30.dp)
@@ -264,7 +264,7 @@ fun ArchiveCardCompleted(info: Pair<Archive, ArchiveSteward?>,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(
-                    model = info.first.thumbURL200,
+                    model = info.first.thumbnail256 ?: info.first.thumbURL200,
                     contentDescription = null,
                     modifier = Modifier
                         .size(30.dp)

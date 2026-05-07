@@ -30,7 +30,7 @@ interface IShareRepository {
     // SHARE PREVIEW
     fun checkShareLink(urlToken: String, listener: IShareByUrlListener)
 
-    fun requestShareAccess(urlToken: String, listener: IShareListener)
+    fun requestShareAccess(urlToken: String, callback: (RequestShareAccessResult) -> Unit)
 
     // SHARES
     fun getShares(listener: IDataListener)

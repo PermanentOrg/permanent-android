@@ -81,7 +81,7 @@ fun EditMetadataScreen(
     val subTitleTextSize = 16.sp
 
     val records by remember { mutableStateOf(viewModel.getRecords()) }
-    val firstRecordThumb by remember { mutableStateOf(records[0].thumbURL200) }
+    val firstRecordThumb by remember { mutableStateOf(records[0].thumbnail256 ?: records[0].thumbURL200) }
     val titleString = stringResource(R.string.edit_files_metadata_title, records.size)
     val headerTitle by remember { mutableStateOf(titleString) }
     var inputDescription by remember { mutableStateOf("") }
@@ -91,7 +91,6 @@ fun EditMetadataScreen(
     val errorMessage by viewModel.showError.observeAsState()
     val infoMessage by viewModel.showInfoMessage.observeAsState()
     val showApplyAllToSelection by viewModel.showApplyAllToSelection.observeAsState()
-    val isBusy by viewModel.getIsBusy().observeAsState()
     val locationMenuName by viewModel.getLocationMenuName().observeAsState()
     val dateMenuName by viewModel.getDateMenuName().observeAsState()
 
@@ -393,7 +392,7 @@ private fun FilesMenuView(
             )
         }
 
-        Row() {
+        Row {
             Text(
                 text = actionTitle,
                 color = blue900,

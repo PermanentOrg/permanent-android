@@ -139,7 +139,7 @@
                     android:layout_marginTop="4dp"
                     android:scaleType="centerCrop"
                     android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 0 ? View.VISIBLE : View.GONE}"
-                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 0 ? record.shares.get(0).archive.thumbURL200 : null}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 0 ? (record.shares.get(0).archive.thumbnail256 ?? record.shares.get(0).archive.thumbURL200) : null}"
                     app:layout_constraintStart_toStartOf="@+id/tvDate"
                     app:layout_constraintTop_toBottomOf="@+id/tvDate" />
 
@@ -150,7 +150,7 @@
                     android:layout_marginStart="2dp"
                     android:scaleType="centerCrop"
                     android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 1 ? View.VISIBLE : View.GONE}"
-                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 1 ? record.shares.get(1).archive.thumbURL200 : null}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 1 ? (record.shares.get(1).archive.thumbnail256 ?? record.shares.get(1).archive.thumbURL200) : null}"
                     app:layout_constraintStart_toEndOf="@+id/ivArchive1Thumb"
                     app:layout_constraintTop_toTopOf="@+id/ivArchive1Thumb" />
 
@@ -161,7 +161,7 @@
                     android:layout_marginStart="2dp"
                     android:scaleType="centerCrop"
                     android:visibility="@{record.displayInShares &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 2 ? View.VISIBLE : View.GONE}"
-                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 2 ? record.shares.get(2).archive.thumbURL200 : null}"
+                    app:imageUrl="@{record.shares != null &amp;&amp; record.shares.size() > 2 ? (record.shares.get(2).archive.thumbnail256 ?? record.shares.get(2).archive.thumbURL200) : null}"
                     app:layout_constraintStart_toEndOf="@+id/ivArchive2Thumb"
                     app:layout_constraintTop_toTopOf="@+id/ivArchive2Thumb" />
 

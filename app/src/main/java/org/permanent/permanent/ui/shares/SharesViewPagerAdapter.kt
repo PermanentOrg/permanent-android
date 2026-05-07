@@ -16,6 +16,7 @@ class SharesViewPagerAdapter(val fragment: Fragment, val showScreenSimplified: B
     FragmentStateAdapter(fragment) {
 
     private var recordIdToNavigateTo: Int? = null
+    private var navigateTargetTab: Int? = null
     var sharedByMeFragment: SharedXMeFragment? = null
     var sharedWithMeFragment: SharedXMeFragment? = null
     private val onShareByMeFragmentReady = SingleLiveEvent<Void?>()
@@ -52,21 +53,32 @@ class SharesViewPagerAdapter(val fragment: Fragment, val showScreenSimplified: B
 
     fun setSharesByMe(list: MutableList<Record>) {
         sharedByMeFragment?.setShares(list)
+        if (navigateTargetTab == Constants.POSITION_SHARED_BY_ME_FRAGMENT) {
+            recordIdToNavigateTo?.let {
+                sharedByMeFragment?.navigateToRecord(it)
+                recordIdToNavigateTo = null
+                navigateTargetTab = null
+            }
+        }
     }
 
     fun setSharesWithMe(list: MutableList<Record>) {
         sharesWithMe = list
         if (sharedWithMeFragment != null) {
             sharedWithMeFragment!!.setShares(sharesWithMe)
-            recordIdToNavigateTo?.let {
-                sharedWithMeFragment?.navigateToRecord(it)
-                recordIdToNavigateTo = null
+            if (navigateTargetTab == Constants.POSITION_SHARED_WITH_ME_FRAGMENT) {
+                recordIdToNavigateTo?.let {
+                    sharedWithMeFragment?.navigateToRecord(it)
+                    recordIdToNavigateTo = null
+                    navigateTargetTab = null
+                }
             }
         }
     }
 
-    fun setRecordToNavigateTo(recordId: Int) {
+    fun setRecordToNavigateTo(recordId: Int, targetTab: Int) {
         recordIdToNavigateTo = recordId
+        navigateTargetTab = targetTab
     }
 
     fun getOnShareByMeFragmentReady(): SingleLiveEvent<Void?> {

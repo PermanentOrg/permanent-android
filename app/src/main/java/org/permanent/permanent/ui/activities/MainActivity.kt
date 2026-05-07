@@ -272,7 +272,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
 
                 R.id.myFilesFragment -> {
                     prefsHelper.saveCurrentWorkspace(Workspace.PRIVATE_FILES)
-                    menuItem.onNavDestinationSelected(navController)
+                    if (navController.currentDestination?.id != R.id.myFilesFragment) {
+                        if (!navController.popBackStack(R.id.myFilesFragment, false)) {
+                            menuItem.onNavDestinationSelected(navController)
+                        }
+                    }
                     binding.drawerLayout.closeDrawers()
                 }
 
@@ -522,6 +526,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     supportFragmentManager.primaryNavigationFragment?.childFragmentManager?.fragments?.first() as PublicFolderFragment
                 if (publicFolderFragment.onNavigateUp()) true
                 else navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
+            }
+
+            R.id.sharePreviewFragment -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
             }
 
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()

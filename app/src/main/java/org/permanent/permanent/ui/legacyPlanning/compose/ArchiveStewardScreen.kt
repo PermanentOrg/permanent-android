@@ -58,7 +58,7 @@ fun ArchiveStewardScreen(
             Header(
                 archiveName = archive?.fullName,
                 accessRoleText = archive?.accessRole?.toTitleCase(),
-                iconURL = archive?.thumbURL200
+                iconURL = archive?.thumbnail256 ?: archive?.thumbURL200
             )
         } else {
             NoLegacyHeader(openIntroScreen = openIntroScreen)

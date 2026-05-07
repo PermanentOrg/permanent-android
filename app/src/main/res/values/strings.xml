@@ -417,6 +417,13 @@
     <string name="share_preview_from">from</string>
     <string name="share_preview_view_shared_items_in">VIEW SHARED ITEMS IN</string>
     <string name="share_preview_select_archive">Select an archive…</string>
+    <string name="share_preview_the_prefix">The</string>
+    <string name="share_preview_archive_suffix">Archive</string>
+    <string name="share_preview_no_archives">No archives available</string>
+    <string name="share_preview_access_requested">Access requested</string>
+    <string name="share_preview_open_button">Open</string>
+    <string name="share_preview_access_role_label">Access role:</string>
+    <string name="share_preview_owned_banner">Shared from this archive.</string>
 
     <string name="invitations_title">Give a gig, get a gig</string>
     <string name="invitations_description">Invite your friends and family and both of your accounts will be credited with one free gigabyte of storage when they sign up.</string>
