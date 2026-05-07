@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.shares.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,10 +49,12 @@ import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.ui.composeComponents.AccessRoleLabel
+import org.permanent.permanent.ui.composeComponents.AccessRoleLabelColor
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
-import org.permanent.permanent.ui.shares.PreviewState
+import org.permanent.permanent.ui.shares.ShareActionUiState
 import org.permanent.permanent.viewmodels.SharePreviewViewModel
 
 @Composable
@@ -61,19 +64,22 @@ fun SharePreviewScreen(
     val archiveThumbURL by viewModel.archiveThumbURL.collectAsState()
     val rawAccountName by viewModel.rawAccountName.collectAsState()
     val rawArchiveName by viewModel.rawArchiveName.collectAsState()
-    val currentState by viewModel.currentState.collectAsState()
     val records by viewModel.records.collectAsState()
     val isBusy by viewModel.isBusy.collectAsState()
     val accessType by viewModel.accessType.collectAsState()
     val archives by viewModel.archives.collectAsState()
     val selectedArchive by viewModel.selectedArchive.collectAsState()
+    val actionUiState by viewModel.actionUiState.collectAsState()
     var showArchivePickerSheet by remember { mutableStateOf(false) }
 
     val boldFont = FontFamily(Font(R.font.usual_bold))
     val mediumFont = FontFamily(Font(R.font.usual_medium))
     val regularFont = FontFamily(Font(R.font.usual_regular))
 
-    val hasBlurredContent = accessType != AccessType.ANYONE_CAN_VIEW
+    val userHasAccess = actionUiState is ShareActionUiState.Approved ||
+        actionUiState is ShareActionUiState.OwnedByMe
+    val effectiveAccessType = if (userHasAccess) AccessType.ANYONE_CAN_VIEW else accessType
+    val hasBlurredContent = effectiveAccessType != AccessType.ANYONE_CAN_VIEW
 
     Box(
         modifier = Modifier
@@ -81,7 +87,7 @@ fun SharePreviewScreen(
             .background(colorResource(R.color.blue25))
     ) {
 
-        if (currentState == PreviewState.ERROR) {
+        if (actionUiState is ShareActionUiState.Error) {
             ErrorState(boldFont)
         } else {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -98,7 +104,7 @@ fun SharePreviewScreen(
 
                     RecordsLayout(
                         records = records,
-                        accessType = accessType,
+                        accessType = effectiveAccessType,
                         isBusy = isBusy,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -116,14 +122,28 @@ fun SharePreviewScreen(
             }
         }
 
-        if (currentState != PreviewState.ERROR) {
+        if (actionUiState !is ShareActionUiState.Error) {
             ArchivePickerCard(
                 selectedArchive = selectedArchive,
                 onClick = { showArchivePickerSheet = true },
+                enabled = !isBusy,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(horizontal = 48.dp, vertical = 32.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                content = if (actionUiState is ShareActionUiState.SelectArchive) {
+                    null
+                } else {
+                    {
+                        ShareActionContent(
+                            state = actionUiState,
+                            mediumFont = mediumFont,
+                            regularFont = regularFont,
+                            onRequestAccessClick = { viewModel.onRequestAccessBtnClick() },
+                            onOpenClick = { viewModel.onOpenBtnClick() }
+                        )
+                    }
+                }
             )
         }
 
@@ -139,6 +159,138 @@ fun SharePreviewScreen(
         if (isBusy) {
             CircularProgressIndicator(overlayColor = OverlayColor.LIGHT)
         }
+    }
+}
+
+@Composable
+private fun ShareActionContent(
+    state: ShareActionUiState,
+    mediumFont: FontFamily,
+    regularFont: FontFamily,
+    onRequestAccessClick: () -> Unit,
+    onOpenClick: () -> Unit
+) {
+    when (state) {
+        ShareActionUiState.SelectArchive,
+        ShareActionUiState.Error -> {
+            // Rendered by passing null content to ArchivePickerCard; these branches are unreachable.
+        }
+
+        ShareActionUiState.Loading -> {
+            Spacer(modifier = Modifier.height(56.dp))
+        }
+
+        ShareActionUiState.RequestAccess -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colorResource(R.color.success500))
+                    .clickable { onRequestAccessClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.share_preview_request_access_button),
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = mediumFont,
+                    color = colorResource(R.color.white)
+                )
+            }
+        }
+
+        ShareActionUiState.AccessRequested -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.share_preview_access_requested),
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = mediumFont,
+                    color = colorResource(R.color.success500)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    painter = painterResource(R.drawable.ic_check_simple),
+                    contentDescription = null,
+                    tint = colorResource(R.color.success500),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+
+        is ShareActionUiState.Approved -> {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (state.accessRole != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.share_preview_access_role_label),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp,
+                            fontFamily = regularFont,
+                            color = colorResource(R.color.blue600)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        AccessRoleLabel(
+                            accessRole = state.accessRole,
+                            color = AccessRoleLabelColor.LIGHT_BLUE
+                        )
+                    }
+                }
+                OpenButton(mediumFont = mediumFont, onClick = onOpenClick)
+            }
+        }
+
+        ShareActionUiState.OwnedByMe -> {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(7.dp))
+                        .background(colorResource(R.color.warning100))
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.share_preview_owned_banner),
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        fontFamily = regularFont,
+                        color = colorResource(R.color.warning600)
+                    )
+                }
+                OpenButton(mediumFont = mediumFont, onClick = onOpenClick)
+            }
+        }
+    }
+}
+
+@Composable
+private fun OpenButton(
+    mediumFont: FontFamily,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(colorResource(R.color.blue900))
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(R.string.share_preview_open_button),
+            fontSize = 14.sp,
+            lineHeight = 24.sp,
+            fontFamily = mediumFont,
+            color = colorResource(R.color.white)
+        )
     }
 }
 

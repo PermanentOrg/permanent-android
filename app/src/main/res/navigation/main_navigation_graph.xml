@@ -87,6 +87,8 @@
         <action
             android:id="@+id/action_sharePreviewFragment_to_sharesFragment"
             app:destination="@id/sharesFragment"
+            app:popUpTo="@id/sharePreviewFragment"
+            app:popUpToInclusive="true"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>

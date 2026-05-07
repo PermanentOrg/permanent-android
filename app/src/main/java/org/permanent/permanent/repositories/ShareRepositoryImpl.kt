@@ -139,20 +139,32 @@ class ShareRepositoryImpl(val context: Context) : IShareRepository {
             })
     }
 
-    override fun requestShareAccess(urlToken: String, listener: IShareRepository.IShareListener) {
+    override fun requestShareAccess(
+        urlToken: String,
+        callback: (RequestShareAccessResult) -> Unit
+    ) {
         NetworkClient.instance().requestShareAccess(urlToken)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    if (response.code() == 409) {
+                        callback(RequestShareAccessResult.AlreadyExists)
+                        return
+                    }
                     val responseVO = response.body()
-                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                        listener.onSuccess(responseVO.getShareVO())
+                    val messages = responseVO?.getMessages().orEmpty()
+                    if (messages.any { it?.contains("already_exists", ignoreCase = true) == true }) {
+                        callback(RequestShareAccessResult.AlreadyExists)
+                        return
+                    }
+                    if (responseVO?.isSuccessful == true) {
+                        callback(RequestShareAccessResult.Success(responseVO.getShareVO()))
                     } else {
-                        listener.onFailed(responseVO?.Results?.get(0)?.message?.get(0))
+                        callback(RequestShareAccessResult.Error(messages.firstOrNull()))
                     }
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    listener.onFailed(t.message)
+                    callback(RequestShareAccessResult.Error(t.message))
                 }
             })
     }

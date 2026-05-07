@@ -63,8 +63,12 @@ class SharesFragment : PermanentBaseFragment() {
 
         arguments?.takeIf { it.containsKey(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY) }?.apply {
             viewPager2.post {
-                viewPager2.currentItem = getInt(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY)
-                viewPagerAdapter.setRecordToNavigateTo(getInt(RECORD_ID_TO_NAVIGATE_TO_KEY))
+                val tab = getInt(CHILD_FRAGMENT_TO_NAVIGATE_TO_KEY)
+                viewPager2.currentItem = tab
+                viewPagerAdapter.setRecordToNavigateTo(
+                    getInt(RECORD_ID_TO_NAVIGATE_TO_KEY),
+                    tab
+                )
                 arguments?.clear()
             }
         }

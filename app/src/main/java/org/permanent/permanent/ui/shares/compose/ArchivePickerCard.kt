@@ -4,9 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,9 +26,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -37,22 +43,25 @@ import org.permanent.permanent.models.Archive
 fun ArchivePickerCard(
     selectedArchive: Archive?,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: (@Composable ColumnScope.() -> Unit)? = null
 ) {
     val mediumFont = FontFamily(Font(R.font.usual_medium))
     val regularFont = FontFamily(Font(R.font.usual_regular))
 
-    Box(
+    Column(
         modifier = modifier
-            .height(72.dp)
             .shadow(elevation = 8.dp, shape = RoundedCornerShape(22.dp))
             .clip(RoundedCornerShape(22.dp))
             .background(colorResource(R.color.white))
-            .clickable { onClick() }
-            .padding(16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(72.dp)
+                .clickable(enabled = enabled) { onClick() }
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ArchiveThumbnail(
@@ -73,7 +82,15 @@ fun ArchivePickerCard(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                val bodyText = selectedArchive?.fullName ?: stringResource(R.string.share_preview_select_archive)
+                val bodyText = if (selectedArchive != null) {
+                    formatArchiveName(
+                        fullName = selectedArchive.fullName.orEmpty(),
+                        regularFont = regularFont,
+                        mediumFont = mediumFont
+                    )
+                } else {
+                    AnnotatedString(stringResource(R.string.share_preview_select_archive))
+                }
 
                 Text(
                     text = bodyText,
@@ -94,6 +111,40 @@ fun ArchivePickerCard(
                 tint = colorResource(R.color.blue200),
                 modifier = Modifier.size(24.dp)
             )
+        }
+
+        if (content != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                content = content
+            )
+        }
+    }
+}
+
+@Composable
+private fun formatArchiveName(
+    fullName: String,
+    regularFont: FontFamily,
+    mediumFont: FontFamily
+): AnnotatedString {
+    val prefix = stringResource(R.string.share_preview_the_prefix) + " "
+    val suffix = " " + stringResource(R.string.share_preview_archive_suffix)
+    val hasPrefix = fullName.startsWith(prefix)
+    val hasSuffix = fullName.endsWith(suffix)
+    val middle = fullName
+        .let { if (hasPrefix) it.removePrefix(prefix) else it }
+        .let { if (hasSuffix) it.removeSuffix(suffix) else it }
+
+    return buildAnnotatedString {
+        if (hasPrefix) {
+            withStyle(SpanStyle(fontFamily = regularFont)) { append(prefix) }
+        }
+        withStyle(SpanStyle(fontFamily = mediumFont)) { append(middle) }
+        if (hasSuffix) {
+            withStyle(SpanStyle(fontFamily = regularFont)) { append(suffix) }
         }
     }
 }
