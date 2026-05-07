@@ -167,8 +167,8 @@
 
 
     <string name="publish_file_title">Publish file</string>
-    <string name="publish_confirmation_prefix">Are you sure you want to create a publicly viewable copy of </string>
-    <string name="publish_confirmation_suffix"> in your Public Workspace?</string>
+    <string name="publish_confirmation_prefix">Are you sure you want to create a publicly viewable copy of \u0020</string>
+    <string name="publish_confirmation_suffix">\u0020in your Public Workspace?</string>
     <string name="dialog_public_files_upload_title">Upload to Public?</string>
     <string name="dialog_public_files_upload_text">This is a public folder. Are you sure you want to upload here?</string>
     <string name="public_archive_title">Archive</string>

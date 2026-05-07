@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.myFiles.compose
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
@@ -73,6 +75,7 @@ fun RenameScreen(
         }
     }
 
+    val isFolder = record.type == RecordType.FOLDER
     NameInputLayout(
         title = stringResource(R.string.rename_file_title),
         buttonLabel = stringResource(R.string.rename),
@@ -82,7 +85,8 @@ fun RenameScreen(
         isConfirmEnabled = isEnabled,
         isBusy = isBusy,
         onClose = onClose,
-        thumbnailUrl = record.thumbnail256 ?: record.thumbURL200
+        thumbnailUrl = if (isFolder) null else record.thumbnail256 ?: record.thumbURL200,
+        iconRes = if (isFolder) R.drawable.ic_folder_barney_purple else null
     )
 }
 
@@ -119,7 +123,8 @@ fun NewFolderScreen(
         isConfirmEnabled = isEnabled,
         isBusy = isBusy,
         onClose = onClose,
-        hint = stringResource(R.string.new_folder_hint)
+        hint = stringResource(R.string.new_folder_hint),
+        iconRes = R.drawable.ic_folder_barney_purple
     )
 }
 
@@ -134,7 +139,8 @@ private fun NameInputLayout(
     isBusy: Boolean,
     onClose: () -> Unit,
     thumbnailUrl: String? = null,
-    hint: String? = null
+    hint: String? = null,
+    iconRes: Int? = null
 ) {
     Box {
         Column(
@@ -153,7 +159,8 @@ private fun NameInputLayout(
                     name = name,
                     onNameChange = onNameChange,
                     thumbnailUrl = thumbnailUrl,
-                    hint = hint
+                    hint = hint,
+                    iconRes = iconRes
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -223,20 +230,29 @@ private fun NameInputField(
     name: String,
     onNameChange: (String) -> Unit,
     thumbnailUrl: String? = null,
-    hint: String? = null
+    hint: String? = null,
+    iconRes: Int? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
+            .border(1.dp, colorResource(R.color.blue100), RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
-            .then(
-                Modifier.padding(start = 16.dp, end = 12.dp)
-            ),
+            .padding(start = 16.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (thumbnailUrl != null) {
+        if (iconRes != null) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+        } else if (thumbnailUrl != null) {
             AsyncImage(
                 model = thumbnailUrl,
                 contentDescription = null,
@@ -244,15 +260,6 @@ private fun NameInputField(
                 modifier = Modifier
                     .size(24.dp)
                     .clip(RoundedCornerShape(4.dp))
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .width(1.dp)
-                    .height(24.dp)
-                    .background(colorResource(R.color.blue900))
             )
 
             Spacer(modifier = Modifier.width(12.dp))
