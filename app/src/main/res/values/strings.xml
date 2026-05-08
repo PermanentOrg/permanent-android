@@ -319,6 +319,10 @@
     <string name="delete_records_title">Delete selected items?</string>
     <string name="leave_share_record_title">Leave share \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
+    <string name="new_folder_created">Folder successfully created</string>
+    <string name="rename_folder_success">Folder successfully renamed</string>
+    <string name="rename_file_success">File successfully renamed</string>
+    <string name="publish_success">File published successfully</string>
     <string name="my_files_uploads_title">Uploads</string>
     <string name="my_files_downloads_title">Downloads</string>
     <string name="my_files_uploads_waiting">Waiting…</string>

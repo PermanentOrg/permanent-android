@@ -1,6 +1,5 @@
 package org.permanent.permanent.ui.myFiles.compose
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -23,13 +22,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,10 +45,12 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
+import org.permanent.permanent.ui.composeComponents.AnimatedTemporarySnackbar
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
+import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
 import org.permanent.permanent.viewmodels.NewFolderViewModel
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 
@@ -58,20 +61,21 @@ fun RenameScreen(
     onCompleted: () -> Unit,
     onClose: () -> Unit
 ) {
-    val context = LocalContext.current
     val name by viewModel.currentRecordName.collectAsState()
     val isEnabled by viewModel.isRenameEnabled.collectAsState()
     val isBusy by viewModel.isBusy.collectAsState()
 
+    var snackbarMessage by remember { mutableStateOf("") }
+    var snackbarType by remember { mutableStateOf(TemporarySnackbarType.ERROR) }
+
     LaunchedEffect(Unit) {
-        viewModel.onRecordRenamed.collect {
-            onCompleted()
-        }
+        viewModel.onRecordRenamed.collect { onCompleted() }
     }
 
     LaunchedEffect(Unit) {
-        viewModel.showMessage.collect { message ->
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        viewModel.errorMessage.collect { message ->
+            snackbarType = TemporarySnackbarType.ERROR
+            snackbarMessage = message
         }
     }
 
@@ -86,7 +90,10 @@ fun RenameScreen(
         isBusy = isBusy,
         onClose = onClose,
         thumbnailUrl = if (isFolder) null else record.thumbnail256 ?: record.thumbURL200,
-        iconRes = if (isFolder) R.drawable.ic_folder_barney_purple else null
+        iconRes = if (isFolder) R.drawable.ic_folder_barney_purple else null,
+        snackbarMessage = snackbarMessage,
+        snackbarType = snackbarType,
+        onSnackbarDismiss = { snackbarMessage = "" }
     )
 }
 
@@ -97,20 +104,21 @@ fun NewFolderScreen(
     onCompleted: () -> Unit,
     onClose: () -> Unit
 ) {
-    val context = LocalContext.current
     val name by viewModel.currentFolderName.collectAsState()
     val isEnabled by viewModel.isCreateEnabled.collectAsState()
     val isBusy by viewModel.isBusy.collectAsState()
 
+    var snackbarMessage by remember { mutableStateOf("") }
+    var snackbarType by remember { mutableStateOf(TemporarySnackbarType.ERROR) }
+
     LaunchedEffect(Unit) {
-        viewModel.onFolderCreated.collect {
-            onCompleted()
-        }
+        viewModel.onFolderCreated.collect { onCompleted() }
     }
 
     LaunchedEffect(Unit) {
         viewModel.errorMessage.collect { message ->
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            snackbarType = TemporarySnackbarType.ERROR
+            snackbarMessage = message
         }
     }
 
@@ -124,7 +132,10 @@ fun NewFolderScreen(
         isBusy = isBusy,
         onClose = onClose,
         hint = stringResource(R.string.new_folder_hint),
-        iconRes = R.drawable.ic_folder_barney_purple
+        iconRes = R.drawable.ic_folder_barney_purple,
+        snackbarMessage = snackbarMessage,
+        snackbarType = snackbarType,
+        onSnackbarDismiss = { snackbarMessage = "" }
     )
 }
 
@@ -140,7 +151,10 @@ private fun NameInputLayout(
     onClose: () -> Unit,
     thumbnailUrl: String? = null,
     hint: String? = null,
-    iconRes: Int? = null
+    iconRes: Int? = null,
+    snackbarMessage: String = "",
+    snackbarType: TemporarySnackbarType = TemporarySnackbarType.SUCCESS,
+    onSnackbarDismiss: () -> Unit = {}
 ) {
     Box {
         Column(
@@ -182,6 +196,15 @@ private fun NameInputLayout(
                 }
             }
         }
+
+        AnimatedTemporarySnackbar(
+            message = snackbarMessage,
+            type = snackbarType,
+            onButtonClick = onSnackbarDismiss,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        )
     }
 }
 

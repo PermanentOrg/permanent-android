@@ -11,7 +11,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
-import android.widget.Toast
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
+import org.permanent.permanent.ui.composeComponents.AnimatedTemporarySnackbar
+import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
@@ -34,6 +44,7 @@ import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -93,6 +104,22 @@ class MyFilesFragment : PermanentBaseFragment() {
     ): View {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this)[MyFilesViewModel::class.java]
+
+        binding.snackbarComposeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MaterialTheme {
+                    val message by snackbarMessage
+                    val type by snackbarType
+                    AnimatedTemporarySnackbar(
+                        message = message,
+                        type = type,
+                        onButtonClick = { snackbarMessage.value = "" },
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
+            }
+        }
 
         viewModel.sendEvent(AccountEventAction.OPEN_PRIVATE_WORKSPACE, data = mapOf("workspace" to "Private Files"))
         val displayMetrics = DisplayMetrics()
@@ -175,8 +202,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_myFilesFragment_to_archivesFragment)
     }
 
-    private val onShowMessage = Observer<String> {
-        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    private var snackbarMessage = mutableStateOf("")
+    private var snackbarType = mutableStateOf(TemporarySnackbarType.SUCCESS)
+
+    private val onShowMessage = Observer<String> { message ->
+        snackbarType.value = TemporarySnackbarType.SUCCESS
+        snackbarMessage.value = message
     }
 
     private val onShowQuotaExceeded = Observer<Void?> {
@@ -277,7 +308,15 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onRecordRenameObserver = Observer<Record> { record ->
         nameInputFragment = NameInputFragment.forRename(record)
-        nameInputFragment?.setOnCompletedCallback { viewModel.refreshCurrentFolder() }
+        nameInputFragment?.setOnCompletedCallback {
+            viewModel.refreshCurrentFolder()
+            val message = if (record.type == RecordType.FOLDER)
+                getString(R.string.rename_folder_success)
+            else
+                getString(R.string.rename_file_success)
+            snackbarType.value = TemporarySnackbarType.SUCCESS
+            snackbarMessage.value = message
+        }
         nameInputFragment?.show(parentFragmentManager, nameInputFragment?.tag)
     }
 
@@ -394,6 +433,8 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onRefreshFolder = Observer<Void?> {
         viewModel.refreshCurrentFolder()
+        snackbarType.value = TemporarySnackbarType.SUCCESS
+        snackbarMessage.value = getString(R.string.new_folder_created)
     }
 
     private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
