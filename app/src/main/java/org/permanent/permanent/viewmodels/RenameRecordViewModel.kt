@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -21,8 +20,10 @@ class RenameRecordViewModel(application: Application) : AndroidViewModel(applica
     private val _currentRecordName = MutableStateFlow("")
     val currentRecordName: StateFlow<String> = _currentRecordName
 
+    private var originalRecordName = ""
+
     val isRenameEnabled: StateFlow<Boolean> = _currentRecordName
-        .map { it.isNotBlank() }
+        .map { it.isNotBlank() && it != originalRecordName }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private val _isBusy = MutableStateFlow(false)
@@ -31,13 +32,18 @@ class RenameRecordViewModel(application: Application) : AndroidViewModel(applica
     private val _onRecordRenamed = MutableSharedFlow<Unit>()
     val onRecordRenamed: SharedFlow<Unit> = _onRecordRenamed
 
-    private val _showMessage = MutableSharedFlow<String>()
-    val showMessage: SharedFlow<String> = _showMessage
+    private val _successMessage = MutableSharedFlow<String>()
+    val successMessage: SharedFlow<String> = _successMessage
+
+    private val _errorMessage = MutableSharedFlow<String>()
+    val errorMessage: SharedFlow<String> = _errorMessage
 
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
     fun setRecordName(displayName: String?) {
-        _currentRecordName.value = displayName ?: ""
+        val name = displayName ?: ""
+        originalRecordName = name
+        _currentRecordName.value = name
     }
 
     fun onNameChanged(name: String) {
@@ -53,13 +59,12 @@ class RenameRecordViewModel(application: Application) : AndroidViewModel(applica
         fileRepository.updateRecord(record, name, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 _isBusy.value = false
-                message?.let { viewModelScope.launch { _showMessage.emit(it) } }
                 viewModelScope.launch { _onRecordRenamed.emit(Unit) }
             }
 
             override fun onFailed(error: String?) {
                 _isBusy.value = false
-                error?.let { viewModelScope.launch { _showMessage.emit(it) } }
+                error?.let { viewModelScope.launch { _errorMessage.emit(it) } }
             }
         })
     }
