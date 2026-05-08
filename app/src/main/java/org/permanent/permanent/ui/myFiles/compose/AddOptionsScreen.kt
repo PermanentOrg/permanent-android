@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -84,10 +85,12 @@ fun AddOptionsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(88.dp)
                     .background(
                         colorResource(R.color.blue25),
                         RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-                    )
+                    ),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
             ) {
                 AddOptionsMenuItem(
                     icon = painterResource(R.drawable.ic_add_options_create_folder),

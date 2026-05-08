@@ -34,6 +34,9 @@ class NewFolderViewModel(application: Application) : AndroidViewModel(applicatio
     private val _onFolderCreated = MutableSharedFlow<Unit>()
     val onFolderCreated: SharedFlow<Unit> = _onFolderCreated
 
+    private val _successMessage = MutableSharedFlow<String>()
+    val successMessage: SharedFlow<String> = _successMessage
+
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage: SharedFlow<String> = _errorMessage
 
@@ -52,7 +55,10 @@ class NewFolderViewModel(application: Application) : AndroidViewModel(applicatio
         fileRepository.createFolder(parentFolderIdentifier, name, object : IRecordListener {
             override fun onSuccess(record: Record) {
                 _isBusy.value = false
-                viewModelScope.launch { _onFolderCreated.emit(Unit) }
+                viewModelScope.launch {
+                    _successMessage.emit(application.getString(R.string.new_folder_created))
+                    _onFolderCreated.emit(Unit)
+                }
             }
 
             override fun onFailed(error: String?) {
