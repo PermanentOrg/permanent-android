@@ -1,5 +1,6 @@
 package org.permanent.permanent.ui.myFiles.compose
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.ui.composeComponents.ButtonColor
 import org.permanent.permanent.ui.composeComponents.CenteredTextAndIconButton
 
@@ -49,15 +52,28 @@ fun PublishScreen(
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 32.dp)
         ) {
+            val isFolder = record.type == RecordType.FOLDER
             val imageUrl = record.thumbURL2000 ?: record.thumbnail256 ?: record.thumbURL200
-            if (imageUrl != null) {
+
+            if (isFolder) {
+                Image(
+                    painter = painterResource(R.drawable.ic_folder_purple_gradient),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .padding(horizontal = 66.dp)
+                        .fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+            } else if (imageUrl != null) {
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
+                        .aspectRatio(1f)
                         .clip(RoundedCornerShape(12.dp))
                 )
 
