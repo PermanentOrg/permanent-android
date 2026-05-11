@@ -26,6 +26,7 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.myFiles.PublishFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.viewmodels.FileViewViewModel
 import java.io.IOException
@@ -153,7 +154,9 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     }
 
     private val onRecordPublishObserver = Observer<Record> { record ->
-        viewModel.publishRecord(record)
+        val fragment = PublishFragment.forRecord(record)
+        fragment.setOnPublishConfirmedCallback { viewModel.publishRecord(record) }
+        fragment.show(parentFragmentManager, fragment.tag)
     }
 
     private val onFileDownloadObserver = Observer<Record> {

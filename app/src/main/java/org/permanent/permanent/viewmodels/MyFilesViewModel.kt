@@ -403,7 +403,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
                         swipeRefreshLayout.isRefreshing = false
-                        message?.let { showMessage.value = it }
+                        showMessage.value = message ?: appContext.getString(R.string.publish_success)
                     }
 
                     override fun onFailed(error: String?) {

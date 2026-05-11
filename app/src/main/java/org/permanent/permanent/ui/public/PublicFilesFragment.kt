@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
-import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentPublicFilesBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Download
@@ -52,6 +51,8 @@ import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.RecordsAdapter
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
+import org.permanent.permanent.ui.myFiles.NameInputFragment
+import org.permanent.permanent.ui.myFiles.PublishFragment
 import org.permanent.permanent.ui.myFiles.SortOptionsFragment
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
@@ -65,7 +66,6 @@ import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.viewmodels.PublicFilesViewModel
-import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 class PublicFilesFragment : PermanentBaseFragment() {
@@ -77,9 +77,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
-    private lateinit var renameDialogViewModel: RenameRecordViewModel
-    private lateinit var renameDialogBinding: DialogRenameRecordBinding
-    private var alertDialog: androidx.appcompat.app.AlertDialog? = null
+    private var nameInputFragment: NameInputFragment? = null
     private lateinit var prefsHelper: PreferencesHelper
     private var shouldRefreshCurrentFolder: Boolean = false
     private var addOptionsFragment: AddOptionsFragment? = null
@@ -95,7 +93,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
     ): View {
         binding = FragmentPublicFilesBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this)[PublicFilesViewModel::class.java]
-        renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
         prefsHelper = PreferencesHelper(
             requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         )
@@ -211,29 +208,15 @@ class PublicFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordPublishObserver = Observer<Record> { record ->
-        viewModel.publishRecord(record)
+        val fragment = PublishFragment.forRecord(record)
+        fragment.setOnPublishConfirmedCallback { viewModel.publishRecord(record) }
+        fragment.show(parentFragmentManager, fragment.tag)
     }
 
     private val onRecordRenameObserver = Observer<Record> { record ->
-        renameDialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context), R.layout.dialog_rename_record, null, false
-        )
-        renameDialogBinding.executePendingBindings()
-        renameDialogBinding.lifecycleOwner = this
-        renameDialogBinding.viewModel = renameDialogViewModel
-        renameDialogViewModel.setRecordName(record.displayName)
-
-        alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setView(renameDialogBinding.root).create()
-        renameDialogBinding.tvTitle.text =
-            getString(R.string.rename_record_title, record.displayName)
-        renameDialogBinding.btnRename.setOnClickListener {
-            renameDialogViewModel.renameRecord(record)
-        }
-        renameDialogBinding.btnCancel.setOnClickListener {
-            alertDialog?.dismiss()
-        }
-        alertDialog?.show()
+        nameInputFragment = NameInputFragment.forRename(record)
+        nameInputFragment?.setOnCompletedCallback { viewModel.refreshCurrentFolder() }
+        nameInputFragment?.show(parentFragmentManager, nameInputFragment?.tag)
     }
 
     private val onCancelAllUploads = Observer<Void?> {
@@ -357,11 +340,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         }
     }
 
-    private val onRecordRenamed = Observer<Void?> {
-        viewModel.refreshCurrentFolder()
-        alertDialog?.dismiss()
-    }
-
     private val onRecordSelectedObserver = Observer<Record> {
         onRecordSelectedEvent.value = Pair(Workspace.PUBLIC_FILES, it)
     }
@@ -447,8 +425,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionOptionsObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
         viewModel.getOpenChecklistBottomSheet().observe(this, openChecklistBottomSheetObserver)
-        renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
-        renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
     }
 
@@ -477,8 +453,6 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOpenChecklistBottomSheet().removeObserver(openChecklistBottomSheetObserver)
         bottomSheetFragment?.getOnChecklistItemClick()?.removeObserver(onChecklistItemClickObserver)
         bottomSheetFragment?.getHideChecklistButton()?.removeObserver(onHideChecklistButtonObserver)
-        renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
-        renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         recordMenuFragment?.getOnRecordPublishRequest()?.removeObserver(onRecordPublishObserver)

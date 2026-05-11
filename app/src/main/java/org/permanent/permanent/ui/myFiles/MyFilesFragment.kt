@@ -11,7 +11,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
-import android.widget.Toast
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
+import org.permanent.permanent.ui.composeComponents.AnimatedTemporarySnackbar
+import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
@@ -28,13 +38,13 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
-import org.permanent.permanent.databinding.DialogRenameRecordBinding
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -59,7 +69,6 @@ import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
 import org.permanent.permanent.ui.shares.URL_TOKEN_KEY
 import org.permanent.permanent.ui.storage.RedeemCodeFragment
 import org.permanent.permanent.viewmodels.MyFilesViewModel
-import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
 
 
@@ -75,9 +84,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
-    private lateinit var renameDialogViewModel: RenameRecordViewModel
-    private lateinit var renameDialogBinding: DialogRenameRecordBinding
-    private var alertDialog: androidx.appcompat.app.AlertDialog? = null
+    private var nameInputFragment: NameInputFragment? = null
     private lateinit var prefsHelper: PreferencesHelper
     private var addOptionsFragment: AddOptionsFragment? = null
     private var recordMenuFragment: RecordMenuFragment? = null
@@ -97,7 +104,22 @@ class MyFilesFragment : PermanentBaseFragment() {
     ): View {
         binding = FragmentMyFilesBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this)[MyFilesViewModel::class.java]
-        renameDialogViewModel = ViewModelProvider(this)[RenameRecordViewModel::class.java]
+
+        binding.snackbarComposeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MaterialTheme {
+                    val message by snackbarMessage
+                    val type by snackbarType
+                    AnimatedTemporarySnackbar(
+                        message = message,
+                        type = type,
+                        onButtonClick = { snackbarMessage.value = "" },
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
+            }
+        }
 
         viewModel.sendEvent(AccountEventAction.OPEN_PRIVATE_WORKSPACE, data = mapOf("workspace" to "Private Files"))
         val displayMetrics = DisplayMetrics()
@@ -180,8 +202,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         findNavController().navigate(R.id.action_myFilesFragment_to_archivesFragment)
     }
 
-    private val onShowMessage = Observer<String> {
-        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    private var snackbarMessage = mutableStateOf("")
+    private var snackbarType = mutableStateOf(TemporarySnackbarType.SUCCESS)
+
+    private val onShowMessage = Observer<String> { message ->
+        snackbarType.value = TemporarySnackbarType.SUCCESS
+        snackbarMessage.value = message
     }
 
     private val onShowQuotaExceeded = Observer<Void?> {
@@ -275,31 +301,23 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordPublishObserver = Observer<Record> { record ->
-        viewModel.publishRecord(record)
+        val fragment = PublishFragment.forRecord(record)
+        fragment.setOnPublishConfirmedCallback { viewModel.publishRecord(record) }
+        fragment.show(parentFragmentManager, fragment.tag)
     }
 
     private val onRecordRenameObserver = Observer<Record> { record ->
-        renameDialogBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(context),
-            R.layout.dialog_rename_record, null, false
-        )
-        renameDialogBinding.executePendingBindings()
-        renameDialogBinding.lifecycleOwner = this
-        renameDialogBinding.viewModel = renameDialogViewModel
-        renameDialogViewModel.setRecordName(record.displayName)
-
-        alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setView(renameDialogBinding.root)
-            .create()
-        renameDialogBinding.tvTitle.text =
-            getString(R.string.rename_record_title, record.displayName)
-        renameDialogBinding.btnRename.setOnClickListener {
-            renameDialogViewModel.renameRecord(record)
+        nameInputFragment = NameInputFragment.forRename(record)
+        nameInputFragment?.setOnCompletedCallback {
+            viewModel.refreshCurrentFolder()
+            val message = if (record.type == RecordType.FOLDER)
+                getString(R.string.rename_folder_success)
+            else
+                getString(R.string.rename_file_success)
+            snackbarType.value = TemporarySnackbarType.SUCCESS
+            snackbarMessage.value = message
         }
-        renameDialogBinding.btnCancel.setOnClickListener {
-            alertDialog?.dismiss()
-        }
-        alertDialog?.show()
+        nameInputFragment?.show(parentFragmentManager, nameInputFragment?.tag)
     }
 
     private val onCancelAllUploads = Observer<Void?> {
@@ -415,6 +433,8 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onRefreshFolder = Observer<Void?> {
         viewModel.refreshCurrentFolder()
+        snackbarType.value = TemporarySnackbarType.SUCCESS
+        snackbarMessage.value = getString(R.string.new_folder_created)
     }
 
     private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
@@ -431,11 +451,6 @@ class MyFilesFragment : PermanentBaseFragment() {
             adapter = recordsAdapter
             recordsAdapter.setRecords(records)
         }
-    }
-
-    private val onRecordRenamed = Observer<Void?> {
-        viewModel.refreshCurrentFolder()
-        alertDialog?.dismiss()
     }
 
     private val onCurrentArchiveChangedObserver = Observer<Void?> {
@@ -511,8 +526,6 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getShowSelectionOptionsRequest().observe(this, showSelectionMenuObserver)
         viewModel.getShowEditMetadataScreenRequest().observe(this, showEditMetadataScreenObserver)
         viewModel.getOpenChecklistBottomSheet().observe(this, openChecklistBottomSheetObserver)
-        renameDialogViewModel.getOnRecordRenamed().observe(this, onRecordRenamed)
-        renameDialogViewModel.getOnShowMessage().observe(this, onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.observe(this, onFilesSelectedToUpload)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.observe(this, onFilesUploadRequest)
         saveToPermanentFragment?.getOnCurrentArchiveChangedEvent()
@@ -543,8 +556,6 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOpenChecklistBottomSheet().removeObserver(openChecklistBottomSheetObserver)
         bottomSheetFragment?.getOnChecklistItemClick()?.removeObserver(onChecklistItemClickObserver)
         bottomSheetFragment?.getHideChecklistButton()?.removeObserver(onHideChecklistButtonObserver)
-        renameDialogViewModel.getOnRecordRenamed().removeObserver(onRecordRenamed)
-        renameDialogViewModel.getOnShowMessage().removeObserver(onShowMessage)
         addOptionsFragment?.getOnFilesSelected()?.removeObserver(onFilesSelectedToUpload)
         addOptionsFragment?.getOnRefreshFolder()?.removeObserver(onRefreshFolder)
         saveToPermanentFragment?.getOnFilesUploadRequest()?.removeObserver(onFilesUploadRequest)
