@@ -424,6 +424,12 @@
     <string name="share_preview_open_button">Open</string>
     <string name="share_preview_access_role_label">Access role:</string>
     <string name="share_preview_owned_banner">Shared from this archive.</string>
+    <string name="share_preview_create_new_archive_row">Create a new Archive…</string>
+    <string name="share_preview_create_archive_title">Create archive</string>
+    <string name="share_preview_create_archive_question">What would you like this archive to focus on?</string>
+    <string name="share_preview_name_your_new_archive">NAME YOUR NEW ARCHIVE</string>
+    <string name="share_preview_create_button">Create</string>
+    <string name="share_preview_cancel_button">Cancel</string>
 
     <string name="invitations_title">Give a gig, get a gig</string>
     <string name="invitations_description">Invite your friends and family and both of your accounts will be credited with one free gigabyte of storage when they sign up.</string>

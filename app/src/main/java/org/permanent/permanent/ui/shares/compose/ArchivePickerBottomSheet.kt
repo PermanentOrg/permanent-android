@@ -26,17 +26,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -48,6 +46,7 @@ fun ArchivePickerBottomSheet(
     archives: List<Archive>,
     selectedArchive: Archive?,
     onArchiveSelected: (Archive) -> Unit,
+    onCreateArchiveClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -114,7 +113,19 @@ fun ArchivePickerBottomSheet(
             color = colorResource(R.color.blue50)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        CreateNewArchiveRow(
+            isHighlighted = selectedArchive == null,
+            onClick = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        onDismiss()
+                        onCreateArchiveClick()
+                    }
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         if (archives.isEmpty()) {
             Box(
@@ -156,6 +167,57 @@ fun ArchivePickerBottomSheet(
 }
 
 @Composable
+private fun CreateNewArchiveRow(
+    isHighlighted: Boolean,
+    onClick: () -> Unit
+) {
+    val mediumFont = FontFamily(Font(R.font.usual_medium))
+
+    val rowBackground = if (isHighlighted) {
+        colorResource(R.color.blue25)
+    } else {
+        Color.Transparent
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(rowBackground)
+            .clickable { onClick() }
+            .padding(horizontal = 32.dp, vertical = 32.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(colorResource(R.color.blue900)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_plus_white),
+                contentDescription = null,
+                tint = colorResource(R.color.white),
+                modifier = Modifier.size(16.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = stringResource(R.string.share_preview_create_new_archive_row),
+            fontSize = 14.sp,
+            lineHeight = 24.sp,
+            fontFamily = mediumFont,
+            color = colorResource(R.color.blue900),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
 private fun ArchiveRow(
     archive: Archive,
     isSelected: Boolean,
@@ -170,24 +232,11 @@ private fun ArchiveRow(
         Color.Transparent
     }
 
-    val fullName = archive.fullName.orEmpty()
-    val prefix = stringResource(R.string.share_preview_the_prefix) + " "
-    val suffix = " " + stringResource(R.string.share_preview_archive_suffix)
-    val hasPrefix = fullName.startsWith(prefix)
-    val hasSuffix = fullName.endsWith(suffix)
-    val middle = fullName
-        .let { if (hasPrefix) it.removePrefix(prefix) else it }
-        .let { if (hasSuffix) it.removeSuffix(suffix) else it }
-
-    val archiveLabel = buildAnnotatedString {
-        if (hasPrefix) {
-            withStyle(SpanStyle(fontFamily = regularFont)) { append(prefix) }
-        }
-        withStyle(SpanStyle(fontFamily = mediumFont)) { append(middle) }
-        if (hasSuffix) {
-            withStyle(SpanStyle(fontFamily = regularFont)) { append(suffix) }
-        }
-    }
+    val archiveLabel = formatArchiveName(
+        fullName = archive.fullName.orEmpty(),
+        regularFont = regularFont,
+        mediumFont = mediumFont
+    )
 
     Row(
         modifier = Modifier
