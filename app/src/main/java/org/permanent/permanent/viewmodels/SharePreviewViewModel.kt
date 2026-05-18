@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
+import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Status
@@ -55,6 +56,7 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private val errorMessage = MutableLiveData<String>()
     private val _archives = MutableStateFlow<List<Archive>>(emptyList())
     private val _selectedArchive = MutableStateFlow<Archive?>(null)
+    private val _createArchiveCompletedTick = MutableStateFlow(0L)
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
@@ -314,6 +316,34 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
             }
         })
     }
+
+    fun onCreateArchive(name: String, type: ArchiveType) {
+        if (_isBusy.value) return
+        _isBusy.value = true
+        _actionUiState.value = ShareActionUiState.Loading
+
+        archiveRepository.createNewArchive(
+            name,
+            type,
+            object : IArchiveRepository.IArchiveListener {
+                override fun onSuccess(archive: Archive) {
+                    _archives.value = _archives.value + archive
+                    _isBusy.value = false
+                    _createArchiveCompletedTick.value =
+                        _createArchiveCompletedTick.value + 1
+                    onArchiveSelected(archive)
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusy.value = false
+                    cachedShareByUrl?.let { _actionUiState.value = deriveActionUiState(it) }
+                    errorMessage.value = error
+                }
+            }
+        )
+    }
+
+    val createArchiveCompletedTick: StateFlow<Long> = _createArchiveCompletedTick.asStateFlow()
 
     fun onRequestAccessBtnClick() {
         if (_isBusy.value) return
