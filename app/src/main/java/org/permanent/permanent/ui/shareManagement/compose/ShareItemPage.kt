@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +47,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toUpperCase
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -73,8 +77,12 @@ fun ShareItemPage(
     val isLinkSharedState by viewModel.isLinkSharedState.collectAsState()
     val pendingShares by viewModel.pendingShares.collectAsState()
     val approvedShares by viewModel.approvedShares.collectAsState()
+    val isApprovingAll by viewModel.isApprovingAll.collectAsState()
+    val approvingShareIds by viewModel.approvingShareIds.collectAsState()
     var showDenyConfirmation by remember { mutableStateOf(false) }
     var selectedShare by remember { mutableStateOf<Share?>(null) }
+
+    val showApproveAllFooter = pendingShares.size >= 2
 
     Box(
         modifier = Modifier
@@ -121,13 +129,24 @@ fun ShareItemPage(
             ShareList(
                 pendingShares = pendingShares,
                 approvedShares = approvedShares,
+                isApprovingAll = isApprovingAll,
+                approvingShareIds = approvingShareIds,
                 modifier = Modifier.weight(1f),
+                contentBottomPadding = if (showApproveAllFooter) 88.dp else 32.dp,
                 onEditClick = { share -> viewModel.onEditClick(share) },
                 onApproveClick = { share -> viewModel.onApproveClick(share) },
                 onDenyClick = { share ->
                     selectedShare = share
                     showDenyConfirmation = true
                 }
+            )
+        }
+
+        if (showApproveAllFooter) {
+            ApproveAllFooter(
+                enabled = !isApprovingAll,
+                onClick = { viewModel.approveAllPendingShares() },
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
     }
@@ -158,7 +177,10 @@ fun ShareItemPage(
 fun ShareList(
     pendingShares: List<Share>,
     approvedShares: List<Share>,
+    isApprovingAll: Boolean,
+    approvingShareIds: Set<Int>,
     modifier: Modifier = Modifier,
+    contentBottomPadding: Dp = 32.dp,
     onEditClick: (Share) -> Unit,
     onApproveClick: (Share) -> Unit,
     onDenyClick: (Share) -> Unit
@@ -169,7 +191,8 @@ fun ShareList(
         modifier = modifier
             .fillMaxWidth()
             .background(colorResource(R.color.white))
-            .padding(start = 24.dp, end = 16.dp, top = 32.dp, bottom = 32.dp)
+            .padding(start = 24.dp, end = 16.dp, top = 32.dp),
+        contentPadding = PaddingValues(bottom = contentBottomPadding)
     ) {
 
         item {
@@ -177,17 +200,20 @@ fun ShareList(
         }
 
         items(
-            approvedShares, key = { it.id ?: it.hashCode() }) { share ->
-            ApprovedShareItem(share) { onEditClick(share) }
-        }
-
-        items(
             pendingShares, key = { it.id ?: it.hashCode() }) { share ->
+            val isApprovingThis = share.id != null && share.id in approvingShareIds
             PendingShareItem(
-                share,
+                share = share,
+                isApprovingThis = isApprovingThis,
+                rowActionsEnabled = !isApprovingAll,
                 onApproveClick = { onApproveClick(share) },
                 onDenyClick = { onDenyClick(share) }
             )
+        }
+
+        items(
+            approvedShares, key = { it.id ?: it.hashCode() }) { share ->
+            ApprovedShareItem(share) { onEditClick(share) }
         }
     }
 }
@@ -282,7 +308,13 @@ fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
 }
 
 @Composable
-fun PendingShareItem(share: Share, onApproveClick: () -> Unit, onDenyClick: () -> Unit) {
+fun PendingShareItem(
+    share: Share,
+    isApprovingThis: Boolean = false,
+    rowActionsEnabled: Boolean = true,
+    onApproveClick: () -> Unit,
+    onDenyClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -320,20 +352,89 @@ fun PendingShareItem(share: Share, onApproveClick: () -> Unit, onDenyClick: () -
             )
         }
 
-        IconButton(onClick = { onApproveClick() }, modifier = Modifier.size(40.dp)) {
-            Icon(
-                painter = painterResource(R.drawable.ic_done_white),
-                tint = colorResource(R.color.success500),
-                contentDescription = "Approve"
-            )
+        if (isApprovingThis) {
+            Box(
+                modifier = Modifier.size(40.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    overlayColor = OverlayColor.LIGHT,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        } else {
+            IconButton(
+                onClick = onApproveClick,
+                enabled = rowActionsEnabled,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_done_white),
+                    tint = colorResource(R.color.success500),
+                    contentDescription = "Approve"
+                )
+            }
         }
 
-        IconButton(onClick = { onDenyClick() }) {
+        IconButton(onClick = onDenyClick, enabled = rowActionsEnabled) {
             Icon(
                 painter = painterResource(R.drawable.ic_deny),
                 tint = Color.Unspecified,
                 contentDescription = "Deny"
             )
+        }
+    }
+}
+
+@Composable
+fun ApproveAllFooter(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val whiteColor = colorResource(R.color.white)
+    val successColor = colorResource(R.color.success500)
+    val fadeBrush = remember(whiteColor) {
+        Brush.verticalGradient(colors = listOf(Color.Transparent, whiteColor))
+    }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(32.dp)
+                .background(brush = fadeBrush)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(whiteColor)
+                .padding(start = 24.dp, end = 24.dp, bottom = 32.dp)
+        ) {
+            Button(
+                onClick = onClick,
+                enabled = enabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = successColor,
+                    contentColor = whiteColor,
+                    disabledContainerColor = successColor.copy(alpha = 0.5f),
+                    disabledContentColor = whiteColor
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.approve_all),
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_medium)),
+                        color = whiteColor
+                    )
+                )
+            }
         }
     }
 }
