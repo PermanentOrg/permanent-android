@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
@@ -93,6 +96,10 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     val pendingShares: StateFlow<List<Share>> = _pendingShares
     private val _approvedShares = MutableStateFlow<List<Share>>(emptyList())
     val approvedShares: StateFlow<List<Share>> = _approvedShares
+    private val _isApprovingAll = MutableStateFlow(false)
+    val isApprovingAll: StateFlow<Boolean> = _isApprovingAll
+    private val _approvingShareIds = MutableStateFlow<Set<Int>>(emptySet())
+    val approvingShareIds: StateFlow<Set<Int>> = _approvingShareIds
     private val areLinkSettingsVisible = MutableLiveData(false)
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
@@ -357,6 +364,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             override fun onSuccess(message: String?) {
                 _isBusyState.value = false
                 _approvedShares.value = _approvedShares.value.filterNot { it.id == share.id }
+                record.shares?.removeAll { it.id == share.id }
                 _navigateToPage.value = SharePage.SHARE_ITEM
                 _snackbarMessage.value = appContext.getString(R.string.access_revoked)
                 _snackbarType.value = TemporarySnackbarType.SUCCESS
@@ -449,32 +457,87 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         _navigateToPage.value = SharePage.ARCHIVE_ACCESS
     }
 
+    private suspend fun approveShare(share: Share): Result<String?> =
+        suspendCancellableCoroutine { cont ->
+            shareRepository.updateShare(share, object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    cont.resume(Result.success(message))
+                }
+
+                override fun onFailed(error: String?) {
+                    cont.resume(Result.failure(Exception(error)))
+                }
+            })
+        }
+
+    private fun applyApprovalSuccess(share: Share) {
+        share.status.value = Status.OK
+        _pendingShares.value = _pendingShares.value.filterNot { it.id == share.id }
+        _approvedShares.value = _approvedShares.value + share
+    }
+
     fun onApproveClick(share: Share) {
         if (_isBusyState.value) {
             return
         }
 
         _isBusyState.value = true
-        shareRepository.updateShare(share, object : IResponseListener {
-            override fun onSuccess(message: String?) {
-                _isBusyState.value = false
-                share.status.value = Status.OK // This hides the Approve and Deny buttons
-                _pendingShares.value = _pendingShares.value.filterNot { it.id == share.id }
-                _approvedShares.value = _approvedShares.value + share
-                message?.let {
-                    _snackbarMessage.value = it
-                    _snackbarType.value = TemporarySnackbarType.SUCCESS
+        viewModelScope.launch {
+            approveShare(share).onSuccess { message ->
+                    _isBusyState.value = false
+                    applyApprovalSuccess(share)
+                    message?.let {
+                        _snackbarMessage.value = it
+                        _snackbarType.value = TemporarySnackbarType.SUCCESS
+                    }
                 }
-            }
+                .onFailure { e ->
+                    _isBusyState.value = false
+                    val errorMsg = e.message
+                    if (!errorMsg.isNullOrEmpty()) {
+                        _snackbarMessage.value = errorMsg
+                        _snackbarType.value = TemporarySnackbarType.ERROR
+                    }
+                }
+        }
+    }
 
-            override fun onFailed(error: String?) {
-                _isBusyState.value = false
-                error?.let { errorMsg ->
-                    _snackbarMessage.value = errorMsg
-                    _snackbarType.value = TemporarySnackbarType.ERROR
-                }
+    fun approveAllPendingShares() {
+        if (_isBusyState.value) {
+            return
+        }
+        val toProcess = _pendingShares.value
+        if (toProcess.isEmpty()) {
+            return
+        }
+
+        _isApprovingAll.value = true
+        viewModelScope.launch {
+            var successCount = 0
+            var failureCount = 0
+            for (share in toProcess) {
+                val id = share.id ?: continue
+                _approvingShareIds.value = _approvingShareIds.value + id
+                approveShare(share)
+                    .onSuccess {
+                        applyApprovalSuccess(share)
+                        successCount++
+                    }
+                    .onFailure { failureCount++ }
+                _approvingShareIds.value = _approvingShareIds.value - id
             }
-        })
+            val (messageRes, type) = when {
+                failureCount == 0 ->
+                    R.string.approve_all_success to TemporarySnackbarType.SUCCESS
+                successCount == 0 ->
+                    R.string.approve_all_failure to TemporarySnackbarType.ERROR
+                else ->
+                    R.string.approve_all_partial_failure to TemporarySnackbarType.WARNING
+            }
+            _snackbarMessage.value = appContext.getString(messageRes)
+            _snackbarType.value = type
+            _isApprovingAll.value = false
+        }
     }
 
     fun onDenyClick(share: Share) {
@@ -487,6 +550,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             override fun onSuccess(message: String?) {
                 _isBusyState.value = false
                 _pendingShares.value = _pendingShares.value.filterNot { it.id == share.id }
+                record.shares?.removeAll { it.id == share.id }
                 message?.let {
                     _snackbarMessage.value = it
                     _snackbarType.value = TemporarySnackbarType.SUCCESS

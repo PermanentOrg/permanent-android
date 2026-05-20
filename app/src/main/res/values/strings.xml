@@ -889,5 +889,9 @@
     <string name="access_revoked">Access has been revoked.</string>
     <string name="pending">Pending…</string>
     <string name="confirm_deny_access_message">Are you sure you want to deny access from %s?</string>
+    <string name="approve_all">Approve all</string>
+    <string name="approve_all_success">All requests have been accepted.</string>
+    <string name="approve_all_partial_failure">Some of the requests were not accepted.</string>
+    <string name="approve_all_failure">None of the requests were accepted.</string>
     <string name="download_complete">Download complete</string>
 </resources>
