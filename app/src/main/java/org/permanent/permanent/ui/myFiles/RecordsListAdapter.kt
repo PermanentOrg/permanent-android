@@ -16,7 +16,8 @@ class RecordsListAdapter(
     private val isSelectMode: MutableLiveData<Boolean>,
     private val isForSharesScreen: Boolean,
     private val isForSearchScreen: Boolean,
-    private val recordListener: RecordListener
+    private val recordListener: RecordListener,
+    private val showPendingInvitationsBadge: Boolean = false
 ) : RecordsAdapter() {
     private var records: MutableList<Record> = ArrayList()
     private val viewBinderHelper = ViewBinderHelper()
@@ -27,7 +28,14 @@ class RecordsListAdapter(
             parent,
             false
         )
-        return RecordListViewHolder(binding, showMyFilesSimplified, isForSharesScreen, isForSearchScreen, recordListener)
+        return RecordListViewHolder(
+            binding,
+            showMyFilesSimplified,
+            isForSharesScreen,
+            isForSearchScreen,
+            showPendingInvitationsBadge,
+            recordListener
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

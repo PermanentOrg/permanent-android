@@ -7,9 +7,12 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,20 +27,28 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.ILinkListener
+import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.BackendRecordType
+import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.repositories.EventsRepositoryImpl
+import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IEventsRepository
+import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.bytesToHumanReadableString
+import org.permanent.permanent.ui.pendingInvitationCount
 import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
 import org.permanent.permanent.ui.shareManagement.compose.LinkDuration
@@ -87,7 +98,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val _editingShare = MutableStateFlow<Share?>(null)
     val editingShare: StateFlow<Share?> = _editingShare
 
-    private val _editingArchiveAccessRole = MutableStateFlow<AccessRole>(AccessRole.VIEWER)
+    private val _editingArchiveAccessRole = MutableStateFlow(AccessRole.VIEWER)
     val editingArchiveAccessRole: StateFlow<AccessRole> = _editingArchiveAccessRole
     private val _accessRolesOpenedFrom = MutableStateFlow<SharePage?>(null)
     private val _navigateToPage = MutableStateFlow<SharePage?>(null)
@@ -100,9 +111,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     val isApprovingAll: StateFlow<Boolean> = _isApprovingAll
     private val _approvingShareIds = MutableStateFlow<Set<Int>>(emptySet())
     val approvingShareIds: StateFlow<Set<Int>> = _approvingShareIds
+    private val _isRefreshingShares = MutableStateFlow(false)
+    val isRefreshingShares: StateFlow<Boolean> = _isRefreshingShares
+    private val _sharesChangedEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val sharesChangedEvent: SharedFlow<Unit> = _sharesChangedEvent.asSharedFlow()
     private val areLinkSettingsVisible = MutableLiveData(false)
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
+    private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var stelaAccountRepository: StelaAccountRepository =
         StelaAccountRepositoryImpl(application)
 
@@ -131,7 +147,52 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 ?: "" else ""
 
         checkForExistingLink(record)
-        initShares(record.shares)
+        refreshShares()
+    }
+
+    private fun refreshShares() {
+        val folderLinkId = record.folderLinkId ?: return
+        _isRefreshingShares.value = true
+        if (record.type == RecordType.FOLDER) {
+            fileRepository.getFolder(folderLinkId, object : IRecordListener {
+                override fun onSuccess(record: Record) = onRefreshSucceeded(record)
+                override fun onFailed(error: String?) = onRefreshFailed(error)
+            })
+        } else {
+            fileRepository.getRecord(folderLinkId, record.recordId)
+                .enqueue(object : Callback<ResponseVO> {
+                    override fun onResponse(
+                        call: Call<ResponseVO>, response: Response<ResponseVO>
+                    ) {
+                        val freshRecord = response.body()?.getRecord()
+                        if (freshRecord != null) onRefreshSucceeded(freshRecord)
+                        else _isRefreshingShares.value = false
+                    }
+
+                    override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                        onRefreshFailed(t.message)
+                    }
+                })
+        }
+    }
+
+    private fun onRefreshSucceeded(freshRecord: Record) {
+        val previousPendingCount = record.pendingInvitationCount
+        val newPendingCount = freshRecord.pendingInvitationCount
+        record.shares = freshRecord.shares
+        initShares(freshRecord.shares)
+        _isRefreshingShares.value = false
+        if (newPendingCount != previousPendingCount) {
+            notifySharesChanged()
+        }
+    }
+
+    private fun onRefreshFailed(error: String?) {
+        _isRefreshingShares.value = false
+        error?.let {
+            _snackbarMessage.value = it
+            _snackbarType.value = TemporarySnackbarType.ERROR
+        }
     }
 
     private fun initShares(shares: MutableList<Share>?) {
@@ -470,10 +531,15 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             })
         }
 
-    private fun applyApprovalSuccess(share: Share) {
+    private fun applyApprovalSuccess(share: Share, notify: Boolean = true) {
         share.status.value = Status.OK
         _pendingShares.value = _pendingShares.value.filterNot { it.id == share.id }
         _approvedShares.value = _approvedShares.value + share
+        if (notify) notifySharesChanged()
+    }
+
+    private fun notifySharesChanged() {
+        _sharesChangedEvent.tryEmit(Unit)
     }
 
     fun onApproveClick(share: Share) {
@@ -520,12 +586,13 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 _approvingShareIds.value = _approvingShareIds.value + id
                 approveShare(share)
                     .onSuccess {
-                        applyApprovalSuccess(share)
+                        applyApprovalSuccess(share, notify = false)
                         successCount++
                     }
                     .onFailure { failureCount++ }
                 _approvingShareIds.value = _approvingShareIds.value - id
             }
+            if (successCount > 0) notifySharesChanged()
             val (messageRes, type) = when {
                 failureCount == 0 ->
                     R.string.approve_all_success to TemporarySnackbarType.SUCCESS
@@ -551,6 +618,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 _isBusyState.value = false
                 _pendingShares.value = _pendingShares.value.filterNot { it.id == share.id }
                 record.shares?.removeAll { it.id == share.id }
+                notifySharesChanged()
                 message?.let {
                     _snackbarMessage.value = it
                     _snackbarType.value = TemporarySnackbarType.SUCCESS

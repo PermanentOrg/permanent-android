@@ -27,6 +27,7 @@ fun ShareManagementContainer(
     onClose: () -> Unit,
 ) {
     val isBusyState by viewModel.isBusyState.collectAsState()
+    val isRefreshingShares by viewModel.isRefreshingShares.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
     val snackbarType by viewModel.snackbarType.collectAsState()
     val pagerState = rememberPagerState(
@@ -91,7 +92,7 @@ fun ShareManagementContainer(
             })
     }
 
-    if (isBusyState) {
+    if (isBusyState || isRefreshingShares) {
         CircularProgressIndicator(modifier = Modifier.fillMaxHeight(0.95f))
     }
 }
