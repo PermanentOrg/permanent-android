@@ -19,8 +19,14 @@ class RecordGridViewHolder(
     private val context: Context,
     private val binding: ItemGridRecordBinding,
     private val showMyFilesSimplified: Boolean,
+    private val showPendingInvitationsBadge: Boolean,
     private val recordListener: RecordListener
 ) : RecyclerView.ViewHolder(binding.root) {
+
+    private val pendingBadgeBinder = PendingInvitationBadgeBinder(
+        binding.tvPendingBadge,
+        binding.btnOptions
+    )
 
     fun bind(
         record: Record,
@@ -34,6 +40,7 @@ class RecordGridViewHolder(
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.btnOptions.visibility =
             if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER || showMyFilesSimplified) View.GONE else View.VISIBLE
+        pendingBadgeBinder.bind(record, lifecycleOwner, showPendingInvitationsBadge)
 
         if (record.isThumbBlurred != null
             && record.isThumbBlurred!!

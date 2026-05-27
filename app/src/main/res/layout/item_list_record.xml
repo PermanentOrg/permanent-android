@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -116,7 +117,7 @@
                     android:maxLines="1"
                     android:text="@{record.displayName}"
                     app:layout_constraintBottom_toTopOf="@+id/guideline"
-                    app:layout_constraintEnd_toStartOf="@+id/ivMembers"
+                    app:layout_constraintEnd_toStartOf="@+id/tvPendingBadge"
                     app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0" />
@@ -194,13 +195,34 @@
                 <ImageView
                     android:id="@+id/ivMembers"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:adjustViewBounds="true"
                     android:visibility="@{record.displayInShares == false &amp;&amp; record.shares != null &amp;&amp; record.shares.size() > 0 ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvDate"
+                    app:layout_constraintStart_toEndOf="@+id/tvDate"
+                    app:layout_constraintTop_toTopOf="@+id/tvDate"
+                    app:srcCompat="@drawable/ic_members_primary"
+                    app:tint="@color/middleGrey" />
+
+                <TextView
+                    android:id="@+id/tvPendingBadge"
+                    android:layout_width="20dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="-4dp"
+                    android:background="@drawable/bg_pending_invitation_badge"
+                    android:fontFamily="@font/usual_bold"
+                    android:gravity="center"
+                    android:letterSpacing="0.16"
+                    android:textAllCaps="true"
+                    android:textColor="@color/white"
+                    android:textSize="8sp"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="@+id/btnOptions"
                     app:layout_constraintEnd_toStartOf="@+id/btnOptions"
                     app:layout_constraintTop_toTopOf="@+id/btnOptions"
-                    app:srcCompat="@drawable/ic_members_primary"
-                    app:tint="@color/middleGrey" />
+                    tools:text="9+"
+                    tools:visibility="visible" />
 
                 <Button
                     android:id="@+id/btnOptions"

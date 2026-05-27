@@ -35,7 +35,6 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -44,7 +43,7 @@ import java.util.Date
 import java.util.Stack
 
 class SharedXMeViewModel(application: Application) : SelectionViewModel(application),
-    CancelListener, OnFinishedListener, RecordListener {
+    CancelListener, OnFinishedListener {
 
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
@@ -66,7 +65,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
     private val showQuotaExceeded = SingleLiveEvent<Void?>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
-    private val onShowRecordMenuFragment = SingleLiveEvent<Record>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
     private val onDownloadFinished = SingleLiveEvent<Download>()
     private val onRecordsRetrieved = SingleLiveEvent<MutableList<Record>>()
@@ -142,10 +140,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
                 onFileViewRequest.value = record
             }
         }
-    }
-
-    override fun onRecordOptionsClick(record: Record) {
-        onShowRecordMenuFragment.value = record
     }
 
     fun onBackBtnClick() {
@@ -401,10 +395,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         }
     }
 
-    override fun onRecordCheckBoxClick(record: Record) {
-        super.onRecordChecked(record)
-    }
-
     fun onSelectAllBtnClick() {
         super.onSelectAllRecords(onRecordsRetrieved.value!!)
     }
@@ -457,8 +447,6 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
 
     fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
-
-    fun getOnShowRecordMenuFragment(): MutableLiveData<Record> = onShowRecordMenuFragment
 
     fun getOpenChecklistBottomSheet(): MutableLiveData<Void?> = openChecklistBottomSheet
 

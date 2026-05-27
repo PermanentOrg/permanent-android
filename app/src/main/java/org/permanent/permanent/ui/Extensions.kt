@@ -14,6 +14,8 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.permanent.permanent.models.Record
+import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.models.TwoFAVO
 import java.io.File
 import java.io.FileOutputStream
@@ -224,3 +226,9 @@ fun String.toTwoFAVOList(): List<TwoFAVO> {
     val type = object : TypeToken<List<TwoFAVO>>() {}.type
     return Gson().fromJson(this, type)
 }
+
+val Record.pendingInvitationCount: Int
+    get() = shares?.count { it.status.value == Status.PENDING } ?: 0
+
+fun formatPendingInvitationCount(count: Int): String =
+    if (count > 9) "9+" else count.toString()

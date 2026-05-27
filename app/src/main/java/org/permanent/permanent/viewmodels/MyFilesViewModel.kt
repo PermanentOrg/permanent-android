@@ -46,7 +46,6 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.download.DownloadQueue
 import org.permanent.permanent.ui.myFiles.upload.UploadsAdapter
@@ -55,7 +54,7 @@ import java.util.Date
 import java.util.Stack
 
 open class MyFilesViewModel(application: Application) : SelectionViewModel(application),
-    RecordListener, CancelListener, OnFinishedListener {
+    CancelListener, OnFinishedListener {
 
     private val TAG = MyFilesViewModel::class.java.simpleName
     private val appContext = application.applicationContext
@@ -77,7 +76,6 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val onRecordsRetrieved = SingleLiveEvent<List<Record>>()
     private val onShowRecordSearchFragment = SingleLiveEvent<Void?>()
     private val onShowAddOptionsFragment = SingleLiveEvent<NavigationFolderIdentifier>()
-    private val onShowRecordMenuFragment = SingleLiveEvent<Record>()
     private val onShowSortOptionsFragment = SingleLiveEvent<SortType>()
     private val onRecordDeleteRequest = SingleLiveEvent<Record>()
     private val onFileViewRequest = SingleLiveEvent<ArrayList<Record>>()
@@ -215,14 +213,6 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     fun onChecklistFabClick() {
         openChecklistBottomSheet.call()
-    }
-
-    override fun onRecordOptionsClick(record: Record) {
-        onShowRecordMenuFragment.value = record
-    }
-
-    override fun onRecordCheckBoxClick(record: Record) {
-        super.onRecordChecked(record)
     }
 
     fun onSelectAllBtnClick() {
@@ -509,8 +499,6 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     fun getOnShowAddOptionsFragment(): MutableLiveData<NavigationFolderIdentifier> =
         onShowAddOptionsFragment
-
-    fun getOnShowRecordMenuFragment(): MutableLiveData<Record> = onShowRecordMenuFragment
 
     fun getShowScreenSimplified(): MutableLiveData<Boolean> = showScreenSimplified
 

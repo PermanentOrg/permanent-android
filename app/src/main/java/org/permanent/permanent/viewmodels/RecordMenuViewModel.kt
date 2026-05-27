@@ -27,6 +27,7 @@ import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
+import org.permanent.permanent.ui.pendingInvitationCount
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.EventsRepositoryImpl
@@ -78,6 +79,8 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     val archiveName: StateFlow<String> = _archiveName
     private val _accessRole = MutableStateFlow(AccessRole.VIEWER)
     val accessRole: StateFlow<AccessRole> = _accessRole
+    val pendingInvitationCount: Int
+        get() = record.pendingInvitationCount
     private val onRequestWritePermission = SingleLiveEvent<Void?>()
     private val onFileDownloadRequest = SingleLiveEvent<Void?>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()

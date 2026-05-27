@@ -31,6 +31,7 @@ fun SettingsMenuItem(
     text: String,
     itemColor: Color = Color(ContextCompat.getColor(LocalContext.current, R.color.colorPrimary)),
     showWarning: Boolean = false,
+    trailing: (@Composable () -> Unit)? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -65,6 +66,11 @@ fun SettingsMenuItem(
                 contentDescription = "Warning",
                 modifier = Modifier.size(20.dp)
             )
+        }
+
+        if (trailing != null) {
+            Spacer(modifier = Modifier.width(8.dp))
+            trailing()
         }
     }
 }

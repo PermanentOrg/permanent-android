@@ -59,6 +59,7 @@ import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
+import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.viewmodels.RenameRecordViewModel
 import org.permanent.permanent.viewmodels.SharedXMeViewModel
 import org.permanent.permanent.viewmodels.SingleLiveEvent
@@ -87,6 +88,15 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var islandExpandedWidth = 960
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parentFragmentManager.setFragmentResultListener(
+            ShareLinkFragment.SHARES_CHANGED_RESULT_KEY, this
+        ) { _, _ ->
+            viewModel.refreshCurrentFolder()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -406,7 +416,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
             viewModel.getIsSelectionMode(),
             isForSharesScreen = true,
             isForSearchScreen = false,
-            recordListener = viewModel
+            recordListener = viewModel,
+            showPendingInvitationsBadge = true
         )
         recordsGridAdapter = RecordsGridAdapter(
             this,
@@ -414,7 +425,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
             viewModel.getIsRelocationMode(),
             viewModel.getIsSelectionMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
-            recordListener = viewModel
+            recordListener = viewModel,
+            showPendingInvitationsBadge = true
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)
@@ -479,7 +491,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getOnShowQuotaExceeded().observe(this, onShowQuotaExceeded)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
-        viewModel.getOnShowRecordMenuFragment().observe(this, onShowRecordMenuFragment)
+        viewModel.getShowRecordMenuRequest().observe(this, onShowRecordMenuFragment)
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
@@ -507,7 +519,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getOnShowQuotaExceeded().removeObserver(onShowQuotaExceeded)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
-        viewModel.getOnShowRecordMenuFragment().removeObserver(onShowRecordMenuFragment)
+        viewModel.getShowRecordMenuRequest().removeObserver(onShowRecordMenuFragment)
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
