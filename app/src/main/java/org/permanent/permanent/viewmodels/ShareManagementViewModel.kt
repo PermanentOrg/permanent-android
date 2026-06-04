@@ -17,8 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
-import org.permanent.permanent.Constants
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.EventAction
@@ -42,21 +41,22 @@ import org.permanent.permanent.repositories.IShareRepository
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.bytesToHumanReadableString
-import org.permanent.permanent.ui.pendingInvitationCount
 import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
+import org.permanent.permanent.ui.pendingInvitationCount
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
 import org.permanent.permanent.ui.shareManagement.compose.LinkDuration
 import org.permanent.permanent.ui.shareManagement.compose.SharePage
 import org.permanent.permanent.ui.toBackendDateTimeString
 import org.permanent.permanent.ui.toDisplayDate
 import org.permanent.permanent.ui.toLocalDateUtc
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.time.LocalDate
+import kotlin.coroutines.resume
 
 
 class ShareManagementViewModel(application: Application) : ObservableAndroidViewModel(application) {
@@ -265,7 +265,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     private fun initLink(shareLink: ShareLinkVO) {
         this.shareLinkVO = shareLink
-        _shareLink.value = Constants.SHARED_LINK_URL + shareLink.token
+        _shareLink.value = BuildConfig.BASE_URL + "share/" + shareLink.token
         _isLinkSharedState.value = _shareLink.value != ""
         shareLinkVO?.createdAt?.toLocalDateUtc()?.let { _createdAtDate.value = it }
     }
@@ -300,7 +300,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 _isCreatingLinkState.value = false
                 _isLinkSharedState.value = true
                 this@ShareManagementViewModel.shareLinkVO = shareLink
-                _shareLink.value = Constants.SHARED_LINK_URL + shareLink?.token
+                _shareLink.value = BuildConfig.BASE_URL + "share/" + shareLink?.token
                 _isLinkSharedState.value = _shareLink.value != ""
                 shareLink?.createdAt?.toLocalDateUtc()?.let { _createdAtDate.value = it }
                 onShowLinkSettingsBtnClick()
