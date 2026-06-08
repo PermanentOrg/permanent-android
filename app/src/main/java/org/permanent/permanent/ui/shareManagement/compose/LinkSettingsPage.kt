@@ -388,7 +388,10 @@ fun LinkSettingsPage(
 
 @Composable
 fun NavigationHeader(
-    title: String, onBackBtnClick: () -> Unit, onCloseClick: (() -> Unit)? = null
+    title: String,
+    onBackBtnClick: () -> Unit,
+    onCloseClick: (() -> Unit)? = null,
+    dividerColor: Color = colorResource(R.color.blue50)
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Box(
@@ -431,7 +434,7 @@ fun NavigationHeader(
         }
 
         HorizontalDivider(
-            thickness = 1.dp, color = colorResource(R.color.blue100)
+            thickness = 1.dp, color = dividerColor
         )
     }
 }

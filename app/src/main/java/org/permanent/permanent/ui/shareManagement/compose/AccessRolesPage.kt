@@ -42,37 +42,13 @@ fun AccessRolesPage(
                 onCloseClick = onClose
             )
 
-            val isOwnerSelected = selectedAccessRole == AccessRole.OWNER
+            val isViewerSelected = selectedAccessRole == AccessRole.VIEWER
             LinkSettingsMenuItem(
-                iconResource = painterResource(id = R.drawable.ic_owner_green),
-                title = AccessRole.OWNER.toTitleCase(),
-                subtitle = stringResource(R.string.owner_description),
-                isSelected = isOwnerSelected
-            ) { viewModel.onAccessRoleClick(AccessRole.OWNER) }
-
-            HorizontalDivider(
-                thickness = 1.dp, color = colorResource(R.color.blue25)
-            )
-
-            val isCuratorSelected = selectedAccessRole == AccessRole.CURATOR
-            LinkSettingsMenuItem(
-                iconResource = painterResource(id = R.drawable.ic_curator_green),
-                title = AccessRole.CURATOR.toTitleCase(),
-                subtitle = stringResource(R.string.curator_description),
-                isSelected = isCuratorSelected
-            ) { viewModel.onAccessRoleClick(AccessRole.CURATOR) }
-
-            HorizontalDivider(
-                thickness = 1.dp, color = colorResource(R.color.blue25)
-            )
-
-            val isEditorSelected = selectedAccessRole == AccessRole.EDITOR
-            LinkSettingsMenuItem(
-                iconResource = painterResource(id = R.drawable.ic_editor_green),
-                title = AccessRole.EDITOR.toTitleCase(),
-                subtitle = stringResource(R.string.editor_description),
-                isSelected = isEditorSelected
-            ) { viewModel.onAccessRoleClick(AccessRole.EDITOR) }
+                iconResource = painterResource(id = R.drawable.ic_viewer_green),
+                title = AccessRole.VIEWER.toTitleCase(),
+                subtitle = stringResource(R.string.viewer_description),
+                isSelected = isViewerSelected
+            ) { viewModel.onAccessRoleClick(AccessRole.VIEWER) }
 
             HorizontalDivider(
                 thickness = 1.dp, color = colorResource(R.color.blue25)
@@ -90,13 +66,37 @@ fun AccessRolesPage(
                 thickness = 1.dp, color = colorResource(R.color.blue25)
             )
 
-            val isViewerSelected = selectedAccessRole == AccessRole.VIEWER
+            val isEditorSelected = selectedAccessRole == AccessRole.EDITOR
             LinkSettingsMenuItem(
-                iconResource = painterResource(id = R.drawable.ic_viewer_green),
-                title = AccessRole.VIEWER.toTitleCase(),
-                subtitle = stringResource(R.string.viewer_description),
-                isSelected = isViewerSelected
-            ) { viewModel.onAccessRoleClick(AccessRole.VIEWER) }
+                iconResource = painterResource(id = R.drawable.ic_editor_green),
+                title = AccessRole.EDITOR.toTitleCase(),
+                subtitle = stringResource(R.string.editor_description),
+                isSelected = isEditorSelected
+            ) { viewModel.onAccessRoleClick(AccessRole.EDITOR) }
+
+            HorizontalDivider(
+                thickness = 1.dp, color = colorResource(R.color.blue25)
+            )
+
+            val isCuratorSelected = selectedAccessRole == AccessRole.CURATOR
+            LinkSettingsMenuItem(
+                iconResource = painterResource(id = R.drawable.ic_curator_green),
+                title = AccessRole.CURATOR.toTitleCase(),
+                subtitle = stringResource(R.string.curator_description),
+                isSelected = isCuratorSelected
+            ) { viewModel.onAccessRoleClick(AccessRole.CURATOR) }
+
+            HorizontalDivider(
+                thickness = 1.dp, color = colorResource(R.color.blue25)
+            )
+
+            val isOwnerSelected = selectedAccessRole == AccessRole.OWNER
+            LinkSettingsMenuItem(
+                iconResource = painterResource(id = R.drawable.ic_owner_green),
+                title = AccessRole.OWNER.toTitleCase(),
+                subtitle = stringResource(R.string.owner_description),
+                isSelected = isOwnerSelected
+            ) { viewModel.onAccessRoleClick(AccessRole.OWNER) }
         }
     }
 }

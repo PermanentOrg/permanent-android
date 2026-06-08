@@ -557,6 +557,22 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.searchArchive(requestBody)
     }
 
+    fun searchArchiveByEmail(email: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addSearch(email))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.searchArchiveByEmail(requestBody)
+    }
+
+    fun grantArchiveAccess(
+        folderLinkId: Int,
+        archiveId: Int,
+        accessRole: AccessRole
+    ): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addShare(folderLinkId, archiveId, accessRole))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return shareService.updateShare(requestBody)
+    }
+
     fun updateProfilePhoto(
         archiveNr: String?, archiveId: Int, archiveType: ArchiveType, thumbArchiveNr: String?
     ): Call<ResponseVO> {

@@ -893,5 +893,13 @@
     <string name="approve_all_success">All requests have been accepted.</string>
     <string name="approve_all_partial_failure">Some of the requests were not accepted.</string>
     <string name="approve_all_failure">None of the requests were accepted.</string>
+    <string name="grant_access_to_other_archives">Grant access to other archives</string>
+    <string name="find_an_archive_using_email_address">Find an archive using email address</string>
+    <string name="select_an_archive_from_past_shares">Select an archive from past shares</string>
+    <string name="find_archive_using_email">Find an archive using email</string>
+    <string name="email_address_hint">Email address…</string>
+    <string name="no_archives_found">No archives found for %s</string>
+    <string name="grant_access">Grant access</string>
+    <string name="access_granted_for_new_archive">Access granted for new archive.</string>
     <string name="download_complete">Download complete</string>
 </resources>

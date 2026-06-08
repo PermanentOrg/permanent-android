@@ -204,16 +204,8 @@ private fun AccessRole(accessRole: AccessRole, viewModel: ShareManagementViewMod
                 ), contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(
-                    id = when (accessRole) {
-                        AccessRole.VIEWER -> R.drawable.ic_viewer_green
-                        AccessRole.CONTRIBUTOR -> R.drawable.ic_contributor_green
-                        AccessRole.EDITOR -> R.drawable.ic_editor_green
-                        AccessRole.CURATOR -> R.drawable.ic_curator_green
-                        AccessRole.OWNER -> R.drawable.ic_owner_green
-                        AccessRole.MANAGER -> TODO()
-                    }
-                ), contentDescription = "", tint = colorResource(R.color.blue900)
+                painter = painterResource(id = accessRole.iconRes()),
+                contentDescription = "", tint = colorResource(R.color.blue900)
             )
         }
 
