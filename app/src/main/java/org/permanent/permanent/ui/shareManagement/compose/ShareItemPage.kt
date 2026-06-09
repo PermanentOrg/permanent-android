@@ -126,6 +126,11 @@ fun ShareItemPage(
                 }
             }
 
+            GrantAccessToOtherArchivesSection(
+                onFindByEmailClick = { viewModel.openFindArchiveByEmail() },
+                onPastSharesClick = { viewModel.onPastSharesClick() }
+            )
+
             ShareList(
                 pendingShares = pendingShares,
                 approvedShares = approvedShares,
@@ -185,13 +190,20 @@ fun ShareList(
     onApproveClick: (Share) -> Unit,
     onDenyClick: (Share) -> Unit
 ) {
-    if (pendingShares.isEmpty() && approvedShares.isEmpty()) return
+    if (pendingShares.isEmpty() && approvedShares.isEmpty()) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(colorResource(R.color.white))
+        )
+        return
+    }
 
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
             .background(colorResource(R.color.white))
-            .padding(start = 24.dp, end = 16.dp, top = 32.dp),
+            .padding(start = 24.dp, end = 16.dp, top = 24.dp),
         contentPadding = PaddingValues(bottom = contentBottomPadding)
     ) {
 
@@ -233,6 +245,48 @@ fun ShareListTitle() {
             letterSpacing = 1.6.sp,
         )
     )
+}
+
+@Composable
+fun GrantAccessToOtherArchivesSection(
+    onFindByEmailClick: () -> Unit,
+    onPastSharesClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorResource(R.color.white))
+            .padding(start = 24.dp, end = 24.dp, top = 32.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.grant_access_to_other_archives)
+                .toUpperCase(Locale.current),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            style = TextStyle(
+                fontSize = 10.sp,
+                lineHeight = 8.sp,
+                fontFamily = FontFamily(Font(R.font.usual_regular)),
+                color = colorResource(R.color.blue900),
+                letterSpacing = 1.6.sp,
+            )
+        )
+
+        GrantAccessEntryRow(
+            iconResId = R.drawable.ic_search_middle_grey,
+            text = stringResource(R.string.find_an_archive_using_email_address),
+            onClick = onFindByEmailClick
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        GrantAccessEntryRow(
+            iconResId = R.drawable.ic_archives_blue,
+            text = stringResource(R.string.select_an_archive_from_past_shares),
+            onClick = onPastSharesClick
+        )
+    }
 }
 
 @Composable
@@ -479,7 +533,7 @@ fun SharedLinkRow(
         modifier = Modifier
             .fillMaxWidth()
             .background(colorResource(R.color.blue25))
-            .padding(start = 24.dp, top = 6.dp, bottom = 6.dp, end = 24.dp),
+            .padding(start = 24.dp, top = 6.dp, bottom = 24.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -556,7 +610,7 @@ fun CreateLinkRow(onClick: () -> Unit) {
             .fillMaxWidth()
             .background(colorResource(R.color.blue25))
             .clickable { onClick() }
-            .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+            .padding(start = 24.dp, top = 12.dp, bottom = 24.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically) {
 
         Icon(

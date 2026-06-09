@@ -77,6 +77,18 @@ fun ShareManagementContainer(
                         ArchiveAccessPage(
                             viewModel = viewModel, onClose = { onClose() })
                     }
+
+                    SharePage.FIND_ARCHIVE_BY_EMAIL.value -> {
+                        FindArchiveByEmailPage(
+                            viewModel = viewModel,
+                            isCurrentPage = pagerState.settledPage == page,
+                            onClose = { onClose() })
+                    }
+
+                    SharePage.GRANT_ARCHIVE_ACCESS.value -> {
+                        GrantArchiveAccessPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
                 }
             }
         }
@@ -98,5 +110,6 @@ fun ShareManagementContainer(
 }
 
 enum class SharePage(val value: Int) {
-    SHARE_ITEM(0), LINK_SETTINGS(1), GENERAL_ACCESS(2), ACCESS_ROLES(3), ARCHIVE_ACCESS(4);
+    SHARE_ITEM(0), LINK_SETTINGS(1), GENERAL_ACCESS(2), ACCESS_ROLES(3), ARCHIVE_ACCESS(4),
+    FIND_ARCHIVE_BY_EMAIL(5), GRANT_ARCHIVE_ACCESS(6);
 }

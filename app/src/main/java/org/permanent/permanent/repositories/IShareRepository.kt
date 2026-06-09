@@ -1,5 +1,6 @@
 package org.permanent.permanent.repositories
 
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.network.IDataListener
@@ -24,6 +25,13 @@ interface IShareRepository {
     )
 
     fun updateShare(share: Share, listener: IResponseListener)
+
+    fun grantArchiveAccess(
+        folderLinkId: Int,
+        archiveId: Int,
+        accessRole: AccessRole,
+        listener: IShareListener
+    )
 
     fun deleteShare(share: Share, listener: IResponseListener)
 

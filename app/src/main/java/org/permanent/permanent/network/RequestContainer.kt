@@ -377,6 +377,14 @@ class RequestContainer {
         return this
     }
 
+    fun addShare(folderLinkId: Int, archiveId: Int, accessRole: AccessRole): RequestContainer {
+        val shareVO = ShareVO(folderLinkId, archiveId)
+        shareVO.accessRole = accessRole.backendString
+        shareVO.status = Status.OK.toBackendString()
+        RequestVO.data?.get(0)?.ShareVO = shareVO
+        return this
+    }
+
     fun addArchive(archive: Archive): RequestContainer {
         val archiveVO = ArchiveVO(archive)
         archiveVO.status = Status.OK.toBackendString()

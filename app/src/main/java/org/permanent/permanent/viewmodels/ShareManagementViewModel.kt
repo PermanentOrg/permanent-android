@@ -19,22 +19,29 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
+import org.permanent.permanent.Validator
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.EventAction
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
+import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.ILinkListener
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.BackendRecordType
+import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkVO
+import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.repositories.ArchiveRepositoryImpl
 import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
+import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IShareRepository
@@ -103,6 +110,20 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private val _accessRolesOpenedFrom = MutableStateFlow<SharePage?>(null)
     private val _navigateToPage = MutableStateFlow<SharePage?>(null)
     val navigateToPage: StateFlow<SharePage?> = _navigateToPage
+
+    // Find archive by email
+    private val _emailQuery = MutableStateFlow("")
+    val emailQuery: StateFlow<String> = _emailQuery
+    private var submittedQuery: String = ""
+    private val _findByEmailState =
+        MutableStateFlow<FindArchiveByEmailUiState>(FindArchiveByEmailUiState.Idle)
+    val findByEmailState: StateFlow<FindArchiveByEmailUiState> = _findByEmailState
+
+    // Grant access to a newly found archive
+    private val _selectedArchiveForGrant = MutableStateFlow<Archive?>(null)
+    val selectedArchiveForGrant: StateFlow<Archive?> = _selectedArchiveForGrant
+    private val _grantAccessRole = MutableStateFlow(AccessRole.VIEWER)
+    val grantAccessRole: StateFlow<AccessRole> = _grantAccessRole
     private val _pendingShares = MutableStateFlow<List<Share>>(emptyList())
     val pendingShares: StateFlow<List<Share>> = _pendingShares
     private val _approvedShares = MutableStateFlow<List<Share>>(emptyList())
@@ -117,6 +138,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     val sharesChangedEvent: SharedFlow<Unit> = _sharesChangedEvent.asSharedFlow()
     private val areLinkSettingsVisible = MutableLiveData(false)
     private var shareRepository: IShareRepository = ShareRepositoryImpl(appContext)
+    private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var stelaAccountRepository: StelaAccountRepository =
@@ -126,10 +148,12 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         combine(
             selectedAccessRole,
             editingArchiveAccessRole,
+            _grantAccessRole,
             _accessRolesOpenedFrom
-        ) { linkRole, archiveRole, openedFrom ->
+        ) { linkRole, archiveRole, grantRole, openedFrom ->
             when (openedFrom) {
                 SharePage.ARCHIVE_ACCESS -> archiveRole
+                SharePage.GRANT_ARCHIVE_ACCESS -> grantRole
                 else -> linkRole
             }
         }.stateIn(
@@ -339,8 +363,12 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     fun onBackBtnClick(fromPage: SharePage) {
         when (fromPage) {
-            SharePage.LINK_SETTINGS, SharePage.ARCHIVE_ACCESS -> _navigateToPage.value =
-                SharePage.SHARE_ITEM
+            SharePage.LINK_SETTINGS, SharePage.ARCHIVE_ACCESS,
+            SharePage.FIND_ARCHIVE_BY_EMAIL -> _navigateToPage.value = SharePage.SHARE_ITEM
+
+            // Back from grant returns to the search results, which are preserved.
+            SharePage.GRANT_ARCHIVE_ACCESS -> _navigateToPage.value =
+                SharePage.FIND_ARCHIVE_BY_EMAIL
 
             SharePage.GENERAL_ACCESS -> _navigateToPage.value = SharePage.LINK_SETTINGS
 
@@ -375,10 +403,10 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     fun onAccessRoleClick(role: AccessRole) {
-        if (_accessRolesOpenedFrom.value == SharePage.ARCHIVE_ACCESS) {
-            _editingArchiveAccessRole.value = role
-        } else {
-            _selectedAccessRole.value = role
+        when (_accessRolesOpenedFrom.value) {
+            SharePage.ARCHIVE_ACCESS -> _editingArchiveAccessRole.value = role
+            SharePage.GRANT_ARCHIVE_ACCESS -> _grantAccessRole.value = role
+            else -> _selectedAccessRole.value = role
         }
         _navigateToPage.value = _accessRolesOpenedFrom.value ?: SharePage.SHARE_ITEM
         _accessRolesOpenedFrom.value = null
@@ -516,6 +544,122 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
         _accessRolesOpenedFrom.value = SharePage.ARCHIVE_ACCESS
         _navigateToPage.value = SharePage.ARCHIVE_ACCESS
+    }
+
+    fun openFindArchiveByEmail() {
+        _emailQuery.value = ""
+        submittedQuery = ""
+        _findByEmailState.value = FindArchiveByEmailUiState.Idle
+        _navigateToPage.value = SharePage.FIND_ARCHIVE_BY_EMAIL
+    }
+
+    fun onEmailQueryChange(text: String) {
+        _emailQuery.value = text
+        if (normalizeEmail(text) != submittedQuery) {
+            _findByEmailState.value = FindArchiveByEmailUiState.Idle
+        }
+    }
+
+    fun onEmailSearchSubmit() {
+        if (_isBusyState.value) {
+            return
+        }
+
+        val email = normalizeEmail(_emailQuery.value)
+        if (!Validator.isValidEmail(appContext, email, null, null)) {
+            _snackbarMessage.value = appContext.getString(R.string.invalid_email_error)
+            _snackbarType.value = TemporarySnackbarType.ERROR
+            _findByEmailState.value = FindArchiveByEmailUiState.Idle
+            return
+        }
+
+        submittedQuery = email
+        _isBusyState.value = true
+        archiveRepository.searchArchiveByEmail(email, object : IDataListener {
+            override fun onSuccess(list: List<Datum>?) {
+                _isBusyState.value = false
+                // Ignore stale responses if the user has since changed the query.
+                if (isStaleEmailResponse()) {
+                    return
+                }
+                val archives = list?.mapNotNull { it.ArchiveVO?.let { vo -> Archive(vo) } } ?: emptyList()
+                _findByEmailState.value = if (archives.isEmpty()) {
+                    FindArchiveByEmailUiState.NoResults(email)
+                } else {
+                    FindArchiveByEmailUiState.Found(archives)
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                _isBusyState.value = false
+                if (isStaleEmailResponse()) {
+                    return
+                }
+                _findByEmailState.value = FindArchiveByEmailUiState.Error(
+                    error ?: appContext.getString(R.string.generic_error)
+                )
+            }
+        })
+    }
+
+    private fun normalizeEmail(text: String): String =
+        text.replace(Regex("[\\u200B\\u200C\\u200D\\u2060\\uFEFF]"), "").trim().lowercase()
+
+    private fun isStaleEmailResponse(): Boolean = normalizeEmail(_emailQuery.value) != submittedQuery
+
+    fun onArchiveResultClick(archive: Archive) {
+        _selectedArchiveForGrant.value = archive
+        _grantAccessRole.value = AccessRole.VIEWER
+        _navigateToPage.value = SharePage.GRANT_ARCHIVE_ACCESS
+    }
+
+    fun onPastSharesClick() {
+        // TODO(VSP-1617): "Select an archive from past shares" is out of scope for this ticket.
+    }
+
+    fun onGrantAccessRoleClick() {
+        _accessRolesOpenedFrom.value = SharePage.GRANT_ARCHIVE_ACCESS
+        _navigateToPage.value = SharePage.ACCESS_ROLES
+    }
+
+    fun onConfirmGrantAccess() {
+        if (_isBusyState.value) {
+            return
+        }
+        val archive = _selectedArchiveForGrant.value ?: return
+        val folderLinkId = record.folderLinkId ?: return
+
+        _isBusyState.value = true
+        shareRepository.grantArchiveAccess(
+            folderLinkId,
+            archive.id,
+            _grantAccessRole.value,
+            object : IShareRepository.IShareListener {
+                override fun onSuccess(shareVO: ShareVO?) {
+                    _isBusyState.value = false
+                    if (shareVO != null) {
+                        val share = Share(shareVO).apply {
+                            this.archive = archive
+                            this.accessRole = _grantAccessRole.value
+                        }
+                        if (_approvedShares.value.none { it.id == share.id }) {
+                            _approvedShares.value = _approvedShares.value + share
+                            record.shares?.add(share)
+                        }
+                    }
+                    notifySharesChanged()
+                    _snackbarMessage.value =
+                        appContext.getString(R.string.access_granted_for_new_archive)
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
+                    _navigateToPage.value = SharePage.SHARE_ITEM
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    _snackbarMessage.value = error ?: appContext.getString(R.string.generic_error)
+                    _snackbarType.value = TemporarySnackbarType.ERROR
+                }
+            })
     }
 
     private suspend fun approveShare(share: Share): Result<String?> =
@@ -656,4 +800,11 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     }
 
     fun getRecord(): Record = record
+}
+
+sealed interface FindArchiveByEmailUiState {
+    data object Idle : FindArchiveByEmailUiState
+    data class Found(val archives: List<Archive>) : FindArchiveByEmailUiState
+    data class NoResults(val email: String) : FindArchiveByEmailUiState
+    data class Error(val message: String) : FindArchiveByEmailUiState
 }
