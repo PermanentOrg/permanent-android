@@ -162,6 +162,18 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             initialValue = selectedAccessRole.value
         )
 
+    // Archive ids that already have access to the current share. Derived from the shares
+    // already loaded for this record, so the email-search results can disable them. Reactive,
+    // so granting access to a result immediately disables it when returning to the results.
+    val accessedArchiveIds: StateFlow<Set<Int>> =
+        combine(_approvedShares, _pendingShares) { approved, pending ->
+            (approved + pending).mapNotNull { it.archiveId }.toSet()
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptySet()
+        )
+
     fun setRecord(record: Record) {
         this.record = record
 
@@ -608,6 +620,10 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private fun isStaleEmailResponse(): Boolean = normalizeEmail(_emailQuery.value) != submittedQuery
 
     fun onArchiveResultClick(archive: Archive) {
+        // Archives that already have access to this share are not selectable.
+        if (archive.id in accessedArchiveIds.value) {
+            return
+        }
         _selectedArchiveForGrant.value = archive
         _grantAccessRole.value = AccessRole.VIEWER
         _navigateToPage.value = SharePage.GRANT_ARCHIVE_ACCESS

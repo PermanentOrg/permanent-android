@@ -173,7 +173,7 @@ fun ForgotPasswordPage(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     HorizontalDivider(
-                        color = colorResource(id = R.color.colorPrimary200),
+                        color = colorResource(id = R.color.blue200),
                         modifier = Modifier.weight(1f)
                     )
 
@@ -181,7 +181,7 @@ fun ForgotPasswordPage(
 
                     Text(
                         text = stringResource(id = R.string.or).uppercase(),
-                        color = colorResource(id = R.color.colorPrimary200),
+                        color = colorResource(id = R.color.blue200),
                         fontSize = 10.sp,
                         lineHeight = 24.sp,
                         fontFamily = FontFamily(Font(R.font.open_sans_semibold_ttf))
@@ -190,7 +190,7 @@ fun ForgotPasswordPage(
                     Spacer(modifier = Modifier.width(16.dp))
 
                     HorizontalDivider(
-                        color = colorResource(id = R.color.colorPrimary200),
+                        color = colorResource(id = R.color.blue200),
                         modifier = Modifier.weight(1f)
                     )
                 }

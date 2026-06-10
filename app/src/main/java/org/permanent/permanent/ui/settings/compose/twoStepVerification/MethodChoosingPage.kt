@@ -116,7 +116,7 @@ fun MethodChoosingPage(
                 text = stringResource(id = R.string.button_continue),
                 icon = null,
                 enabled = selectedMethod != null,
-                disabledColor = colorResource(R.color.colorPrimary200)
+                disabledColor = colorResource(R.color.blue200)
             ) {
                 selectedMethod?.let { onContinue(it) }
             }

@@ -194,7 +194,7 @@ fun ChecklistItemRow(
                 modifier = Modifier.padding(end = 12.dp),
                 painter = painterResource(R.drawable.ic_arrow_select_light_blue),
                 contentDescription = null,
-                tint = colorResource(R.color.colorPrimary200)
+                tint = colorResource(R.color.blue200)
             )
         }
     }
