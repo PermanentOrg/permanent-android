@@ -901,5 +901,6 @@
     <string name="no_archives_found">No archives found for %s</string>
     <string name="grant_access">Grant access</string>
     <string name="access_granted_for_new_archive">Access granted for new archive.</string>
+    <string name="already_has_access_to_this_share">Already has access to this share</string>
     <string name="download_complete">Download complete</string>
 </resources>

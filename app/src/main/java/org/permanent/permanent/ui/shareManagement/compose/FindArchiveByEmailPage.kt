@@ -71,6 +71,7 @@ fun FindArchiveByEmailPage(
 ) {
     val emailQuery by viewModel.emailQuery.collectAsState()
     val state by viewModel.findByEmailState.collectAsState()
+    val accessedArchiveIds by viewModel.accessedArchiveIds.collectAsState()
 
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -123,6 +124,7 @@ fun FindArchiveByEmailPage(
                 when (val s = state) {
                     is FindArchiveByEmailUiState.Found -> ResultsList(
                         archives = s.archives,
+                        accessedArchiveIds = accessedArchiveIds,
                         onArchiveClick = {
                             keyboardController?.hide()
                             viewModel.onArchiveResultClick(it)
@@ -269,50 +271,92 @@ private fun GradientSearchIcon() {
 }
 
 @Composable
-private fun ResultsList(archives: List<Archive>, onArchiveClick: (Archive) -> Unit) {
+private fun ResultsList(
+    archives: List<Archive>,
+    accessedArchiveIds: Set<Int>,
+    onArchiveClick: (Archive) -> Unit
+) {
+    // Archives that already have access are pushed to the bottom (stable within each group).
+    val orderedArchives = remember(archives, accessedArchiveIds) {
+        archives.sortedBy { it.id in accessedArchiveIds }
+    }
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        items(archives, key = { it.id }) { archive ->
-            ArchiveResultRow(archive = archive, onClick = { onArchiveClick(archive) })
+        items(orderedArchives, key = { it.id }) { archive ->
+            ArchiveResultRow(
+                archive = archive,
+                hasAccess = archive.id in accessedArchiveIds,
+                onClick = { onArchiveClick(archive) }
+            )
         }
     }
 }
 
 @Composable
-private fun ArchiveResultRow(archive: Archive, onClick: () -> Unit) {
+private fun ArchiveResultRow(archive: Archive, hasAccess: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .then(if (hasAccess) Modifier else Modifier.clickable { onClick() })
             .padding(start = 24.dp, end = 28.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ArchiveThumbnail(archive)
+        Box {
+            ArchiveThumbnail(archive)
+            if (hasAccess) {
+                // De-emphasize the thumbnail with a white 16% scrim (Figma: White / 16%).
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color.White.copy(alpha = 0.16f))
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Text(
-            text = archive.fullName ?: "",
-            modifier = Modifier.weight(1f),
-            style = TextStyle(
-                fontSize = 14.sp,
-                lineHeight = 24.sp,
-                fontFamily = FontFamily(Font(R.font.usual_medium)),
-                color = colorResource(R.color.blue900),
-            ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = archive.fullName ?: "",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_medium)),
+                    color = colorResource(if (hasAccess) R.color.blue400 else R.color.blue900),
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            if (hasAccess) {
+                Text(
+                    text = stringResource(R.string.already_has_access_to_this_share),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.success500),
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(16.dp))
 
         Icon(
-            painter = painterResource(id = R.drawable.ic_arrow_select_light_blue),
+            painter = painterResource(
+                id = if (hasAccess) R.drawable.ic_check_circle_filled
+                else R.drawable.ic_arrow_select_light_blue
+            ),
             contentDescription = null,
-            tint = colorResource(R.color.blue200)
+            tint = colorResource(R.color.blue200),
+            modifier = if (hasAccess) Modifier.size(18.dp) else Modifier
         )
     }
 }

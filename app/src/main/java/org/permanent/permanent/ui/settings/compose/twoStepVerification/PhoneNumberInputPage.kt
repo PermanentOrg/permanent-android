@@ -217,7 +217,7 @@ fun PhoneNumberInputPage(
                             placeholder = {
                                 Text(
                                     text = stringResource(R.string.example_phone_number),
-                                    color = colorResource(R.color.colorPrimary200),
+                                    color = colorResource(R.color.blue200),
                                     fontSize = 14.sp,
                                     lineHeight = 24.sp,
                                     fontFamily = FontFamily(Font(R.font.usual_regular))
@@ -265,7 +265,7 @@ fun PhoneNumberInputPage(
                         text = stringResource(id = R.string.send_code),
                         icon = null,
                         enabled = phoneNumberRegex.matches(phoneNrState.text),
-                        disabledColor = colorResource(R.color.colorPrimary200)
+                        disabledColor = colorResource(R.color.blue200)
                     ) {
                         keyboardController?.hide()
                         viewModel.sendEnableCode(
@@ -331,7 +331,7 @@ fun PhoneNumberInputPage(
                         text = stringResource(id = R.string.enable),
                         icon = null,
                         enabled = codeValues.all { it.isNotEmpty() },
-                        disabledColor = colorResource(R.color.colorPrimary200)
+                        disabledColor = colorResource(R.color.blue200)
                     ) {
                         val code = codeValues.joinToString("")
                         viewModel.enableTwoFactor(VerificationMethod.SMS,

@@ -189,7 +189,7 @@ fun CodeVerificationPage(
                 text = stringResource(id = R.string.verify),
                 icon = null,
                 enabled = codeValues.all { it.isNotEmpty() },
-                disabledColor = colorResource(R.color.colorPrimary200)
+                disabledColor = colorResource(R.color.blue200)
             ) {
                 val code = codeValues.joinToString("")
                 viewModel.disableTwoFactor(code = code, successCallback = {
