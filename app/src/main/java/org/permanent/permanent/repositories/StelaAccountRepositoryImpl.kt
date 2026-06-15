@@ -5,14 +5,17 @@ import com.google.gson.Gson
 import okhttp3.ResponseBody
 import org.permanent.permanent.R
 import org.permanent.permanent.mapper.toRecord
+import org.permanent.permanent.models.Invitation
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.ILinkListener
+import org.permanent.permanent.network.IPendingInvitesListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITwoFAListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.ErrorResponse
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.IFolderChildrenListener
+import org.permanent.permanent.network.models.PendingShareDTO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
@@ -336,4 +339,47 @@ class StelaAccountRepositoryImpl(context: Context) : StelaAccountRepository {
                 }
             })
     }
+
+    override fun getRecordPendingInvites(recordId: Int, listener: IPendingInvitesListener) {
+        enqueuePendingInvites(NetworkClient.instance().getRecordV2(recordId), listener) {
+            it.data?.pendingShares
+        }
+    }
+
+    override fun getFolderPendingInvites(folderId: Int, listener: IPendingInvitesListener) {
+        // Owner context uses Bearer only; share token omitted.
+        enqueuePendingInvites(NetworkClient.instance().getFolderV2(folderId), listener) {
+            it.items?.firstOrNull()?.pendingShares
+        }
+    }
+
+    // Shared record/folder pending-invite plumbing: only the response type and where
+    // pendingShares lives differ; the success/error handling is identical.
+    private fun <T> enqueuePendingInvites(
+        call: Call<T>,
+        listener: IPendingInvitesListener,
+        extractPendingShares: (T) -> List<PendingShareDTO>?
+    ) {
+        call.enqueue(object : Callback<T> {
+            override fun onResponse(call: Call<T>, response: Response<T>) {
+                if (response.isSuccessful) {
+                    listener.onSuccess(response.body()?.let(extractPendingShares).toInvitations())
+                } else {
+                    listener.onFailed(
+                        response.errorBody()?.string()
+                            ?: appContext.getString(R.string.generic_error)
+                    )
+                }
+            }
+
+            override fun onFailure(call: Call<T>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    // pendingShares may be absent/null/empty — all mean "no pending invites".
+    // Keep only the first invitation per email (dupes are collapsed).
+    private fun List<PendingShareDTO>?.toInvitations(): List<Invitation> =
+        orEmpty().distinctBy { it.email?.lowercase() }.map { Invitation(it) }
 }

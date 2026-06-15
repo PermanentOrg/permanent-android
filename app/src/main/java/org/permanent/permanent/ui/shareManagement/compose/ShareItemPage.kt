@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Invitation
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.composeComponents.AccessRoleLabel
 import org.permanent.permanent.ui.composeComponents.AccessRoleLabelColor
@@ -77,6 +78,7 @@ fun ShareItemPage(
     val isLinkSharedState by viewModel.isLinkSharedState.collectAsState()
     val pendingShares by viewModel.pendingShares.collectAsState()
     val approvedShares by viewModel.approvedShares.collectAsState()
+    val pendingInvites by viewModel.pendingInvites.collectAsState()
     val isApprovingAll by viewModel.isApprovingAll.collectAsState()
     val approvingShareIds by viewModel.approvingShareIds.collectAsState()
     var showDenyConfirmation by remember { mutableStateOf(false) }
@@ -134,6 +136,7 @@ fun ShareItemPage(
             ShareList(
                 pendingShares = pendingShares,
                 approvedShares = approvedShares,
+                pendingInvites = pendingInvites,
                 isApprovingAll = isApprovingAll,
                 approvingShareIds = approvingShareIds,
                 modifier = Modifier.weight(1f),
@@ -143,7 +146,8 @@ fun ShareItemPage(
                 onDenyClick = { share ->
                     selectedShare = share
                     showDenyConfirmation = true
-                }
+                },
+                onEditInviteClick = { invitation -> viewModel.onEditInviteClick(invitation) }
             )
         }
 
@@ -182,15 +186,17 @@ fun ShareItemPage(
 fun ShareList(
     pendingShares: List<Share>,
     approvedShares: List<Share>,
+    pendingInvites: List<Invitation>,
     isApprovingAll: Boolean,
     approvingShareIds: Set<Int>,
     modifier: Modifier = Modifier,
     contentBottomPadding: Dp = 32.dp,
     onEditClick: (Share) -> Unit,
     onApproveClick: (Share) -> Unit,
-    onDenyClick: (Share) -> Unit
+    onDenyClick: (Share) -> Unit,
+    onEditInviteClick: (Invitation) -> Unit
 ) {
-    if (pendingShares.isEmpty() && approvedShares.isEmpty()) {
+    if (pendingShares.isEmpty() && approvedShares.isEmpty() && pendingInvites.isEmpty()) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
@@ -226,6 +232,11 @@ fun ShareList(
         items(
             approvedShares, key = { it.id ?: it.hashCode() }) { share ->
             ApprovedShareItem(share) { onEditClick(share) }
+        }
+
+        items(
+            pendingInvites, key = { it.inviteId ?: it.hashCode() }) { invitation ->
+            PendingInviteItem(invitation) { onEditInviteClick(invitation) }
         }
     }
 }
@@ -355,6 +366,90 @@ fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_edit_primary),
                 contentDescription = "Close",
+                tint = Color.Unspecified
+            )
+        }
+    }
+}
+
+@Composable
+fun PendingInviteItem(invitation: Invitation, onEditClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Gray archive-switcher placeholder: the invitee has no archive yet.
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(colorResource(R.color.blue100))
+                .border(
+                    width = 1.dp,
+                    color = Color.White.copy(alpha = 0.16f),
+                    shape = RoundedCornerShape(6.dp)
+                ),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 7.dp)
+                    .size(width = 16.dp, height = 2.dp)
+                    .background(Color.White, RoundedCornerShape(2.dp))
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = invitation.fullName ?: invitation.email ?: "",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_medium)),
+                        color = colorResource(R.color.blue900),
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = stringResource(R.string.invited),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.success500),
+                    )
+                )
+            }
+
+            Text(
+                text = invitation.email ?: "",
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_regular)),
+                    color = colorResource(R.color.blue600),
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        IconButton(onClick = { onEditClick() }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_edit_primary),
+                contentDescription = "Edit invitation",
                 tint = Color.Unspecified
             )
         }

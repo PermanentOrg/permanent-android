@@ -4,6 +4,8 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FolderResponse
+import org.permanent.permanent.network.models.RecordResponse
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
@@ -14,6 +16,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -21,6 +24,17 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface StelaAccountService {
+
+    @Headers("Request-Version: 2")
+    @GET("api/v2/records/{recordId}")
+    fun getRecord(@Path("recordId") recordId: Int): Call<RecordResponse>
+
+    @Headers("Request-Version: 2")
+    @GET("api/v2/folder")
+    fun getFolder(
+        @Header("X-Permanent-Share-Token") shareToken: String?,
+        @Query("folderIds[]") folderId: Int
+    ): Call<FolderResponse>
 
     @GET("api/v2/share-links")
     fun getShareLink(

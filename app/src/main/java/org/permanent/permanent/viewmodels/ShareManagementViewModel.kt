@@ -18,17 +18,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.Validator
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
 import org.permanent.permanent.models.EventAction
+import org.permanent.permanent.models.Invitation
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IDataListener
+import org.permanent.permanent.network.IInviteListener
 import org.permanent.permanent.network.ILinkListener
+import org.permanent.permanent.network.IPendingInvitesListener
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
@@ -44,7 +48,9 @@ import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IArchiveRepository
 import org.permanent.permanent.repositories.IEventsRepository
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IInvitationRepository
 import org.permanent.permanent.repositories.IShareRepository
+import org.permanent.permanent.repositories.InvitationRepositoryImpl
 import org.permanent.permanent.repositories.ShareRepositoryImpl
 import org.permanent.permanent.repositories.StelaAccountRepository
 import org.permanent.permanent.repositories.StelaAccountRepositoryImpl
@@ -52,6 +58,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
+import org.permanent.permanent.ui.invitations.UpdateType
 import org.permanent.permanent.ui.pendingInvitationCount
 import org.permanent.permanent.ui.shareManagement.compose.AccessType
 import org.permanent.permanent.ui.shareManagement.compose.LinkDuration
@@ -124,6 +131,22 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     val selectedArchiveForGrant: StateFlow<Archive?> = _selectedArchiveForGrant
     private val _grantAccessRole = MutableStateFlow(AccessRole.VIEWER)
     val grantAccessRole: StateFlow<AccessRole> = _grantAccessRole
+
+    // Invite someone without an account (no-results branch of find-by-email)
+    private val _inviteEmail = MutableStateFlow("")
+    val inviteEmail: StateFlow<String> = _inviteEmail
+    private val _inviteFullName = MutableStateFlow("")
+    val inviteFullName: StateFlow<String> = _inviteFullName
+    private val _inviteAccessRole = MutableStateFlow(AccessRole.VIEWER)
+    val inviteAccessRole: StateFlow<AccessRole> = _inviteAccessRole
+
+    // Sourced from the v2 record (GET /api/v2/records/{recordId}) or folder (GET /api/v2/folder)
+    // fetch → pendingShares[] via refreshPendingInvites(), so rows persist across share-sheet
+    // reopen. onConfirmSendInvite still appends optimistically.
+    private val _pendingInvites = MutableStateFlow<List<Invitation>>(emptyList())
+    val pendingInvites: StateFlow<List<Invitation>> = _pendingInvites
+    private val _editingInvitation = MutableStateFlow<Invitation?>(null)
+    val editingInvitation: StateFlow<Invitation?> = _editingInvitation
     private val _pendingShares = MutableStateFlow<List<Share>>(emptyList())
     val pendingShares: StateFlow<List<Share>> = _pendingShares
     private val _approvedShares = MutableStateFlow<List<Share>>(emptyList())
@@ -141,6 +164,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private var archiveRepository: IArchiveRepository = ArchiveRepositoryImpl(appContext)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
+    private var invitationRepository: IInvitationRepository = InvitationRepositoryImpl(appContext)
     private var stelaAccountRepository: StelaAccountRepository =
         StelaAccountRepositoryImpl(application)
 
@@ -149,11 +173,13 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             selectedAccessRole,
             editingArchiveAccessRole,
             _grantAccessRole,
+            _inviteAccessRole,
             _accessRolesOpenedFrom
-        ) { linkRole, archiveRole, grantRole, openedFrom ->
+        ) { linkRole, archiveRole, grantRole, inviteRole, openedFrom ->
             when (openedFrom) {
                 SharePage.ARCHIVE_ACCESS -> archiveRole
                 SharePage.GRANT_ARCHIVE_ACCESS -> grantRole
+                SharePage.INVITE_ACCESS -> inviteRole
                 else -> linkRole
             }
         }.stateIn(
@@ -184,6 +210,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
         checkForExistingLink(record)
         refreshShares()
+        refreshPendingInvites()
     }
 
     private fun refreshShares() {
@@ -228,6 +255,28 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         error?.let {
             _snackbarMessage.value = it
             _snackbarType.value = TemporarySnackbarType.ERROR
+        }
+    }
+
+    // Sent invitations come from the v2 record/folder fetch → pendingShares[]. This is the
+    // authoritative source so invite rows persist across share-sheet reopen. Runs independently of
+    // the shares fetch (a failure must not block shares) and is silent on error.
+    private fun refreshPendingInvites() {
+        val listener = object : IPendingInvitesListener {
+            override fun onSuccess(invitations: List<Invitation>) {
+                _pendingInvites.value = invitations
+            }
+
+            override fun onFailed(error: String?) {
+                // Leave any optimistically-added rows in place; shares are the primary content.
+            }
+        }
+        if (record.type == RecordType.FOLDER) {
+            val folderId = record.folderId ?: return
+            stelaAccountRepository.getFolderPendingInvites(folderId, listener)
+        } else {
+            val recordId = record.recordId ?: return
+            stelaAccountRepository.getRecordPendingInvites(recordId, listener)
         }
     }
 
@@ -378,9 +427,11 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
             SharePage.LINK_SETTINGS, SharePage.ARCHIVE_ACCESS,
             SharePage.FIND_ARCHIVE_BY_EMAIL -> _navigateToPage.value = SharePage.SHARE_ITEM
 
-            // Back from grant returns to the search results, which are preserved.
-            SharePage.GRANT_ARCHIVE_ACCESS -> _navigateToPage.value =
+            // Back from grant/invite returns to the search results, which are preserved.
+            SharePage.GRANT_ARCHIVE_ACCESS, SharePage.INVITE_ACCESS -> _navigateToPage.value =
                 SharePage.FIND_ARCHIVE_BY_EMAIL
+
+            SharePage.EDIT_INVITATION -> _navigateToPage.value = SharePage.SHARE_ITEM
 
             SharePage.GENERAL_ACCESS -> _navigateToPage.value = SharePage.LINK_SETTINGS
 
@@ -418,6 +469,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         when (_accessRolesOpenedFrom.value) {
             SharePage.ARCHIVE_ACCESS -> _editingArchiveAccessRole.value = role
             SharePage.GRANT_ARCHIVE_ACCESS -> _grantAccessRole.value = role
+            SharePage.INVITE_ACCESS -> _inviteAccessRole.value = role
             else -> _selectedAccessRole.value = role
         }
         _navigateToPage.value = _accessRolesOpenedFrom.value ?: SharePage.SHARE_ITEM
@@ -562,6 +614,9 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         _emailQuery.value = ""
         submittedQuery = ""
         _findByEmailState.value = FindArchiveByEmailUiState.Idle
+        _inviteEmail.value = ""
+        _inviteFullName.value = ""
+        _inviteAccessRole.value = AccessRole.VIEWER
         _navigateToPage.value = SharePage.FIND_ARCHIVE_BY_EMAIL
     }
 
@@ -676,6 +731,154 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                     _snackbarType.value = TemporarySnackbarType.ERROR
                 }
             })
+    }
+
+    fun onInviteNowClick(email: String) {
+        if (_pendingInvites.value.any { it.email.equals(email, ignoreCase = true) }) {
+            _snackbarMessage.value = appContext.getString(R.string.invite_already_sent, email)
+            _snackbarType.value = TemporarySnackbarType.WARNING
+            return
+        }
+        _inviteEmail.value = email
+        _inviteFullName.value = ""
+        _inviteAccessRole.value = AccessRole.VIEWER
+        _navigateToPage.value = SharePage.INVITE_ACCESS
+    }
+
+    fun onInviteFullNameChange(text: String) {
+        _inviteFullName.value = text
+    }
+
+    fun onInviteAccessRoleClick() {
+        _accessRolesOpenedFrom.value = SharePage.INVITE_ACCESS
+        _navigateToPage.value = SharePage.ACCESS_ROLES
+    }
+
+    fun onConfirmSendInvite() {
+        if (_isBusyState.value) {
+            return
+        }
+        // The backend rejects invites without a fullName (error.api.invalid_request).
+        if (_inviteFullName.value.isBlank()) {
+            _snackbarMessage.value = appContext.getString(R.string.recipient_name_required)
+            _snackbarType.value = TemporarySnackbarType.ERROR
+            return
+        }
+        val recordId = record.recordId ?: return
+        val folderLinkId = record.folderLinkId ?: return
+
+        _isBusyState.value = true
+        invitationRepository.shareInvitation(
+            _inviteEmail.value,
+            _inviteFullName.value.trim(),
+            _inviteAccessRole.value,
+            recordId,
+            folderLinkId,
+            prefsHelper.getCurrentArchiveId(),
+            object : IInviteListener {
+                override fun onSuccess(invitation: Invitation?) {
+                    _isBusyState.value = false
+                    if (invitation != null &&
+                        _pendingInvites.value.none { it.inviteId == invitation.inviteId }
+                    ) {
+                        _pendingInvites.value = _pendingInvites.value + invitation
+                    }
+                    notifySharesChanged()
+                    _snackbarMessage.value = appContext.getString(R.string.invitation_sent)
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
+                    _navigateToPage.value = SharePage.SHARE_ITEM
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    _snackbarMessage.value = error ?: appContext.getString(R.string.generic_error)
+                    _snackbarType.value = TemporarySnackbarType.ERROR
+                }
+            })
+    }
+
+    fun onEditInviteClick(invitation: Invitation) {
+        _editingInvitation.value = invitation
+        _navigateToPage.value = SharePage.EDIT_INVITATION
+    }
+
+    fun onResendInviteClick() {
+        if (_isBusyState.value) {
+            return
+        }
+        val inviteId = _editingInvitation.value?.inviteId ?: return
+
+        _isBusyState.value = true
+        invitationRepository.updateInvitationReturningInvite(
+            inviteId, UpdateType.RESEND, object : IInviteListener {
+                override fun onSuccess(invitation: Invitation?) {
+                    _isBusyState.value = false
+                    if (invitation != null) {
+                        _pendingInvites.value = _pendingInvites.value.map {
+                            if (it.inviteId == inviteId) invitation else it
+                        }
+                        _editingInvitation.value = invitation
+                    }
+                    _snackbarMessage.value = appContext.getString(R.string.invitation_resent)
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    if (error == Constants.ERROR_INVITE_LOOKUP) {
+                        // The invite no longer exists server-side, drop the stale row.
+                        removePendingInvite(inviteId)
+                        _snackbarMessage.value =
+                            appContext.getString(R.string.invite_no_longer_valid)
+                        _snackbarType.value = TemporarySnackbarType.WARNING
+                        _navigateToPage.value = SharePage.SHARE_ITEM
+                    } else {
+                        _snackbarMessage.value =
+                            error ?: appContext.getString(R.string.generic_error)
+                        _snackbarType.value = TemporarySnackbarType.ERROR
+                    }
+                }
+            })
+    }
+
+    fun onRevokeInviteConfirmed() {
+        if (_isBusyState.value) {
+            return
+        }
+        val inviteId = _editingInvitation.value?.inviteId ?: return
+
+        _isBusyState.value = true
+        invitationRepository.updateInvitationReturningInvite(
+            inviteId, UpdateType.REVOKE, object : IInviteListener {
+                override fun onSuccess(invitation: Invitation?) {
+                    _isBusyState.value = false
+                    removePendingInvite(inviteId)
+                    _snackbarMessage.value = appContext.getString(R.string.invitation_revoked)
+                    _snackbarType.value = TemporarySnackbarType.SUCCESS
+                    _navigateToPage.value = SharePage.SHARE_ITEM
+                }
+
+                override fun onFailed(error: String?) {
+                    _isBusyState.value = false
+                    if (error == Constants.ERROR_INVITE_LOOKUP) {
+                        // Already gone server-side, treat as revoked.
+                        removePendingInvite(inviteId)
+                        _snackbarMessage.value = appContext.getString(R.string.invitation_revoked)
+                        _snackbarType.value = TemporarySnackbarType.SUCCESS
+                        _navigateToPage.value = SharePage.SHARE_ITEM
+                    } else {
+                        _snackbarMessage.value =
+                            error ?: appContext.getString(R.string.generic_error)
+                        _snackbarType.value = TemporarySnackbarType.ERROR
+                    }
+                }
+            })
+    }
+
+    private fun removePendingInvite(inviteId: Int) {
+        _pendingInvites.value = _pendingInvites.value.filterNot { it.inviteId == inviteId }
+        _editingInvitation.value = null
+        notifySharesChanged()
     }
 
     private suspend fun approveShare(share: Share): Result<String?> =
