@@ -78,6 +78,8 @@ class ResponseVO {
 
     fun getTagVO(): TagVO?  = getData()?.get(0)?.TagVO
 
+    fun getInviteVO(): InviteVO? = getData()?.get(0)?.InviteVO
+
     fun getProfileItemVO(): Profile_itemVO? {
         return getData()?.get(0)?.Profile_itemVO
     }

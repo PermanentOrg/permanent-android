@@ -902,5 +902,23 @@
     <string name="grant_access">Grant access</string>
     <string name="access_granted_for_new_archive">Access granted for new archive.</string>
     <string name="already_has_access_to_this_share">Already has access to this share</string>
+    <string name="share_management_no_account_title">Looks like someone\'s missing out.</string>
+    <string name="share_management_no_account_message">We couldn\'t find an account for %s. Would you like to invite them to join Permanent and share this file with them once they join?</string>
+    <string name="invite_now">Invite now</string>
+    <string name="invite_and_grant_access">Invite and grant access</string>
+    <string name="recipient_full_name">Recipient Full Name</string>
+    <string name="recipient_email_address">Recipient Email Address</string>
+    <string name="send_invitation">Send invitation</string>
+    <string name="recipient_name_required">Please enter the recipient\'s name.</string>
+    <string name="invitation_sent">Invitation sent.</string>
+    <string name="invited">Invited</string>
+    <string name="edit_invitation">Edit invitation</string>
+    <string name="send_again">Send again</string>
+    <string name="revoke_invitation">Revoke invitation</string>
+    <string name="invitation_resent">Invitation sent again.</string>
+    <string name="invitation_revoked">Invitation revoked.</string>
+    <string name="invite_already_sent">An invitation was already sent to %s.</string>
+    <string name="invite_no_longer_valid">This invitation is no longer valid.</string>
+    <string name="confirm_revoke_invitation">Are you sure you want to revoke this invitation to %s?</string>
     <string name="download_complete">Download complete</string>
 </resources>

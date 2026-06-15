@@ -89,6 +89,16 @@ fun ShareManagementContainer(
                         GrantArchiveAccessPage(
                             viewModel = viewModel, onClose = { onClose() })
                     }
+
+                    SharePage.INVITE_ACCESS.value -> {
+                        InviteAndGrantAccessPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
+
+                    SharePage.EDIT_INVITATION.value -> {
+                        EditInvitationPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
                 }
             }
         }
@@ -111,5 +121,5 @@ fun ShareManagementContainer(
 
 enum class SharePage(val value: Int) {
     SHARE_ITEM(0), LINK_SETTINGS(1), GENERAL_ACCESS(2), ACCESS_ROLES(3), ARCHIVE_ACCESS(4),
-    FIND_ARCHIVE_BY_EMAIL(5), GRANT_ARCHIVE_ACCESS(6);
+    FIND_ARCHIVE_BY_EMAIL(5), GRANT_ARCHIVE_ACCESS(6), INVITE_ACCESS(7), EDIT_INVITATION(8);
 }
