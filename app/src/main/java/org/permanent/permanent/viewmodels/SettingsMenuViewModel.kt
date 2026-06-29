@@ -190,6 +190,9 @@ class SettingsMenuViewModel(application: Application) : ObservableAndroidViewMod
 
     fun isTablet() = isTablet
 
+    /** True once the user has at least one archive (cached default-archive id is set). */
+    fun hasArchive() = prefsHelper.getDefaultArchiveId() != 0
+
     fun getSpaceTotal() = spaceTotalBytes
 
     fun getSpaceUsed() = spaceUsedBytes

@@ -172,10 +172,13 @@ fun SettingsMenuScreen(
                         stringResource(R.string.storage),
                     ) { onStorageClick() }
 
-                    SettingsMenuItem(
-                        painterResource(id = R.drawable.ic_archives_blue),
-                        stringResource(R.string.my_archives),
-                    ) { onMyArchivesClick() }
+                    // Hidden until the user has at least one archive (nothing to list yet).
+                    if (viewModel.hasArchive()) {
+                        SettingsMenuItem(
+                            painterResource(id = R.drawable.ic_archives_blue),
+                            stringResource(R.string.my_archives),
+                        ) { onMyArchivesClick() }
+                    }
 
                     SettingsMenuItem(
                         painterResource(id = R.drawable.ic_invitations_primary),

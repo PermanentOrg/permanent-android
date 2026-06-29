@@ -142,6 +142,19 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
                 }
             }
+
+            // On the onboarding Dashboard (user has no archive yet) there's nothing to navigate
+            // to, so hide the hamburger and lock the drawer. NavigationUI sets the drawer-toggle
+            // icon during this same destination change, so clear it afterwards via post().
+            val hideHamburger =
+                destination.id == R.id.dashboardFragment && prefsHelper.getDefaultArchiveId() == 0
+            binding.drawerLayout.setDrawerLockMode(
+                if (hideHamburger) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+                else DrawerLayout.LOCK_MODE_UNLOCKED
+            )
+            if (hideHamburger) {
+                binding.toolbar.post { binding.toolbar.navigationIcon = null }
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -228,7 +241,12 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
                     normalizedExtras.getInt(START_DESTINATION_FRAGMENT_ID_KEY, 0)
                 if (startDestFragmentId != 0) {
                     val recipientArchiveNr = normalizedExtras.getString(RECIPIENT_ARCHIVE_NR_KEY)
-                    if (prefsHelper.getCurrentArchiveNr() != recipientArchiveNr) {
+                    // Only prompt to switch when a deep link actually carries a recipient archive.
+                    // Custom-start launches without one (e.g. post-signup → Dashboard) would
+                    // otherwise trip this with a null name → "Switch to The null Archive?".
+                    if (!recipientArchiveNr.isNullOrBlank() &&
+                        prefsHelper.getCurrentArchiveNr() != recipientArchiveNr
+                    ) {
                         showArchiveSwitchDialog(recipientArchiveNr)
                         startWithCustomDestination(true, normalizedExtras)
                     } else {
@@ -242,6 +260,9 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             val inflater = navController.navInflater
             val graph = inflater.inflate(R.navigation.main_navigation_graph)
 
+            // Single source of truth for the app-open landing screen (dashboard vs. files).
+            graph.setStartDestination(resolveStartDestinationId(normalizedExtras))
+
             navController.setGraph(graph, normalizedExtras)
         }
 
@@ -251,6 +272,7 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         // Toolbar & ActionBar & AppBarConfiguration setup
         setSupportActionBar(binding.toolbar)
         val topLevelDestinations = setOf(
+            R.id.dashboardFragment,
             R.id.myFilesFragment,
             R.id.sharesFragment,
             R.id.archiveSettings,
@@ -458,6 +480,29 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         archiveSettingsRightIcon?.setImageResource(icon)
     }
 
+    /**
+     * Decides the main nav graph's start destination on app open. Keep this the single place
+     * the dashboard-vs-files decision is made.
+     *  - An explicit start destination (e.g. from a notification or post-signup) always wins.
+     *  - Otherwise users with no archive yet land on the widget Dashboard; everyone else keeps
+     *    the existing Private Files home.
+     * Flip [FORCE_DASHBOARD] to always preview the Dashboard regardless of archive state.
+     *
+     * NOTE: "has no archive" is read from the cached default-archive id (instant, no flash). The
+     * accurate source of truth is the getAllArchives endpoint — see findings.md.
+     */
+    private fun resolveStartDestinationId(extras: Bundle): Int {
+        val customStartDest = extras.getInt(START_DESTINATION_FRAGMENT_ID_KEY, 0)
+        if (customStartDest != 0) return customStartDest
+
+        val hasNoArchive = prefsHelper.getDefaultArchiveId() == 0
+        return if (FORCE_DASHBOARD || hasNoArchive) {
+            R.id.dashboardFragment
+        } else {
+            R.id.myFilesFragment
+        }
+    }
+
     private fun startWithCustomDestination(
         removeRecordId: Boolean,
         extras: Bundle? = intent.extras
@@ -587,6 +632,8 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     companion object {
+        // Hackathon test toggle: force the widget Dashboard regardless of archive state.
+        private const val FORCE_DASHBOARD = false
         const val SAVE_TO_PERMANENT_FILE_URIS_KEY = "save_to_permanent_file_uris_key"
         const val SPACE_TOTAL_KEY = "space_total_key"
         const val SPACE_LEFT_KEY = "space_left_key"

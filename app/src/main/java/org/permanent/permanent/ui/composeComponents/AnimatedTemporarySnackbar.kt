@@ -76,7 +76,7 @@ fun AnimatedTemporarySnackbar(
                     .padding(16.dp)
             ) {
                 Image(
-                    painter = painterResource(id = if (type == TemporarySnackbarType.ERROR) R.drawable.ic_error_circle_full else if (type == TemporarySnackbarType.WARNING) R.drawable.ic_no_internet_orange else R.drawable.ic_check_circle_green),
+                    painter = painterResource(id = if (type == TemporarySnackbarType.ERROR) R.drawable.ic_error_circle_full else if (type == TemporarySnackbarType.WARNING) R.drawable.ic_warning_orange else R.drawable.ic_check_circle_green),
                     contentDescription = "error",
                     colorFilter = ColorFilter.tint(
                         colorResource(

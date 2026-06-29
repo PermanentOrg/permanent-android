@@ -45,8 +45,8 @@ fun archiveTypePickerItems(): List<UIArchive> = listOf(
     UIArchive(ArchiveType.FAMILY, R.drawable.ic_family_history_primary, R.string.family_history, R.string.family_history_description),
     UIArchive(ArchiveType.FAMILY, R.drawable.ic_community_primary, R.string.community, R.string.community_description),
     UIArchive(ArchiveType.ORGANIZATION, R.drawable.ic_organization_empty_primary, R.string.organization, R.string.organization_description),
-    UIArchive(ArchiveType.OTHER, R.drawable.ic_other_primary, R.string.other, R.string.other_description),
     UIArchive(ArchiveType.UNSURE, R.drawable.ic_unsure_primary, R.string.unsure, R.string.unsure_description),
+    UIArchive(ArchiveType.OTHER, R.drawable.ic_other_primary, R.string.other, R.string.other_description),
 )
 
 @Composable

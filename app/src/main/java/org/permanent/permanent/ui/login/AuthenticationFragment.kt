@@ -14,12 +14,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import org.permanent.permanent.R
+import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.activities.MainActivity
-import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
 import org.permanent.permanent.ui.login.compose.AuthPage
 import org.permanent.permanent.ui.login.compose.AuthenticationContainer
 import org.permanent.permanent.viewmodels.AuthenticationViewModel
@@ -94,11 +94,12 @@ class AuthenticationFragment : PermanentBaseFragment() {
     }
 
     private val onAccountCreated = Observer<Void?> {
-        startArchiveOnboardingActivity()
+        // Bypass the linear onboarding flow — new users land on the widget Dashboard.
+        navigateToDashboard()
     }
 
     private val userMissingDefaultArchiveObserver = Observer<Void?> {
-        startArchiveOnboardingActivity()
+        navigateToDashboard()
     }
 
     private val showBiometricsDialogObserver = Observer<Boolean> {
@@ -112,8 +113,19 @@ class AuthenticationFragment : PermanentBaseFragment() {
         }
     }
 
-    private fun startArchiveOnboardingActivity() {
-        startActivity(Intent(context, ArchiveOnboardingActivity::class.java))
+    private fun navigateToDashboard() {
+        // TODO: Currently every archive-less user goes to the Dashboard. In the future, route
+        //  users who have pending archive invitations or at least one (pending/accepted) archive
+        //  through ArchiveOnboardingActivity (kept for that purpose) instead. Signals to check:
+        //  getInvitations() and getAllArchives()/pending archives.
+        // The user is authenticated at this point; they just have no archive yet. Mark them
+        // logged-in so isUserLoggedIn-gated screens (Archives, Splash, etc.) don't bounce them
+        // back to sign-in while they're on the Dashboard. (The old onboarding set this only after
+        // creating an archive, which the Dashboard flow defers.)
+        prefsHelper.saveUserLoggedIn(true)
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.dashboardFragment)
+        startActivity(intent)
         activity?.finish()
     }
 

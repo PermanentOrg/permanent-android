@@ -19,6 +19,13 @@ import org.permanent.permanent.ui.activities.PermanentBaseActivity
 import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.viewmodels.ArchiveOnboardingViewModel
 
+/**
+ * TODO: Currently UNREACHABLE — no code starts this Activity. The widget Dashboard replaced it as
+ *  the entry point for archive-less users (see SplashActivity.startDashboard() and
+ *  AuthenticationFragment.navigateToDashboard()). It's kept intentionally so it can be re-wired in
+ *  the future for users who have pending archive invitations or at least one (pending/accepted)
+ *  archive. Don't delete without revisiting those routing branches (both marked with // TODO).
+ */
 class ArchiveOnboardingActivity : PermanentBaseActivity() {
 
     private lateinit var prefsHelper: PreferencesHelper

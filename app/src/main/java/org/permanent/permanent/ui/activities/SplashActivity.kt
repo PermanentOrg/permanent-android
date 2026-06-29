@@ -17,7 +17,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.databinding.ActivitySplashBinding
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.archiveOnboarding.ArchiveOnboardingActivity
+import org.permanent.permanent.START_DESTINATION_FRAGMENT_ID_KEY
 import org.permanent.permanent.ui.computeWindowSizeClasses
 import org.permanent.permanent.ui.login.AuthenticationActivity
 import org.permanent.permanent.ui.login.START_DESTINATION_PAGE_VALUE_KEY
@@ -70,7 +70,12 @@ class SplashActivity : PermanentBaseActivity() {
         remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
             if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
             else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
-            else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
+            // TODO: This treats every archive-less user the same (→ Dashboard). In the future,
+            //  branch here for users who have pending archive invitations or at least one
+            //  (pending/accepted) archive, and route those through the existing
+            //  ArchiveOnboardingActivity (intentionally kept) instead of the Dashboard.
+            //  Needs the real signals: getInvitations() and getAllArchives()/pending archives.
+            else if (prefsHelper.getDefaultArchiveId() == 0) startDashboard()
             else viewModel.switchArchiveToCurrent()
         }
     }
@@ -121,8 +126,12 @@ class SplashActivity : PermanentBaseActivity() {
         finish()
     }
 
-    private fun startArchiveOnboardingActivity() {
-        startActivity(Intent(this@SplashActivity, ArchiveOnboardingActivity::class.java))
+    private fun startDashboard() {
+        // Logged-in users without an archive land on the widget Dashboard (mirrors the post-signup
+        // route in AuthenticationFragment), rather than the legacy linear onboarding.
+        val intent = Intent(this@SplashActivity, MainActivity::class.java)
+        intent.putExtra(START_DESTINATION_FRAGMENT_ID_KEY, R.id.dashboardFragment)
+        startActivity(intent)
         finish()
     }
 

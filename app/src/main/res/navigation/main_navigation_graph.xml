@@ -24,6 +24,17 @@
     </fragment>
 
     <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="org.permanent.permanent.ui.dashboard.DashboardFragment"
+        android:label="@string/dashboard_title">
+        <action
+            android:id="@+id/action_dashboardFragment_to_myFilesFragment"
+            app:destination="@id/myFilesFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
         android:id="@+id/myFilesFragment"
         android:name="org.permanent.permanent.ui.myFiles.MyFilesFragment"
         android:label="@string/menu_drawer_private_files"

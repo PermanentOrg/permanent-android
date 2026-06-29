@@ -921,4 +921,43 @@
     <string name="invite_no_longer_valid">This invitation is no longer valid.</string>
     <string name="confirm_revoke_invitation">Are you sure you want to revoke this invitation to %s?</string>
     <string name="download_complete">Download complete</string>
+
+    <!-- Dashboard (hackathon prototype) -->
+    <string name="dashboard_title">My Dashboard</string>
+    <string name="dashboard_create_archive_title">Let\'s begin your archive</string>
+    <string name="dashboard_create_archive_subtitle">A permanent home for the memories, documents and stories that matter most — preserved for generations to come.</string>
+    <string name="dashboard_create_first_archive_button">Create your first Archive</string>
+    <string name="dashboard_create_archive_privacy_note">Nothing is published or shared until you choose to.</string>
+    <string name="dashboard_create_archive_prompt">What do you plan to capture and preserve?</string>
+    <string name="dashboard_archive_name_hint">Archive name…</string>
+    <string name="dashboard_create_archive_confirm">Create Archive</string>
+    <string name="dashboard_archive_type_default">Personal life journey</string>
+    <string name="dashboard_archive_ready_title">Your archive is ready!</string>
+    <string name="dashboard_archive_ready_name">The %1$s Archive</string>
+    <string name="dashboard_archive_ready_meta">0 files · Created just now</string>
+    <string name="dashboard_go_to_archive_button">Go to Archive</string>
+    <string name="dashboard_important_title">What\'s important to you?</string>
+    <string name="dashboard_important_subtitle">We\'ll use this to guide your next steps</string>
+    <string name="dashboard_priority_digital_preservation">Digital preservation</string>
+    <string name="dashboard_priority_collaboration">Collaboration</string>
+    <string name="dashboard_priority_family_history">Family history</string>
+    <string name="dashboard_priority_secure_storage">Secure digital storage</string>
+    <string name="dashboard_priority_nonprofit">Supporting a nonprofit</string>
+    <string name="dashboard_priority_business">Business needs</string>
+    <string name="dashboard_chart_title">Chart your path to success</string>
+    <string name="dashboard_chart_subtitle">We want to help you reach your goals</string>
+    <string name="dashboard_remind_later">Remind me later</string>
+    <string name="dashboard_save_goals">Save goals</string>
+    <string name="dashboard_save">Save</string>
+    <string name="dashboard_goals_saved">Goals saved</string>
+    <string name="dashboard_priorities_saved">Priorities saved</string>
+    <string name="dashboard_nothing_selected">Please select at least one option.</string>
+    <string name="dashboard_goal_publish">Publish a legacy</string>
+    <string name="dashboard_goal_legacy">Plan my digital legacy</string>
+    <string name="dashboard_goal_share">Share privately</string>
+    <string name="dashboard_goal_capture">Preserve memories</string>
+    <string name="dashboard_goal_digitize">Digitize my materials</string>
+    <string name="dashboard_goal_collaborate">Build an archive with someone</string>
+    <string name="dashboard_goal_organize">Organize my materials</string>
+    <string name="dashboard_all_caught_up">You\'re all caught up.</string>
 </resources>
