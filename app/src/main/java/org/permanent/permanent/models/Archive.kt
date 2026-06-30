@@ -85,6 +85,25 @@ class Archive() : Parcelable {
         this.accessRole = accessRole
     }
 
+    fun copy(): Archive {
+        val original = this
+        return Archive().apply {
+            id = original.id
+            number = original.number
+            thumbArchiveNr = original.thumbArchiveNr
+            thumbStatus = original.thumbStatus
+            type = original.type
+            fullName = original.fullName
+            thumbURL200 = original.thumbURL200
+            thumbnail256 = original.thumbnail256
+            accessRole = original.accessRole
+            accessRoleText = original.accessRoleText
+            status = original.status
+            isPublic = original.isPublic
+            isPopular = original.isPopular
+        }
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)
         parcel.writeString(number)

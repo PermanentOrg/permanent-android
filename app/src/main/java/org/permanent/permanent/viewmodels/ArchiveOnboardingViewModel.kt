@@ -304,6 +304,9 @@ class ArchiveOnboardingViewModel(application: Application) :
         if (_isBusyState.value) {
             return
         }
+        if (archive.status == Status.OK) {
+            return
+        }
         this.newArchive = NewArchive(
             type = archive.type ?: ArchiveType.PERSON,
             typeName = when (archive.type) {
@@ -323,8 +326,16 @@ class ArchiveOnboardingViewModel(application: Application) :
         archiveRepository.acceptArchives(listOf(archive), object : IResponseListener {
             override fun onSuccess(message: String?) {
                 _isBusyState.value = false
-                archive.status = Status.OK
-                setNewArchiveAsDefault(archive)
+                // Replace the accepted archive with a fresh OK copy in a NEW list. A new instance
+                // (not an in-place mutation) is required: Archive has no equals() override, so a
+                // list of the same references compares equal and StateFlow would suppress the
+                // emission. Swapping in a new reference forces WelcomePage to recompose so the item
+                // flips to its "Accepted" label, the Accept button hides, and Next becomes enabled.
+                val accepted = archive.copy().apply { status = Status.OK }
+                _allArchives.value = _allArchives.value
+                    .map { if (it.id == archive.id) accepted else it }
+                    .toMutableList()
+                setNewArchiveAsDefault(accepted)
             }
 
             override fun onFailed(error: String?) {
