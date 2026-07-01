@@ -115,7 +115,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
         isRelocationMode.value = true
         modificationType.value = type
         relocationIslandState.value = RelocationIslandState.CONFIRMATION
-        recordsToRelocate.value = selectedRecords.value
+        recordsToRelocate.value = ArrayList(selectedRecords.value ?: emptyList())
         selectedRecords.value?.let { PermanentApplication.instance.relocateData = Pair(it, type) }
     }
 
