@@ -23,9 +23,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:isVideo="@{viewModel.isVideo}"
-            app:isThumbnail256="@{viewModel.isThumbnail256}"
             app:webViewPath="@{viewModel.filePath}"
-            android:visibility="@{viewModel.isPDF? View.GONE : View.VISIBLE}"/>
+            android:visibility="@{viewModel.isPDF || viewModel.isImage ? View.GONE : View.VISIBLE}"/>
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/imageComposeView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="@{viewModel.isImage ? View.VISIBLE : View.GONE}" />
 
 
         <com.github.barteksc.pdfviewer.PDFView
@@ -46,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="68dp"
             android:indeterminate="true"
-            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.isBusy &amp;&amp; !viewModel.isImage ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

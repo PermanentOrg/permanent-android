@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +27,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.fileView.compose.ProgressiveImageViewer
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.PublishFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
@@ -44,6 +47,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     private var fileData: FileData? = null
     private var recordMenuFragment: RecordMenuFragment? = null
     private lateinit var prefsHelper: PreferencesHelper
+    private var isComposeViewerSet = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -61,9 +65,15 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         )
 
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
+        isComposeViewerSet = false
         record?.let {
             viewModel.setRecord(it)
         }
+        // Registered here rather than in connectViewModelEvents() so it also fires for
+        // offscreen pager pages, which are created but never resumed. LiveData delivers
+        // the current value on registration, covering both the record-type path (already
+        // true after setRecord) and the late contentType discovery.
+        viewModel.isImage.observe(viewLifecycleOwner, onIsImage)
         binding.executePendingBindings()
         setHasOptionsMenu(true)
         supportActionBar = (activity as AppCompatActivity?)?.supportActionBar
@@ -73,22 +83,43 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         return binding.root
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouch(v: View, event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_UP) {
-            if (supportActionBar?.isShowing == true) supportActionBar?.hide()
-            else supportActionBar?.show()
+    private fun setUpComposeImageViewer() {
+        if (isComposeViewerSet) return
+        isComposeViewerSet = true
+        binding.imageComposeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MaterialTheme {
+                    ProgressiveImageViewer(
+                        viewModel = viewModel,
+                        onTap = ::toggleActionBar
+                    )
+                }
+            }
         }
-        return false
     }
 
-    override fun onClick(v: View) {
+    private fun toggleActionBar() {
         if (supportActionBar?.isShowing == true) supportActionBar?.hide()
         else supportActionBar?.show()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_UP) toggleActionBar()
+        return false
+    }
+
+    override fun onClick(v: View) {
+        toggleActionBar()
+    }
+
     private val onShowMessage = Observer<String> { message ->
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private val onIsImage = Observer<Boolean> { isImage ->
+        if (isImage == true) setUpComposeImageViewer()
     }
 
     private val onFileData = Observer<FileData> {

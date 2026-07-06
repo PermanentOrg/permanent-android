@@ -128,8 +128,8 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
 }
 
 @SuppressLint("SetJavaScriptEnabled")
-@BindingAdapter("webViewPath", "isVideo", "isThumbnail256")
-fun WebView.updatePath(path: String?, isVideo: Boolean?, isThumbnail256: Boolean?) {
+@BindingAdapter("webViewPath", "isVideo")
+fun WebView.updatePath(path: String?, isVideo: Boolean?) {
     settings.javaScriptEnabled = true
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
@@ -155,26 +155,6 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?, isThumbnail256: Boolean
                     loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
                 }
             }
-        }
-        isThumbnail256 == true && path != null -> {
-            settings.builtInZoomControls = true
-            settings.displayZoomControls = false
-            val html = """
-                <html>
-                  <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-                    <style>
-                      html, body { margin: 0; padding: 0; background: #000; height: 100%; }
-                      body { display: flex; align-items: center; justify-content: center; }
-                      img { display: block; width: 100%; height: auto; }
-                    </style>
-                  </head>
-                  <body>
-                    <img src="$path" />
-                  </body>
-                </html>
-            """.trimIndent()
-            loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
         }
         else -> {
             settings.builtInZoomControls = true
