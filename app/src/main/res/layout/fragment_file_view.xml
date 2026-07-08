@@ -23,9 +23,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:isVideo="@{viewModel.isVideo}"
-            app:isThumbnail256="@{viewModel.isThumbnail256}"
             app:webViewPath="@{viewModel.filePath}"
-            android:visibility="@{viewModel.isPDF? View.GONE : View.VISIBLE}"/>
+            app:onPreviewError="@{viewModel.previewErrorListener}"
+            android:visibility="@{viewModel.isPDF || viewModel.isImage ? View.GONE : View.VISIBLE}"/>
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/imageComposeView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="@{viewModel.isImage ? View.VISIBLE : View.GONE}" />
 
 
         <com.github.barteksc.pdfviewer.PDFView
@@ -46,47 +56,21 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="68dp"
             android:indeterminate="true"
-            android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.isBusy &amp;&amp; !viewModel.isImage ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tvFileViewError"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/generic_error"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.isError? View.VISIBLE : View.GONE}"
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/previewErrorComposeView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/progressBar"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRetry"
-            style="@style/customButtonBottomSheetStyle"
-            android:layout_width="88dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/quantum_orange"
-            android:onClick="@{() -> viewModel.onRetryBtnClick()}"
-            android:paddingLeft="2dp"
-            android:paddingRight="2dp"
-            android:text="@string/button_retry"
-            android:textStyle="bold"
-            android:visibility="@{viewModel.isError? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvFileViewError"
-            app:layout_constraintVertical_bias="0.0" />
+            android:visibility="@{viewModel.isImage ? View.GONE : View.VISIBLE}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

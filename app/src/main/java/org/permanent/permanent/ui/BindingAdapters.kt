@@ -12,6 +12,8 @@ import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
@@ -127,9 +129,14 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
     }
 }
 
+/** Listener for main-frame load failures of the WebView-based previews (VSP-1754). */
+fun interface OnPreviewErrorListener {
+    fun onPreviewError()
+}
+
 @SuppressLint("SetJavaScriptEnabled")
-@BindingAdapter("webViewPath", "isVideo", "isThumbnail256")
-fun WebView.updatePath(path: String?, isVideo: Boolean?, isThumbnail256: Boolean?) {
+@BindingAdapter("webViewPath", "isVideo", "onPreviewError")
+fun WebView.updatePath(path: String?, isVideo: Boolean?, onPreviewError: OnPreviewErrorListener?) {
     settings.javaScriptEnabled = true
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
@@ -156,29 +163,20 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?, isThumbnail256: Boolean
                 }
             }
         }
-        isThumbnail256 == true && path != null -> {
-            settings.builtInZoomControls = true
-            settings.displayZoomControls = false
-            val html = """
-                <html>
-                  <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-                    <style>
-                      html, body { margin: 0; padding: 0; background: #000; height: 100%; }
-                      body { display: flex; align-items: center; justify-content: center; }
-                      img { display: block; width: 100%; height: auto; }
-                    </style>
-                  </head>
-                  <body>
-                    <img src="$path" />
-                  </body>
-                </html>
-            """.trimIndent()
-            loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
-        }
         else -> {
             settings.builtInZoomControls = true
             settings.displayZoomControls = false
+            // A failing <video> source inside the inline markup above never reaches
+            // onReceivedError, so failure reporting is wired only for the loadUrl path
+            webViewClient = object : WebViewClient() {
+                override fun onReceivedError(
+                    view: WebView,
+                    request: WebResourceRequest,
+                    error: WebResourceError
+                ) {
+                    if (request.isForMainFrame) onPreviewError?.onPreviewError()
+                }
+            }
             path?.let {
                 loadUrl(path)
             }
