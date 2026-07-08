@@ -21,12 +21,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.permanent.permanent.R
+
+private val whiteTint = ColorFilter.tint(Color.White)
 
 @Composable
 fun CircularProgressIndicator(
@@ -63,13 +66,16 @@ fun CircularProgressIndicator(
             ), label = ""
         )
 
+        val tint = if (style == SpinnerStyle.WHITE) whiteTint else null
         Box(modifier = blendModifier, contentAlignment = Alignment.Center) {
             Image(painter = painterResource(id = R.drawable.ellipse_exterior),
                 contentDescription = null,
+                colorFilter = tint,
                 modifier = Modifier.graphicsLayer { rotationZ = -rotation })
 
             Image(painter = painterResource(id = R.drawable.ellipse_interior),
                 contentDescription = null,
+                colorFilter = tint,
                 modifier = Modifier.graphicsLayer { rotationZ = rotation })
         }
     }
@@ -85,7 +91,10 @@ enum class SpinnerStyle {
     GRADIENT,
 
     /** The gradient spinner screen-blended onto the content beneath */
-    SCREEN_BLENDED
+    SCREEN_BLENDED,
+
+    /** The spinner rings tinted plain white (e.g. over the S5 skeleton fill) */
+    WHITE
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF444444)

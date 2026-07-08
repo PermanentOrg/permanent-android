@@ -9,10 +9,15 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.ConnectivityMonitorImpl
+import org.permanent.permanent.network.IConnectivityMonitor
 import org.permanent.permanent.ui.myFiles.ModificationType
 
 
 class PermanentApplication : Application(), LifecycleObserver {
+
+    val connectivityMonitor: IConnectivityMonitor by lazy { ConnectivityMonitorImpl(this) }
+
     companion object {
         @JvmStatic
         lateinit var instance: PermanentApplication

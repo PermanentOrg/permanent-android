@@ -15,6 +15,9 @@ sealed interface ImageViewUiState {
     /** S4 — full-resolution image, no blur, no scrim, no loader. */
     data object Sharp : ImageViewUiState
 
-    // STUB: error states (e.g. FullResFailed, Offline — Figma S5–S8) belong to the
-    // companion error-handling ticket.
+    /** S6 — full-res load failed while connected; tappable retry card over the thumbnail. */
+    data object LoadFailed : ImageViewUiState
+
+    /** S7 — device offline; offline card, auto-retries when connectivity returns. */
+    data object Offline : ImageViewUiState
 }

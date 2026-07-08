@@ -3,12 +3,9 @@ package org.permanent.permanent.ui.fileView.compose
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,13 +13,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -31,21 +28,17 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import coil.request.ImageRequest
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.BlurTransformation
 import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
-import org.permanent.permanent.ui.composeComponents.OverlayColor
-import org.permanent.permanent.ui.composeComponents.SpinnerStyle
 import org.permanent.permanent.ui.fileView.ImageViewUiState
 import org.permanent.permanent.viewmodels.FileViewViewModel
 
-private const val SCRIM_ALPHA = 0.16f
-private const val THUMB_BLUR_RADIUS_PX = 64f
-private const val CROSS_DISSOLVE_MILLIS = 200
+internal const val SCRIM_ALPHA = 0.16f
+internal const val THUMB_BLUR_RADIUS_PX = 64f
+internal const val CROSS_DISSOLVE_MILLIS = 200
 
 // Manual-test hook (debug builds only): set to e.g. 2000 to slow the S3 cross-dissolve
 // down enough to observe the fade-in / blur-to-0 / loader fade-out
@@ -58,8 +51,14 @@ private val dissolveMillis: Int
         CROSS_DISSOLVE_MILLIS
     }
 
+// Manual-test hook (debug builds only): set to true to use pre-blurred bitmaps on ALL
+// API levels — isolates whether pager flicker artifacts come from the RenderEffect blur
+private const val DEBUG_FORCE_LEGACY_BLUR = false
+
 // Modifier.blur() is a silent no-op below API 31 — those devices get a pre-blurred bitmap
-private val isLiveBlurSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+internal val isLiveBlurSupported: Boolean
+    get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            !(BuildConfig.DEBUG && DEBUG_FORCE_LEGACY_BLUR)
 
 // Bitmap-level blur for API < 31, where Modifier.blur() is a no-op. Applied to the 256 px
 // thumbnail before upscaling, so the radius is scaled down (~64 px at screen scale).
@@ -75,8 +74,13 @@ private const val LEGACY_BLUR_SAMPLING = 1
 fun ProgressiveImageViewer(viewModel: FileViewViewModel, onTap: () -> Unit) {
     val uiState by viewModel.imageViewUiState.collectAsState()
     val thumbnailUrl by viewModel.thumbnailUrl.collectAsState()
+    val isThumbnailFailed by viewModel.isThumbnailFailed.collectAsState()
     val fullResSource by viewModel.fullResImageSource.collectAsState()
+    val retryNonce by viewModel.fullResRetryNonce.collectAsState()
     val context = LocalContext.current
+
+    // S5 — no thumbnail to blur: the skeleton replaces it as the background layer
+    val showSkeleton = thumbnailUrl == null || isThumbnailFailed
 
     val isSharp = uiState is ImageViewUiState.Sharp
     val dissolveSpec = remember { tween<Float>(durationMillis = dissolveMillis, easing = EaseOut) }
@@ -104,7 +108,12 @@ fun ProgressiveImageViewer(viewModel: FileViewViewModel, onTap: () -> Unit) {
         // The thumbnail keeps the original's aspect ratio, so this box matches the
         // bounds the sharp image (ContentScale.Fit) ends up in — no size jump in S3.
         if (fullResAlpha < 1f) {
-            val thumbnail by rememberThumbnailBitmap(thumbnailUrl)
+            if (showSkeleton) {
+                // S5 skeleton in place of the blurred thumbnail; no scrim — the
+                // loader/card reads directly on the light fill
+                PreviewSkeletonBackground(modifier = Modifier.align(Alignment.Center))
+            }
+            val thumbnail by rememberThumbnailBitmap(thumbnailUrl, viewModel::onThumbnailFailed)
             thumbnail?.let { bitmap ->
                 val blurModifier = if (isLiveBlurSupported) {
                     Modifier.blur(with(LocalDensity.current) { blurRadiusPx.toDp() })
@@ -136,12 +145,14 @@ fun ProgressiveImageViewer(viewModel: FileViewViewModel, onTap: () -> Unit) {
         // Full-resolution image (S3/S4) — composing it starts the background download
         fullResSource?.let { source ->
             ZoomableAsyncImage(
-                model = remember(source) {
+                // The nonce makes the retried request non-equal so Coil restarts it (S8);
+                // it's excluded from the cache key, so successes still hit the memory cache
+                model = remember(source, retryNonce) {
                     ImageRequest.Builder(context)
                         .data(source)
+                        .setParameter("retryNonce", retryNonce, memoryCacheKey = null)
                         .listener(
                             onSuccess = { _, _ -> viewModel.onFullResReady() },
-                            // STUB: companion error-handling ticket
                             onError = { _, _ -> viewModel.onFullResFailed() })
                         .build()
                 },
@@ -153,31 +164,40 @@ fun ProgressiveImageViewer(viewModel: FileViewViewModel, onTap: () -> Unit) {
             )
         }
 
-        // White loader (S2), fading out during the cross-dissolve
-        AnimatedVisibility(
-            visible = uiState is ImageViewUiState.BlurredThumbnailWithLoader,
-            enter = fadeIn(),
-            exit = fadeOut(animationSpec = tween(dissolveMillis, easing = EaseOut)),
+        // Center overlay: loader (S2/S8) or failure/offline card (S6/S7); the loader
+        // cross-fades in place into the card and fades out during the S3 dissolve
+        ImageStatusOverlay(
+            kind = when (uiState) {
+                ImageViewUiState.BlurredThumbnailWithLoader ->
+                    if (showSkeleton) ImageOverlayKind.LOADER_ON_SKELETON
+                    else ImageOverlayKind.LOADER
+
+                ImageViewUiState.LoadFailed -> ImageOverlayKind.LOAD_FAILED
+                ImageViewUiState.Offline -> ImageOverlayKind.OFFLINE
+                else -> ImageOverlayKind.NONE
+            },
+            onCardTap = viewModel::onErrorCardTapped,
+            dissolveMillis = dissolveMillis,
             modifier = Modifier.align(Alignment.Center)
-        ) {
-            CircularProgressIndicator(
-                overlayColor = OverlayColor.NONE,
-                style = SpinnerStyle.SCREEN_BLENDED,
-                modifier = Modifier.size(48.dp)
-            )
-        }
+        )
     }
 }
 
 /**
  * Loads the thumbnail through Picasso so it hits the same cache the file list already
  * populated (instant, even offline). Below API 31 the bitmap is pre-blurred, since
- * Modifier.blur() is a silent no-op there.
+ * Modifier.blur() is a silent no-op there. A failed request is reported through
+ * [onFailed] so the viewer can fall back to the S5 skeleton.
  */
 @Composable
-private fun rememberThumbnailBitmap(url: String?): androidx.compose.runtime.State<Bitmap?> {
+internal fun rememberThumbnailBitmap(
+    url: String?,
+    onFailed: () -> Unit
+): androidx.compose.runtime.State<Bitmap?> {
     val context = LocalContext.current
     val bitmapState = remember(url) { mutableStateOf<Bitmap?>(null) }
+    // rememberUpdatedState keeps the remember(url) target below stable across recompositions
+    val currentOnFailed by rememberUpdatedState(onFailed)
     // Picasso holds targets weakly — remember keeps a strong reference while composed
     val target = remember(url) {
         object : com.squareup.picasso.Target {
@@ -185,7 +205,9 @@ private fun rememberThumbnailBitmap(url: String?): androidx.compose.runtime.Stat
                 bitmapState.value = bitmap
             }
 
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {}
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                currentOnFailed()
+            }
 
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
         }

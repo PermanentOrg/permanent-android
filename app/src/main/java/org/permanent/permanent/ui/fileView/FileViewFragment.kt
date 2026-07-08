@@ -12,6 +12,8 @@ import android.view.ViewGroup
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
@@ -27,6 +29,7 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.fileView.compose.PreviewErrorOverlay
 import org.permanent.permanent.ui.fileView.compose.ProgressiveImageViewer
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.PublishFragment
@@ -69,11 +72,16 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         record?.let {
             viewModel.setRecord(it)
         }
+        // For records already known to be images, set the compose content synchronously:
+        // the isImage observer below only delivers once the view lifecycle reaches
+        // STARTED, and that gap paints pages created mid-fling black for a few frames.
+        if (record?.isImage() == true) setUpComposeImageViewer()
         // Registered here rather than in connectViewModelEvents() so it also fires for
         // offscreen pager pages, which are created but never resumed. LiveData delivers
         // the current value on registration, covering both the record-type path (already
         // true after setRecord) and the late contentType discovery.
         viewModel.isImage.observe(viewLifecycleOwner, onIsImage)
+        setUpPreviewErrorOverlay()
         binding.executePendingBindings()
         setHasOptionsMenu(true)
         supportActionBar = (activity as AppCompatActivity?)?.supportActionBar
@@ -83,19 +91,29 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         return binding.root
     }
 
+    private fun ComposeView.setThemedContent(content: @Composable () -> Unit) {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent { MaterialTheme { content() } }
+    }
+
     private fun setUpComposeImageViewer() {
         if (isComposeViewerSet) return
         isComposeViewerSet = true
-        binding.imageComposeView.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MaterialTheme {
-                    ProgressiveImageViewer(
-                        viewModel = viewModel,
-                        onTap = ::toggleActionBar
-                    )
-                }
-            }
+        binding.imageComposeView.setThemedContent {
+            ProgressiveImageViewer(
+                viewModel = viewModel,
+                onTap = ::toggleActionBar
+            )
+        }
+    }
+
+    /** Branded failure/offline card for the non-image previews (video/PDF/docs). */
+    private fun setUpPreviewErrorOverlay() {
+        binding.previewErrorComposeView.setThemedContent {
+            PreviewErrorOverlay(
+                viewModel = viewModel,
+                thumbnailUrl = record?.thumbnail256 ?: record?.thumbURL200
+            )
         }
     }
 
@@ -139,6 +157,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
                                 error.message?.let { errorMsg ->
                                     Log.e(FileViewFragment::class.java.simpleName, errorMsg)
                                 }
+                                viewModel.onPreviewLoadFailed()
                             }
                             .enableAnnotationRendering(false)
                             .password(null)
@@ -148,22 +167,29 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
                     e.message?.let { errorMsg ->
                         Log.e(FileViewFragment::class.java.simpleName, errorMsg)
                     }
+                    viewModel.onPreviewLoadFailed()
                 }
             }.start()
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Consume handled items (return true): the pager keeps several FileViewFragments
+        // alive, and an unconsumed event reaches the next one too — a double navigate
+        // crashes ("action cannot be found from the current destination")
         return when (item.itemId) {
             R.id.metadataItem -> {
-                val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
-                requireParentFragment().findNavController()
-                    .navigate(R.id.action_filesContainerFragment_to_fileMetadataFragment, bundle)
-                super.onOptionsItemSelected(item)
+                val navController = requireParentFragment().findNavController()
+                if (navController.currentDestination?.id == R.id.filesContainerFragment) {
+                    val bundle = bundleOf(PARCELABLE_FILE_DATA_KEY to fileData)
+                    navController
+                        .navigate(R.id.action_filesContainerFragment_to_fileMetadataFragment, bundle)
+                }
+                true
             }
             R.id.moreItem -> {
                 showRecordMenuFragment()
-                super.onOptionsItemSelected(item)
+                true
             }
             else -> super.onOptionsItemSelected(item)
         }

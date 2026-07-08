@@ -890,4 +890,9 @@
     <string name="pending">Pending…</string>
     <string name="confirm_deny_access_message">Are you sure you want to deny access from %s?</string>
     <string name="download_complete">Download complete</string>
+    <string name="preview_couldnt_load_image">Couldn\'t load image.</string>
+    <string name="preview_couldnt_load_file">Couldn\'t load file.</string>
+    <string name="preview_tap_to_retry">Tap to Retry.</string>
+    <string name="preview_youre_offline">You\'re offline.</string>
+    <string name="preview_connect_full_quality">Connect to load full quality.</string>
 </resources>

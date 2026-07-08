@@ -12,6 +12,8 @@ import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
@@ -127,9 +129,14 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
     }
 }
 
+/** Listener for main-frame load failures of the WebView-based previews (VSP-1754). */
+fun interface OnPreviewErrorListener {
+    fun onPreviewError()
+}
+
 @SuppressLint("SetJavaScriptEnabled")
-@BindingAdapter("webViewPath", "isVideo")
-fun WebView.updatePath(path: String?, isVideo: Boolean?) {
+@BindingAdapter("webViewPath", "isVideo", "onPreviewError")
+fun WebView.updatePath(path: String?, isVideo: Boolean?, onPreviewError: OnPreviewErrorListener?) {
     settings.javaScriptEnabled = true
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
@@ -159,6 +166,17 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?) {
         else -> {
             settings.builtInZoomControls = true
             settings.displayZoomControls = false
+            // A failing <video> source inside the inline markup above never reaches
+            // onReceivedError, so failure reporting is wired only for the loadUrl path
+            webViewClient = object : WebViewClient() {
+                override fun onReceivedError(
+                    view: WebView,
+                    request: WebResourceRequest,
+                    error: WebResourceError
+                ) {
+                    if (request.isForMainFrame) onPreviewError?.onPreviewError()
+                }
+            }
             path?.let {
                 loadUrl(path)
             }
