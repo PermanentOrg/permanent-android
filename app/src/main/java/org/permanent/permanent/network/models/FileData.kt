@@ -53,6 +53,12 @@ class FileData private constructor() : Parcelable {
                 fileName = recordVO.uploadFileName
                 fileVOs.first { it.contentType?.startsWith("video/", true) == true }
             }
+            // Prefer the converted access copy for images (always a decodable JPEG),
+            // fall back to the original upload below if no access copy exists
+            fileVOs.any { it.contentType?.startsWith("image/", true) == true && it.isAccessCopy() } -> {
+                fileName = recordVO.uploadFileName
+                fileVOs.first { it.contentType?.startsWith("image/", true) == true && it.isAccessCopy() }
+            }
             // Otherwise just take the first available file
             else -> {
                 fileName = recordVO.uploadFileName
@@ -79,8 +85,10 @@ class FileData private constructor() : Parcelable {
         thumbnail256 = recordVO.thumbnail256
         thumbURL2000 = recordVO.thumbURL2000
         contentType = fileVO?.contentType
-        width = fileVO?.width ?: -1
-        height = fileVO?.height ?: -1
+        // Access copies carry null dimensions — fall back to the original file's
+        val originalVO = fileVOs.firstOrNull { it.format == "file.format.original" }
+        width = fileVO?.width ?: originalVO?.width ?: -1
+        height = fileVO?.height ?: originalVO?.height ?: -1
         initTags(recordVO.TagVOs)
     }
 

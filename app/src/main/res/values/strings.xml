@@ -165,8 +165,10 @@
     <string name="shared_by_me_tab_name_">Shared by me</string>
     <string name="shared_with_me_tab_name">Shared with me</string>
 
-    <string name="dialog_record_publish_confirmation_title">Publish \"%s\"?</string>
-    <string name="dialog_record_publish_confirmation_text">Create a publicly viewable copy of this item in your Public workspace and get a public link to share with anyone.</string>
+
+    <string name="publish_file_title">Publish file</string>
+    <string name="publish_confirmation_prefix">Are you sure you want to create a publicly viewable copy of \u0020</string>
+    <string name="publish_confirmation_suffix">\u0020in your Public Workspace?</string>
     <string name="dialog_public_files_upload_title">Upload to Public?</string>
     <string name="dialog_public_files_upload_text">This is a public folder. Are you sure you want to upload here?</string>
     <string name="public_archive_title">Archive</string>
@@ -260,6 +262,7 @@
 
     <string name="rename_record_name_hint">Name</string>
     <string name="rename_record_title">Rename \"%s\"</string>
+    <string name="rename_file_title">Rename file</string>
     <string name="rename_record_rename_success">Record renamed successfully</string>
 
     <string name="file_sort_menu_item_name_asc">Name (A-Z)</string>
@@ -300,10 +303,9 @@
     <string name="button_try_now">Try now</string>
     <string name="button_gift_storage">Yes, gift storage</string>
 
-    <string name="add_options_menu_item_upload">Upload</string>
     <string name="add_options_menu_item_take_photo">Take Photo</string>
     <string name="add_options_menu_item_take_video">Take Video</string>
-    <string name="add_options_menu_item_new_folder">New Folder</string>
+    <string name="add_options_upload_photos_from_library">Upload Photos from Library</string>
     <string name="upload_record_not_created_error">Record could not be created</string>
     <string name="my_files_file_deleted">File has been deleted.</string>
     <string name="my_files_file_unshared">File has been unshared.</string>
@@ -317,6 +319,10 @@
     <string name="delete_records_title">Delete selected items?</string>
     <string name="leave_share_record_title">Leave share \"%s\"?</string>
     <string name="new_folder_hint">Folder Name</string>
+    <string name="new_folder_created">Folder successfully created</string>
+    <string name="rename_folder_success">Folder successfully renamed</string>
+    <string name="rename_file_success">File successfully renamed</string>
+    <string name="publish_success">File published successfully</string>
     <string name="my_files_uploads_title">Uploads</string>
     <string name="my_files_downloads_title">Downloads</string>
     <string name="my_files_uploads_waiting">Waiting…</string>
@@ -921,4 +927,9 @@
     <string name="invite_no_longer_valid">This invitation is no longer valid.</string>
     <string name="confirm_revoke_invitation">Are you sure you want to revoke this invitation to %s?</string>
     <string name="download_complete">Download complete</string>
+    <string name="preview_couldnt_load_image">Couldn\'t load image.</string>
+    <string name="preview_couldnt_load_file">Couldn\'t load file.</string>
+    <string name="preview_tap_to_retry">Tap to Retry.</string>
+    <string name="preview_youre_offline">You\'re offline.</string>
+    <string name="preview_connect_full_quality">Connect to load full quality.</string>
 </resources>

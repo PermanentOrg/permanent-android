@@ -30,6 +30,7 @@ open class Record : Parcelable {
     var thumbURL2000: String? = null
     var isThumbBlurred: Boolean? = null
     var type: RecordType? = null
+    var backendType: String? = null // Raw backend type, e.g. type.record.image
     var size: Long = -1L
     var accessRole: AccessRole? = null
     var isRelocateMode: MutableLiveData<Boolean>? = null
@@ -68,6 +69,7 @@ open class Record : Parcelable {
         isProcessing = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         displayInShares = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         fileData = parcel.readParcelable(FileData::class.java.classLoader)
+        backendType = parcel.readString()
     }
 
     constructor(recordInfo: RecordVO) {
@@ -86,6 +88,7 @@ open class Record : Parcelable {
         thumbURL2000 = recordInfo.thumbURL2000
         isThumbBlurred = false
         type = if (recordInfo.folderId != null) RecordType.FOLDER else RecordType.FILE
+        backendType = recordInfo.type
         size = recordInfo.size ?: -1L
         accessRole = AccessRole.fromBackendValue(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
@@ -144,6 +147,7 @@ open class Record : Parcelable {
         thumbURL2000 = itemVO.thumbURL2000
         isThumbBlurred = false
         type = if (itemVO.folderId != null) RecordType.FOLDER else RecordType.FILE
+        backendType = itemVO.type
         accessRole = AccessRole.fromBackendValue(itemVO.accessRole)
         initShares(itemVO.ShareVOs)
         displayFirstInCarousel = false
@@ -187,6 +191,7 @@ open class Record : Parcelable {
         thumbURL2000 = recordInfo?.thumbURL2000
         isThumbBlurred = shareByUrlVO.previewToggle == null || shareByUrlVO.previewToggle == 0
         type = if (recordInfo?.folderId != null) RecordType.FOLDER else RecordType.FILE
+        backendType = recordInfo?.type
         initShares(recordInfo?.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = recordInfo?.thumbnail256.isNullOrEmpty() && recordInfo?.thumbURL200.isNullOrEmpty()
@@ -201,6 +206,8 @@ open class Record : Parcelable {
             }
         }
     }
+
+    fun isImage(): Boolean = backendType?.endsWith(".image") == true
 
     fun getFolderIdentifier(): NavigationFolderIdentifier? {
         if (folderId != null && folderLinkId != null)
@@ -234,6 +241,7 @@ open class Record : Parcelable {
         parcel.writeValue(isProcessing)
         parcel.writeValue(displayInShares)
         parcel.writeParcelable(fileData, flags)
+        parcel.writeString(backendType)
     }
 
     override fun describeContents(): Int {

@@ -1,9 +1,17 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.text.Editable
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -12,68 +20,56 @@ import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 
-class NewFolderViewModel(application: Application) : ObservableAndroidViewModel(application) {
-    private val currentFolderName = MutableLiveData<String>()
-    private val nameError = MutableLiveData<Int?>()
-    private val isBusy = MutableLiveData<Boolean>()
-    private val onFolderCreated = SingleLiveEvent<Void?>()
-    private val errorMessage = MutableLiveData<String>()
-    val errorStringId = MutableLiveData<Int>()
+class NewFolderViewModel(application: Application) : AndroidViewModel(application) {
+    private val _currentFolderName = MutableStateFlow("")
+    val currentFolderName: StateFlow<String> = _currentFolderName
+
+    val isCreateEnabled: StateFlow<Boolean> = _currentFolderName
+        .map { it.isNotBlank() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    private val _isBusy = MutableStateFlow(false)
+    val isBusy: StateFlow<Boolean> = _isBusy
+
+    private val _onFolderCreated = MutableSharedFlow<Unit>()
+    val onFolderCreated: SharedFlow<Unit> = _onFolderCreated
+
+    private val _successMessage = MutableSharedFlow<String>()
+    val successMessage: SharedFlow<String> = _successMessage
+
+    private val _errorMessage = MutableSharedFlow<String>()
+    val errorMessage: SharedFlow<String> = _errorMessage
+
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
 
-    fun onNameTextChanged(email: Editable) {
-        currentFolderName.value = email.toString()
-    }
-
-    private fun getValidatedFolderName(): String? {
-        val name = currentFolderName.value?.trim()
-
-        if (name.isNullOrEmpty()) {
-            nameError.value = R.string.invalid_folder_name_error
-            return null
-        }
-        nameError.value = null
-        return name
+    fun onNameChanged(name: String) {
+        _currentFolderName.value = name
     }
 
     fun createNewFolder(parentFolderIdentifier: NavigationFolderIdentifier?) {
-        if (isBusy.value != null && isBusy.value!!) {
-            return
-        }
-        val folderName = getValidatedFolderName()
+        if (_isBusy.value) return
+        val name = _currentFolderName.value.trim()
+        if (name.isEmpty() || parentFolderIdentifier == null) return
 
-        if (parentFolderIdentifier != null && folderName != null) {
-            isBusy.value = true
-            fileRepository.createFolder(
-                parentFolderIdentifier,
-                folderName,
-                object : IRecordListener {
-                    override fun onSuccess(record: Record) {
-                        isBusy.value = false
-                        onFolderCreated.call()
-                    }
+        _isBusy.value = true
+        fileRepository.createFolder(parentFolderIdentifier, name, object : IRecordListener {
+            override fun onSuccess(record: Record) {
+                _isBusy.value = false
+                viewModelScope.launch {
+                    _successMessage.emit(application.getString(R.string.new_folder_created))
+                    _onFolderCreated.emit(Unit)
+                }
+            }
 
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        when (error) {
-                            Constants.ERROR_SERVER_ERROR -> errorStringId.value =
-                                R.string.server_error
-                            else -> error?.let { errorMessage.value = it }
-                        }
-                    }
-                })
-        }
+            override fun onFailed(error: String?) {
+                _isBusy.value = false
+                val message = when (error) {
+                    Constants.ERROR_SERVER_ERROR ->
+                        application.getString(R.string.server_error)
+                    else -> error ?: return
+                }
+                viewModelScope.launch { _errorMessage.emit(message) }
+            }
+        })
     }
-
-    fun getCurrentFolderName(): MutableLiveData<String> = currentFolderName
-
-    fun getNameError(): LiveData<Int?> = nameError
-
-    fun getIsBusy(): MutableLiveData<Boolean> = isBusy
-
-    fun getOnFolderCreated(): MutableLiveData<Void?> = onFolderCreated
-
-    fun getErrorStringId(): LiveData<Int> = errorStringId
-
-    fun getErrorMessage(): LiveData<String> = errorMessage
 }
