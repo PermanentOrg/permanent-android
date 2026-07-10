@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import org.permanent.permanent.Constants
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.EventAction
@@ -197,7 +197,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
     private fun initLink(shareLink: ShareLinkVO) {
         this.shareLinkVO = shareLink
-        _shareLink.value = Constants.SHARED_LINK_URL + shareLink.token
+        _shareLink.value = BuildConfig.BASE_URL + "share/" + shareLink.token
         _isLinkSharedState.value = _shareLink.value != ""
         shareLinkVO?.createdAt?.toLocalDateUtc()?.let { _createdAtDate.value = it }
     }
@@ -232,7 +232,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 _isCreatingLinkState.value = false
                 _isLinkSharedState.value = true
                 this@ShareManagementViewModel.shareLinkVO = shareLink
-                _shareLink.value = Constants.SHARED_LINK_URL + shareLink?.token
+                _shareLink.value = BuildConfig.BASE_URL + "share/" + shareLink?.token
                 _isLinkSharedState.value = _shareLink.value != ""
                 shareLink?.createdAt?.toLocalDateUtc()?.let { _createdAtDate.value = it }
                 onShowLinkSettingsBtnClick()
