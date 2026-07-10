@@ -36,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.DevicePermissionsHelper
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
@@ -169,6 +170,7 @@ class MyFilesFragment : PermanentBaseFragment() {
                 initDownloadsRecyclerView(binding.rvDownloads)
                 viewModel.getHideChecklist()
                 viewModel.registerDeviceForFCM()
+                requestNotificationsPermissionIfNeeded()
 
                 arguments?.takeIf { it.containsKey(SHOW_SCREEN_SIMPLIFIED_KEY) }?.apply {
                     showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
@@ -186,6 +188,15 @@ class MyFilesFragment : PermanentBaseFragment() {
             }
         }
         return binding.root
+    }
+
+    // Asked next to the FCM registration, so the prompt appears when the device
+    // is actually about to receive push.
+    private fun requestNotificationsPermissionIfNeeded() {
+        val permissionsHelper = DevicePermissionsHelper()
+        if (!permissionsHelper.hasNotificationsPermission(requireContext())) {
+            permissionsHelper.requestNotificationsPermission(this)
+        }
     }
 
     private fun navigateToSharePreviewFragment(shareLinkUrlToken: String) {

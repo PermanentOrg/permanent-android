@@ -21,7 +21,7 @@
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"
-            app:uri="https://staging.permanent.org/app/auth/signup?inviteCode={invite_code}" />
+            app:uri="https://app.staging.permanent.org/app/auth/signup?inviteCode={invite_code}" />
         <deepLink
             android:autoVerify="true"
             app:action="android.intent.action.VIEW"

@@ -54,11 +54,11 @@ android {
         }
         staging {
             applicationId "org.permanent.permanent.staging"
-            buildConfigField "String", "BASE_URL", "\"https://staging.permanent.org/\""
-            buildConfigField "String", "BASE_API_URL", "\"https://staging.permanent.org/api/\""
+            buildConfigField "String", "BASE_URL", "\"https://app.staging.permanent.org/\""
+            buildConfigField "String", "BASE_API_URL", "\"https://app.staging.permanent.org/api/\""
             buildConfigField "String", "BASE_API_URL_STELA", "\"https://api.staging.permanent.org/\""
             buildConfigField "String", "PAYMENT_INTENT_URL", "\"https://us-central1-prpledgestaging.cloudfunctions.net/donation/payment-sheet\""
-            buildConfigField "String", "ADD_STORAGE_URL", "\"https://staging.permanent.org/add-storage/\""
+            buildConfigField "String", "ADD_STORAGE_URL", "\"https://app.staging.permanent.org/add-storage/\""
             buildConfigField "String", "ACCESS_ROLES_URL", "\"https://desk.zoho.com/portal/permanent/en/kb/articles/roles-for-collaboration-and-sharing/\""
             buildConfigField "String", "HELP_URL", "\"https://desk.zoho.com/portal/permanent/en/home/\""
             buildConfigField "String", "TERMS_URL", "\"https://app.permanent.org/terms/\""
