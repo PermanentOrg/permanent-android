@@ -43,10 +43,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -243,18 +241,11 @@ fun ShareList(
 
 @Composable
 fun ShareListTitle() {
-    Text(
-        text = stringResource(R.string.current_requests_and_access).toUpperCase(Locale.current),
+    SectionTitle(
+        text = stringResource(R.string.current_requests_and_access),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp),
-        style = TextStyle(
-            fontSize = 10.sp,
-            lineHeight = 8.sp,
-            fontFamily = FontFamily(Font(R.font.usual_regular)),
-            color = colorResource(R.color.blue900),
-            letterSpacing = 1.6.sp,
-        )
+            .padding(bottom = 24.dp)
     )
 }
 
@@ -269,19 +260,11 @@ fun GrantAccessToOtherArchivesSection(
             .background(colorResource(R.color.white))
             .padding(start = 24.dp, end = 24.dp, top = 32.dp)
     ) {
-        Text(
-            text = stringResource(R.string.grant_access_to_other_archives)
-                .toUpperCase(Locale.current),
+        SectionTitle(
+            text = stringResource(R.string.grant_access_to_other_archives),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            style = TextStyle(
-                fontSize = 10.sp,
-                lineHeight = 8.sp,
-                fontFamily = FontFamily(Font(R.font.usual_regular)),
-                color = colorResource(R.color.blue900),
-                letterSpacing = 1.6.sp,
-            )
+                .padding(bottom = 16.dp)
         )
 
         GrantAccessEntryRow(

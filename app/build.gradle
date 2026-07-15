@@ -127,7 +127,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     // Async Image loading in compose
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    // Zoomable images (pinch/pan/double-tap + sub-sampling of large images)
+    implementation("me.saket.telephoto:zoomable-image-coil:0.19.0")
     //==============================================================================================
 
     //====================================== MATERIAL COMPONENTS ===================================

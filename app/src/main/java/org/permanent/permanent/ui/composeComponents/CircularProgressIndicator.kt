@@ -11,20 +11,50 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import org.permanent.permanent.R
 
+private val whiteTint = ColorFilter.tint(Color.White)
+
 @Composable
-fun CircularProgressIndicator(overlayColor: OverlayColor = OverlayColor.DARK, modifier: Modifier = Modifier.fillMaxSize()) {
+fun CircularProgressIndicator(
+    overlayColor: OverlayColor = OverlayColor.DARK,
+    style: SpinnerStyle = SpinnerStyle.GRADIENT,
+    modifier: Modifier = Modifier.fillMaxSize()
+) {
+    val backgroundColor = when (overlayColor) {
+        OverlayColor.DARK -> Color.Black.copy(alpha = 0.5f)
+        OverlayColor.LIGHT -> Color.White.copy(alpha = 0.5f)
+        OverlayColor.NONE -> Color.Transparent
+    }
+    val blendModifier = if (style == SpinnerStyle.SCREEN_BLENDED) {
+        Modifier.drawWithContent {
+            val paint = Paint().apply { blendMode = BlendMode.Screen }
+            drawContext.canvas.saveLayer(Rect(Offset.Zero, size), paint)
+            drawContent()
+            drawContext.canvas.restore()
+        }
+    } else {
+        Modifier
+    }
     Box(
         modifier = modifier
-            .background(if (overlayColor == OverlayColor.DARK) Color.Black.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.5f))
+            .background(backgroundColor)
             .clickable(enabled = false) {}, contentAlignment = Alignment.Center
     ) {
         val infiniteTransition = rememberInfiniteTransition(label = "")
@@ -36,17 +66,43 @@ fun CircularProgressIndicator(overlayColor: OverlayColor = OverlayColor.DARK, mo
             ), label = ""
         )
 
-        Image(painter = painterResource(id = R.drawable.ellipse_exterior),
-            contentDescription = null,
-            modifier = Modifier.graphicsLayer { rotationZ = -rotation })
+        val tint = if (style == SpinnerStyle.WHITE) whiteTint else null
+        Box(modifier = blendModifier, contentAlignment = Alignment.Center) {
+            Image(painter = painterResource(id = R.drawable.ellipse_exterior),
+                contentDescription = null,
+                colorFilter = tint,
+                modifier = Modifier.graphicsLayer { rotationZ = -rotation })
 
-        Image(painter = painterResource(id = R.drawable.ellipse_interior),
-            contentDescription = null,
-            modifier = Modifier.graphicsLayer { rotationZ = rotation })
+            Image(painter = painterResource(id = R.drawable.ellipse_interior),
+                contentDescription = null,
+                colorFilter = tint,
+                modifier = Modifier.graphicsLayer { rotationZ = rotation })
+        }
     }
 }
 
 enum class OverlayColor {
     LIGHT,
-    DARK
+    DARK,
+    NONE
+}
+
+enum class SpinnerStyle {
+    GRADIENT,
+
+    /** The gradient spinner screen-blended onto the content beneath */
+    SCREEN_BLENDED,
+
+    /** The spinner rings tinted plain white (e.g. over the S5 skeleton fill) */
+    WHITE
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF444444)
+@Composable
+private fun ScreenBlendedSpinnerPreview() {
+    CircularProgressIndicator(
+        overlayColor = OverlayColor.NONE,
+        style = SpinnerStyle.SCREEN_BLENDED,
+        modifier = Modifier.size(48.dp)
+    )
 }
