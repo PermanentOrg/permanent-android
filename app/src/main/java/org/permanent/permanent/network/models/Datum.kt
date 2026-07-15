@@ -21,5 +21,6 @@ class Datum {
     var TagLinkVO: TagLinkVO? = null
     var PromoVO: PromoVO? = null
     var ShareLinkVO: ShareLinkVO? = null
+    var RelationVO: RelationVO? = null
 
 }

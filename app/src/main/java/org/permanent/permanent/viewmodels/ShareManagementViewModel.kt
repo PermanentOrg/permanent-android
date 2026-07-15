@@ -126,11 +126,19 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         MutableStateFlow<FindArchiveByEmailUiState>(FindArchiveByEmailUiState.Idle)
     val findByEmailState: StateFlow<FindArchiveByEmailUiState> = _findByEmailState
 
+    // Select archive from past shares
+    private val _pastSharesQuery = MutableStateFlow("")
+    val pastSharesQuery: StateFlow<String> = _pastSharesQuery
+    private val _pastSharesState = MutableStateFlow<PastSharesUiState>(PastSharesUiState.Loading)
+    val pastSharesState: StateFlow<PastSharesUiState> = _pastSharesState
+    private var pastSharesFetchId = 0
+
     // Grant access to a newly found archive
     private val _selectedArchiveForGrant = MutableStateFlow<Archive?>(null)
     val selectedArchiveForGrant: StateFlow<Archive?> = _selectedArchiveForGrant
     private val _grantAccessRole = MutableStateFlow(AccessRole.VIEWER)
     val grantAccessRole: StateFlow<AccessRole> = _grantAccessRole
+    private var grantOpenedFrom = SharePage.FIND_ARCHIVE_BY_EMAIL
 
     // Invite someone without an account (no-results branch of find-by-email)
     private val _inviteEmail = MutableStateFlow("")
@@ -425,11 +433,14 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     fun onBackBtnClick(fromPage: SharePage) {
         when (fromPage) {
             SharePage.LINK_SETTINGS, SharePage.ARCHIVE_ACCESS,
-            SharePage.FIND_ARCHIVE_BY_EMAIL -> _navigateToPage.value = SharePage.SHARE_ITEM
+            SharePage.FIND_ARCHIVE_BY_EMAIL, SharePage.PAST_SHARES ->
+                _navigateToPage.value = SharePage.SHARE_ITEM
 
-            // Back from grant/invite returns to the search results, which are preserved.
-            SharePage.GRANT_ARCHIVE_ACCESS, SharePage.INVITE_ACCESS -> _navigateToPage.value =
-                SharePage.FIND_ARCHIVE_BY_EMAIL
+            // Back from grant returns to whichever page opened it (email results or past
+            // shares), which is preserved; back from invite returns to the search results.
+            SharePage.GRANT_ARCHIVE_ACCESS -> _navigateToPage.value = grantOpenedFrom
+
+            SharePage.INVITE_ACCESS -> _navigateToPage.value = SharePage.FIND_ARCHIVE_BY_EMAIL
 
             SharePage.EDIT_INVITATION -> _navigateToPage.value = SharePage.SHARE_ITEM
 
@@ -675,17 +686,136 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
     private fun isStaleEmailResponse(): Boolean = normalizeEmail(_emailQuery.value) != submittedQuery
 
     fun onArchiveResultClick(archive: Archive) {
+        openGrantArchiveAccess(archive, SharePage.FIND_ARCHIVE_BY_EMAIL)
+    }
+
+    fun onPastShareArchiveClick(archive: Archive) {
+        openGrantArchiveAccess(archive, SharePage.PAST_SHARES)
+    }
+
+    private fun openGrantArchiveAccess(archive: Archive, fromPage: SharePage) {
         // Archives that already have access to this share are not selectable.
         if (archive.id in accessedArchiveIds.value) {
             return
         }
+        grantOpenedFrom = fromPage
         _selectedArchiveForGrant.value = archive
         _grantAccessRole.value = AccessRole.VIEWER
         _navigateToPage.value = SharePage.GRANT_ARCHIVE_ACCESS
     }
 
     fun onPastSharesClick() {
-        // TODO(VSP-1617): "Select an archive from past shares" is out of scope for this ticket.
+        _pastSharesQuery.value = ""
+        _pastSharesState.value = PastSharesUiState.Loading
+        _navigateToPage.value = SharePage.PAST_SHARES
+        fetchPastShareArchives()
+    }
+
+    fun onPastSharesQueryChange(text: String) {
+        _pastSharesQuery.value = text
+    }
+
+    // Loads both sections in parallel: the account's own archives ("My archives") and the
+    // archives related to the current one via past shares ("Other archives").
+    private fun fetchPastShareArchives() {
+        val currentArchiveId = prefsHelper.getCurrentArchiveId()
+        val fetchId = ++pastSharesFetchId
+        var myArchives = emptyList<Archive>()
+        var otherArchives = emptyList<Archive>()
+        var failedSources = 0
+        var pendingSources = 2
+
+        // Retrofit delivers both callbacks on the main thread, so no synchronization is needed.
+        fun onSourceDone() {
+            if (fetchId != pastSharesFetchId || --pendingSources > 0) {
+                return
+            }
+            if (failedSources == 2) {
+                _pastSharesState.value =
+                    PastSharesUiState.Error(appContext.getString(R.string.generic_error))
+                return
+            }
+            if (failedSources == 1) {
+                _snackbarMessage.value = appContext.getString(R.string.generic_error)
+                _snackbarType.value = TemporarySnackbarType.ERROR
+            }
+            val myArchiveIds = myArchives.map { it.id }.toSet()
+            _pastSharesState.value = PastSharesUiState.Loaded(
+                myArchives = myArchives,
+                otherArchives = otherArchives.filterNot { it.id in myArchiveIds })
+        }
+
+        archiveRepository.getAllArchives(object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                myArchives = dataList.orEmpty()
+                    .mapNotNull { it.ArchiveVO?.let(::Archive) }
+                    .filter {
+                        it.accessRole == AccessRole.OWNER && it.status != Status.PENDING &&
+                                it.id != currentArchiveId
+                    }
+                    .distinctBy { it.id }
+                    .sortedBy { it.fullName?.lowercase() }
+                onSourceDone()
+            }
+
+            override fun onFailed(error: String?) {
+                failedSources++
+                onSourceDone()
+            }
+        })
+
+        archiveRepository.getRelations(currentArchiveId, object : IDataListener {
+            override fun onSuccess(dataList: List<Datum>?) {
+                otherArchives = dataList.orEmpty()
+                    .mapNotNull { it.RelationVO?.RelationArchiveVO?.let(::Archive) }
+                    .filter { it.status != Status.PENDING && it.id != currentArchiveId }
+                    .distinctBy { it.id }
+                    .sortedBy { it.fullName?.lowercase() }
+                onSourceDone()
+            }
+
+            override fun onFailed(error: String?) {
+                failedSources++
+                onSourceDone()
+            }
+        })
+    }
+
+    // Matches the way iOS filters: query and names are lowercased with spaces and "&" stripped,
+    // and a row matches if either its name or its initials contain the query.
+    fun filterPastShareArchives(archives: List<Archive>, query: String): List<Archive> {
+        val normalizedQuery = normalizeForArchiveFilter(query)
+        if (normalizedQuery.isEmpty()) {
+            return archives
+        }
+        return archives.filter { archive ->
+            val name = unwrappedArchiveName(archive.fullName)
+            normalizeForArchiveFilter(name).contains(normalizedQuery) ||
+                    normalizeForArchiveFilter(archiveInitials(name)).contains(normalizedQuery)
+        }
+    }
+
+    // Archive.fullName is stored wrapped as "The X Archive"; initials come from the raw name.
+    // Prefix/suffix come from the same resources the share-preview picker uses to wrap names.
+    private fun unwrappedArchiveName(fullName: String?): String {
+        val prefix = appContext.getString(R.string.share_preview_the_prefix) + " "
+        val suffix = " " + appContext.getString(R.string.share_preview_archive_suffix)
+        var name = fullName.orEmpty().trim()
+        if (name.startsWith(prefix, ignoreCase = true)) name = name.drop(prefix.length)
+        if (name.endsWith(suffix, ignoreCase = true)) name = name.dropLast(suffix.length)
+        return name.trim()
+    }
+
+    private fun normalizeForArchiveFilter(text: String): String =
+        text.trim().lowercase().replace(" ", "").replace("&", "")
+
+    private fun archiveInitials(name: String): String {
+        val words = name.split(" ").filter { it.isNotBlank() }
+        return when {
+            words.size >= 2 -> "${words[0].first()}${words[1].first()}"
+            words.size == 1 -> words[0].take(2)
+            else -> ""
+        }
     }
 
     fun onGrantAccessRoleClick() {
@@ -1026,4 +1156,14 @@ sealed interface FindArchiveByEmailUiState {
     data class Found(val archives: List<Archive>) : FindArchiveByEmailUiState
     data class NoResults(val email: String) : FindArchiveByEmailUiState
     data class Error(val message: String) : FindArchiveByEmailUiState
+}
+
+sealed interface PastSharesUiState {
+    data object Loading : PastSharesUiState
+    data class Loaded(
+        val myArchives: List<Archive>,
+        val otherArchives: List<Archive>,
+    ) : PastSharesUiState
+
+    data class Error(val message: String) : PastSharesUiState
 }

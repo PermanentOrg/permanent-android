@@ -113,6 +113,23 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
             })
     }
 
+    override fun getRelations(archiveId: Int, listener: IDataListener) {
+        NetworkClient.instance().getRelations(archiveId).enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
     override fun acceptArchives(archives: List<Archive>, listener: IResponseListener) {
         NetworkClient.instance().acceptArchives(archives).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

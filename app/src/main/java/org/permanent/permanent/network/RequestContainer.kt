@@ -24,6 +24,7 @@ import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.Profile_itemVO
 import org.permanent.permanent.network.models.PromoVO
 import org.permanent.permanent.network.models.RecordVO
+import org.permanent.permanent.network.models.RelationVO
 import org.permanent.permanent.network.models.RequestVO
 import org.permanent.permanent.network.models.SearchVO
 import org.permanent.permanent.network.models.ShareVO
@@ -453,6 +454,13 @@ class RequestContainer {
         archiveVO.fullName = name
         archiveVO.type = type.backendString
         RequestVO.data?.get(0)?.ArchiveVO = archiveVO
+        return this
+    }
+
+    fun addRelation(archiveId: Int): RequestContainer {
+        val relationVO = RelationVO()
+        relationVO.archiveId = archiveId
+        RequestVO.data?.get(0)?.RelationVO = relationVO
         return this
     }
 

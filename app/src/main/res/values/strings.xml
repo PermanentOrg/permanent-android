@@ -908,6 +908,13 @@
     <string name="grant_access">Grant access</string>
     <string name="access_granted_for_new_archive">Access granted for new archive.</string>
     <string name="already_has_access_to_this_share">Already has access to this share</string>
+    <string name="select_archive_from_past_shares_title">Select archive from past shares</string>
+    <string name="filter_archives_hint">Filter archives…</string>
+    <string name="other_archives">Other archives</string>
+    <string name="no_past_shares_title">No archives from past shares</string>
+    <string name="no_past_shares_subtitle">Archives you\'ve previously shared with will appear here.</string>
+    <string name="no_archives_match_search_title">No archives match your search</string>
+    <string name="no_archives_match_search_subtitle">Try a different search term.</string>
     <string name="share_management_no_account_title">Looks like someone\'s missing out.</string>
     <string name="share_management_no_account_message">We couldn\'t find an account for %s. Would you like to invite them to join Permanent and share this file with them once they join?</string>
     <string name="invite_now">Invite now</string>

@@ -592,6 +592,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.getAllArchives(requestBody)
     }
 
+    fun getRelations(archiveId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addRelation(archiveId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.getRelations(requestBody)
+    }
+
     fun acceptArchives(archive: List<Archive>): Call<ResponseVO> {
         val request = toJson(RequestContainer().addArchives(archive))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
