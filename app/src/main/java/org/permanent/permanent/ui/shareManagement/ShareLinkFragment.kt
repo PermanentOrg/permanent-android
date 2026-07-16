@@ -11,9 +11,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
@@ -53,6 +57,20 @@ class ShareLinkFragment : PermanentBottomSheetFragment()  {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.sharesChangedEvent.collect {
+                    parentFragmentManager.setFragmentResult(
+                        SHARES_CHANGED_RESULT_KEY,
+                        bundleOf()
+                    )
+                }
+            }
+        }
+    }
+
     fun setBundleArguments(record: Record?) {
         this.arguments = bundleOf(PARCELABLE_RECORD_KEY to record)
     }
@@ -79,5 +97,6 @@ class ShareLinkFragment : PermanentBottomSheetFragment()  {
     companion object {
         const val PARCELABLE_SHARE_KEY = "parcelable_share_key"
         const val SHARE_BY_URL_VO_KEY = "share_by_url_vo_key"
+        const val SHARES_CHANGED_RESULT_KEY = "share_link_shares_changed"
     }
 }

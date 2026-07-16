@@ -14,8 +14,14 @@ class RecordListViewHolder(
     private val showMyFilesSimplified: Boolean,
     private val isForSharesScreen: Boolean,
     private val isForSearchScreen: Boolean,
+    private val showPendingInvitationsBadge: Boolean,
     private val recordListener: RecordListener
 ) : RecyclerView.ViewHolder(binding.root) {
+
+    private val pendingBadgeBinder = PendingInvitationBadgeBinder(
+        binding.tvPendingBadge,
+        binding.btnOptions
+    )
 
     fun bind(record: Record, lifecycleOwner: LifecycleOwner) {
         binding.record = record
@@ -23,6 +29,7 @@ class RecordListViewHolder(
         binding.lifecycleOwner = lifecycleOwner
         binding.btnOptions.visibility =
             if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER || isForSearchScreen || showMyFilesSimplified) View.INVISIBLE else View.VISIBLE
+        pendingBadgeBinder.bind(record, lifecycleOwner, showPendingInvitationsBadge)
         binding.btnOptions.setOnClickListener {
             if (record.isSelectMode?.value == true) {
                 record.isChecked?.value = !record.isChecked?.value!!

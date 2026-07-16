@@ -184,7 +184,7 @@ private fun NameInputLayout(
                     text = buttonLabel,
                     icon = null,
                     enabled = isConfirmEnabled,
-                    disabledColor = colorResource(R.color.colorPrimary200),
+                    disabledColor = colorResource(R.color.blue200),
                     onButtonClick = onConfirm
                 )
 
@@ -239,7 +239,7 @@ fun ModalHeader(title: String, onClose: () -> Unit) {
                 Icon(
                     painter = painterResource(R.drawable.ic_close_light_blue),
                     contentDescription = stringResource(R.string.button_cancel),
-                    tint = colorResource(R.color.colorPrimary200)
+                    tint = colorResource(R.color.blue200)
                 )
             }
         }
@@ -295,7 +295,7 @@ private fun NameInputField(
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontFamily = FontFamily(Font(R.font.usual_regular)),
-                        color = colorResource(R.color.colorPrimary200)
+                        color = colorResource(R.color.blue200)
                     )
                 )
             }

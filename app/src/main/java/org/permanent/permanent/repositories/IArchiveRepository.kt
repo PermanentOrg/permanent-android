@@ -13,9 +13,13 @@ interface IArchiveRepository {
 
     fun searchArchive(name: String?, listener: IDataListener)
 
+    fun searchArchiveByEmail(email: String, listener: IDataListener)
+
     fun updateProfilePhoto(thumbRecord: Record, listener: IResponseListener)
 
     fun getAllArchives(listener: IDataListener)
+
+    fun getRelations(archiveId: Int, listener: IDataListener)
 
     fun acceptArchives(archives: List<Archive>, listener: IResponseListener)
 

@@ -27,6 +27,7 @@ fun ShareManagementContainer(
     onClose: () -> Unit,
 ) {
     val isBusyState by viewModel.isBusyState.collectAsState()
+    val isRefreshingShares by viewModel.isRefreshingShares.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
     val snackbarType by viewModel.snackbarType.collectAsState()
     val pagerState = rememberPagerState(
@@ -76,6 +77,33 @@ fun ShareManagementContainer(
                         ArchiveAccessPage(
                             viewModel = viewModel, onClose = { onClose() })
                     }
+
+                    SharePage.FIND_ARCHIVE_BY_EMAIL.value -> {
+                        FindArchiveByEmailPage(
+                            viewModel = viewModel,
+                            isCurrentPage = pagerState.settledPage == page,
+                            onClose = { onClose() })
+                    }
+
+                    SharePage.GRANT_ARCHIVE_ACCESS.value -> {
+                        GrantArchiveAccessPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
+
+                    SharePage.INVITE_ACCESS.value -> {
+                        InviteAndGrantAccessPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
+
+                    SharePage.EDIT_INVITATION.value -> {
+                        EditInvitationPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
+
+                    SharePage.PAST_SHARES.value -> {
+                        PastSharesPage(
+                            viewModel = viewModel, onClose = { onClose() })
+                    }
                 }
             }
         }
@@ -91,11 +119,13 @@ fun ShareManagementContainer(
             })
     }
 
-    if (isBusyState) {
+    if (isBusyState || isRefreshingShares) {
         CircularProgressIndicator(modifier = Modifier.fillMaxHeight(0.95f))
     }
 }
 
 enum class SharePage(val value: Int) {
-    SHARE_ITEM(0), LINK_SETTINGS(1), GENERAL_ACCESS(2), ACCESS_ROLES(3), ARCHIVE_ACCESS(4);
+    SHARE_ITEM(0), LINK_SETTINGS(1), GENERAL_ACCESS(2), ACCESS_ROLES(3), ARCHIVE_ACCESS(4),
+    FIND_ARCHIVE_BY_EMAIL(5), GRANT_ARCHIVE_ACCESS(6), INVITE_ACCESS(7), EDIT_INVITATION(8),
+    PAST_SHARES(9);
 }

@@ -64,6 +64,7 @@ import org.permanent.permanent.ui.public.PublicFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
+import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.ui.shareManagement.ShareManagementFragment
 import org.permanent.permanent.ui.shares.PreviewState
 import org.permanent.permanent.ui.shares.SHOW_SCREEN_SIMPLIFIED_KEY
@@ -97,6 +98,15 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
     private var islandExpandedWidth = 960
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parentFragmentManager.setFragmentResultListener(
+            ShareLinkFragment.SHARES_CHANGED_RESULT_KEY, this
+        ) { _, _ ->
+            viewModel.refreshCurrentFolder()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -488,7 +498,8 @@ class MyFilesFragment : PermanentBaseFragment() {
             viewModel.getIsSelectionMode(),
             isForSharesScreen = false,
             isForSearchScreen = false,
-            recordListener = viewModel
+            recordListener = viewModel,
+            showPendingInvitationsBadge = true
         )
         recordsGridAdapter = RecordsGridAdapter(
             this,
@@ -496,7 +507,8 @@ class MyFilesFragment : PermanentBaseFragment() {
             viewModel.getIsRelocationMode(),
             viewModel.getIsSelectionMode(),
             MutableLiveData(PreviewState.ACCESS_GRANTED),
-            recordListener = viewModel
+            recordListener = viewModel,
+            showPendingInvitationsBadge = true
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)
@@ -524,7 +536,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().observe(this, onNewTemporaryFiles)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
-        viewModel.getOnShowRecordMenuFragment().observe(this, onShowRecordMenuFragment)
+        viewModel.getShowRecordMenuRequest().observe(this, onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().observe(this, onShowRecordSearchFragment)
         viewModel.getOnShowSortOptionsFragment().observe(this, onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().observe(this, onRecordDeleteObserver)
@@ -552,7 +564,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().removeObserver(onNewTemporaryFiles)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
-        viewModel.getOnShowRecordMenuFragment().removeObserver(onShowRecordMenuFragment)
+        viewModel.getShowRecordMenuRequest().removeObserver(onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().removeObserver(onShowRecordSearchFragment)
         viewModel.getOnShowSortOptionsFragment().removeObserver(onShowSortOptionsFragment)
         viewModel.getOnRecordDeleteRequest().removeObserver(onRecordDeleteObserver)

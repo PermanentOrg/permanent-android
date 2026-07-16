@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,15 +43,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.toUpperCase
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.Invitation
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.ui.composeComponents.AccessRoleLabel
 import org.permanent.permanent.ui.composeComponents.AccessRoleLabelColor
@@ -73,8 +76,13 @@ fun ShareItemPage(
     val isLinkSharedState by viewModel.isLinkSharedState.collectAsState()
     val pendingShares by viewModel.pendingShares.collectAsState()
     val approvedShares by viewModel.approvedShares.collectAsState()
+    val pendingInvites by viewModel.pendingInvites.collectAsState()
+    val isApprovingAll by viewModel.isApprovingAll.collectAsState()
+    val approvingShareIds by viewModel.approvingShareIds.collectAsState()
     var showDenyConfirmation by remember { mutableStateOf(false) }
     var selectedShare by remember { mutableStateOf<Share?>(null) }
+
+    val showApproveAllFooter = pendingShares.size >= 2
 
     Box(
         modifier = Modifier
@@ -118,16 +126,34 @@ fun ShareItemPage(
                 }
             }
 
+            GrantAccessToOtherArchivesSection(
+                onFindByEmailClick = { viewModel.openFindArchiveByEmail() },
+                onPastSharesClick = { viewModel.onPastSharesClick() }
+            )
+
             ShareList(
                 pendingShares = pendingShares,
                 approvedShares = approvedShares,
+                pendingInvites = pendingInvites,
+                isApprovingAll = isApprovingAll,
+                approvingShareIds = approvingShareIds,
                 modifier = Modifier.weight(1f),
+                contentBottomPadding = if (showApproveAllFooter) 88.dp else 32.dp,
                 onEditClick = { share -> viewModel.onEditClick(share) },
                 onApproveClick = { share -> viewModel.onApproveClick(share) },
                 onDenyClick = { share ->
                     selectedShare = share
                     showDenyConfirmation = true
-                }
+                },
+                onEditInviteClick = { invitation -> viewModel.onEditInviteClick(invitation) }
+            )
+        }
+
+        if (showApproveAllFooter) {
+            ApproveAllFooter(
+                enabled = !isApprovingAll,
+                onClick = { viewModel.approveAllPendingShares() },
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
     }
@@ -158,22 +184,47 @@ fun ShareItemPage(
 fun ShareList(
     pendingShares: List<Share>,
     approvedShares: List<Share>,
+    pendingInvites: List<Invitation>,
+    isApprovingAll: Boolean,
+    approvingShareIds: Set<Int>,
     modifier: Modifier = Modifier,
+    contentBottomPadding: Dp = 32.dp,
     onEditClick: (Share) -> Unit,
     onApproveClick: (Share) -> Unit,
-    onDenyClick: (Share) -> Unit
+    onDenyClick: (Share) -> Unit,
+    onEditInviteClick: (Invitation) -> Unit
 ) {
-    if (pendingShares.isEmpty() && approvedShares.isEmpty()) return
+    if (pendingShares.isEmpty() && approvedShares.isEmpty() && pendingInvites.isEmpty()) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(colorResource(R.color.white))
+        )
+        return
+    }
 
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
             .background(colorResource(R.color.white))
-            .padding(start = 24.dp, end = 16.dp, top = 32.dp, bottom = 32.dp)
+            .padding(start = 24.dp, end = 16.dp, top = 24.dp),
+        contentPadding = PaddingValues(bottom = contentBottomPadding)
     ) {
 
         item {
             ShareListTitle()
+        }
+
+        items(
+            pendingShares, key = { it.id ?: it.hashCode() }) { share ->
+            val isApprovingThis = share.id != null && share.id in approvingShareIds
+            PendingShareItem(
+                share = share,
+                isApprovingThis = isApprovingThis,
+                rowActionsEnabled = !isApprovingAll,
+                onApproveClick = { onApproveClick(share) },
+                onDenyClick = { onDenyClick(share) }
+            )
         }
 
         items(
@@ -182,31 +233,54 @@ fun ShareList(
         }
 
         items(
-            pendingShares, key = { it.id ?: it.hashCode() }) { share ->
-            PendingShareItem(
-                share,
-                onApproveClick = { onApproveClick(share) },
-                onDenyClick = { onDenyClick(share) }
-            )
+            pendingInvites, key = { it.inviteId ?: it.hashCode() }) { invitation ->
+            PendingInviteItem(invitation) { onEditInviteClick(invitation) }
         }
     }
 }
 
 @Composable
 fun ShareListTitle() {
-    Text(
-        text = stringResource(R.string.current_requests_and_access).toUpperCase(Locale.current),
+    SectionTitle(
+        text = stringResource(R.string.current_requests_and_access),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp),
-        style = TextStyle(
-            fontSize = 10.sp,
-            lineHeight = 8.sp,
-            fontFamily = FontFamily(Font(R.font.usual_regular)),
-            color = colorResource(R.color.blue900),
-            letterSpacing = 1.6.sp,
-        )
+            .padding(bottom = 24.dp)
     )
+}
+
+@Composable
+fun GrantAccessToOtherArchivesSection(
+    onFindByEmailClick: () -> Unit,
+    onPastSharesClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorResource(R.color.white))
+            .padding(start = 24.dp, end = 24.dp, top = 32.dp)
+    ) {
+        SectionTitle(
+            text = stringResource(R.string.grant_access_to_other_archives),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        )
+
+        GrantAccessEntryRow(
+            iconResId = R.drawable.ic_search_middle_grey,
+            text = stringResource(R.string.find_an_archive_using_email_address),
+            onClick = onFindByEmailClick
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        GrantAccessEntryRow(
+            iconResId = R.drawable.ic_archives_blue,
+            text = stringResource(R.string.select_an_archive_from_past_shares),
+            onClick = onPastSharesClick
+        )
+    }
 }
 
 @Composable
@@ -282,7 +356,97 @@ fun ApprovedShareItem(share: Share, onEditClick: () -> Unit) {
 }
 
 @Composable
-fun PendingShareItem(share: Share, onApproveClick: () -> Unit, onDenyClick: () -> Unit) {
+fun PendingInviteItem(invitation: Invitation, onEditClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Gray archive-switcher placeholder: the invitee has no archive yet.
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(colorResource(R.color.blue100))
+                .border(
+                    width = 1.dp,
+                    color = Color.White.copy(alpha = 0.16f),
+                    shape = RoundedCornerShape(6.dp)
+                ),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 7.dp)
+                    .size(width = 16.dp, height = 2.dp)
+                    .background(Color.White, RoundedCornerShape(2.dp))
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = invitation.fullName ?: invitation.email ?: "",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_medium)),
+                        color = colorResource(R.color.blue900),
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = stringResource(R.string.invited),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_regular)),
+                        color = colorResource(R.color.success500),
+                    )
+                )
+            }
+
+            Text(
+                text = invitation.email ?: "",
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.usual_regular)),
+                    color = colorResource(R.color.blue600),
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        IconButton(onClick = { onEditClick() }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_edit_primary),
+                contentDescription = "Edit invitation",
+                tint = Color.Unspecified
+            )
+        }
+    }
+}
+
+@Composable
+fun PendingShareItem(
+    share: Share,
+    isApprovingThis: Boolean = false,
+    rowActionsEnabled: Boolean = true,
+    onApproveClick: () -> Unit,
+    onDenyClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -320,20 +484,89 @@ fun PendingShareItem(share: Share, onApproveClick: () -> Unit, onDenyClick: () -
             )
         }
 
-        IconButton(onClick = { onApproveClick() }, modifier = Modifier.size(40.dp)) {
-            Icon(
-                painter = painterResource(R.drawable.ic_done_white),
-                tint = colorResource(R.color.success500),
-                contentDescription = "Approve"
-            )
+        if (isApprovingThis) {
+            Box(
+                modifier = Modifier.size(40.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    overlayColor = OverlayColor.LIGHT,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        } else {
+            IconButton(
+                onClick = onApproveClick,
+                enabled = rowActionsEnabled,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_done_white),
+                    tint = colorResource(R.color.success500),
+                    contentDescription = "Approve"
+                )
+            }
         }
 
-        IconButton(onClick = { onDenyClick() }) {
+        IconButton(onClick = onDenyClick, enabled = rowActionsEnabled) {
             Icon(
                 painter = painterResource(R.drawable.ic_deny),
                 tint = Color.Unspecified,
                 contentDescription = "Deny"
             )
+        }
+    }
+}
+
+@Composable
+fun ApproveAllFooter(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val whiteColor = colorResource(R.color.white)
+    val successColor = colorResource(R.color.success500)
+    val fadeBrush = remember(whiteColor) {
+        Brush.verticalGradient(colors = listOf(Color.Transparent, whiteColor))
+    }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(32.dp)
+                .background(brush = fadeBrush)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(whiteColor)
+                .padding(start = 24.dp, end = 24.dp, bottom = 32.dp)
+        ) {
+            Button(
+                onClick = onClick,
+                enabled = enabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = successColor,
+                    contentColor = whiteColor,
+                    disabledContainerColor = successColor.copy(alpha = 0.5f),
+                    disabledContentColor = whiteColor
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.approve_all),
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        lineHeight = 24.sp,
+                        fontFamily = FontFamily(Font(R.font.usual_medium)),
+                        color = whiteColor
+                    )
+                )
+            }
         }
     }
 }
@@ -378,7 +611,7 @@ fun SharedLinkRow(
         modifier = Modifier
             .fillMaxWidth()
             .background(colorResource(R.color.blue25))
-            .padding(start = 24.dp, top = 6.dp, bottom = 6.dp, end = 24.dp),
+            .padding(start = 24.dp, top = 6.dp, bottom = 24.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -455,7 +688,7 @@ fun CreateLinkRow(onClick: () -> Unit) {
             .fillMaxWidth()
             .background(colorResource(R.color.blue25))
             .clickable { onClick() }
-            .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+            .padding(start = 24.dp, top = 12.dp, bottom = 24.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically) {
 
         Icon(

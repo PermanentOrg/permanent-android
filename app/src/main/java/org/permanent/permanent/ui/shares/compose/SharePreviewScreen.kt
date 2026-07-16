@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +71,15 @@ fun SharePreviewScreen(
     val archives by viewModel.archives.collectAsState()
     val selectedArchive by viewModel.selectedArchive.collectAsState()
     val actionUiState by viewModel.actionUiState.collectAsState()
+    val createArchiveCompletedTick by viewModel.createArchiveCompletedTick.collectAsState()
     var showArchivePickerSheet by remember { mutableStateOf(false) }
+    var showCreateArchiveSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(createArchiveCompletedTick) {
+        if (createArchiveCompletedTick > 0L) {
+            showCreateArchiveSheet = false
+        }
+    }
 
     val boldFont = FontFamily(Font(R.font.usual_bold))
     val mediumFont = FontFamily(Font(R.font.usual_medium))
@@ -152,7 +161,19 @@ fun SharePreviewScreen(
                 archives = archives,
                 selectedArchive = selectedArchive,
                 onArchiveSelected = { viewModel.onArchiveSelected(it) },
+                onCreateArchiveClick = {
+                    showArchivePickerSheet = false
+                    showCreateArchiveSheet = true
+                },
                 onDismiss = { showArchivePickerSheet = false }
+            )
+        }
+
+        if (showCreateArchiveSheet) {
+            CreateArchiveBottomSheet(
+                isBusy = isBusy,
+                onSubmit = { name, type -> viewModel.onCreateArchive(name, type) },
+                onDismiss = { showCreateArchiveSheet = false }
             )
         }
 

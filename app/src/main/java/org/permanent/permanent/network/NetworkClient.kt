@@ -38,10 +38,14 @@ import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.ChecklistResponse
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FolderResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.InviteSharePayload
+import org.permanent.permanent.network.models.InviteVO
 import org.permanent.permanent.network.models.LegacyContact
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.ProfileItemsRequestContainer
+import org.permanent.permanent.network.models.RecordResponse
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkResponse
 import org.permanent.permanent.network.models.ShareLinkVO
@@ -557,6 +561,22 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         return archiveService.searchArchive(requestBody)
     }
 
+    fun searchArchiveByEmail(email: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addSearch(email))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.searchArchiveByEmail(requestBody)
+    }
+
+    fun grantArchiveAccess(
+        folderLinkId: Int,
+        archiveId: Int,
+        accessRole: AccessRole
+    ): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addShare(folderLinkId, archiveId, accessRole))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return shareService.updateShare(requestBody)
+    }
+
     fun updateProfilePhoto(
         archiveNr: String?, archiveId: Int, archiveType: ArchiveType, thumbArchiveNr: String?
     ): Call<ResponseVO> {
@@ -570,6 +590,12 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer())
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return archiveService.getAllArchives(requestBody)
+    }
+
+    fun getRelations(archiveId: Int): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addRelation(archiveId))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return archiveService.getRelations(requestBody)
     }
 
     fun acceptArchives(archive: List<Archive>): Call<ResponseVO> {
@@ -669,6 +695,28 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         val request = toJson(RequestContainer().addInvite(fullName, email))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
         return invitationService.sendInvitation(requestBody)
+    }
+
+    fun shareInvitation(
+        email: String,
+        fullName: String,
+        accessRole: AccessRole,
+        recordId: Int,
+        folderLinkId: Int,
+        byArchiveId: Int
+    ): Call<InviteVO> {
+        val payload = InviteSharePayload(
+            relationship = Constants.RELATIONSHIP_FRIEND,
+            accessRole = accessRole.backendString,
+            recordId = recordId,
+            folderLinkId = folderLinkId,
+            fullName = fullName,
+            byArchiveId = byArchiveId,
+            email = email
+        )
+        val adapter = Moshi.Builder().build().adapter(InviteSharePayload::class.java)
+        val requestBody: RequestBody = adapter.toJson(payload).toRequestBody(jsonMediaType)
+        return invitationService.shareInvitation(requestBody)
     }
 
     fun updateInvitation(inviteId: Int, updateType: UpdateType): Call<ResponseVO> {
@@ -798,6 +846,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         folderId: Int,
         pageSize: Int = 99999999
     ): Call<FolderChildrenResponse> = stelaAccountService.getFolderChildren(shareToken, folderId, pageSize)
+
+    fun getRecordV2(recordId: Int): Call<RecordResponse> = stelaAccountService.getRecord(recordId)
+
+    fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =
+        stelaAccountService.getFolder(shareToken, folderId)
 
     fun generateShareLink(shareLink: ShareLinkVO): Call<ShareLinkResponse> = stelaAccountService.generateShareLink(shareLink)
 

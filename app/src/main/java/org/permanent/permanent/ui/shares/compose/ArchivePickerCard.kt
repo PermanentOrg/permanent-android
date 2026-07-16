@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -125,7 +126,7 @@ fun ArchivePickerCard(
 }
 
 @Composable
-private fun formatArchiveName(
+internal fun formatArchiveName(
     fullName: String,
     regularFont: FontFamily,
     mediumFont: FontFamily
@@ -160,7 +161,8 @@ internal fun ArchiveThumbnail(
     Box(
         modifier = modifier
             .clip(shape)
-            .background(Color.Transparent)
+            .background(Color.Transparent),
+        contentAlignment = Alignment.Center
     ) {
         if (!thumbUrl.isNullOrEmpty()) {
             AsyncImage(
@@ -170,12 +172,26 @@ internal fun ArchiveThumbnail(
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            Icon(
-                painter = painterResource(R.drawable.ic_archive_placeholder),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.fillMaxSize()
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                colorResource(R.color.mardiGras),
+                                colorResource(R.color.orange)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_archives_blue),
+                    contentDescription = null,
+                    tint = colorResource(R.color.white),
+                    modifier = Modifier.fillMaxSize(0.6f)
+                )
+            }
         }
     }
 }

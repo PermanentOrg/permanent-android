@@ -56,6 +56,23 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
         })
     }
 
+    override fun searchArchiveByEmail(email: String, listener: IDataListener) {
+        NetworkClient.instance().searchArchiveByEmail(email).enqueue(object : Callback<ResponseVO> {
+            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                val responseVO = response.body()
+                if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                    listener.onSuccess(responseVO.getData())
+                } else {
+                    listener.onFailed(responseVO?.getMessages()?.get(0))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
     override fun updateProfilePhoto(thumbRecord: Record, listener: IResponseListener) {
         NetworkClient.instance().updateProfilePhoto(
             prefsHelper.getCurrentArchiveNr(),
@@ -81,6 +98,23 @@ class ArchiveRepositoryImpl(val context: Context) : IArchiveRepository {
 
     override fun getAllArchives(listener: IDataListener) {
         NetworkClient.instance().getAllArchives().enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getData())
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.get(0))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun getRelations(archiveId: Int, listener: IDataListener) {
+        NetworkClient.instance().getRelations(archiveId).enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
                     if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {

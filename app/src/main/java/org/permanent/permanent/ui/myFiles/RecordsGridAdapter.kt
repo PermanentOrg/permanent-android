@@ -15,7 +15,8 @@ class RecordsGridAdapter(
     private val isRelocateMode: MutableLiveData<Boolean>,
     private val isSelectMode: MutableLiveData<Boolean>,
     private val previewState: MutableLiveData<PreviewState>,
-    private val recordListener: RecordListener
+    private val recordListener: RecordListener,
+    private val showPendingInvitationsBadge: Boolean = false
 ) : RecordsAdapter() {
     private var records: MutableList<Record> = ArrayList()
 
@@ -29,6 +30,7 @@ class RecordsGridAdapter(
             parent.context,
             binding,
             showMyFilesSimplified,
+            showPendingInvitationsBadge,
             recordListener
         )
     }

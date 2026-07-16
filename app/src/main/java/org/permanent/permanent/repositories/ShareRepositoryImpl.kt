@@ -2,6 +2,7 @@ package org.permanent.permanent.repositories
 
 import android.content.Context
 import org.permanent.permanent.R
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
@@ -83,6 +84,29 @@ class ShareRepositoryImpl(val context: Context) : IShareRepository {
                                 messageAction
                             )
                         )
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun grantArchiveAccess(
+        folderLinkId: Int,
+        archiveId: Int,
+        accessRole: AccessRole,
+        listener: IShareRepository.IShareListener
+    ) {
+        NetworkClient.instance().grantArchiveAccess(folderLinkId, archiveId, accessRole)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
+                        listener.onSuccess(responseVO.getShareVO())
                     } else {
                         listener.onFailed(context.getString(R.string.generic_error))
                     }

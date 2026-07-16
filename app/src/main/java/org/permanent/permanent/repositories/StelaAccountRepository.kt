@@ -2,6 +2,7 @@ package org.permanent.permanent.repositories
 
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.ILinkListener
+import org.permanent.permanent.network.IPendingInvitesListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITwoFAListener
 import org.permanent.permanent.network.models.IFolderChildrenListener
@@ -40,4 +41,8 @@ interface StelaAccountRepository {
     fun updateShareLink(shareLinkVO: ShareLinkVO, listener: IResponseListener)
 
     fun deleteShareLink(shareLinkId: String, listener: IResponseListener)
+
+    fun getRecordPendingInvites(recordId: Int, listener: IPendingInvitesListener)
+
+    fun getFolderPendingInvites(folderId: Int, listener: IPendingInvitesListener)
 }

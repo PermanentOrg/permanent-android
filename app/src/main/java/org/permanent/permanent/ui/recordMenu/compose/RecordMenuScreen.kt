@@ -40,6 +40,7 @@ import org.permanent.permanent.ui.composeComponents.AccessRoleLabel
 import org.permanent.permanent.ui.composeComponents.AccessRoleLabelColor
 import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.composeComponents.OverlayColor
+import org.permanent.permanent.ui.composeComponents.PendingInvitationBadge
 import org.permanent.permanent.ui.composeComponents.SettingsMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuItem
 import org.permanent.permanent.viewmodels.RecordMenuViewModel
@@ -60,6 +61,7 @@ fun RecordMenuScreen(
     val archiveName by viewModel.archiveName.collectAsState()
     val accessRole by viewModel.accessRole.collectAsState()
     val menuItems by viewModel.menuItems.collectAsState()
+    val pendingInvitationCount = viewModel.pendingInvitationCount
 
     Box(
         modifier = Modifier
@@ -91,6 +93,9 @@ fun RecordMenuScreen(
                         RecordMenuItem.Share -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_share_primary),
                             text = stringResource(R.string.share_and_manage_access),
+                            trailing = if (pendingInvitationCount > 0) {
+                                { PendingInvitationBadge(count = pendingInvitationCount) }
+                            } else null,
                         ) { onItemClick(item) }
 
                         RecordMenuItem.Publish -> SettingsMenuItem(
