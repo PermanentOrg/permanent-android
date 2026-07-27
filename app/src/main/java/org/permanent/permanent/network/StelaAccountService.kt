@@ -49,6 +49,15 @@ interface StelaAccountService {
         @Query("pageSize") pageSize: Int = 99999999
     ): Call<FolderChildrenResponse>
 
+    // Bearer-token flavor for browsing the user's own archive (VSP-1778), on the
+    // documented plural route (the singular form above is a deprecated alias).
+    @Headers("Request-Version: 2")
+    @GET("api/v2/folders/{folderId}/children")
+    fun getFolderChildrenV2(
+        @Path("folderId") folderId: Int,
+        @Query("pageSize") pageSize: Int = MAX_CHILDREN_PAGE_SIZE
+    ): Call<FolderChildrenResponse>
+
     @POST("api/v2/share-links")
     fun generateShareLink(@Body shareLink: ShareLinkVO): Call<ShareLinkResponse>
 
@@ -75,4 +84,11 @@ interface StelaAccountService {
 
     @POST("api/v2/idpuser/disable-two-factor")
     fun disableTwoFactor(@Body twoFAVO: TwoFAVO): Call<ResponseBody>
+
+    companion object {
+        // Interim page size for getFolderChildrenV2: request the whole folder in a
+        // single page (cursor pagination deferred — nextCursor is non-null even on a
+        // complete page, so loop termination is unreliable). Same value iOS ships.
+        const val MAX_CHILDREN_PAGE_SIZE = 99999999
+    }
 }

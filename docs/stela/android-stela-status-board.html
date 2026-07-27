@@ -1,0 +1,246 @@
+<!--
+  Android Stela Migration — Status Board
+  ======================================
+  Three columns, same as the iOS board:
+    ✓ What we have           — V2 code running in the app (live or behind the flag)
+    → What we can update     — V2 route exists; surface not wired yet
+    ⛔ What we need from backend — no V2 route / missing data; blocks V1 sunset
+
+  Hand-editable: each surface is one <li class="item"> inside a column list.
+  To move a surface between columns, cut its <li> and paste it in the other list.
+  Status pill classes: st-live, st-flag, st-prog, st-todo, st-block.
+-->
+<title>Android Stela Migration — Status Board</title>
+<style>
+  :root {
+    --paper: #FBFAF7;
+    --ink: #23242B;
+    --muted: #6B6E76;
+    --line: #E4E2DA;
+    --accent: #5D4F92;
+    --accent-soft: #EEEBF6;
+    --live: #2E7D4F;    --live-bg: #E4F1E9;
+    --flag: #9A6B15;    --flag-bg: #F7EDD8;
+    --prog: #2B5D8F;    --prog-bg: #E2EDF7;
+    --todo: #6B6E76;    --todo-bg: #EDECE8;
+    --block: #A13C33;   --block-bg: #F7E4E1;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 40px 24px 64px;
+  }
+  main { max-width: 1180px; margin: 0 auto; }
+  header { border-bottom: 3px solid var(--accent); padding-bottom: 18px; }
+  .eyebrow {
+    color: var(--accent);
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  h1 { font-size: 26px; font-weight: 700; margin: 0 0 6px; text-wrap: balance; }
+  .meta { color: var(--muted); font-size: 13.5px; margin: 0; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.92em;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+    align-items: start;
+  }
+  @media (max-width: 940px) { .cols { grid-template-columns: 1fr; } }
+  .col {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .col .hd {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .col .hd .k { margin: 0; font-size: 15px; font-weight: 700; }
+  .col .hd .sub { margin: 3px 0 0; font-size: 12.5px; color: var(--muted); }
+  .col.have .hd  { background: var(--live-bg); }
+  .col.next .hd  { background: var(--accent-soft); }
+  .col.need .hd  { background: var(--block-bg); }
+  .col ul { list-style: none; margin: 0; padding: 6px 0; }
+  .item { padding: 11px 16px; border-bottom: 1px solid var(--line); }
+  .item:last-child { border-bottom: none; }
+  .item .row {
+    display: flex; justify-content: space-between;
+    gap: 10px; align-items: baseline;
+  }
+  .item .name { font-weight: 600; font-size: 14px; }
+  .item .note { color: var(--muted); font-size: 12.8px; margin-top: 3px; }
+  .group {
+    padding: 9px 16px 7px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted);
+    background: var(--paper);
+  }
+  .item .route { display: block; margin-top: 3px; font-size: 12px; color: var(--ink); overflow-wrap: anywhere; }
+  .pill {
+    display: inline-block;
+    font-size: 11.5px; font-weight: 600;
+    padding: 1px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .st-live  { color: var(--live);  background: var(--live-bg); }
+  .st-flag  { color: var(--flag);  background: var(--flag-bg); }
+  .st-prog  { color: var(--prog);  background: var(--prog-bg); }
+  .st-todo  { color: var(--todo);  background: var(--todo-bg); }
+  .st-block { color: var(--block); background: var(--block-bg); }
+  footer { color: var(--muted); font-size: 12.5px; margin-top: 22px; }
+  a { color: var(--accent); }
+</style>
+
+<main>
+<header>
+  <p class="eyebrow">Permanent Android · Stela backend migration</p>
+  <h1>Android Stela Migration — Status Board</h1>
+  <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (debug ON / release OFF) ·
+  Updated <strong>2026-07-24</strong> · edit by hand, one item per surface.</p>
+</header>
+
+<div class="cols">
+
+  <!-- ✓ WHAT WE HAVE -->
+  <section class="col have">
+    <div class="hd">
+      <p class="k">✓ What we have</p>
+      <p class="sub">V2 code running in the app — live or behind the flag</p>
+    </div>
+    <ul>
+      <li class="item">
+        <div class="row"><span class="name">Private Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/folders/{id}/children</code>
+        <p class="note">VSP-1778 · replaces navigateMin + getLeanItems · single fetch <code>pageSize=99999999</code>, local sort, V1 failsafe, supersede policy. Known gap: pending badge undercounts (see backend column).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
+        <code class="route">GET /v2/folder/{id}/children (share token)</code>
+        <p class="note">Pre-VSP-1778 · still on the singular alias route — move to plural opportunistically.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Folder metadata (pending-invite reads)</span><span class="pill st-live">Live</span></div>
+        <code class="route">GET /v2/folders?folderIds[]=</code>
+        <p class="note">Via <code>StelaAccountService.getFolder</code> (singular alias).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Record read (pending-invite reads)</span><span class="pill st-live">Live</span></div>
+        <code class="route">GET /v2/records/{id}</code>
+        <p class="note">Service method exists; used for invites only today.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Share links (create / update / delete / get)</span><span class="pill st-live">Live</span></div>
+        <code class="route">/v2/share-links</code>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Tags add/remove</span><span class="pill st-live">Live</span></div>
+        <code class="route">PUT /v2/account/tags</code>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Two-factor auth</span><span class="pill st-live">Live</span></div>
+        <code class="route">/v2/idpuser/*</code>
+      </li>
+    </ul>
+  </section>
+
+  <!-- → WHAT WE CAN UPDATE -->
+  <section class="col next">
+    <div class="hd">
+      <p class="k">→ What we can update</p>
+      <p class="sub">V2 route exists — future tickets, not scheduled yet</p>
+    </div>
+    <ul>
+      <li class="item">
+        <div class="row"><span class="name">My Files root discovery</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">GET /v2/archives → rootFolderId → /children</code>
+        <p class="note">VSP-1778 keeps V1 <code>getRoot</code> as bootstrap (same as iOS PR #573); the archives chain is iOS's VSP-1787 approach.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Record detail · viewer reads</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">GET /v2/records/{id}</code>
+        <p class="note">Live on iOS behind their flag.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Record rename · metadata edit</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">PATCH /v2/records/{id}</code>
+        <p class="note">Live on iOS behind their flag. Folder rename has no V2 route (see backend column).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Folder sort persistence · rename</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">PATCH /v2/folders/{id}</code>
+        <p class="note">PATCH now appears in the stela docs (was "not available" on Jul 22) — re-verify when specced. Re-sort = PATCH + children re-fetch.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Share-preview route cleanup</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">singular → plural /v2/folders/…</code>
+        <p class="note">Trivial; both routes are aliases.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ⛔ WHAT WE NEED FROM BACKEND -->
+  <section class="col need">
+    <div class="hd">
+      <p class="k">⛔ What we need from backend</p>
+      <p class="sub">Missing routes or data — split by when we need it</p>
+    </div>
+    <ul>
+      <li class="group">Blocks the current work (VSP-1778)</li>
+      <li class="item">
+        <div class="row"><span class="name">Pending shares-to-archives in children <code>shares[]</code></span><span class="pill st-block">Blocked</span></div>
+        <p class="note">Verified 2026-07-23: V2 filters <code>shares[]</code> to accepted only and <code>pendingShares[]</code> covers email invites only — a pending share to an existing archive is in neither list, so the pending badge undercounts behind the flag. The one thing to fix before the production flag flip.</p>
+      </li>
+      <li class="group">Findings for future tickets — not scheduled yet</li>
+      <li class="item">
+        <div class="row"><span class="name">Caller <code>accessRole</code> + complete <code>shares[]</code> on shared-tree children</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">Blocks the Shares workspace migration (Shared With Me / Shared By Me, <code>SharedXMeViewModel</code>): items inside a shared folder carry no share data on V2, so their options menus can't derive permissions. No impact on VSP-1778 — Private Files uses the archive-level role everywhere (<code>CurrentArchivePermissionsManager</code>). The iOS team already requested this from the backend (priority 2 on their asks list); one theme with the badge row above.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Folder creation</span><span class="pill st-block">Blocked</span></div>
+        <code class="route">POST /v2/folders — does not exist</code>
+        <p class="note">Verified in stela docs + iOS PR #573. Stays on V1 <code>folder/post</code>; blocks the VSP-1778 follow-up ticket.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Relocate · copy · move · delete</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">No V2 routes. V1 writes key on <code>folder_linkId</code> + <code>archiveNbr</code> — why V2 children must keep shipping both.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Uploads (presigned + register)</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">No V2 route; only coupling to navigation is the post-upload refresh (covered by VSP-1778).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Search</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">No V2 route.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Shares root list (<code>getShares</code>)</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">No V2 route.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Reliable pagination</span><span class="pill st-block">Blocked</span></div>
+        <p class="note"><code>nextCursor</code> non-null on complete pages, <code>totalPages</code> wrong — blocks the real cursor-paging ticket; until then both platforms fetch one huge page.</p>
+      </li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  Sources: merged iOS PR #573 (tier 1) · iOS contract sheet &amp; status boards (tier 2) ·
+  <code>docs/stela/folders-children-contract.md</code> · VSP-1772 impact inventory.
+  Keep this file the single source of truth for the Android migration surface — update the item when a ticket lands.
+</footer>
+</main>
