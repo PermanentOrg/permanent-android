@@ -19,8 +19,10 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccountEventAction
@@ -35,6 +37,7 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.IEventsRepository
@@ -60,6 +63,15 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.PRIVATE_FILES)
     private var refreshJob: Job? = null
+
+    // Private Files routes folder navigation through the Stela V2 children endpoint
+    // when the migration flag is on, with V1 as an automatic failsafe.
+    // PublicFilesViewModel overrides this to false and stays on V1 (VSP-1778).
+    protected open val useStelaMigration: Boolean get() = FeatureFlags.useStelaMigration
+
+    // Monotonic id of the newest V2 children fetch; only the newest may commit and
+    // superseded fetches complete quietly (see loadFilesOfV2). Touched on main only.
+    private var childrenFetchGeneration = 0
     private val isRoot = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
@@ -131,7 +143,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             override fun onSuccess(record: Record) {
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(record)
-                loadFilesAndUploadsOf(record)
+                loadFilesAndUploadsOf(record, forwardNavigation = true)
                 loadEnqueuedDownloads(lifecycleOwner)
             }
 
@@ -157,41 +169,127 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
 
-    private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
+    private fun loadFilesOf(
+        folder: NavigationFolder?,
+        sortType: SortType?,
+        forwardNavigation: Boolean = false
+    ) {
         val archiveNr = folder?.getArchiveNr()
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
-            fileRepository.getChildRecordsOf(archiveNr,
-                folderLinkId,
-                sortType?.toBackendString(),
-                object : IFileRepository.IOnRecordsRetrievedListener {
+            val folderId = folder.getFolderIdentifier()?.folderId
+            if (useStelaMigration && folderId != null && folderId > 0) {
+                loadFilesOfV2(folder, sortType, forwardNavigation)
+            } else {
+                loadFilesOfV1(folder, sortType)
+            }
+        }
+    }
 
-                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        val parentName = folder.getDisplayName()
-                        isRoot.value =
-                            parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
-                                Constants.PUBLIC_FILES_FOLDER
-                            )
-                        folderName.value = when {
-                            parentName.equals(Constants.MY_FILES_FOLDER) -> Constants.PRIVATE_FILES
-                            parentName.equals(
-                                Constants.PUBLIC_FILES_FOLDER
-                            ) -> Constants.PUBLIC_FILES
+    private fun loadFilesOfV1(folder: NavigationFolder, sortType: SortType?) {
+        // Callers (loadFilesOf and the V2 failsafe) have already checked these.
+        val archiveNr = folder.getArchiveNr() ?: return
+        val folderLinkId = folder.getFolderIdentifier()?.folderLinkId ?: return
+        fileRepository.getChildRecordsOf(archiveNr,
+            folderLinkId,
+            sortType?.toBackendString(),
+            object : IFileRepository.IOnRecordsRetrievedListener {
 
-                            else -> parentName
-                        }
+                override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
+                    swipeRefreshLayout.isRefreshing = false
+                    applyFolderHeader(folder)
+                    existsFiles.value = !recordVOs.isNullOrEmpty()
+                    recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
+                }
 
-                        existsFiles.value = !recordVOs.isNullOrEmpty()
-                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
-                    }
+                override fun onFailed(error: String?) {
+                    swipeRefreshLayout.isRefreshing = false
+                    error?.let { showMessage.value = it }
+                }
+            })
+    }
 
-                    override fun onFailed(error: String?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        error?.let { showMessage.value = it }
-                    }
-                })
+    // Stela V2 navigation (VSP-1778). Every fetch completes exactly once: it either
+    // commits, falls back to V1, retries, or ends the refresh spinner quietly.
+    // The generation guard makes sure only the NEWEST fetch may commit — two loads
+    // can be in flight (e.g. a post-upload refresh racing a folder tap) and land out
+    // of order, which on the V1 path silently lets the last response win.
+    private fun loadFilesOfV2(
+        folder: NavigationFolder,
+        sortType: SortType?,
+        forwardNavigation: Boolean,
+        retriesLeft: Int = 1
+    ) {
+        val folderId = folder.getFolderIdentifier()?.folderId ?: return
+        val generation = ++childrenFetchGeneration
+        fileRepository.getChildRecordsOfV2(folderId, object : IFolderChildrenListener {
+
+            override fun onSuccess(records: List<Record>) {
+                if (generation != childrenFetchGeneration) {
+                    onFetchSuperseded(folder, sortType, forwardNavigation, retriesLeft)
+                    return
+                }
+                swipeRefreshLayout.isRefreshing = false
+                if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
+                applyFolderHeader(folder)
+                // The endpoint has no sort param (sort is a folder attribute) —
+                // apply the active sort locally, like iOS.
+                val sortedRecords =
+                    sortType?.let { records.sortedWith(it.toComparator()) } ?: records
+                existsFiles.value = sortedRecords.isNotEmpty()
+                onRecordsRetrieved.value = sortedRecords
+            }
+
+            override fun onFailed(error: String?) {
+                if (generation != childrenFetchGeneration) {
+                    // A superseded fetch must NEVER run the V1 failsafe — its
+                    // out-of-order response could overwrite the newer listing.
+                    onFetchSuperseded(folder, sortType, forwardNavigation, retriesLeft)
+                    return
+                }
+                // V1 failsafe: this fetch is the newest, so there is no ordering hazard.
+                if (BuildConfig.DEBUG) Log.d(
+                    TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
+                )
+                loadFilesOfV1(folder, sortType)
+            }
+        })
+    }
+
+    private fun onFetchSuperseded(
+        folder: NavigationFolder,
+        sortType: SortType?,
+        forwardNavigation: Boolean,
+        retriesLeft: Int
+    ) {
+        if (forwardNavigation && retriesLeft > 0 && currentFolder.value == folder) {
+            // A background refresh raced the user's tap — retry once (claiming the
+            // newest generation) so the tap is never eaten. Skipped when the user
+            // has already navigated elsewhere.
+            loadFilesOfV2(folder, sortType, forwardNavigation, retriesLeft - 1)
+        } else {
+            // Complete quietly, touching no data — the superseding fetch repaints
+            // this folder anyway; only the spinner needs to terminate.
+            swipeRefreshLayout.isRefreshing = false
+        }
+    }
+
+    // isRoot/folderName derive from the locally navigated folder (not the server
+    // response) — shared by the V1 and V2 paths.
+    private fun applyFolderHeader(folder: NavigationFolder) {
+        val parentName = folder.getDisplayName()
+        isRoot.value =
+            parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
+                Constants.PUBLIC_FILES_FOLDER
+            )
+        folderName.value = when {
+            parentName.equals(Constants.MY_FILES_FOLDER) -> Constants.PRIVATE_FILES
+            parentName.equals(
+                Constants.PUBLIC_FILES_FOLDER
+            ) -> Constants.PUBLIC_FILES
+
+            else -> parentName
         }
     }
 
@@ -243,7 +341,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             RecordType.FOLDER -> {
                 currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
                 folderPathStack.push(record)
-                loadFilesAndUploadsOf(record)
+                loadFilesAndUploadsOf(record, forwardNavigation = true)
             }
 
             else -> {
@@ -273,10 +371,10 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         loadFilesAndUploadsOf(previousFolder)
     }
 
-    protected fun loadFilesAndUploadsOf(record: Record) {
+    protected fun loadFilesAndUploadsOf(record: Record, forwardNavigation: Boolean = false) {
         currentFolder.value = NavigationFolder(appContext, record)
         loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
-        loadFilesOf(currentFolder.value, currentSortType.value)
+        loadFilesOf(currentFolder.value, currentSortType.value, forwardNavigation)
     }
 
     private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {

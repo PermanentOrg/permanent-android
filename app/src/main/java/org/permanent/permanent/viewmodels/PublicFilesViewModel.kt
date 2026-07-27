@@ -12,6 +12,10 @@ import org.permanent.permanent.ui.PreferencesHelper
 
 class PublicFilesViewModel(application: Application) : MyFilesViewModel(application) {
 
+    // Public Files stays on the V1 navigation path — only Private Files is in the
+    // Stela V2 migration scope for now (VSP-1778).
+    override val useStelaMigration: Boolean get() = false
+
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )

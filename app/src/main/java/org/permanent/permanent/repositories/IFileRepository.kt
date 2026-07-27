@@ -9,6 +9,7 @@ import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
@@ -30,6 +31,8 @@ interface IFileRepository {
         sort: String?,
         listener: IOnRecordsRetrievedListener
     )
+
+    fun getChildRecordsOfV2(folderId: Int, listener: IFolderChildrenListener)
 
     fun navigateMin(
         archiveNr: String, folderLinkId: Int, sort: String?, listener: IOnRecordsRetrievedListener

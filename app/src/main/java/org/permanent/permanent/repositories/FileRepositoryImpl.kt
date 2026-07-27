@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.permanent.permanent.R
+import org.permanent.permanent.mapper.toRecordV2
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
@@ -13,7 +14,9 @@ import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
 import org.permanent.permanent.network.models.FileData
+import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
+import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
@@ -94,6 +97,51 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         listener: IFileRepository.IOnRecordsRetrievedListener
     ) {
         navigateMin(folderArchiveNr, folderLinkId, sort, listener)
+    }
+
+    // Stela V2 replacement for the navigateMin + getLeanItems chain (VSP-1778).
+    // Any anomaly reports onFailed so the caller can run the V1 failsafe: a 2xx body
+    // without an items key is a contract failure, NOT an empty folder (only a present
+    // and empty items array means verified empty), and an item missing a write-critical
+    // id fails the whole fetch — the retained V1 writes (delete/move/rename/share) key
+    // on folderLinkId + archiveNbr, so rendering such an item would break them.
+    override fun getChildRecordsOfV2(
+        folderId: Int,
+        listener: IFolderChildrenListener
+    ) {
+        NetworkClient.instance().getFolderChildrenV2(folderId)
+            .enqueue(object : Callback<FolderChildrenResponse> {
+
+                override fun onResponse(
+                    call: Call<FolderChildrenResponse>,
+                    response: Response<FolderChildrenResponse>
+                ) {
+                    val items = response.body()?.items
+                    if (!response.isSuccessful || items == null) {
+                        listener.onFailed(
+                            response.errorBody()?.string()
+                                ?: context.getString(R.string.generic_error)
+                        )
+                        return
+                    }
+                    val records = items.map { it.toRecordV2() }
+                    val corruptRecord = records.find { record ->
+                        val itemId =
+                            if (record.type == RecordType.FOLDER) record.folderId else record.recordId
+                        (itemId ?: -1) <= 0 || (record.folderLinkId ?: -1) <= 0 ||
+                                record.archiveNr.isNullOrEmpty()
+                    }
+                    if (corruptRecord != null) {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                        return
+                    }
+                    listener.onSuccess(records)
+                }
+
+                override fun onFailure(call: Call<FolderChildrenResponse>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 
     override fun navigateMin(

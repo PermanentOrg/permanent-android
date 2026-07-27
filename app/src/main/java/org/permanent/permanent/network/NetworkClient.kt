@@ -847,6 +847,11 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         pageSize: Int = 99999999
     ): Call<FolderChildrenResponse> = stelaAccountService.getFolderChildren(shareToken, folderId, pageSize)
 
+    fun getFolderChildrenV2(
+        folderId: Int,
+        pageSize: Int = StelaAccountService.MAX_CHILDREN_PAGE_SIZE
+    ): Call<FolderChildrenResponse> = stelaAccountService.getFolderChildrenV2(folderId, pageSize)
+
     fun getRecordV2(recordId: Int): Call<RecordResponse> = stelaAccountService.getRecord(recordId)
 
     fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =

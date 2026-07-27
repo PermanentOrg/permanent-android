@@ -3,12 +3,14 @@ package org.permanent.permanent
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
 const val REQUEST_CODE_READ_STORAGE_PERMISSION = 124
 const val REQUEST_CODE_WRITE_STORAGE_PERMISSION = 125
 const val REQUEST_CODE_CAMERA_PERMISSION = 126
+const val REQUEST_CODE_NOTIFICATIONS_PERMISSION = 127
 
 class DevicePermissionsHelper {
 
@@ -30,6 +32,19 @@ class DevicePermissionsHelper {
     fun requestWriteStoragePermission(fragment: Fragment) {
         fragment.requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
             REQUEST_CODE_WRITE_STORAGE_PERMISSION)
+    }
+
+    // Notifications need no permission below Android 13; on 13+ they are silently
+    // dropped unless POST_NOTIFICATIONS is granted.
+    fun hasNotificationsPermission(ctx: Context): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestNotificationsPermission(fragment: Fragment) {
+        fragment.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            REQUEST_CODE_NOTIFICATIONS_PERMISSION)
     }
 
     fun hasCameraPermission(ctx: Context): Boolean {
