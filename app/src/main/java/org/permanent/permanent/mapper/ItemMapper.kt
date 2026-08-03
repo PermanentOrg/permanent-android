@@ -31,9 +31,10 @@ fun ItemDTO.toRecord(): Record {
 }
 
 /**
- * Maps a V2 /folders/{id}/children item for authenticated Private Files browsing
- * (VSP-1778). Kept separate from [toRecord] so the share-preview path stays
- * byte-identical while V2 navigation is gated behind FeatureFlags.useStelaMigration.
+ * Maps a V2 /folders/{id}/children item for authenticated owner-workspace browsing —
+ * Private Files (VSP-1778) and Public Files (VSP-1808). Kept separate from [toRecord]
+ * so the share-preview path stays byte-identical while V2 navigation is gated behind
+ * FeatureFlags.useStelaMigration.
  */
 fun ItemDTO.toRecordV2(): Record {
     val isFolder = folderId != null
@@ -54,13 +55,13 @@ fun ItemDTO.toRecordV2(): Record {
     rec.type = if (isFolder) RecordType.FOLDER else RecordType.FILE
     rec.backendType = normalizedBackendType(isFolder)
     rec.size = size ?: -1L
-    // thumbnailUrls."256" is the Archivematica access copy — blank for HEIC — so only
-    // the flat thumbnail256 counts (it appears once processing finishes); the UI then
-    // falls through to the .thumb.wNNN renditions, read from the NESTED thumbnailUrls —
-    // records also send flat thumbUrl* duplicates, folders don't, so nested covers both.
-    // The wire may send empty strings instead of null — treat as absent.
+    // .thumb.wNNN renditions are read from the NESTED thumbnailUrls (folders send no
+    // flat thumbUrl*; records duplicate them flat), and only the flat thumbnail256
+    // fills the 256 slot. The nested "256" is the Archivematica access copy — blank
+    // for HEIC, but the only thumbnail a Stela V2 record copy has (no renditions,
+    // backend gap) — so it serves as a HEIC-guarded LAST resort in the 200 slot.
     rec.thumbnail256 = thumbnail256.orNullIfEmpty()
-    rec.thumbURL200 = thumbnailUrls?.url200.orNullIfEmpty()
+    rec.thumbURL200 = thumbnailUrls?.url200.orNullIfEmpty() ?: accessCopyThumb256()
     rec.thumbURL2000 = thumbnailUrls?.url2000.orNullIfEmpty()
     rec.isProcessing = when (status?.substringAfterLast('.')) {
         "copying", "moving" -> true
@@ -71,6 +72,20 @@ fun ItemDTO.toRecordV2(): Record {
     rec.shares = buildShares(rec.folderLinkId)
 
     return rec
+}
+
+private fun ItemDTO.accessCopyThumb256(): String? =
+    thumbnailUrls?.url256.orNullIfEmpty()?.takeUnless { isHeicOriginal() }
+
+private fun ItemDTO.isHeicOriginal(): Boolean {
+    if (files.orEmpty().any {
+            "original" in it.format.orEmpty() &&
+                (it.type.orEmpty().contains("heic", ignoreCase = true) ||
+                    it.type.orEmpty().contains("heif", ignoreCase = true))
+        }
+    ) return true
+    val name = (uploadFileName ?: downloadName).orEmpty().lowercase()
+    return name.endsWith(".heic") || name.endsWith(".heif")
 }
 
 // Folders answer with new short type forms ("private", "root.private"…) while records

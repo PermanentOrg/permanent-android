@@ -108,8 +108,8 @@
 <header>
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
-  <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (debug ON / release OFF) ·
-  Updated <strong>2026-07-24</strong> · edit by hand, one item per surface.</p>
+  <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
+  Updated <strong>2026-07-30</strong> · edit by hand, one item per surface.</p>
 </header>
 
 <div class="cols">
@@ -125,6 +125,11 @@
         <div class="row"><span class="name">Private Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">GET /v2/folders/{id}/children</code>
         <p class="note">VSP-1778 · replaces navigateMin + getLeanItems · single fetch <code>pageSize=99999999</code>, local sort, V1 failsafe, supersede policy. Known gap: pending badge undercounts (see backend column).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Public Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/folders/{id}/children</code>
+        <p class="note">VSP-1808 · same seam as Private Files (inherited via <code>PublicFilesViewModel</code>), same invariants · root stays V1 <code>getPublicRoot</code> · thumbnail rule refined (access copy = HEIC-guarded last resort, iOS PR #575) · pending-badge gap doesn't apply (badge not rendered here).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
@@ -164,9 +169,14 @@
     </div>
     <ul>
       <li class="item">
-        <div class="row"><span class="name">My Files root discovery</span><span class="pill st-todo">Not started</span></div>
-        <code class="route">GET /v2/archives → rootFolderId → /children</code>
-        <p class="note">VSP-1778 keeps V1 <code>getRoot</code> as bootstrap (same as iOS PR #573); the archives chain is iOS's VSP-1787 approach.</p>
+        <div class="row"><span class="name">Root discovery (My Files + Public Files)</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">GET /v2/archives → rootFolderId → /children → section-root child</code>
+        <p class="note">VSP-1778/VSP-1808 keep V1 <code>getRoot</code>/<code>getPublicRoot</code> as bootstrap; the archives chain is iOS's VSP-1787 (PR #574), which resolves both section roots — one future ticket covers both.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Foreign public archives (Public Gallery drill-in)</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">GET /v2/folders/{id}/children (bearer)</code>
+        <p class="note">iOS wired it in PR #576 (2026-07-29): children serves a foreign public tree on bearer auth; root must stay V1 <code>getPublicRoot</code> (<code>/v2/archives</code> lists own memberships only). Android's <code>PublicArchiveViewModel</code>/<code>PublicFolderViewModel</code> still V1; note the deep-link path lacks <code>folderId</code>.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Record detail · viewer reads</span><span class="pill st-todo">Not started</span></div>
@@ -198,10 +208,10 @@
       <p class="sub">Missing routes or data — split by when we need it</p>
     </div>
     <ul>
-      <li class="group">Blocks the current work (VSP-1778)</li>
+      <li class="group">Blocks the flag flip (VSP-1778 · Private Files only)</li>
       <li class="item">
-        <div class="row"><span class="name">Pending shares-to-archives in children <code>shares[]</code></span><span class="pill st-block">Blocked</span></div>
-        <p class="note">Verified 2026-07-23: V2 filters <code>shares[]</code> to accepted only and <code>pendingShares[]</code> covers email invites only — a pending share to an existing archive is in neither list, so the pending badge undercounts behind the flag. The one thing to fix before the production flag flip.</p>
+        <div class="row"><span class="name">Pending shares-to-archives in children <code>shares[]</code> — folder items only</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">Refined + live-verified on staging 2026-07-31 (one children capture): <strong>record items already include pending shares</strong> (<code>get_records.sql</code> keeps everything but deleted — record <code>faux-potted-cactus</code> returned its <code>status.generic.pending</code> share); <strong>folder items drop them</strong> (<code>get_folders.sql</code> filters to <code>status.generic.ok</code> — the Vacation folder still omits pending <code>shareId 2010</code>). One-line backend fix: align the folder filter with the record one. The Android mapper already handles pending entries in <code>shares[]</code>, so no app change needed. Still the one thing to fix before the production flag flip.</p>
       </li>
       <li class="group">Findings for future tickets — not scheduled yet</li>
       <li class="item">
@@ -239,7 +249,7 @@
 </div>
 
 <footer>
-  Sources: merged iOS PR #573 (tier 1) · iOS contract sheet &amp; status boards (tier 2) ·
+  Sources: merged iOS PRs #573–#576, #580 (tier 1) · iOS contract sheet &amp; status boards (tier 2) ·
   <code>docs/stela/folders-children-contract.md</code> · VSP-1772 impact inventory.
   Keep this file the single source of truth for the Android migration surface — update the item when a ticket lands.
 </footer>

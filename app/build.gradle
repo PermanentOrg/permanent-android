@@ -42,6 +42,7 @@ android {
     productFlavors {
         production {
             applicationId "org.permanent.PermanentArchive"
+            buildConfigField "boolean", "STELA_MIGRATION_DEFAULT", "false"
             buildConfigField "String", "BASE_URL", "\"https://app.permanent.org/\""
             buildConfigField "String", "BASE_API_URL", "\"https://app.permanent.org/api/\""
             buildConfigField "String", "BASE_API_URL_STELA", "\"https://api.permanent.org/\""
@@ -54,6 +55,7 @@ android {
         }
         staging {
             applicationId "org.permanent.permanent.staging"
+            buildConfigField "boolean", "STELA_MIGRATION_DEFAULT", "true"
             buildConfigField "String", "BASE_URL", "\"https://app.staging.permanent.org/\""
             buildConfigField "String", "BASE_API_URL", "\"https://app.staging.permanent.org/api/\""
             buildConfigField "String", "BASE_API_URL_STELA", "\"https://api.staging.permanent.org/\""
