@@ -1,32 +1,17 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.Constants
-import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IRecordListener
-import org.permanent.permanent.ui.PREFS_NAME
-import org.permanent.permanent.ui.PreferencesHelper
 
 class PublicFilesViewModel(application: Application) : MyFilesViewModel(application) {
 
-    // Public Files stays on the V1 navigation path — only Private Files is in the
-    // Stela V2 migration scope for now (VSP-1778).
-    override val useStelaMigration: Boolean get() = false
-
-    private val prefsHelper = PreferencesHelper(
-        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    )
     private val onRootFolderReady = SingleLiveEvent<Void?>()
 
     init {
         getFolderName().value = Constants.PUBLIC_FILES
-
-        PermanentApplication.instance.relocateData?.let {
-            setRelocationMode(it)
-        }
     }
 
     override fun loadRootFiles() {
@@ -35,7 +20,7 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
             override fun onSuccess(record: Record) {
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(record)
-                loadFilesAndUploadsOf(record)
+                loadFilesAndUploadsOf(record, forwardNavigation = true)
                 loadEnqueuedDownloads(lifecycleOwner)
                 onRootFolderReady.call()
             }

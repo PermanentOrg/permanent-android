@@ -64,11 +64,6 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val folderName = MutableLiveData(Constants.PRIVATE_FILES)
     private var refreshJob: Job? = null
 
-    // Private Files routes folder navigation through the Stela V2 children endpoint
-    // when the migration flag is on, with V1 as an automatic failsafe.
-    // PublicFilesViewModel overrides this to false and stays on V1 (VSP-1778).
-    protected open val useStelaMigration: Boolean get() = FeatureFlags.useStelaMigration
-
     // Monotonic id of the newest V2 children fetch; only the newest may commit and
     // superseded fetches complete quietly (see loadFilesOfV2). Touched on main only.
     private var childrenFetchGeneration = 0
@@ -103,7 +98,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     protected lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
     protected lateinit var lifecycleOwner: LifecycleOwner
-    private val prefsHelper = PreferencesHelper(
+    protected val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
 
@@ -178,8 +173,11 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
+            // Private Files (VSP-1778) and Public Files (via PublicFilesViewModel,
+            // VSP-1808) take the Stela V2 children endpoint when the migration flag
+            // is on, with V1 as an automatic failsafe.
             val folderId = folder.getFolderIdentifier()?.folderId
-            if (useStelaMigration && folderId != null && folderId > 0) {
+            if (FeatureFlags.useStelaMigration && folderId != null && folderId > 0) {
                 loadFilesOfV2(folder, sortType, forwardNavigation)
             } else {
                 loadFilesOfV1(folder, sortType)

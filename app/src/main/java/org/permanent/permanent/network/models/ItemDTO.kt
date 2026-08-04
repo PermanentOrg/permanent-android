@@ -25,4 +25,9 @@ data class ItemDTO(
     val thumbnailUrls: ThumbnailUrlsDTO? = null,
     val shares: List<ItemShareDTO>? = null,
     val pendingShares: List<PendingShareDTO>? = null,
+    // HEIC detection for the access-copy thumbnail fallback in ItemMapper; the
+    // file names are the fallback signal when files[] is absent.
+    val uploadFileName: String? = null,
+    val downloadName: String? = null,
+    val files: List<FileDTO>? = null,
 )
