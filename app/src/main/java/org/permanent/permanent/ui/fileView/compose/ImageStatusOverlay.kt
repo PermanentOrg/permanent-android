@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,10 +28,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -149,6 +153,42 @@ fun PreviewSkeletonBackground(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .aspectRatio(SKELETON_ASPECT_RATIO)
     )
+}
+
+/**
+ * The blurred record thumbnail with its black scrim — the shared backdrop of the
+ * loading/failure overlays. Keeps the bitmap's aspect ratio so it matches the bounds
+ * the real preview occupies; callers center it on the black viewer background. Below
+ * API 31 the bitmap arrives pre-blurred (Modifier.blur() is a silent no-op there), so
+ * an animated [blurRadiusPx] degrades to a plain cross-fade.
+ */
+@Composable
+fun BlurredThumbnailBackdrop(
+    bitmap: android.graphics.Bitmap,
+    blurRadiusPx: Float,
+    scrimAlpha: Float,
+    modifier: Modifier = Modifier
+) {
+    val blurModifier = if (isLiveBlurSupported) {
+        Modifier.blur(with(LocalDensity.current) { blurRadiusPx.toDp() })
+    } else {
+        Modifier
+    }
+    Box(modifier = modifier.aspectRatio(bitmap.width.toFloat() / bitmap.height.toFloat())) {
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .fillMaxSize()
+                .then(blurModifier)
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(Color.Black.copy(alpha = scrimAlpha))
+        )
+    }
 }
 
 /**

@@ -115,30 +115,12 @@ fun ProgressiveImageViewer(viewModel: FileViewViewModel, onTap: () -> Unit) {
             }
             val thumbnail by rememberThumbnailBitmap(thumbnailUrl, viewModel::onThumbnailFailed)
             thumbnail?.let { bitmap ->
-                val blurModifier = if (isLiveBlurSupported) {
-                    Modifier.blur(with(LocalDensity.current) { blurRadiusPx.toDp() })
-                } else {
-                    Modifier // bitmap is pre-blurred below API 31; S3 degrades to a cross-fade
-                }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .aspectRatio(bitmap.width.toFloat() / bitmap.height.toFloat())
-                ) {
-                    Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .then(blurModifier)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(Color.Black.copy(alpha = scrimAlpha))
-                    )
-                }
+                BlurredThumbnailBackdrop(
+                    bitmap = bitmap,
+                    blurRadiusPx = blurRadiusPx,
+                    scrimAlpha = scrimAlpha,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
 
