@@ -129,20 +129,52 @@ fun setInputLayoutError(view: TextInputLayout, messageId: Int?) {
     }
 }
 
-/** Listener for main-frame load failures of the WebView-based previews (VSP-1754). */
-fun interface OnPreviewErrorListener {
-    fun onPreviewError()
+/** Reports the outcome of a WebView-based preview load (VSP-1754): success dismisses
+ *  the loader, failure raises the failed/offline card. */
+fun interface OnPreviewResultListener {
+    fun onPreviewResult(isSuccess: Boolean)
 }
 
 @SuppressLint("SetJavaScriptEnabled")
-@BindingAdapter("webViewPath", "isVideo", "onPreviewError")
-fun WebView.updatePath(path: String?, isVideo: Boolean?, onPreviewError: OnPreviewErrorListener?) {
+@BindingAdapter("webViewPath", "isVideo", "onPreviewResult")
+fun WebView.updatePath(
+    path: String?,
+    isVideo: Boolean?,
+    onPreviewResult: OnPreviewResultListener?
+) {
     settings.javaScriptEnabled = true
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
     settings.allowContentAccess = true
     settings.allowFileAccess = true
     setBackgroundColor(Color.BLACK)
+
+    webViewClient = object : WebViewClient() {
+        // A failing <video> source inside the inline markup below never reaches
+        // onReceivedError, so failure reporting only serves the loadUrl path
+        override fun onReceivedError(
+            view: WebView,
+            request: WebResourceRequest,
+            error: WebResourceError
+        ) {
+            if (request.isForMainFrame) onPreviewResult?.onPreviewResult(false)
+        }
+
+        // Fires after onReceivedError too — the view model only dismisses the
+        // loader on success from LOADING, so a failure card set above survives
+        override fun onPageFinished(view: WebView, url: String) {
+            if (isVideo == true) {
+                loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
+            }
+            onPreviewResult?.onPreviewResult(true)
+        }
+    }
+    // Content the WebView can't render (a spreadsheet original, an attachment
+    // content-disposition) becomes a download-start, not an error — without this
+    // listener the preview stays blank with no failure surfaced
+    setDownloadListener { _, _, _, _, _ ->
+        onPreviewResult?.onPreviewResult(false)
+    }
 
     when {
         isVideo == true -> {
@@ -157,26 +189,10 @@ fun WebView.updatePath(path: String?, isVideo: Boolean?, onPreviewError: OnPrevi
                 null,
                 null
             )
-            webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView, url: String) {
-                    loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
-                }
-            }
         }
         else -> {
             settings.builtInZoomControls = true
             settings.displayZoomControls = false
-            // A failing <video> source inside the inline markup above never reaches
-            // onReceivedError, so failure reporting is wired only for the loadUrl path
-            webViewClient = object : WebViewClient() {
-                override fun onReceivedError(
-                    view: WebView,
-                    request: WebResourceRequest,
-                    error: WebResourceError
-                ) {
-                    if (request.isForMainFrame) onPreviewError?.onPreviewError()
-                }
-            }
             path?.let {
                 loadUrl(path)
             }

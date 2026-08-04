@@ -22,14 +22,13 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileViewBinding
-import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.fileView.compose.PreviewErrorOverlay
+import org.permanent.permanent.ui.fileView.compose.PreviewStatusOverlay
 import org.permanent.permanent.ui.fileView.compose.ProgressiveImageViewer
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.PublishFragment
@@ -49,6 +48,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     private var record: Record? = null
     private var fileData: FileData? = null
     private var recordMenuFragment: RecordMenuFragment? = null
+    private var renderedPdfUrl: String? = null
     private lateinit var prefsHelper: PreferencesHelper
     private var isComposeViewerSet = false
 
@@ -81,7 +81,7 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         // the current value on registration, covering both the record-type path (already
         // true after setRecord) and the late contentType discovery.
         viewModel.isImage.observe(viewLifecycleOwner, onIsImage)
-        setUpPreviewErrorOverlay()
+        setUpPreviewStatusOverlay()
         binding.executePendingBindings()
         setHasOptionsMenu(true)
         supportActionBar = (activity as AppCompatActivity?)?.supportActionBar
@@ -107,10 +107,10 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         }
     }
 
-    /** Branded failure/offline card for the non-image previews (video/PDF/docs). */
-    private fun setUpPreviewErrorOverlay() {
-        binding.previewErrorComposeView.setThemedContent {
-            PreviewErrorOverlay(
+    /** Branded loader + failure/offline overlay for the non-image previews (video/PDF/docs). */
+    private fun setUpPreviewStatusOverlay() {
+        binding.previewStatusComposeView.setThemedContent {
+            PreviewStatusOverlay(
                 viewModel = viewModel,
                 thumbnailUrl = record?.thumbnail256 ?: record?.thumbURL200
             )
@@ -144,15 +144,24 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         fileData = it
         (activity as AppCompatActivity?)?.supportActionBar?.title = fileData?.displayName
 
-        if (it.contentType?.contains(FileType.PDF.toString()) == true) {
+        // Native PDFs stream the file itself; unrenderable documents (spreadsheets etc.)
+        // stream their backend-generated PDF access copy — preview-only, download/share
+        // stay on the original file. LiveData re-delivers on every resume (e.g. returning
+        // from the metadata screen), so skip documents that are already rendered.
+        val pdfUrl = it.pdfPreviewURL
+        if (pdfUrl != null && (pdfUrl != renderedPdfUrl || binding.pdfView.pageCount == 0)) {
 
             Thread {
                 try {
-                    val inputStream: InputStream = URL(it.fileURL).openStream()
+                    val inputStream: InputStream = URL(pdfUrl).openStream()
                     activity?.runOnUiThread {
                         binding.pdfView.recycle()
                         binding.pdfView.fromStream(inputStream)
                             .enableSwipe(false)
+                            .onLoad {
+                                renderedPdfUrl = pdfUrl
+                                viewModel.onPreviewRendered()
+                            }
                             .onError { error ->
                                 error.message?.let { errorMsg ->
                                     Log.e(FileViewFragment::class.java.simpleName, errorMsg)

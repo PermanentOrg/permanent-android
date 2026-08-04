@@ -2,7 +2,9 @@ package org.permanent.permanent.network.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import org.permanent.permanent.Constants
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Tag
 
 class FileData private constructor() : Parcelable {
@@ -30,6 +32,11 @@ class FileData private constructor() : Parcelable {
     var thumbnail256: String? = null
     var thumbURL2000: String? = null
     var contentType: String? = null
+    // Non-null when the record renders through the native PDF viewer: the file itself for
+    // a PDF original, or the backend-generated PDF access copy for document types the
+    // WebView can't render (spreadsheets etc.). This is the single source of the PDF-vs-
+    // WebView routing decision. Preview-only: download/share/filename stay on the original.
+    var pdfPreviewURL: String? = null
     var width: Int = -1
     var height: Int = -1
     var tags: List<Tag>? = null
@@ -85,8 +92,13 @@ class FileData private constructor() : Parcelable {
         thumbnail256 = recordVO.thumbnail256
         thumbURL2000 = recordVO.thumbURL2000
         contentType = fileVO?.contentType
+        pdfPreviewURL = if (contentType?.contains(FileType.PDF.toString(), true) == true) {
+            fileURL
+        } else {
+            findPdfAccessCopyURL(fileVOs, contentType)
+        }
         // Access copies carry null dimensions — fall back to the original file's
-        val originalVO = fileVOs.firstOrNull { it.format == "file.format.original" }
+        val originalVO = fileVOs.firstOrNull { it.format == Constants.FILE_FORMAT_ORIGINAL }
         width = fileVO?.width ?: originalVO?.width ?: -1
         height = fileVO?.height ?: originalVO?.height ?: -1
         initTags(recordVO.TagVOs)
@@ -126,6 +138,7 @@ class FileData private constructor() : Parcelable {
         thumbnail256 = parcel.readString()
         thumbURL2000 = parcel.readString()
         contentType = parcel.readString()
+        pdfPreviewURL = parcel.readString()
         width = parcel.readInt()
         height = parcel.readInt()
         tags = parcel.createTypedArrayList(Tag)
@@ -165,6 +178,7 @@ class FileData private constructor() : Parcelable {
         parcel.writeString(thumbnail256)
         parcel.writeString(thumbURL2000)
         parcel.writeString(contentType)
+        parcel.writeString(pdfPreviewURL)
         parcel.writeInt(width)
         parcel.writeInt(height)
         parcel.writeTypedList(tags)
@@ -191,6 +205,21 @@ class FileData private constructor() : Parcelable {
 
         override fun newArray(size: Int): Array<FileData?> {
             return arrayOfNulls(size)
+        }
+
+        /**
+         * Picks the backend-generated PDF rendition for records the app can't render
+         * natively (spreadsheets and other documents): the selected variant is neither
+         * image, video nor PDF, and the record carries an Archivematica PDF access copy.
+         * fileURL is preferred — downloadURL carries an attachment content-disposition,
+         * which makes the load a download instead of a render.
+         */
+        fun findPdfAccessCopyURL(fileVOs: List<FileVO>, selectedContentType: String?): String? {
+            val isNativelyRenderable = listOf(FileType.IMAGE, FileType.VIDEO, FileType.PDF)
+                .any { selectedContentType?.contains(it.toString(), true) == true }
+            if (isNativelyRenderable) return null
+            val accessCopy = fileVOs.firstOrNull { it.isPdfAccessCopy() } ?: return null
+            return accessCopy.fileURL ?: accessCopy.downloadURL
         }
     }
 }
