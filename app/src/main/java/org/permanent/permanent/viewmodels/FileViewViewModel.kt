@@ -31,11 +31,11 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
-import org.permanent.permanent.ui.OnPreviewErrorListener
+import org.permanent.permanent.ui.OnPreviewResultListener
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.fileView.ImageViewUiState
-import org.permanent.permanent.ui.fileView.PreviewErrorState
+import org.permanent.permanent.ui.fileView.PreviewOverlayState
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import retrofit2.Call
@@ -66,10 +66,10 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     // Coil caches only successes, so a same-URL retry genuinely re-fetches.
     private val _fullResRetryNonce = MutableStateFlow(0)
     val fullResRetryNonce: StateFlow<Int> = _fullResRetryNonce
-    // Failure/offline card of the non-image previews (video/PDF/docs) — same visual
-    // treatment as the image S6/S7 states, driven by this simpler machine.
-    private val _previewErrorState = MutableStateFlow(PreviewErrorState.NONE)
-    val previewErrorState: StateFlow<PreviewErrorState> = _previewErrorState
+    // Loader + failure/offline overlay of the non-image previews (video/PDF/docs) —
+    // same visual treatment as the image states, driven by this simpler machine.
+    private val _previewState = MutableStateFlow(PreviewOverlayState.NONE)
+    val previewState: StateFlow<PreviewOverlayState> = _previewState
     private var loaderTimerJob: Job? = null
     private var errorGateJob: Job? = null
     private var connectivityJob: Job? = null
@@ -106,7 +106,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                 return
             }
         } else if (!connectivityMonitor.isConnected) {
-            _previewErrorState.value = PreviewErrorState.OFFLINE
+            _previewState.value = PreviewOverlayState.OFFLINE
             return
         }
         requestFileData()
@@ -256,13 +256,13 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
             connectivityMonitor.isOnline.collect { online ->
                 if (online) {
                     if (_imageViewUiState.value == ImageViewUiState.Offline) retryFullRes()
-                    if (_previewErrorState.value == PreviewErrorState.OFFLINE) retryPreview()
+                    if (_previewState.value == PreviewOverlayState.OFFLINE) requestFileData()
                 } else {
                     if (_imageViewUiState.value == ImageViewUiState.LoadFailed) {
                         _imageViewUiState.value = ImageViewUiState.Offline
                     }
-                    if (_previewErrorState.value == PreviewErrorState.FAILED) {
-                        _previewErrorState.value = PreviewErrorState.OFFLINE
+                    if (_previewState.value == PreviewOverlayState.FAILED) {
+                        _previewState.value = PreviewOverlayState.OFFLINE
                     }
                 }
             }
@@ -275,26 +275,36 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
      */
     fun onPreviewLoadFailed() {
         if (isImage.value == true) return
-        _previewErrorState.value = if (connectivityMonitor.isConnected) {
-            PreviewErrorState.FAILED
+        _previewState.value = if (connectivityMonitor.isConnected) {
+            PreviewOverlayState.FAILED
         } else {
-            PreviewErrorState.OFFLINE
+            PreviewOverlayState.OFFLINE
         }
     }
 
-    /** Bound to app:onPreviewError of the WebView (data binding can't SAM-convert
-     *  an XML lambda for a multi-attribute adapter, so the listener is exposed typed). */
-    val previewErrorListener = OnPreviewErrorListener { onPreviewLoadFailed() }
-
-    /** Tap on the non-image failure/offline card; inert while still offline. */
-    fun onPreviewCardTapped() {
-        if (_previewErrorState.value == PreviewErrorState.NONE) return
-        if (!connectivityMonitor.isConnected) return
-        retryPreview()
+    /**
+     * Called when the non-image renderer reports its content ready (pdfView onLoad,
+     * WebView onPageFinished). Only dismisses the loader — a failure that arrived
+     * first (onReceivedError fires before onPageFinished) keeps its card.
+     */
+    fun onPreviewRendered() {
+        if (_previewState.value == PreviewOverlayState.LOADING) {
+            _previewState.value = PreviewOverlayState.NONE
+        }
     }
 
-    private fun retryPreview() {
-        _previewErrorState.value = PreviewErrorState.NONE
+    /** Bound to app:onPreviewResult of the WebView (data binding can't SAM-convert
+     *  an XML lambda for a multi-attribute adapter, so the listener is exposed typed). */
+    val previewResultListener = OnPreviewResultListener { isSuccess ->
+        if (isSuccess) onPreviewRendered() else onPreviewLoadFailed()
+    }
+
+    /** Tap on the non-image failure/offline card; inert while still offline.
+     *  The re-fetch moves the overlay back to LOADING. */
+    fun onPreviewCardTapped() {
+        val current = _previewState.value
+        if (current != PreviewOverlayState.FAILED && current != PreviewOverlayState.OFFLINE) return
+        if (!connectivityMonitor.isConnected) return
         requestFileData()
     }
 
@@ -303,11 +313,16 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
         val recordId = record.recordId
 
         if (folderLinkId != null && recordId != null) {
-            isBusy.value = true
+            // Non-images: translucent loader over the blurred thumbnail/skeleton, held
+            // through the record fetch AND the renderer's own load — the renderer
+            // dismisses it via onPreviewRendered() / onPreviewLoadFailed(). Images run
+            // their own progressive flow and never enter this machine.
+            if (isImage.value != true) {
+                _previewState.value = PreviewOverlayState.LOADING
+            }
             fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    isBusy.value = false
                     val parsedData = response.body()?.getFileData()
                     if (parsedData == null) {
                         // HTTP error statuses and unparseable payloads land here, not in
@@ -315,10 +330,11 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                         if (isImage.value == true) onFullResFailed() else onPreviewLoadFailed()
                         return
                     }
-                    _previewErrorState.value = PreviewErrorState.NONE
                     fileData.value = parsedData
                     fileData.value?.let { data ->
-                        isPDF.value = data.contentType?.contains(FileType.PDF.toString())
+                        // Non-null for native PDFs and for documents with a PDF access
+                        // copy (e.g. spreadsheets) — the single routing rule, see FileData
+                        isPDF.value = data.pdfPreviewURL != null
                         isVideo.value = data.contentType?.contains(FileType.VIDEO.toString())
 
                         val externalFile = File(
@@ -337,7 +353,9 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                         try {
                             if (isImageContent) {
                                 // Safety net: activates the progressive viewer late when the
-                                // record's backend type was missing at open time
+                                // record's backend type was missing at open time — the image
+                                // flow takes over, so the non-image loader must clear
+                                _previewState.value = PreviewOverlayState.NONE
                                 startProgressiveImageFlow(data.thumbnail256)
                                 publishFullResSource(
                                     // canRead(), not exists(): scoped storage can list a
@@ -350,10 +368,19 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                                         data.fileURL
                                     }
                                 )
+                            } else if (isPDF.value == true) {
+                                // The pdfView streams pdfPreviewURL itself (see
+                                // FileViewFragment.onFileData). The WebView gets no path,
+                                // so it can't report a false failure — and the local-copy
+                                // handling below is skipped: it only serves the WebView
                             } else if (externalFile.canRead()) {
                                 clearCache(getApplication())
                                 externalFile.copyTo(cacheFile, overwrite = true)
                                 filePath.value = "file://${cacheFile.absolutePath}"
+                            } else if (data.fileURL == null) {
+                                // Nothing renderable to hand to the WebView (e.g. upload
+                                // still processing) — fail instead of loading forever
+                                onPreviewLoadFailed()
                             } else {
                                 filePath.value = data.fileURL
                             }
@@ -369,7 +396,6 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                    isBusy.value = false
                     if (isImage.value == true) {
                         // The full-res image can't even start without the record data, so
                         // this failure feeds the same S6/S7 classification.
