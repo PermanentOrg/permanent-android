@@ -68,6 +68,8 @@ fun setViewModeIconDrawable(view: ImageView, isListViewMode: Boolean) {
 
 @BindingAdapter("record")
 fun loadImage(view: ImageView, record: Record?) {
+    // Recycled rows may still be running the processing RotateAnimation (fillAfter = true).
+    view.clearAnimation()
     if (record?.isProcessing == true) {
         view.setImageResource(R.drawable.ic_processing)
         val rotate = RotateAnimation(
@@ -84,26 +86,25 @@ fun loadImage(view: ImageView, record: Record?) {
         rotate.fillAfter = true
         rotate.interpolator = LinearInterpolator()
         view.startAnimation(rotate)
-    } else {
-        if (record == null) {
-            view.setImageResource(R.drawable.ic_copy)
-        } else {
-            when (record.type) {
-                RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
-                else -> Picasso.get()
-                    .load(record.thumbnail256 ?: record.thumbURL200)
-                    .placeholder(R.drawable.ic_stop_light_grey)
-                    .into(view)
-            }
-        }
+        return
+    }
+    when {
+        record == null -> view.setImageResource(R.drawable.ic_copy)
+        record.type == RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
+        else -> loadUrl(
+            view,
+            record.thumbnail256?.takeIf { it.isNotEmpty() } ?: record.thumbURL200
+        )
     }
 }
 
 @BindingAdapter("imageUrl")
 fun loadUrl(view: ImageView, url: String?) {
     Picasso.get()
-        .load(url)
+        // Empty (non-null) paths make Picasso throw; treat them as missing.
+        .load(url?.takeIf { it.isNotEmpty() })
         .placeholder(R.drawable.ic_stop_light_grey)
+        .error(R.drawable.ic_stop_light_grey)
         .into(view)
 }
 
