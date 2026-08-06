@@ -3,8 +3,59 @@
 Verified against the merged iOS implementation (permanent-ios PR #573, commit `38d9622`;
 updated 2026-07-30 against PRs #574/#575/#576/#580), live production captures (2026-07-22),
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
-Files navigation), extended for VSP-1808 (Public Files); reuse for future Stela tickets
-instead of re-deriving.
+Files navigation), extended for VSP-1808 (Public Files) and VSP-1810 (Public Gallery);
+reuse for future Stela tickets instead of re-deriving.
+
+## Public Gallery (VSP-1810)
+
+- **Same endpoint, same bearer auth.** The gallery's two children call sites
+  (`PublicArchiveViewModel.loadFilesOf` — root listing of a public archive — and
+  `PublicFolderViewModel.loadFilesOf` — sub-folder browsing) branch to
+  `getChildRecordsOfV2` behind the same flag, mirroring `MyFilesViewModel`'s gate
+  (`useStelaMigration && folderId > 0`), with the V1 two-step as automatic failsafe.
+- **The iOS gallery reference is PR #576 (VSP-1811)**, merged 2026-07-29 — a dedicated
+  gallery navigation PR (the migration artifacts still list foreign-public browsing as
+  "pending"; they lag the merged code). Follow-up PR #582 moved gallery record *detail*
+  to the V2 record endpoint — Android's `record/get` deep-link read stays V1 (candidate
+  follow-up ticket).
+- **Root discovery stays V1 `folder/getPublicRoot`** (V2 `/archives` lists only the
+  caller's own memberships, so it cannot resolve a foreign archive — same on iOS). The
+  V1 root response carries `folderId`, so the V2 fork engages from the root listing down.
+- **Foreign archives on bearer: verified from Android** (staging QA session, 2026-08-05,
+  OkHttp capture): `/children` serves another archive's public tree on plain bearer auth —
+  matching iOS's 2026-07-28 verification (PR #576). The same session verified empty
+  listings commit as verified-empty (42-byte `items: []`, no failsafe misfire), large
+  (100KB+) listings, and zero V1 fallbacks across the full manual checklist.
+- **No supersede machinery needed:** both gallery ViewModels keep their `isBusy`
+  re-entrancy guard — at most one fetch in flight (no pull-to-refresh, no sort picker,
+  no background refresh), so a fetch either commits or falls back to V1.
+- **Gallery-local derivations on the V2 path** (V1 parity): each mapped record gets
+  `parentFolderArchiveNr` stamped from the listed folder (only consumer:
+  `FileViewOptionsViewModel`'s copy-link button); the sub-folder ActionBar title uses the
+  listed folder's own `displayName` (V2 has no parent-name envelope; same value V1 sent);
+  fixed `NAME_ASCENDING` applied locally via `SortType.toComparator()`.
+- **Deep-linked folders fall through to V1 by design:** the deep-link path synthesizes
+  `Record(archiveNr, folderLinkId)` with no `folderId`, so the gate rejects it; its
+  V1-listed children carry `folderId` and upgrade to V2 below that point (same graceful
+  degradation as iOS's `navigateMin` folderId gate). The permanent fix needs the backend
+  (gap 5 below — resolver ask raised 2026-08-06, comment on VSP-1810). Scope note: this
+  is the ONLY deep-link family affected — private share links (`/share/{token}`) resolve
+  by token and are already live on V2; record deep links have the analogous
+  `file_archive_nr` vs `recordId` mismatch, but that belongs to the record-detail
+  follow-up (iOS PR #582).
+- **Copy-link caveats found during QA (both pre-existing, flag-independent):** the ⋮
+  menu that reaches "Copy Link" on public folder screens is unreachable — a toolbar
+  regression from the 2026-04 Share Preview redesign wipes per-screen menu state
+  (**VSP-1833**, filed 2026-08-06); and `onCopyLinkBtnClick` builds the URL's first
+  segment from the *logged-in* archive number, not the browsed one
+  (`PublicArchiveViewModel.kt:107`, `FileViewOptionsViewModel` — unticketed). Neither
+  affects V1/V2 parity; the V2 `parentFolderArchiveNr` stamp is what will gate the
+  button correctly once VSP-1833 lands.
+- Read-only surface: `Workspace.PUBLIC_ARCHIVES` menu branch hides all write actions
+  regardless of record fields, so no permission derivation is needed. (Pre-existing,
+  flag-independent gap: the file viewer derives its menu from the persisted workspace,
+  which the gallery never sets — separate ticket; iOS pinned gallery permissions
+  read-only in PR #576.)
 
 ## Public folders (VSP-1808)
 
@@ -18,8 +69,8 @@ instead of re-deriving.
 - **Foreign public archives** (another archive's public tree): iOS verified on staging
   (2026-07-28, their PR #576) that `/children` serves it on plain bearer auth — but root
   discovery must stay V1 `getPublicRoot`, because `/v2/archives` only lists the caller's
-  own memberships. Android's `PublicArchiveViewModel`/`PublicFolderViewModel` are still
-  fully V1 (out of VSP-1808 scope; candidate next ticket).
+  own memberships. Android's `PublicArchiveViewModel`/`PublicFolderViewModel` were
+  migrated in VSP-1810 (see the Public Gallery section above).
 - Backend gaps 1–2 don't bite Public Files: item permissions are archive-derived there, and
   the pending-invitation badge is not rendered on that screen.
 
@@ -188,6 +239,16 @@ block future migration tickets, and those surfaces simply stay on V1.
 4. **Folder PATCH** (`PATCH /v2/folders/{id}`) now appears in the stela docs; the
    sort-persistence re-sort flow (PATCH then re-fetch children) is a future ticket —
    re-verify the endpoint when that is specced.
+5. **No V2 route from public-link ids to V2 ids** *(found in VSP-1810, raised with the
+   backend 2026-08-06 — comment on VSP-1810)*. Public deep links carry the V1 address
+   (`archiveNbr` + `folder_linkId`; record links carry `file_archive_nr`), while V2 is
+   addressed by `folderId`/`recordId` — and the mapping lives only in the backend's
+   database (the apps open these links today only because V1 `navigateMin` accepts the
+   link's ids directly). Ask, preferred first: (a) a resolver
+   (`folder_linkId → folderId`, ideally covering records too), or (b) `/children`
+   accepting a `folderLinkId` address. Changing the URL format alone doesn't fix
+   already-shared links. Blocks nothing today (V1 fallback); prerequisite for the V1
+   navigation sunset, same bucket as `getPublicRoot` root discovery.
 
 ## Spec-vs-reality discrepancies found (do not trust these in the docs/tickets)
 

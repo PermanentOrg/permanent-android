@@ -109,7 +109,7 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-07-30</strong> · edit by hand, one item per surface.</p>
+  Updated <strong>2026-08-05</strong> · edit by hand, one item per surface.</p>
 </header>
 
 <div class="cols">
@@ -130,6 +130,11 @@
         <div class="row"><span class="name">Public Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">GET /v2/folders/{id}/children</code>
         <p class="note">VSP-1808 · same seam as Private Files (inherited via <code>PublicFilesViewModel</code>), same invariants · root stays V1 <code>getPublicRoot</code> · thumbnail rule refined (access copy = HEIC-guarded last resort, iOS PR #575) · pending-badge gap doesn't apply (badge not rendered here).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Public Gallery navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/folders/{id}/children</code>
+        <p class="note">VSP-1810 · own + foreign public archives (foreign access verified live from Android on staging, 2026-08-05) · flag branch in <code>PublicArchiveViewModel</code>/<code>PublicFolderViewModel</code>, same funnel/mapper, V1 failsafe · root stays V1 <code>getPublicRoot</code> · deep-linked folders fall through to V1 (no <code>folderId</code> — resolver ask in backend column) · unrelated pre-existing bug found in QA: folder Copy Link unreachable (toolbar menu reset, <strong>VSP-1833</strong>).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
@@ -174,14 +179,9 @@
         <p class="note">VSP-1778/VSP-1808 keep V1 <code>getRoot</code>/<code>getPublicRoot</code> as bootstrap; the archives chain is iOS's VSP-1787 (PR #574), which resolves both section roots — one future ticket covers both.</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">Foreign public archives (Public Gallery drill-in)</span><span class="pill st-todo">Not started</span></div>
-        <code class="route">GET /v2/folders/{id}/children (bearer)</code>
-        <p class="note">iOS wired it in PR #576 (2026-07-29): children serves a foreign public tree on bearer auth; root must stay V1 <code>getPublicRoot</code> (<code>/v2/archives</code> lists own memberships only). Android's <code>PublicArchiveViewModel</code>/<code>PublicFolderViewModel</code> still V1; note the deep-link path lacks <code>folderId</code>.</p>
-      </li>
-      <li class="item">
         <div class="row"><span class="name">Record detail · viewer reads</span><span class="pill st-todo">Not started</span></div>
         <code class="route">GET /v2/records/{id}</code>
-        <p class="note">Live on iOS behind their flag.</p>
+        <p class="note">Live on iOS behind their flag; iOS PR #582 also moved the Public Gallery record detail onto it (Android's gallery deep-link <code>record/get</code> stays V1 until this ticket).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Record rename · metadata edit</span><span class="pill st-todo">Not started</span></div>
@@ -242,6 +242,10 @@
       <li class="item">
         <div class="row"><span class="name">Reliable pagination</span><span class="pill st-block">Blocked</span></div>
         <p class="note"><code>nextCursor</code> non-null on complete pages, <code>totalPages</code> wrong — blocks the real cursor-paging ticket; until then both platforms fetch one huge page.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Deep-link id resolution (<code>folder_linkId</code> → <code>folderId</code>)</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">Public deep links carry the V1 address (<code>archiveNbr</code> + <code>folder_linkId</code>); V2 is addressed by <code>folderId</code>, and the mapping lives only in the backend DB. Ask raised 2026-08-06 (VSP-1810 comment): a resolver (ideally also <code>file_archive_nr</code> → <code>recordId</code> for record links) or <code>folderLinkId</code> addressing on <code>/children</code>. Until then, the first listing after a public deep link stays on V1 — blocks the V1 navigation sunset.</p>
       </li>
     </ul>
   </section>
