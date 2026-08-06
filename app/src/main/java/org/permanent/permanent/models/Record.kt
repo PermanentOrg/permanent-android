@@ -93,12 +93,7 @@ open class Record : Parcelable {
         accessRole = AccessRole.fromBackendValue(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
-        val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
-        isProcessing = thumbStatus == ThumbStatus.NULL ||
-                thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB ||
-                thumbStatus == ThumbStatus.FOLDER_COPYING ||
-                thumbStatus == ThumbStatus.FOLDER_MOVING ||
-                thumbStatus == ThumbStatus.FOLDER_NEW
+        isProcessing = deriveIsProcessing(recordInfo.thumbStatus)
         displayInShares = false
     }
 
@@ -120,12 +115,7 @@ open class Record : Parcelable {
         accessRole = AccessRole.fromBackendValue(recordInfo.accessRole)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
-        val thumbStatus = ThumbStatus.createFromBackendString(recordInfo.thumbStatus)
-        isProcessing = thumbStatus == ThumbStatus.NULL ||
-                thumbStatus == ThumbStatus.RECORD_NEEDS_THUMB ||
-                thumbStatus == ThumbStatus.FOLDER_COPYING ||
-                thumbStatus == ThumbStatus.FOLDER_MOVING ||
-                thumbStatus == ThumbStatus.FOLDER_NEW
+        isProcessing = deriveIsProcessing(recordInfo.thumbStatus)
         displayInShares = false
     }
 
@@ -197,6 +187,23 @@ open class Record : Parcelable {
         isProcessing = recordInfo?.thumbnail256.isNullOrEmpty() && recordInfo?.thumbURL200.isNullOrEmpty()
         displayInShares = false
     }
+
+    /**
+     * Must be called after [type], [thumbnail256] and [thumbURL200] are assigned.
+     * Some endpoints (e.g. search/folderAndRecord) omit thumbStatus entirely; in that
+     * case infer from the data: folders render a static icon so they never spin, and
+     * files spin only while no thumbnail URL exists yet (VSP-1824).
+     */
+    private fun deriveIsProcessing(backendThumbStatus: String?): Boolean =
+        when (ThumbStatus.createFromBackendString(backendThumbStatus)) {
+            ThumbStatus.RECORD_NEEDS_THUMB,
+            ThumbStatus.FOLDER_COPYING,
+            ThumbStatus.FOLDER_MOVING,
+            ThumbStatus.FOLDER_NEW -> true
+            ThumbStatus.NULL -> type == RecordType.FILE &&
+                    thumbnail256.isNullOrEmpty() && thumbURL200.isNullOrEmpty()
+            else -> false
+        }
 
     private fun initShares(shareVOs: List<ShareVO>?) {
         shares = ArrayList()
