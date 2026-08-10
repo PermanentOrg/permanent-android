@@ -21,7 +21,6 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.fileView.FileViewOptionsFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
@@ -37,6 +36,8 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     private lateinit var recordsAdapter: RecordsGridAdapter
     private lateinit var prefsHelper: PreferencesHelper
     private var recordMenuFragment: RecordMenuFragment? = null
+    private val archiveNr: String?
+        get() = arguments?.getString(PublicFragment.ARCHIVE_NR)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -95,9 +96,7 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     }
 
     fun onMoreItemClick() {
-        val fileViewOptionsFragment = FileViewOptionsFragment()
-        fileViewOptionsFragment.setBundleArguments(viewModel.getCurrentFolder(), null)
-        fileViewOptionsFragment.show(parentFragmentManager, fileViewOptionsFragment.tag)
+        viewModel.getCurrentFolder()?.let { showRecordMenu(it) }
     }
 
     fun onNavigateUp(): Boolean {
@@ -105,8 +104,14 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     }
 
     override fun onRecordOptionsClick(record: Record) {
+        showRecordMenu(record)
+    }
+
+    private fun showRecordMenu(record: Record) {
         recordMenuFragment = RecordMenuFragment()
-        recordMenuFragment?.setBundleArguments(record, Workspace.PUBLIC_ARCHIVES)
+        recordMenuFragment?.setBundleArguments(
+            record, Workspace.PUBLIC_ARCHIVES, currentArchiveNr = archiveNr
+        )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
     }
 

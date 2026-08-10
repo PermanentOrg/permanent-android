@@ -43,6 +43,7 @@ import org.permanent.permanent.viewmodels.RecordMenuViewModel
 const val SHOWN_IN_WHICH_WORKSPACE = "shown_in_which_workspace_key"
 const val IS_SHOWN_IN_SHARED_WITH_ME = "is_shown_in_shared_with_me_key"
 const val IS_SHOWN_IN_ROOT_FOLDER = "is_shown_in_root_folder_key"
+const val CURRENT_ARCHIVE_NR = "current_archive_nr_key"
 
 class RecordMenuFragment : PermanentBottomSheetFragment() {
     private lateinit var record: Record
@@ -59,13 +60,15 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         record: Record,
         workspace: Workspace,
         isShownInSharedWithMe: Boolean = false,
-        isShownInRootFolder: Boolean = false
+        isShownInRootFolder: Boolean = false,
+        currentArchiveNr: String? = null
     ) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
         bundle.putParcelable(SHOWN_IN_WHICH_WORKSPACE, workspace)
         bundle.putBoolean(IS_SHOWN_IN_SHARED_WITH_ME, isShownInSharedWithMe)
         bundle.putBoolean(IS_SHOWN_IN_ROOT_FOLDER, isShownInRootFolder)
+        bundle.putString(CURRENT_ARCHIVE_NR, currentArchiveNr)
         this.arguments = bundle
     }
 
@@ -104,9 +107,13 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 arguments?.getBoolean(IS_SHOWN_IN_SHARED_WITH_ME)
             val isShownInRootFolder =
                 arguments?.getBoolean(IS_SHOWN_IN_ROOT_FOLDER) ?: false
+            val currentArchiveNr = arguments?.getString(CURRENT_ARCHIVE_NR)
 
             if (shownInWorkspace != null && isShownInSharedWithMe != null) {
-                viewModel.initWith(it, shownInWorkspace, isShownInSharedWithMe, isShownInRootFolder)
+                viewModel.initWith(
+                    it, shownInWorkspace, isShownInSharedWithMe, isShownInRootFolder,
+                    currentArchiveNr
+                )
             }
         }
 
@@ -151,6 +158,17 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
             RecordMenuItem.Delete,
             RecordMenuItem.LeaveShare -> {
                 pendingConfirmationItem = item
+                dismiss()
+            }
+            RecordMenuItem.GetLink -> {
+                if (viewModel.copyPublicLinkToClipboard()) {
+                    // Anchored to the activity so it survives the sheet's dismissal
+                    activity?.findViewById<View>(android.R.id.content)?.let {
+                        Snackbar.make(
+                            it, R.string.share_management_link_copied, Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                }
                 dismiss()
             }
             RecordMenuItem.SendACopy -> viewModel.onSendACopyClick()

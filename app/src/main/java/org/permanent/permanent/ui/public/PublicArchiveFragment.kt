@@ -39,6 +39,8 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
     private lateinit var recordsAdapter: RecordsGridAdapter
     private lateinit var prefsHelper: PreferencesHelper
     private var recordMenuFragment: RecordMenuFragment? = null
+    private val archiveNr: String?
+        get() = arguments?.getString(PublicFragment.ARCHIVE_NR)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -92,7 +94,10 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
     }
 
     private val onFolderViewRequest = Observer<Record> {
-        val bundle = bundleOf(PARCELABLE_RECORD_KEY to it)
+        val bundle = bundleOf(
+            PARCELABLE_RECORD_KEY to it,
+            PublicFragment.ARCHIVE_NR to archiveNr
+        )
         requireParentFragment().findNavController()
             .navigate(R.id.action_publicFragment_to_publicFolderFragment, bundle)
     }
@@ -120,7 +125,9 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
 
     override fun onRecordOptionsClick(record: Record) {
         recordMenuFragment = RecordMenuFragment()
-        recordMenuFragment?.setBundleArguments(record, Workspace.PUBLIC_ARCHIVES)
+        recordMenuFragment?.setBundleArguments(
+            record, Workspace.PUBLIC_ARCHIVES, currentArchiveNr = archiveNr
+        )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
     }
 
