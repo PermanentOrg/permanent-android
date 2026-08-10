@@ -103,45 +103,11 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
         NavController.OnDestinationChangedListener { _, destination, _ ->
 
             currentDestinationId = destination.id
+            // The per-destination item visibilities live in onPrepareOptionsMenu:
+            // invalidateOptionsMenu() re-inflates the menu asynchronously, so anything
+            // set here directly would be reset to the XML defaults a frame later
+            // (VSP-1833 — the ⋮ never appeared on public folder screens).
             invalidateOptionsMenu()
-
-            when (destination.id) {
-                R.id.editArchiveBasicInfoFragment, R.id.editArchiveFullDetailsFragment, R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible = false
-                }
-
-                R.id.addEditOnlinePresenceFragment, R.id.addEditMilestoneFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.plusItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.doneItem)?.isVisible = false
-                }
-
-                R.id.publicFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = true
-                    binding.toolbar.menu?.findItem(R.id.plusItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = false
-                }
-
-                R.id.publicFolderFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.moreItem)?.isVisible = true
-                }
-
-                R.id.accountFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment, R.id.archivesFragment, R.id.invitationsFragment, R.id.activityFeedFragment, R.id.loginAndSecurityFragment, R.id.changePasswordFragment, R.id.twoStepVerificationFragment, R.id.legacyLoadingFragment, R.id.sharePreviewFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                }
-
-                R.id.introFragment, R.id.statusFragment, R.id.legacyContactFragment, R.id.archiveStewardFragment -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = false
-                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = true
-                }
-
-                else -> {
-                    binding.toolbar.menu?.findItem(R.id.settingsItem)?.isVisible = true
-                    binding.toolbar.menu?.findItem(R.id.closeItem)?.isVisible = false
-                }
-            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -395,13 +361,51 @@ class MainActivity : PermanentBaseActivity(), Toolbar.OnMenuItemClickListener {
             .makeGooglePlayServicesAvailable(this)
     }
 
+    // Called after every menu (re-)inflation, so the per-destination state survives the
+    // invalidateOptionsMenu() the destination listener triggers (VSP-1833 — previously
+    // only the sharePreviewFragment case was re-applied here; the rest was set in the
+    // listener and wiped by the asynchronous re-inflation). Items not mentioned in a
+    // branch keep their XML defaults; flows that manage an item themselves after
+    // navigation (e.g. LocationSearchFragment's done item) are unaffected because nothing
+    // re-invalidates the menu until the next destination change.
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val settingsItem = menu.findItem(R.id.settingsItem)
+        when (currentDestinationId) {
+            R.id.editArchiveBasicInfoFragment, R.id.editArchiveFullDetailsFragment, R.id.onlinePresenceListFragment, R.id.milestoneListFragment -> {
+                menu.findItem(R.id.settingsItem)?.isVisible = false
+                menu.findItem(R.id.doneItem)?.isVisible = false
+            }
 
-        if (currentDestinationId == R.id.sharePreviewFragment) {
-            settingsItem?.isVisible = false
+            R.id.addEditOnlinePresenceFragment, R.id.addEditMilestoneFragment -> {
+                menu.findItem(R.id.settingsItem)?.isVisible = false
+                menu.findItem(R.id.plusItem)?.isVisible = false
+                menu.findItem(R.id.doneItem)?.isVisible = false
+            }
+
+            R.id.publicFragment -> {
+                menu.findItem(R.id.settingsItem)?.isVisible = true
+                menu.findItem(R.id.plusItem)?.isVisible = false
+                menu.findItem(R.id.moreItem)?.isVisible = false
+            }
+
+            R.id.publicFolderFragment -> {
+                menu.findItem(R.id.settingsItem)?.isVisible = false
+                menu.findItem(R.id.moreItem)?.isVisible = true
+            }
+
+            R.id.accountFragment, R.id.storageMenuFragment, R.id.addStorageFragment, R.id.giftStorageFragment, R.id.redeemCodeFragment, R.id.archivesFragment, R.id.invitationsFragment, R.id.activityFeedFragment, R.id.loginAndSecurityFragment, R.id.changePasswordFragment, R.id.twoStepVerificationFragment, R.id.legacyLoadingFragment, R.id.sharePreviewFragment -> {
+                menu.findItem(R.id.settingsItem)?.isVisible = false
+            }
+
+            R.id.introFragment, R.id.statusFragment, R.id.legacyContactFragment, R.id.archiveStewardFragment -> {
+                menu.findItem(R.id.settingsItem)?.isVisible = false
+                menu.findItem(R.id.closeItem)?.isVisible = true
+            }
+
+            else -> {
+                menu.findItem(R.id.settingsItem)?.isVisible = true
+                menu.findItem(R.id.closeItem)?.isVisible = false
+            }
         }
-
         return super.onPrepareOptionsMenu(menu)
     }
 

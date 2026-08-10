@@ -1,6 +1,8 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -15,6 +17,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.DevicePermissionsHelper
@@ -61,6 +64,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     private lateinit var record: Record
     private lateinit var actualAccessRole: AccessRole
     private lateinit var workspace: Workspace
+    private var publicLink: String? = null
     private val isFragmentShownInSharedWithMe = MutableLiveData(false)
     private val isFragmentShownInRootFolder = MutableLiveData(false)
     private var fileData: FileData? = null
@@ -92,12 +96,15 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         record: Record,
         workspace: Workspace,
         isShownInSharedWithMe: Boolean,
-        isShownInRootFolder: Boolean
+        isShownInRootFolder: Boolean,
+        currentArchiveNr: String? = null
     ) {
         this.record = record
         this.workspace = workspace
         this.isFragmentShownInSharedWithMe.value = isShownInSharedWithMe
         this.isFragmentShownInRootFolder.value = isShownInRootFolder
+        publicLink =
+            if (workspace == Workspace.PUBLIC_ARCHIVES) buildPublicLink(currentArchiveNr) else null
         actualAccessRole =
             record.accessRole?.getInferior(CurrentArchivePermissionsManager.instance.getAccessRole())
                 ?: AccessRole.VIEWER
@@ -120,6 +127,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             RecordMenuItem.Share,
             RecordMenuItem.Publish,
             RecordMenuItem.SendACopy,
+            RecordMenuItem.GetLink,
             RecordMenuItem.Download,
             RecordMenuItem.Rename,
             RecordMenuItem.Move,
@@ -136,6 +144,9 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             hidden.add(RecordMenuItem.SendACopy)
             hidden.add(RecordMenuItem.Download)
         }
+
+        // GetLink is the public web URL of the item, only built when browsing a public archive
+        if (publicLink == null) hidden.add(RecordMenuItem.GetLink)
 
         // --- Workspace-specific rules ---
         when (workspace) {
@@ -266,6 +277,30 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
         // --- Final visible menu items ---
         return baseItems.filterNot { it in hidden }
+    }
+
+    private fun buildPublicLink(currentArchiveNr: String?): String? {
+        val archiveNr = currentArchiveNr ?: return null
+        return if (record.type == RecordType.FILE) {
+            val parentFolderArchiveNr = record.parentFolderArchiveNr ?: return null
+            val parentFolderLinkId = record.parentFolderLinkId ?: return null
+            val recordArchiveNr = record.archiveNr ?: return null
+            BuildConfig.BASE_URL + "p/archive/" + archiveNr + "/" + parentFolderArchiveNr +
+                    "/" + parentFolderLinkId + "/record/" + recordArchiveNr
+        } else {
+            val folderArchiveNr = record.archiveNr ?: return null
+            val folderLinkId = record.folderLinkId ?: return null
+            BuildConfig.BASE_URL + "p/archive/" + archiveNr + "/" + folderArchiveNr +
+                    "/" + folderLinkId
+        }
+    }
+
+    fun copyPublicLinkToClipboard(): Boolean {
+        val link = publicLink ?: return false
+        val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(ctx.getString(R.string.share_management_share_link), link)
+        clipboard.setPrimaryClip(clip)
+        return true
     }
 
     fun onSendACopyClick() {
@@ -435,6 +470,7 @@ enum class RecordMenuItem {
     Share,
     Publish,
     SendACopy,
+    GetLink,
     Download,
     Rename,
     EditMetadata,
