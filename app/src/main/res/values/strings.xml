@@ -247,7 +247,9 @@
     <string name="record_options_menu_item_publish">Publish to public archive</string>
     <string name="record_options_menu_item_copy_link">Copy Link</string>
     <string name="record_options_menu_item_share_link_via_permanent">Share link via Permanent</string>
+    <string name="record_options_menu_item_share_via_permanent">Share via Permanent</string>
     <string name="record_options_menu_item_manage_sharing">Manage Sharing</string>
+    <string name="record_options_menu_item_share_to_another_app">Share to another app</string>
     <string name="record_options_permission">Permission:</string>
     <string name="record_options_initiated_by">Initiated By:</string>
     <string name="record_options_shared_with">Shared with (%d)</string>
@@ -352,6 +354,7 @@
     <string name="share_management_share_update_type_edited">edited</string>
     <string name="share_management_share_update_type_removed">removed</string>
     <string name="share_management_create_share_link_button">Create share link</string>
+    <string name="share_management_copy_link_button">Copy Link</string>
     <string name="share_management_revoke_link_button">Revoke Link</string>
     <string name="share_management_revoke_button">Revoke</string>
     <string name="share_management_share_management_title">Share Management</string>
@@ -519,6 +522,7 @@
     <string name="dialog_delete_account_message">Please note: deleting your account will remove all reference to personally identifiable and contact information as well as payment options you have provided to us in your account settings.\n\nThe account deletion action will not delete any archives that you own or personally identifiable information in the records stored in those archives. Any archives you own that are not deleted prior to deleting your account will become orphaned archives. Archives can only be deleted by logging in to your account on Permanent.org.\n\n(Learn more here.)[https://desk.zoho.com/portal/permanent/en/kb/articles/how-to-delete-an-archive]\n\nWhen you are ready, type ‘DELETE’ in all caps and press confirm below to confirm account deletion.</string>
     <string name="dialog_delete_account_placeholder">type DELETE</string>
     <string name="delete_account_error">Type DELETE with all caps in order to delete your account.</string>
+    <string name="downloading_file_in_progress">Downloading file…</string>
 
     <string name="archive_current_archive">Current Archive</string>
     <string name="archive_pending_archives">Pending Archives:</string>
@@ -836,7 +840,6 @@
     <string name="share_and_manage_access">Share and manage access</string>
     <string name="publish_on_the_web">Publish on the web</string>
     <string name="send_a_copy">Send a copy</string>
-    <string name="get_link">Get link</string>
     <string name="save">Save</string>
     <string name="download">Download</string>
     <string name="rename">Rename</string>

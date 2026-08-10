@@ -108,11 +108,6 @@ fun RecordMenuScreen(
                             text = stringResource(R.string.send_a_copy),
                         ) { onItemClick(item) }
 
-                        RecordMenuItem.GetLink -> SettingsMenuItem(
-                            iconResource = painterResource(id = R.drawable.ic_link_primary),
-                            text = stringResource(R.string.get_link),
-                        ) { onItemClick(item) }
-
                         RecordMenuItem.Download -> SettingsMenuItem(
                             iconResource = painterResource(id = R.drawable.ic_download_primary),
                             text = stringResource(R.string.download),

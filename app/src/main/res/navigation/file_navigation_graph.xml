@@ -14,6 +14,11 @@
             app:destination="@id/fileMetadataFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+            android:id="@+id/action_filesContainerFragment_to_shareLinkFragment"
+            app:destination="@id/shareLinkFragment"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 
     <fragment
