@@ -182,6 +182,15 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             } else {
                 loadFilesOfV1(folder, sortType)
             }
+        } else {
+            // The folder can't be listed without its V1 address — report it instead
+            // of silently dropping the navigation with the spinner left running.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Navigation dropped: folder missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            swipeRefreshLayout.isRefreshing = false
+            showMessage.value = appContext.getString(R.string.generic_error)
         }
     }
 

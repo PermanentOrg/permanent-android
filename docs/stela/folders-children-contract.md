@@ -3,8 +3,50 @@
 Verified against the merged iOS implementation (permanent-ios PR #573, commit `38d9622`;
 updated 2026-07-30 against PRs #574/#575/#576/#580), live production captures (2026-07-22),
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
-Files navigation), extended for VSP-1808 (Public Files) and VSP-1810 (Public Gallery);
-reuse for future Stela tickets instead of re-deriving.
+Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery) and
+VSP-1806 (Search drill-in); reuse for future Stela tickets instead of re-deriving.
+
+## Search → folder drill-in (VSP-1806)
+
+- **Same endpoint, same bearer auth, same gate.** The single drill-in call site
+  (`RecordSearchViewModel.loadChildRecordsOf` — folder tap, deeper drill-in and back
+  navigation all funnel through it) branches to `getChildRecordsOfV2` behind
+  `useStelaMigration && folderId > 0`, with the V1 two-step as automatic failsafe —
+  the `PublicFolderViewModel` pattern verbatim. The **search query itself stays V1**
+  (`POST search/folderAndRecord`, 10-result cap): no V2 search route exists on either
+  platform.
+- **The identity question — search results DO carry `folderId`.** The V1 search payload's
+  `RecordVO` populates `folderId` on folder hits; proof is structural: the app classifies
+  a result as a folder *only* when `folderId != null` (`Record.kt`), and only folders are
+  drill-in tappable — a payload without it would render as a file and never navigate. So
+  no `folder_linkId → folderId` resolver (gap 5) is needed here; the `folderId > 0` gate
+  plus V1 failsafe covers any edge payload regardless.
+- **iOS reference — search IS wired to V2, as a soft bridge** (`SearchFilesViewModel`
+  opts into the flag; the tap seeds `v2NavigationTarget` with the tapped `FileModel` and
+  still issues V1-shaped `NavigateMinParams`; `navigateMin` takes V2 only when
+  `flag && target.folderId > 0`). iOS never asserts the payload carries `folderId` — it
+  silently degrades to V1. Android expresses the same decision directly at the tap-site
+  branch (the `Record` is already the parameter; no out-of-band target needed).
+- **No supersede machinery** — the screen's `isBusy` re-entrancy guard allows at most one
+  fetch in flight (no pull-to-refresh, no sort picker), same rationale as the gallery.
+- **Search-local derivations on the V2 path** (V1 parity): the header title uses the
+  tapped folder's own `displayName` — which is what the *existing V1 search listener
+  already uses* (it ignores the `getLeanItems` envelope name), so both paths are
+  identical by construction; fixed `NAME_ASCENDING` applied locally via
+  `SortType.toComparator()` (V1 sends the same sort as a backend param). No
+  `parentFolderArchiveNr` stamp — the V1 search path never sets it and nothing on this
+  screen consumes it (no options/toolbar menu: `isForSearchScreen` suppresses it).
+- **Section-agnostic by construction:** search has no section concept (no section in
+  request, response, or nav args; results are scoped server-side to the session archive)
+  and V1 addresses folders by `archiveNbr + folder_linkId` regardless of tree — the
+  bearer-auth `/children` call is equally tree-agnostic (public trees verified in
+  VSP-1810). The Shares surfaces have no search entry point, and the shared-tree gaps
+  (1–2 below) can't bite because the search screen renders no permissions UI.
+- **Operational note (iOS, 2026-08):** upstream iOS currently ships with
+  `useStelaNavigation = false` in **every** build ("Ship with Stela V2 navigation
+  disabled" — the 1.16.0 release deferred the epic; re-enablable at launch via
+  `--forceStelaNavigation` on debug/staging builds). Android's gating is unchanged
+  (staging flavor = on), but cross-platform QA comparisons must force the iOS flag on.
 
 ## Public Gallery (VSP-1810)
 
@@ -194,7 +236,7 @@ undercounts on FOLDER rows** (gap 2 below — record rows are fine, live-verifie
 2026-07-31). Everything else falls back to V1 or is handled in the app. Gaps 1 and 2 are
 the same backend theme — *send complete share data on children* — so raise them as one
 ask, together with iOS's existing P2; for gap 2 the concrete ask is a one-line filter
-alignment (raised with the backend 2026-07-31). Gaps 3–4 break nothing today; they only
+alignment (raised with the backend 2026-07-31). Gaps 3–6 break nothing today; they only
 block future migration tickets, and those surfaces simply stay on V1.
 
 ## Known backend gaps (as of 2026-07-23)
@@ -249,6 +291,18 @@ block future migration tickets, and those surfaces simply stay on V1.
    accepting a `folderLinkId` address. Changing the URL format alone doesn't fix
    already-shared links. Blocks nothing today (V1 fallback); prerequisite for the V1
    navigation sunset, same bucket as `getPublicRoot` root discovery.
+   **Fuller inventory (all workspaces swept, 2026-08-11):** this is one of FOUR V1
+   link-address dependencies — see `docs/stela-v2-link-migration.md` for the complete
+   picture (also record `archiveNbr → recordId`, share `token → shareLinkId`, and
+   `archiveNbr →` public root `folderId`) and the ranked backend asks covering all four.
+6. **No V2 search endpoint** *(confirmed during VSP-1806, 2026-08-11)*. The search query
+   itself stays on V1 `POST search/folderAndRecord` (hard-capped at 10 results, no
+   pagination) — neither the stela docs nor the merged iOS code have any V2 search
+   route; iOS ships the identical V1 call. VSP-1806 migrated only the *drill-in from* a
+   search result (possible because results already carry `folderId`); the query is the
+   remaining V1 dependency on the search screen. Blocks nothing today; prerequisite for
+   the V1 sunset, same bucket as `getShares` and root discovery. Future ticket once the
+   backend exposes a search route — a chance to also lift the 10-result cap.
 
 ## Spec-vs-reality discrepancies found (do not trust these in the docs/tickets)
 

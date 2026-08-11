@@ -109,7 +109,8 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-08-05</strong> · edit by hand, one item per surface.</p>
+  Updated <strong>2026-08-11</strong> · edit by hand, one item per surface.
+  Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
 </header>
 
 <div class="cols">
@@ -135,6 +136,11 @@
         <div class="row"><span class="name">Public Gallery navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">GET /v2/folders/{id}/children</code>
         <p class="note">VSP-1810 · own + foreign public archives (foreign access verified live from Android on staging, 2026-08-05) · flag branch in <code>PublicArchiveViewModel</code>/<code>PublicFolderViewModel</code>, same funnel/mapper, V1 failsafe · root stays V1 <code>getPublicRoot</code> · deep-linked folders fall through to V1 (no <code>folderId</code> — resolver ask in backend column) · unrelated pre-existing bug found in QA: folder Copy Link unreachable (toolbar menu reset, <strong>VSP-1833</strong>).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Search — folder drill-in</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/folders/{id}/children</code>
+        <p class="note">VSP-1806 · tap a folder in search results → V2 listing, same funnel/mapper/failsafe as the gallery (flag branch in <code>RecordSearchViewModel</code>, <code>isBusy</code> single-flight, no supersede needed) · folder results carry <code>folderId</code> (it's what classifies them as folders), so no resolver needed · the search <em>query</em> itself stays V1 (see backend column).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
@@ -232,8 +238,8 @@
         <p class="note">No V2 route; only coupling to navigation is the post-upload refresh (covered by VSP-1778).</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">Search</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">No V2 route.</p>
+        <div class="row"><span class="name">Search query (<code>search/folderAndRecord</code>)</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">No V2 route (neither platform has one). Drill-in from a search result is migrated (VSP-1806, left column) — only the query call itself stays V1.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Shares root list (<code>getShares</code>)</span><span class="pill st-block">Blocked</span></div>
@@ -244,8 +250,8 @@
         <p class="note"><code>nextCursor</code> non-null on complete pages, <code>totalPages</code> wrong — blocks the real cursor-paging ticket; until then both platforms fetch one huge page.</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">Deep-link id resolution (<code>folder_linkId</code> → <code>folderId</code>)</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">Public deep links carry the V1 address (<code>archiveNbr</code> + <code>folder_linkId</code>); V2 is addressed by <code>folderId</code>, and the mapping lives only in the backend DB. Ask raised 2026-08-06 (VSP-1810 comment): a resolver (ideally also <code>file_archive_nr</code> → <code>recordId</code> for record links) or <code>folderLinkId</code> addressing on <code>/children</code>. Until then, the first listing after a public deep link stays on V1 — blocks the V1 navigation sunset.</p>
+        <div class="row"><span class="name">Link-address resolution (V1 link ids → V2 ids)</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">All workspaces swept (2026-08-11): the app mints/consumes exactly two link families — public URLs (<code>/p/archive/…</code>) and share links (<code>/share/{token}</code>) — and they carry V1-era addresses that <strong>four</strong> V2 lookups can't do: <code>folder_linkId</code> → <code>folderId</code> (folder links), record <code>archiveNbr</code> → <code>recordId</code> (record links), share <code>token</code> → <code>shareLinkId</code> (V2 share-links accepts only <code>shareLinkIds[]</code>; today learned via V1 <code>share/getLink</code>), and <code>archiveNbr</code> → public root <code>folderId</code> (entry point of every public link; today V1 <code>getPublicRoot</code>). Deep links are the same two families, not a separate case; archive profile links unaffected. Ranked asks (VSP-1810 comment, 2026-08-06): (1) a V2 resolver family covering all four, (2) V1-era keys as alternative addresses on existing V2 routes, (3) ids in the URL format (still needs 1/2 for old links). Nothing broken today — V1 fallbacks work — but every shared link keeps V1 alive. Full inventory: <code>docs/stela-v2-link-migration.md</code>.</p>
       </li>
     </ul>
   </section>

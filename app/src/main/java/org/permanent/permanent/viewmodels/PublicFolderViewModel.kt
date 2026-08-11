@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.FeatureFlags
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.models.IFolderChildrenListener
@@ -70,6 +71,14 @@ class PublicFolderViewModel(application: Application) : ObservableAndroidViewMod
             } else {
                 loadFilesOfV1(archiveNr, folderLinkId)
             }
+        } else {
+            // The folder can't be listed without its V1 address — report it instead
+            // of silently ignoring the navigation.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Navigation dropped: record missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            showMessage.value = getApplication<Application>().getString(R.string.generic_error)
         }
     }
 
