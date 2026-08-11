@@ -163,6 +163,14 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                             recordVO?.folder_linkId?.let { folderLinkIds.add(it) }
                         }
                         getLeanItems(archiveNr, folderLinkId, sort, folderLinkIds, listener)
+                    } else {
+                        // A body without ChildItemVOs used to return without calling the
+                        // listener, leaving callers' busy spinners stuck forever. Empty
+                        // folders still send a present (empty) list, so this is anomalous.
+                        listener.onFailed(
+                            response.body()?.getMessages()?.firstOrNull()
+                                ?: context.getString(R.string.generic_error)
+                        )
                     }
                 }
 
@@ -184,9 +192,18 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
 
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                     val responseVO = response.body()
-                    listener.onSuccess(
-                        responseVO?.getFolderRecord()?.displayName, responseVO?.getRecordVOs()
-                    )
+                    if (response.isSuccessful && responseVO != null) {
+                        listener.onSuccess(
+                            responseVO.getFolderRecord()?.displayName, responseVO.getRecordVOs()
+                        )
+                    } else {
+                        // Same terminal-and-truthful contract as navigateMin above: an
+                        // error response used to report onSuccess(null, null).
+                        listener.onFailed(
+                            responseVO?.getMessages()?.firstOrNull()
+                                ?: context.getString(R.string.generic_error)
+                        )
+                    }
                 }
 
                 override fun onFailure(call: Call<ResponseVO>, t: Throwable) {

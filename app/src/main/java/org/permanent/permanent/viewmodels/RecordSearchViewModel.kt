@@ -3,17 +3,21 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.Context
 import android.text.Editable
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
+import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
@@ -28,6 +32,7 @@ import java.util.*
 class RecordSearchViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener {
 
+    private val TAG = RecordSearchViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -85,8 +90,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
         currentSearchQuery.value = query.toString()
         if (currentSearchQuery.value.isNullOrEmpty()) {
             searchJob?.cancel()
-            isRoot.value = true
-            existsRecords.value = false
+            returnToResultsRoot(hasRecords = false)
         }
         searchAndFilterDebounced()
     }
@@ -116,8 +120,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
 
                     override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         isBusy.value = false
-                        isRoot.value = true
-                        existsRecords.value = !recordVOs.isNullOrEmpty()
+                        returnToResultsRoot(hasRecords = !recordVOs.isNullOrEmpty())
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(it) }
                     }
 
@@ -127,9 +130,17 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
                     }
                 })
         } else {
-            isRoot.value = true
-            existsRecords.value = false
+            returnToResultsRoot(hasRecords = false)
         }
+    }
+
+    // Every return to the results root goes through here: dropping the drilled-in
+    // trail together with the header state is what keeps Back from popping a folder
+    // that belongs to a previous search.
+    private fun returnToResultsRoot(hasRecords: Boolean) {
+        isRoot.value = true
+        folderPathStack.clear()
+        existsRecords.value = hasRecords
     }
 
     private fun getCheckedTags(visibleTags: ArrayList<Tag>?): ArrayList<Tag> {
@@ -190,26 +201,81 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
         val archiveNr = record.archiveNr
         val folderLinkId = record.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
-            isBusy.value = true
-            fileRepository.getChildRecordsOf(archiveNr,
-                folderLinkId,
-                SortType.NAME_ASCENDING.toBackendString(),
-                object : IFileRepository.IOnRecordsRetrievedListener {
-
-                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
-                        isBusy.value = false
-                        isRoot.value = false
-                        folderName.value = record.displayName
-                        existsRecords.value = !recordVOs.isNullOrEmpty()
-                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        showMessage.value = error
-                    }
-                })
+            // Search drill-in (VSP-1806) takes the Stela V2 children endpoint when the
+            // migration flag is on, with V1 as an automatic failsafe. Folder results
+            // carry a folderId (it is what classifies them as folders); anything
+            // without one falls through to V1 here.
+            val folderId = record.folderId
+            if (FeatureFlags.useStelaMigration && folderId != null && folderId > 0) {
+                loadChildRecordsOfV2(record, folderId, archiveNr, folderLinkId)
+            } else {
+                loadChildRecordsOfV1(record, archiveNr, folderLinkId)
+            }
+        } else {
+            // The result can't be navigated without its V1 address — say so instead
+            // of silently ignoring the tap.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Drill-in dropped: result missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            showMessage.value = appContext.getString(R.string.generic_error)
         }
+    }
+
+    private fun loadChildRecordsOfV1(record: Record, archiveNr: String, folderLinkId: Int) {
+        isBusy.value = true
+        fileRepository.getChildRecordsOf(archiveNr,
+            folderLinkId,
+            SortType.NAME_ASCENDING.toBackendString(),
+            object : IFileRepository.IOnRecordsRetrievedListener {
+
+                override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
+                    isBusy.value = false
+                    isRoot.value = false
+                    folderName.value = record.displayName
+                    existsRecords.value = !recordVOs.isNullOrEmpty()
+                    recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
+                }
+
+                override fun onFailed(error: String?) {
+                    isBusy.value = false
+                    showMessage.value = error
+                }
+            })
+    }
+
+    // Stela V2 navigation (VSP-1806). At most one fetch is in flight (the isBusy guard
+    // in loadChildRecordsOf), so the generation guard MyFilesViewModel needs is
+    // unnecessary here — a fetch either commits or falls back to V1.
+    private fun loadChildRecordsOfV2(
+        record: Record, folderId: Int, archiveNr: String, folderLinkId: Int
+    ) {
+        isBusy.value = true
+        fileRepository.getChildRecordsOfV2(folderId, object : IFolderChildrenListener {
+
+            override fun onSuccess(records: List<Record>) {
+                isBusy.value = false
+                if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
+                isRoot.value = false
+                // V2 returns no parent name — the tapped folder's own displayName is
+                // the same value the V1 listener uses.
+                folderName.value = record.displayName
+                // The endpoint has no sort param (sort is a folder attribute) — apply
+                // this screen's fixed sort locally, like iOS.
+                val sortedRecords = records.sortedWith(SortType.NAME_ASCENDING.toComparator())
+                existsRecords.value = sortedRecords.isNotEmpty()
+                onRecordsRetrieved.value = sortedRecords
+            }
+
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                // V1 failsafe: nothing can supersede this fetch, so no ordering hazard.
+                if (BuildConfig.DEBUG) Log.d(
+                    TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
+                )
+                loadChildRecordsOfV1(record, archiveNr, folderLinkId)
+            }
+        })
     }
 
     override fun onRecordOptionsClick(record: Record) {}
@@ -235,8 +301,9 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun onBackBtnClick() {
-        // Popping the record of the current folder
-        folderPathStack.pop()
+        // Popping the record of the current folder; tolerate an already-empty stack
+        // (a tap can land in the frame before the binding hides the button)
+        folderPathStack.removeLastOrNull()
         if (folderPathStack.isEmpty()) searchRecords()
         else loadChildRecordsOf(folderPathStack.peek())
     }

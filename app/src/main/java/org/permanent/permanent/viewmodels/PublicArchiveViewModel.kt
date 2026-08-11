@@ -83,6 +83,14 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
             } else {
                 loadFilesOfV1(archiveNr, folderLinkId)
             }
+        } else {
+            // The folder can't be listed without its V1 address — report it instead
+            // of silently ignoring the navigation.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Navigation dropped: record missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            showMessage.value = appContext.getString(R.string.generic_error)
         }
     }
 

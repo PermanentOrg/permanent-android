@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +17,7 @@ import androidx.work.WorkInfo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
@@ -45,6 +47,7 @@ import java.util.Stack
 class SharedXMeViewModel(application: Application) : SelectionViewModel(application),
     CancelListener, OnFinishedListener {
 
+    private val TAG = SharedXMeViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -189,6 +192,15 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
                         error?.let { showMessage.value = it }
                     }
                 })
+        } else {
+            // The folder can't be listed without its V1 address — report it instead
+            // of silently dropping the navigation with the spinner left running.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Navigation dropped: folder missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            swipeRefreshLayout.isRefreshing = false
+            showMessage.value = appContext.getString(R.string.generic_error)
         }
     }
 
