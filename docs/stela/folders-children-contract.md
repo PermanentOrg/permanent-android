@@ -3,8 +3,65 @@
 Verified against the merged iOS implementation (permanent-ios PR #573, commit `38d9622`;
 updated 2026-07-30 against PRs #574/#575/#576/#580), live production captures (2026-07-22),
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
-Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery) and
-VSP-1806 (Search drill-in); reuse for future Stela tickets instead of re-deriving.
+Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery),
+VSP-1806 (Search drill-in) and VSP-1803 (Shared By Me drill-in); reuse for future Stela
+tickets instead of re-deriving.
+
+## Shared By Me → folder drill-in (VSP-1803)
+
+- **Same endpoint, same bearer auth, extended gate.** The single drill-in call site
+  (`SharedXMeViewModel.loadFilesOf` — folder tap, deeper drill-in, back navigation, sort
+  change, pull-to-refresh and the delayed post-upload/post-delete refreshes all funnel
+  through it) branches to `getChildRecordsOfV2` behind
+  `useStelaMigration && isSharedByMe && folderId > 0 && archiveNr == session archiveNr`,
+  with the V1 two-step (`navigateMin` + `getLeanItems`) as automatic failsafe. The
+  **shares root listing stays V1** (`POST share/getShares` — no V2 route exists on either
+  platform; iOS's proposed `GET /v2/shares?direction=…` was never built).
+- **Shares-territory access map on V2** (verified across iOS PRs #576 → #582): own-archive
+  content ✓ bearer-only V2 · public foreign content ✓ bearer-only V2 · share-membership
+  foreign content ✗ (stays V1 — the bearer token cannot carry share membership, and
+  children lack per-item caller `accessRole`, gap 1). Shared By Me is the first bucket
+  **by construction**: `SharesViewModel.requestShares` splits by-me/with-me on
+  `currentArchiveId == archive.archiveId` against the SESSION archive, so by-me items —
+  and transitively their children — always belong to the session archive. The gate
+  re-checks `archiveNr` against `PreferencesHelper.getCurrentArchiveNr()` per fetch anyway
+  (iOS #576's lesson: check the session archive, never a "viewed archive" notion; a stale
+  drill-in stack after an archive switch degrades silently to V1).
+- **Shared With Me is hard-locked to V1** in both flag states: both tabs share
+  `SharedXMeFragment`/`SharedXMeViewModel`, so the VM got an `isSharedByMe` flag set from
+  the fragment's bundle discriminator (the with-me page always carries
+  `SHARED_WITH_ME_ITEM_LIST_KEY`, the by-me page never does). The with-me instance never
+  sets the flag ⇒ its gate can never open. Blocked on gap 1 (per-child caller
+  `accessRole`); its own ticket once the backend ships it.
+- **401 semantics, verified structurally:** Android cannot repeat iOS's #576 logout bug.
+  `UnauthorizedInterceptor` fires only on URLs containing `BASE_API_URL` (the V1 host);
+  the Stela base is a different host, so a V2 401 surfaces as `onFailed` → V1 failsafe,
+  never a session-expiry logout. A genuinely expired session then fails on the V1
+  fallback call, which correctly triggers the normal logout.
+- **Full supersede machinery — the first non-MyFiles screen to need it.** Unlike the
+  gallery/search screens (`isBusy` guard, no refresh sources), Shared By Me has
+  pull-to-refresh, a sort picker and two delayed background refreshes that can race a
+  folder tap — so `SharedXMeViewModel` mirrors `MyFilesViewModel`'s
+  `childrenFetchGeneration` policy verbatim (newest generation commits or falls back;
+  superseded failures never run the failsafe; forward-navigation taps retry once).
+- **Shares-local derivations on the V2 path** (V1 parity): every mapped record gets
+  `displayInShares = true` (share badges; what the V1 `getRecords` stamps) and
+  `accessRole =` the **session archive's role** from `CurrentArchivePermissionsManager` —
+  V2 children carry no per-item `accessRole` (gap 1), V1's do, and the record menu
+  degrades null to VIEWER (hiding Rename/Move/Copy/Delete). The session role reproduces
+  V1 because `RecordMenuViewModel` clamps with `getInferior(archive role)` and own-archive
+  item roles are never below the archive role; stamping OWNER would overstate permissions
+  for Editor/Curator members. Header title uses the tapped folder's own `displayName`
+  (same as V1); the active sort is applied locally via `SortType.toComparator()`. No
+  `parentFolderArchiveNr` stamp — its only consumer is the public-gallery copy-link
+  button (`Workspace.PUBLIC_ARCHIVES`); Shares opens menus with `Workspace.SHARES`.
+- **Pre-existing quirks found during VSP-1803 (all flag-independent, not fixed here):**
+  the shares root listing only delivers **non-empty** lists (`SharesViewModel`), so a
+  refresh returning zero by-me shares leaves the stale list on screen (the inverse of
+  iOS #583's clear-early/fill-late race, which Android does not have); the ⋮ → Share
+  sheet's pending-invites call (`ShareManagementViewModel.refreshPendingInvites`) already
+  hits V2 **ungated**; root share rows show an empty size because V1 `ItemVO` carries no
+  `size` field.
 
 ## Search → folder drill-in (VSP-1806)
 
@@ -149,7 +206,9 @@ Headers: Request-Version: 2
   `SortType.toComparator()`; iOS: `FilesViewModel.sorted(_:by:)`).
 - **401s must not force logout** — the V1 failsafe follows. On Android this is already true:
   `UnauthorizedInterceptor` only matches `BASE_API_URL`, not the Stela base. iOS sets
-  `ignoreErrors = true` for the same reason.
+  `ignoreErrors = true` for the same reason. **This protection is on borrowed time**: it
+  works only while V1 exists to detect real session expiry — see gap 7 for the V1-sunset
+  plan and the `treatStelaUnauthorizedAsSessionExpiry` switch (added 2026-08-13, OFF).
 
 ## Response
 
@@ -243,8 +302,10 @@ block future migration tickets, and those surfaces simply stay on V1.
 
 1. **No per-item caller `accessRole`, incomplete `shares[]` on children of shared folders**
    (descendants inside a shared tree carry none — the hydration SQL only aggregates direct
-   share rows). Blocks Shared-workspace drill-in on both platforms; iOS P2 backend ask.
-   Own-archive browsing is unaffected (permissions are archive-derived).
+   share rows). Blocks **Shared With Me** drill-in on both platforms; iOS P2 backend ask.
+   Own-archive browsing is unaffected (permissions are archive-derived) — which is why
+   **Shared By Me** could ship without it (VSP-1803 stamps the session archive's role
+   client-side; see its section above).
 2. **V2 drops pending shares-to-archives on FOLDER items only — so the pending badge
    undercounts on folders.** *(Refined 2026-07-31 after backend follow-up + stela source
    verification; supersedes the earlier "in neither list for all items" wording.)*
@@ -303,6 +364,31 @@ block future migration tickets, and those surfaces simply stay on V1.
    remaining V1 dependency on the search screen. Blocks nothing today; prerequisite for
    the V1 sunset, same bucket as `getShares` and root discovery. Future ticket once the
    backend exposes a search route — a chance to also lift the 10-result cap.
+7. **401 is not reserved for session expiry — blocks moving logout detection to the
+   Stela host** *(raised 2026-08-13, VSP-1803 follow-up discussion)*. Today Android
+   detects session expiry only on the V1 host (`UnauthorizedInterceptor` matches
+   `BASE_API_URL` alone) — which is exactly what makes V2 401s degrade safely to the
+   V1 failsafe instead of logging the user out. When V1 is sunset that mechanism
+   detects nothing: an expired session would never log out — every screen would just
+   silently fail. The fix (option A) is to extend the interceptor to the Stela host;
+   the code is already in place behind
+   `FeatureFlags.treatStelaUnauthorizedAsSessionExpiry` (**default OFF in every
+   build**, added 2026-08-13). **It must stay OFF until the backend reserves 401 for
+   invalid/expired tokens and returns 403 for permission denials.** Known
+   counterexample under today's semantics — iOS PR #576's reproducer: a bearer-only
+   `PATCH /api/v2/records/{id}` on a shared-with-me (foreign-archive) record answers
+   **401**, not 403, for what is a permission/credential-shape problem; enabling the
+   switch now would log users out on exactly the failures the failsafe exists to
+   absorb (iOS's #576 bug, reintroduced on Android). **Ask:** confirm or change the
+   401/403 split across `/api/v2/*`; then the rollout is one boolean flip.
+   Fallback options if the backend can't commit: a token-refresh `Authenticator`
+   (needs `/v2/idpuser/*` refresh support — unverified) or per-call exemption tags
+   (iOS's `ignoreErrors` shape). Not urgent while any regularly-hit call is still V1
+   (login, `getShares`, root discovery all are) — but a hard prerequisite for the V1
+   sunset, same bucket as gaps 5–6. Enable-time note: with the switch ON the
+   interceptor buffers every Stela response body to a `String` to inspect it (same
+   as V1 today) — that includes the large single-page children listings, so keep it
+   in mind for any future response-size profiling.
 
 ## Spec-vs-reality discrepancies found (do not trust these in the docs/tickets)
 
