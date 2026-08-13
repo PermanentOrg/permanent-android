@@ -17,4 +17,13 @@ object FeatureFlags {
      * nothing mutates it in production code.
      */
     var useStelaMigration: Boolean = BuildConfig.STELA_MIGRATION_DEFAULT
+
+    /**
+     * V1-sunset prep: lets UnauthorizedInterceptor treat Stela-host 401s as session
+     * expiry. OFF in every build — stela still answers 401 for bearer-only permission
+     * denials, so enabling it now would log users out on failures the V1 failsafe
+     * absorbs. Flip only once the backend reserves 401 for invalid/expired tokens
+     * (403 for permission denials). Details: docs/stela/folders-children-contract.md, gap 7.
+     */
+    var treatStelaUnauthorizedAsSessionExpiry: Boolean = false
 }

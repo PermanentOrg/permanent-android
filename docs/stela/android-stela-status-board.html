@@ -109,7 +109,7 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-08-11</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-08-13</strong> · edit by hand, one item per surface.
   Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
 </header>
 
@@ -141,6 +141,11 @@
         <div class="row"><span class="name">Search — folder drill-in</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">GET /v2/folders/{id}/children</code>
         <p class="note">VSP-1806 · tap a folder in search results → V2 listing, same funnel/mapper/failsafe as the gallery (flag branch in <code>RecordSearchViewModel</code>, <code>isBusy</code> single-flight, no supersede needed) · folder results carry <code>folderId</code> (it's what classifies them as folders), so no resolver needed · the search <em>query</em> itself stays V1 (see backend column).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Shared By Me — folder drill-in</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/folders/{id}/children</code>
+        <p class="note">VSP-1803 · tap a folder you shared → V2 listing, same funnel/mapper/failsafe · gate adds two shares-territory checks (iOS PRs #576/#582): <code>isSharedByMe</code> (the with-me tab is hard-locked to V1) and per-fetch <em>session</em>-archive ownership · full <code>MyFilesViewModel</code> supersede policy (this screen has pull-to-refresh, sort + delayed refreshes) · V2 children carry no per-item <code>accessRole</code>, so the session archive's role is stamped client-side (menu parity) with <code>displayInShares</code> · the shares <em>root listing</em> stays V1 <code>getShares</code> (see backend column) · a V2 401 cannot log out (interceptor is V1-host-scoped).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
@@ -222,7 +227,7 @@
       <li class="group">Findings for future tickets — not scheduled yet</li>
       <li class="item">
         <div class="row"><span class="name">Caller <code>accessRole</code> + complete <code>shares[]</code> on shared-tree children</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">Blocks the Shares workspace migration (Shared With Me / Shared By Me, <code>SharedXMeViewModel</code>): items inside a shared folder carry no share data on V2, so their options menus can't derive permissions. No impact on VSP-1778 — Private Files uses the archive-level role everywhere (<code>CurrentArchivePermissionsManager</code>). The iOS team already requested this from the backend (priority 2 on their asks list); one theme with the badge row above.</p>
+        <p class="note">Blocks <strong>Shared With Me</strong> drill-in (its own ticket, pending this): items inside a foreign shared folder carry no share data on V2, so their options menus can't derive permissions — and the bearer-only call can't carry share membership at all. <strong>Shared By Me shipped without it</strong> (VSP-1803): own-archive content derives permissions from the archive-level role (<code>CurrentArchivePermissionsManager</code>), stamped client-side. The iOS team already requested this from the backend (priority 2 on their asks list); one theme with the badge row above.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Folder creation</span><span class="pill st-block">Blocked</span></div>
@@ -243,7 +248,11 @@
       </li>
       <li class="item">
         <div class="row"><span class="name">Shares root list (<code>getShares</code>)</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">No V2 route.</p>
+        <p class="note">No V2 route (iOS's proposed <code>GET /v2/shares?direction=…</code> was never built). Drill-in from a Shared By Me row is migrated (VSP-1803, left column) — only the root listing call stays V1. Pre-existing quirk noted during VSP-1803: the root listing only delivers non-empty lists, so a refresh returning zero shares leaves a stale list (separate ticket candidate).</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">401 reserved for expired/invalid tokens (403 for permission denials)</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">Needed before the <strong>V1 sunset</strong>: session expiry is detected only on the V1 host today (<code>UnauthorizedInterceptor</code>), which is what lets V2 401s degrade to the V1 failsafe — once V1 is gone, an expired session would never log out. The app-side fix is already implemented <em>dark</em> behind <code>FeatureFlags.treatStelaUnauthorizedAsSessionExpiry</code> (OFF in every build, 2026-08-13); flipping it requires the backend to stop answering 401 for bearer-only permission denials (known counterexample: iOS PR #576's <code>PATCH /api/v2/records/{id}</code> on a shared-with-me record). Full write-up: contract doc, gap 7.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Reliable pagination</span><span class="pill st-block">Blocked</span></div>
@@ -259,7 +268,7 @@
 </div>
 
 <footer>
-  Sources: merged iOS PRs #573–#576, #580 (tier 1) · iOS contract sheet &amp; status boards (tier 2) ·
+  Sources: merged iOS PRs #573–#576, #580, #582, #583 (tier 1) · iOS contract sheet &amp; status boards (tier 2) ·
   <code>docs/stela/folders-children-contract.md</code> · VSP-1772 impact inventory.
   Keep this file the single source of truth for the Android migration surface — update the item when a ticket lands.
 </footer>

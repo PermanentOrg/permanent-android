@@ -128,6 +128,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
             val showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
             if (showScreenSimplified) viewModel.setShowScreenSimplified()
         }
+        // Keeps Shared With Me hard-locked to V1 (VSP-1803).
+        viewModel.setIsSharedByMe(!isSharedWithMeFragment)
 
         val displayMetrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)

@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
@@ -30,6 +31,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IResponseListener
+import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
@@ -54,6 +56,12 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     )
     private lateinit var lifecycleOwner: LifecycleOwner
     private var refreshJob: Job? = null
+
+    // Only true on the Shared By Me tab — keeps Shared With Me on V1 (VSP-1803).
+    private var isSharedByMe = false
+
+    // Only the newest children fetch may commit or fall back to V1. Main-thread only.
+    private var childrenFetchGeneration = 0
 
     val isRoot = MutableLiveData(true)
     private val isCreateAvailable = MutableLiveData(true)
@@ -114,6 +122,10 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         showScreenSimplified.value = true
     }
 
+    fun setIsSharedByMe(isSharedByMe: Boolean) {
+        this.isSharedByMe = isSharedByMe
+    }
+
     fun initUploadsRecyclerView(rvUploads: RecyclerView, lifecycleOwner: LifecycleOwner) {
         uploadsRecyclerView = rvUploads
         this.lifecycleOwner = lifecycleOwner
@@ -137,7 +149,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             isCreateAvailable.value =
                 record.accessRole != AccessRole.VIEWER && CurrentArchivePermissionsManager.instance.isCreateAvailable()
             loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
-            loadFilesOf(currentFolder.value, currentSortType.value)
+            loadFilesOf(currentFolder.value, currentSortType.value, forwardNavigation = true)
         } else {
             if (showScreenSimplified.value == false) {
                 onFileViewRequest.value = record
@@ -169,29 +181,27 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         }
     }
 
-    private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
+    private fun loadFilesOf(
+        folder: NavigationFolder?,
+        sortType: SortType?,
+        forwardNavigation: Boolean = false
+    ) {
         val archiveNr = folder?.getArchiveNr()
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
-            fileRepository.getChildRecordsOf(archiveNr,
-                folderLinkId,
-                sortType?.toBackendString(),
-                object : IFileRepository.IOnRecordsRetrievedListener {
-
-                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        isRoot.value = false
-                        folderName.value = folder.getDisplayName()
-                        existsFiles.value = !recordVOs.isNullOrEmpty()
-                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
-                    }
-
-                    override fun onFailed(error: String?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        error?.let { showMessage.value = it }
-                    }
-                })
+            // Stela V2 drill-in (VSP-1803): by-me tab only, and the folder must belong
+            // to the SESSION archive — foreign content never enters a bearer-only V2
+            // call. V1 is the automatic failsafe.
+            val folderId = folder.getFolderIdentifier()?.folderId
+            if (FeatureFlags.useStelaMigration && isSharedByMe
+                && folderId != null && folderId > 0
+                && archiveNr == prefsHelper.getCurrentArchiveNr()
+            ) {
+                loadFilesOfV2(folder, sortType, forwardNavigation)
+            } else {
+                loadFilesOfV1(folder, sortType)
+            }
         } else {
             // The folder can't be listed without its V1 address — report it instead
             // of silently dropping the navigation with the spinner left running.
@@ -202,6 +212,98 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             swipeRefreshLayout.isRefreshing = false
             showMessage.value = appContext.getString(R.string.generic_error)
         }
+    }
+
+    private fun loadFilesOfV1(folder: NavigationFolder, sortType: SortType?) {
+        // Callers (loadFilesOf and the V2 failsafe) have already checked these.
+        val archiveNr = folder.getArchiveNr() ?: return
+        val folderLinkId = folder.getFolderIdentifier()?.folderLinkId ?: return
+        fileRepository.getChildRecordsOf(archiveNr,
+            folderLinkId,
+            sortType?.toBackendString(),
+            object : IFileRepository.IOnRecordsRetrievedListener {
+
+                override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
+                    swipeRefreshLayout.isRefreshing = false
+                    applyFolderHeader(folder)
+                    existsFiles.value = !recordVOs.isNullOrEmpty()
+                    recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
+                }
+
+                override fun onFailed(error: String?) {
+                    swipeRefreshLayout.isRefreshing = false
+                    error?.let { showMessage.value = it }
+                }
+            })
+    }
+
+    // Every fetch completes exactly once: commit, V1 fallback, retry, or a quiet
+    // spinner stop — the generation guard lets only the NEWEST fetch commit.
+    private fun loadFilesOfV2(
+        folder: NavigationFolder,
+        sortType: SortType?,
+        forwardNavigation: Boolean,
+        retriesLeft: Int = 1
+    ) {
+        val folderId = folder.getFolderIdentifier()?.folderId ?: return
+        val generation = ++childrenFetchGeneration
+        fileRepository.getChildRecordsOfV2(folderId, object : IFolderChildrenListener {
+
+            override fun onSuccess(records: List<Record>) {
+                if (generation != childrenFetchGeneration) {
+                    onFetchSuperseded(folder, sortType, forwardNavigation, retriesLeft)
+                    return
+                }
+                swipeRefreshLayout.isRefreshing = false
+                if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
+                applyFolderHeader(folder)
+                // V2 has no sort param — sort locally.
+                val sortedRecords = records.toMutableList()
+                sortType?.let { sortedRecords.sortWith(it.toComparator()) }
+                // V2 children carry no per-item accessRole — stamp the session
+                // archive's role for V1 menu parity; displayInShares mirrors getRecords().
+                val sessionAccessRole = CurrentArchivePermissionsManager.instance.getAccessRole()
+                sortedRecords.forEach {
+                    it.displayInShares = true
+                    it.accessRole = sessionAccessRole
+                }
+                existsFiles.value = sortedRecords.isNotEmpty()
+                onRecordsRetrieved.value = sortedRecords
+            }
+
+            override fun onFailed(error: String?) {
+                if (generation != childrenFetchGeneration) {
+                    // A superseded fetch must never run the V1 failsafe — its late
+                    // response could overwrite the newer listing.
+                    onFetchSuperseded(folder, sortType, forwardNavigation, retriesLeft)
+                    return
+                }
+                if (BuildConfig.DEBUG) Log.d(
+                    TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
+                )
+                loadFilesOfV1(folder, sortType)
+            }
+        })
+    }
+
+    private fun onFetchSuperseded(
+        folder: NavigationFolder,
+        sortType: SortType?,
+        forwardNavigation: Boolean,
+        retriesLeft: Int
+    ) {
+        if (forwardNavigation && retriesLeft > 0 && currentFolder.value == folder) {
+            // A refresh raced the user's tap — retry once so the tap is never eaten.
+            loadFilesOfV2(folder, sortType, forwardNavigation, retriesLeft - 1)
+        } else {
+            // The superseding fetch repaints this folder — only the spinner must stop.
+            swipeRefreshLayout.isRefreshing = false
+        }
+    }
+
+    private fun applyFolderHeader(folder: NavigationFolder) {
+        isRoot.value = false
+        folderName.value = folder.getDisplayName()
     }
 
     private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {
