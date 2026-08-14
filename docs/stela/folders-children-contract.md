@@ -1,38 +1,100 @@
 # Android · Stela V2 — GET /v2/folders/{id}/children (verified contract)
 
 Verified against the merged iOS implementation (permanent-ios PR #573, commit `38d9622`;
-updated 2026-07-30 against PRs #574/#575/#576/#580), live production captures (2026-07-22),
+updated 2026-07-30 against PRs #574/#575/#576/#580, and 2026-08-14 against iOS Development
+`808aea6` + the stela source itself for VSP-1802), live production captures (2026-07-22),
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
 Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery),
-VSP-1806 (Search drill-in) and VSP-1803 (Shared By Me drill-in); reuse for future Stela
-tickets instead of re-deriving.
+VSP-1806 (Search drill-in), VSP-1803 (Shared By Me drill-in) and VSP-1802 (Shared With Me
+drill-in); reuse for future Stela tickets instead of re-deriving.
+
+## Shared With Me → folder drill-in (VSP-1802)
+
+- **Same endpoint, same bearer auth, one gate for both tabs.** Both tabs go through the
+  same single call site (`SharedXMeViewModel.loadFilesOf`, same supersede machinery, same
+  V1 failsafe) with the gate `useStelaMigration && folderId > 0` and **no session-archive
+  condition** — foreign archives are the normal case on with-me, and the server resolves
+  share membership per caller and item. This matches the merged iOS nav reads, which have
+  no ownership condition either (iOS #576's session-archive gate applies only to the
+  rename PATCH — a write). *(The by-me tab briefly kept VSP-1803's per-fetch
+  `archiveNr == session archiveNr` re-check; removed 2026-08-14 — see the defect note in
+  the VSP-1803 section.)*
+- **The feasibility verdict that unblocked this ticket** (2026-08-14, verified in the
+  stela source + tests, cross-checked against iOS Development): bearer-only V2 READS of
+  share-membership foreign content **work**. The children route uses optional auth
+  (`extractUserEmailFromAuthToken` — never throws), and the hydration SQL has an explicit
+  share-membership leg (caller account → `access` table on the item's own
+  `folder_linkid`); access rows **propagate to descendants** of shared folders. iOS
+  shipped the same drill-in in PR #574 and never reverted it. The old "membership-foreign
+  ✗" access-map entry was inferred from #576's PATCH failure — a write; reads and writes
+  authorize differently (reads filter, writes reject).
+- **Per-item permissions come from the payload, not a stamp.** V2 children DO carry a
+  top-level caller-resolved `accessRole` (share-membership-aware — stela computes
+  least-permissive of caller-archive role and share role per pair, most permissive
+  overall). This is the field the earlier gap-1 notes reported missing — it was on the
+  wire all along. Platform difference to remember for cross-platform QA: iOS derives
+  child roles by inheriting the entered folder's role (fail-closed to viewer); Android
+  decodes the payload field in
+  `ItemMapper.toRecordV2` (`AccessRole.fromStelaBackendValue`, short form, dotted-form
+  tolerant), which fits our V1 parity goal (V1's
+  `getLeanItems` returned true per-item roles). An absent role clamps to VIEWER in the
+  mapper — V1 parity: a listed Record always carries a non-null role, and
+  `isCreateAvailable`/the record menu rely on that. The by-me tab overrides with the
+  session archive's role — retained VSP-1803 behavior, equivalent for own-archive
+  content, not a payload gap.
+- **The shares ROOT listing stays V1** (`POST share/getShares`) — no V2 aggregate route
+  exists on either platform; `/folders/{id}/children` cannot serve it because the root
+  spans many foreign archives with no single parent folder. Back-to-root and root
+  pull-to-refresh re-enter V1 by construction (`onRootSharesNeeded` →
+  `SharesFragment.requestShares`). This is the last V1 dependency of the Shares
+  navigation surface — V1-sunset bucket, alongside gaps 5–6.
+- **Read failure mode is silent omission, never 401.** Children the caller isn't
+  authorized for are dropped from a 200 listing; a fully inaccessible folder returns
+  `items: []` (verified in stela tests) — indistinguishable from a genuinely empty or
+  just-revoked share, and no V1 failsafe triggers. 401 on this read can only be
+  token-level, and the 401-never-logs-out guarantee is unchanged (host-scoped
+  `UnauthorizedInterceptor`, `treatStelaUnauthorizedAsSessionExpiry` OFF — see gap 7).
 
 ## Shared By Me → folder drill-in (VSP-1803)
 
-- **Same endpoint, same bearer auth, extended gate.** The single drill-in call site
+- **Same endpoint, same bearer auth.** The single drill-in call site
   (`SharedXMeViewModel.loadFilesOf` — folder tap, deeper drill-in, back navigation, sort
   change, pull-to-refresh and the delayed post-upload/post-delete refreshes all funnel
   through it) branches to `getChildRecordsOfV2` behind
-  `useStelaMigration && isSharedByMe && folderId > 0 && archiveNr == session archiveNr`,
+  `useStelaMigration && folderId > 0` (as shipped, VSP-1803 also required
+  `isSharedByMe && archiveNr == session archiveNr` — see the defect note below for why
+  both extra conditions are gone),
   with the V1 two-step (`navigateMin` + `getLeanItems`) as automatic failsafe. The
   **shares root listing stays V1** (`POST share/getShares` — no V2 route exists on either
   platform; iOS's proposed `GET /v2/shares?direction=…` was never built).
-- **Shares-territory access map on V2** (verified across iOS PRs #576 → #582): own-archive
+- **Shares-territory access map on V2** *(corrected 2026-08-14, VSP-1802 — the ✗ was
+  inferred from iOS #576's PATCH, a write; reads authorize differently)*: own-archive
   content ✓ bearer-only V2 · public foreign content ✓ bearer-only V2 · share-membership
-  foreign content ✗ (stays V1 — the bearer token cannot carry share membership, and
-  children lack per-item caller `accessRole`, gap 1). Shared By Me is the first bucket
+  foreign content **✓ for READS** (stela's hydration SQL checks the caller's `access`
+  rows, descendants included; see the VSP-1802 section) · foreign **writes** ✗ (strict
+  auth, rejected — keep them V1/own-archive-gated). Shared By Me is the first bucket
   **by construction**: `SharesViewModel.requestShares` splits by-me/with-me on
   `currentArchiveId == archive.archiveId` against the SESSION archive, so by-me items —
-  and transitively their children — always belong to the session archive. The gate
-  re-checks `archiveNr` against `PreferencesHelper.getCurrentArchiveNr()` per fetch anyway
-  (iOS #576's lesson: check the session archive, never a "viewed archive" notion; a stale
-  drill-in stack after an archive switch degrades silently to V1).
-- **Shared With Me is hard-locked to V1** in both flag states: both tabs share
-  `SharedXMeFragment`/`SharedXMeViewModel`, so the VM got an `isSharedByMe` flag set from
-  the fragment's bundle discriminator (the with-me page always carries
-  `SHARED_WITH_ME_ITEM_LIST_KEY`, the by-me page never does). The with-me instance never
-  sets the flag ⇒ its gate can never open. Blocked on gap 1 (per-child caller
-  `accessRole`); its own ticket once the backend ships it.
+  and transitively their children — always belong to the session archive.
+- **Defect found in QA (Sergiu, fixed 2026-08-14): the per-fetch
+  `archiveNr == getCurrentArchiveNr()` re-check made the by-me V2 path dead at the root
+  hop.** On by-me root rows `Record.archiveNr` comes from `itemVO.archiveNbr` in the
+  `getShares` payload — which carries the **share counterpart's** archive, not the owning
+  session archive (the ownership fact lives on the *wrapping* `ArchiveVO`, which is what
+  the by-me split checks). So the re-check compared the counterpart's number to the
+  session's and was **always false**: every root-level by-me drill-in silently ran V1.
+  Levels below the first hop DID pass (their records come from V1 `getLeanItems`, whose
+  `archiveNbr` is the owning archive) — which is why V2 logs still appeared in VSP-1803
+  QA. Fix: the re-check is deleted; `isSharedByMe` already encodes session-archive
+  ownership at listing time, and VSP-1802 established that reads need no ownership
+  condition at all. Lesson recorded: **`itemVO.archiveNbr` in the `getShares` payload
+  identifies the counterpart archive** — never use it as an ownership signal.
+- ~~**Shared With Me is hard-locked to V1**~~ *(superseded by VSP-1802, 2026-08-14: the
+  with-me drill-in now opens the gate without the ownership condition and decodes the
+  payload `accessRole` — see its section above; the "blocked on gap 1" premise no longer
+  holds, the field is on the wire)*. The `isSharedByMe` bundle discriminator
+  (the with-me page always carries `SHARED_WITH_ME_ITEM_LIST_KEY`, the by-me page never
+  does) now selects the gate variant and role source instead of locking with-me out.
 - **401 semantics, verified structurally:** Android cannot repeat iOS's #576 logout bug.
   `UnauthorizedInterceptor` fires only on URLs containing `BASE_API_URL` (the V1 host);
   the Stela base is a different host, so a V2 401 surfaces as `onFailed` → V1 failsafe,
@@ -45,10 +107,11 @@ tickets instead of re-deriving.
   `childrenFetchGeneration` policy verbatim (newest generation commits or falls back;
   superseded failures never run the failsafe; forward-navigation taps retry once).
 - **Shares-local derivations on the V2 path** (V1 parity): every mapped record gets
-  `displayInShares = true` (share badges; what the V1 `getRecords` stamps) and
-  `accessRole =` the **session archive's role** from `CurrentArchivePermissionsManager` —
-  V2 children carry no per-item `accessRole` (gap 1), V1's do, and the record menu
-  degrades null to VIEWER (hiding Rename/Move/Copy/Delete). The session role reproduces
+  `displayInShares = true` (share badges; what the V1 `getRecords` stamps) and, on the
+  by-me tab, `accessRole =` the **session archive's role** from
+  `CurrentArchivePermissionsManager` — retained as shipped behavior after VSP-1802
+  showed the payload does carry a per-item role (own-archive items make both equivalent
+  after the menu's inferior-clamp). The session role reproduces
   V1 because `RecordMenuViewModel` clamps with `getInferior(archive role)` and own-archive
   item roles are never below the archive role; stamping OWNER would overstate permissions
   for Editor/Curator members. Header title uses the tapped folder's own `displayName`
@@ -245,6 +308,7 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 | `parentFolder { id, folderLinkId }` | **Folders nest** parent info here; **records send it flat** (`parentFolderId`/`parentFolderLinkId`). Resolve flat-then-nested. Added in stela PR #773. |
 | `paths { names, folderLinkIds, archiveNumbers }` | Full breadcrumb trail (stela PR #773). Android doesn't consume it (breadcrumbs are the client-side `folderPathStack`). |
 | `size` | Bytes; present on folders too. |
+| `accessRole` | **Top-level, caller-resolved, share-membership-aware** (short form, e.g. `"viewer"`) — stela computes least-permissive of caller-archive role and share role per pair, most permissive overall. Decoded since VSP-1802 (`ItemMapper.toRecordV2` → `AccessRole.fromStelaBackendValue`, dotted-form tolerant, absent clamps to VIEWER). Platform difference for cross-platform QA: iOS derives child roles by inheritance instead of this field. |
 | `shares[]` | `{ id, accessRole, status, archive { id, archiveNumber, name, thumbs } }`. **Populated for owner bearer requests** (verified live on staging 2026-07-23) — the earlier share-token capture's `null` was flavor-specific. Status filtering **differs by item kind** (2026-07-31): **record items** keep everything but deleted (`get_records.sql`), so `status.generic.pending` entries appear; **folder items** are filtered to `status.generic.ok` (`get_folders.sql`) — see gap 2. Feeds the shared/pending badge only — **item permissions stay archive-derived** (see gaps). |
 | `pendingShares[]` | `{ id, email, name, accessRole }` — pending **email invitations** only (`invite_share` table), and only for owner/manager callers. Pending **shares to existing archives** (`share` rows with `status.generic.pending`) ride in `shares[]` on **record items** but are absent from **both** arrays on **folder items** — see gap 2. |
 
@@ -292,20 +356,22 @@ share management — migrate opportunistically).
 
 With the flag ON, only one thing visibly breaks on Private Files: the **pending badge
 undercounts on FOLDER rows** (gap 2 below — record rows are fine, live-verified
-2026-07-31). Everything else falls back to V1 or is handled in the app. Gaps 1 and 2 are
-the same backend theme — *send complete share data on children* — so raise them as one
-ask, together with iOS's existing P2; for gap 2 the concrete ask is a one-line filter
-alignment (raised with the backend 2026-07-31). Gaps 3–6 break nothing today; they only
-block future migration tickets, and those surfaces simply stay on V1.
+2026-07-31). Everything else falls back to V1 or is handled in the app. What remains of
+gaps 1 and 2 is one backend theme — *send complete share/badge data on children* — with
+gap 2's concrete one-line filter ask already raised (2026-07-31); gap 1's `accessRole`
+half was resolved by decoding the existing payload field (VSP-1802). Gaps 3–6 break
+nothing today; they only block future migration tickets, and those surfaces simply stay
+on V1.
 
 ## Known backend gaps (as of 2026-07-23)
 
-1. **No per-item caller `accessRole`, incomplete `shares[]` on children of shared folders**
-   (descendants inside a shared tree carry none — the hydration SQL only aggregates direct
-   share rows). Blocks **Shared With Me** drill-in on both platforms; iOS P2 backend ask.
-   Own-archive browsing is unaffected (permissions are archive-derived) — which is why
-   **Shared By Me** could ship without it (VSP-1803 stamps the session archive's role
-   client-side; see its section above).
+1. **~~No per-item caller `accessRole`~~ — half resolved (VSP-1802, 2026-08-14):** the
+   top-level `accessRole` field on children IS present and share-membership-aware
+   (verified in the stela source; Android now decodes it — see the VSP-1802 section).
+   The earlier "missing accessRole" reports predate this finding. **What remains:**
+   `shares[]` on descendants inside a shared tree is still incomplete (the hydration SQL
+   only aggregates direct share rows), so the pending/share **badge** data on shared-tree
+   children is thin — display-only impact, same theme as gap 2.
 2. **V2 drops pending shares-to-archives on FOLDER items only — so the pending badge
    undercounts on folders.** *(Refined 2026-07-31 after backend follow-up + stela source
    verification; supersedes the earlier "in neither list for all items" wording.)*
@@ -402,3 +468,5 @@ block future migration tickets, and those surfaces simply stay on V1.
 | iOS gated by a "remote flag" | iOS's merged flag is a compile-time constant (Android mirrors: `FeatureFlags.useStelaMigration`) |
 | iOS status board: Public Files nav = "VSP-1809, shipped in PR #574" | Merged code: drill-in shipped in **PR #573** (inheritance); PR #574 is **VSP-1787** (V2 root discovery). Board lags/mislabels |
 | iOS artifacts: foreign public browsing "confirmed solvable, not yet wired" | Superseded — **PR #576** (merged 2026-07-29) wired it (drill-in V2, root stays V1 `getPublicRoot`) |
+| iOS artifacts + old gap 1: "V2 children carry no per-child caller `accessRole`" | The payload HAS a top-level share-aware `accessRole` (stela `resolveAccessRole`); the claim predates decoding it. Android decodes it since VSP-1802; iOS derives child roles by inheritance |
+| Access map: "share-membership foreign content ✗ on V2" | Wrong for READS — inferred from #576's PATCH (a write). Reads authorize via the `access` table, descendants included; corrected 2026-08-14 |
