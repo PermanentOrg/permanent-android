@@ -165,12 +165,13 @@ enum class AccessRole(val backendString: String) : Parcelable {
         }
 
         fun fromStelaBackendValue(accessRoleString: String?): AccessRole {
-            return when (accessRoleString) {
-                OWNER.lowerCase() -> OWNER
-                MANAGER.lowerCase() -> MANAGER
-                CURATOR.lowerCase() -> CURATOR
-                EDITOR.lowerCase() -> EDITOR
-                CONTRIBUTOR.lowerCase() -> CONTRIBUTOR
+            // Accepts the short V2 form ("viewer") and tolerates the dotted V1 form.
+            return when (accessRoleString?.substringAfterLast('.')) {
+                "owner" -> OWNER
+                "manager" -> MANAGER
+                "curator" -> CURATOR
+                "editor" -> EDITOR
+                "contributor" -> CONTRIBUTOR
                 else -> VIEWER
             }
         }

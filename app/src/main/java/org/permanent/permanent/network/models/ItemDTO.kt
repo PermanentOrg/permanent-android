@@ -25,6 +25,8 @@ data class ItemDTO(
     val thumbnailUrls: ThumbnailUrlsDTO? = null,
     val shares: List<ItemShareDTO>? = null,
     val pendingShares: List<PendingShareDTO>? = null,
+    // Caller-resolved per-item role (share-membership-aware), short form e.g. "viewer".
+    val accessRole: String? = null,
     // HEIC detection for the access-copy thumbnail fallback in ItemMapper; the
     // file names are the fallback signal when files[] is absent.
     val uploadFileName: String? = null,

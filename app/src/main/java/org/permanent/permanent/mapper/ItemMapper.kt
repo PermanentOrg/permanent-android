@@ -1,5 +1,6 @@
 package org.permanent.permanent.mapper
 
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
@@ -31,8 +32,8 @@ fun ItemDTO.toRecord(): Record {
 }
 
 /**
- * Maps a V2 /folders/{id}/children item for authenticated owner-workspace browsing —
- * Private Files (VSP-1778) and Public Files (VSP-1808). Kept separate from [toRecord]
+ * Maps a V2 /folders/{id}/children item for authenticated V2 navigation — Private and
+ * Public Files, gallery, search and Shares drill-ins. Kept separate from [toRecord]
  * so the share-preview path stays byte-identical while V2 navigation is gated behind
  * FeatureFlags.useStelaMigration.
  */
@@ -70,6 +71,9 @@ fun ItemDTO.toRecordV2(): Record {
         else -> !isFolder && rec.thumbnail256 == null && rec.thumbURL200 == null
     }
     rec.shares = buildShares(rec.folderLinkId)
+    // Caller-resolved per-item role. Absent clamps to VIEWER — V1 parity: a listed
+    // Record always carries a non-null role (every V1 constructor clamps the same way).
+    rec.accessRole = AccessRole.fromStelaBackendValue(accessRole)
 
     return rec
 }

@@ -57,7 +57,8 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     private lateinit var lifecycleOwner: LifecycleOwner
     private var refreshJob: Job? = null
 
-    // Only true on the Shared By Me tab — keeps Shared With Me on V1 (VSP-1803).
+    // Tab discriminator: by-me stamps the session archive role; with-me uses the
+    // payload accessRole.
     private var isSharedByMe = false
 
     // Only the newest children fetch may commit or fall back to V1. Main-thread only.
@@ -190,14 +191,11 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
             swipeRefreshLayout.isRefreshing = true
-            // Stela V2 drill-in (VSP-1803): by-me tab only, and the folder must belong
-            // to the SESSION archive — foreign content never enters a bearer-only V2
-            // call. V1 is the automatic failsafe.
+            // Stela V2 drill-in, both tabs: reads authorize server-side, share
+            // membership included — no ownership condition. V1 is the automatic
+            // failsafe.
             val folderId = folder.getFolderIdentifier()?.folderId
-            if (FeatureFlags.useStelaMigration && isSharedByMe
-                && folderId != null && folderId > 0
-                && archiveNr == prefsHelper.getCurrentArchiveNr()
-            ) {
+            if (FeatureFlags.useStelaMigration && folderId != null && folderId > 0) {
                 loadFilesOfV2(folder, sortType, forwardNavigation)
             } else {
                 loadFilesOfV1(folder, sortType)
@@ -260,12 +258,13 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
                 // V2 has no sort param — sort locally.
                 val sortedRecords = records.toMutableList()
                 sortType?.let { sortedRecords.sortWith(it.toComparator()) }
-                // V2 children carry no per-item accessRole — stamp the session
-                // archive's role for V1 menu parity; displayInShares mirrors getRecords().
+                // By-me overrides the payload role with the session archive's — retained
+                // shipped behavior, equivalent for own-archive content; with-me keeps
+                // the mapper's caller-resolved role.
                 val sessionAccessRole = CurrentArchivePermissionsManager.instance.getAccessRole()
                 sortedRecords.forEach {
                     it.displayInShares = true
-                    it.accessRole = sessionAccessRole
+                    if (isSharedByMe) it.accessRole = sessionAccessRole
                 }
                 existsFiles.value = sortedRecords.isNotEmpty()
                 onRecordsRetrieved.value = sortedRecords
