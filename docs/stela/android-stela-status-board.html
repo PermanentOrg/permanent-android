@@ -202,7 +202,7 @@
       <li class="item">
         <div class="row"><span class="name">Record rename · metadata edit</span><span class="pill st-todo">Not started</span></div>
         <code class="route">PATCH /v2/records/{id}</code>
-        <p class="note">Live on iOS behind their flag. Folder rename has no V2 route (see backend column).</p>
+        <p class="note">Live on iOS behind their flag. Folder rename has no V2 route (see backend column). Note for this ticket: shared-record PATCH currently 401s, but the backend confirmed (2026-08-17) share-permitted writes are intended to succeed — foreign writes may open up once the 401→403 fix ships.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Folder sort persistence · rename</span><span class="pill st-todo">Not started</span></div>
@@ -232,7 +232,7 @@
       <li class="group">Findings for future tickets — not scheduled yet</li>
       <li class="item">
         <div class="row"><span class="name">Complete <code>shares[]</code> on shared-tree children (badge data)</span><span class="pill st-block">Blocked</span></div>
-        <p class="note"><strong>Half resolved by VSP-1802 (2026-08-14):</strong> the per-item caller <code>accessRole</code> this ask originally covered <strong>already exists</strong> on children — top-level, share-membership-aware — and Android now decodes it (the earlier "missing" reports predate that finding). What remains: descendants inside a shared tree still return thin/empty <code>shares[]</code> (hydration SQL aggregates direct share rows only), so the shared/pending <strong>badge</strong> data is incomplete there — display-only impact, one theme with the badge row above.</p>
+        <p class="note"><strong>The accessRole half is delivered:</strong> shipped by the backend as <strong>PER-10716</strong> (stela PR #835, merged 2026-08-13, Jira Done), live-verified on staging (children capture 2026-08-14 — dotted form <code>access.role.viewer</code>, per-item, share-aware), decoded by Android since VSP-1802. What remains: descendants inside a shared tree still return thin/empty <code>shares[]</code> (hydration SQL aggregates direct share rows only), so the shared/pending <strong>badge</strong> data is incomplete there — display-only impact, one theme with the badge row above.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Folder creation</span><span class="pill st-block">Blocked</span></div>
@@ -253,11 +253,11 @@
       </li>
       <li class="item">
         <div class="row"><span class="name">Shares root list (<code>getShares</code>)</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">No V2 route (iOS's proposed <code>GET /v2/shares?direction=…</code> was never built). Drill-ins from <strong>both</strong> tabs are migrated (VSP-1803 + VSP-1802, left column) — the root listing is now the <em>last</em> V1 dependency of the Shares navigation surface. Ask: a V2 aggregate returning, per sharing archive, the shared items with identity (<code>folderId</code>/<code>recordId</code>, <code>folderLinkId</code>, owner archive ids), display fields, per-item caller <code>accessRole</code> (reuse <code>resolveAccessRole</code>) and share rows incl. pending status; <code>/folders/{id}/children</code> can't serve it — the root spans many foreign archives with no single parent folder. Pre-existing quirk noted during VSP-1803: the root listing only delivers non-empty lists, so a refresh returning zero shares leaves a stale list (separate ticket candidate).</p>
+        <p class="note"><strong>Half delivered (PER-10715, verified in stela source 2026-08-17):</strong> <code>GET /v2/archives/{id}/received-shares</code> now exists — cursor-paginated, per-item caller <code>accessRole</code>, sharing-archive summary — covering the <em>with-me</em> direction. <strong>Remaining asks:</strong> (1) <code>folderLinkId</code> + <code>archiveNumber</code> on its <code>ItemSummary</code> (the apps' navigation precondition and retained V1 writes — leave-share, relocation — key on them); (2) a <em>given</em>-direction counterpart for by-me. Drill-ins from both tabs are migrated (VSP-1803 + VSP-1802, left column); the root listing stays V1 <code>getShares</code> until those land — its migration is its own ticket. Pre-existing quirk noted during VSP-1803: the root listing only delivers non-empty lists, so a refresh returning zero shares leaves a stale list (separate ticket candidate).</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">401 reserved for expired/invalid tokens (403 for permission denials)</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">Needed before the <strong>V1 sunset</strong>: session expiry is detected only on the V1 host today (<code>UnauthorizedInterceptor</code>), which is what lets V2 401s degrade to the V1 failsafe — once V1 is gone, an expired session would never log out. The app-side fix is already implemented <em>dark</em> behind <code>FeatureFlags.treatStelaUnauthorizedAsSessionExpiry</code> (OFF in every build, 2026-08-13); flipping it requires the backend to stop answering 401 for bearer-only permission denials (known counterexample: iOS PR #576's <code>PATCH /api/v2/records/{id}</code> on a shared-with-me record). Full write-up: contract doc, gap 7.</p>
+        <div class="row"><span class="name">401 reserved for expired/invalid tokens (403 for permission denials)</span><span class="pill st-prog">Confirmed 2026-08-17</span></div>
+        <p class="note"><strong>Backend confirmed (Slack, 2026-08-17):</strong> 401 will be restricted to invalid tokens; the shared-record <code>PATCH /api/v2/records/{id}</code> answering 401 is acknowledged as a bug — it should be 403, or succeed outright when the share grants sufficient permissions. Waiting on the fix to ship; then re-verify the PR #576 reproducer on staging and flip <code>FeatureFlags.treatStelaUnauthorizedAsSessionExpiry</code> (implemented dark, OFF in every build). Context: session expiry is detected only on the V1 host today (<code>UnauthorizedInterceptor</code>), which is what lets V2 401s degrade to the V1 failsafe — once V1 is gone, an expired session would never log out. Full write-up: contract doc, gap 7.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Reliable pagination</span><span class="pill st-block">Blocked</span></div>
