@@ -31,8 +31,12 @@ drill-in); reuse for future Stela tickets instead of re-deriving.
 - **Per-item permissions come from the payload, not a stamp.** V2 children DO carry a
   top-level caller-resolved `accessRole` (share-membership-aware — stela computes
   least-permissive of caller-archive role and share role per pair, most permissive
-  overall). This is the field the earlier gap-1 notes reported missing — it was on the
-  wire all along. Platform difference to remember for cross-platform QA: iOS derives
+  overall). The field is new: delivered by **PER-10716** (stela PR #835, merged
+  2026-08-13 — the ★P1 mobile ask) and live on staging (capture 2026-08-14); the earlier
+  gap-1 "missing" reports were accurate until then. On the wire the children route sends
+  the **dotted** form (`access.role.viewer` — live capture), while the backend's own
+  folders-page test expects short `"viewer"`; the mapper's dot-tolerance covers both and
+  is therefore load-bearing. Platform difference to remember for cross-platform QA: iOS derives
   child roles by inheriting the entered folder's role (fail-closed to viewer); Android
   decodes the payload field in
   `ItemMapper.toRecordV2` (`AccessRole.fromStelaBackendValue`, short form, dotted-form
@@ -42,9 +46,15 @@ drill-in); reuse for future Stela tickets instead of re-deriving.
   `isCreateAvailable`/the record menu rely on that. The by-me tab overrides with the
   session archive's role — retained VSP-1803 behavior, equivalent for own-archive
   content, not a payload gap.
-- **The shares ROOT listing stays V1** (`POST share/getShares`) — no V2 aggregate route
-  exists on either platform; `/folders/{id}/children` cannot serve it because the root
-  spans many foreign archives with no single parent folder. Back-to-root and root
+- **The shares ROOT listing stays V1** (`POST share/getShares`) — at VSP-1802 time no V2
+  aggregate route existed; `/folders/{id}/children` cannot serve it because the root
+  spans many foreign archives with no single parent folder. *(Update 2026-08-17: the
+  backend shipped the with-me half as PER-10715 — `GET /v2/archives/{id}/received-shares`,
+  cursor-paginated, per-item caller `accessRole`, sharing-archive summary. Not adoptable
+  yet: its `ItemSummary` carries no `folderLinkId`/`archiveNumber` — our
+  `loadFilesOf` precondition and the retained V1 writes key on both — and there is no
+  given-direction counterpart for by-me. Root migration = its own ticket once those land.)*
+  Back-to-root and root
   pull-to-refresh re-enter V1 by construction (`onRootSharesNeeded` →
   `SharesFragment.requestShares`). This is the last V1 dependency of the Shares
   navigation surface — V1-sunset bucket, alongside gaps 5–6.
@@ -71,8 +81,10 @@ drill-in); reuse for future Stela tickets instead of re-deriving.
   inferred from iOS #576's PATCH, a write; reads authorize differently)*: own-archive
   content ✓ bearer-only V2 · public foreign content ✓ bearer-only V2 · share-membership
   foreign content **✓ for READS** (stela's hydration SQL checks the caller's `access`
-  rows, descendants included; see the VSP-1802 section) · foreign **writes** ✗ (strict
-  auth, rejected — keep them V1/own-archive-gated). Shared By Me is the first bucket
+  rows, descendants included; see the VSP-1802 section) · foreign **writes** ✗ today
+  (strict auth, rejected — keep them V1/own-archive-gated; the backend confirmed
+  2026-08-17 this is a bug and share-permitted writes are intended to succeed, gap 7).
+  Shared By Me is the first bucket
   **by construction**: `SharesViewModel.requestShares` splits by-me/with-me on
   `currentArchiveId == archive.archiveId` against the SESSION archive, so by-me items —
   and transitively their children — always belong to the session archive.
@@ -308,7 +320,7 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 | `parentFolder { id, folderLinkId }` | **Folders nest** parent info here; **records send it flat** (`parentFolderId`/`parentFolderLinkId`). Resolve flat-then-nested. Added in stela PR #773. |
 | `paths { names, folderLinkIds, archiveNumbers }` | Full breadcrumb trail (stela PR #773). Android doesn't consume it (breadcrumbs are the client-side `folderPathStack`). |
 | `size` | Bytes; present on folders too. |
-| `accessRole` | **Top-level, caller-resolved, share-membership-aware** (short form, e.g. `"viewer"`) — stela computes least-permissive of caller-archive role and share role per pair, most permissive overall. Decoded since VSP-1802 (`ItemMapper.toRecordV2` → `AccessRole.fromStelaBackendValue`, dotted-form tolerant, absent clamps to VIEWER). Platform difference for cross-platform QA: iOS derives child roles by inheritance instead of this field. |
+| `accessRole` | **Top-level, caller-resolved, share-membership-aware** — stela computes least-permissive of caller-archive role and share role per pair, most permissive overall. New field: delivered by PER-10716 (2026-08-13). **Wire form on children is DOTTED** (`access.role.viewer`, live capture 2026-08-14) though the backend test uses short `"viewer"` — the mapper's dot-tolerance handles both. Decoded since VSP-1802 (`ItemMapper.toRecordV2` → `AccessRole.fromStelaBackendValue`, absent clamps to VIEWER). Platform difference for cross-platform QA: iOS derives child roles by inheritance instead of this field. |
 | `shares[]` | `{ id, accessRole, status, archive { id, archiveNumber, name, thumbs } }`. **Populated for owner bearer requests** (verified live on staging 2026-07-23) — the earlier share-token capture's `null` was flavor-specific. Status filtering **differs by item kind** (2026-07-31): **record items** keep everything but deleted (`get_records.sql`), so `status.generic.pending` entries appear; **folder items** are filtered to `status.generic.ok` (`get_folders.sql`) — see gap 2. Feeds the shared/pending badge only — **item permissions stay archive-derived** (see gaps). |
 | `pendingShares[]` | `{ id, email, name, accessRole }` — pending **email invitations** only (`invite_share` table), and only for owner/manager callers. Pending **shares to existing archives** (`share` rows with `status.generic.pending`) ride in `shares[]` on **record items** but are absent from **both** arrays on **folder items** — see gap 2. |
 
@@ -365,10 +377,10 @@ on V1.
 
 ## Known backend gaps (as of 2026-07-23)
 
-1. **~~No per-item caller `accessRole`~~ — half resolved (VSP-1802, 2026-08-14):** the
-   top-level `accessRole` field on children IS present and share-membership-aware
-   (verified in the stela source; Android now decodes it — see the VSP-1802 section).
-   The earlier "missing accessRole" reports predate this finding. **What remains:**
+1. **~~No per-item caller `accessRole`~~ — the accessRole half is DELIVERED:** shipped
+   by the backend as **PER-10716** (stela PR #835, merged 2026-08-13; Jira Done), live
+   on staging (capture 2026-08-14), decoded by Android since VSP-1802 — see its section.
+   The earlier "missing" reports were accurate until that delivery. **What remains:**
    `shares[]` on descendants inside a shared tree is still incomplete (the hydration SQL
    only aggregates direct share rows), so the pending/share **badge** data on shared-tree
    children is thin — display-only impact, same theme as gap 2.
@@ -447,7 +459,14 @@ on V1.
    switch now would log users out on exactly the failures the failsafe exists to
    absorb (iOS's #576 bug, reintroduced on Android). **Ask:** confirm or change the
    401/403 split across `/api/v2/*`; then the rollout is one boolean flip.
-   Fallback options if the backend can't commit: a token-refresh `Authenticator`
+   **Backend answer (Slack, 2026-08-17, Liam): confirmed.** The intent is 401
+   strictly for invalid tokens; the shared-record PATCH answering 401 is acknowledged
+   as a bug — it should be **403**, or **no error at all when the share grants
+   sufficient permissions** (which also means shared-record writes over bearer V2 are
+   *intended* to work; revisit the write gates when the fix ships). The switch stays
+   OFF until the fix lands and is re-verified on staging (re-run the #576 reproducer);
+   then the rollout is the one boolean flip. Fallback options below are moot unless
+   the fix stalls: a token-refresh `Authenticator`
    (needs `/v2/idpuser/*` refresh support — unverified) or per-call exemption tags
    (iOS's `ignoreErrors` shape). Not urgent while any regularly-hit call is still V1
    (login, `getShares`, root discovery all are) — but a hard prerequisite for the V1
@@ -468,5 +487,6 @@ on V1.
 | iOS gated by a "remote flag" | iOS's merged flag is a compile-time constant (Android mirrors: `FeatureFlags.useStelaMigration`) |
 | iOS status board: Public Files nav = "VSP-1809, shipped in PR #574" | Merged code: drill-in shipped in **PR #573** (inheritance); PR #574 is **VSP-1787** (V2 root discovery). Board lags/mislabels |
 | iOS artifacts: foreign public browsing "confirmed solvable, not yet wired" | Superseded — **PR #576** (merged 2026-07-29) wired it (drill-in V2, root stays V1 `getPublicRoot`) |
-| iOS artifacts + old gap 1: "V2 children carry no per-child caller `accessRole`" | The payload HAS a top-level share-aware `accessRole` (stela `resolveAccessRole`); the claim predates decoding it. Android decodes it since VSP-1802; iOS derives child roles by inheritance |
+| iOS artifacts + old gap 1: "V2 children carry no per-child caller `accessRole`" | Was true when written — the field was delivered 2026-08-13 by PER-10716 (stela PR #835). Android decodes it since VSP-1802; iOS derives child roles by inheritance |
+| PER-10716 folders-page test: `accessRole` = short `"viewer"` | The children wire sends the **dotted** form `access.role.viewer` (live capture 2026-08-14); `AccessRole.fromStelaBackendValue`'s dot-tolerance covers both |
 | Access map: "share-membership foreign content ✗ on V2" | Wrong for READS — inferred from #576's PATCH (a write). Reads authorize via the `access` table, descendants included; corrected 2026-08-14 |
