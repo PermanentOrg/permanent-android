@@ -35,6 +35,7 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
+import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.ChecklistResponse
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
@@ -851,6 +852,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         folderId: Int,
         pageSize: Int = StelaAccountService.MAX_CHILDREN_PAGE_SIZE
     ): Call<FolderChildrenResponse> = stelaAccountService.getFolderChildrenV2(folderId, pageSize)
+
+    fun getArchivesV2(): Call<ArchivesV2Response> = stelaAccountService.getArchives()
 
     fun getRecordV2(recordId: Int): Call<RecordResponse> = stelaAccountService.getRecord(recordId)
 

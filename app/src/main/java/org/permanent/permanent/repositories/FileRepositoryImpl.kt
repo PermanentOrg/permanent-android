@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import okhttp3.MediaType
 import okhttp3.ResponseBody
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.mapper.toRecordV2
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -13,6 +15,7 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
+import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
@@ -42,13 +45,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         NetworkClient.instance().getRoot().enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
-                val publicRecord = responseVO?.getPublicRecord()
-                prefsHelper.savePublicRecordInfo(
-                    publicRecord?.folderId,
-                    publicRecord?.folderLinkId,
-                    publicRecord?.archiveNr,
-                    publicRecord?.thumbnail256 ?: publicRecord?.thumbURL2000
-                )
+                savePublicRecordInfo(responseVO?.getPublicRecord())
                 val myFilesRecord = responseVO?.getMyFilesRecord()
 
                 if (myFilesRecord != null) {
@@ -65,6 +62,106 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 listener.onFailed(t.message)
             }
         })
+    }
+
+    // Stela V2 replacement for the getRoot bootstrap (VSP-1788): the archives search
+    // carries the archive's rootFolderId, whose children are the section roots — so
+    // My Files is two V2 reads away. Any anomaly reports onFailed so the caller can
+    // run the V1 getRoot failsafe. isStale short-circuits a superseded load (rapid
+    // archive switch) before the second read and the prefs write.
+    override fun getMyFilesRecordV2(isStale: () -> Boolean, listener: IRecordListener) {
+        val currentArchiveNr = prefsHelper.getCurrentArchiveNr()
+        if (currentArchiveNr.isNullOrEmpty()) {
+            listener.onFailed(null)
+            return
+        }
+        NetworkClient.instance().getArchivesV2().enqueue(object : Callback<ArchivesV2Response> {
+
+            override fun onResponse(
+                call: Call<ArchivesV2Response>,
+                response: Response<ArchivesV2Response>
+            ) {
+                if (isStale()) {
+                    listener.onFailed(null)
+                    return
+                }
+                // The session holds archiveId as an Int, so archiveNbr is the stable
+                // string-to-string key (same matching iOS ships).
+                val rootFolderId = response.body()?.items
+                    ?.find { it.archiveNbr == currentArchiveNr }
+                    ?.rootFolderId?.toIntOrNull()?.takeIf { it > 0 }
+                if (rootFolderId == null) {
+                    // The message only feeds a DEBUG log in the caller; the V2 root
+                    // path always falls back to V1 instead of surfacing it.
+                    listener.onFailed(
+                        if (BuildConfig.DEBUG) response.errorBody()?.string() else null
+                    )
+                    return
+                }
+                getMyFilesRecordFromSectionRoots(rootFolderId, isStale, listener)
+            }
+
+            override fun onFailure(call: Call<ArchivesV2Response>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    private fun getMyFilesRecordFromSectionRoots(
+        rootFolderId: Int, isStale: () -> Boolean, listener: IRecordListener
+    ) {
+        // Reuses the children fetch so the section roots pass the same contract-failure
+        // and corrupt-item rules as every listed folder.
+        getChildRecordsOfV2(rootFolderId, object : IFolderChildrenListener {
+
+            override fun onSuccess(records: List<Record>) {
+                if (isStale()) {
+                    listener.onFailed(null)
+                    return
+                }
+                // Same side effect as the V1 getRoot path: these prefs are the sole
+                // source for publish-to-Public and the profile banner (null fields
+                // are skipped, so a missing child leaves them untouched).
+                savePublicRecordInfo(
+                    findSectionRoot(
+                        records, Constants.PUBLIC_FILES_FOLDER_TYPE, Constants.PUBLIC_FILES_FOLDER
+                    )
+                )
+                val myFilesRecord = findSectionRoot(
+                    records, Constants.MY_FILES_FOLDER_TYPE, Constants.MY_FILES_FOLDER
+                )
+                if (myFilesRecord != null) {
+                    listener.onSuccess(myFilesRecord)
+                } else {
+                    listener.onFailed(null)
+                }
+            }
+
+            override fun onFailed(error: String?) {
+                listener.onFailed(error)
+            }
+        })
+    }
+
+    // Type-first with a display-name safety net (iOS parity), and folders only — a
+    // record named like a section must not be picked. Live staging sends the short
+    // types "private-root"/"public-root" (captured 2026-08-20), normalized by the
+    // mapper to the canonical dotted-hyphen form.
+    private fun findSectionRoot(
+        records: List<Record>, sectionType: String, fallbackDisplayName: String
+    ): Record? {
+        val folders = records.filter { it.type == RecordType.FOLDER }
+        return folders.find { it.backendType == sectionType }
+            ?: folders.find { it.displayName == fallbackDisplayName }
+    }
+
+    private fun savePublicRecordInfo(publicRecord: Record?) {
+        prefsHelper.savePublicRecordInfo(
+            publicRecord?.folderId,
+            publicRecord?.folderLinkId,
+            publicRecord?.archiveNr,
+            publicRecord?.thumbnail256 ?: publicRecord?.thumbURL2000
+        )
     }
 
     override fun getPublicRoot(archiveNr: String?, listener: IRecordListener) {

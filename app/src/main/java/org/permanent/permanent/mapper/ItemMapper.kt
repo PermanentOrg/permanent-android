@@ -92,12 +92,13 @@ private fun ItemDTO.isHeicOriginal(): Boolean {
     return name.endsWith(".heic") || name.endsWith(".heif")
 }
 
-// Folders answer with new short type forms ("private", "root.private"…) while records
+// Folders answer with new short type forms ("private", "private-root"…) while records
 // keep the legacy dotted forms ("type.record.image"). Normalize folders back to the
-// dotted form so downstream consumers and the type sort see V1-shaped values.
+// dotted form so downstream consumers and the type sort see V1-shaped values;
+// underscore spellings are canonicalized to hyphens here (iOS tolerates both too).
 private fun ItemDTO.normalizedBackendType(isFolder: Boolean): String? = when {
     type == null -> null
-    isFolder && !type.startsWith("type.") -> "type.folder.$type"
+    isFolder && !type.startsWith("type.") -> "type.folder.${type.replace('_', '-')}"
     else -> type
 }
 

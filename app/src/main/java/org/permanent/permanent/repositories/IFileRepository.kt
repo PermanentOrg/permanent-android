@@ -23,6 +23,8 @@ import java.util.Date
 interface IFileRepository {
     fun getMyFilesRecord(listener: IRecordListener)
 
+    fun getMyFilesRecordV2(isStale: () -> Boolean, listener: IRecordListener)
+
     fun getPublicRoot(archiveNr: String?, listener: IRecordListener)
 
     fun getChildRecordsOf(

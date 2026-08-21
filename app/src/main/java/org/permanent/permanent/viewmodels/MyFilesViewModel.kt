@@ -67,6 +67,9 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     // Monotonic id of the newest V2 children fetch; only the newest may commit and
     // superseded fetches complete quietly (see loadFilesOfV2). Touched on main only.
     private var childrenFetchGeneration = 0
+
+    // Same guard for root loads (see loadRootFilesV2). Touched on main only.
+    private var rootLoadGeneration = 0
     private val isRoot = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
@@ -133,6 +136,14 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     open fun loadRootFiles() {
+        if (FeatureFlags.useStelaMigration) {
+            loadRootFilesV2()
+        } else {
+            loadRootFilesV1()
+        }
+    }
+
+    private fun loadRootFilesV1() {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.getMyFilesRecord(object : IRecordListener {
             override fun onSuccess(record: Record) {
@@ -147,6 +158,51 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
                 error?.let { showMessage.value = it }
             }
         })
+    }
+
+    // Stela V2 root discovery (VSP-1788), with V1 getRoot as the automatic failsafe
+    // (whose record carries folderId, so drill-in stays on V2). Only the newest root
+    // load may commit: the archive-changed observer re-fires this on a live ViewModel,
+    // so an out-of-order response — or its V1 failsafe — could otherwise paint the
+    // previous archive's root.
+    private fun loadRootFilesV2() {
+        swipeRefreshLayout.isRefreshing = true
+        val generation = ++rootLoadGeneration
+        val isStale = { generation != rootLoadGeneration }
+        fileRepository.getMyFilesRecordV2(isStale, rootLoadListener(generation) { error ->
+            if (BuildConfig.DEBUG) Log.d(
+                TAG, "V2 root resolution failed ($error), falling back to V1 getRoot"
+            )
+            fileRepository.getMyFilesRecord(rootLoadListener(generation) { fallbackError ->
+                swipeRefreshLayout.isRefreshing = false
+                fallbackError?.let { showMessage.value = it }
+            })
+        })
+    }
+
+    // Commits only while still the newest root load; a superseded one must neither
+    // commit nor run its failsafe out of order.
+    private fun rootLoadListener(
+        generation: Int, onFailure: (String?) -> Unit
+    ) = object : IRecordListener {
+        override fun onSuccess(record: Record) {
+            if (generation == rootLoadGeneration) commitRootRecord(record)
+        }
+
+        override fun onFailed(error: String?) {
+            if (generation == rootLoadGeneration) onFailure(error)
+        }
+    }
+
+    private fun commitRootRecord(record: Record) {
+        swipeRefreshLayout.isRefreshing = false
+        // Reset instead of push: a root load on a surviving ViewModel (archive switch
+        // from the Save-to-Permanent sheet) must not leave the previous archive's root
+        // reachable through back navigation.
+        folderPathStack.clear()
+        folderPathStack.push(record)
+        loadFilesAndUploadsOf(record, forwardNavigation = true)
+        loadEnqueuedDownloads(lifecycleOwner)
     }
 
     fun setExistsDownloads(existsDownloads: MutableLiveData<Boolean>) {
