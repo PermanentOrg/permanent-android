@@ -2,7 +2,9 @@ package org.permanent.permanent.network
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Tags
+import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.FolderResponse
 import org.permanent.permanent.network.models.RecordResponse
@@ -49,6 +51,16 @@ interface StelaAccountService {
         @Query("pageSize") pageSize: Int = 99999999
     ): Call<FolderChildrenResponse>
 
+    // The caller's archive memberships; items[].rootFolderId replaces the V1 getRoot
+    // bootstrap (VSP-1788). Repeated (unbracketed) callerMembershipRole params — the
+    // form the server's own nextPage emits; Retrofit renders a List @Query that way.
+    @Headers("Request-Version: 2")
+    @GET("api/v2/archives")
+    fun getArchives(
+        @Query("callerMembershipRole") roles: List<String> = ALL_MEMBERSHIP_ROLES,
+        @Query("pageSize") pageSize: Int = ARCHIVES_PAGE_SIZE
+    ): Call<ArchivesV2Response>
+
     // Bearer-token flavor for browsing the user's own archive (VSP-1778), on the
     // documented plural route (the singular form above is a deprecated alias).
     @Headers("Request-Version: 2")
@@ -90,5 +102,12 @@ interface StelaAccountService {
         // single page (cursor pagination deferred — nextCursor is non-null even on a
         // complete page, so loop termination is unreliable). Same value iOS ships.
         const val MAX_CHILDREN_PAGE_SIZE = 99999999
+
+        // The archives search requires a query or a role; passing every role resolves
+        // the selected archive whatever the caller's role on it. One page sized above
+        // any realistic membership count — more archives than that falls back to the
+        // V1 getRoot bootstrap. Same values iOS ships.
+        val ALL_MEMBERSHIP_ROLES = AccessRole.values().map { it.lowerCase() }
+        const val ARCHIVES_PAGE_SIZE = 100
     }
 }

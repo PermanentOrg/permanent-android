@@ -109,7 +109,7 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-08-14</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-08-19</strong> · edit by hand, one item per surface.
   Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
 </header>
 
@@ -153,6 +153,11 @@
         <p class="note">VSP-1802 · tap a folder shared <em>with</em> you (foreign archive) → V2 listing, same funnel/mapper/failsafe/supersede as by-me · gate is <code>useStelaMigration && folderId &gt; 0</code>, <strong>no ownership condition</strong> — bearer-only V2 reads resolve share membership server-side (verified in the stela source; iOS shipped the same in PR #574) · per-item permissions decoded from the payload's top-level <code>accessRole</code> (share-aware), null clamped to VIEWER · caveat: unauthorized children are <strong>silently omitted</strong> from a 200 listing (reads never 401 on auth) · the shares <em>root listing</em> stays V1 <code>getShares</code> (see backend column).</p>
       </li>
       <li class="item">
+        <div class="row"><span class="name">Root discovery — My Files</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/archives → rootFolderId → /children → private-root child</code>
+        <p class="note">VSP-1788 · replaces the V1 <code>getRoot</code> bootstrap (iOS's VSP-1787): match <code>items[].archiveNbr</code> to the session archive, list the root's children, pick the <code>private-root</code> child (live-verified spelling; display-name fallback) · nothing cached — re-resolved per root load, newest-only commit + path-stack reset on archive switch · V1 <code>getRoot</code> stays the failsafe and the flag-off path · the same children refill the public-record prefs (publish/banner) · live-verified 2026-08-19: <code>archive/change</code> carries no root id.</p>
+      </li>
+      <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
         <code class="route">GET /v2/folder/{id}/children (share token)</code>
         <p class="note">Pre-VSP-1778 · still on the singular alias route — move to plural opportunistically.</p>
@@ -190,9 +195,9 @@
     </div>
     <ul>
       <li class="item">
-        <div class="row"><span class="name">Root discovery (My Files + Public Files)</span><span class="pill st-todo">Not started</span></div>
-        <code class="route">GET /v2/archives → rootFolderId → /children → section-root child</code>
-        <p class="note">VSP-1778/VSP-1808 keep V1 <code>getRoot</code>/<code>getPublicRoot</code> as bootstrap; the archives chain is iOS's VSP-1787 (PR #574), which resolves both section roots — one future ticket covers both.</p>
+        <div class="row"><span class="name">Root discovery (Public Files)</span><span class="pill st-todo">Not started</span></div>
+        <code class="route">GET /v2/archives → rootFolderId → /children → public-root child</code>
+        <p class="note">VSP-1808 keeps V1 <code>getPublicRoot</code> as the own-archive bootstrap; VSP-1788 shipped the archives chain for My Files and its resolver already picks the public-root child (prefs side effect) — this ticket is the <code>PublicFilesViewModel</code> hookup. Foreign archives (gallery) can never migrate: /v2/archives is membership-scoped.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Record detail · viewer reads</span><span class="pill st-todo">Not started</span></div>

@@ -5,8 +5,63 @@ updated 2026-07-30 against PRs #574/#575/#576/#580, and 2026-08-14 against iOS D
 `808aea6` + the stela source itself for VSP-1802), live production captures (2026-07-22),
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
 Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery),
-VSP-1806 (Search drill-in), VSP-1803 (Shared By Me drill-in) and VSP-1802 (Shared With Me
-drill-in); reuse for future Stela tickets instead of re-deriving.
+VSP-1806 (Search drill-in), VSP-1803 (Shared By Me drill-in), VSP-1802 (Shared With Me
+drill-in) and VSP-1788 (root resolution); reuse for future Stela tickets instead of
+re-deriving.
+
+## Root resolution — My Files (VSP-1788)
+
+Replaces the V1 `folder/getroot` bootstrap: with the flag on, the private root is
+discovered from Stela reads only. Verified against iOS Development (`ArchiveV2Endpoint`,
+`MyFilesViewModel.resolveSectionRootTargetV2`, wire shape pinned in
+`FilesViewModelTests.swift:2224`) and a live staging capture (2026-08-19).
+
+- **The chain (2 reads, then the existing listing):**
+  `GET api/v2/archives?callerMembershipRole=owner&…&callerMembershipRole=viewer&pageSize=100`
+  (header `Request-Version: 2`, bearer auth) → match `items[].archiveNbr` string-to-string
+  against the session's current archive (`PreferencesHelper.getCurrentArchiveNr()`) →
+  `items[].rootFolderId` (numeric string, a **V2 folderId**, directly usable) →
+  `GET api/v2/folders/{rootFolderId}/children` → the children are the **section roots**,
+  short types `app-root` / `private-root` / `public-root` (live capture 2026-08-20 —
+  the iOS spellings, NOT the `root.private` form previously assumed from the field-notes
+  table); pick the private root (`type.folder.private-root` after mapper normalization,
+  underscore spelling tolerated like iOS, display-name `"My Files"` as the safety net,
+  folders only) → that child seeds the existing V2 navigation.
+- **Query form:** repeated unbracketed `callerMembershipRole=` params (the form the
+  server's own `nextPage` emits — NOT `[]`-bracketed, NOT comma-joined). All 6 roles are
+  passed because the endpoint requires a query or a role. Both pinned by iOS unit tests.
+- **Live archives payload (staging, 2026-08-20):** items carry, beyond the 7 fields
+  Android decodes, `description`, `public`, `publicAt`, `allowPublicDownload`,
+  `thumbnailUrls`, `owner`, `payerAccountId`, `milestoneSortOrder`, `createdAt`,
+  `updatedAt`, `totalPages` — ignored by Moshi. Quirk: `pagination.nextPage` points at
+  `/api/v2/archive` (singular) — irrelevant while pagination stays unused, but don't
+  trust that URL if cursor paging is ever adopted.
+- **`archive/change` does NOT carry a root id — live-verified 2026-08-19.** The ticket
+  hypothesized it would; the raw staging response has `ChildFolderVOs`/`FolderSizeVOs`/
+  `RecordVOs`/`ItemVOs` all `[]` and no root-folder scalar (fields beyond our Kotlin
+  model: `milestoneSortOrder`, `vaultKey`, `allowPublicDownload`, `payerAccountId`,
+  `view`, `viewProperty`, `imageRatio`, `publicDT`, `thumbDT`). The web-app likewise calls
+  `/folder/getRoot` right after `/archive/change`. The archives search is the only source.
+- **Refresh semantics: nothing is cached** (iOS parity). The 2-call discovery re-runs on
+  every root load — My Files screen open and the archive-changed observer. Only the newest
+  root load may commit (`rootLoadGeneration` in `MyFilesViewModel`), and a commit resets
+  `folderPathStack` so a switch on a live ViewModel can't leak the previous archive's root
+  into back navigation.
+- **V1 failsafe unchanged:** any anomaly (archives fetch fails, no archiveNbr match — e.g.
+  >100 memberships, missing/non-positive `rootFolderId`, children contract failure, no
+  section-root child) falls back to V1 `getRoot`, whose record still carries `folderId` so
+  drill-in stays on V2. Flag off runs the V1 path byte-for-byte. A discovery 401 can never
+  logout (`treatStelaUnauthorizedAsSessionExpiry` stays off).
+- **Hidden second job preserved:** V1 `getRoot` was the sole writer of the
+  `PREFS_PUBLIC_RECORD_*` keys (publish-to-Public + profile banner). The V2 path finds the
+  public section root (`public-root`, fallback name `"Public"`) among the same archive-root
+  children and writes the same prefs through the same helper, which skips null fields — so
+  a missing child leaves working prefs untouched on both paths. A superseded root load
+  (rapid archive switch) is short-circuited in the repository before the prefs write, so a
+  stale response can't stamp the outgoing archive's public root.
+- **`getPublicRoot` is out of scope and stays V1** — own-archive Public Files could ride
+  this same resolver in a future ticket; foreign archives can never use it (`/archives` is
+  membership-scoped).
 
 ## Shared With Me → folder drill-in (VSP-1802)
 
@@ -315,7 +370,7 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 | `archiveNumber` | Non-numeric string (e.g. `"0001-test"`) — **never** int-convert. Also available nested as `archive.archiveNumber`. |
 | `displayName` | Same as V1. |
 | `displayDate` / `displayTimestamp` | Split by kind: **records → `displayDate`**, **folders → `displayTimestamp`** (ISO-8601). Normalize with the existing `replace("T", " ")`. `fileCreatedAt`, `createdAt`, `updatedAt` also present. |
-| `type` | **Records keep dotted legacy forms** (`type.record.image`); **folders answer new short forms** (`private`, `root.private`…). Android normalizes folders back to `type.folder.<short>` in the mapper so downstream consumers see V1-shaped values. Confirmed intentional server-side (`prettifyFolderType` in stela). |
+| `type` | **Records keep dotted legacy forms** (`type.record.image`); **folders answer new short forms** (`private`; section roots are `private-root`/`public-root`/`app-root` — live-verified 2026-08-20, the earlier `root.private` example here was wrong). Android normalizes folders back to `type.folder.<short>` in the mapper so downstream consumers see V1-shaped values. Confirmed intentional server-side (`prettifyFolderType` in stela). |
 | `status` | Same split: records dotted (`status.generic.ok`), folders short (`ok`, `copying`, `moving`). `copying`/`moving` → item non-tappable (`isProcessing`). There is **no `thumbStatus`** — a file with no thumbnails yet is treated as still processing (same derivation as the shares screen's `Record(ItemVO)`). |
 | `parentFolder { id, folderLinkId }` | **Folders nest** parent info here; **records send it flat** (`parentFolderId`/`parentFolderLinkId`). Resolve flat-then-nested. Added in stela PR #773. |
 | `paths { names, folderLinkIds, archiveNumbers }` | Full breadcrumb trail (stela PR #773). Android doesn't consume it (breadcrumbs are the client-side `folderPathStack`). |
@@ -488,5 +543,7 @@ on V1.
 | iOS status board: Public Files nav = "VSP-1809, shipped in PR #574" | Merged code: drill-in shipped in **PR #573** (inheritance); PR #574 is **VSP-1787** (V2 root discovery). Board lags/mislabels |
 | iOS artifacts: foreign public browsing "confirmed solvable, not yet wired" | Superseded — **PR #576** (merged 2026-07-29) wired it (drill-in V2, root stays V1 `getPublicRoot`) |
 | iOS artifacts + old gap 1: "V2 children carry no per-child caller `accessRole`" | Was true when written — the field was delivered 2026-08-13 by PER-10716 (stela PR #835). Android decodes it since VSP-1802; iOS derives child roles by inheritance |
-| PER-10716 folders-page test: `accessRole` = short `"viewer"` | The children wire sends the **dotted** form `access.role.viewer` (live capture 2026-08-14); `AccessRole.fromStelaBackendValue`'s dot-tolerance covers both |
+| PER-10716 folders-page test: `accessRole` = short `"viewer"` | Resolved 2026-08-20: stela **main** now emits the short form for the caller-level `accessRole` on folder/record/children responses (`resolveAccessRole` returns `ArchiveMembershipRole` — source-verified), but **staging still sends dotted** (live capture 2026-08-20) — the deploy is pending. Web adapted ahead of it (web-app PR #1139). Android is safe both ways: `fromStelaBackendValue`'s dot-tolerance parses both forms, and **released** Android builds don't decode the field at all (master's ItemDTO/RecordResponse/FolderResponse have no caller accessRole; Moshi drops unknown keys). `pendingShares[].accessRole` and `shares[].accessRole` are raw DB passthrough (dotted) — NOT routed through `resolveAccessRole`, so they don't change with this deploy; their parsers clamp unknowns to VIEWER anyway |
 | Access map: "share-membership foreign content ✗ on V2" | Wrong for READS — inferred from #576's PATCH (a write). Reads authorize via the `access` table, descendants included; corrected 2026-08-14 |
+| VSP-1788 ticket: "the call to change archives should return the rootFolderId" | It does not — live staging capture 2026-08-19 shows no root identity anywhere in the `archive/change` response; the source is `GET /v2/archives` `items[].rootFolderId` |
+| Field-notes short-form example `root.private` for section roots | Wrong — live staging (2026-08-20) sends `private-root`/`public-root`/`app-root`, matching iOS's `FileType.fromV2` spellings. Android matches `type.folder.private-root` post-normalization (underscore tolerated), display name as safety net |
