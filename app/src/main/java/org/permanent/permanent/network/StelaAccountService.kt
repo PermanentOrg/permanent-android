@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.ArchivesV2Response
+import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.FolderResponse
 import org.permanent.permanent.network.models.RecordResponse
@@ -30,6 +31,14 @@ interface StelaAccountService {
     @Headers("Request-Version: 2")
     @GET("api/v2/records/{recordId}")
     fun getRecord(@Path("recordId") recordId: Int): Call<RecordResponse>
+
+    // Response deliberately not decoded — success is the 2xx; the copy surfaces via refetch.
+    @Headers("Request-Version: 2")
+    @POST("api/v2/records/{recordId}/copies")
+    fun copyRecord(
+        @Path("recordId") recordId: Int,
+        @Body body: CopyRecordV2Request
+    ): Call<Void>
 
     @Headers("Request-Version: 2")
     @GET("api/v2/folder")

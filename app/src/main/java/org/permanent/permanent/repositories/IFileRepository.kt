@@ -96,6 +96,7 @@ interface IFileRepository {
     fun relocateRecords(
         records: MutableList<Record>,
         destFolderLinkId: Int,
+        destFolderId: Int,
         relocationType: ModificationType,
         listener: IResponseListener
     )

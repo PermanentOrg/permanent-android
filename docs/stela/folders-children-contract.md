@@ -1,4 +1,4 @@
-# Android · Stela V2 — GET /v2/folders/{id}/children (verified contract)
+# Android · Stela V2 — verified contracts (folders children · record copy)
 
 Verified against the merged iOS implementation (permanent-ios PR #573, commit `38d9622`;
 updated 2026-07-30 against PRs #574/#575/#576/#580, and 2026-08-14 against iOS Development
@@ -393,7 +393,9 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
   per iOS PR #575, replacing the earlier "never use" rule)*: it is the Archivematica
   access-copy thumbnail, blank for HEIC originals (white square). The `.thumb.wNNN` renditions
   always win — but a record created via the Stela V2 copies endpoint gets **no** renditions
-  (backend gap), so the access copy is the only thumbnail it has. Android
+  (backend gap), so the access copy is the only thumbnail it has — **and live QA
+  (2026-08-24, records 90925/90926) showed even that is missing: see the copy section's
+  thumbnail paragraph; V2 copies currently get no thumbnail at all, on any client**. Android
   (`ItemMapper.accessCopyThumb256`) uses it as the final fallback in the 200 slot, guarded by
   HEIC detection (`files[]` original format/type first, `uploadFileName`/`downloadName`
   suffix fallback). The 256/blur slot stays flat-`thumbnail256`-only, matching iOS
@@ -418,6 +420,85 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 `displayName`, `shares[]`, `pendingShares[]`). Same headers. The singular `/folder` form is
 the deprecated alias (Android's existing `StelaAccountService.getFolder` still uses it for
 share management — migrate opportunistically).
+
+## Record copy — POST /v2/records/{id}/copies (VSP-1790, verified 2026-08-24)
+
+The first V2 **write** on the file surface. Verified against iOS `Development` (#575's copy
+work, intact through the #587 merge — later PRs only changed the flag default and V1 HEIC
+guards) and the stela `main` source (`packages/api/src/record/service.ts`); the published
+stela docs page omits the request/response schema entirely.
+
+**Request** — `POST api/v2/records/{recordId}/copies`, headers `Content-Type:
+application/json` + `Request-Version: 2` + bearer, no share token. Body is exactly one key:
+
+```json
+{ "destinationFolderId": "42" }
+```
+
+The destination **folderId** (not `folder_linkId`, not `archiveNbr`) as a numeric string —
+iOS pins the one-key body in a unit test. One request per record, **serial**; there is no
+batch form and no folder-copy route (folders stay V1). Android: `StelaAccountService.copyRecord`
+via `NetworkClient.copyRecordV2`, body model `CopyRecordV2Request`.
+
+**Response** — `200` with `{ "data": <full V2 record> }`, but neither platform decodes it:
+success is the 2xx alone, and the pasted item surfaces through the normal destination-folder
+refetch. Errors use the standard V2 envelope: `400` (incl. "Not enough storage to make a
+copy"), `403`, `404`, `500`.
+
+**Why V2**: the copy runs in **one DB transaction** server-side (storage check + copy), so a
+failed copy leaves nothing behind — the fix for V1's orphaned invisible files (PER-10599).
+
+**Source eligibility (client gate, both platforms)** — records only, `recordId > 0`, and the
+record's archive must be the **session archive**. The server requires Owner on the *origin*
+archive for cross-archive copies, so shared-with-me / shared-by-me / public-gallery foreign
+sources 403 on V2 and stay V1 (the #582 foreign relaxation covered reads only). Android gates
+in `FileRepositoryImpl.isEligibleForStelaCopy` against `prefsHelper.getCurrentArchiveId()` —
+deliberately *not* iOS's `currentArchive` predicate, which reads the *viewed* archive and is
+a known latent bug (#576 fixed the same class for rename via `isInSessionArchive`; copy was
+never migrated). Destination side, the server wants Curator+ — **Manager+ when the
+destination is the public or app workspace** (affects publish; QA with a Curator).
+
+**Failure semantics — no failsafe, ever.** This write inverts the navigation tickets' V1
+failsafe rule: an ambiguous V2 failure (timeout after the server committed) retried on V1
+would duplicate the copy. Both platforms: no V1 fallback, no retry, all failures collapse to
+the generic error, refresh shows server truth. Multi-select is best-effort serial (a failed
+item doesn't abort the rest); the aggregate reports success only if every item succeeded.
+The POST carries **no idempotency key**, so a blind client retry after a timeout can
+duplicate — open backend question. Mixed selections split: eligible records → V2 serial,
+folders + foreign items → one V1 batch after them. PUBLISH rides the same routing (it is a
+copy into the public workspace; destination folderId from `getPublicRecordFolderId()`,
+0/missing → pure V1). MOVE never touches V2.
+
+**Fresh-copy thumbnails — worse than documented (live-verified 2026-08-24, staging,
+records 90925/90926).** A V2-copied record gets **no thumbnail at all, permanently** —
+not "no renditions until processing finishes". The copy POST's own 200 response and every
+later children refetch (+1 min, +4 min) return `status.generic.ok` with all five
+`thumbnailUrls` slots, all flat `thumbUrl*` fields and `thumbnail256` **empty**, and
+`files[]` holding only the copied original. The web app shows no thumbnail for the copy
+either — this is server-side, source-verified in stela `main`: `copy_record.sql`'s record
+INSERT **omits every `thumburl*`/`thumbnail256` column**, its file INSERT copies only the
+`file.format.original` row (no access copy), the `file` `copy` event row is audit-only,
+and the `access_copy_attacher` is an S3-upload-triggered Lambda that never fires for
+copies. Nothing regenerates the missing thumbnails. Consequences: Android's
+"file without thumbnail = still processing" rule leaves the pasted copy a **permanent
+spinner and non-tappable** (worse than web's blank slot) — QA-blocking for VSP-1790;
+backend ask raised (copy the thumb columns from the source record — same bytes, same
+renditions — or enqueue regeneration for copies). Re-verified 2026-08-25: record 90925
+still had zero thumbnails 26+ hours after creation. **Client mitigation designed,
+deferred (2026-08-26)**: the copy's original file *is* viewable (`FileData` falls back
+to the original when no access copy exists; the progressive viewer's S5 state handles
+the missing thumbnail), so tap can be re-enabled by splitting `isProcessing` — spinner
+stays, a new `Record.isTapBlocked` (true on V2 only for `copying`/`moving` status,
+mirrors `isProcessing` on V1) feeds the three `onRecordClick` guards. Trade-off: also
+un-blocks mid-processing fresh uploads on flag-on listings. Android otherwise keeps its V1 paste
+surfacing (optimistic insert + one 3 s refresh, no iOS-style polling — decision
+2026-08-24).
+
+**401 divergence (deliberate)** — iOS treats a copy 401 as real session expiry
+(`ignoreErrors=false` on writes; safety comes from their gate). Android's
+`UnauthorizedInterceptor` never treats Stela-host 401s as expiry while
+`treatStelaUnauthorizedAsSessionExpiry` is false, so a V2 copy 401 surfaces as an ordinary
+error and can never log the user out — strictly safer, revisit with gap 7's switch.
 
 ## Impact summary (updated 2026-07-31)
 

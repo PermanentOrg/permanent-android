@@ -37,6 +37,7 @@ import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.ChecklistResponse
+import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.FolderResponse
@@ -856,6 +857,9 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun getArchivesV2(): Call<ArchivesV2Response> = stelaAccountService.getArchives()
 
     fun getRecordV2(recordId: Int): Call<RecordResponse> = stelaAccountService.getRecord(recordId)
+
+    fun copyRecordV2(recordId: Int, destinationFolderId: Int): Call<Void> =
+        stelaAccountService.copyRecord(recordId, CopyRecordV2Request(destinationFolderId.toString()))
 
     fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =
         stelaAccountService.getFolder(shareToken, folderId)

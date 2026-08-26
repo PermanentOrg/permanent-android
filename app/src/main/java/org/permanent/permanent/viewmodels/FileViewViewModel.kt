@@ -429,6 +429,7 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
             fileRepository.relocateRecords(
                 mutableListOf(record),
                 folderLinkId,
+                prefsHelper.getPublicRecordFolderId(),
                 ModificationType.PUBLISH,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {

@@ -109,7 +109,7 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-08-19</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-08-24</strong> · edit by hand, one item per surface.
   Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
 </header>
 
@@ -156,6 +156,11 @@
         <div class="row"><span class="name">Root discovery — My Files</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">GET /v2/archives → rootFolderId → /children → private-root child</code>
         <p class="note">VSP-1788 · replaces the V1 <code>getRoot</code> bootstrap (iOS's VSP-1787): match <code>items[].archiveNbr</code> to the session archive, list the root's children, pick the <code>private-root</code> child (live-verified spelling; display-name fallback) · nothing cached — re-resolved per root load, newest-only commit + path-stack reset on archive switch · V1 <code>getRoot</code> stays the failsafe and the flag-off path · the same children refill the public-record prefs (publish/banner) · live-verified 2026-08-19: <code>archive/change</code> carries no root id.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Copy — records (paste &amp; publish)</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">POST /v2/records/{id}/copies</code>
+        <p class="note">VSP-1790 · first V2 write on the file surface — atomic server-side (one transaction), so a failed copy leaves no orphaned storage (PER-10599) · eligible = session-archive records only, one serial request per record; folders, foreign sources (shares / public gallery) and MOVE stay V1; mixed selections split (records → V2, rest → one V1 batch after) · publish rides the same routing (copy into the public workspace) · <strong>no V1 failsafe, no retry — deliberate</strong>: an ambiguous failure retried on V1 would duplicate the copy · destination = <code>folderId</code> as numeric string · response deliberately not decoded (pasted item surfaces via the normal refresh) · a copy 401 errors without logout (interceptor is V1-host-scoped) · <strong>QA blocker found 2026-08-24:</strong> V2 copies get <strong>no thumbnail at all, permanently</strong> (backend gap — see backend column) → the pasted item is a non-tappable spinner on Android, blank on web.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
@@ -245,8 +250,8 @@
         <p class="note">Verified in stela docs + iOS PR #573. Stays on V1 <code>folder/post</code>; blocks the VSP-1778 follow-up ticket.</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">Relocate · copy · move · delete</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">No V2 routes. V1 writes key on <code>folder_linkId</code> + <code>archiveNbr</code> — why V2 children must keep shipping both.</p>
+        <div class="row"><span class="name">Relocate · move · delete · folder copy</span><span class="pill st-block">Blocked</span></div>
+        <p class="note">No V2 routes (record <em>copy</em> is migrated — left column, VSP-1790). V1 writes key on <code>folder_linkId</code> + <code>archiveNbr</code> — why V2 children must keep shipping both. Copy-adjacent asks: (1) <strong>V2-copied records get no thumbnail at all, permanently</strong> (live-verified 2026-08-24, also blank on web) — <code>copy_record.sql</code>'s record INSERT omits every <code>thumburl*</code>/<code>thumbnail256</code> column, only the original file row is copied, and nothing regenerates; fix = copy the thumb columns from the source record (same bytes → same renditions) or enqueue regeneration; (2) <code>POST /v2/records/{id}/copies</code> has no idempotency key, so a client that times out can never safely retry.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Uploads (presigned + register)</span><span class="pill st-block">Blocked</span></div>

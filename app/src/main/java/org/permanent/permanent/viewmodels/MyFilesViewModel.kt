@@ -550,6 +550,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             swipeRefreshLayout.isRefreshing = true
             fileRepository.relocateRecords(mutableListOf(record),
                 folderLinkId,
+                prefsHelper.getPublicRecordFolderId(),
                 ModificationType.PUBLISH,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
