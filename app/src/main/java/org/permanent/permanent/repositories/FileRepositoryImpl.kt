@@ -6,6 +6,7 @@ import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.mapper.toRecordV2
 import org.permanent.permanent.models.NavigationFolderIdentifier
@@ -501,6 +502,82 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     override fun relocateRecords(
         records: MutableList<Record>,
         destFolderLinkId: Int,
+        destFolderId: Int,
+        relocationType: ModificationType,
+        listener: IResponseListener
+    ) {
+        // PUBLISH is a copy into the public workspace, so it routes like COPY.
+        val isCopyLike =
+            relocationType == ModificationType.COPY || relocationType == ModificationType.PUBLISH
+        if (FeatureFlags.useStelaMigration && isCopyLike && destFolderId > 0) {
+            val sessionArchiveId = prefsHelper.getCurrentArchiveId()
+            val (v2Records, v1Rest) = records.partition { it.isEligibleForStelaCopy(sessionArchiveId) }
+            if (v2Records.isNotEmpty()) {
+                copyViaStelaV2(
+                    v2Records, v1Rest.toMutableList(), destFolderLinkId, destFolderId,
+                    relocationType, listener
+                )
+                return
+            }
+        }
+        relocateRecordsV1(records, destFolderLinkId, relocationType, listener)
+    }
+
+    private val Record.stelaRecordId: Int
+        get() = recordId ?: id ?: 0
+
+    // Cross-archive copies need Owner on the origin archive — foreign items stay on V1.
+    private fun Record.isEligibleForStelaCopy(sessionArchiveId: Int): Boolean =
+        type == RecordType.FILE && stelaRecordId > 0 && archiveId == sessionArchiveId
+
+    // No V1 failsafe and no retry — an ambiguous failure retried would duplicate
+    // the copy. Serial, best-effort; the V1 remainder follows the V2 items.
+    private fun copyViaStelaV2(
+        v2Records: List<Record>,
+        v1Rest: MutableList<Record>,
+        destFolderLinkId: Int,
+        destFolderId: Int,
+        relocationType: ModificationType,
+        listener: IResponseListener
+    ) {
+        fun finish(hadFailure: Boolean) {
+            fun report(message: String?) =
+                if (hadFailure) listener.onFailed(context.getString(R.string.generic_error))
+                else listener.onSuccess(message)
+
+            if (v1Rest.isEmpty()) {
+                report(relocationSuccessMessage(v2Records[0], relocationType))
+            } else {
+                relocateRecordsV1(v1Rest, destFolderLinkId, relocationType,
+                    object : IResponseListener {
+                        override fun onSuccess(message: String?) = report(message)
+                        override fun onFailed(error: String?) = listener.onFailed(error)
+                    })
+            }
+        }
+
+        fun copyNext(index: Int, hadFailure: Boolean) {
+            if (index == v2Records.size) {
+                finish(hadFailure)
+                return
+            }
+            NetworkClient.instance().copyRecordV2(v2Records[index].stelaRecordId, destFolderId)
+                .enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        copyNext(index + 1, hadFailure || !response.isSuccessful)
+                    }
+
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        copyNext(index + 1, true)
+                    }
+                })
+        }
+        copyNext(0, false)
+    }
+
+    private fun relocateRecordsV1(
+        records: MutableList<Record>,
+        destFolderLinkId: Int,
         relocationType: ModificationType,
         listener: IResponseListener
     ) {
@@ -610,6 +687,21 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         })
     }
 
+    private fun relocationSuccessMessage(
+        record: Record, relocationType: ModificationType
+    ): String {
+        val relocationVerb = when (relocationType) {
+            ModificationType.MOVE -> context.getString(R.string.relocation_type_moved)
+            ModificationType.PUBLISH -> context.getString(R.string.relocation_type_published)
+            else -> context.getString(R.string.relocation_type_copied)
+        }
+        return context.getString(
+            R.string.relocation_success,
+            record.type?.toTitleCase(),
+            relocationVerb
+        )
+    }
+
     private fun getToRelocate(
         recordType: RecordType, records: MutableList<Record>
     ): MutableList<Record> {
@@ -628,22 +720,8 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
                 if (responseVO?.isSuccessful != null && responseVO.isSuccessful!!) {
-                    val relocationVerb = when (relocationType) {
-                        ModificationType.MOVE -> context.getString(R.string.relocation_type_moved)
-                        ModificationType.PUBLISH -> context.getString(R.string.relocation_type_published)
-                        else -> context.getString(R.string.relocation_type_copied)
-                    }
                     listener.onSuccess(
-                        context.getString(
-                            R.string.relocation_success,
-                            recordsToRelocate[0].type?.name?.lowercase(Locale.getDefault())
-                                ?.replaceFirstChar {
-                                    if (it.isLowerCase()) it.titlecase(
-                                        Locale.getDefault()
-                                    ) else it.toString()
-                                },
-                            relocationVerb
-                        )
+                        relocationSuccessMessage(recordsToRelocate[0], relocationType)
                     )
                 } else {
                     listener.onFailed(context.getString(R.string.generic_error))

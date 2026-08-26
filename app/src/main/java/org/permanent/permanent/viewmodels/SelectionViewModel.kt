@@ -24,6 +24,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     val selectBtnText = MutableLiveData(application.getString(R.string.button_select))
     val selectedRecordsSize = MutableLiveData(0)
     private val selectedRecords = MutableLiveData<MutableList<Record>>(ArrayList())
+    private var isRelocationInFlight = false
     private val expandIslandRequest = SingleLiveEvent<Void?>()
     private val showSelectionOptionsRequest = SingleLiveEvent<List<RecordUiModel>>()
     private val showEditMetadataRequest = SingleLiveEvent<MutableList<Record>>()
@@ -151,19 +152,25 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     }
 
     fun onPasteOrMoveBtnClick() {
+        // A double-tap must not fire the relocation twice.
+        if (isRelocationInFlight) return
         PermanentApplication.instance.relocateData = null
         getShrinkIslandRequest().call()
         relocationIslandState.value = RelocationIslandState.PROCESSING
         val recordsToRelocate = recordsToRelocate.value
-        val folderLinkId = currentFolder.value?.getFolderIdentifier()?.folderLinkId
+        val folderIdentifier = currentFolder.value?.getFolderIdentifier()
+        val folderLinkId = folderIdentifier?.folderLinkId
         val relocationTypeValue = modificationType.value
         if (!recordsToRelocate.isNullOrEmpty() && folderLinkId != null && relocationTypeValue != null) {
+            isRelocationInFlight = true
             fileRepository.relocateRecords(
                 recordsToRelocate,
                 folderLinkId,
+                folderIdentifier!!.folderId,
                 relocationTypeValue,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
+                        isRelocationInFlight = false
                         relocationIslandState.value = RelocationIslandState.DONE
                         onNewTemporaryFiles.value = recordsToRelocate
                         existsFiles.value = true
@@ -181,6 +188,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
                     }
 
                     override fun onFailed(error: String?) {
+                        isRelocationInFlight = false
                         waitAndHideActionIsland()
                         viewModelScope.launch {
                             delay(DELAY_TO_POPULATE_ISLAND_MILLIS)

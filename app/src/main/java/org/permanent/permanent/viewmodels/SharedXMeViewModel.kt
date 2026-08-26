@@ -439,6 +439,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             swipeRefreshLayout.isRefreshing = true
             fileRepository.relocateRecords(mutableListOf(record),
                 folderLinkId,
+                prefsHelper.getPublicRecordFolderId(),
                 ModificationType.PUBLISH,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
