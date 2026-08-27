@@ -109,7 +109,8 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-08-24</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-08-26</strong> · edit by hand, one item per surface.
+  QA cross-check (Sergiu, iOS V1-vs-V2 sweep, 2026-08-26): 145 V2 calls vs 8 V1 — every remaining V1 call maps to a documented gap on this board (uploads, public/deep-link roots, own-archive public root, V1 failsafe).
   Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
 </header>
 
@@ -215,11 +216,6 @@
         <p class="note">Live on iOS behind their flag. Folder rename has no V2 route (see backend column). Note for this ticket: shared-record PATCH currently 401s, but the backend confirmed (2026-08-17) share-permitted writes are intended to succeed — foreign writes may open up once the 401→403 fix ships.</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">Folder sort persistence · rename</span><span class="pill st-todo">Not started</span></div>
-        <code class="route">PATCH /v2/folders/{id}</code>
-        <p class="note">PATCH now appears in the stela docs (was "not available" on Jul 22) — re-verify when specced. Re-sort = PATCH + children re-fetch.</p>
-      </li>
-      <li class="item">
         <div class="row"><span class="name">Share-preview route cleanup</span><span class="pill st-todo">Not started</span></div>
         <code class="route">singular → plural /v2/folders/…</code>
         <p class="note">Trivial; both routes are aliases.</p>
@@ -248,6 +244,11 @@
         <div class="row"><span class="name">Folder creation</span><span class="pill st-block">Blocked</span></div>
         <code class="route">POST /v2/folders — does not exist</code>
         <p class="note">Verified in stela docs + iOS PR #573. Stays on V1 <code>folder/post</code>; blocks the VSP-1778 follow-up ticket.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Folder rename · sort persistence</span><span class="pill st-block">Blocked</span></div>
+        <code class="route">PATCH /v2/folders/{id} — wrong fields</code>
+        <p class="note">Source-verified 2026-08-26 (<code>folder/validators.ts</code>): the PATCH exists but accepts only <code>displayDate</code>/<code>displayEndDate</code>/<code>displayTime</code>/<code>location</code> — no <code>displayName</code>, no sort. iOS doesn't use it either. Rename and re-sort stay on V1 until the route accepts those fields.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Relocate · move · delete · folder copy</span><span class="pill st-block">Blocked</span></div>
