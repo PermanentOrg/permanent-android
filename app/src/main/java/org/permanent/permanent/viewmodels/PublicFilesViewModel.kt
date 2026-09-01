@@ -14,7 +14,7 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
         getFolderName().value = Constants.PUBLIC_FILES
     }
 
-    override fun loadRootFiles() {
+    override fun loadRootFilesV1() {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.getPublicRoot(prefsHelper.getCurrentArchiveNr(), object : IRecordListener {
             override fun onSuccess(record: Record) {
@@ -30,6 +30,21 @@ class PublicFilesViewModel(application: Application) : MyFilesViewModel(applicat
                 showMessage.value = error
             }
         })
+    }
+
+    override fun resolveRootV2(isStale: () -> Boolean, listener: IRecordListener) {
+        fileRepository.getPublicRootV2(isStale, listener)
+    }
+
+    override fun resolveRootFailsafe(listener: IRecordListener) {
+        fileRepository.getPublicRoot(prefsHelper.getCurrentArchiveNr(), listener)
+    }
+
+    // V2 success and its V1 failsafe both land here; the ready event replays pending
+    // deep-link navigation and uploads.
+    override fun commitRootRecord(record: Record) {
+        super.commitRootRecord(record)
+        onRootFolderReady.call()
     }
 
     fun getOnRootFolderReady(): MutableLiveData<Void?> = onRootFolderReady

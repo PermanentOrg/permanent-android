@@ -70,6 +70,9 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     // Same guard for root loads (see loadRootFilesV2). Touched on main only.
     private var rootLoadGeneration = 0
+
+    // Cleared only in rootLoadListener. Touched on main only.
+    private var isRootLoadInFlight = false
     private val isRoot = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
@@ -143,7 +146,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         }
     }
 
-    private fun loadRootFilesV1() {
+    protected open fun loadRootFilesV1() {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.getMyFilesRecord(object : IRecordListener {
             override fun onSuccess(record: Record) {
@@ -160,41 +163,51 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         })
     }
 
-    // Stela V2 root discovery (VSP-1788), with V1 getRoot as the automatic failsafe
-    // (whose record carries folderId, so drill-in stays on V2). Only the newest root
-    // load may commit: the archive-changed observer re-fires this on a live ViewModel,
-    // so an out-of-order response — or its V1 failsafe — could otherwise paint the
-    // previous archive's root.
+    // Only the newest root load may commit — the archive-changed observer re-fires
+    // this on a live ViewModel. Subclasses supply the two resolver legs.
     private fun loadRootFilesV2() {
         swipeRefreshLayout.isRefreshing = true
+        isRootLoadInFlight = true
         val generation = ++rootLoadGeneration
         val isStale = { generation != rootLoadGeneration }
-        fileRepository.getMyFilesRecordV2(isStale, rootLoadListener(generation) { error ->
+        resolveRootV2(isStale, rootLoadListener(generation, isFinalAttempt = false) { error ->
             if (BuildConfig.DEBUG) Log.d(
-                TAG, "V2 root resolution failed ($error), falling back to V1 getRoot"
+                TAG, "V2 root resolution failed ($error), falling back to the V1 failsafe"
             )
-            fileRepository.getMyFilesRecord(rootLoadListener(generation) { fallbackError ->
+            resolveRootFailsafe(rootLoadListener(generation) { fallbackError ->
                 swipeRefreshLayout.isRefreshing = false
                 fallbackError?.let { showMessage.value = it }
             })
         })
     }
 
-    // Commits only while still the newest root load; a superseded one must neither
-    // commit nor run its failsafe out of order.
+    protected open fun resolveRootV2(isStale: () -> Boolean, listener: IRecordListener) {
+        fileRepository.getMyFilesRecordV2(isStale, listener)
+    }
+
+    protected open fun resolveRootFailsafe(listener: IRecordListener) {
+        fileRepository.getMyFilesRecord(listener)
+    }
+
+    // A superseded load neither commits nor runs its failsafe; the in-flight flag
+    // clears on success and on a final attempt's failure.
     private fun rootLoadListener(
-        generation: Int, onFailure: (String?) -> Unit
+        generation: Int, isFinalAttempt: Boolean = true, onFailure: (String?) -> Unit
     ) = object : IRecordListener {
         override fun onSuccess(record: Record) {
-            if (generation == rootLoadGeneration) commitRootRecord(record)
+            if (generation != rootLoadGeneration) return
+            isRootLoadInFlight = false
+            commitRootRecord(record)
         }
 
         override fun onFailed(error: String?) {
-            if (generation == rootLoadGeneration) onFailure(error)
+            if (generation != rootLoadGeneration) return
+            if (isFinalAttempt) isRootLoadInFlight = false
+            onFailure(error)
         }
     }
 
-    private fun commitRootRecord(record: Record) {
+    protected open fun commitRootRecord(record: Record) {
         swipeRefreshLayout.isRefreshing = false
         // Reset instead of push: a root load on a surviving ViewModel (archive switch
         // from the Save-to-Permanent sheet) must not leave the previous archive's root
@@ -216,6 +229,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     fun refreshCurrentFolder() {
+        // A root load in flight repaints this screen anyway.
+        if (isRootLoadInFlight) return
         refreshJob?.cancel()
         loadFilesOf(currentFolder.value, currentSortType.value)
     }
