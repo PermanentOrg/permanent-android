@@ -65,12 +65,27 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         })
     }
 
-    // Stela V2 replacement for the getRoot bootstrap (VSP-1788): the archives search
-    // carries the archive's rootFolderId, whose children are the section roots — so
-    // My Files is two V2 reads away. Any anomaly reports onFailed so the caller can
-    // run the V1 getRoot failsafe. isStale short-circuits a superseded load (rapid
-    // archive switch) before the second read and the prefs write.
+    private enum class SectionRoot(val backendType: String, val fallbackDisplayName: String) {
+        PRIVATE(Constants.MY_FILES_FOLDER_TYPE, Constants.MY_FILES_FOLDER),
+        PUBLIC(Constants.PUBLIC_FILES_FOLDER_TYPE, Constants.PUBLIC_FILES_FOLDER)
+    }
+
     override fun getMyFilesRecordV2(isStale: () -> Boolean, listener: IRecordListener) {
+        getSectionRootRecordV2(SectionRoot.PRIVATE, isStale, listener)
+    }
+
+    // Own archive only — the archives search is membership-scoped.
+    override fun getPublicRootV2(isStale: () -> Boolean, listener: IRecordListener) {
+        getSectionRootRecordV2(SectionRoot.PUBLIC, isStale, listener)
+    }
+
+    // Any anomaly reports onFailed for the caller's V1 failsafe; isStale short-circuits
+    // a superseded load before the second read and the prefs write.
+    private fun getSectionRootRecordV2(
+        section: SectionRoot,
+        isStale: () -> Boolean,
+        listener: IRecordListener
+    ) {
         val currentArchiveNr = prefsHelper.getCurrentArchiveNr()
         if (currentArchiveNr.isNullOrEmpty()) {
             listener.onFailed(null)
@@ -99,7 +114,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                     )
                     return
                 }
-                getMyFilesRecordFromSectionRoots(rootFolderId, isStale, listener)
+                getSectionRootFromChildren(rootFolderId, section, isStale, listener)
             }
 
             override fun onFailure(call: Call<ArchivesV2Response>, t: Throwable) {
@@ -108,8 +123,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         })
     }
 
-    private fun getMyFilesRecordFromSectionRoots(
-        rootFolderId: Int, isStale: () -> Boolean, listener: IRecordListener
+    private fun getSectionRootFromChildren(
+        rootFolderId: Int,
+        section: SectionRoot,
+        isStale: () -> Boolean,
+        listener: IRecordListener
     ) {
         // Reuses the children fetch so the section roots pass the same contract-failure
         // and corrupt-item rules as every listed folder.
@@ -123,18 +141,20 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 // Same side effect as the V1 getRoot path: these prefs are the sole
                 // source for publish-to-Public and the profile banner (null fields
                 // are skipped, so a missing child leaves them untouched).
-                savePublicRecordInfo(
-                    findSectionRoot(
-                        records, Constants.PUBLIC_FILES_FOLDER_TYPE, Constants.PUBLIC_FILES_FOLDER
-                    )
-                )
-                val myFilesRecord = findSectionRoot(
-                    records, Constants.MY_FILES_FOLDER_TYPE, Constants.MY_FILES_FOLDER
-                )
-                if (myFilesRecord != null) {
-                    listener.onSuccess(myFilesRecord)
+                val publicRoot = findSectionRoot(records, SectionRoot.PUBLIC)
+                savePublicRecordInfo(publicRoot)
+                val sectionRoot =
+                    if (section == SectionRoot.PUBLIC) publicRoot
+                    else findSectionRoot(records, section)
+                if (sectionRoot != null) {
+                    listener.onSuccess(sectionRoot)
                 } else {
-                    listener.onFailed(null)
+                    // A present root without this child is backend data damage.
+                    listener.onFailed(
+                        if (BuildConfig.DEBUG) {
+                            "section root ${section.backendType} missing from the archive root's children"
+                        } else null
+                    )
                 }
             }
 
@@ -148,12 +168,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     // record named like a section must not be picked. Live staging sends the short
     // types "private-root"/"public-root" (captured 2026-08-20), normalized by the
     // mapper to the canonical dotted-hyphen form.
-    private fun findSectionRoot(
-        records: List<Record>, sectionType: String, fallbackDisplayName: String
-    ): Record? {
+    private fun findSectionRoot(records: List<Record>, section: SectionRoot): Record? {
         val folders = records.filter { it.type == RecordType.FOLDER }
-        return folders.find { it.backendType == sectionType }
-            ?: folders.find { it.displayName == fallbackDisplayName }
+        return folders.find { it.backendType == section.backendType }
+            ?: folders.find { it.displayName == section.fallbackDisplayName }
     }
 
     private fun savePublicRecordInfo(publicRecord: Record?) {

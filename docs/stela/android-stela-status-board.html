@@ -109,7 +109,8 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-08-24</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-08-27</strong> · edit by hand, one item per surface.
+  QA cross-check (Sergiu, iOS V1-vs-V2 sweep, 2026-08-26): 145 V2 calls vs 8 V1 — every remaining V1 call maps to a documented gap on this board (uploads, public/deep-link roots, own-archive public root — migrated since on Android, VSP-1839, V1 failsafe).
   Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
 </header>
 
@@ -158,6 +159,11 @@
         <p class="note">VSP-1788 · replaces the V1 <code>getRoot</code> bootstrap (iOS's VSP-1787): match <code>items[].archiveNbr</code> to the session archive, list the root's children, pick the <code>private-root</code> child (live-verified spelling; display-name fallback) · nothing cached — re-resolved per root load, newest-only commit + path-stack reset on archive switch · V1 <code>getRoot</code> stays the failsafe and the flag-off path · the same children refill the public-record prefs (publish/banner) · live-verified 2026-08-19: <code>archive/change</code> carries no root id.</p>
       </li>
       <li class="item">
+        <div class="row"><span class="name">Root discovery — Public Files (own archive)</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/archives → rootFolderId → /children → public-root child</code>
+        <p class="note">VSP-1839 · <strong>Android ahead of iOS</strong> — iOS intentionally keeps V1 <code>getPublicRoot</code> here, so this chain has no iOS counterpart to mirror · rides the VSP-1788 resolver (shared helper, same no-cache / newest-only-commit / path-stack-reset semantics); <code>PublicFilesViewModel</code> gains the flag branch and keeps its root-ready replay event on both V2 success and the V1 failsafe · V1 <code>getPublicRoot</code> stays the failsafe, the flag-off path, and the only route for foreign archives (/v2/archives is membership-scoped) and public folder deep links (resolver-blocked, backend column) · a missing <code>public-root</code> child fails distinctly — backend data signal, Android runs this chain first.</p>
+      </li>
+      <li class="item">
         <div class="row"><span class="name">Copy — records (paste &amp; publish)</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">POST /v2/records/{id}/copies</code>
         <p class="note">VSP-1790 · first V2 write on the file surface — atomic server-side (one transaction), so a failed copy leaves no orphaned storage (PER-10599) · eligible = session-archive records only, one serial request per record; folders, foreign sources (shares / public gallery) and MOVE stay V1; mixed selections split (records → V2, rest → one V1 batch after) · publish rides the same routing (copy into the public workspace) · <strong>no V1 failsafe, no retry — deliberate</strong>: an ambiguous failure retried on V1 would duplicate the copy · destination = <code>folderId</code> as numeric string · response deliberately not decoded (pasted item surfaces via the normal refresh) · a copy 401 errors without logout (interceptor is V1-host-scoped) · <strong>QA blocker found 2026-08-24:</strong> V2 copies get <strong>no thumbnail at all, permanently</strong> (backend gap — see backend column) → the pasted item is a non-tappable spinner on Android, blank on web.</p>
@@ -200,11 +206,6 @@
     </div>
     <ul>
       <li class="item">
-        <div class="row"><span class="name">Root discovery (Public Files)</span><span class="pill st-todo">Not started</span></div>
-        <code class="route">GET /v2/archives → rootFolderId → /children → public-root child</code>
-        <p class="note">VSP-1808 keeps V1 <code>getPublicRoot</code> as the own-archive bootstrap; VSP-1788 shipped the archives chain for My Files and its resolver already picks the public-root child (prefs side effect) — this ticket is the <code>PublicFilesViewModel</code> hookup. Foreign archives (gallery) can never migrate: /v2/archives is membership-scoped.</p>
-      </li>
-      <li class="item">
         <div class="row"><span class="name">Record detail · viewer reads</span><span class="pill st-todo">Not started</span></div>
         <code class="route">GET /v2/records/{id}</code>
         <p class="note">Live on iOS behind their flag; iOS PR #582 also moved the Public Gallery record detail onto it (Android's gallery deep-link <code>record/get</code> stays V1 until this ticket).</p>
@@ -213,11 +214,6 @@
         <div class="row"><span class="name">Record rename · metadata edit</span><span class="pill st-todo">Not started</span></div>
         <code class="route">PATCH /v2/records/{id}</code>
         <p class="note">Live on iOS behind their flag. Folder rename has no V2 route (see backend column). Note for this ticket: shared-record PATCH currently 401s, but the backend confirmed (2026-08-17) share-permitted writes are intended to succeed — foreign writes may open up once the 401→403 fix ships.</p>
-      </li>
-      <li class="item">
-        <div class="row"><span class="name">Folder sort persistence · rename</span><span class="pill st-todo">Not started</span></div>
-        <code class="route">PATCH /v2/folders/{id}</code>
-        <p class="note">PATCH now appears in the stela docs (was "not available" on Jul 22) — re-verify when specced. Re-sort = PATCH + children re-fetch.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Share-preview route cleanup</span><span class="pill st-todo">Not started</span></div>
@@ -248,6 +244,11 @@
         <div class="row"><span class="name">Folder creation</span><span class="pill st-block">Blocked</span></div>
         <code class="route">POST /v2/folders — does not exist</code>
         <p class="note">Verified in stela docs + iOS PR #573. Stays on V1 <code>folder/post</code>; blocks the VSP-1778 follow-up ticket.</p>
+      </li>
+      <li class="item">
+        <div class="row"><span class="name">Folder rename · sort persistence</span><span class="pill st-block">Blocked</span></div>
+        <code class="route">PATCH /v2/folders/{id} — wrong fields</code>
+        <p class="note">Source-verified 2026-08-26 (<code>folder/validators.ts</code>): the PATCH exists but accepts only <code>displayDate</code>/<code>displayEndDate</code>/<code>displayTime</code>/<code>location</code> — no <code>displayName</code>, no sort. iOS doesn't use it either. Rename and re-sort stay on V1 until the route accepts those fields.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Relocate · move · delete · folder copy</span><span class="pill st-block">Blocked</span></div>

@@ -27,6 +27,8 @@ interface IFileRepository {
 
     fun getPublicRoot(archiveNr: String?, listener: IRecordListener)
 
+    fun getPublicRootV2(isStale: () -> Boolean, listener: IRecordListener)
+
     fun getChildRecordsOf(
         folderArchiveNr: String,
         folderLinkId: Int,

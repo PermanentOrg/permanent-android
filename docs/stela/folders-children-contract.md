@@ -6,8 +6,8 @@ updated 2026-07-30 against PRs #574/#575/#576/#580, and 2026-08-14 against iOS D
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
 Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery),
 VSP-1806 (Search drill-in), VSP-1803 (Shared By Me drill-in), VSP-1802 (Shared With Me
-drill-in) and VSP-1788 (root resolution); reuse for future Stela tickets instead of
-re-deriving.
+drill-in), VSP-1788 (root resolution) and VSP-1839 (Public Files root resolution); reuse
+for future Stela tickets instead of re-deriving.
 
 ## Root resolution — My Files (VSP-1788)
 
@@ -59,9 +59,47 @@ discovered from Stela reads only. Verified against iOS Development (`ArchiveV2En
   a missing child leaves working prefs untouched on both paths. A superseded root load
   (rapid archive switch) is short-circuited in the repository before the prefs write, so a
   stale response can't stamp the outgoing archive's public root.
-- **`getPublicRoot` is out of scope and stays V1** — own-archive Public Files could ride
-  this same resolver in a future ticket; foreign archives can never use it (`/archives` is
-  membership-scoped).
+- **`getPublicRoot`:** own-archive Public Files now rides this same resolver (VSP-1839,
+  next section); foreign archives can never use it (`/archives` is membership-scoped).
+
+## Root resolution — Public Files, own archive (VSP-1839)
+
+Rides the VSP-1788 resolver: the same archives→children chain now also hands the public
+section root to navigation. **Android leads here** — iOS intentionally keeps
+`folder/getPublicRoot` for public root discovery, so the mechanism proof is our own
+shipped VSP-1788 code and its live captures, not an iOS PR; any backend quirk found on
+this path is new information worth sharing with backend.
+
+- **Chain and selection:** identical two reads (`GET api/v2/archives` → `rootFolderId` →
+  `GET api/v2/folders/{rootFolderId}/children`); pick the public root
+  (`type.folder.public-root` after mapper normalization, display-name `"Public"` as the
+  safety net, folders only — the same live-verified constants the VSP-1788 prefs side
+  effect already used). Implemented as `FileRepositoryImpl.getPublicRootV2`, a
+  parameterization of the same private helper `getMyFilesRecordV2` delegates to
+  (`getSectionRootRecordV2`).
+- **Own archive only.** `/v2/archives` is membership-scoped, so foreign archives can
+  never resolve through it: `PublicArchiveViewModel` (gallery/foreign browsing) and
+  `PublicViewModel` (profile-banner thumb) stay on V1 `getPublicRoot` by design, and
+  public folder deep links keep the V1 synthesized-record path (blocked on the
+  `folder_linkId` resolver — see the link-migration doc).
+- **No caching (decided at planning):** exact VSP-1788 parity — the 2-call discovery
+  re-runs on every Public Files entry (2 reads vs V1's single call, accepted). The whole
+  V2→V1 chain lives once in `MyFilesViewModel` (generation supersede guard, plus an
+  in-flight flag that suppresses the onResume `refreshCurrentFolder` double-fetch);
+  `PublicFilesViewModel` overrides only the two resolver legs
+  (`resolveRootV2`/`resolveRootFailsafe`), its V1 body, and `commitRootRecord` — the
+  latter solely to re-fire its root-ready replay event (pending deep-link navigation and
+  uploads) after both a V2 success and a V1-failsafe success.
+- **V1 failsafe unchanged:** any anomaly falls back to V1 `getPublicRoot` under the same
+  generation guard; a discovery 401 can never log out. Flag off runs the previous V1 body
+  byte-for-byte (push-only stack, no supersede guard — preserved deliberately). A missing
+  `public-root` child among a resolvable root's children fails with a distinct
+  DEBUG-only message (`section root … missing from the archive root's children`) — that
+  would be backend data damage, not a transport error.
+- **Prefs side effect shared:** both entry points keep writing `PREFS_PUBLIC_RECORD_*`
+  from the same children, stale-guarded before the write; values are identical whichever
+  screen resolves first. (V1 `getPublicRoot` writes nothing — the write is the bootstrap
+  parity job, not new behavior.)
 
 ## Shared With Me → folder drill-in (VSP-1802)
 
@@ -289,12 +327,13 @@ discovered from Stela reads only. Verified against iOS Development (`ArchiveV2En
 ## Public folders (VSP-1808)
 
 - **Same endpoint, same bearer auth, no public variant.** The children call for the owner's
-  Public Files tree is byte-identical to the private one — only root resolution differs
-  (Android keeps V1 `folder/getPublicRoot`; the V1 response carries `folderId`, so the V2
-  fork engages from the root down). iOS does the same drill-in (their PR #573 already
-  covered Public Files via ViewModel inheritance) and moved root discovery to
-  `GET /v2/archives` → root children → public-root child in a separate ticket
-  (VSP-1787, PR #574) — Android's counterpart is a future ticket for both sections.
+  Public Files tree is byte-identical to the private one — only root resolution differs.
+  *(As shipped in VSP-1808, the root stayed V1 `folder/getPublicRoot`, whose response
+  carries `folderId` so the V2 fork engaged from the root down; own-archive root discovery
+  has since moved to the archives chain — My Files in VSP-1788, Public Files in VSP-1839,
+  see the root-resolution sections above.)* iOS does the same drill-in (their PR #573
+  already covered Public Files via ViewModel inheritance) and moved My Files root
+  discovery to the archives chain in VSP-1787 (PR #574).
 - **Foreign public archives** (another archive's public tree): iOS verified on staging
   (2026-07-28, their PR #576) that `/children` serves it on plain bearer auth — but root
   discovery must stay V1 `getPublicRoot`, because `/v2/archives` only lists the caller's
@@ -565,7 +604,8 @@ on V1.
    (`folder_linkId → folderId`, ideally covering records too), or (b) `/children`
    accepting a `folderLinkId` address. Changing the URL format alone doesn't fix
    already-shared links. Blocks nothing today (V1 fallback); prerequisite for the V1
-   navigation sunset, same bucket as `getPublicRoot` root discovery.
+   navigation sunset, same bucket as the remaining `getPublicRoot` root discovery
+   (foreign archives and public links; own-archive Public Files migrated in VSP-1839).
    **Fuller inventory (all workspaces swept, 2026-08-11):** this is one of FOUR V1
    link-address dependencies — see `docs/stela-v2-link-migration.md` for the complete
    picture (also record `archiveNbr → recordId`, share `token → shareLinkId`, and
