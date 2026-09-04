@@ -53,6 +53,8 @@ import org.permanent.permanent.network.models.ShareLinkVOResponse
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.network.models.SimpleRequestContainer
 import org.permanent.permanent.network.models.StorageGift
+import org.permanent.permanent.network.models.StoragePurchaseRequest
+import org.permanent.permanent.network.models.StoragePurchaseResponse
 import org.permanent.permanent.network.models.TwoFAVO
 import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.PREFS_NAME
@@ -93,6 +95,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
 
     companion object {
+        private const val CENTS_PER_DOLLAR = 100
         private var instance: NetworkClient? = null
 
         fun instance(): NetworkClient {
@@ -814,6 +817,9 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun sendGift(gift: StorageGift): Call<StorageGift> =
         billingService.send(gift)
 
+    fun createStoragePurchase(amountInUSD: Int): Call<StoragePurchaseResponse> =
+        billingService.createStoragePurchase(StoragePurchaseRequest(amountInUSD))
+
     fun redeemGiftCode(code: String): Call<ResponseVO> {
         val request = toJson(RequestContainer().addPromo(code))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -879,7 +885,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         accountEmail: String?,
         accountName: String?,
         isAnonymous: Boolean?,
-        donationAmount: Int
+        amountInUSD: Int
     ): Call<ResponseVO> {
         return storageService.getPaymentIntent(
             BuildConfig.PAYMENT_INTENT_URL,
@@ -887,7 +893,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
             accountEmail,
             accountName,
             isAnonymous,
-            donationAmount
+            amountInUSD * CENTS_PER_DOLLAR
         )
     }
 
