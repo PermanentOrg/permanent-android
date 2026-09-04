@@ -34,6 +34,7 @@ class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListe
     private lateinit var viewModel: AddStorageViewModel
     private lateinit var googlePayLauncher: GooglePayLauncher
     private var isGooglePayReady: Boolean = false
+    private val isStaging = BuildConfig.FLAVOR == "staging"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,9 +58,12 @@ class AddStorageFragment : PermanentBaseFragment(), TabLayout.OnTabSelectedListe
         googlePayLauncher = GooglePayLauncher(
             this,
             config = GooglePayLauncher.Config(
-                environment = GooglePayEnvironment.Production,
+                environment = if (isStaging) GooglePayEnvironment.Test
+                else GooglePayEnvironment.Production,
                 merchantCountryCode = MERCHANT_COUNTRY_CODE,
-                merchantName = MERCHANT_NAME
+                merchantName = MERCHANT_NAME,
+                // Google Pay's test environment offers its own test cards.
+                existingPaymentMethodRequired = !isStaging
             ),
             readyCallback = ::onGooglePayReady,
             resultCallback = ::onGooglePayResult
