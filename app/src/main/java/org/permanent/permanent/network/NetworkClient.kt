@@ -41,6 +41,7 @@ import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.FolderResponse
+import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.InviteSharePayload
 import org.permanent.permanent.network.models.InviteVO
@@ -55,6 +56,8 @@ import org.permanent.permanent.network.models.ShareLinkVOResponse
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.network.models.SimpleRequestContainer
 import org.permanent.permanent.network.models.StorageGift
+import org.permanent.permanent.network.models.StoragePurchaseRequest
+import org.permanent.permanent.network.models.StoragePurchaseResponse
 import org.permanent.permanent.network.models.TwoFAVO
 import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.PREFS_NAME
@@ -95,6 +98,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     private val jsonMediaType: MediaType = Constants.MEDIA_TYPE_JSON.toMediaType()
 
     companion object {
+        private const val CENTS_PER_DOLLAR = 100
         private var instance: NetworkClient? = null
 
         fun instance(): NetworkClient {
@@ -816,6 +820,9 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun sendGift(gift: StorageGift): Call<StorageGift> =
         billingService.send(gift)
 
+    fun createStoragePurchase(amountInUSD: Int): Call<StoragePurchaseResponse> =
+        billingService.createStoragePurchase(StoragePurchaseRequest(amountInUSD))
+
     fun redeemGiftCode(code: String): Call<ResponseVO> {
         val request = toJson(RequestContainer().addPromo(code))
         val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
@@ -864,6 +871,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =
         stelaAccountService.getFolder(shareToken, folderId)
 
+    // pageSize = the id count: one page covers every requested folder, no cursor needed.
+    fun getFoldersV2(folderIds: List<Int>): Call<FoldersResponse> =
+        stelaAccountService.getFolders(folderIds, folderIds.size)
+
     fun generateShareLink(shareLink: ShareLinkVO): Call<ShareLinkResponse> = stelaAccountService.generateShareLink(shareLink)
 
     fun updateShareLink(shareLink: ShareLinkVO): Call<ResponseVO> {
@@ -891,7 +902,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         accountEmail: String?,
         accountName: String?,
         isAnonymous: Boolean?,
-        donationAmount: Int
+        amountInUSD: Int
     ): Call<ResponseVO> {
         return storageService.getPaymentIntent(
             BuildConfig.PAYMENT_INTENT_URL,
@@ -899,7 +910,7 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
             accountEmail,
             accountName,
             isAnonymous,
-            donationAmount
+            amountInUSD * CENTS_PER_DOLLAR
         )
     }
 

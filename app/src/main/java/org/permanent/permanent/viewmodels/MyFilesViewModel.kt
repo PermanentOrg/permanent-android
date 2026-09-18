@@ -36,6 +36,7 @@ import org.permanent.permanent.models.RecordEventAction
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IRecordListener
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.RecordVO
@@ -248,7 +249,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             // VSP-1808) take the Stela V2 children endpoint when the migration flag
             // is on, with V1 as an automatic failsafe.
             val folderId = folder.getFolderIdentifier()?.folderId
-            if (FeatureFlags.useStelaMigration && folderId != null && folderId > 0) {
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
                 loadFilesOfV2(folder, sortType, forwardNavigation)
             } else {
                 loadFilesOfV1(folder, sortType)

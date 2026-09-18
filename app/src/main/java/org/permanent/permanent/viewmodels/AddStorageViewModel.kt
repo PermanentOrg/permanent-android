@@ -32,37 +32,30 @@ class AddStorageViewModel(application: Application) : ObservableAndroidViewModel
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
     fun getPaymentIntent() {
-        val amountString = amount.value
-        val amountValue =
-            if (amountString != null && amountString.isNotEmpty()) amountString.toInt() else 0
+        if (isBusy.value == true) return
+        val amountValue = amount.value?.toIntOrNull() ?: 0
+        if (amountValue == 0) return
 
-        if (amountValue != 0) {
-            isBusy.value = true
-            storageRepository.getPaymentIntent(prefsHelper.getAccountId(),
-                prefsHelper.getAccountEmail(),
-                prefsHelper.getAccountName(),
-                false,
-                amountValue * 100,
-                object : IStringDataListener {
+        isBusy.value = true
+        storageRepository.createStoragePurchase(amountValue, object : IStringDataListener {
 
-                    override fun onSuccess(data: String?) {
-                        isBusy.value = false
-                        onPaymentIntentRetrieved.value = data
-                        sendEvent(AccountEventAction.PURCHASE_STORAGE)
-                    }
+            override fun onSuccess(data: String?) {
+                isBusy.value = false
+                onPaymentIntentRetrieved.value = data
+                sendEvent(AccountEventAction.PURCHASE_STORAGE)
+            }
 
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        error?.let { showError.value = it }
-                    }
-                })
-        }
+            override fun onFailed(error: String?) {
+                isBusy.value = false
+                error?.let { showError.value = it }
+            }
+        })
     }
 
     fun onAmountTextChanged(amount: Editable) {
         val amountString = amount.toString()
         this.amount.value = amountString
-        val enteredAmount = if (amountString.isNotEmpty()) amountString.toInt() else 0
+        val enteredAmount = amountString.toIntOrNull() ?: 0
         this.gbEndowed.value = appContext.getString(
             R.string.storage_gb_endowed,
             if (enteredAmount >= 10) (enteredAmount / 10).toString() else "0"

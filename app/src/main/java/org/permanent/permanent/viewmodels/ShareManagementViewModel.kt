@@ -34,6 +34,7 @@ import org.permanent.permanent.network.IInviteListener
 import org.permanent.permanent.network.ILinkListener
 import org.permanent.permanent.network.IPendingInvitesListener
 import org.permanent.permanent.network.IRecordListener
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.BackendRecordType
@@ -225,10 +226,15 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         val folderLinkId = record.folderLinkId ?: return
         _isRefreshingShares.value = true
         if (record.type == RecordType.FOLDER) {
-            fileRepository.getFolder(folderLinkId, object : IRecordListener {
-                override fun onSuccess(record: Record) = onRefreshSucceeded(record)
-                override fun onFailed(error: String?) = onRefreshFailed(error)
-            })
+            val folderId = record.folderId
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
+                fileRepository.getFolderV2(folderId, folderLinkId, object : IRecordListener {
+                    override fun onSuccess(record: Record) = onRefreshSucceeded(record)
+                    override fun onFailed(error: String?) = refreshFolderSharesV1(folderLinkId)
+                })
+            } else {
+                refreshFolderSharesV1(folderLinkId)
+            }
         } else {
             fileRepository.getRecord(folderLinkId, record.recordId)
                 .enqueue(object : Callback<ResponseVO> {
@@ -245,6 +251,13 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                     }
                 })
         }
+    }
+
+    private fun refreshFolderSharesV1(folderLinkId: Int) {
+        fileRepository.getFolder(folderLinkId, object : IRecordListener {
+            override fun onSuccess(record: Record) = onRefreshSucceeded(record)
+            override fun onFailed(error: String?) = onRefreshFailed(error)
+        })
     }
 
     private fun onRefreshSucceeded(freshRecord: Record) {

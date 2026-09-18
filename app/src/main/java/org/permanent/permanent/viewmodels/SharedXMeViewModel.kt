@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
-import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
@@ -30,6 +29,7 @@ import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.RecordVO
@@ -195,7 +195,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             // membership included — no ownership condition. V1 is the automatic
             // failsafe.
             val folderId = folder.getFolderIdentifier()?.folderId
-            if (FeatureFlags.useStelaMigration && folderId != null && folderId > 0) {
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
                 loadFilesOfV2(folder, sortType, forwardNavigation)
             } else {
                 loadFilesOfV1(folder, sortType)

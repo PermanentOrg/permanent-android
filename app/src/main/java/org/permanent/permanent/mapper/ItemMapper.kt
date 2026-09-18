@@ -37,7 +37,7 @@ fun ItemDTO.toRecord(): Record {
  * so the share-preview path stays byte-identical while V2 navigation is gated behind
  * FeatureFlags.useStelaMigration.
  */
-fun ItemDTO.toRecordV2(): Record {
+fun ItemDTO.toRecordV2(includePendingInvitesAsShares: Boolean = true): Record {
     val isFolder = folderId != null
     val rec = Record(
         recordId = recordId?.toIntOrNull() ?: -1,
@@ -70,7 +70,7 @@ fun ItemDTO.toRecordV2(): Record {
         // Record(ItemVO) — V2 carries no thumbStatus).
         else -> !isFolder && rec.thumbnail256 == null && rec.thumbURL200 == null
     }
-    rec.shares = buildShares(rec.folderLinkId)
+    rec.shares = buildShares(rec.folderLinkId, rec.archiveId, includePendingInvitesAsShares)
     // Caller-resolved per-item role. Absent clamps to VIEWER — V1 parity: a listed
     // Record always carries a non-null role (every V1 constructor clamps the same way).
     rec.accessRole = AccessRole.fromStelaBackendValue(accessRole)
@@ -106,11 +106,20 @@ private fun ItemDTO.normalizedBackendType(isFolder: Boolean): String? = when {
 // PENDING status. V2 splits them into shares[] (archive shares) and pendingShares[]
 // (email invitations, always pending). Item permissions stay archive-derived on the
 // Private Files path — these are presentation only.
-private fun ItemDTO.buildShares(itemFolderLinkId: Int?): MutableList<Share>? {
-    if (shares.isNullOrEmpty() && pendingShares.isNullOrEmpty()) return null
+// The share sheet maps shares[] only: it lists invites from pendingShares[] itself,
+// and an invite has no archive or shareId to approve.
+private fun ItemDTO.buildShares(
+    itemFolderLinkId: Int?,
+    itemArchiveId: Int?,
+    includePendingInvitesAsShares: Boolean
+): MutableList<Share>? {
+    val invites = pendingShares.takeIf { includePendingInvitesAsShares }
+    if (shares.isNullOrEmpty() && invites.isNullOrEmpty()) return null
     val result = mutableListOf<Share>()
     shares?.forEach { share ->
         val shareArchiveId = share.archive?.id?.toIntOrNull()
+        // V1 omits shares to the item's own archive; V2 returns them (live 2026-09-18).
+        if (shareArchiveId != null && shareArchiveId == itemArchiveId) return@forEach
         val shareVO = ShareVO(itemFolderLinkId ?: 0, shareArchiveId ?: 0)
         shareVO.shareId = share.id?.toIntOrNull()
         shareVO.accessRole = share.accessRole
@@ -122,10 +131,11 @@ private fun ItemDTO.buildShares(itemFolderLinkId: Int?): MutableList<Share>? {
             archiveId = shareArchiveId
             archiveNbr = share.archive?.archiveNumber
             fullName = share.archive?.name
+            thumbURL200 = share.archive?.thumbUrl200
         }
         result.add(Share(shareVO))
     }
-    pendingShares?.forEach { pendingShare ->
+    invites?.forEach { pendingShare ->
         val shareVO = ShareVO(itemFolderLinkId ?: 0, 0)
         shareVO.shareId = pendingShare.id?.toIntOrNull()
         shareVO.accessRole = pendingShare.accessRole

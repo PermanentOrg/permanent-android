@@ -109,8 +109,9 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-08-27</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-09-17</strong> · edit by hand, one item per surface.
   QA cross-check (Sergiu, iOS V1-vs-V2 sweep, 2026-08-26): 145 V2 calls vs 8 V1 — every remaining V1 call maps to a documented gap on this board (uploads, public/deep-link roots, own-archive public root — migrated since on Android, VSP-1839, V1 failsafe).
+  <strong>Storage purchases (VSP-1792) are the exception to the flag:</strong> they ship from <code>master</code> to production, gated by a Remote Config kill switch (first row below).
   Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
 </header>
 
@@ -124,9 +125,14 @@
     </div>
     <ul>
       <li class="item">
+        <div class="row"><span class="name">Storage purchase — Stripe PaymentIntent</span><span class="pill st-live">Live · kill switch</span></div>
+        <code class="route">POST /v2/storage-purchases</code>
+        <p class="note">VSP-1792 · replaces the donations-firebase Cloud Function (<code>…/donation/payment-sheet</code>) as the source of the client secret; Google Pay confirm and UI unchanged · <strong>ships from <code>master</code>, not behind the migration flag</strong> — gated by Remote Config <code>use_stela_storage_purchase_android</code> (default Stela; <code>false</code> = back to firebase, no release) · body <code>{ amountInUSD }</code> in <strong>whole dollars</strong> (firebase took cents — the 100× trap; iOS #590 handles the same) · storage credited asynchronously via the Stripe webhook → legacy <code>claimpledgemobile</code> · staging flavor uses Google Pay <em>test</em> environment (staging package not registered with Google Pay) · <strong>verified on staging 2026-09-04</strong>: $10 → 201 → test card → +1 GB, webhook confirmed; Stripe account pairing confirmed test/live · a V2 401 errors without logout (interceptor is V1-host-scoped) · <strong>end state: donations-firebase closed</strong> → remove the switch and the legacy path (cutover date pending from backend; iOS #590 removes firebase outright inside its migration branch).</p>
+      </li>
+      <li class="item">
         <div class="row"><span class="name">Private Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">GET /v2/folders/{id}/children</code>
-        <p class="note">VSP-1778 · replaces navigateMin + getLeanItems · single fetch <code>pageSize=99999999</code>, local sort, V1 failsafe, supersede policy. Known gap: pending badge undercounts (see backend column).</p>
+        <p class="note">VSP-1778 · replaces navigateMin + getLeanItems · single fetch <code>pageSize=99999999</code>, local sort, V1 failsafe, supersede policy. The folder-row pending-badge undercount was fixed server-side by stela PR #849 (v0.95.0) — staging re-capture pending (backend column).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Public Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
@@ -169,14 +175,19 @@
         <p class="note">VSP-1790 · first V2 write on the file surface — atomic server-side (one transaction), so a failed copy leaves no orphaned storage (PER-10599) · eligible = session-archive records only, one serial request per record; folders, foreign sources (shares / public gallery) and MOVE stay V1; mixed selections split (records → V2, rest → one V1 batch after) · publish rides the same routing (copy into the public workspace) · <strong>no V1 failsafe, no retry — deliberate</strong>: an ambiguous failure retried on V1 would duplicate the copy · destination = <code>folderId</code> as numeric string · response deliberately not decoded (pasted item surfaces via the normal refresh) · a copy 401 errors without logout (interceptor is V1-host-scoped) · <strong>QA blocker found 2026-08-24:</strong> V2 copies get <strong>no thumbnail at all, permanently</strong> (backend gap — see backend column) → the pasted item is a non-tappable spinner on Android, blank on web.</p>
       </li>
       <li class="item">
+        <div class="row"><span class="name">Folder metadata — share sheet</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/folders?folderIds[]=&amp;pageSize=</code>
+        <p class="note">VSP-1842 · the share sheet's folder refresh (<code>ShareManagementViewModel.refreshShares</code>, the read that feeds pending requests / approved archives) rides the plural route with <code>pageSize = id count</code> (required on the plural route — 400 without; iOS omits it), same <code>ItemDTO</code>/<code>toRecordV2</code> mapper, gate <code>useStelaMigration &amp;&amp; folderId &gt; 0</code>, silent V1 <code>folder/get</code> failsafe on any anomaly (missing folder, corrupt share ids, unknown share role, <code>folderLinkId</code> mismatch), a 401 cannot log out · maps <code>shares[]</code> only — email invites stay with the pending-invite read · pending archive shares in <code>shares[]</code> come from stela PR #849 (v0.95.0, see backend column) — <strong>live pre-check on staging pending</strong> · inventory complete: the only other V1 <code>folder/get</code> caller is the FCM push fallback (backend column).</p>
+      </li>
+      <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
         <code class="route">GET /v2/folder/{id}/children (share token)</code>
         <p class="note">Pre-VSP-1778 · still on the singular alias route — move to plural opportunistically.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Folder metadata (pending-invite reads)</span><span class="pill st-live">Live</span></div>
-        <code class="route">GET /v2/folders?folderIds[]=</code>
-        <p class="note">Via <code>StelaAccountService.getFolder</code> (singular alias).</p>
+        <code class="route">GET /v2/folder?folderIds[]=</code>
+        <p class="note">Via <code>StelaAccountService.getFolder</code> — the <strong>singular</strong> deprecated alias (no <code>pageSize</code>, no <code>pagination</code>); ungated V2 since VSP-1624. Left exactly as is by VSP-1842; moving it to the plural route = adding <code>pageSize=1</code> (opportunistic).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Record read (pending-invite reads)</span><span class="pill st-live">Live</span></div>
@@ -230,12 +241,16 @@
       <p class="sub">Missing routes or data — split by when we need it</p>
     </div>
     <ul>
-      <li class="group">Blocks the flag flip (VSP-1778 · Private Files only)</li>
+      <li class="group">Was blocking the flag flip — delivered, staging re-verification pending</li>
       <li class="item">
-        <div class="row"><span class="name">Pending shares-to-archives in children <code>shares[]</code> — folder items only</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">Refined + live-verified on staging 2026-07-31 (one children capture): <strong>record items already include pending shares</strong> (<code>get_records.sql</code> keeps everything but deleted — record <code>faux-potted-cactus</code> returned its <code>status.generic.pending</code> share); <strong>folder items drop them</strong> (<code>get_folders.sql</code> filters to <code>status.generic.ok</code> — the Vacation folder still omits pending <code>shareId 2010</code>). One-line backend fix: align the folder filter with the record one. The Android mapper already handles pending entries in <code>shares[]</code>, so no app change needed. Still the one thing to fix before the production flag flip.</p>
+        <div class="row"><span class="name">Pending shares-to-archives in children <code>shares[]</code> — folder items only</span><span class="pill st-prog">Shipped · stela PR #849</span></div>
+        <p class="note"><strong>Delivered — PER-10738, stela PR #849</strong> (merged 2026-09-02, in v0.95.0, prod the same evening; Cecilia, 2026-09-16): <code>get_folders.sql</code> keeps every non-deleted share and the folder mapper returns pending ones to callers ≥ Manager — on children folder items and on <code>GET /folders</code> alike (same query + mapper). Records changed symmetrically: pending shares are now hidden from callers below Manager (previously always included). Android mapper already handles pending entries — no app change. <strong>To close:</strong> re-capture the Vacation folder item on staging (pending <code>shareId 2010</code> should now appear). History: Refined + live-verified on staging 2026-07-31 (one children capture): <strong>record items already include pending shares</strong> (<code>get_records.sql</code> keeps everything but deleted — record <code>faux-potted-cactus</code> returned its <code>status.generic.pending</code> share); <strong>folder items drop them</strong> (<code>get_folders.sql</code> filters to <code>status.generic.ok</code> — the Vacation folder still omits pending <code>shareId 2010</code>). One-line backend fix: align the folder filter with the record one. The Android mapper already handles pending entries in <code>shares[]</code>, so no app change needed. Still the one thing to fix before the production flag flip. <strong>Update 2026-09-17:</strong> stela <code>39ef0144</code> (v0.95.0, prod 2026-09-02) made <code>get_folders.sql</code> keep every non-deleted share and return pending ones to callers ≥ Manager — source-verified for <code>GET /folders</code> (VSP-1842); whether the same commit aligned the <strong>children</strong> route is unverified — re-capture the Vacation folder item on staging.</p>
       </li>
       <li class="group">Findings for future tickets — not scheduled yet</li>
+      <li class="item">
+        <div class="row"><span class="name">Rejected bearer → V2 listings silently empty</span><span class="pill st-block">Found 2026-09-18</span></div>
+        <p class="note">Stela v0.97.0 (PR #871) honours FusionAuth <code>active: false</code>; a stale-but-unexpired token now 401s on every authenticated V2 call while the V1 session still works. Root discovery falls back to V1, but <code>/children</code> (optional auth) answers <code>200 {"items": []}</code> for the anonymous caller → My Files / Public Files render empty with no failsafe. Re-login fixes it. <strong>Client guard shipped (VSP-1842):</strong> process-wide <code>StelaAuthState.isBearerRejected</code> — set by <code>UnauthorizedInterceptor</code> on any Stela 401 that carried a bearer, cleared when <code>/v2/archives</code> answers 2xx on a root load; every flag-gated V2 read (all listing screens + share sheet) runs V1 while set. Best-effort: a screen reached before any authenticated Stela call in the process still trusts an empty answer. <strong>Backend ask:</strong> answer 401 for a present-but-invalid bearer on <code>/children</code> instead of anonymous 200. Contract doc, gap 8.</p>
+      </li>
       <li class="item">
         <div class="row"><span class="name">Complete <code>shares[]</code> on shared-tree children (badge data)</span><span class="pill st-block">Blocked</span></div>
         <p class="note"><strong>The accessRole half is delivered:</strong> shipped by the backend as <strong>PER-10716</strong> (stela PR #835, merged 2026-08-13, Jira Done), live-verified on staging (children capture 2026-08-14 — dotted form <code>access.role.viewer</code>, per-item, share-aware), decoded by Android since VSP-1802. What remains: descendants inside a shared tree still return thin/empty <code>shares[]</code> (hydration SQL aggregates direct share rows only), so the shared/pending <strong>badge</strong> data is incomplete there — display-only impact, one theme with the badge row above.</p>
@@ -276,7 +291,7 @@
       </li>
       <li class="item">
         <div class="row"><span class="name">Link-address resolution (V1 link ids → V2 ids)</span><span class="pill st-block">Blocked</span></div>
-        <p class="note">All workspaces swept (2026-08-11): the app mints/consumes exactly two link families — public URLs (<code>/p/archive/…</code>) and share links (<code>/share/{token}</code>) — and they carry V1-era addresses that <strong>four</strong> V2 lookups can't do: <code>folder_linkId</code> → <code>folderId</code> (folder links), record <code>archiveNbr</code> → <code>recordId</code> (record links), share <code>token</code> → <code>shareLinkId</code> (V2 share-links accepts only <code>shareLinkIds[]</code>; today learned via V1 <code>share/getLink</code>), and <code>archiveNbr</code> → public root <code>folderId</code> (entry point of every public link; today V1 <code>getPublicRoot</code>). Deep links are the same two families, not a separate case; archive profile links unaffected. Ranked asks (VSP-1810 comment, 2026-08-06): (1) a V2 resolver family covering all four, (2) V1-era keys as alternative addresses on existing V2 routes, (3) ids in the URL format (still needs 1/2 for old links). Nothing broken today — V1 fallbacks work — but every shared link keeps V1 alive. Full inventory: <code>docs/stela-v2-link-migration.md</code>.</p>
+        <p class="note">All workspaces swept (2026-08-11): the app mints/consumes exactly two link families — public URLs (<code>/p/archive/…</code>) and share links (<code>/share/{token}</code>) — and they carry V1-era addresses that <strong>four</strong> V2 lookups can't do: <code>folder_linkId</code> → <code>folderId</code> (folder links), record <code>archiveNbr</code> → <code>recordId</code> (record links), share <code>token</code> → <code>shareLinkId</code> (V2 share-links accepts only <code>shareLinkIds[]</code>; today learned via V1 <code>share/getLink</code>), and <code>archiveNbr</code> → public root <code>folderId</code> (entry point of every public link; today V1 <code>getPublicRoot</code>). Deep links are the same two families, not a separate case; archive profile links unaffected. Ranked asks (VSP-1810 comment, 2026-08-06): (1) a V2 resolver family covering all four, (2) V1-era keys as alternative addresses on existing V2 routes, (3) ids in the URL format (still needs 1/2 for old links). Nothing broken today — V1 fallbacks work — but every shared link keeps V1 alive. Full inventory: <code>docs/stela-v2-link-migration.md</code>. <strong>Same bucket, different carrier (VSP-1842):</strong> the FCM push fallback <code>PermanentFCMService.requestFolderBy</code> reads a folder by the payload's <code>folder_linkId</code> only (keys <code>SHARE_FOLDER_LINK_ID</code> / <code>FOLDER_LINK_ID</code>) — the last V1 <code>folder/get</code> caller, unmigratable until the payload carries <code>folderId</code>/<code>recordId</code> or the resolver ships.</p>
       </li>
     </ul>
   </section>
@@ -285,7 +300,7 @@
 
 <footer>
   Sources: merged iOS PRs #573–#576, #580, #582, #583 (tier 1) · iOS contract sheet &amp; status boards (tier 2) ·
-  <code>docs/stela/folders-children-contract.md</code> · VSP-1772 impact inventory.
+  <code>docs/stela/folders-children-contract.md</code> · <code>docs/stela/storage-purchases-contract.md</code> (VSP-1792, master branch) · VSP-1772 impact inventory.
   Keep this file the single source of truth for the Android migration surface — update the item when a ticket lands.
 </footer>
 </main>

@@ -153,16 +153,12 @@ enum class AccessRole(val backendString: String) : Parcelable {
             return values()[parcel.readInt()]
         }
 
-        fun fromBackendValue(accessRoleString: String?): AccessRole {
-            return when (accessRoleString) {
-                OWNER.backendString -> OWNER
-                MANAGER.backendString -> MANAGER
-                CURATOR.backendString -> CURATOR
-                EDITOR.backendString -> EDITOR
-                CONTRIBUTOR.backendString -> CONTRIBUTOR
-                else -> VIEWER
-            }
-        }
+        fun fromBackendValue(accessRoleString: String?): AccessRole =
+            fromBackendValueOrNull(accessRoleString) ?: VIEWER
+
+        // Exact dotted match, no VIEWER clamp — for callers that must detect an unknown role.
+        fun fromBackendValueOrNull(accessRoleString: String?): AccessRole? =
+            entries.firstOrNull { it.backendString == accessRoleString }
 
         fun fromStelaBackendValue(accessRoleString: String?): AccessRole {
             // Accepts the short V2 form ("viewer") and tolerates the dotted V1 form.
