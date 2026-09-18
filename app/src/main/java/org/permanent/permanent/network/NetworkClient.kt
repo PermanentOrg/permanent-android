@@ -41,6 +41,7 @@ import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.FolderResponse
+import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.InviteSharePayload
 import org.permanent.permanent.network.models.InviteVO
@@ -869,6 +870,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =
         stelaAccountService.getFolder(shareToken, folderId)
+
+    // pageSize = the id count: one page covers every requested folder, no cursor needed.
+    fun getFoldersV2(folderIds: List<Int>): Call<FoldersResponse> =
+        stelaAccountService.getFolders(folderIds, folderIds.size)
 
     fun generateShareLink(shareLink: ShareLinkVO): Call<ShareLinkResponse> = stelaAccountService.generateShareLink(shareLink)
 

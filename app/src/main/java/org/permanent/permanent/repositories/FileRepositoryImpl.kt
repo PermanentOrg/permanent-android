@@ -9,6 +9,7 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.mapper.toRecordV2
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
@@ -16,9 +17,12 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FoldersResponse
+import org.permanent.permanent.network.models.ItemDTO
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.LocnVO
@@ -97,6 +101,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 call: Call<ArchivesV2Response>,
                 response: Response<ArchivesV2Response>
             ) {
+                if (response.isSuccessful) StelaAuthState.isBearerRejected = false
                 if (isStale()) {
                     listener.onFailed(null)
                     return
@@ -241,13 +246,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                         return
                     }
                     val records = items.map { it.toRecordV2() }
-                    val corruptRecord = records.find { record ->
-                        val itemId =
-                            if (record.type == RecordType.FOLDER) record.folderId else record.recordId
-                        (itemId ?: -1) <= 0 || (record.folderLinkId ?: -1) <= 0 ||
-                                record.archiveNr.isNullOrEmpty()
-                    }
-                    if (corruptRecord != null) {
+                    if (records.any { it.lacksWriteCriticalIds() }) {
                         listener.onFailed(context.getString(R.string.generic_error))
                         return
                     }
@@ -388,6 +387,50 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 listener.onFailed(t.message)
             }
         })
+    }
+
+    // Any anomaly reports onFailed so the share sheet runs the V1 getFolder failsafe.
+    override fun getFolderV2(folderId: Int, folderLinkId: Int, listener: IRecordListener) {
+        NetworkClient.instance().getFoldersV2(listOf(folderId))
+            .enqueue(object : Callback<FoldersResponse> {
+
+                override fun onResponse(
+                    call: Call<FoldersResponse>,
+                    response: Response<FoldersResponse>
+                ) {
+                    val item = response.body()?.items
+                        ?.firstOrNull { it.folderId == folderId.toString() }
+                    val record = item?.takeIf { response.isSuccessful && !it.hasCorruptShare() }
+                        ?.toRecordV2(includePendingInvitesAsShares = false)
+                    if (record == null || record.folderLinkId != folderLinkId ||
+                        record.lacksWriteCriticalIds()
+                    ) {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                        return
+                    }
+                    // V1 getFolder always delivers a list.
+                    record.shares = record.shares ?: mutableListOf()
+                    listener.onSuccess(record)
+                }
+
+                override fun onFailure(call: Call<FoldersResponse>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    // The retained V1 writes (delete/move/rename/share) key on folderLinkId + archiveNbr.
+    private fun Record.lacksWriteCriticalIds(): Boolean {
+        val itemId = if (type == RecordType.FOLDER) folderId else recordId
+        return (itemId ?: -1) <= 0 || (folderLinkId ?: -1) <= 0 || archiveNr.isNullOrEmpty()
+    }
+
+    // Checked on the DTO: Share() clamps an unknown role to VIEWER, and a later role
+    // edit would write that downgrade.
+    private fun ItemDTO.hasCorruptShare(): Boolean = shares.orEmpty().any { share ->
+        (share.id?.toIntOrNull() ?: -1) <= 0 ||
+                (share.archive?.id?.toIntOrNull() ?: -1) <= 0 ||
+                AccessRole.fromBackendValueOrNull(share.accessRole) == null
     }
 
     override fun getPresignedUrlForUpload(

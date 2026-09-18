@@ -10,11 +10,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.IFolderChildrenListener
@@ -206,7 +206,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
             // carry a folderId (it is what classifies them as folders); anything
             // without one falls through to V1 here.
             val folderId = record.folderId
-            if (FeatureFlags.useStelaMigration && folderId != null && folderId > 0) {
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
                 loadChildRecordsOfV2(record, folderId, archiveNr, folderLinkId)
             } else {
                 loadChildRecordsOfV1(record, archiveNr, folderLinkId)

@@ -8,11 +8,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.BuildConfig
-import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IRecordListener
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
@@ -78,7 +78,7 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
             // archive), and a deep-linked folder synthesized without a folderId falls
             // through to V1 here.
             val folderId = record.folderId
-            if (FeatureFlags.useStelaMigration && folderId != null && folderId > 0) {
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
                 loadFilesOfV2(folderId, archiveNr, folderLinkId)
             } else {
                 loadFilesOfV1(archiveNr, folderLinkId)

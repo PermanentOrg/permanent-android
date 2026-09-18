@@ -46,6 +46,8 @@ Not affected: archive profile links — `archiveNbr` is the key the (still-V1) p
 
 Deep links are not a separate case: they consume the same two families through the same code paths.
 
+Related, not a link: push notification payloads (`SHARE_LINK_REQUEST`, `SHARE_INVITATION_ACCEPTANCE`) carry only a `folder_linkId`, so `PermanentFCMService.requestFolderBy` is the one remaining V1 `folder/get` caller (VSP-1842 inventory). Same fix family: `folderId`/`recordId` in the payload, or lookup 1 above.
+
 ## What fixes it (backend, ranked)
 
 1. A V2 resolver endpoint family covering all three lookups — `folder_linkId → folderId`, `record archiveNbr → recordId`, `token → shareLinkId` — plus a V2 public-root-by-archiveNbr route. Backend-only; fixes every link ever shared.

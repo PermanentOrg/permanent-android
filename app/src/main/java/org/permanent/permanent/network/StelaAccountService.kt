@@ -8,6 +8,7 @@ import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.FolderResponse
+import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.RecordResponse
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkResponse
@@ -46,6 +47,14 @@ interface StelaAccountService {
         @Header("X-Permanent-Share-Token") shareToken: String?,
         @Query("folderIds[]") folderId: Int
     ): Call<FolderResponse>
+
+    // Plural route requires pageSize; the singular alias above does not.
+    @Headers("Request-Version: 2")
+    @GET("api/v2/folders")
+    fun getFolders(
+        @Query("folderIds[]") folderIds: List<Int>,
+        @Query("pageSize") pageSize: Int
+    ): Call<FoldersResponse>
 
     @GET("api/v2/share-links")
     fun getShareLink(

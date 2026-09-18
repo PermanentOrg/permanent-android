@@ -33,11 +33,16 @@ class UnauthorizedInterceptor : Interceptor {
         val request: Request = chain.request()
         val requestUrl = request.url.toString()
         val response = chain.proceed(request)
+        val isStelaUrl = requestUrl.contains(BuildConfig.BASE_API_URL_STELA)
+
+        // response.request carries the bearer the next interceptor attached.
+        if (response.code == 401 && isStelaUrl && response.request.header("Authorization") != null) {
+            StelaAuthState.isBearerRejected = true
+        }
 
         val isOnV1Host = requestUrl.contains(BuildConfig.BASE_API_URL)
         // Today a Stela 401 must fall through to the V1 failsafe — see the flag's kdoc.
-        val isOnStelaHost = FeatureFlags.treatStelaUnauthorizedAsSessionExpiry
-                && requestUrl.contains(BuildConfig.BASE_API_URL_STELA)
+        val isOnStelaHost = FeatureFlags.treatStelaUnauthorizedAsSessionExpiry && isStelaUrl
 
         if ((isOnV1Host || isOnStelaHost)
             && !requestUrl.contains(Constants.LOGIN_URL_SUFFIX)

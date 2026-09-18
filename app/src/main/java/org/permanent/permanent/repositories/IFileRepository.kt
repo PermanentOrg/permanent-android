@@ -60,6 +60,8 @@ interface IFileRepository {
         folderLinkId: Int, listener: IRecordListener
     )
 
+    fun getFolderV2(folderId: Int, folderLinkId: Int, listener: IRecordListener)
+
     fun getPresignedUrlForUpload(
         folderId: Int, folderLinkId: Int, file: File, displayName: String, mediaType: MediaType
     ): Call<GetPresignedUrlResponse>

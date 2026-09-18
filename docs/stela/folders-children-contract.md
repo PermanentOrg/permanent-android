@@ -6,7 +6,8 @@ updated 2026-07-30 against PRs #574/#575/#576/#580, and 2026-08-14 against iOS D
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
 Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery),
 VSP-1806 (Search drill-in), VSP-1803 (Shared By Me drill-in), VSP-1802 (Shared With Me
-drill-in), VSP-1788 (root resolution) and VSP-1839 (Public Files root resolution); reuse
+drill-in), VSP-1788 (root resolution), VSP-1839 (Public Files root resolution) and VSP-1842
+(folder metadata reads); reuse
 for future Stela tickets instead of re-deriving.
 
 ## Root resolution — My Files (VSP-1788)
@@ -453,12 +454,78 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 - Residual risk of the huge-pageSize workaround: if the server ever clamps `pageSize` below a
   folder's real size, listings would **silently truncate** (iOS carries the same known risk).
 
-## Supporting endpoint
+## Folder metadata — GET /v2/folders (VSP-1842, source-verified 2026-09-17)
 
-`GET api/v2/folders?folderIds[]={id}` — batch folder metadata (`folderId`, `folderLinkId`,
-`displayName`, `shares[]`, `pendingShares[]`). Same headers. The singular `/folder` form is
-the deprecated alias (Android's existing `StelaAccountService.getFolder` still uses it for
-share management — migrate opportunistically).
+Batch folder read by **`folderId`**. Verified against the stela `main` source
+(`folder/controller/controller.ts`, `validators.ts`, `service.ts`, `queries/get_folders.sql`,
+`controller/get_folders_page.test.ts`), the published docs and iOS Development
+(`FolderV2Endpoint.getFolderById`). Live staging capture still pending — see the QA
+pre-check in the VSP-1842 plan; re-verify the rows marked *(source)* against a capture.
+
+**Two routes, one handler family — NOT byte-identical (unlike the children alias):**
+
+| | Plural `GET api/v2/folders` (documented, use this) | Singular `GET api/v2/folder` (deprecated alias) |
+|---|---|---|
+| `folderIds[]` | required, repeated (`folderIds[]=1&folderIds[]=2`; Retrofit's `%5B%5D` encoding is accepted) | required |
+| `pageSize` | **required**, integer ≥ 1 — missing → **400** (pinned in `get_folders_page.test.ts`) | not accepted |
+| `cursor` | optional; a `folderId`; results page in **ascending `folderId`** order | — |
+| Response | `{ items: folder[], pagination: { nextCursor, nextPage, totalPages } }`; `nextCursor` = last item's `folderId`, **non-null even on the last page**; a cursor past the end returns `items: []` | `{ items: folder[] }` |
+| Auth | bearer or `X-Permanent-Share-Token`, both optional (`extractUserEmailFromAuthToken`) | same |
+
+- **Android convention:** `StelaAccountService.getFolders(folderIds, pageSize)` via
+  `NetworkClient.getFoldersV2(folderIds)` sends **`pageSize = folderIds.size`** — one page covers
+  every requested id, so no cursor loop. Neither iOS (`getFolderById`: plural, single id, *no*
+  `pageSize`) nor the pending-invite read (singular alias, no `pageSize`) had a convention to copy.
+  Against current stela the iOS plural call should answer 400 (they fall back to V1) — a
+  QA-relevant platform difference, not an Android concern.
+- **Pending-invite read stays on the singular alias** (`StelaAccountService.getFolder`, ungated
+  V2, `FolderResponse`/`FolderItemDTO`) — deliberately untouched by VSP-1842. Moving it to the
+  plural route = adding `pageSize=1`; opportunistic.
+- **Items reuse the children item shape** (`ItemDTO` → `ItemMapper.toRecordV2`, response
+  `FoldersResponse`). Wire fields *(source)*: `folderId` **and** `id` (same value), `folderLinkId`,
+  `archiveNumber`, `size`, `displayName`, `displayTimestamp`, `displayEndTimestamp`, `displayTime`,
+  short `type`/`status`/`sort`/`view`, `parentFolder{id,folderLinkId}`, `archive{id,name}`, `paths`,
+  `thumbnailUrls{"200","256","500","1000","2000"}`, `location`, `tags`, `imageRatio`, `publicAt`,
+  `createdAt`, `updatedAt`, `accessRole`, `shares[]`, `pendingShares[]`.
+- **`accessRole` AND `shares[]` are both present** — the folder schema lists `accessRole` as
+  required and `mapFolderRow` emits it (caller-resolved, **short form** via `resolveAccessRole`)
+  next to `shares[]`. The old epic note "accessRole removed in favor of shares" is wrong for
+  this route too.
+- **`shares[]` on this route** *(source)*: `{ id, accessRole, status, archive{ id, thumbUrl200,
+  name } }` — `accessRole`/`status` are **raw DB dotted** passthrough (`access.role.viewer`,
+  `status.generic.pending`), and the share archive has **no `archiveNumber`** (children shares
+  do carry it). Status filtering: since stela `39ef0144` (2026-08-31, **v0.95.0**, prod
+  2026-09-02) `get_folders.sql` keeps every non-deleted share and `mapFolderRow` returns them
+  all to callers **≥ Manager**; lower roles get `status.generic.ok` only. That is gap 2's fix
+  (**PER-10738, stela PR #849**, announced by Cecilia 2026-09-16) — and it covers the **children**
+  route too, whose folder items are hydrated by the same `getFolders` query and `mapFolderRow`.
+- **`pendingShares[]`** — email invites, `null` unless the caller is owner/manager of the
+  folder's archive.
+- **Share-sheet mapping rule (Android):** `toRecordV2(includePendingInvitesAsShares = false)` —
+  the sheet lists invites from its own pending-invite read, and an invite has no `shareId` /
+  archive to approve; merging it would render a bogus pending row with live Approve/Deny.
+  List rows keep the default (invites counted in the badge, VSP-1778 behavior).
+- **Self-archive shares are dropped client-side** *(live 2026-09-18, record 73967 + folder 45497 on
+  staging)*: V2 `shares[]` includes a share whose `archive.id` equals the item's own `archiveId`
+  (likely created by requesting access on one's own approval-restricted link); V1 `record/get`
+  returned `ShareVOs: []` for the same record. Web (V2) shows it as "shared with The Flavia
+  Archive". `ItemMapper.buildShares` skips such entries so the listing badge and the share sheet
+  match V1. Deliberately not raised with backend (minor); the client filter is the resolution.
+- **Contract-failure rules (→ V1 `folder/get` failsafe):** non-2xx; 2xx without `items`;
+  requested `folderId` absent from `items` (the caller can't see it — `items: []` is not "no
+  folder"); a share with non-positive `id`/`archive.id` or an `accessRole` outside the six
+  dotted values (Android's `Share()` would clamp it to VIEWER and a later role edit would
+  *write* that downgrade); folder with non-positive `folderId`/`folderLinkId` or empty
+  `archiveNumber`. The mapped record's `shares` is coerced to a non-null list (V1 parity: the
+  sheet mutates it in place). The repository also requires the returned `folderLinkId` to
+  equal the tapped record's (`getFolderV2(folderId, folderLinkId, …)`) — every share write keys
+  on it — and reuses the children read's write-critical-id predicate.
+- **Call-site inventory (VSP-1842, complete):** the only remaining V1 `folder/get` callers were
+  `ShareManagementViewModel.refreshShares` (folder branch — **migrated**, gate
+  `useStelaMigration && folderId > 0`, silent V1 failsafe, 401 cannot log out) and
+  `PermanentFCMService.requestFolderBy` (push fallback holding only the payload's
+  `folder_linkId` — **stays V1**, identity gap; joins the resolver-blocked bucket below, backend
+  ask: `folderId`/`recordId` in the FCM payload or the gap-5 resolver).
 
 ## Record copy — POST /v2/records/{id}/copies (VSP-1790, verified 2026-08-24)
 
@@ -541,9 +608,9 @@ error and can never log the user out — strictly safer, revisit with gap 7's sw
 
 ## Impact summary (updated 2026-07-31)
 
-With the flag ON, only one thing visibly breaks on Private Files: the **pending badge
-undercounts on FOLDER rows** (gap 2 below — record rows are fine, live-verified
-2026-07-31). Everything else falls back to V1 or is handled in the app. What remains of
+With the flag ON, nothing is known to break on Private Files any more: the **pending badge
+undercount on FOLDER rows** (gap 2 below) was fixed by stela PR #849 (v0.95.0, 2026-09-02) —
+staging re-capture pending. Everything else falls back to V1 or is handled in the app. What remains of
 gaps 1 and 2 is one backend theme — *send complete share/badge data on children* — with
 gap 2's concrete one-line filter ask already raised (2026-07-31); gap 1's `accessRole`
 half was resolved by decoding the existing payload field (VSP-1802). Gaps 3–6 break
@@ -587,7 +654,14 @@ on V1.
    folder rows will start working with **no app change** once the backend aligns the
    filter. **Ask (one line):** make `get_folders.sql` use the same
    `!= 'status.generic.deleted'` filter as `get_records.sql`. Fix needed before the
-   production flag flip. Both sides are live-verified on staging (2026-07-31, one
+   production flag flip. **DELIVERED — PER-10738, stela PR #849** (merged 2026-09-02, in v0.95.0, prod the same
+   evening; announced by Cecilia 2026-09-16): `get_folders.sql` now keeps every non-deleted
+   share and `mapFolderRow` returns pending ones to callers **≥ Manager** (lower roles: `ok`
+   only) — on `GET /folders` **and** on children folder items (same query + mapper). Records
+   changed symmetrically: pending shares are now **hidden from callers below Manager** (they
+   were always included before), so Editor/Curator members see fewer badge counts on record
+   rows — no client change needed. Staging re-capture of the Vacation folder item still to
+   do; the app-side mapper already handles pending entries. Both sides are live-verified on staging (2026-07-31, one
    children capture session): pending present on the record item, absent on the folder
    item.
 3. **No V2 folder-creation endpoint** (`POST /v2/folders` does not exist) — folder creation
@@ -650,6 +724,23 @@ on V1.
    interceptor buffers every Stela response body to a `String` to inspect it (same
    as V1 today) — that includes the large single-page children listings, so keep it
    in mind for any future response-size profiling.
+8. **A Stela-rejected token makes every V2 listing a silent empty folder** *(found 2026-09-18,
+   staging emulator)*. Stela v0.97.0 (PR #871, 2026-09-16) now honours FusionAuth
+   introspection `active: false`; a 2-week-old token (unexpired by `exp`) was rejected on
+   every authenticated V2 call (`/v2/archives`, `/v2/event` → 401) while the V1 session stayed
+   valid. Root discovery fell back to V1 correctly, but `/folders/{id}/children` uses optional
+   auth and answered `200 {"items": []}` for the anonymous caller, so My Files and Public
+   Files rendered empty with no failsafe (see "Read failure mode is silent omission"). Logging
+   in again fixed it. **Client guard (shipped with VSP-1842):** `StelaAuthState.isBearerRejected` is process-wide —
+   set by `UnauthorizedInterceptor` on any Stela-host 401 whose request carried a bearer
+   (archives, event tracking, anything), cleared when a root load's `/v2/archives` answers 2xx.
+   Every flag-gated V2 read (My Files, Public Files, Shares drill-in, gallery, search, share
+   sheet) checks it and runs V1 while it is set. Best-effort by nature: a screen reached before
+   any authenticated Stela call in the process still trusts an empty children answer, and a
+   gap-7 permission 401 also trips it (fail-safe direction, self-heals on the next root load).
+   Longer term this is gap 7's token-refresh question. **Backend note:** an anonymous caller on `/children`
+   is indistinguishable from an empty folder — a 401 for a *present but invalid* bearer would
+   let clients fall back.
 
 ## Spec-vs-reality discrepancies found (do not trust these in the docs/tickets)
 
@@ -668,3 +759,8 @@ on V1.
 | Access map: "share-membership foreign content ✗ on V2" | Wrong for READS — inferred from #576's PATCH (a write). Reads authorize via the `access` table, descendants included; corrected 2026-08-14 |
 | VSP-1788 ticket: "the call to change archives should return the rootFolderId" | It does not — live staging capture 2026-08-19 shows no root identity anywhere in the `archive/change` response; the source is `GET /v2/archives` `items[].rootFolderId` |
 | Field-notes short-form example `root.private` for section roots | Wrong — live staging (2026-08-20) sends `private-root`/`public-root`/`app-root`, matching iOS's `FileType.fromV2` spellings. Android matches `type.folder.private-root` post-normalization (underscore tolerated), display name as safety net |
+| Docs: `GET /folders` has no query parameters | `folderIds[]` required; **`pageSize` required on the plural route** (400 without), `cursor` optional — validators.ts (VSP-1842) |
+| Docs: `shareSummary.status` enum `ok`/`pending`; `shareArchive{id, thumbUrl200, name}` | Wire status is raw dotted (`status.generic.*`); the archive object matches the docs — i.e. folder-route shares carry **no `archiveNumber`** |
+| Docs: folder schema `id` only | Wire sends `folderId` **and** `id` (same value) |
+| "Singular `/folder` is a byte-identical alias" (true for children) | **Not** for the batch read: singular takes no `pageSize` and returns no `pagination` |
+| Status board: pending-invite read "= `GET /v2/folders?folderIds[]=`" | Code hits the **singular** `api/v2/folder` alias (no `pageSize`) |
