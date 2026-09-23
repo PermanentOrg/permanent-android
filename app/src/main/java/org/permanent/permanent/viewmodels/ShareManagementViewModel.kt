@@ -236,21 +236,35 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
                 refreshFolderSharesV1(folderLinkId)
             }
         } else {
-            fileRepository.getRecord(folderLinkId, record.recordId)
-                .enqueue(object : Callback<ResponseVO> {
-                    override fun onResponse(
-                        call: Call<ResponseVO>, response: Response<ResponseVO>
-                    ) {
-                        val freshRecord = response.body()?.getRecord()
-                        if (freshRecord != null) onRefreshSucceeded(freshRecord)
-                        else _isRefreshingShares.value = false
-                    }
-
-                    override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                        onRefreshFailed(t.message)
-                    }
+            val recordId = record.recordId
+            if (StelaAuthState.isV2ReadEnabled && recordId != null && recordId > 0 &&
+                record.archiveId == prefsHelper.getCurrentArchiveId()
+            ) {
+                fileRepository.getRecordV2(recordId, folderLinkId, object : IRecordListener {
+                    override fun onSuccess(record: Record) = onRefreshSucceeded(record)
+                    override fun onFailed(error: String?) = refreshRecordSharesV1(folderLinkId)
                 })
+            } else {
+                refreshRecordSharesV1(folderLinkId)
+            }
         }
+    }
+
+    private fun refreshRecordSharesV1(folderLinkId: Int) {
+        fileRepository.getRecord(folderLinkId, record.recordId)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(
+                    call: Call<ResponseVO>, response: Response<ResponseVO>
+                ) {
+                    val freshRecord = response.body()?.getRecord()
+                    if (freshRecord != null) onRefreshSucceeded(freshRecord)
+                    else _isRefreshingShares.value = false
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    onRefreshFailed(t.message)
+                }
+            })
     }
 
     private fun refreshFolderSharesV1(folderLinkId: Int) {

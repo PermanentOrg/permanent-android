@@ -13,14 +13,11 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITagListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.FileData
-import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.IFileDataListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -160,18 +157,19 @@ class AddEditFileTagsViewModel(application: Application) : ObservableAndroidView
         }
 
         isBusy.value = true
-        fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
+        fileRepository.getFileData(
+            recordId, folderLinkId, fileData.archiveId, false, object : IFileDataListener {
 
-            override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+            override fun onSuccess(newFileData: FileData) {
                 isBusy.value = false
-                response.body()?.getFileData()?.let { newFileData -> fileData = newFileData }
+                fileData = newFileData
                 showMessage.value = appContext.getString(R.string.file_tags_update_success)
-                onTagsUpdated.value = fileData
+                onTagsUpdated.value = newFileData
             }
 
-            override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+            override fun onFailed(error: String?) {
                 isBusy.value = false
-                showMessage.value = t.message
+                showMessage.value = error
             }
         })
     }

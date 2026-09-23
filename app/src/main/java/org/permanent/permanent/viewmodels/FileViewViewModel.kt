@@ -20,15 +20,16 @@ import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Download
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.ConnectivityMonitorImpl
 import org.permanent.permanent.network.DebugForcedOfflineMonitor
 import org.permanent.permanent.network.IConnectivityMonitor
+import org.permanent.permanent.network.IFileDataListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
-import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.OnPreviewResultListener
@@ -38,9 +39,6 @@ import org.permanent.permanent.ui.fileView.ImageViewUiState
 import org.permanent.permanent.ui.fileView.PreviewOverlayState
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 
 class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -320,18 +318,13 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
             if (isImage.value != true) {
                 _previewState.value = PreviewOverlayState.LOADING
             }
-            fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
+            fileRepository.getFileData(
+                recordId, folderLinkId, record.archiveId,
+                FileSessionData.allowsForeignStelaDetail, object : IFileDataListener {
 
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
-                    val parsedData = response.body()?.getFileData()
-                    if (parsedData == null) {
-                        // HTTP error statuses and unparseable payloads land here, not in
-                        // onFailure — without this the viewer stalls on the loader forever
-                        if (isImage.value == true) onFullResFailed() else onPreviewLoadFailed()
-                        return
-                    }
-                    fileData.value = parsedData
-                    fileData.value?.let { data ->
+                override fun onSuccess(newFileData: FileData) {
+                    fileData.value = newFileData
+                    newFileData.let { data ->
                         // Non-null for native PDFs and for documents with a PDF access
                         // copy (e.g. spreadsheets) — the single routing rule, see FileData
                         isPDF.value = data.pdfPreviewURL != null
@@ -395,7 +388,9 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
                     }
                 }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                // HTTP errors, unparseable payloads and transport failures all land here —
+                // without it the viewer stalls on the loader forever
+                override fun onFailed(error: String?) {
                     if (isImage.value == true) {
                         // The full-res image can't even start without the record data, so
                         // this failure feeds the same S6/S7 classification.

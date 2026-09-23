@@ -10,14 +10,12 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ITagListener
-import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.network.IFileDataListener
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class EditMetadataViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -73,11 +71,12 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
 
         if (folderLinkId != null && recordId != null) {
             isBusy.value = true
-            fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
+            fileRepository.getFileData(
+                recordId, folderLinkId, record.archiveId, false, object : IFileDataListener {
 
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                override fun onSuccess(newFileData: FileData) {
                     isBusy.value = false
-                    record.fileData = response.body()?.getFileData()
+                    record.fileData = newFileData
                     fileDataSize++
                     if (fileDataSize == records.size) {
                         checkForCommonDescription()
@@ -87,9 +86,9 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                     }
                 }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                override fun onFailed(error: String?) {
                     isBusy.value = false
-                    showError.value = t.message
+                    showError.value = error
                 }
             })
         } else Log.e("EditMetadataViewModel", "folderLinkId or recordId is null")
