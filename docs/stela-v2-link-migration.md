@@ -39,6 +39,8 @@ Built in `ShareManagementViewModel` (`BASE_URL + "share/" + token`) from the V2 
 |---|---|---|---|
 | 1 | `folder_linkId` in public folder links | `folderId` | `navigateMin` accepts the link's ids directly |
 | 2 | record `archiveNbr` in public record links | `recordId` | `record/get` by archiveNbr |
+
+Since VSP-1840 only the *lookup* in row 2 is V1: the record it returns carries `recordId`/`archiveId`, so the viewer read that follows rides `GET /v2/records/{id}` (foreign public records included).
 | 3 | share `token` | `shareLinkId` (V2 `GET /v2/share-links` only accepts `shareLinkIds[]`) | `share/checkShareLink` when opening a link; `share/getLink` called solely to learn the `shareby_urlId` before every V2 share-links call (see `ShareManagementViewModel.checkForExistingLink` → `getLinkFromStela`) |
 | 4 | `archiveNbr` as the entry point of every public link | root `folderId` (V2 has no root route for a foreign archive) | `folder/getPublicRoot` |
 

@@ -9,6 +9,8 @@ import androidx.work.*
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.download.DOWNLOAD_PROGRESS
 import org.permanent.permanent.ui.myFiles.download.DownloadWorker
+import org.permanent.permanent.ui.myFiles.download.WORKER_INPUT_ALLOWS_FOREIGN_STELA_DETAIL_KEY
+import org.permanent.permanent.ui.myFiles.download.WORKER_INPUT_ARCHIVE_ID_KEY
 import org.permanent.permanent.ui.myFiles.download.WORKER_INPUT_RECORD_ID_KEY
 import org.permanent.permanent.ui.myFiles.upload.WORKER_INPUT_FOLDER_LINK_ID_KEY
 import java.util.*
@@ -35,6 +37,11 @@ class Download private constructor(val context: Context, val listener: OnFinishe
             val data = Data.Builder().apply {
                 putInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, folderLinkId)
                 putInt(WORKER_INPUT_RECORD_ID_KEY, recordId)
+                putInt(WORKER_INPUT_ARCHIVE_ID_KEY, record.archiveId ?: -1)
+                putBoolean(
+                    WORKER_INPUT_ALLOWS_FOREIGN_STELA_DETAIL_KEY,
+                    FileSessionData.allowsForeignStelaDetail
+                )
             }.build()
             val constraints: Constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)

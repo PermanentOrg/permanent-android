@@ -1,13 +1,20 @@
 package org.permanent.permanent.mapper
 
+import org.permanent.permanent.Constants
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Share
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.models.ArchiveVO
+import org.permanent.permanent.network.models.FileDTO
+import org.permanent.permanent.network.models.FileVO
 import org.permanent.permanent.network.models.ItemDTO
+import org.permanent.permanent.network.models.LocationDTO
+import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ShareVO
+import org.permanent.permanent.network.models.TagVO
 
 
 fun ItemDTO.toRecord(): Record {
@@ -50,9 +57,9 @@ fun ItemDTO.toRecordV2(includePendingInvitesAsShares: Boolean = true): Record {
     rec.displayName = displayName
     // Records date via displayDate, folders via displayTimestamp.
     rec.displayDate = (displayDate ?: displayTimestamp)?.replace("T", " ")
-    rec.archiveId = archive?.id?.toIntOrNull()
-    rec.archiveNr = archiveNumber ?: archive?.archiveNumber
-    rec.parentFolderLinkId = (parentFolderLinkId ?: parentFolder?.folderLinkId)?.toIntOrNull()
+    rec.archiveId = resolvedArchiveId()
+    rec.archiveNr = resolvedArchiveNr()
+    rec.parentFolderLinkId = resolvedParentFolderLinkId()
     rec.type = if (isFolder) RecordType.FOLDER else RecordType.FILE
     rec.backendType = normalizedBackendType(isFolder)
     rec.size = size ?: -1L
@@ -62,8 +69,8 @@ fun ItemDTO.toRecordV2(includePendingInvitesAsShares: Boolean = true): Record {
     // for HEIC, but the only thumbnail a Stela V2 record copy has (no renditions,
     // backend gap) — so it serves as a HEIC-guarded LAST resort in the 200 slot.
     rec.thumbnail256 = thumbnail256.orNullIfEmpty()
-    rec.thumbURL200 = thumbnailUrls?.url200.orNullIfEmpty() ?: accessCopyThumb256()
-    rec.thumbURL2000 = thumbnailUrls?.url2000.orNullIfEmpty()
+    rec.thumbURL200 = resolvedThumb200()
+    rec.thumbURL2000 = resolvedThumb2000()
     rec.isProcessing = when (status?.substringAfterLast('.')) {
         "copying", "moving" -> true
         // A file with no thumbnails yet is still being processed (same derivation as
@@ -77,6 +84,85 @@ fun ItemDTO.toRecordV2(includePendingInvitesAsShares: Boolean = true): Record {
 
     return rec
 }
+
+// V1-shaped view of a V2 record detail, so FileData keeps its variant ladder and PDF
+// routing unchanged. V2 sends no contentType, width, height or derivedDT.
+fun ItemDTO.toRecordVO(): RecordVO = RecordVO().also { vo ->
+    vo.recordId = recordId?.toIntOrNull()
+    vo.folderId = folderId?.toIntOrNull()
+    vo.folder_linkId = folderLinkId?.toIntOrNull()
+    vo.parentFolderId = parentFolderId?.toIntOrNull()
+    vo.parentFolder_linkId = resolvedParentFolderLinkId()
+    vo.archiveId = resolvedArchiveId()
+    vo.archiveNbr = resolvedArchiveNr()
+    vo.accessRole = AccessRole.fromStelaBackendValue(accessRole).backendString
+    vo.displayName = displayName
+    vo.description = description
+    vo.displayDT = displayDate?.toV1Timestamp()
+    vo.createdDT = createdAt?.toV1Timestamp()
+    vo.updatedDT = updatedAt?.toV1Timestamp()
+    vo.derivedCreatedDT = fileCreatedAt?.toV1Timestamp()
+    vo.uploadFileName = uploadFileName
+    vo.type = type
+    vo.status = status
+    vo.size = size
+    vo.thumbnail256 = thumbnail256.orNullIfEmpty()
+    vo.thumbURL200 = resolvedThumb200()
+    vo.thumbURL2000 = resolvedThumb2000()
+    vo.LocnVO = location?.toLocnVO()
+    vo.FileVOs = files?.map { it.toFileVO() }
+    vo.TagVOs = tags?.map { tag -> TagVO().apply { tagId = tag.id; name = tag.name } }
+}
+
+private fun FileDTO.toFileVO(): FileVO = FileVO().also { vo ->
+    vo.size = size?.takeIf { it <= Int.MAX_VALUE }?.toInt()
+    vo.format = format
+    vo.type = type
+    vo.contentType = derivedContentType()
+    vo.fileURL = fileUrl.orNullIfEmpty()
+    vo.downloadURL = downloadUrl.orNullIfEmpty()
+}
+
+// "type.file.<class>.<subtype>" -> MIME, the same table iOS derives.
+private fun FileDTO.derivedContentType(): String? {
+    val parts = type?.split('.') ?: return null
+    if (parts.size < 3 || parts[0] != "type" || parts[1] != "file") return null
+    val cls = parts[2]
+    val subtype = parts.getOrNull(3).orEmpty()
+    if (cls == "pdf") return "application/pdf"
+    if (cls !in setOf("image", "video", "audio") || subtype.isEmpty()) {
+        return Constants.MEDIA_TYPE_OCTET_STREAM
+    }
+    return "$cls/" + if (subtype == "jpg") "jpeg" else subtype
+}
+
+private fun LocationDTO.toLocnVO(): LocnVO = LocnVO().also { vo ->
+    vo.locnId = id?.toIntOrNull()
+    vo.streetNumber = streetNumber
+    vo.streetName = streetName
+    vo.locality = locality
+    vo.adminOneName = state
+    vo.countryCode = countryCode
+    vo.latitude = latitude
+    vo.longitude = longitude
+}
+
+// V2 timestamps ("2022-01-01T00:00:00.000Z", "…+00:00") -> V1's "yyyy-MM-dd HH:mm:ss".
+private fun String.toV1Timestamp(): String =
+    substringBefore('.').substringBefore('+').removeSuffix("Z").replace('T', ' ')
+
+// Records send archive/parent ids flat, folders nest them.
+private fun ItemDTO.resolvedArchiveId(): Int? = (archive?.id ?: archiveId)?.toIntOrNull()
+
+private fun ItemDTO.resolvedArchiveNr(): String? = archiveNumber ?: archive?.archiveNumber
+
+private fun ItemDTO.resolvedParentFolderLinkId(): Int? =
+    (parentFolderLinkId ?: parentFolder?.folderLinkId)?.toIntOrNull()
+
+private fun ItemDTO.resolvedThumb200(): String? =
+    thumbnailUrls?.url200.orNullIfEmpty() ?: accessCopyThumb256()
+
+private fun ItemDTO.resolvedThumb2000(): String? = thumbnailUrls?.url2000.orNullIfEmpty()
 
 private fun ItemDTO.accessCopyThumb256(): String? =
     thumbnailUrls?.url256.orNullIfEmpty()?.takeUnless { isHeicOriginal() }

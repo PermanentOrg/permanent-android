@@ -32,4 +32,12 @@ data class ItemDTO(
     val uploadFileName: String? = null,
     val downloadName: String? = null,
     val files: List<FileDTO>? = null,
+    // Record detail fields (GET /v2/records/{id}); records also send archiveId flat.
+    val archiveId: String? = null,
+    val description: String? = null,
+    val createdAt: String? = null,
+    val updatedAt: String? = null,
+    val fileCreatedAt: String? = null,
+    val location: LocationDTO? = null,
+    val tags: List<TagDTO>? = null,
 )

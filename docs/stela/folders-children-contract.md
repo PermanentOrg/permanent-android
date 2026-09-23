@@ -6,8 +6,8 @@ updated 2026-07-30 against PRs #574/#575/#576/#580, and 2026-08-14 against iOS D
 and the published stela docs — in that order of authority. Written for VSP-1778 (Private
 Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery),
 VSP-1806 (Search drill-in), VSP-1803 (Shared By Me drill-in), VSP-1802 (Shared With Me
-drill-in), VSP-1788 (root resolution), VSP-1839 (Public Files root resolution) and VSP-1842
-(folder metadata reads); reuse
+drill-in), VSP-1788 (root resolution), VSP-1839 (Public Files root resolution), VSP-1842
+(folder metadata reads) and VSP-1840 (record detail / viewer reads); reuse
 for future Stela tickets instead of re-deriving.
 
 ## Root resolution — My Files (VSP-1788)
@@ -432,10 +432,10 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 - **Nested `thumbnailUrls."256"` is a LAST resort only, never for HEIC** *(refined 2026-07-30
   per iOS PR #575, replacing the earlier "never use" rule)*: it is the Archivematica
   access-copy thumbnail, blank for HEIC originals (white square). The `.thumb.wNNN` renditions
-  always win — but a record created via the Stela V2 copies endpoint gets **no** renditions
-  (backend gap), so the access copy is the only thumbnail it has — **and live QA
-  (2026-08-24, records 90925/90926) showed even that is missing: see the copy section's
-  thumbnail paragraph; V2 copies currently get no thumbnail at all, on any client**. Android
+  always win — but a record created via the Stela V2 copies endpoint used to get **no**
+  renditions — still true (live 2026-09-21, record 93188: all `.thumb.wNNN` slots empty), but a
+  copy now does get its Archivematica **access copy** (~2 min after the copy), so the nested
+  `"256"` last resort is exactly what gives it a thumbnail; see the copy section. Android
   (`ItemMapper.accessCopyThumb256`) uses it as the final fallback in the 200 slot, guarded by
   HEIC detection (`files[]` original format/type first, `uploadFileName`/`downloadName`
   suffix fallback). The 256/blur slot stays flat-`thumbnail256`-only, matching iOS
@@ -459,8 +459,10 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 Batch folder read by **`folderId`**. Verified against the stela `main` source
 (`folder/controller/controller.ts`, `validators.ts`, `service.ts`, `queries/get_folders.sql`,
 `controller/get_folders_page.test.ts`), the published docs and iOS Development
-(`FolderV2Endpoint.getFolderById`). Live staging capture still pending — see the QA
-pre-check in the VSP-1842 plan; re-verify the rows marked *(source)* against a capture.
+(`FolderV2Endpoint.getFolderById`). **Live staging capture 2026-09-21:** the share sheet's
+`GET /v2/folders?folderIds[]=44876&pageSize=1` (Vacation folder) answered 200 with one item
+carrying `shares[]` incl. the pending `2010` — no V1 failsafe fired; the singular alias
+returned the same item without `pagination`.
 
 **Two routes, one handler family — NOT byte-identical (unlike the children alias):**
 
@@ -527,6 +529,151 @@ pre-check in the VSP-1842 plan; re-verify the rows marked *(source)* against a c
   `folder_linkId` — **stays V1**, identity gap; joins the resolver-blocked bucket below, backend
   ask: `folderId`/`recordId` in the FCM payload or the gap-5 resolver).
 
+## Record detail — GET /v2/records/{id} (VSP-1840, source-verified 2026-09-21)
+
+Replaces V1 `POST record/get` for every read that feeds the fullscreen viewer, the metadata
+tabs and edit prefill, Send a copy, Download, the tags-screen refresh and the share sheet's
+record refresh. Verified against the stela `main` source (`record/controller/controller.ts`,
+`record/service.ts`, `queries/get_records.sql`, `middleware/authentication.ts`,
+`access/permission.ts`, the `file_url_refresh`/`thumbnail_refresh` packages and the
+controller tests), iOS Development `4d0b3a63` (`RecordV2Endpoint`, `RecordV2Models`,
+`FilePreviewViewModel`, fixtures in `FilesViewModelTests.swift:685` and
+`FilePreviewViewModelTests.swift:23`) and the published docs. **Live staging capture
+2026-09-21 (five image records opened in the viewer, incl. a fresh V2 copy; zero V1
+`record/get` in the log):** `displayDate`/`createdAt`/`updatedAt` arrive as
+`2023-02-28T16:51:00.000Z` (the normaliser is needed), `files[].createdAt` as `…+00:00`;
+`files[]` items carry exactly `fileId, size, type, format, fileUrl, downloadUrl, createdAt,
+updatedAt` — no `contentType`/`width`/`height`; flat `thumbnail256` is an **empty string**;
+flat `thumbUrl200` and nested `"200"` are identical; `accessRole` is short (`owner`) — the
+backend announced the caller-resolved `accessRole` on records the same day (2026-09-21), and
+Android reads it into `FileData.accessRole` for the metadata edit permission;
+`tags[].id` arrived as a **string** (`"1037"`, iOS's fixture has a number — both decode);
+`location` is the full object with every field `null` when unset; `shares[]` on a record
+included a self-archive share (id 1881) — the mapper's self-share filter applies.
+**Second capture 2026-09-22 (22 viewer reads, own archive, zero V1 `record/get`, zero
+non-2xx):** HEIC original (89656) and a **copied HEIC** (93189) both carry an
+`archivematica.access` / `type.file.image.jpg` row → the ladder picks the access-copy JPEG,
+as on V1; the copied HEIC's listing item has every `.thumb.wNNN` slot empty and only the
+nested `"256"` set, which the HEIC guard skips → its row has no thumbnail (VSP-1790 copy gap,
+now HEIC-only). PDF (77512): record `status` is **`status.generic.error`** yet `files[]` is
+complete (original `type.file.pdf.pdf` + an access copy typed `type.file.unknown.null` →
+`application/octet-stream`, ignored by the ladder) → `pdfPreviewURL` = the original, renders.
+ODS (89848): original `type.file.spreadsheet.ods` → octet-stream, access copy
+`type.file.pdf.pdf` → the PDF preview route, as VSP-1822 designed. Swiping issued one read
+per newly reached page. **Third capture 2026-09-22 (18:17, zero non-2xx):** **foreign public
+detail — the acceptance case — reads V2**: three records of archive `00s7` (archiveId 1997,
+`publicAt` set, `accessRole: viewer`) opened from that archive's gallery answered `200
+{ data }` on plain bearer, no `record/get`; their `files[]` carry the original HEIC plus a
+**`file.format.converted`** JPEG (older records; no `archivematica.access` row), so the
+ladder's access-copy branch does not match and the original is loaded — the same pick V1
+makes for the same rows. **Shared With Me stays V1 by the gate**: two records of archive 2137
+went straight to `POST record/get` with no V2 attempt. **Shared By Me** (own archive) read
+V2. **Record share sheet** (⋮ → Share) on three records: the sheet's refresh and the
+pending-invite read both hit `GET /v2/records/{id}` (two reads per open), then V1
+`share/getLink` + V2 `share-links` for the link (the known link-id dependency). Still
+unverified live: video, audio, Download, Send a copy, bulk edit prefill, the public record
+link, the offline card, and the miss/unauthorized `200 {}`.
+
+**Routes (one handler family, mounted at `/api/v2`):**
+
+| | `GET api/v2/records/{recordId}` (use this) | `GET api/v2/records?recordIds[]=&pageSize=` (batch) | `GET api/v2/record…` (deprecated aliases) |
+|---|---|---|---|
+| Params | none | `recordIds[]` and/or `archiveId`; **`pageSize` required** (400 without, like `/folders`); `cursor` = last item's `id`, ascending `recordid` | batch alias takes no `pageSize`, answers a bare array |
+| Response | `200 { data: record }`; **a miss or an unauthorized read answers `200 {}`** — no `data` key *(source; no upstream test)* | `{ items[], pagination }`; unauthorized items silently omitted | — |
+| Auth | optional bearer **or** `X-Permanent-Share-Token` (`extractUserEmailFromAuthToken`) | same | same |
+
+Android uses the single route only, one call per viewer page (`FilesContainerFragment`'s
+`offscreenPageLimit = 2` → up to five reads on open, same cardinality as V1 and as iOS, which
+preloads its neighbours page by page). The batch route exists on the server but neither
+platform adopted it — an optional later optimisation.
+
+- **Authorization (`get_records.sql`):** a row is returned when the caller is an OK member of
+  the record's archive, OR holds an OK `access` row on the record's folder_link (share
+  membership), OR the record is public (`publicdt <= now()`), OR the share token matches an
+  unrestricted link on the record or an ancestor. Pending members get nothing. So bearer-only
+  reads serve **own-archive**, **foreign public** (the AC case; pinned by
+  `get_record_legacy.test.ts`) and share-membership foreign records alike.
+- **Android access gate (client-side, `FileRepositoryImpl.isEligibleForStelaDetail`):**
+  own-archive records (`archiveId == session archive`) plus foreign records the caller vouches
+  are public — the gallery sets `FileSessionData.allowsForeignStelaDetail` next to the records
+  it hands the viewer (iOS: `allowsForeignStelaDetail` when the presenter is
+  `PublicArchiveViewModel`). **Shared With Me detail stays V1 by this gate** (decision
+  2026-09-21, iOS parity) although the server would authorize it — opening it is a follow-up
+  needing one live check. A missing `archiveId` fails closed to V1.
+- **A dead bearer is anonymous, not 401.** The record routes never 401 on auth (only strict
+  routes like `/v2/archives` do); with a FusionAuth-inactive token a private record answers
+  `200 {}`, which the client treats as a contract failure → V1 failsafe (plus the gap-8
+  `isBearerRejected` guard once a root load has tripped it). A genuine Stela 401 still cannot
+  log out (V1-host-scoped interceptor).
+- **Contract-failure rules (→ V1 `record/get`):** non-2xx; 2xx without `data`;
+  `data.recordId` ≠ the requested id; `folderLinkId` ≠ the tapped record's; empty
+  `archiveNumber`; **no file carrying a `fileUrl` or `downloadUrl`** (iOS's thin-payload guard
+  — a file-less processing record then fails on V1 exactly as before). The share-sheet read
+  adds `hasCorruptShare()` and the children read's write-critical-id predicate.
+- **Wire shape** *(source; ids numeric strings, enums dotted, top-level `accessRole` short)*:
+  `id` + `recordId` (duplicate), `displayName`, `archiveId`, `archiveNumber`, `description`,
+  `publicAt`, `downloadName`, `uploadFileName`, `size` (number), `displayDate`, `displayTime`
+  (EDTF), `fileCreatedAt`, `imageRatio`, `thumbUrl200/500/1000/2000`, `thumbnail256`,
+  `thumbnailUrls{200,256,500,1000,2000}`, `status`, `type`, `createdAt`, `updatedAt`, `altText`,
+  `files[]`, `folderLinkId`, `folderLinkType`, `parentFolderId`, `parentFolderLinkId`,
+  `parentFolderArchiveNumber`, `tags[]{id (number), name, type}`, `shares[]|null` (dotted
+  `accessRole`/`status`, archive `{id, thumbUrl200, name}`, pending entries only for callers
+  ≥ Manager since v0.95.0), `pendingShares[]|null` (owner/manager only),
+  `location{streetNumber, streetName, locality, county, state, country, countryCode,
+  displayName, latitude, longitude, …}`, `archive{id, archiveNumber, name}`, `accessRole`.
+  Decoded into the children `ItemDTO` (`RecordResponse.data: ItemDTO`) — the record is the
+  children record-item shape plus detail fields.
+- **`files[]` item:** `fileId`, `size`, `format` (`file.format.original` |
+  `file.format.converted` | `file.format.archivematica.access`), `type` (`type.file.image.heic`,
+  `type.file.video.mp4`, `type.file.pdf.pdf`, …), `fileUrl`, `downloadUrl`, `createdAt`,
+  `updatedAt`. **Absent vs V1 `FileVO`: `contentType`, `width`, `height`, `urlDT`.** Record-level
+  absent vs V1: `derivedDT`, `thumbStatus`.
+- **Mapping rule (Android):** `ItemMapper.toRecordVO()` builds a V1-shaped `RecordVO` so the
+  unchanged `FileData(recordVO)` keeps its variant ladder and PDF routing (iOS does the same
+  through `toRecordVOPayload`). `contentType` is **derived from `files[].type`** with iOS's
+  table: `image/<sub>` (`jpg` → `jpeg`), `video/<sub>`, `audio/<sub>`, `pdf` →
+  `application/pdf`, anything else `application/octet-stream`, non-`type.file.*` → null.
+  Timestamps are normalised to V1's `yyyy-MM-dd HH:mm:ss` (V2 sends `…T00:00:00.000Z` on the
+  record and `…+00:00` on files). `location.state` → `LocnVO.adminOneName`; `tags[].id` (a
+  JSON number) → `TagVO.tagId`. `fileCreatedAt` → `derivedCreatedDT` ("File created" row);
+  **`derivedDT` ("Created" row) and `width`/`height` have no V2 source and show `-`** on the
+  Details tab (last rows of the scrolling tab) — **live-verified both ways 2026-09-21**: V1
+  shows numbers on production, V2 shows `-` on staging — accepted (iOS loses the same),
+  backend ask on the Backend Asks page.
+  Thumbnails follow the settled rule: flat `thumbnail256` only for the 256 slot, nested
+  200/2000 first, HEIC-guarded nested `256` as the last resort in the 200 slot.
+- **Per media type (same `file` rows V1 served):** image → the ladder prefers the
+  `image/*` **access copy** (decodable JPEG; the HEIC workaround — Android keeps this, iOS
+  loads the original and decodes HEIC natively); video → any `video/mp4` variant first
+  (converted rendition when present), else any `video/*` — **Android keeps its V1 ladder**
+  (decision 2026-09-21); iOS plays the original and falls back to `file.format.converted`
+  only when AVPlayer fails, an AVPlayer-specific fix — a QA-relevant platform difference;
+  audio → no player on Android, WebView `loadUrl` as before; PDF → original `fileUrl` in the
+  native PDF view; spreadsheets/documents → the `type.file.pdf.pdf` +
+  `file.format.archivematica.access` rendition's `fileUrl` (download stays on the original);
+  just-copied record → a fresh V2 copy has no `.thumb.wNNN` renditions but gets its access
+  copy about 2 min after the copy (live 2026-09-21, record 93188: `files[]` = original +
+  `archivematica.access`, nested `"256"` set, everything else empty): the row shows the
+  access-copy thumbnail and is tappable, the viewer seeds the blur from it and loads the
+  access-copy JPEG; a copied document shows the failure card until its access copy exists and
+  Retry refetches (iOS removed its bounded poll for the same reason).
+- **URL signing / expiry — identical to V1.** `fileUrl`/`downloadUrl`/`thumbUrl*` are read
+  straight from the `file.fileurl`/`file.downloadurl`/`record.thumburl*` columns; they are
+  CloudFront-signed (`Expires`/`Signature`/`Key-Pair-Id`) by weekly cron jobs with a
+  **1-year** validity, re-signed when < 1 month remains. V2 exposes no `urlDT`. Neither client
+  handles expiry; the viewer refetches the record on Retry / connectivity restored, as before.
+  QA: one record's V1 and V2 `fileURL` strings should be identical. (V1 PHP not inspected —
+  "same columns" is inferred from stela reading them directly.)
+- **Stays V1 (identity gaps, both listed in the link-migration doc):** the public record
+  deep-link lookup (`PublicArchiveViewModel.getRecord(fileArchiveNr)` — holds only
+  `file_archive_nr`; the viewer read that follows rides V2 because the V1 answer supplies
+  `recordId`/`archiveId`, the same shape iOS has) and the FCM push record lookup
+  (`PermanentFCMService.requestRecordBy` — `folder_linkId` only).
+- **Flag-off nuance:** the migrated call sites now share one listener; a V1 response with a
+  2xx status but no record body (malformed) surfaces as `onFailed` where Send a copy used to
+  fire a null share event and bulk edit prefill used to count a null `fileData`. Normal V1
+  traffic is byte-identical.
+
 ## Record copy — POST /v2/records/{id}/copies (VSP-1790, verified 2026-08-24)
 
 The first V2 **write** on the file surface. Verified against iOS `Development` (#575's copy
@@ -575,8 +722,14 @@ folders + foreign items → one V1 batch after them. PUBLISH rides the same rout
 copy into the public workspace; destination folderId from `getPublicRecordFolderId()`,
 0/missing → pure V1). MOVE never touches V2.
 
-**Fresh-copy thumbnails — worse than documented (live-verified 2026-08-24, staging,
-records 90925/90926).** A V2-copied record gets **no thumbnail at all, permanently** —
+**Fresh-copy thumbnails — PARTLY fixed server-side (live 2026-09-21, record 93188, copied
+16:06, captured 19:12): the copy now gets its Archivematica access copy (`files[]` row +
+nested `thumbnailUrls."256"`, created 16:08) — so Android's HEIC-guarded access-copy fallback
+shows a thumbnail and the row is tappable; the `.thumb.wNNN` renditions and flat
+`thumbnail256` are still all empty for copies. The VSP-1790 QA blocker is cleared for
+Android; the deferred client mitigation below is no longer needed; the stela change was not
+identified. History:** as found
+2026-08-24 (staging, records 90925/90926), a V2-copied record got **no thumbnail at all** —
 not "no renditions until processing finishes". The copy POST's own 200 response and every
 later children refetch (+1 min, +4 min) return `status.generic.ok` with all five
 `thumbnailUrls` slots, all flat `thumbUrl*` fields and `thumbnail256` **empty**, and
@@ -610,7 +763,8 @@ error and can never log the user out — strictly safer, revisit with gap 7's sw
 
 With the flag ON, nothing is known to break on Private Files any more: the **pending badge
 undercount on FOLDER rows** (gap 2 below) was fixed by stela PR #849 (v0.95.0, 2026-09-02) —
-staging re-capture pending. Everything else falls back to V1 or is handled in the app. What remains of
+**re-captured on staging 2026-09-21**: the Vacation folder item carries pending `shareId 2010`
+on the children route and on `GET /v2/folders`. Everything else falls back to V1 or is handled in the app. What remains of
 gaps 1 and 2 is one backend theme — *send complete share/badge data on children* — with
 gap 2's concrete one-line filter ask already raised (2026-07-31); gap 1's `accessRole`
 half was resolved by decoding the existing payload field (VSP-1802). Gaps 3–6 break
@@ -660,8 +814,10 @@ on V1.
    only) — on `GET /folders` **and** on children folder items (same query + mapper). Records
    changed symmetrically: pending shares are now **hidden from callers below Manager** (they
    were always included before), so Editor/Curator members see fewer badge counts on record
-   rows — no client change needed. Staging re-capture of the Vacation folder item still to
-   do; the app-side mapper already handles pending entries. Both sides are live-verified on staging (2026-07-31, one
+   rows — no client change needed. **Re-captured 2026-09-21:** the Vacation folder item now
+   carries `{ id: 2010, status: status.generic.pending, accessRole: access.role.viewer }` on
+   the children route and on `GET /v2/folders` (Owner caller); the badge shows. Earlier
+   captures for history: both sides live-verified on staging (2026-07-31, one
    children capture session): pending present on the record item, absent on the folder
    item.
 3. **No V2 folder-creation endpoint** (`POST /v2/folders` does not exist) — folder creation
@@ -724,23 +880,27 @@ on V1.
    interceptor buffers every Stela response body to a `String` to inspect it (same
    as V1 today) — that includes the large single-page children listings, so keep it
    in mind for any future response-size profiling.
-8. **A Stela-rejected token makes every V2 listing a silent empty folder** *(found 2026-09-18,
-   staging emulator)*. Stela v0.97.0 (PR #871, 2026-09-16) now honours FusionAuth
-   introspection `active: false`; a 2-week-old token (unexpired by `exp`) was rejected on
-   every authenticated V2 call (`/v2/archives`, `/v2/event` → 401) while the V1 session stayed
-   valid. Root discovery fell back to V1 correctly, but `/folders/{id}/children` uses optional
-   auth and answered `200 {"items": []}` for the anonymous caller, so My Files and Public
-   Files rendered empty with no failsafe (see "Read failure mode is silent omission"). Logging
-   in again fixed it. **Client guard (shipped with VSP-1842):** `StelaAuthState.isBearerRejected` is process-wide —
-   set by `UnauthorizedInterceptor` on any Stela-host 401 whose request carried a bearer
-   (archives, event tracking, anything), cleared when a root load's `/v2/archives` answers 2xx.
-   Every flag-gated V2 read (My Files, Public Files, Shares drill-in, gallery, search, share
-   sheet) checks it and runs V1 while it is set. Best-effort by nature: a screen reached before
-   any authenticated Stela call in the process still trusts an empty children answer, and a
-   gap-7 permission 401 also trips it (fail-safe direction, self-heals on the next root load).
-   Longer term this is gap 7's token-refresh question. **Backend note:** an anonymous caller on `/children`
-   is indistinguishable from an empty folder — a 401 for a *present but invalid* bearer would
-   let clients fall back.
+8. **A Stela-rejected token makes My Files a silent empty folder** *(found 2026-09-18,
+   staging emulator)*. Stela v0.97.0 (PR #871) honours FusionAuth `active: false`; a
+   two-week-old token, unexpired by `exp`, got 401 on every authenticated V2 call while the
+   V1 session stayed valid. Root discovery fell back to V1, but `/folders/{id}/children` has
+   optional auth and answered `200 {"items": []}` for the anonymous caller: My Files rendered
+   empty with no failsafe, Public Files still loaded because public content is what anonymous
+   may see. Re-login fixed it.
+   **Client guard (VSP-1842):** `StelaAuthState.isBearerRejected`, set by
+   `UnauthorizedInterceptor` on any Stela 401 whose request carried a bearer, cleared when a
+   root load's `/v2/archives` answers 2xx; every flag-gated V2 read runs V1 while set.
+   Best-effort: a screen reached before any authenticated Stela call still trusts an empty
+   answer, and a gap-7 permission 401 also trips it. **V1 masks the problem until the V1
+   sunset.**
+   **Backend answer (Slack, 2026-09-18, Cecilia + Liam):** the anonymous 200 is intended (one
+   route serves public and private content). Agreed split: missing bearer → public view,
+   present-but-invalid bearer → 401. Liam suggested clients retry without the token on a 401
+   in public spaces. Reply sent 2026-09-21 accepted the split; ticket not yet asked for.
+   **Android intent (not yet told to backend):** no anonymous retry; a 401 with a bearer is an
+   expired session → login, same as web, behind gap 7's switch. Pre-split exposures on our
+   side: the share-token read also sends the bearer (`getFolderChildren(shareToken, …)`), and a
+   logged-out client sends an empty `Authorization` header.
 
 ## Spec-vs-reality discrepancies found (do not trust these in the docs/tickets)
 
@@ -764,3 +924,11 @@ on V1.
 | Docs: folder schema `id` only | Wire sends `folderId` **and** `id` (same value) |
 | "Singular `/folder` is a byte-identical alias" (true for children) | **Not** for the batch read: singular takes no `pageSize` and returns no `pagination` |
 | Status board: pending-invite read "= `GET /v2/folders?folderIds[]=`" | Code hits the **singular** `api/v2/folder` alias (no `pageSize`) |
+| Docs: `GET /records/{id}` answers 401/404 | Code: `200 {}` on a miss or an unauthorized read; only 400 (bad query) and 500 are produced (VSP-1840, source) |
+| Docs error body `{ errors: [{name, message}] }` | Code emits `{ error: … }` (`handleError.ts`) |
+| Docs server URL `https://api.permanent.org/v2` | Routes are mounted at `/api/v2` (`app.ts`) |
+| `Request-Version: 2` header (both clients send it) | Not a stela concept — no middleware reads it; harmless |
+| Batch record read "not available" (assumed from iOS) | `GET /records?recordIds[]=&pageSize=` exists in docs and code (`pageSize` required); iOS never adopted it |
+| Record `thumbnailUrls` in the stela TS interface | Absent from the interface, present on the wire (SQL alias) |
+| One timestamp format per response | Record fields `…T00:00:00.000Z`, `files[].createdAt` `…+00:00` |
+| iOS preview and download pick the same rendition | iOS `DownloadManagerGCD.fileVO` still prefers `file.format.converted` while the preview plays the original; Android's one `FileData` feeds both, so no equivalent |

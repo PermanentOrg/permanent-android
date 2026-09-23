@@ -9,11 +9,13 @@ import org.permanent.permanent.Constants
 import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.mapper.toRecordV2
+import org.permanent.permanent.mapper.toRecordVO
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.IFileDataListener
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
@@ -26,6 +28,7 @@ import org.permanent.permanent.network.models.ItemDTO
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.LocnVO
+import org.permanent.permanent.network.models.RecordResponse
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.UploadDestination
@@ -37,6 +40,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.io.IOException
 import java.util.Date
 import java.util.Locale
 
@@ -400,23 +404,50 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 ) {
                     val item = response.body()?.items
                         ?.firstOrNull { it.folderId == folderId.toString() }
-                    val record = item?.takeIf { response.isSuccessful && !it.hasCorruptShare() }
-                        ?.toRecordV2(includePendingInvitesAsShares = false)
-                    if (record == null || record.folderLinkId != folderLinkId ||
-                        record.lacksWriteCriticalIds()
-                    ) {
-                        listener.onFailed(context.getString(R.string.generic_error))
-                        return
-                    }
-                    // V1 getFolder always delivers a list.
-                    record.shares = record.shares ?: mutableListOf()
-                    listener.onSuccess(record)
+                    deliverShareSheetItem(item, response.isSuccessful, folderId, folderLinkId, listener)
                 }
 
                 override fun onFailure(call: Call<FoldersResponse>, t: Throwable) {
                     listener.onFailed(t.message)
                 }
             })
+    }
+
+    // Any anomaly reports onFailed so the share sheet runs the V1 getRecord failsafe.
+    override fun getRecordV2(recordId: Int, folderLinkId: Int, listener: IRecordListener) {
+        NetworkClient.instance().getRecordV2(recordId).enqueue(object : Callback<RecordResponse> {
+
+            override fun onResponse(call: Call<RecordResponse>, response: Response<RecordResponse>) {
+                deliverShareSheetItem(
+                    response.body()?.data, response.isSuccessful, recordId, folderLinkId, listener
+                )
+            }
+
+            override fun onFailure(call: Call<RecordResponse>, t: Throwable) {
+                listener.onFailed(t.message)
+            }
+        })
+    }
+
+    private fun deliverShareSheetItem(
+        item: ItemDTO?,
+        isSuccessful: Boolean,
+        expectedItemId: Int,
+        expectedFolderLinkId: Int,
+        listener: IRecordListener
+    ) {
+        val record = item?.takeIf { isSuccessful && !it.hasCorruptShare() }
+            ?.toRecordV2(includePendingInvitesAsShares = false)
+        val itemId = if (record?.type == RecordType.FOLDER) record.folderId else record?.recordId
+        if (record == null || itemId != expectedItemId ||
+            record.folderLinkId != expectedFolderLinkId || record.lacksWriteCriticalIds()
+        ) {
+            listener.onFailed(context.getString(R.string.generic_error))
+            return
+        }
+        // V1 getFolder/getRecord always deliver a list.
+        record.shares = record.shares ?: mutableListOf()
+        listener.onSuccess(record)
     }
 
     // The retained V1 writes (delete/move/rename/share) key on folderLinkId + archiveNbr.
@@ -469,6 +500,80 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
 
     override fun getRecord(fileArchiveNr: String): Call<ResponseVO> {
         return NetworkClient.instance().getRecord(fileArchiveNr)
+    }
+
+    override fun getFileData(
+        recordId: Int,
+        folderLinkId: Int,
+        archiveId: Int?,
+        allowsForeignPublic: Boolean,
+        listener: IFileDataListener
+    ) {
+        if (!isEligibleForStelaDetail(recordId, folderLinkId, archiveId, allowsForeignPublic)) {
+            getFileDataV1(folderLinkId, recordId, listener)
+            return
+        }
+        NetworkClient.instance().getRecordV2(recordId).enqueue(object : Callback<RecordResponse> {
+
+            override fun onResponse(call: Call<RecordResponse>, response: Response<RecordResponse>) {
+                val recordVO = response.toDetailRecordVO(recordId, folderLinkId)
+                if (recordVO != null) listener.onSuccess(FileData(recordVO))
+                else getFileDataV1(folderLinkId, recordId, listener)
+            }
+
+            override fun onFailure(call: Call<RecordResponse>, t: Throwable) {
+                getFileDataV1(folderLinkId, recordId, listener)
+            }
+        })
+    }
+
+    private fun getFileDataV1(folderLinkId: Int, recordId: Int, listener: IFileDataListener) {
+        NetworkClient.instance().getRecord(folderLinkId, recordId)
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val fileData = response.body()?.getFileData()
+                    if (fileData != null) listener.onSuccess(fileData)
+                    else listener.onFailed(context.getString(R.string.generic_error))
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun getFileDataBlocking(
+        recordId: Int, folderLinkId: Int, archiveId: Int?, allowsForeignPublic: Boolean
+    ): FileData? {
+        if (isEligibleForStelaDetail(recordId, folderLinkId, archiveId, allowsForeignPublic)) {
+            try {
+                NetworkClient.instance().getRecordV2(recordId).execute()
+                    .toDetailRecordVO(recordId, folderLinkId)
+                    ?.let { return FileData(it) }
+            } catch (ignored: IOException) {
+            }
+        }
+        return NetworkClient.instance().getRecord(folderLinkId, recordId).execute().body()
+            ?.getFileData()
+    }
+
+    // Own-archive records, plus foreign ones the caller vouches are public. Share-membership
+    // foreign records (Shared With Me) stay on V1; a missing archiveId fails closed.
+    private fun isEligibleForStelaDetail(
+        recordId: Int, folderLinkId: Int, archiveId: Int?, allowsForeignPublic: Boolean
+    ): Boolean = StelaAuthState.isV2ReadEnabled && recordId > 0 && folderLinkId > 0 &&
+        archiveId != null && archiveId > 0 &&
+        (allowsForeignPublic || archiveId == prefsHelper.getCurrentArchiveId())
+
+    // Null on any contract anomaly (a miss or an unauthorized read answers 200 without data);
+    // a record with no renderable file URL also falls back, like iOS.
+    private fun Response<RecordResponse>.toDetailRecordVO(recordId: Int, folderLinkId: Int): RecordVO? {
+        val vo = body()?.data?.takeIf { isSuccessful }?.toRecordVO() ?: return null
+        if (vo.recordId != recordId || vo.folder_linkId != folderLinkId) return null
+        if (vo.archiveNbr.isNullOrEmpty()) return null
+        if (vo.FileVOs.orEmpty().none { it.fileURL != null || it.downloadURL != null }) return null
+        return vo
     }
 
     override fun downloadFile(downloadUrl: String): Call<ResponseBody> {

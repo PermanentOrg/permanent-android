@@ -32,7 +32,8 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.ui.pendingInvitationCount
 import org.permanent.permanent.network.models.FileData
-import org.permanent.permanent.network.models.ResponseVO
+import org.permanent.permanent.models.FileSessionData
+import org.permanent.permanent.network.IFileDataListener
 import org.permanent.permanent.repositories.EventsRepositoryImpl
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IEventsRepository
@@ -43,9 +44,6 @@ import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.toDisplayDate
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 
 class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -317,17 +315,19 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
         if (folderLinkId != null && recordId != null) {
             _isBusyState.value = true
-            fileRepository.getRecord(folderLinkId, recordId).enqueue(object : Callback<ResponseVO> {
+            fileRepository.getFileData(
+                recordId, folderLinkId, record.archiveId,
+                FileSessionData.allowsForeignStelaDetail, object : IFileDataListener {
 
-                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                override fun onSuccess(newFileData: FileData) {
                     _isBusyState.value = false
-                    fileData = response.body()?.getFileData()
-                    onShareToAnotherAppRequest.value = fileData?.contentType
+                    fileData = newFileData
+                    onShareToAnotherAppRequest.value = newFileData.contentType
                 }
 
-                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                override fun onFailed(error: String?) {
                     _isBusyState.value = false
-                    showSnackbar.value = t.message
+                    showSnackbar.value = error
                 }
             })
         }

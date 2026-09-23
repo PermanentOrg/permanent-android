@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.IFileDataListener
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
@@ -90,6 +91,23 @@ interface IFileRepository {
     fun getRecord(
         fileArchiveNr: String,
     ): Call<ResponseVO>
+
+    // Record detail behind use_stela_migration with the V1 record/get failsafe; a foreign
+    // record rides V2 only when the caller vouches it is public (gallery).
+    fun getFileData(
+        recordId: Int,
+        folderLinkId: Int,
+        archiveId: Int?,
+        allowsForeignPublic: Boolean,
+        listener: IFileDataListener
+    )
+
+    // Same routing for callers on a worker thread; a V1 network failure propagates as before.
+    fun getFileDataBlocking(
+        recordId: Int, folderLinkId: Int, archiveId: Int?, allowsForeignPublic: Boolean
+    ): FileData?
+
+    fun getRecordV2(recordId: Int, folderLinkId: Int, listener: IRecordListener)
 
     fun downloadFile(downloadUrl: String): Call<ResponseBody>
 

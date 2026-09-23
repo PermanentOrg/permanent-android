@@ -103,5 +103,6 @@ class FileActivity : PermanentBaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         FileSessionData.records = null
+        FileSessionData.allowsForeignStelaDetail = false
     }
 }

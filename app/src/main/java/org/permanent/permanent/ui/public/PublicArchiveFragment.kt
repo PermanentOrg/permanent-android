@@ -89,6 +89,7 @@ class PublicArchiveFragment : PermanentBaseFragment(), RecordListener {
 
     private val onFileViewRequest = Observer<ArrayList<Record>> {
         FileSessionData.records = it
+        FileSessionData.allowsForeignStelaDetail = true
         requireParentFragment().findNavController()
             .navigate(R.id.action_publicFragment_to_fileActivity)
     }

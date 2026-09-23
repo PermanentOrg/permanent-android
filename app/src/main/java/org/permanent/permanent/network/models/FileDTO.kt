@@ -1,9 +1,11 @@
 package org.permanent.permanent.network.models
 
-// Per-file metadata on a V2 children record item. Only what the HEIC guard in
-// ItemMapper needs: the original file is the entry whose format contains
-// "original"; its type tells the source format (e.g. "type.file.image.heic").
+// One rendition of a V2 record, told apart by format (original / converted /
+// archivematica access copy); type names the file format ("type.file.image.heic").
 data class FileDTO(
+    val size: Long? = null,
     val format: String?,
     val type: String?,
+    val fileUrl: String? = null,
+    val downloadUrl: String? = null,
 )
