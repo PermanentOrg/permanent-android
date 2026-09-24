@@ -5,6 +5,8 @@ import android.os.Parcelable
 
 class LocnVO() : Parcelable {
     var locnId: Int? = null
+    var displayName: String? = null
+    var country: String? = null
     var streetNumber: String? = null
     var streetName: String? = null
     var locality: String? = null
@@ -16,6 +18,8 @@ class LocnVO() : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         locnId = parcel.readValue(Int::class.java.classLoader) as? Int
+        displayName = parcel.readString()
+        country = parcel.readString()
         streetNumber = parcel.readString()
         streetName = parcel.readString()
         locality = parcel.readString()
@@ -42,6 +46,8 @@ class LocnVO() : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(locnId)
+        parcel.writeString(displayName)
+        parcel.writeString(country)
         parcel.writeString(streetNumber)
         parcel.writeString(streetName)
         parcel.writeString(locality)

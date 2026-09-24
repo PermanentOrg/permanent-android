@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import okhttp3.MediaType
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
+import org.permanent.permanent.mapper.toLocationInputJson
 import org.permanent.permanent.mapper.toRecordV2
 import org.permanent.permanent.mapper.toRecordVO
 import org.permanent.permanent.models.AccessRole
@@ -32,6 +34,7 @@ import org.permanent.permanent.network.models.RecordResponse
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.UploadDestination
+import org.permanent.permanent.repositories.IFileRepository.RecordField
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.ModificationType
@@ -793,7 +796,24 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         }
     }
 
-    override fun updateRecords(fileDataList: List<FileData?>, listener: IResponseListener) {
+    override fun updateRecords(
+        fileDataList: List<FileData?>, fields: Set<RecordField>, listener: IResponseListener
+    ) {
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        val fileData = fileDataList.filterNotNull()
+        val patches = if (sessionArchiveId == null || RecordField.DATE in fields ||
+            fileData.size != fileDataList.size ||
+            !fileData.all { isEligibleForStelaPatch(it.recordId, it.archiveId, sessionArchiveId) }
+        ) null
+        else fileData.toPatchesOrNull({ it.recordId }) {
+            metadataPatchBody(it.displayName, it.description, fields)
+        }
+        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
+            updateRecordsV1(fileDataList, listener)
+        }
+    }
+
+    private fun updateRecordsV1(fileDataList: List<FileData?>, listener: IResponseListener) {
         NetworkClient.instance().updateRecords(fileDataList).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -816,6 +836,22 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         locnVO: LocnVO,
         listener: IResponseListener
     ) {
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        val body = locnVO.toLocationPatchBody()
+        val patches = if (sessionArchiveId == null || body == null ||
+            !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
+        ) null
+        else records.map { it.stelaRecordId to body }
+        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
+            updateMultipleRecordsV1(records, locnVO, listener)
+        }
+    }
+
+    private fun updateMultipleRecordsV1(
+        records: MutableList<Record>,
+        locnVO: LocnVO,
+        listener: IResponseListener
+    ) {
         NetworkClient.instance().updateMultipleRecords(records = records, locnVO = locnVO).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -833,9 +869,22 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         })
     }
 
-    override fun updateMultipleRecords(records: MutableList<Record>,
-                                       isFolderRecordType: Boolean,
-                                       listener: IResponseListener) {
+    override fun renameRecords(records: MutableList<Record>, listener: IResponseListener) {
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        val patches = if (sessionArchiveId == null ||
+            !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
+        ) null
+        else records.toPatchesOrNull({ it.stelaRecordId }) { namePatchBody(it.displayName) }
+        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
+            updateMultipleRecords(records, isFolderRecordType = false, listener)
+        }
+    }
+
+    override fun updateMultipleRecords(
+        records: MutableList<Record>,
+        isFolderRecordType: Boolean,
+        listener: IResponseListener
+    ) {
         NetworkClient.instance().updateMultipleRecords(records = records, isFolderRecordType).enqueue(object : Callback<ResponseVO> {
             override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
                 val responseVO = response.body()
@@ -901,6 +950,20 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener) {
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        val body = locnVO.toLocationPatchBody()
+        val patches = if (sessionArchiveId == null || body == null ||
+            !isEligibleForStelaPatch(fileData.recordId, fileData.archiveId, sessionArchiveId)
+        ) null
+        else listOf(fileData.recordId to body)
+        patchV2OrV1(patches, R.string.file_location_update_success, listener) {
+            updateRecordLocationV1(locnVO, fileData, listener)
+        }
+    }
+
+    private fun updateRecordLocationV1(
+        locnVO: LocnVO, fileData: FileData, listener: IResponseListener
+    ) {
         NetworkClient.instance().updateRecord(locnVO, fileData)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
@@ -920,6 +983,83 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecord(record: Record, newName: String, listener: IResponseListener) {
+        // Folders never pass the gate: folder rename has no V2 route and stays on folder/update.
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        val patches = if (sessionArchiveId == null || !record.isEligibleForStelaPatch(sessionArchiveId)) null
+        else namePatchBody(newName)?.let { listOf(record.stelaRecordId to it) }
+        patchV2OrV1(patches, R.string.rename_record_rename_success, listener) {
+            renameRecordV1(record, newName, listener)
+        }
+    }
+
+    // The archive V2 writes are gated on — the session's selected archive, never the one being
+    // viewed (iOS isInSessionArchive) — or null while V2 is off, so callers run V1 directly.
+    private fun stelaPatchSessionArchiveId(): Int? =
+        if (StelaAuthState.isV2WriteEnabled) prefsHelper.getCurrentArchiveId() else null
+
+    private fun isEligibleForStelaPatch(recordId: Int, archiveId: Int?, sessionArchiveId: Int) =
+        recordId > 0 && archiveId != null && archiveId > 0 && archiveId == sessionArchiveId
+
+    private fun Record.isEligibleForStelaPatch(sessionArchiveId: Int): Boolean =
+        type == RecordType.FILE && isEligibleForStelaPatch(stelaRecordId, archiveId, sessionArchiveId)
+
+    // The server rejects a blank displayName — a blank name means the edit runs V1.
+    private fun namePatchBody(displayName: String?): JSONObject? =
+        displayName?.takeIf { it.isNotBlank() }?.let { JSONObject().put("displayName", it) }
+
+    // Null when a requested field cannot be expressed on V2 or nothing is left to send.
+    // A blank description clears (the server rejects "").
+    private fun metadataPatchBody(
+        displayName: String?, description: String?, fields: Set<RecordField>
+    ): JSONObject? {
+        val body = if (RecordField.NAME in fields) namePatchBody(displayName) ?: return null
+        else JSONObject()
+        if (RecordField.DESCRIPTION in fields) {
+            body.put("description", description?.takeIf { it.isNotBlank() } ?: JSONObject.NULL)
+        }
+        return body.takeIf { it.length() > 0 }
+    }
+
+    private fun LocnVO.toLocationPatchBody(): JSONObject? =
+        toLocationInputJson()?.let { JSONObject().put("location", it) }
+
+    // Null when any item has no expressible body — the whole edit then runs V1.
+    private fun <T> List<T>.toPatchesOrNull(
+        recordId: (T) -> Int, body: (T) -> JSONObject?
+    ): List<Pair<Int, JSONObject>>? =
+        mapNotNull { item -> body(item)?.let { recordId(item) to it } }.takeIf { it.size == size }
+
+    // V2 first; any failure re-applies the same values through the V1 call, which also runs
+    // when there is nothing eligible to PATCH.
+    private fun patchV2OrV1(
+        patches: List<Pair<Int, JSONObject>>?,
+        successMessageRes: Int,
+        listener: IResponseListener,
+        v1: () -> Unit
+    ) {
+        if (patches.isNullOrEmpty()) {
+            v1()
+            return
+        }
+        // Serial, stops at the first failure. These PATCHes set values, so re-sending is harmless.
+        fun patchNext(index: Int) {
+            if (index == patches.size) {
+                listener.onSuccess(context.getString(successMessageRes))
+                return
+            }
+            val (recordId, body) = patches[index]
+            NetworkClient.instance().patchRecordV2(recordId, body).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) patchNext(index + 1) else v1()
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) = v1()
+            })
+        }
+        patchNext(0)
+    }
+
+    private fun renameRecordV1(record: Record, newName: String, listener: IResponseListener) {
         NetworkClient.instance().updateRecord(record, newName)
             .enqueue(object : Callback<ResponseVO> {
                 override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {

@@ -41,6 +41,15 @@ interface StelaAccountService {
         @Body body: CopyRecordV2Request
     ): Call<Void>
 
+    // Flat body of the edited fields only; the server rejects unknown keys. Response not
+    // decoded — success is the 2xx, the UI refreshes the way it did after the V1 write.
+    @Headers("Request-Version: 2")
+    @PATCH("api/v2/records/{recordId}")
+    fun patchRecord(
+        @Path("recordId") recordId: Int,
+        @Body body: RequestBody
+    ): Call<Void>
+
     @Headers("Request-Version: 2")
     @GET("api/v2/folder")
     fun getFolder(

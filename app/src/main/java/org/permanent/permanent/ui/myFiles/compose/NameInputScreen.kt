@@ -187,14 +187,16 @@ private fun NameInputLayout(
                     disabledColor = colorResource(R.color.blue200),
                     onButtonClick = onConfirm
                 )
-
-                if (isBusy) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(overlayColor = OverlayColor.LIGHT)
-                    }
-                }
             }
+        }
+
+        if (isBusy) {
+            CircularProgressIndicator(
+                overlayColor = OverlayColor.LIGHT,
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+            )
         }
 
         AnimatedTemporarySnackbar(
