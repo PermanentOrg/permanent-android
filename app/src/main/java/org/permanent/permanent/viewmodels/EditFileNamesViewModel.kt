@@ -176,9 +176,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
 
     private fun applyChanges() {
         toggleLoading()
-        fileRepository.updateMultipleRecords(records = records,
-            isFolderRecordType = false,
-            object : IResponseListener {
+        fileRepository.renameRecords(records, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 onFileNameChanged.value = appContext.getString(R.string.file_names_updated)
                 toggleLoading()

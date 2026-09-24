@@ -9,4 +9,8 @@ object StelaAuthState {
 
     val isV2ReadEnabled: Boolean
         get() = FeatureFlags.useStelaMigration && !isBearerRejected
+
+    // Writes carry a V1 failsafe; this only spares the doomed round trip after a rejected bearer.
+    val isV2WriteEnabled: Boolean
+        get() = isV2ReadEnabled
 }

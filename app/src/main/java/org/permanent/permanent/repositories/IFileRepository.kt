@@ -123,7 +123,12 @@ interface IFileRepository {
         listener: IResponseListener
     )
 
-    fun updateRecords(fileDataList: List<FileData?>, listener: IResponseListener)
+    // The fields an edit changed: the V2 write carries only these. DATE has no V2 field.
+    enum class RecordField { NAME, DESCRIPTION, DATE }
+
+    fun updateRecords(
+        fileDataList: List<FileData?>, fields: Set<RecordField>, listener: IResponseListener
+    )
 
     fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener)
 
@@ -132,6 +137,9 @@ interface IFileRepository {
     fun updateMultipleRecords(records: MutableList<Record>, locnVO: LocnVO, listener: IResponseListener)
 
     fun updateMultipleRecords(records: MutableList<Record>, isFolderRecordType: Boolean, listener: IResponseListener)
+
+    // Bulk rename: each record's displayName is already set to its new value.
+    fun renameRecords(records: MutableList<Record>, listener: IResponseListener)
 
     fun searchRecords(query: String?, tags: List<Tag>, listener: IOnRecordsRetrievedListener)
 

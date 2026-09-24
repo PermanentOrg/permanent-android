@@ -1,5 +1,6 @@
 package org.permanent.permanent.mapper
 
+import org.json.JSONObject
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Record
@@ -153,6 +154,23 @@ private fun String.toV1Timestamp(): String =
 
 // Records send archive/parent ids flat, folders nest them.
 private fun ItemDTO.resolvedArchiveId(): Int? = (archive?.id ?: archiveId)?.toIntOrNull()
+
+// The V2 `location` input for PATCH /v2/records/{id} — iOS toLocationInputPayload key for key,
+// never locationId. Null when there is nothing to send.
+fun LocnVO.toLocationInputJson(): JSONObject? {
+    val location = JSONObject()
+    fun putIfNotBlank(key: String, value: String?) {
+        value?.takeIf { it.isNotBlank() }?.let { location.put(key, it) }
+    }
+    putIfNotBlank("name", displayName)
+    putIfNotBlank("city", locality)
+    putIfNotBlank("state", adminOneName)
+    putIfNotBlank("country", country)
+    putIfNotBlank("sublocation", listOfNotNull(streetNumber, streetName).joinToString(" "))
+    latitude?.let { location.put("latitude", it) }
+    longitude?.let { location.put("longitude", it) }
+    return location.takeIf { it.length() > 0 }
+}
 
 private fun ItemDTO.resolvedArchiveNr(): String? = archiveNumber ?: archive?.archiveNumber
 

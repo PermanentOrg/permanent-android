@@ -868,6 +868,9 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
     fun copyRecordV2(recordId: Int, destinationFolderId: Int): Call<Void> =
         stelaAccountService.copyRecord(recordId, CopyRecordV2Request(destinationFolderId.toString()))
 
+    fun patchRecordV2(recordId: Int, body: JSONObject): Call<Void> =
+        stelaAccountService.patchRecord(recordId, body.toString().toRequestBody(jsonMediaType))
+
     fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =
         stelaAccountService.getFolder(shareToken, folderId)
 

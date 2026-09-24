@@ -7,8 +7,8 @@ and the published stela docs — in that order of authority. Written for VSP-177
 Files navigation), extended for VSP-1808 (Public Files), VSP-1810 (Public Gallery),
 VSP-1806 (Search drill-in), VSP-1803 (Shared By Me drill-in), VSP-1802 (Shared With Me
 drill-in), VSP-1788 (root resolution), VSP-1839 (Public Files root resolution), VSP-1842
-(folder metadata reads) and VSP-1840 (record detail / viewer reads); reuse
-for future Stela tickets instead of re-deriving.
+(folder metadata reads), VSP-1840 (record detail / viewer reads) and VSP-1841 (record
+rename / metadata edit writes); reuse for future Stela tickets instead of re-deriving.
 
 ## Root resolution — My Files (VSP-1788)
 
@@ -759,6 +759,108 @@ surfacing (optimistic insert + one 3 s refresh, no iOS-style polling — decisio
 `treatStelaUnauthorizedAsSessionExpiry` is false, so a V2 copy 401 surfaces as an ordinary
 error and can never log the user out — strictly safer, revisit with gap 7's switch.
 
+## Record rename / metadata edit — PATCH /v2/records/{id} (VSP-1841, source-verified 2026-09-23)
+
+The second V2 write on the file surface, and the first with a V1 failsafe. Verified against the
+stela `main` source (`record/validators.ts`, `record/service.ts:patchRecord`,
+`queries/update_record.sql`, `location/service.ts`, `queries/update_location.sql`,
+`controller/update_record.test.ts`), iOS Development `4d0b3a63` (`RecordV2Endpoint.patchRecord`,
+`FilesViewModel.canRenameViaStelaPatch` / `isInSessionArchive`, `FilePreviewViewModel.update`,
+`LocnVO.toLocationInputPayload`, the three EditMetadata view models) and the published docs.
+**Live staging verification in progress (2026-09-24):** file and folder rename exercised; File
+Info, location (incl. the `locn` row-sharing probe), bulk flows, the Shared With Me gate, the
+failsafe and flag-off parity still to run (plan §4).
+
+**Request** — `PATCH api/v2/records/{recordId}`, bearer required (strict route: a bad header is
+a 401), Editor+ on the record (403 otherwise), `Content-Type: application/json` +
+`Request-Version: 2` (not read by stela; sent by convention). Body = the edited fields only,
+`.unknown(false)` — any other key (`recordId`, `archiveNbr`, `folder_linkId`, `displayDate`,
+`displayEndDate`, `altText`…) is a 400. Accepted keys:
+
+| Key | Rule (validator) | Android |
+|---|---|---|
+| `displayName` | string, min 1, **not nullable** (`""`/`null` → 400) | rename, File Info name, bulk names; a blank name → not eligible → V1 |
+| `description` | string or `null`; **`""` → 400** (Joi) | File Info, bulk description; a blank description is sent as `null` (clears) |
+| `displayTime` | EDTF Level 2 (`@edtf-ts/core`) or `null` | **never sent** — see "stays V1" |
+| `location` | object `{ name, sublocation, city, state, postalCode, country, latitude, longitude, altitudeMeters, precision, timezone }`, ≥ 1 key; `oxor` with `locationId` | File Info location, bulk location — iOS `toLocationInputPayload` key for key: `name ← displayName`, `sublocation ← "streetNumber streetName"`, `city ← locality`, `state ← adminOneName`, `country ← country`, `latitude`/`longitude` as numbers; empty values omitted |
+| `locationId` | integer or `null` (deprecated in the docs, still accepted) | never sent (iOS pins this) |
+
+At least one key is required. Omitted keys keep their value (`COALESCE` in `update_record.sql`),
+so a PATCH is a pure set of the named fields. **No batch form** — one request per record
+(the batch flows send them serially, stopping at the first failure).
+
+**Response** — `200 { data: <full V2 record> }` (ids as strings); neither platform decodes it.
+Errors 400 (validation, body `{ error: "<Joi message>" }`), 401 (docs omit it), 403, 404, 500 —
+body `{ error: … }`, not the documented `errors[]`. Parse by status only.
+
+**Location semantics (source, `patchRecord`)** — with a `location` object stela looks up the
+record's current `locnid`: none → `insertLocation` (new row); present → `updateLocation` on
+**that row, in place, `COALESCE` per column** (an omitted key keeps the old location's value —
+e.g. `postalCode`, or `name`/`country` when the geocoder returns none; `sublocation` is
+split back into the legacy `streetnumber`/`streetname` columns and `city` is copied to
+`locality`). `location.timezone` also writes `record.timezone`. The deprecated `locationId`
+path only sets `record.locnid` — exactly what V1 `record/update` does with `LocnVO.locnId`.
+Decision 2026-09-23 (Flavia): send the `location` object for iOS parity; **open question for
+the staging probe:** whether `locn` rows are shared between records (V1 PHP not inspectable) —
+if moving one record moves another, switch to `locationId`. iOS carries the same exposure.
+`LocnVO` gained `displayName` and `country` (both on the V1 `locn/geomapLatLong` wire — iOS
+decodes them) to fill `name`/`country`.
+
+**Gate (client, both platforms — an acceptance criterion)** — `FileRepositoryImpl.isEligibleForStelaPatch`:
+`StelaAuthState.isV2WriteEnabled && recordId > 0 && archiveId == prefsHelper.getCurrentArchiveId()`
+(the **session's** selected archive, never the viewed one — iOS `isInSessionArchive` reads
+`session.selectedArchive`), plus `type == FILE` for `Record` callers. Foreign records (Shared
+With Me, other archives) stay V1: a bearer-only PATCH on a share-membership record answers
+**401** today (gap 7 — iOS #576's reproducer; backend agreed it should be 403 or succeed).
+Batches (bulk names / description / location) ride V2 only when **every** record passes,
+otherwise the whole batch runs V1 unchanged — **platform difference:** iOS's three batch flows
+check only `recordId > 0 && !folder` (no archive check), a gap not copied. `isV2WriteEnabled`
+(= `isV2ReadEnabled`, named for the write path) rather than the raw flag skips a doomed PATCH
+after a rejected bearer (gap 8).
+
+**Failure semantics — automatic V1 failsafe (iOS parity, confirmed in code).** Any V2 failure
+(non-2xx incl. 401/403/400, IOException, a serial batch stopping mid-way) re-applies the
+**same values** through the unchanged V1 `record/update` call with its unchanged body and
+strings; the user sees an error only if V1 also fails. Safe because these PATCHes set values —
+the opposite of the copy write, where a retry would duplicate. A V2 401 cannot log out
+(`UnauthorizedInterceptor` is V1-host-scoped, `treatStelaUnauthorizedAsSessionExpiry` OFF); it
+does set `isBearerRejected`, which is correct once the gate keeps foreign records away (a 401
+then means a dead token). iOS: a PATCH 401 *does* post their session-expiry notification
+(`ignoreErrors = false` on writes) — their safety comes from the gate alone.
+
+**Post-edit refresh — unchanged from V1.** Listings refetch (`refreshCurrentFolder` / onResume,
+already V2-gated); File Info and the bulk screens mutate the local `FileData` / `Record`. No
+extra GET (iOS re-reads the record after a details-screen PATCH; Android's V1 never did).
+
+**Which edits carry which fields (Android):** `updateRecords` (File Info and bulk description)
+takes a `Set<IFileRepository.RecordField>` (`NAME`, `DESCRIPTION`, `DATE`) from the caller so the
+V2 body carries only the edited fields — `FileInfoViewModel.saveChanges` computes the changed set
+from its existing three comparisons, bulk description passes `{DESCRIPTION}`; `DATE` in the set →
+V1 directly. Bulk names call the intent-named `renameRecords`; bulk date/time keeps calling the
+untouched V1 `updateMultipleRecords`. The single rename and the two location methods are
+single-intent and gate internally. The `location` body is built by
+`LocnVO.toLocationInputJson()` in `ItemMapper`, next to its inverse `LocationDTO.toLocnVO()`.
+
+**Stays V1 (listed):**
+- **Display date/time** (File Info date pick, bulk date/time): V1 writes the legacy `displayDT`
+  timestamp; the PATCH exposes only EDTF `displayTime` — a different column that the app's
+  listing/detail reads (`displayDate`) do not reflect. iOS identical (in-code comment: "the
+  PATCH exposes only the EDTF column, not the timestamp the Date row shows"). Belongs to the
+  EDTF entry tickets (VSP-1765). *Known pre-existing quirk, untouched: File Info sends an
+  unpadded `yyyy-M-d` (`docs/edtf-investigation.md` §3).*
+- **Folder rename** — `PATCH /v2/folders/{id}` has no `displayName` (see gap 4 / the status
+  board); the rename dialog's folder branch is byte-identical to before.
+- **Foreign records** by the gate (Shared With Me content, other archives) — revisit when the
+  gap-7 fix ships (backend intends share-permitted writes to succeed).
+- **Tags** (`tag/post`, `tag/DeleteTagLink`) — no V2 per-record tag route on either platform.
+
+**Gate edge case to verify on staging (plan §4 pre-check):** on the Shares root listing a
+`Record` is built from the `getShares` `ItemVO`, whose `archiveNbr` identifies the **share
+counterpart** (VSP-1803 lesson); if `ItemVO.archiveId` behaves the same, by-me root rows fail
+the gate and silently run V1 (safe), and with-me root rows must never pass it (a PATCH there
+would 401 → V1 failsafe, but trip `isBearerRejected`). Records inside folders come from the
+children read and carry the owning archive.
+
 ## Impact summary (updated 2026-07-31)
 
 With the flag ON, nothing is known to break on Private Files any more: the **pending badge
@@ -929,6 +1031,10 @@ on V1.
 | Docs server URL `https://api.permanent.org/v2` | Routes are mounted at `/api/v2` (`app.ts`) |
 | `Request-Version: 2` header (both clients send it) | Not a stela concept — no middleware reads it; harmless |
 | Batch record read "not available" (assumed from iOS) | `GET /records?recordIds[]=&pageSize=` exists in docs and code (`pageSize` required); iOS never adopted it |
+| Docs: record PATCH path param `id: integer`; `locationId` "deprecated" | Code: `recordId`, validated as a string; `locationId` still accepted (`Joi.number().integer()`), `oxor` with `location` (VSP-1841) |
+| Docs: record PATCH `description: string`, `displayName: string` | `description` allows `null` but rejects `""`; `displayName` rejects both `""` and `null` (min 1) — pinned in `update_record.test.ts` |
+| Docs: record PATCH errors 400/403/404/500 | Also 401 (strict bearer route); every body is `{ error: … }` |
+| Status board (pre-VSP-1841): "shared-record PATCH currently 401s … foreign writes may open up" | Still true; the gate keeps Android off that path — re-verify the #576 reproducer when the gap-7 fix ships |
 | Record `thumbnailUrls` in the stela TS interface | Absent from the interface, present on the wire (SQL alias) |
 | One timestamp format per response | Record fields `…T00:00:00.000Z`, `files[].createdAt` `…+00:00` |
 | iOS preview and download pick the same rendition | iOS `DownloadManagerGCD.fileVO` still prefers `file.format.converted` while the preview plays the original; Android's one `FileData` feeds both, so no equivalent |

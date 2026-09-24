@@ -14,6 +14,7 @@ import org.permanent.permanent.network.IFileDataListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IFileRepository.RecordField
 import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
 
@@ -151,7 +152,7 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
                 it.fileData?.description = inputDescription
                 it.fileData
             }
-            fileRepository.updateRecords(fileDataList, object : IResponseListener {
+            fileRepository.updateRecords(fileDataList, setOf(RecordField.DESCRIPTION), object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     commonDescription = inputDescription

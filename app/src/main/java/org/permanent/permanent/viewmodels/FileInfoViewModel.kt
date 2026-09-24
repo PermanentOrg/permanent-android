@@ -13,6 +13,7 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
+import org.permanent.permanent.repositories.IFileRepository.RecordField
 
 class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application),
     DatePickerDialog.OnDateSetListener {
@@ -89,16 +90,18 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
             return
         }
 
-        if (fileData.displayName != nameValue
-            || fileData.description != description
-            || fileData.displayDate != date
-        ) {
+        val changedFields = buildSet {
+            if (fileData.displayName != nameValue) add(RecordField.NAME)
+            if (fileData.description != description) add(RecordField.DESCRIPTION)
+            if (fileData.displayDate != date) add(RecordField.DATE)
+        }
+        if (changedFields.isNotEmpty()) {
             fileData.displayName = nameValue
             fileData.description = description
             fileData.displayDate = date
 
             isBusy.value = true
-            fileRepository.updateRecords(mutableListOf(fileData), object : IResponseListener {
+            fileRepository.updateRecords(mutableListOf(fileData), changedFields, object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
                     message?.let { showMessage.value = it }
