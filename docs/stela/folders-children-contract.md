@@ -775,9 +775,16 @@ stela `main` source (`record/validators.ts`, `record/service.ts:patchRecord`,
 `controller/update_record.test.ts`), iOS Development `4d0b3a63` (`RecordV2Endpoint.patchRecord`,
 `FilesViewModel.canRenameViaStelaPatch` / `isInSessionArchive`, `FilePreviewViewModel.update`,
 `LocnVO.toLocationInputPayload`, the three EditMetadata view models) and the published docs.
-**Live staging verification in progress (2026-09-24):** file and folder rename exercised; File
-Info, location (incl. the `locn` row-sharing probe), bulk flows, the Shared With Me gate, the
-failsafe and flag-off parity still to run (plan §4).
+**Staging QA 2026-09-25 (Jira VSP-1841 comment 37493):** 11/11 flows pass: File Info name,
+description, clear, date (V1 by design), location; rename; folder rename (V1); bulk
+description, names, location; the forced-500 V1 failsafe. Every PATCH was read back through
+`GET /v2/records/{id}` and matched what was sent. The session-archive gate was confirmed. Still
+pending: the `locn` row-sharing probe, Shared With Me explicitly, and flag-off parity.
+**One regression found and fixed (`feature/VSP-1841-qa-fixes`):** a V2 location write stores no
+`countryCode` (the input schema has no such key and rejects unknown keys), so the reloaded
+address lost "US" and kept a trailing comma. `LocationDTO` now decodes `country`, and
+`LocnVO.getUIAddress()` falls back to `country` and joins only non-empty parts. As a result,
+V2-written locations show the country name ("United States"), not the code.
 
 **Request** — `PATCH api/v2/records/{recordId}`, bearer required (strict route: a bad header is
 a 401), Editor+ on the record (403 otherwise), `Content-Type: application/json` +
