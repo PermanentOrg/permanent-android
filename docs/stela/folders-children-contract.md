@@ -641,10 +641,13 @@ platform adopted it — an optional later optimisation.
   object with no address and no coordinates maps to no `LocnVO` — the Info tab hides the
   Location row and map only on `null`; `tags[].id` (a
   JSON number) → `TagVO.tagId`. `fileCreatedAt` → `derivedCreatedDT` ("File created" row);
-  **`derivedDT` ("Created" row) and `width`/`height` have no V2 source and show `-`** on the
-  Details tab (last rows of the scrolling tab) — **live-verified both ways 2026-09-21**: V1
-  shows numbers on production, V2 shows `-` on staging — accepted (iOS loses the same),
-  backend ask on the Backend Asks page.
+  **`derivedDT` ("Created" row) and `width`/`height` have no V2 source** (live-verified
+  2026-09-21 and by QA 2026-09-23). Backend guidance (Cecilia, 2026-09-25): use another date
+  and hide the dimensions — web doesn't show them. So `derivedDT` is filled from `displayDate`
+  (it starts as the derived date; a user-edited date shows here too), and the Details tab hides
+  the Width/Height rows when the value is unknown — on V2 always, on V1 for files without
+  dimensions (PDF, documents), which showed `-` before; V1 images and videos still show them. iOS leaves
+  "Created" blank and shows `-` for the dimensions.
   Thumbnails follow the settled rule: flat `thumbnail256` only for the 256 slot, nested
   200/2000 first, HEIC-guarded nested `256` as the last resort in the 200 slot.
 - **Per media type (same `file` rows V1 served):** image → the ladder prefers the

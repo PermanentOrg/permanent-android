@@ -101,6 +101,8 @@ fun ItemDTO.toRecordVO(): RecordVO = RecordVO().also { vo ->
     vo.displayName = displayName
     vo.description = description
     vo.displayDT = displayDate?.toV1Timestamp()
+    // No derivedDT on V2; displayDate starts as the derived date, so the "Created" row uses it.
+    vo.derivedDT = vo.displayDT
     vo.createdDT = createdAt?.toV1Timestamp()
     vo.updatedDT = updatedAt?.toV1Timestamp()
     vo.derivedCreatedDT = fileCreatedAt?.toV1Timestamp()
