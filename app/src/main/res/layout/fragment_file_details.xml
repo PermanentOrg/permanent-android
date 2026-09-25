@@ -259,6 +259,7 @@
 
             <TextView
                 android:id="@+id/tvWidth"
+                android:visibility="@{viewModel.width == null ? View.GONE : View.VISIBLE}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -274,6 +275,7 @@
 
             <TextView
                 android:id="@+id/tvWidthValue"
+                android:visibility="@{viewModel.width == null ? View.GONE : View.VISIBLE}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -291,6 +293,7 @@
 
             <TextView
                 android:id="@+id/tvHeight"
+                android:visibility="@{viewModel.height == null ? View.GONE : View.VISIBLE}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -306,6 +309,7 @@
 
             <TextView
                 android:id="@+id/tvHeightValue"
+                android:visibility="@{viewModel.height == null ? View.GONE : View.VISIBLE}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"

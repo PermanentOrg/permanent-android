@@ -1,5 +1,6 @@
 package org.permanent.permanent.mapper
 
+import android.webkit.MimeTypeMap
 import org.json.JSONObject
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.AccessRole
@@ -100,6 +101,8 @@ fun ItemDTO.toRecordVO(): RecordVO = RecordVO().also { vo ->
     vo.displayName = displayName
     vo.description = description
     vo.displayDT = displayDate?.toV1Timestamp()
+    // No derivedDT on V2; displayDate starts as the derived date, so the "Created" row uses it.
+    vo.derivedDT = vo.displayDT
     vo.createdDT = createdAt?.toV1Timestamp()
     vo.updatedDT = updatedAt?.toV1Timestamp()
     vo.derivedCreatedDT = fileCreatedAt?.toV1Timestamp()
@@ -124,7 +127,8 @@ private fun FileDTO.toFileVO(): FileVO = FileVO().also { vo ->
     vo.downloadURL = downloadUrl.orNullIfEmpty()
 }
 
-// "type.file.<class>.<subtype>" -> MIME, the same table iOS derives.
+// "type.file.<class>.<subtype>" -> MIME: iOS's table for media and PDF, the platform
+// extension map for the rest (office files), so sharing keeps the real type.
 private fun FileDTO.derivedContentType(): String? {
     val parts = type?.split('.') ?: return null
     if (parts.size < 3 || parts[0] != "type" || parts[1] != "file") return null
@@ -132,20 +136,25 @@ private fun FileDTO.derivedContentType(): String? {
     val subtype = parts.getOrNull(3).orEmpty()
     if (cls == "pdf") return "application/pdf"
     if (cls !in setOf("image", "video", "audio") || subtype.isEmpty()) {
-        return Constants.MEDIA_TYPE_OCTET_STREAM
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(subtype.lowercase())
+            ?: Constants.MEDIA_TYPE_OCTET_STREAM
     }
     return "$cls/" + if (subtype == "jpg") "jpeg" else subtype
 }
 
-private fun LocationDTO.toLocnVO(): LocnVO = LocnVO().also { vo ->
+// V2 sends an empty location object where V1 sends null; the Info tab hides the row only on null.
+private fun LocationDTO.toLocnVO(): LocnVO? = LocnVO().also { vo ->
     vo.locnId = id?.toIntOrNull()
-    vo.streetNumber = streetNumber
-    vo.streetName = streetName
-    vo.locality = locality
-    vo.adminOneName = state
-    vo.countryCode = countryCode
+    vo.streetNumber = streetNumber.orNullIfBlank()
+    vo.streetName = streetName.orNullIfBlank()
+    vo.locality = locality.orNullIfBlank()
+    vo.adminOneName = state.orNullIfBlank()
+    vo.countryCode = countryCode.orNullIfBlank()
     vo.latitude = latitude
     vo.longitude = longitude
+}.takeIf { vo ->
+    listOf(vo.streetNumber, vo.streetName, vo.locality, vo.adminOneName, vo.countryCode, vo.latitude, vo.longitude)
+        .any { it != null }
 }
 
 // V2 timestamps ("2022-01-01T00:00:00.000Z", "…+00:00") -> V1's "yyyy-MM-dd HH:mm:ss".
@@ -250,3 +259,5 @@ private fun ItemDTO.buildShares(
 }
 
 private fun String?.orNullIfEmpty(): String? = this?.takeUnless { it.isEmpty() }
+
+private fun String?.orNullIfBlank(): String? = this?.takeUnless { it.isBlank() }

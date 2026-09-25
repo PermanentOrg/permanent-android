@@ -19,8 +19,8 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
     private val fileType = MutableLiveData("-")
     private val originalFileName = MutableLiveData("-")
     private val originalFileType = MutableLiveData("-")
-    private val width = MutableLiveData("-")
-    private val height = MutableLiveData("-")
+    private val width = MutableLiveData<String?>()
+    private val height = MutableLiveData<String?>()
 
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -34,8 +34,8 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
         fileType.value = fileData.contentType?.substringBefore("/") ?: "-"
         originalFileName.value = fileData.originalFileName ?: "-"
         originalFileType.value = fileData.originalFileType ?: "-"
-        width.value = if (fileData.width != -1) fileData.width.toString() else "-"
-        height.value = if (fileData.height != -1) fileData.height.toString() else "-"
+        width.value = fileData.width.takeIf { it != -1 }?.toString()
+        height.value = fileData.height.takeIf { it != -1 }?.toString()
     }
 
     fun formattedDate(date: String?): String? {
@@ -86,11 +86,11 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
         return originalFileType
     }
 
-    fun getWidth(): LiveData<String> {
+    fun getWidth(): LiveData<String?> {
         return width
     }
 
-    fun getHeight(): LiveData<String> {
+    fun getHeight(): LiveData<String?> {
         return height
     }
 }
