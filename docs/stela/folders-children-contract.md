@@ -632,9 +632,14 @@ platform adopted it — an optional later optimisation.
   unchanged `FileData(recordVO)` keeps its variant ladder and PDF routing (iOS does the same
   through `toRecordVOPayload`). `contentType` is **derived from `files[].type`** with iOS's
   table: `image/<sub>` (`jpg` → `jpeg`), `video/<sub>`, `audio/<sub>`, `pdf` →
-  `application/pdf`, anything else `application/octet-stream`, non-`type.file.*` → null.
+  `application/pdf`; any other class goes through Android's `MimeTypeMap` by subtype (DOCX,
+  XLS, ODS → their real MIME, so Share to another app keeps the type), falling back to
+  `application/octet-stream`; non-`type.file.*` → null. iOS stops at octet-stream for these.
   Timestamps are normalised to V1's `yyyy-MM-dd HH:mm:ss` (V2 sends `…T00:00:00.000Z` on the
-  record and `…+00:00` on files). `location.state` → `LocnVO.adminOneName`; `tags[].id` (a
+  record and `…+00:00` on files). `location.state` → `LocnVO.adminOneName`; V2 always sends a `location` object
+  (fields `null` or `""` when unset) where V1 sends `null`, so blank fields map to `null` and an
+  object with no address and no coordinates maps to no `LocnVO` — the Info tab hides the
+  Location row and map only on `null`; `tags[].id` (a
   JSON number) → `TagVO.tagId`. `fileCreatedAt` → `derivedCreatedDT` ("File created" row);
   **`derivedDT` ("Created" row) and `width`/`height` have no V2 source and show `-`** on the
   Details tab (last rows of the scrolling tab) — **live-verified both ways 2026-09-21**: V1
