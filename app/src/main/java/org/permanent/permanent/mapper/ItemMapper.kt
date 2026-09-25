@@ -149,11 +149,12 @@ private fun LocationDTO.toLocnVO(): LocnVO? = LocnVO().also { vo ->
     vo.streetName = streetName.orNullIfBlank()
     vo.locality = locality.orNullIfBlank()
     vo.adminOneName = state.orNullIfBlank()
+    vo.country = country.orNullIfBlank()
     vo.countryCode = countryCode.orNullIfBlank()
     vo.latitude = latitude
     vo.longitude = longitude
 }.takeIf { vo ->
-    listOf(vo.streetNumber, vo.streetName, vo.locality, vo.adminOneName, vo.countryCode, vo.latitude, vo.longitude)
+    listOf(vo.streetNumber, vo.streetName, vo.locality, vo.adminOneName, vo.country, vo.countryCode, vo.latitude, vo.longitude)
         .any { it != null }
 }
 

@@ -6,6 +6,7 @@ data class LocationDTO(
     val streetName: String?,
     val locality: String?,
     val state: String?,
+    val country: String?,
     val countryCode: String?,
     val latitude: Double?,
     val longitude: Double?,
