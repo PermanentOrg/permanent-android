@@ -71,11 +71,11 @@ interface StelaAccountService {
         @Query("shareTokens[]") shareTokens: List<String>? = null
     ): Call<ShareLinkVOResponse>
 
-    @GET("api/v2/folder/{folderId}/children")
+    @GET("api/v2/folders/{folderId}/children")
     fun getFolderChildren(
         @Header("X-Permanent-Share-Token") shareToken: String?,
         @Path("folderId") folderId: Int,
-        @Query("pageSize") pageSize: Int = 99999999
+        @Query("pageSize") pageSize: Int = MAX_CHILDREN_PAGE_SIZE
     ): Call<FolderChildrenResponse>
 
     // The caller's archive memberships; items[].rootFolderId replaces the V1 getRoot
@@ -88,8 +88,7 @@ interface StelaAccountService {
         @Query("pageSize") pageSize: Int = ARCHIVES_PAGE_SIZE
     ): Call<ArchivesV2Response>
 
-    // Bearer-token flavor for browsing the user's own archive (VSP-1778), on the
-    // documented plural route (the singular form above is a deprecated alias).
+    // Bearer-token flavor for browsing the user's own archive.
     @Headers("Request-Version: 2")
     @GET("api/v2/folders/{folderId}/children")
     fun getFolderChildrenV2(
