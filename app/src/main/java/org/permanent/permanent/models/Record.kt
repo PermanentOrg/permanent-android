@@ -141,7 +141,8 @@ open class Record : Parcelable {
         accessRole = AccessRole.fromBackendValue(itemVO.accessRole)
         initShares(itemVO.ShareVOs)
         displayFirstInCarousel = false
-        isProcessing = itemVO.thumbnail256.isNullOrEmpty() && itemVO.thumbURL200.isNullOrEmpty()
+        isProcessing = type == RecordType.FILE &&
+                itemVO.thumbnail256.isNullOrEmpty() && itemVO.thumbURL200.isNullOrEmpty()
         displayInShares = true
     }
 
@@ -184,7 +185,8 @@ open class Record : Parcelable {
         backendType = recordInfo?.type
         initShares(recordInfo?.ShareVOs)
         displayFirstInCarousel = false
-        isProcessing = recordInfo?.thumbnail256.isNullOrEmpty() && recordInfo?.thumbURL200.isNullOrEmpty()
+        isProcessing = type == RecordType.FILE &&
+                recordInfo?.thumbnail256.isNullOrEmpty() && recordInfo?.thumbURL200.isNullOrEmpty()
         displayInShares = false
     }
 
