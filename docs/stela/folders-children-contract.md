@@ -148,6 +148,13 @@ this path is new information worth sharing with backend.
   yet: its `ItemSummary` carries no `folderLinkId`/`archiveNumber` — our
   `loadFilesOf` precondition and the retained V1 writes key on both — and there is no
   given-direction counterpart for by-me. Root migration = its own ticket once those land.)*
+  *(Update 2026-09-28, Cecilia: the by-me folders half exists —
+  `GET` archive shared folders, stela docs operation `get-archive-shared-folders`; the
+  records half is **PER-10801**. The backend would rather **not** add `folderLinkId`/
+  `archiveNbr` to received-shares. Android's answer (Slack reply sent 2026-09-28): they are only needed while the V1
+  fallback and the V1 writes on shared items (leave share, copy/move) remain; once those
+  have V2 versions, `folderId`/`recordId` are enough. The link resolver (PER-10800) maps
+  the other way and does not cover this.)*
   Back-to-root and root
   pull-to-refresh re-enter V1 by construction (`onRootSharesNeeded` →
   `SharesFragment.requestShares`). This is the last V1 dependency of the Shares
@@ -363,9 +370,10 @@ Headers: Request-Version: 2
          X-Permanent-Share-Token: <token>       (share-preview flavor only — mutually exclusive use case)
 ```
 
-- **Path**: use the **plural** `/folders/` form. The singular `/folder/` (used by the older
-  share-preview call) is a deprecated backend alias — verified byte-identical responses on
-  production, but new code uses the documented plural route.
+- **Path**: both flavors use the **plural** `/folders/` form. The singular `/folder/` is a
+  deprecated backend alias (byte-identical responses on production) and Android no longer
+  calls it — the share-preview call moved to the plural route in VSP-1843, path only. The
+  share-preview flavor still sends no `Request-Version: 2` header; the bearer flavor does.
 - **`pageSize`** (required): we send `99_999_999` (`StelaAccountService.MAX_CHILDREN_PAGE_SIZE`)
   to fetch the whole folder in one page, same as iOS. Cursor pagination is deliberately
   deferred (see Pagination below).
@@ -440,12 +448,15 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
   HEIC detection (`files[]` original format/type first, `uploadFileName`/`downloadName`
   suffix fallback). The 256/blur slot stays flat-`thumbnail256`-only, matching iOS
   `resolvedThumb256`.
+- **Backend direction (Cecilia, 2026-09-28):** only the 256 thumbnail is filled going
+  forward; the other sizes are not coming back for copies (and are not a requirement).
 - A record with no `thumbnail256` and no nested 200 is treated as still processing
   (matches V1's spinner behavior for fresh uploads).
 - Thumbnail URLs may arrive as **empty strings instead of null** — treat empty as absent.
 
 ### Pagination — decoded but not honored (deliberately)
 
+- Filed by the backend as **PER-10803** (2026-09-25, epic PER-10752, start of next quarter).
 - `totalPages` is unreliable (live capture: `0` with 9 items).
 - `nextCursor` is **non-null even when the whole folder fit in one page**, so cursor-loop
   termination cannot rely on it — the reason both platforms ship the huge single `pageSize`
@@ -736,7 +747,11 @@ nested `thumbnailUrls."256"`, created 16:08) — so Android's HEIC-guarded acces
 shows a thumbnail and the row is tappable; the `.thumb.wNNN` renditions and flat
 `thumbnail256` are still all empty for copies. The VSP-1790 QA blocker is cleared for
 Android; the deferred client mitigation below is no longer needed; the stela change was not
-identified. History:** as found
+identified.** **Closed 2026-09-28 (Cecilia, Slack):** the backend fills only the 256 thumbnail
+going forward, so copies will never get the `.thumb.wNNN` renditions — not a bug, no ask left.
+Android already prefers the 256 thumbnail (VSP-1724). Unverified edge: a **HEIC** copy has no
+usable 256 fallback (see the thumbnail rules), so it may stay a spinner — check on staging
+before raising it. **History:** as found
 2026-08-24 (staging, records 90925/90926), a V2-copied record got **no thumbnail at all** —
 not "no renditions until processing finishes". The copy POST's own 200 response and every
 later children refetch (+1 min, +4 min) return `status.generic.ok` with all five
@@ -890,6 +905,11 @@ on V1.
 
 ## Known backend gaps (as of 2026-07-23)
 
+Backend tickets (filed by Cecilia 2026-09-25, all in epic **PER-10752**, most planned for the
+start of next quarter): PER-10798 (gap 8), PER-10799 (gap 7), PER-10800 (gap 5), PER-10801
+(shared-by-me records, Shares root), PER-10802 (docs, spec-vs-reality table), PER-10803
+(pagination).
+
 1. **~~No per-item caller `accessRole`~~ — the accessRole half is DELIVERED:** shipped
    by the backend as **PER-10716** (stela PR #835, merged 2026-08-13; Jira Done), live
    on staging (capture 2026-08-14), decoded by Android since VSP-1802 — see its section.
@@ -957,6 +977,8 @@ on V1.
    link-address dependencies — see `docs/stela-v2-link-migration.md` for the complete
    picture (also record `archiveNbr → recordId`, share `token → shareLinkId`, and
    `archiveNbr →` public root `folderId`) and the ranked backend asks covering all four.
+   **Filed as PER-10800 (2026-09-25):** a discussion ticket — a resolver, or a product
+   decision to break old links. Start of next quarter, may slip.
 6. **No V2 search endpoint** *(confirmed during VSP-1806, 2026-08-11)*. The search query
    itself stays on V1 `POST search/folderAndRecord` (hard-capped at 10 results, no
    pagination) — neither the stela docs nor the merged iOS code have any V2 search
@@ -997,6 +1019,8 @@ on V1.
    interceptor buffers every Stela response body to a `String` to inspect it (same
    as V1 today) — that includes the large single-page children listings, so keep it
    in mind for any future response-size profiling.
+   **Filed as PER-10799 (2026-09-25):** 403 for permission denials on PATCH record, and
+   check other endpoints for the same behavior.
 8. **A Stela-rejected token makes My Files a silent empty folder** *(found 2026-09-18,
    staging emulator)*. Stela v0.97.0 (PR #871) honours FusionAuth `active: false`; a
    two-week-old token, unexpired by `exp`, got 401 on every authenticated V2 call while the
@@ -1013,13 +1037,19 @@ on V1.
    **Backend answer (Slack, 2026-09-18, Cecilia + Liam):** the anonymous 200 is intended (one
    route serves public and private content). Agreed split: missing bearer → public view,
    present-but-invalid bearer → 401. Liam suggested clients retry without the token on a 401
-   in public spaces. Reply sent 2026-09-21 accepted the split; ticket not yet asked for.
+   in public spaces. Reply sent 2026-09-21 accepted the split. **Filed as PER-10798
+   (2026-09-25), scheduled after the potholes work.**
    **Android intent (not yet told to backend):** no anonymous retry; a 401 with a bearer is an
    expired session → login, same as web, behind gap 7's switch. Pre-split exposures on our
    side: the share-token read also sends the bearer (`getFolderChildren(shareToken, …)`), and a
    logged-out client sends an empty `Authorization` header.
 
 ## Spec-vs-reality discrepancies found (do not trust these in the docs/tickets)
+
+The four stela-docs items from the backend-asks artifact are filed as **PER-10802**
+(2026-09-25). Its notes ask what the `/children` authorization item means, and call the
+record-miss item a possible duplicate of PER-10798. Answered in Slack 2026-09-28 — it is not: a missing record answers
+`200 {}` even with a valid token.
 
 | Doc/ticket claim | Reality |
 |---|---|
