@@ -62,6 +62,7 @@ import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.myFiles.saveToPermanent.SaveToPermanentFragment
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuAnchor
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
@@ -306,9 +307,12 @@ class MyFilesFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowRecordMenuFragment = Observer<Record> {
+    private val onShowRecordMenuFragment = Observer<Pair<Record, RecordMenuAnchor?>> { (record, anchor) ->
         recordMenuFragment = RecordMenuFragment()
-        recordMenuFragment?.setBundleArguments(it, Workspace.PRIVATE_FILES)
+        recordMenuFragment?.setBundleArguments(
+            record, Workspace.PRIVATE_FILES,
+            anchor = anchor?.withRoundWashOut(binding.fabAdd, binding.fabChecklist)
+        )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
         recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)

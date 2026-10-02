@@ -58,6 +58,7 @@ import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuAnchor
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
@@ -170,11 +171,12 @@ class SharedXMeFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowRecordMenuFragment = Observer<Record> {
-        this.record = it
+    private val onShowRecordMenuFragment = Observer<Pair<Record, RecordMenuAnchor?>> { (record, anchor) ->
+        this.record = record
         recordMenuFragment = RecordMenuFragment()
         recordMenuFragment?.setBundleArguments(
-            record, Workspace.SHARES, isSharedWithMeFragment, viewModel.isRoot.value ?: false
+            record, Workspace.SHARES, isSharedWithMeFragment, viewModel.isRoot.value ?: false,
+            anchor = anchor?.withRoundWashOut(binding.fabAdd, binding.fabChecklist)
         )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
         recordMenuFragment?.getOnRecordLeaveShareRequest()?.observe(this, onRecordLeaveShareObserver)

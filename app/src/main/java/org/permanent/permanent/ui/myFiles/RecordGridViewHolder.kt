@@ -40,6 +40,7 @@ class RecordGridViewHolder(
         binding.btnOptions.setOnClickListener { recordListener.onRecordOptionsClick(record) }
         binding.btnOptions.visibility =
             if (CurrentArchivePermissionsManager.instance.getAccessRole() == AccessRole.VIEWER && record.type == RecordType.FOLDER || showMyFilesSimplified) View.GONE else View.VISIBLE
+        recordListener.attachLongClick(binding.root, binding.root, binding.btnOptions, record)
         pendingBadgeBinder.bind(record, lifecycleOwner, showPendingInvitationsBadge)
 
         if (record.isThumbBlurred != null

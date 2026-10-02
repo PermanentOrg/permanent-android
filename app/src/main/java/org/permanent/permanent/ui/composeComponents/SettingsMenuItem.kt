@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -32,12 +33,13 @@ fun SettingsMenuItem(
     itemColor: Color = Color(ContextCompat.getColor(LocalContext.current, R.color.colorPrimary)),
     showWarning: Boolean = false,
     trailing: (@Composable () -> Unit)? = null,
+    verticalPadding: Dp = 16.dp,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp, horizontal = 32.dp)
+            .padding(vertical = verticalPadding, horizontal = 32.dp)
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -46,6 +46,7 @@ class RecordListViewHolder(
                 recordListener.onRecordClick(record)
             }
         }
+        recordListener.attachLongClick(binding.layoutOverlay, binding.root, binding.btnOptions, record)
         binding.layoutSwipeReveal.setLockDrag(record.isProcessing || isForSharesScreen || isForSearchScreen)
         binding.btnDelete.setOnClickListener {
             recordListener.onRecordDeleteClick(record)

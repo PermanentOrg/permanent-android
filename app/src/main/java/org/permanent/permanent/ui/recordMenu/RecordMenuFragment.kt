@@ -6,10 +6,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +21,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.WindowCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
@@ -35,6 +39,7 @@ import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.recordMenu.compose.RecordMenuPopup
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuScreen
 import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.viewmodels.RecordMenuItem
@@ -44,6 +49,7 @@ const val SHOWN_IN_WHICH_WORKSPACE = "shown_in_which_workspace_key"
 const val IS_SHOWN_IN_SHARED_WITH_ME = "is_shown_in_shared_with_me_key"
 const val IS_SHOWN_IN_ROOT_FOLDER = "is_shown_in_root_folder_key"
 const val CURRENT_ARCHIVE_NR = "current_archive_nr_key"
+const val RECORD_MENU_ANCHOR = "record_menu_anchor_key"
 
 class RecordMenuFragment : PermanentBottomSheetFragment() {
     private lateinit var record: Record
@@ -55,13 +61,15 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val viewModel: RecordMenuViewModel by viewModels()
     private var pendingConfirmationItem: RecordMenuItem? = null
+    private val anchor: RecordMenuAnchor? by lazy { arguments?.getParcelable(RECORD_MENU_ANCHOR) }
 
     fun setBundleArguments(
         record: Record,
         workspace: Workspace,
         isShownInSharedWithMe: Boolean = false,
         isShownInRootFolder: Boolean = false,
-        currentArchiveNr: String? = null
+        currentArchiveNr: String? = null,
+        anchor: RecordMenuAnchor? = null
     ) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
@@ -69,10 +77,17 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         bundle.putBoolean(IS_SHOWN_IN_SHARED_WITH_ME, isShownInSharedWithMe)
         bundle.putBoolean(IS_SHOWN_IN_ROOT_FOLDER, isShownInRootFolder)
         bundle.putString(CURRENT_ARCHIVE_NR, currentArchiveNr)
+        bundle.putParcelable(RECORD_MENU_ANCHOR, anchor)
         this.arguments = bundle
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        if (anchor != null) {
+            return Dialog(requireContext(), android.R.style.Theme_Translucent_NoTitleBar).apply {
+                window?.drawBehindSystemBars()
+            }
+        }
+
         val dialog = BottomSheetDialog(requireContext(), theme)
 
         dialog.setOnShowListener { d ->
@@ -120,14 +135,24 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             MaterialTheme {
-                Surface(
-                    shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-                ) {
-                    RecordMenuScreen(
+                val popupAnchor = anchor
+                if (popupAnchor != null) {
+                    RecordMenuPopup(
                         viewModel = viewModel,
+                        anchor = popupAnchor,
                         onItemClick = { item -> handleMenuClick(item) },
-                        onClose = { dismiss() }
+                        onDismiss = { dismiss() }
                     )
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                    ) {
+                        RecordMenuScreen(
+                            viewModel = viewModel,
+                            onItemClick = { item -> handleMenuClick(item) },
+                            onClose = { dismiss() }
+                        )
+                    }
                 }
             }
         }
@@ -177,6 +202,28 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 dismiss()
             }
             else -> {}
+        }
+    }
+
+    // The popup covers the whole screen, so the status and navigation bars keep the screen's own look
+    private fun Window.drawBehindSystemBars() {
+        WindowCompat.setDecorFitsSystemWindows(this, false)
+        addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        statusBarColor = Color.TRANSPARENT
+        navigationBarColor = Color.TRANSPARENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) isNavigationBarContrastEnforced = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            attributes = attributes.also {
+                it.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
+        activity?.window?.let { screenWindow ->
+            val screenBars = WindowCompat.getInsetsController(screenWindow, screenWindow.decorView)
+            WindowCompat.getInsetsController(this, decorView).apply {
+                isAppearanceLightStatusBars = screenBars.isAppearanceLightStatusBars
+                isAppearanceLightNavigationBars = screenBars.isAppearanceLightNavigationBars
+            }
         }
     }
 

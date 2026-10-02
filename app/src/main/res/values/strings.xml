@@ -846,6 +846,7 @@
     <string name="leave_share">Leave share</string>
     <string name="confirm">Confirm</string>
     <string name="copy">Copy</string>
+    <string name="move">Move</string>
     <string name="confirm_delete_message">Are you sure you want to delete "%1$s"?</string>
     <string name="the_selected_items">the selected items</string>
     <string name="confirm_leave_share_message">Are you sure you want to give up your access to the "%1$s" item?</string>

@@ -61,6 +61,7 @@ import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
 import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
+import org.permanent.permanent.ui.recordMenu.RecordMenuAnchor
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
@@ -192,9 +193,12 @@ class PublicFilesFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowRecordMenuFragment = Observer<Record> {
+    private val onShowRecordMenuFragment = Observer<Pair<Record, RecordMenuAnchor?>> { (record, anchor) ->
         recordMenuFragment = RecordMenuFragment()
-        recordMenuFragment?.setBundleArguments(it, Workspace.PUBLIC_FILES)
+        recordMenuFragment?.setBundleArguments(
+            record, Workspace.PUBLIC_FILES,
+            anchor = anchor?.withRoundWashOut(binding.fabAdd, binding.fabChecklist)
+        )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
         recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)
