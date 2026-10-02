@@ -15,7 +15,6 @@ interface RecordListener {
 
 fun RecordListener.attachLongClick(target: View, item: View, optionsButton: View, record: Record) {
     target.setOnLongClickListener {
-        optionsButton.isVisible && !record.isProcessing &&
-            onRecordLongClick(record, RecordMenuAnchor.of(item))
+        optionsButton.isVisible && onRecordLongClick(record, RecordMenuAnchor.of(item))
     }
 }
