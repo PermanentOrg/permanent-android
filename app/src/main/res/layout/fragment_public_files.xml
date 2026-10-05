@@ -17,140 +17,155 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.core.widget.NestedScrollView
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{(viewModel.existsFiles || viewModel.existsUploads) &amp;&amp; viewModel.showScreenSimplified == false ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0">
+
+                <EditText
+                    android:id="@+id/etSearchQuery"
+                    android:layout_width="0dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/rounded_grey_border_white_background"
+                    android:ems="10"
+                    android:focusableInTouchMode="false"
+                    android:hint="@string/my_files_search_hint"
+                    android:inputType="text"
+                    android:onClick="@{() -> viewModel.onSearchClick()}"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textColorHint="@color/lightGrey"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <ImageView
+                    android:id="@+id/ivSearchIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/etSearchQuery"
+                    app:layout_constraintEnd_toEndOf="@+id/etSearchQuery"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@+id/etSearchQuery"
+                    app:layout_constraintTop_toTopOf="@+id/etSearchQuery"
+                    app:srcCompat="@drawable/ic_search_middle_grey" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clFolderOptions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ivViewModeIcon"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clSearch"
+                app:layout_constraintVertical_bias="0.0">
+
+                <Button
+                    android:id="@+id/btnBack"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{() -> viewModel.onBackBtnClick()}"
+                    android:visibility="@{viewModel.isRoot ? View.GONE : View.VISIBLE}"
+                    app:icon="@drawable/ic_arrow_back_middle_grey"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvFolderName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@{viewModel.folderName}"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/btnBack"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/ivFolderArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvFolderName"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tvFolderName"
+                    app:layout_constraintTop_toTopOf="@+id/tvFolderName"
+                    app:srcCompat="@drawable/ic_arrow_drop_down_primary" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/ivViewModeIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="10dp"
+                android:onClick="@{() -> viewModel.onViewModeBtnClick()}"
+                app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="@{viewModel.existsFiles == false ? View.GONE : View.VISIBLE}"
+                app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
+                app:viewModeIcon="@{viewModel.isListViewMode}" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/coordinatorLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clHeader">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appBarLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fillViewport="true">
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:elevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="true">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/clSearch"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:visibility="@{(viewModel.existsFiles || viewModel.existsUploads) &amp;&amp; viewModel.showScreenSimplified == false ? View.VISIBLE : View.GONE}"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.0">
-
-                        <EditText
-                            android:id="@+id/etSearchQuery"
-                            android:layout_width="0dp"
-                            android:layout_height="32dp"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginEnd="16dp"
-                            android:layout_marginBottom="16dp"
-                            android:background="@drawable/rounded_grey_border_white_background"
-                            android:ems="10"
-                            android:focusableInTouchMode="false"
-                            android:hint="@string/my_files_search_hint"
-                            android:inputType="text"
-                            android:onClick="@{() -> viewModel.onSearchClick()}"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="8dp"
-                            android:textColorHint="@color/lightGrey"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
-
-                        <ImageView
-                            android:id="@+id/ivSearchIcon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
-                            app:layout_constraintBottom_toBottomOf="@+id/etSearchQuery"
-                            app:layout_constraintEnd_toEndOf="@+id/etSearchQuery"
-                            app:layout_constraintHorizontal_bias="1.0"
-                            app:layout_constraintStart_toStartOf="@+id/etSearchQuery"
-                            app:layout_constraintTop_toTopOf="@+id/etSearchQuery"
-                            app:srcCompat="@drawable/ic_search_middle_grey" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/clFolderOptions"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="4dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/ivViewModeIcon"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/clSearch"
-                        app:layout_constraintVertical_bias="0.0">
-
-                        <Button
-                            android:id="@+id/btnBack"
-                            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:onClick="@{() -> viewModel.onBackBtnClick()}"
-                            android:visibility="@{viewModel.isRoot ? View.GONE : View.VISIBLE}"
-                            app:icon="@drawable/ic_arrow_back_middle_grey"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.0"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/tvFolderName"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:layout_marginBottom="10dp"
-                            android:ellipsize="end"
-                            android:maxLines="1"
-                            android:text="@{viewModel.folderName}"
-                            android:textColor="@color/colorPrimary"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.0"
-                            app:layout_constraintStart_toEndOf="@+id/btnBack"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <ImageView
-                            android:id="@+id/ivFolderArrow"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginTop="8dp"
-                            android:visibility="gone"
-                            app:layout_constraintBottom_toBottomOf="@+id/tvFolderName"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/tvFolderName"
-                            app:layout_constraintTop_toTopOf="@+id/tvFolderName"
-                            app:srcCompat="@drawable/ic_arrow_drop_down_primary" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <ImageView
-                        android:id="@+id/ivViewModeIcon"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginEnd="10dp"
-                        android:onClick="@{() -> viewModel.onViewModeBtnClick()}"
-                        app:layout_constraintBottom_toBottomOf="@+id/clFolderOptions"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:visibility="@{viewModel.existsFiles == false ? View.GONE : View.VISIBLE}"
-                        app:layout_constraintTop_toTopOf="@+id/clFolderOptions"
-                        app:viewModeIcon="@{viewModel.isListViewMode}" />
+                    app:layout_scrollFlags="scroll">
 
                     <TextView
                         android:id="@+id/tvDownloadsTitle"
@@ -167,7 +182,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/clFolderOptions"
+                        app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -235,6 +250,11 @@
                             app:layout_constraintTop_toBottomOf="@+id/tvUploadsTitle"
                             app:layout_constraintVertical_bias="0.0" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:id="@+id/tvSortCriteria"
@@ -253,8 +273,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/clUploads"
-                        app:layout_constraintVertical_bias="0.0" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <Button
                         android:id="@+id/btnClear"
@@ -282,10 +301,9 @@
                         android:onClick="@{() -> viewModel.isSelectionMode ? viewModel.onSelectAllBtnClick() : viewModel.onSelectBtnClick()}"
                         android:text="@{viewModel.selectBtnText}"
                         android:visibility="@{viewModel.isRelocationMode || viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
-                        app:layout_constraintBottom_toBottomOf="@+id/tvSortCriteria"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/btnCheckBox"
-                        app:layout_constraintTop_toBottomOf="@+id/ivViewModeIcon"
-                        app:layout_constraintVertical_bias="1.0" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <Button
                         android:id="@+id/btnCheckBox"
@@ -297,21 +315,31 @@
                         app:layout_constraintBottom_toBottomOf="@+id/btnSelect"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/btnSelect" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefreshLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:enabled="@{viewModel.isSelectionMode == false &amp;&amp; viewModel.showScreenSimplified == false}"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <androidx.core.widget.NestedScrollView
+                    android:id="@+id/nestedScrollView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fillViewport="true">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvFiles"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.VISIBLE : View.GONE}"
-                        android:paddingBottom="320dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/tvSortCriteria"
-                        app:layout_constraintVertical_bias="0.0" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.core.widget.NestedScrollView>
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                        android:paddingBottom="320dp" />
+                </androidx.core.widget.NestedScrollView>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <FrameLayout
             android:id="@+id/flFloatingActionIsland"

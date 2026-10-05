@@ -13,6 +13,7 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.ui.RelocationIslandState
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.RecordListener
+import org.permanent.permanent.ui.recordMenu.RecordMenuAnchor
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 
 abstract class SelectionViewModel(application: Application) : RelocationViewModel(application),
@@ -29,17 +30,24 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
     private val showSelectionOptionsRequest = SingleLiveEvent<List<RecordUiModel>>()
     private val showEditMetadataRequest = SingleLiveEvent<MutableList<Record>>()
     private val refreshCurrentFolderRequest = SingleLiveEvent<Void?>()
-    private val showRecordMenuRequest = SingleLiveEvent<Record>()
+    private val showRecordMenuRequest = SingleLiveEvent<Pair<Record, RecordMenuAnchor?>>()
 
     override fun onRecordOptionsClick(record: Record) {
-        showRecordMenuRequest.value = record
+        showRecordMenuRequest.value = Pair(record, null)
+    }
+
+    override fun onRecordLongClick(record: Record, anchor: RecordMenuAnchor): Boolean {
+        if (isSelectionMode.value == true || isRelocationMode.value == true) return false
+        showRecordMenuRequest.value = Pair(record, anchor)
+        return true
     }
 
     override fun onRecordCheckBoxClick(record: Record) {
         onRecordChecked(record)
     }
 
-    fun getShowRecordMenuRequest(): MutableLiveData<Record> = showRecordMenuRequest
+    fun getShowRecordMenuRequest(): MutableLiveData<Pair<Record, RecordMenuAnchor?>> =
+        showRecordMenuRequest
 
     fun onSelectBtnClick() {
         isSelectionMode.value = true

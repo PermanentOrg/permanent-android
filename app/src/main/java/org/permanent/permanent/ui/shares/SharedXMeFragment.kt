@@ -32,6 +32,7 @@ import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FileSessionData
+import org.permanent.permanent.models.NavigationFolder
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.ChecklistItem
@@ -57,6 +58,7 @@ import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuAnchor
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
@@ -69,6 +71,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: SharedXMeViewModel
     private lateinit var binding: FragmentSharedXMeBinding
+    private var shownFolder: NavigationFolder? = null
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
     private lateinit var recordsRecyclerView: RecyclerView
@@ -168,11 +171,12 @@ class SharedXMeFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowRecordMenuFragment = Observer<Record> {
-        this.record = it
+    private val onShowRecordMenuFragment = Observer<Pair<Record, RecordMenuAnchor?>> { (record, anchor) ->
+        this.record = record
         recordMenuFragment = RecordMenuFragment()
         recordMenuFragment?.setBundleArguments(
-            record, Workspace.SHARES, isSharedWithMeFragment, viewModel.isRoot.value ?: false
+            record, Workspace.SHARES, isSharedWithMeFragment, viewModel.isRoot.value ?: false,
+            anchor = anchor?.withRoundWashOut(binding.fabAdd, binding.fabChecklist)
         )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
         recordMenuFragment?.getOnRecordLeaveShareRequest()?.observe(this, onRecordLeaveShareObserver)
@@ -207,7 +211,17 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     private val onRecordsRetrieved = Observer<MutableList<Record>> {
+        scrollToTopOnFolderChange(viewModel.currentFolder.value)
         recordsAdapter.setRecords(it)
+    }
+
+    // A refresh keeps the same NavigationFolder instance, so only navigation resets the scroll.
+    // The root shares list has no folder (null).
+    private fun scrollToTopOnFolderChange(folder: NavigationFolder?) {
+        if (folder === shownFolder) return
+        shownFolder = folder
+        binding.appBarLayout.setExpanded(true, false)
+        binding.nestedScrollView.scrollTo(0, 0)
     }
 
     private val onNewTemporaryFiles = Observer<MutableList<Record>> {
@@ -436,6 +450,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     fun setShares(records: MutableList<Record>) {
+        scrollToTopOnFolderChange(null)
         recordsAdapter.setRecords(records)
         viewModel.isRoot.value = true
         viewModel.existsFiles.value = true

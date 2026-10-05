@@ -226,7 +226,6 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun setShowScreenSimplified() {
         showScreenSimplified.value = true
         swipeRefreshLayout.isRefreshing = false
-        swipeRefreshLayout.isEnabled = false
     }
 
     fun refreshCurrentFolder() {

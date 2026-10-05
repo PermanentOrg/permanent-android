@@ -32,6 +32,7 @@ import org.permanent.permanent.databinding.FragmentPublicFilesBinding
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FileSessionData
+import org.permanent.permanent.models.NavigationFolder
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.ChecklistItem
@@ -60,6 +61,7 @@ import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
 import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
+import org.permanent.permanent.ui.recordMenu.RecordMenuAnchor
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
@@ -71,6 +73,7 @@ import org.permanent.permanent.viewmodels.SingleLiveEvent
 class PublicFilesFragment : PermanentBaseFragment() {
     private lateinit var binding: FragmentPublicFilesBinding
     private lateinit var viewModel: PublicFilesViewModel
+    private var shownFolder: NavigationFolder? = null
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
     private lateinit var recordsRecyclerView: RecyclerView
@@ -163,7 +166,16 @@ class PublicFilesFragment : PermanentBaseFragment() {
     }
 
     private val onRecordsRetrieved = Observer<List<Record>> {
+        scrollToTopOnFolderChange(viewModel.currentFolder.value)
         recordsAdapter.setRecords(it)
+    }
+
+    // A refresh keeps the same NavigationFolder instance, so only navigation resets the scroll.
+    private fun scrollToTopOnFolderChange(folder: NavigationFolder?) {
+        if (folder === shownFolder) return
+        shownFolder = folder
+        binding.appBarLayout.setExpanded(true, false)
+        binding.nestedScrollView.scrollTo(0, 0)
     }
 
     private val onNewTemporaryFiles = Observer<MutableList<Record>> {
@@ -181,9 +193,12 @@ class PublicFilesFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowRecordMenuFragment = Observer<Record> {
+    private val onShowRecordMenuFragment = Observer<Pair<Record, RecordMenuAnchor?>> { (record, anchor) ->
         recordMenuFragment = RecordMenuFragment()
-        recordMenuFragment?.setBundleArguments(it, Workspace.PUBLIC_FILES)
+        recordMenuFragment?.setBundleArguments(
+            record, Workspace.PUBLIC_FILES,
+            anchor = anchor?.withRoundWashOut(binding.fabAdd, binding.fabChecklist)
+        )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
         recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)

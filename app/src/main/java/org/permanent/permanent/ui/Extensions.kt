@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Rect
 import android.net.Uri
 import android.os.IBinder
 import android.provider.OpenableColumns
@@ -232,3 +233,8 @@ val Record.pendingInvitationCount: Int
 
 fun formatPendingInvitationCount(count: Int): String =
     if (count > 9) "9+" else count.toString()
+
+fun View.boundsOnScreen(): Rect {
+    val location = IntArray(2).also { getLocationOnScreen(it) }
+    return Rect(location[0], location[1], location[0] + width, location[1] + height)
+}
