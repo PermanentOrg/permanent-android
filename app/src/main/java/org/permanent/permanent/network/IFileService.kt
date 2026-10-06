@@ -34,6 +34,9 @@ interface IFileService {
     @POST("folder/update")
     fun updateFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 
+    @POST("folder/sort")
+    fun sortFolder(@Body requestBody: RequestBody): Call<ResponseVO>
+
     @POST("folder/delete")
     fun deleteFolder(@Body requestBody: RequestBody): Call<ResponseVO>
 

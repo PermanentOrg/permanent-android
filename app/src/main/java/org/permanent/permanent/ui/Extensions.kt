@@ -5,12 +5,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Color
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.OpenableColumns
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.WindowCompat
+import androidx.core.widget.NestedScrollView
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.gson.Gson
@@ -237,4 +243,33 @@ fun formatPendingInvitationCount(count: Int): String =
 fun View.boundsOnScreen(): Rect {
     val location = IntArray(2).also { getLocationOnScreen(it) }
     return Rect(location[0], location[1], location[0] + width, location[1] + height)
+}
+
+// A full-screen popup window: the status and navigation bars keep the screen's own look.
+fun Window.drawBehindSystemBars(screenWindow: Window?) {
+    WindowCompat.setDecorFitsSystemWindows(this, false)
+    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    statusBarColor = Color.TRANSPARENT
+    navigationBarColor = Color.TRANSPARENT
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) isNavigationBarContrastEnforced = false
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        attributes = attributes.also {
+            it.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+    }
+    screenWindow?.let {
+        val screenBars = WindowCompat.getInsetsController(it, it.decorView)
+        WindowCompat.getInsetsController(this, decorView).apply {
+            isAppearanceLightStatusBars = screenBars.isAppearanceLightStatusBars
+            isAppearanceLightNavigationBars = screenBars.isAppearanceLightNavigationBars
+        }
+    }
+}
+
+// The fade under a pinned header appears once the list scrolls beneath it.
+fun NestedScrollView.fadeInOnScroll(fade: View) {
+    setOnScrollChangeListener { _: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
+        fade.alpha = (scrollY.toFloat() / fade.height.coerceAtLeast(1)).coerceAtMost(1f)
+    }
 }

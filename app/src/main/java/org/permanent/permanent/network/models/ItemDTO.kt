@@ -40,4 +40,6 @@ data class ItemDTO(
     val fileCreatedAt: String? = null,
     val location: LocationDTO? = null,
     val tags: List<TagDTO>? = null,
+    // The folder's saved sort (folders only).
+    val sort: String? = null,
 )

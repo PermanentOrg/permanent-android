@@ -7,6 +7,7 @@ import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FolderPatchResponse
 import org.permanent.permanent.network.models.FolderResponse
 import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.RecordResponse
@@ -51,6 +52,13 @@ interface StelaAccountService {
     ): Call<Void>
 
     @Headers("Request-Version: 2")
+    @PATCH("api/v2/folders/{folderId}")
+    fun patchFolder(
+        @Path("folderId") folderId: Int,
+        @Body body: RequestBody
+    ): Call<FolderPatchResponse>
+
+    @Headers("Request-Version: 2")
     @GET("api/v2/folder")
     fun getFolder(
         @Header("X-Permanent-Share-Token") shareToken: String?,
@@ -93,7 +101,8 @@ interface StelaAccountService {
     @GET("api/v2/folders/{folderId}/children")
     fun getFolderChildrenV2(
         @Path("folderId") folderId: Int,
-        @Query("pageSize") pageSize: Int = MAX_CHILDREN_PAGE_SIZE
+        @Query("pageSize") pageSize: Int = MAX_CHILDREN_PAGE_SIZE,
+        @Query("cursor") cursor: String? = null
     ): Call<FolderChildrenResponse>
 
     @POST("api/v2/share-links")
@@ -128,6 +137,9 @@ interface StelaAccountService {
         // single page (cursor pagination deferred — nextCursor is non-null even on a
         // complete page, so loop termination is unreliable). Same value iOS ships.
         const val MAX_CHILDREN_PAGE_SIZE = 99999999
+
+        // Paged children listing, same page size as iOS.
+        const val CHILDREN_PAGE_SIZE = 10
 
         // The archives search requires a query or a role; passing every role resolves
         // the selected archive whatever the caller's role on it. One page sized above

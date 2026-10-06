@@ -21,14 +21,17 @@ import org.permanent.permanent.network.IFileDataListener
 import org.permanent.permanent.network.IRecordListener
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.NetworkClient
+import org.permanent.permanent.network.StelaAccountService
 import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FolderPatchResponse
 import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.ItemDTO
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.IFolderChildrenListener
+import org.permanent.permanent.network.models.IFolderChildrenPageListener
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.RecordResponse
 import org.permanent.permanent.network.models.RecordVO
@@ -38,6 +41,7 @@ import org.permanent.permanent.repositories.IFileRepository.RecordField
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.ModificationType
+import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import retrofit2.Callback
@@ -237,7 +241,86 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         folderId: Int,
         listener: IFolderChildrenListener
     ) {
-        NetworkClient.instance().getFolderChildrenV2(folderId)
+        getChildrenPageV2(folderId, StelaAccountService.MAX_CHILDREN_PAGE_SIZE, null,
+            object : IFolderChildrenPageListener {
+                override fun onSuccess(records: List<Record>, nextCursor: String?) =
+                    listener.onSuccess(records)
+
+                override fun onFailed(error: String?) = listener.onFailed(error)
+            })
+    }
+
+    override fun saveFolderSort(
+        folderId: Int?,
+        folderLinkId: Int,
+        archiveId: Int?,
+        sortType: SortType,
+        listener: IResponseListener
+    ) {
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        if (stelaRejectsSortPatch || sessionArchiveId == null || folderId == null ||
+            !isEligibleForStelaPatch(folderId, archiveId, sessionArchiveId)
+        ) {
+            saveFolderSortV1(folderLinkId, sortType, listener)
+            return
+        }
+        val body = JSONObject().put("sort", sortType.toStelaString())
+        NetworkClient.instance().patchFolderV2(folderId, body)
+            .enqueue(object : Callback<FolderPatchResponse> {
+
+                override fun onResponse(
+                    call: Call<FolderPatchResponse>,
+                    response: Response<FolderPatchResponse>
+                ) {
+                    // A 200 that ignored the field does not count as saved.
+                    val echoedSort = SortType.fromServerValue(response.body()?.data?.sort)
+                    if (response.isSuccessful && echoedSort == sortType) {
+                        listener.onSuccess(null)
+                        return
+                    }
+                    if (response.code() == 400) stelaRejectsSortPatch = true
+                    saveFolderSortV1(folderLinkId, sortType, listener)
+                }
+
+                override fun onFailure(call: Call<FolderPatchResponse>, t: Throwable) {
+                    saveFolderSortV1(folderLinkId, sortType, listener)
+                }
+            })
+    }
+
+    private fun saveFolderSortV1(
+        folderLinkId: Int,
+        sortType: SortType,
+        listener: IResponseListener
+    ) {
+        NetworkClient.instance().sortFolder(folderLinkId, sortType.toBackendString())
+            .enqueue(object : Callback<ResponseVO> {
+
+                override fun onResponse(call: Call<ResponseVO>, response: Response<ResponseVO>) {
+                    val responseVO = response.body()
+                    val echoedSort = responseVO?.getData()?.firstOrNull()?.FolderVO?.sort
+                    if (responseVO?.isSuccessful == true &&
+                        (echoedSort == null || echoedSort == sortType.toBackendString())
+                    ) {
+                        listener.onSuccess(null)
+                    } else {
+                        listener.onFailed(responseVO?.getMessages()?.firstOrNull())
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
+    }
+
+    override fun getChildrenPageV2(
+        folderId: Int,
+        pageSize: Int,
+        cursor: String?,
+        listener: IFolderChildrenPageListener
+    ) {
+        NetworkClient.instance().getFolderChildrenV2(folderId, pageSize, cursor)
             .enqueue(object : Callback<FolderChildrenResponse> {
 
                 override fun onResponse(
@@ -257,7 +340,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                         listener.onFailed(context.getString(R.string.generic_error))
                         return
                     }
-                    listener.onSuccess(records)
+                    listener.onSuccess(records, response.body()?.pagination?.nextCursor)
                 }
 
                 override fun onFailure(call: Call<FolderChildrenResponse>, t: Throwable) {
@@ -1098,5 +1181,11 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 listener.onFailed(t.message)
             }
         })
+    }
+
+    companion object {
+        // Stela's folder PATCH did not accept sort yet; one 400 sends saves to V1 until restart.
+        @Volatile
+        private var stelaRejectsSortPatch = false
     }
 }

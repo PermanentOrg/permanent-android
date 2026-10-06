@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import org.permanent.permanent.ui.boundsOnScreen
 import org.permanent.permanent.ui.composeComponents.AnimatedTemporarySnackbar
 import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
 import androidx.core.net.toUri
@@ -37,6 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.DevicePermissionsHelper
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
 import org.permanent.permanent.databinding.FragmentMyFilesBinding
@@ -54,6 +56,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.MainActivity
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
+import org.permanent.permanent.ui.fadeInOnScroll
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistBottomSheetFragment
 import org.permanent.permanent.ui.myFiles.checklist.ChecklistItemType
@@ -89,6 +92,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
+    private var pagedList: PagedListController? = null
     private var nameInputFragment: NameInputFragment? = null
     private lateinit var prefsHelper: PreferencesHelper
     private var addOptionsFragment: AddOptionsFragment? = null
@@ -282,12 +286,24 @@ class MyFilesFragment : PermanentBaseFragment() {
     private fun scrollToTopOnFolderChange(folder: NavigationFolder?) {
         if (folder === shownFolder) return
         shownFolder = folder
+        scrollToTop()
+    }
+
+    private fun scrollToTop() {
         binding.appBarLayout.setExpanded(true, false)
         binding.nestedScrollView.scrollTo(0, 0)
     }
 
     private val onNewTemporaryFiles = Observer<MutableList<Record>> {
         recordsAdapter.addRecords(it)
+    }
+
+    private val onRecordsAppended = Observer<List<Record>> {
+        recordsAdapter.appendRecords(it)
+    }
+
+    private val onListFooter = Observer<ListFooter> {
+        pagedList?.setFooter(it)
     }
 
     private val onShowRecordSearchFragment = Observer<Void?> {
@@ -323,7 +339,8 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onShowSortOptionsFragment = Observer<SortType> {
         sortOptionsFragment = SortOptionsFragment()
-        sortOptionsFragment?.setBundleArguments(it)
+        val anchor = if (FeatureFlags.useStelaMigration) binding.llSortRow.boundsOnScreen() else null
+        sortOptionsFragment?.setBundleArguments(it, anchor)
         sortOptionsFragment?.show(parentFragmentManager, sortOptionsFragment?.tag)
         sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
     }
@@ -465,6 +482,8 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onSortRequest = Observer<SortType> {
         viewModel.setSortType(it)
+        // A new sort lists from page 1, so the list starts from the top.
+        if (FeatureFlags.useStelaMigration) scrollToTop()
     }
 
     private val onRefreshFolder = Observer<Void?> {
@@ -476,7 +495,12 @@ class MyFilesFragment : PermanentBaseFragment() {
     private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
         prefsHelper.saveIsListViewMode(isListViewMode)
         val records = recordsAdapter.getRecords()
-        recordsRecyclerView.apply {
+        val pagedList = pagedList
+        if (pagedList != null) {
+            recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
+            pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
+            recordsAdapter.setRecords(records)
+        } else recordsRecyclerView.apply {
             if (isListViewMode) {
                 layoutManager = LinearLayoutManager(context)
                 recordsAdapter = recordsListAdapter
@@ -527,6 +551,18 @@ class MyFilesFragment : PermanentBaseFragment() {
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)
+        if (FeatureFlags.useStelaMigration) {
+            val pagedList = PagedListController(
+                recordsRecyclerView,
+                onEndReached = viewModel::onListEndReached,
+                onRetry = viewModel::onRetryNextPageClick
+            )
+            this.pagedList = pagedList
+            binding.nestedScrollView.fadeInOnScroll(binding.vStickyFade)
+            recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
+            pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
+            return
+        }
         recordsRecyclerView.apply {
             if (isListViewMode) {
                 recordsAdapter = recordsListAdapter
@@ -550,6 +586,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().observe(this, onNewTemporaryFiles)
+        viewModel.getOnRecordsAppended().observe(this, onRecordsAppended)
+        viewModel.getListFooter().observe(this, onListFooter)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
         viewModel.getShowRecordMenuRequest().observe(this, onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().observe(this, onShowRecordSearchFragment)
@@ -578,6 +616,8 @@ class MyFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().removeObserver(onNewTemporaryFiles)
+        viewModel.getOnRecordsAppended().removeObserver(onRecordsAppended)
+        viewModel.getListFooter().removeObserver(onListFooter)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
         viewModel.getShowRecordMenuRequest().removeObserver(onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().removeObserver(onShowRecordSearchFragment)

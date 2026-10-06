@@ -10,6 +10,7 @@ import org.permanent.permanent.network.models.ItemVO
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.ui.myFiles.SortType
 
 open class Record : Parcelable {
     var id: Int? = null
@@ -42,6 +43,7 @@ open class Record : Parcelable {
     var displayInShares = false
     var fileData: FileData? = null
     var localDrawableRes: Int? = null
+    var savedSort: SortType? = null
 
     constructor(parcel: Parcel) {
         id = parcel.readValue(Int::class.java.classLoader) as? Int
@@ -70,6 +72,7 @@ open class Record : Parcelable {
         displayInShares = parcel.readValue(Boolean::class.java.classLoader) as Boolean
         fileData = parcel.readParcelable(FileData::class.java.classLoader)
         backendType = parcel.readString()
+        savedSort = SortType.fromServerValue(parcel.readString())
     }
 
     constructor(recordInfo: RecordVO) {
@@ -113,6 +116,7 @@ open class Record : Parcelable {
         isThumbBlurred = false
         type = RecordType.FOLDER
         accessRole = AccessRole.fromBackendValue(recordInfo.accessRole)
+        savedSort = SortType.fromServerValue(recordInfo.sort)
         initShares(recordInfo.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = deriveIsProcessing(recordInfo.thumbStatus)
@@ -139,6 +143,7 @@ open class Record : Parcelable {
         type = if (itemVO.folderId != null) RecordType.FOLDER else RecordType.FILE
         backendType = itemVO.type
         accessRole = AccessRole.fromBackendValue(itemVO.accessRole)
+        if (type == RecordType.FOLDER) savedSort = SortType.fromServerValue(itemVO.sort)
         initShares(itemVO.ShareVOs)
         displayFirstInCarousel = false
         isProcessing = type == RecordType.FILE &&
@@ -251,6 +256,7 @@ open class Record : Parcelable {
         parcel.writeValue(displayInShares)
         parcel.writeParcelable(fileData, flags)
         parcel.writeString(backendType)
+        parcel.writeString(savedSort?.toBackendString())
     }
 
     override fun describeContents(): Int {

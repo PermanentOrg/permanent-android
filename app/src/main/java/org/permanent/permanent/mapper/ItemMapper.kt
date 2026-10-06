@@ -17,6 +17,7 @@ import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.TagVO
+import org.permanent.permanent.ui.myFiles.SortType
 
 
 fun ItemDTO.toRecord(): Record {
@@ -83,6 +84,7 @@ fun ItemDTO.toRecordV2(includePendingInvitesAsShares: Boolean = true): Record {
     // Caller-resolved per-item role. Absent clamps to VIEWER — V1 parity: a listed
     // Record always carries a non-null role (every V1 constructor clamps the same way).
     rec.accessRole = AccessRole.fromStelaBackendValue(accessRole)
+    rec.savedSort = SortType.fromServerValue(sort)
 
     return rec
 }

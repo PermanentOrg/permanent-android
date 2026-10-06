@@ -109,7 +109,7 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-09-28</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-10-06</strong> · edit by hand, one item per surface.
   QA cross-check (Sergiu, iOS V1-vs-V2 sweep, 2026-08-26): 145 V2 calls vs 8 V1 — every remaining V1 call maps to a documented gap on this board (uploads, public/deep-link roots, own-archive public root — migrated since on Android, VSP-1839, V1 failsafe).
   <strong>Storage purchases (VSP-1792) are the exception to the flag:</strong> they ship from <code>master</code> to production, gated by a Remote Config kill switch (first row below).
   Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
@@ -132,7 +132,7 @@
       <li class="item">
         <div class="row"><span class="name">Private Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
         <code class="route">GET /v2/folders/{id}/children</code>
-        <p class="note">VSP-1778 · replaces navigateMin + getLeanItems · single fetch <code>pageSize=99999999</code>, local sort, V1 failsafe, supersede policy. The folder-row pending-badge undercount was fixed server-side by stela PR #849 (v0.95.0) — re-captured on staging 2026-09-21, pending share present on the folder item.</p>
+        <p class="note">VSP-1778 · replaces navigateMin + getLeanItems · V1 failsafe, supersede policy · since VSP-1812 pages of 10 in the folder's saved order (see the sort &amp; paging item). The folder-row pending-badge undercount was fixed server-side by stela PR #849 (v0.95.0) — re-captured on staging 2026-09-21, pending share present on the folder item.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Public Files navigation &amp; listing</span><span class="pill st-flag">Behind flag</span></div>
@@ -180,9 +180,14 @@
         <p class="note">VSP-1842 · the share sheet's folder refresh (<code>ShareManagementViewModel.refreshShares</code>, the read that feeds pending requests / approved archives) rides the plural route with <code>pageSize = id count</code> (required on the plural route — 400 without; iOS omits it), same <code>ItemDTO</code>/<code>toRecordV2</code> mapper, gate <code>useStelaMigration &amp;&amp; folderId &gt; 0</code>, silent V1 <code>folder/get</code> failsafe on any anomaly (missing folder, corrupt share ids, unknown share role, <code>folderLinkId</code> mismatch), a 401 cannot log out · maps <code>shares[]</code> only — email invites stay with the pending-invite read · pending archive shares in <code>shares[]</code> come from stela PR #849 (v0.95.0, see backend column) — <strong>verified live 2026-09-21</strong>: the Vacation folder answered with its pending share, no V1 failsafe · inventory complete: the only other V1 <code>folder/get</code> caller is the FCM push fallback (backend column).</p>
       </li>
       <li class="item">
+        <div class="row"><span class="name">Folder sort &amp; paged listing</span><span class="pill st-flag">Behind flag</span></div>
+        <code class="route">GET /v2/folders/{id}/children?pageSize=10&amp;cursor= · PATCH /v2/folders/{id} {sort}</code>
+        <p class="note">VSP-1812 · iOS PRs #592 + #595 · a sort change saves on the folder, then lists page 1 in the server's order · save: PATCH first, counted only if <code>data.sort</code> echoes; one 400 → V1 <code>folder/sort</code> until restart (the published PATCH has no <code>sort</code>, so V1 saves today) · pages of 10, <code>cursor = nextCursor</code>, end on a short page · whole folder + local sort when the chosen sort isn't saved (viewers, failed save) · skeleton, next-page skeleton, "Couldn't load more items." + retry, "N Folders, M Files" (counted on the client) · new sort popup + Select button · My/Public Files, Shared drill-in, Public Gallery, search drill-in; share preview loads one page · flag off = full load, old UI · <strong>staging QA pending</strong>.</p>
+      </li>
+      <li class="item">
         <div class="row"><span class="name">Share-link preview grid</span><span class="pill st-live">Live</span></div>
         <code class="route">GET /v2/folders/{id}/children (share token)</code>
-        <p class="note">Pre-VSP-1778 · VSP-1843 · moved to the documented plural route (path only; the singular alias is no longer called) · ungated, as before.</p>
+        <p class="note">Pre-VSP-1778 · VSP-1843 · moved to the documented plural route (path only; the singular alias is no longer called) · ungated, as before · VSP-1812: with the flag on it requests one page of 10 (it shows ≤ 4 tiles).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Folder metadata (pending-invite reads)</span><span class="pill st-live">Live</span></div>
@@ -256,9 +261,9 @@
         <p class="note">Verified in stela docs + iOS PR #573. Stays on V1 <code>folder/post</code>; blocks the VSP-1778 follow-up ticket.</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">Folder rename · sort persistence</span><span class="pill st-block">Blocked</span></div>
+        <div class="row"><span class="name">Folder rename</span><span class="pill st-block">Blocked</span></div>
         <code class="route">PATCH /v2/folders/{id} — wrong fields</code>
-        <p class="note">Source-verified 2026-08-26 (<code>folder/validators.ts</code>): the PATCH exists but accepts only <code>displayDate</code>/<code>displayEndDate</code>/<code>displayTime</code>/<code>location</code> — no <code>displayName</code>, no sort. iOS doesn't use it either. Rename and re-sort stay on V1 until the route accepts those fields.</p>
+        <p class="note">Source-verified 2026-08-26 (<code>folder/validators.ts</code>): the PATCH exists but accepts only <code>displayDate</code>/<code>displayEndDate</code>/<code>displayTime</code>/<code>location</code> — no <code>displayName</code>, no sort. iOS doesn't use it either. Rename stays on V1 until the route accepts <code>displayName</code>. Sort: the apps send <code>{sort}</code> anyway and fall back to V1 <code>folder/sort</code> on the 400 (VSP-1812, left column; docs re-read 2026-10-05 — still no <code>sort</code>).</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Relocate · move · delete · folder copy</span><span class="pill st-block">Blocked</span></div>
@@ -281,8 +286,8 @@
         <p class="note"><strong>Backend confirmed (Slack, 2026-08-17):</strong> 401 will be restricted to invalid tokens; the shared-record <code>PATCH /api/v2/records/{id}</code> answering 401 is acknowledged as a bug — it should be 403, or succeed outright when the share grants sufficient permissions. Filed as <strong>PER-10799</strong> (2026-09-25: 403 on PATCH record, other endpoints to be checked). Waiting on the fix to ship; then re-verify the PR #576 reproducer on staging and flip <code>FeatureFlags.treatStelaUnauthorizedAsSessionExpiry</code> (implemented dark, OFF in every build). Context: session expiry is detected only on the V1 host today (<code>UnauthorizedInterceptor</code>), which is what lets V2 401s degrade to the V1 failsafe — once V1 is gone, an expired session would never log out. Full write-up: contract doc, gap 7.</p>
       </li>
       <li class="item">
-        <div class="row"><span class="name">Reliable pagination</span><span class="pill st-block">Blocked · PER-10803</span></div>
-        <p class="note"><code>nextCursor</code> non-null on complete pages, <code>totalPages</code> wrong — blocks the real cursor-paging ticket; until then both platforms fetch one huge page. Filed as <strong>PER-10803</strong> (2026-09-25).</p>
+        <div class="row"><span class="name">Reliable pagination</span><span class="pill st-prog">Worked around · PER-10803</span></div>
+        <p class="note"><code>nextCursor</code> non-null on complete pages, <code>totalPages</code> wrong. Filed as <strong>PER-10803</strong> (2026-09-25). Both apps now page anyway (iOS #595, Android VSP-1812): the list ends on a page shorter than <code>pageSize</code>, which costs one empty extra request for folders of exactly 10·n items. No totals on the wire, so the end footer counts the loaded rows.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Link-address resolution (V1 link ids → V2 ids)</span><span class="pill st-block">Blocked · PER-10800</span></div>
