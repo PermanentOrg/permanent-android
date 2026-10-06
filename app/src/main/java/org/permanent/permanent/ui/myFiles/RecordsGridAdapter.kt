@@ -52,6 +52,17 @@ class RecordsGridAdapter(
         notifyDataSetChanged()
     }
 
+    override fun appendRecords(newRecords: List<Record>) {
+        val start = records.size
+        for (record in newRecords) {
+            record.isRelocateMode = isRelocateMode
+            record.isSelectMode = isSelectMode
+            record.isChecked = MutableLiveData<Boolean>(false)
+            records.add(record)
+        }
+        notifyItemRangeInserted(start, newRecords.size)
+    }
+
     override fun getRecords(): List<Record> = records
 
     override fun getItemById(recordId: Int): Record? {

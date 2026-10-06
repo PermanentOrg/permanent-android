@@ -937,4 +937,32 @@
     <string name="preview_tap_to_retry">Tap to Retry.</string>
     <string name="preview_youre_offline">You\'re offline.</string>
     <string name="preview_connect_full_quality">Connect to load full quality.</string>
+
+    <!-- Paged file lists -->
+    <string name="list_loading_items">Loading items</string>
+    <string name="list_loading_more_items">Loading more items</string>
+    <string name="list_load_more_error">Couldn\'t load more items.</string>
+    <string name="list_load_more_retry">Try again</string>
+    <string name="list_item_count">%1$s, %2$s</string>
+    <plurals name="list_folder_count">
+        <item quantity="one">%d Folder</item>
+        <item quantity="other">%d Folders</item>
+    </plurals>
+    <plurals name="list_file_count">
+        <item quantity="one">%d File</item>
+        <item quantity="other">%d Files</item>
+    </plurals>
+
+    <!-- Sort popup -->
+    <string name="sort_by">Sort by</string>
+    <string name="sort_label">%1$s  •  %2$s</string>
+    <string name="sort_field_type">Type</string>
+    <string name="sort_name_ascending_short">A → Z</string>
+    <string name="sort_name_descending_short">Z → A</string>
+    <string name="sort_name_ascending">Alphabetical (A → Z)</string>
+    <string name="sort_name_descending">Alphabetical (Z → A)</string>
+    <string name="sort_date_descending">Newest first</string>
+    <string name="sort_date_ascending">Oldest first</string>
+    <string name="sort_type_ascending">Ascending</string>
+    <string name="sort_type_descending">Descending</string>
 </resources>

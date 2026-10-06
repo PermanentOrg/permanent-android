@@ -216,9 +216,10 @@ this path is new information worth sharing with backend.
 - **Full supersede machinery — the first non-MyFiles screen to need it.** Unlike the
   gallery/search screens (`isBusy` guard, no refresh sources), Shared By Me has
   pull-to-refresh, a sort picker and two delayed background refreshes that can race a
-  folder tap — so `SharedXMeViewModel` mirrors `MyFilesViewModel`'s
-  `childrenFetchGeneration` policy verbatim (newest generation commits or falls back;
-  superseded failures never run the failsafe; forward-navigation taps retry once).
+  folder tap — so `SharedXMeViewModel` mirrors `MyFilesViewModel`'s supersede policy
+  verbatim (newest generation commits or falls back; superseded failures never run the
+  failsafe; forward-navigation taps retry once). Since VSP-1812 both ride the shared
+  `FolderChildrenPager` generation guard instead of their own `childrenFetchGeneration`.
 - **Shares-local derivations on the V2 path** (V1 parity): every mapped record gets
   `displayInShares = true` (share badges; what the V1 `getRecords` stamps) and, on the
   by-me tab, `accessRole =` the **session archive's role** from
@@ -260,13 +261,16 @@ this path is new information worth sharing with backend.
   `flag && target.folderId > 0`). iOS never asserts the payload carries `folderId` — it
   silently degrades to V1. Android expresses the same decision directly at the tap-site
   branch (the `Record` is already the parameter; no out-of-band target needed).
-- **No supersede machinery** — the screen's `isBusy` re-entrancy guard allows at most one
-  fetch in flight (no pull-to-refresh, no sort picker), same rationale as the gallery.
+- **No supersede machinery** — a re-entrancy guard (`isBusy`, plus `isListing` since
+  VSP-1812 so the skeleton can replace the spinner) allows at most one listing in flight (no
+  pull-to-refresh, no sort picker), same rationale as the gallery. Next pages are dropped by
+  `FolderChildrenPager` when a new listing starts.
 - **Search-local derivations on the V2 path** (V1 parity): the header title uses the
   tapped folder's own `displayName` — which is what the *existing V1 search listener
   already uses* (it ignores the `getLeanItems` envelope name), so both paths are
-  identical by construction; fixed `NAME_ASCENDING` applied locally via
-  `SortType.toComparator()` (V1 sends the same sort as a backend param). No
+  identical by construction; the V2 path lists in the folder's saved order, page by page
+  (VSP-1812 — before it, a fixed `NAME_ASCENDING` was applied locally; V1 still sends that
+  sort as a backend param). No
   `parentFolderArchiveNr` stamp — the V1 search path never sets it and nothing on this
   screen consumes it (no options/toolbar menu: `isForSearchScreen` suppresses it).
 - **Section-agnostic by construction:** search has no section concept (no section in
@@ -301,14 +305,17 @@ this path is new information worth sharing with backend.
   matching iOS's 2026-07-28 verification (PR #576). The same session verified empty
   listings commit as verified-empty (42-byte `items: []`, no failsafe misfire), large
   (100KB+) listings, and zero V1 fallbacks across the full manual checklist.
-- **No supersede machinery needed:** both gallery ViewModels keep their `isBusy`
-  re-entrancy guard — at most one fetch in flight (no pull-to-refresh, no sort picker,
-  no background refresh), so a fetch either commits or falls back to V1.
+- **No supersede machinery needed:** both gallery ViewModels keep their re-entrancy guard
+  (`isBusy`, plus `isListing` since VSP-1812) — at most one listing in flight (no
+  pull-to-refresh, no sort picker), so a listing either commits or falls back to V1. The
+  public archive re-lists on every return to the screen; since VSP-1812 that re-list keeps
+  the loaded rows (refresh page size) instead of showing the skeleton again.
 - **Gallery-local derivations on the V2 path** (V1 parity): each mapped record gets
   `parentFolderArchiveNr` stamped from the listed folder (only consumer:
   `FileViewOptionsViewModel`'s copy-link button); the sub-folder ActionBar title uses the
   listed folder's own `displayName` (V2 has no parent-name envelope; same value V1 sent);
-  fixed `NAME_ASCENDING` applied locally via `SortType.toComparator()`.
+  the V2 path lists in the folder's saved order, page by page (VSP-1812; previously a fixed
+  `NAME_ASCENDING` applied locally — V1 keeps it).
 - **Deep-linked folders fall through to V1 by design:** the deep-link path synthesizes
   `Record(archiveNr, folderLinkId)` with no `folderId`, so the gate rejects it; its
   V1-listed children carry `folderId` and upgrade to V2 below that point (same graceful
@@ -364,7 +371,7 @@ build type.
 ## Request
 
 ```
-GET {BASE_API_URL_STELA}api/v2/folders/{folderId}/children?pageSize=99999999
+GET {BASE_API_URL_STELA}api/v2/folders/{folderId}/children?pageSize=10[&cursor=<nextCursor>]
 Headers: Request-Version: 2
          Authorization: Bearer <token>          (attached automatically by our OkHttp interceptor)
          X-Permanent-Share-Token: <token>       (share-preview flavor only — mutually exclusive use case)
@@ -374,14 +381,16 @@ Headers: Request-Version: 2
   deprecated backend alias (byte-identical responses on production) and Android no longer
   calls it — the share-preview call moved to the plural route in VSP-1843, path only. The
   share-preview flavor still sends no `Request-Version: 2` header; the bearer flavor does.
-- **`pageSize`** (required): we send `99_999_999` (`StelaAccountService.MAX_CHILDREN_PAGE_SIZE`)
-  to fetch the whole folder in one page, same as iOS. Cursor pagination is deliberately
-  deferred (see Pagination below).
-- **`cursor`** (optional, unused): the `folderLinkId` of the item *before* the first item you
-  want — in practice the last item of the previous page.
+- **`pageSize`** (required): `10` per page (`StelaAccountService.CHILDREN_PAGE_SIZE`, same as
+  iOS) since VSP-1812, behind the migration flag. `99_999_999` (`MAX_CHILDREN_PAGE_SIZE`) still
+  lists a whole folder in one call where that is needed — see Pagination below. Flag off: the
+  share preview and every listing keep the single huge page.
+- **`cursor`** (optional): the `folderLinkId` of the item *before* the first item you want.
+  Android sends the previous response's `pagination.nextCursor` as is — never computed.
 - **No sort parameter — by design.** Sort is a folder attribute; `/children` returns the
-  folder's stored order. Clients apply the user's sort locally (Android:
-  `SortType.toComparator()`; iOS: `FilesViewModel.sorted(_:by:)`).
+  folder's **saved** sort order. Since VSP-1812 the client lists in server order when the
+  chosen sort equals the folder's saved sort, and sorts locally
+  (`SortType.toComparator()`) only for a whole-folder listing — see Folder sort below.
 - **401s must not force logout** — the V1 failsafe follows. On Android this is already true:
   `UnauthorizedInterceptor` only matches `BASE_API_URL`, not the Stela base. iOS sets
   `ignoreErrors = true` for the same reason. **This protection is on borrowed time**: it
@@ -454,16 +463,48 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
   (matches V1's spinner behavior for fresh uploads).
 - Thumbnail URLs may arrive as **empty strings instead of null** — treat empty as absent.
 
-### Pagination — decoded but not honored (deliberately)
+### Pagination — pages of 10 (VSP-1812, behind the flag; iOS PR #595)
 
-- Filed by the backend as **PER-10803** (2026-09-25, epic PER-10752, start of next quarter).
-- `totalPages` is unreliable (live capture: `0` with 9 items).
-- `nextCursor` is **non-null even when the whole folder fit in one page**, so cursor-loop
-  termination cannot rely on it — the reason both platforms ship the huge single `pageSize`
-  until real pagination is specced.
+- **Rules (iOS parity):** page 1 = 10 items; each next page = 10 with `cursor = nextCursor`.
+  The list **ends when `nextCursor` is null or a page is shorter than `pageSize`** —
+  `nextCursor` is non-null on the last page, so a folder of exactly 10·n items costs one extra
+  request that answers `items: []`. A refresh (pull, return to the screen, post-upload/delete
+  reload) asks for `(loaded / 10 + 1) · 10` from page 1, so the user keeps what they scrolled.
+- **Whole-folder listing (`pageSize = 99_999_999`)** when: the chosen sort is not the folder's
+  saved sort (viewer, failed save, unknown saved sort) — then sorted locally; Select all on a
+  partly loaded folder; a next page that repeats only rows already listed (relist); the
+  section-root lookup (a root could sit past page 1). The V1 failsafe is always whole-folder.
+- **Late replies:** `FolderChildrenPager` lets only the newest listing commit, and drops a next
+  page as soon as another listing starts (sort change, refresh, navigation).
+- Rows repeated across pages are dropped by `folderLinkId`.
+- **No totals on the wire** (`totalPages` unreliable — `0` with 9 items; no item count): the
+  "N Folders, M Files" end footer is **counted from the loaded rows** and shown only when the
+  list is complete (iOS does the same).
+- **Share-link preview** requests one page of 10 (it shows ≤ 4 tiles).
+- Backend ticket **PER-10803** (2026-09-25, epic PER-10752) still covers a reliable
+  `nextCursor`/`totalPages`; the end rule above works without it.
 - An undocumented `pagination.nextPage` convenience URL exists (itself on the plural path).
-- Residual risk of the huge-pageSize workaround: if the server ever clamps `pageSize` below a
-  folder's real size, listings would **silently truncate** (iOS carries the same known risk).
+
+## Folder sort — save + server order (VSP-1812, behind the flag; iOS PR #592)
+
+- **Save (iOS parity):** `PATCH api/v2/folders/{folderId}` with `{"sort": "<value>"}` and
+  `Request-Version: 2`; counted as saved **only if the reply echoes `data.sort`**. A **400**
+  sets a process-wide flag (`FileRepositoryImpl.stelaRejectsSortPatch`) and every later save
+  goes straight to V1 `POST folder/sort` (`FolderVO { folder_linkId, sort }`, success = echoed
+  sort null or equal) until the app restarts; any other PATCH failure uses V1 for that save.
+  PATCH only for own-archive folders (`isEligibleForStelaPatch`); a PATCH 401 cannot log out
+  (V1-host-scoped interceptor) — iOS's PATCH 401 does.
+- **Status (published stela docs, read 2026-10-05):** the folder PATCH body lists only
+  `displayDate`, `displayEndDate`, `displayTime`, `location` — **no `sort`**. Expect
+  PATCH → 400 → V1 until the backend adds it; the client switches by itself (re-verify live).
+- **Values:** Stela `alphabetical-ascending|-descending`, `date-ascending|-descending`,
+  `type-ascending|-descending` ↔ V1 `sort.alphabetical_asc`… (`SortType.fromServerValue`
+  accepts both).
+- **Who saves:** My/Public Files — archive role with edit rights; Shared — the folder's own
+  role with edit rights. Everyone else changes the order on the device only (whole folder).
+- **Saved sort sources:** V2 `ItemDTO.sort` (folder items), V1 `FolderVO.sort`, V1 share rows
+  `ItemVO.sort` (iOS reads it too). V1 `getLeanItems` children carry none → whole-folder
+  listing below such a folder. Entering a folder adopts its saved sort.
 
 ## Folder metadata — GET /v2/folders (VSP-1842, source-verified 2026-09-17)
 
@@ -959,9 +1000,9 @@ start of next quarter): PER-10798 (gap 8), PER-10799 (gap 7), PER-10800 (gap 5),
    item.
 3. **No V2 folder-creation endpoint** (`POST /v2/folders` does not exist) — folder creation
    stays on V1 `folder/post`. Blocks the folder-creation migration follow-up ticket.
-4. **Folder PATCH** (`PATCH /v2/folders/{id}`) now appears in the stela docs; the
-   sort-persistence re-sort flow (PATCH then re-fetch children) is a future ticket —
-   re-verify the endpoint when that is specced.
+4. **Folder PATCH** (`PATCH /v2/folders/{id}`) accepts no `sort` and no `displayName` in the
+   published docs (re-read 2026-10-05). Sort saving shipped in VSP-1812 with the V1 fallback
+   (see Folder sort above); folder rename stays V1.
 5. **No V2 route from public-link ids to V2 ids** *(found in VSP-1810, raised with the
    backend 2026-08-06 — comment on VSP-1810)*. Public deep links carry the V1 address
    (`archiveNbr` + `folder_linkId`; record links carry `file_archive_nr`), while V2 is
@@ -1056,7 +1097,8 @@ record-miss item a possible duplicate of PER-10798. Answered in Slack 2026-09-28
 | `itemType` discriminator | Present on staging (2026-07-23), but unused — both platforms discriminate by `recordId`/`folderId` presence (iOS models predate it) |
 | `folderLinkId: integer` | Numeric **string** |
 | `/folder/<id>/children` (singular, Jira) | Alias; use plural |
-| Reliable `nextCursor`/`totalPages` | Both unreliable (above) |
+| Reliable `nextCursor`/`totalPages` | Both unreliable (above); paging ends on a short page instead |
+| Folder sort saved through `PATCH /v2/folders/{id}` (iOS #592, Android VSP-1812) | Docs list no `sort` on the PATCH body (2026-10-05) — saves fall back to V1 `folder/sort` |
 | Uniform dotted enum values | Folders use short forms, records dotted |
 | iOS gated by a "remote flag" | iOS's merged flag is a compile-time constant (Android mirrors: `FeatureFlags.useStelaMigration`) |
 | iOS status board: Public Files nav = "VSP-1809, shipped in PR #574" | Merged code: drill-in shipped in **PR #573** (inheritance); PR #574 is **VSP-1787** (V2 root discovery). Board lags/mislabels |

@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentPublicFolderBinding
 import org.permanent.permanent.models.FileSessionData
@@ -21,7 +22,9 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.myFiles.PagedListController
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
@@ -34,6 +37,7 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     private lateinit var binding: FragmentPublicFolderBinding
     private lateinit var recordsRecyclerView: RecyclerView
     private lateinit var recordsAdapter: RecordsGridAdapter
+    private var pagedList: PagedListController? = null
     private lateinit var prefsHelper: PreferencesHelper
     private var recordMenuFragment: RecordMenuFragment? = null
     private val archiveNr: String?
@@ -85,6 +89,15 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
             MutableLiveData(PreviewState.ACCESS_GRANTED),
             recordListener = this
         )
+        if (FeatureFlags.useStelaMigration) {
+            pagedList = PagedListController(
+                recordsRecyclerView,
+                onEndReached = { viewModel.onListEndReached() },
+                onRetry = { viewModel.onRetryNextPageClick() }
+            ).also { it.attach(recordsAdapter, isGrid = true) }
+            recordsRecyclerView.setHasFixedSize(true)
+            return
+        }
         recordsRecyclerView.apply {
             layoutManager = GridLayoutManager(context, 2)
             adapter = recordsAdapter
@@ -120,9 +133,19 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
 
     override fun onRecordDeleteClick(record: Record) {}
 
+    private val onRecordsAppended = Observer<List<Record>> {
+        recordsAdapter.appendRecords(it)
+    }
+
+    private val onListFooter = Observer<ListFooter> {
+        pagedList?.setFooter(it)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getShowMessage().observe(this, onShowMessage)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
+        viewModel.getOnRecordsAppended().observe(this, onRecordsAppended)
+        viewModel.getListFooter().observe(this, onListFooter)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getOnFolderNameChanged().observe(this, onFolderNameChanged)
     }
@@ -130,6 +153,8 @@ class PublicFolderFragment : PermanentBaseFragment(), RecordListener {
     override fun disconnectViewModelEvents() {
         viewModel.getShowMessage().removeObserver(onShowMessage)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
+        viewModel.getOnRecordsAppended().removeObserver(onRecordsAppended)
+        viewModel.getListFooter().removeObserver(onListFooter)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getOnFolderNameChanged().removeObserver(onFolderNameChanged)
     }

@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
@@ -31,12 +32,14 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IResponseListener
-import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
+import org.permanent.permanent.ui.myFiles.FolderChildrenPager
+import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.SortType
@@ -61,8 +64,12 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     // payload accessRole.
     private var isSharedByMe = false
 
-    // Only the newest children fetch may commit or fall back to V1. Main-thread only.
-    private var childrenFetchGeneration = 0
+    private var selectAllWhenListed = false
+    private val pager by lazy {
+        PagedFolderChildren(fileRepository, prepareRecords = ::stampSharesFields) {
+            loadFilesOf(currentFolder.value, currentSortType.value, isRefresh = true, wholeFolder = true)
+        }
+    }
 
     val isRoot = MutableLiveData(true)
     private val isCreateAvailable = MutableLiveData(true)
@@ -73,6 +80,8 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         MutableLiveData(SortType.NAME_ASCENDING)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
+    private val sortLabel = MutableLiveData(SortType.NAME_ASCENDING.toLabel(appContext))
+    val usesPagedList get() = FeatureFlags.useStelaMigration
     private var folderPathStack: Stack<Record> = Stack()
 
     private val showQuotaExceeded = SingleLiveEvent<Void?>()
@@ -114,9 +123,38 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     }
 
     fun setSortType(sortType: SortType) {
+        applySortType(sortType)
+        val folder = currentFolder.value
+        val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
+        // Saving needs edit rights on the shared folder itself.
+        if (!usesPagedList || folder == null || folderLinkId == null ||
+            folder.getAccessRole()?.isEditAvailable() != true
+        ) {
+            loadFilesOf(folder, sortType)
+            return
+        }
+        showFirstPageSkeleton()
+        fileRepository.saveFolderSort(
+            folder.getFolderIdentifier()?.folderId, folderLinkId, folder.getArchiveId(), sortType,
+            object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    if (currentFolder.value !== folder || currentSortType.value != sortType) return
+                    folder.setSavedSort(sortType)
+                    loadFilesOf(folder, sortType)
+                }
+
+                // Not saved: the folder is listed whole and sorted on the device.
+                override fun onFailed(error: String?) {
+                    if (currentFolder.value !== folder || currentSortType.value != sortType) return
+                    loadFilesOf(folder, sortType)
+                }
+            })
+    }
+
+    private fun applySortType(sortType: SortType) {
         currentSortType.value = sortType
         sortName.value = sortType.toUIString()
-        loadFilesOf(currentFolder.value, currentSortType.value)
+        sortLabel.value = sortType.toLabel(appContext)
     }
 
     fun setShowScreenSimplified() {
@@ -147,6 +185,8 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
             folderPathStack.push(record)
             currentFolder.value = NavigationFolder(appContext, record)
+            // Entering a folder lists it in its saved sort.
+            if (usesPagedList) record.savedSort?.let { applySortType(it) }
             isCreateAvailable.value =
                 record.accessRole != AccessRole.VIEWER && CurrentArchivePermissionsManager.instance.isCreateAvailable()
             loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
@@ -171,10 +211,12 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
         // Popping the record of the current folder
         folderPathStack.pop()
         if (folderPathStack.isEmpty()) {
+            if (usesPagedList) pager.reset()
             onRootSharesNeeded.call()
         } else {
             val previousFolder = folderPathStack.peek()
             currentFolder.value = NavigationFolder(appContext, previousFolder)
+            if (usesPagedList) previousFolder.savedSort?.let { applySortType(it) }
             isCreateAvailable.value =
                 previousFolder.accessRole != AccessRole.VIEWER && CurrentArchivePermissionsManager.instance.isCreateAvailable()
             loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
@@ -185,18 +227,25 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     private fun loadFilesOf(
         folder: NavigationFolder?,
         sortType: SortType?,
-        forwardNavigation: Boolean = false
+        forwardNavigation: Boolean = false,
+        isRefresh: Boolean = false,
+        wholeFolder: Boolean = false
     ) {
         val archiveNr = folder?.getArchiveNr()
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
-            swipeRefreshLayout.isRefreshing = true
+            if (usesPagedList && !isRefresh) {
+                showFirstPageSkeleton()
+            } else {
+                swipeRefreshLayout.isRefreshing = true
+                if (usesPagedList) pager.startExternalListing(showsSkeleton = false)
+            }
             // Stela V2 drill-in, both tabs: reads authorize server-side, share
             // membership included — no ownership condition. V1 is the automatic
             // failsafe.
             val folderId = folder.getFolderIdentifier()?.folderId
             if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
-                loadFilesOfV2(folder, sortType, forwardNavigation)
+                loadFilesOfV2(folder, sortType, forwardNavigation, isRefresh, wholeFolder)
             } else {
                 loadFilesOfV1(folder, sortType)
             }
@@ -225,80 +274,101 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
                     swipeRefreshLayout.isRefreshing = false
                     applyFolderHeader(folder)
                     existsFiles.value = !recordVOs.isNullOrEmpty()
-                    recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
+                    if (usesPagedList) {
+                        val records = recordVOs?.let { getRecords(it) } ?: mutableListOf()
+                        commitListing(records, wholeFolder = true)
+                    } else {
+                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
+                    }
                 }
 
                 override fun onFailed(error: String?) {
                     swipeRefreshLayout.isRefreshing = false
+                    if (usesPagedList) pager.reset()
                     error?.let { showMessage.value = it }
                 }
             })
     }
 
     // Every fetch completes exactly once: commit, V1 fallback, retry, or a quiet
-    // spinner stop — the generation guard lets only the NEWEST fetch commit.
+    // spinner stop. Only the newest fetch may commit (see FolderChildrenPager).
     private fun loadFilesOfV2(
         folder: NavigationFolder,
         sortType: SortType?,
         forwardNavigation: Boolean,
+        isRefresh: Boolean,
+        forceWholeFolder: Boolean,
         retriesLeft: Int = 1
     ) {
         val folderId = folder.getFolderIdentifier()?.folderId ?: return
-        val generation = ++childrenFetchGeneration
-        fileRepository.getChildRecordsOfV2(folderId, object : IFolderChildrenListener {
+        // Server order is the folder's saved sort; any other sort needs the whole folder.
+        val wholeFolder = forceWholeFolder || sortType == null || folder.getSavedSort() != sortType
+        pager.list(folderId, wholeFolder, isRefresh,
+            object : FolderChildrenPager.ListingListener {
 
-            override fun onSuccess(records: List<Record>) {
-                if (generation != childrenFetchGeneration) {
-                    onFetchSuperseded(folder, sortType, forwardNavigation, retriesLeft)
-                    return
+                override fun onSuccess(records: List<Record>) {
+                    swipeRefreshLayout.isRefreshing = false
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
+                    applyFolderHeader(folder)
+                    val listed = records.toMutableList()
+                    if (wholeFolder && sortType != null) listed.sortWith(sortType.toComparator())
+                    stampSharesFields(listed)
+                    existsFiles.value = listed.isNotEmpty()
+                    commitListing(listed)
                 }
-                swipeRefreshLayout.isRefreshing = false
-                if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
-                applyFolderHeader(folder)
-                // V2 has no sort param — sort locally.
-                val sortedRecords = records.toMutableList()
-                sortType?.let { sortedRecords.sortWith(it.toComparator()) }
-                // By-me overrides the payload role with the session archive's — retained
-                // shipped behavior, equivalent for own-archive content; with-me keeps
-                // the mapper's caller-resolved role.
-                val sessionAccessRole = CurrentArchivePermissionsManager.instance.getAccessRole()
-                sortedRecords.forEach {
-                    it.displayInShares = true
-                    if (isSharedByMe) it.accessRole = sessionAccessRole
-                }
-                existsFiles.value = sortedRecords.isNotEmpty()
-                onRecordsRetrieved.value = sortedRecords
-            }
 
-            override fun onFailed(error: String?) {
-                if (generation != childrenFetchGeneration) {
-                    // A superseded fetch must never run the V1 failsafe — its late
-                    // response could overwrite the newer listing.
-                    onFetchSuperseded(folder, sortType, forwardNavigation, retriesLeft)
-                    return
+                override fun onFailed(error: String?) {
+                    if (BuildConfig.DEBUG) Log.d(
+                        TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
+                    )
+                    loadFilesOfV1(folder, sortType)
                 }
-                if (BuildConfig.DEBUG) Log.d(
-                    TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
-                )
-                loadFilesOfV1(folder, sortType)
-            }
-        })
+
+                override fun onSuperseded() {
+                    if (forwardNavigation && retriesLeft > 0 && currentFolder.value == folder) {
+                        // A refresh raced the user's tap — retry once so the tap is never eaten.
+                        loadFilesOfV2(
+                            folder, sortType, forwardNavigation, isRefresh, forceWholeFolder,
+                            retriesLeft - 1
+                        )
+                    } else {
+                        // The superseding fetch repaints this folder — only the spinner must stop.
+                        swipeRefreshLayout.isRefreshing = false
+                    }
+                }
+            })
     }
 
-    private fun onFetchSuperseded(
-        folder: NavigationFolder,
-        sortType: SortType?,
-        forwardNavigation: Boolean,
-        retriesLeft: Int
-    ) {
-        if (forwardNavigation && retriesLeft > 0 && currentFolder.value == folder) {
-            // A refresh raced the user's tap — retry once so the tap is never eaten.
-            loadFilesOfV2(folder, sortType, forwardNavigation, retriesLeft - 1)
-        } else {
-            // The superseding fetch repaints this folder — only the spinner must stop.
-            swipeRefreshLayout.isRefreshing = false
+    // By-me overrides the payload role with the session archive's — retained shipped
+    // behavior, equivalent for own-archive content; with-me keeps the mapper's role.
+    private fun stampSharesFields(records: List<Record>) {
+        val sessionAccessRole = CurrentArchivePermissionsManager.instance.getAccessRole()
+        records.forEach {
+            it.displayInShares = true
+            if (isSharedByMe) it.accessRole = sessionAccessRole
         }
     }
+
+    private fun showFirstPageSkeleton() {
+        swipeRefreshLayout.isRefreshing = false
+        pager.startExternalListing(showsSkeleton = true)
+        // Keeps the sort and Select row visible over the skeleton.
+        existsFiles.value = true
+        onRecordsRetrieved.value = mutableListOf()
+    }
+
+    private fun commitListing(records: MutableList<Record>, wholeFolder: Boolean = false) {
+        if (wholeFolder) pager.commitWholeFolder(records) else pager.commit(records)
+        onRecordsRetrieved.value = records
+        if (selectAllWhenListed) {
+            selectAllWhenListed = false
+            super.onSelectAllRecords(pager.records)
+        }
+    }
+
+    fun onListEndReached() = pager.loadNextPage()
+
+    fun onRetryNextPageClick() = pager.retryNextPage()
 
     private fun applyFolderHeader(folder: NavigationFolder) {
         isRoot.value = false
@@ -407,7 +477,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
             onRootSharesNeeded.call()
             swipeRefreshLayout.isRefreshing = false
         } else {
-            loadFilesOf(currentFolder.value, currentSortType.value)
+            loadFilesOf(currentFolder.value, currentSortType.value, isRefresh = true)
         }
     }
 
@@ -510,7 +580,15 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     }
 
     fun onSelectAllBtnClick() {
-        super.onSelectAllRecords(onRecordsRetrieved.value!!)
+        if (!usesPagedList) {
+            super.onSelectAllRecords(onRecordsRetrieved.value!!)
+        } else if (pager.isComplete) {
+            super.onSelectAllRecords(pager.records)
+        } else {
+            // Select all covers the whole folder, so the missing pages load first.
+            selectAllWhenListed = true
+            loadFilesOf(currentFolder.value, currentSortType.value, isRefresh = true, wholeFolder = true)
+        }
     }
 
     override fun onRecordDeleteClick(record: Record) {}
@@ -524,6 +602,8 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     fun getFolderName(): MutableLiveData<String> = folderName
 
     fun getSortName(): MutableLiveData<String> = sortName
+
+    fun getSortLabel(): MutableLiveData<String> = sortLabel
 
     fun getShowMessage(): LiveData<String> = showMessage
 
@@ -543,6 +623,10 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     fun getOnDownloadFinished(): MutableLiveData<Download> = onDownloadFinished
 
     fun getOnRecordsRetrieved(): LiveData<MutableList<Record>> = onRecordsRetrieved
+
+    fun getOnRecordsAppended(): LiveData<List<Record>> = pager.appended
+
+    fun getListFooter(): LiveData<ListFooter> = pager.footer
 
     fun getOnRootSharesNeeded(): LiveData<Void?> = onRootSharesNeeded
 

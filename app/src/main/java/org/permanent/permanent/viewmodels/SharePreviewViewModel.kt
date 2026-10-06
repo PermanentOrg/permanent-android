@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Archive
@@ -15,6 +16,7 @@ import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.ILinkListener
+import org.permanent.permanent.network.StelaAccountService
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.IFolderChildrenListener
 import org.permanent.permanent.network.models.ShareLinkVO
@@ -225,9 +227,15 @@ class SharePreviewViewModel(application: Application) : ObservableAndroidViewMod
     private fun loadRealFolderChildren(folderId: Int) {
         _isBusy.value = true
 
+        // The preview shows only its first few items, so one page covers it.
         stelaAccountRepository.getFolderChildren(
             shareToken = urlToken,
             folderId = folderId,
+            pageSize = if (FeatureFlags.useStelaMigration) {
+                StelaAccountService.CHILDREN_PAGE_SIZE
+            } else {
+                StelaAccountService.MAX_CHILDREN_PAGE_SIZE
+            },
             listener = object : IFolderChildrenListener {
 
                 override fun onSuccess(records: List<Record>) {

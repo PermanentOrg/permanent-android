@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
 import org.permanent.permanent.databinding.FragmentPublicFilesBinding
@@ -41,14 +42,18 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
+import org.permanent.permanent.ui.boundsOnScreen
+import org.permanent.permanent.ui.fadeInOnScroll
 import org.permanent.permanent.ui.hideKeyboardFrom
 import org.permanent.permanent.ui.myFiles.AddOptionsFragment
+import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.DELAY_TO_RESIZE_MILLIS
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.ISLAND_WIDTH_SMALL
 import org.permanent.permanent.ui.myFiles.MyFilesFragment.Companion.RESIZE_DURATION_MILLIS
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.myFiles.PagedListController
 import org.permanent.permanent.ui.myFiles.RecordsAdapter
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
@@ -80,6 +85,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
+    private var pagedList: PagedListController? = null
     private var nameInputFragment: NameInputFragment? = null
     private lateinit var prefsHelper: PreferencesHelper
     private var shouldRefreshCurrentFolder: Boolean = false
@@ -174,12 +180,24 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private fun scrollToTopOnFolderChange(folder: NavigationFolder?) {
         if (folder === shownFolder) return
         shownFolder = folder
+        scrollToTop()
+    }
+
+    private fun scrollToTop() {
         binding.appBarLayout.setExpanded(true, false)
         binding.nestedScrollView.scrollTo(0, 0)
     }
 
     private val onNewTemporaryFiles = Observer<MutableList<Record>> {
         recordsAdapter.addRecords(it)
+    }
+
+    private val onRecordsAppended = Observer<List<Record>> {
+        recordsAdapter.appendRecords(it)
+    }
+
+    private val onListFooter = Observer<ListFooter> {
+        pagedList?.setFooter(it)
     }
 
     private val onShowRecordSearchFragment = Observer<Void?> {
@@ -209,7 +227,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
     private val onShowSortOptionsFragment = Observer<SortType> {
         sortOptionsFragment = SortOptionsFragment()
-        sortOptionsFragment?.setBundleArguments(it)
+        val anchor = if (FeatureFlags.useStelaMigration) binding.llSortRow.boundsOnScreen() else null
+        sortOptionsFragment?.setBundleArguments(it, anchor)
         sortOptionsFragment?.show(parentFragmentManager, sortOptionsFragment?.tag)
         sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
     }
@@ -333,6 +352,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
     private val onSortRequest = Observer<SortType> {
         viewModel.setSortType(it)
+        // A new sort lists from page 1, so the list starts from the top.
+        if (FeatureFlags.useStelaMigration) scrollToTop()
     }
 
     private val onRefreshFolder = Observer<Void?> {
@@ -342,7 +363,12 @@ class PublicFilesFragment : PermanentBaseFragment() {
     private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
         prefsHelper.saveIsListViewMode(isListViewMode)
         val records = recordsAdapter.getRecords()
-        recordsRecyclerView.apply {
+        val pagedList = pagedList
+        if (pagedList != null) {
+            recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
+            pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
+            recordsAdapter.setRecords(records)
+        } else recordsRecyclerView.apply {
             if (isListViewMode) {
                 layoutManager = LinearLayoutManager(context)
                 recordsAdapter = recordsListAdapter
@@ -402,6 +428,18 @@ class PublicFilesFragment : PermanentBaseFragment() {
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)
+        if (FeatureFlags.useStelaMigration) {
+            val pagedList = PagedListController(
+                recordsRecyclerView,
+                onEndReached = viewModel::onListEndReached,
+                onRetry = viewModel::onRetryNextPageClick
+            )
+            this.pagedList = pagedList
+            binding.nestedScrollView.fadeInOnScroll(binding.vStickyFade)
+            recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
+            pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
+            return
+        }
         recordsRecyclerView.apply {
             if (isListViewMode) {
                 recordsAdapter = recordsListAdapter
@@ -425,6 +463,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().observe(this, onNewTemporaryFiles)
+        viewModel.getOnRecordsAppended().observe(this, onRecordsAppended)
+        viewModel.getListFooter().observe(this, onListFooter)
         viewModel.getOnShowAddOptionsFragment().observe(this, onShowAddOptionsFragment)
         viewModel.getShowRecordMenuRequest().observe(this, onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().observe(this, onShowRecordSearchFragment)
@@ -451,6 +491,8 @@ class PublicFilesFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().removeObserver(onNewTemporaryFiles)
+        viewModel.getOnRecordsAppended().removeObserver(onRecordsAppended)
+        viewModel.getListFooter().removeObserver(onListFooter)
         viewModel.getOnShowAddOptionsFragment().removeObserver(onShowAddOptionsFragment)
         viewModel.getShowRecordMenuRequest().removeObserver(onShowRecordMenuFragment)
         viewModel.getOnShowRecordSearchFragment().removeObserver(onShowRecordSearchFragment)

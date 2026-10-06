@@ -6,13 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +18,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.WindowCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
@@ -37,6 +33,7 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.ConfirmationDialogFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.drawBehindSystemBars
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuPopup
@@ -84,7 +81,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         if (anchor != null) {
             return Dialog(requireContext(), android.R.style.Theme_Translucent_NoTitleBar).apply {
-                window?.drawBehindSystemBars()
+                window?.drawBehindSystemBars(activity?.window)
             }
         }
 
@@ -202,49 +199,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 dismiss()
             }
             else -> {}
-        }
-    }
-
-    // The popup covers the whole screen, so the status and navigation bars keep the screen's own look
-    private fun Window.drawBehindSystemBars() {
-        WindowCompat.setDecorFitsSystemWindows(this, false)
-        addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        statusBarColor = Color.TRANSPARENT
-        navigationBarColor = Color.TRANSPARENT
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) isNavigationBarContrastEnforced = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            attributes = attributes.also {
-                it.layoutInDisplayCutoutMode =
-                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-            }
-        }
-        activity?.window?.let { screenWindow ->
-            val screenBars = WindowCompat.getInsetsController(screenWindow, screenWindow.decorView)
-            WindowCompat.getInsetsController(this, decorView).apply {
-                isAppearanceLightStatusBars = screenBars.isAppearanceLightStatusBars
-                isAppearanceLightNavigationBars = screenBars.isAppearanceLightNavigationBars
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        val dialog = dialog ?: return
-        val bottomSheet =
-            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-                ?: return
-        val behavior = BottomSheetBehavior.from(bottomSheet)
-
-        // Allow dynamic height
-        bottomSheet.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        behavior.peekHeight = BottomSheetBehavior.PEEK_HEIGHT_AUTO
-        behavior.isFitToContents = true
-        behavior.skipCollapsed = true
-
-        // Expand naturally
-        bottomSheet.post {
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 

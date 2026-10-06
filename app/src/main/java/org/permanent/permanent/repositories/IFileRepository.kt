@@ -11,11 +11,13 @@ import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.IFolderChildrenListener
+import org.permanent.permanent.network.models.IFolderChildrenPageListener
 import org.permanent.permanent.network.models.LocnVO
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.UploadDestination
 import org.permanent.permanent.ui.myFiles.ModificationType
+import org.permanent.permanent.ui.myFiles.SortType
 import org.permanent.permanent.ui.myFiles.upload.CountingRequestListener
 import retrofit2.Call
 import java.io.File
@@ -38,6 +40,18 @@ interface IFileRepository {
     )
 
     fun getChildRecordsOfV2(folderId: Int, listener: IFolderChildrenListener)
+
+    fun saveFolderSort(
+        folderId: Int?,
+        folderLinkId: Int,
+        archiveId: Int?,
+        sortType: SortType,
+        listener: IResponseListener
+    )
+
+    fun getChildrenPageV2(
+        folderId: Int, pageSize: Int, cursor: String?, listener: IFolderChildrenPageListener
+    )
 
     fun navigateMin(
         archiveNr: String, folderLinkId: Int, sort: String?, listener: IOnRecordsRetrievedListener

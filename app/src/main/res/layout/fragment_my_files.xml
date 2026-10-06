@@ -271,12 +271,44 @@
                         android:text="@{viewModel.sortName}"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.VISIBLE : View.GONE}"
+                        android:visibility="@{viewModel.usesPagedList == false &amp;&amp; (viewModel.existsFiles || viewModel.existsUploads) ? View.VISIBLE : View.GONE}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:id="@+id/llSortRow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_vertical"
+                        android:onClick="@{() -> viewModel.onSortOptionsClick()}"
+                        android:orientation="horizontal"
+                        android:padding="8dp"
+                        android:visibility="@{viewModel.usesPagedList &amp;&amp; (viewModel.existsFiles || viewModel.existsUploads) ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_arrow_down_arrow_up_blue400" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:fontFamily="@font/usual_regular"
+                            android:text="@{viewModel.sortLabel}"
+                            android:textColor="@color/blue400"
+                            android:textSize="12sp" />
+                    </LinearLayout>
 
                     <Button
                         android:id="@+id/btnClear"
@@ -303,9 +335,29 @@
                         android:letterSpacing="-0.01"
                         android:onClick="@{() -> viewModel.isSelectionMode ? viewModel.onSelectAllBtnClick() : viewModel.onSelectBtnClick()}"
                         android:text="@{viewModel.selectBtnText}"
-                        android:visibility="@{viewModel.isRelocationMode || viewModel.existsFiles == false || viewModel.showScreenSimplified ? View.GONE : View.VISIBLE}"
+                        android:visibility="@{(viewModel.isRelocationMode || viewModel.existsFiles == false || viewModel.showScreenSimplified) || (viewModel.usesPagedList &amp;&amp; viewModel.isSelectionMode == false) ? View.GONE : View.VISIBLE}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/btnCheckBox"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/btnSelectStyled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:drawablePadding="4dp"
+                        android:fontFamily="@font/usual_regular"
+                        android:gravity="center_vertical"
+                        android:onClick="@{() -> viewModel.onSelectBtnClick()}"
+                        android:padding="8dp"
+                        android:text="@string/button_select"
+                        android:textColor="@color/blue900"
+                        android:textSize="12sp"
+                        android:visibility="@{(viewModel.isRelocationMode || viewModel.existsFiles == false || viewModel.showScreenSimplified) || viewModel.usesPagedList == false || viewModel.isSelectionMode ? View.GONE : View.VISIBLE}"
+                        app:drawableEndCompat="@drawable/ic_circle_check_primary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <Button
@@ -342,6 +394,18 @@
                         android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.VISIBLE : View.GONE}" />
                 </androidx.core.widget.NestedScrollView>
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <View
+                android:id="@+id/vStickyFade"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:layout_gravity="bottom"
+                android:alpha="0"
+                android:background="@drawable/bg_sticky_fade"
+                android:importantForAccessibility="no"
+                android:visibility="@{viewModel.usesPagedList ? View.VISIBLE : View.GONE}"
+                app:layout_anchor="@id/appBarLayout"
+                app:layout_anchorGravity="bottom" />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <FrameLayout

@@ -40,6 +40,7 @@ import org.permanent.permanent.network.models.ChecklistResponse
 import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FolderPatchResponse
 import org.permanent.permanent.network.models.FolderResponse
 import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
@@ -858,8 +859,10 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun getFolderChildrenV2(
         folderId: Int,
-        pageSize: Int = StelaAccountService.MAX_CHILDREN_PAGE_SIZE
-    ): Call<FolderChildrenResponse> = stelaAccountService.getFolderChildrenV2(folderId, pageSize)
+        pageSize: Int = StelaAccountService.MAX_CHILDREN_PAGE_SIZE,
+        cursor: String? = null
+    ): Call<FolderChildrenResponse> =
+        stelaAccountService.getFolderChildrenV2(folderId, pageSize, cursor)
 
     fun getArchivesV2(): Call<ArchivesV2Response> = stelaAccountService.getArchives()
 
@@ -870,6 +873,15 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
 
     fun patchRecordV2(recordId: Int, body: JSONObject): Call<Void> =
         stelaAccountService.patchRecord(recordId, body.toString().toRequestBody(jsonMediaType))
+
+    fun patchFolderV2(folderId: Int, body: JSONObject): Call<FolderPatchResponse> =
+        stelaAccountService.patchFolder(folderId, body.toString().toRequestBody(jsonMediaType))
+
+    fun sortFolder(folderLinkId: Int, sort: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addFolder(folderLinkId, sort))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.sortFolder(requestBody)
+    }
 
     fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =
         stelaAccountService.getFolder(shareToken, folderId)
