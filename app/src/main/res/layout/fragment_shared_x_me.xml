@@ -315,88 +315,78 @@
                 android:enabled="@{viewModel.isSelectionMode == false}"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/nestedScrollView"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvShares"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:fillViewport="true">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="true">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rvShares"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:paddingBottom="320dp"
-                            android:visibility="@{viewModel.existsFiles ? View.VISIBLE : View.GONE}"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.0" />
-
-                        <ImageView
-                            android:id="@+id/ivNoShares"
-                            android:layout_width="wrap_content"
-                            android:layout_height="112dp"
-                            android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot ? View.VISIBLE : View.GONE}"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.4"
-                            app:srcCompat="@drawable/ic_group" />
-
-                        <TextView
-                            android:id="@+id/tvNoShares"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="40dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginEnd="40dp"
-                            android:gravity="center"
-                            android:text="@string/shares_by_me_no_items"
-                            android:textSize="16sp"
-                            android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot ? View.VISIBLE : View.GONE}"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/ivNoShares"
-                            app:layout_constraintVertical_bias="0.0" />
-
-                        <ImageView
-                            android:id="@+id/ivNoFiles"
-                            android:layout_width="wrap_content"
-                            android:layout_height="112dp"
-                            android:src="@drawable/ic_empty_folder"
-                            android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot == false ? View.VISIBLE : View.GONE}"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.40" />
-
-                        <TextView
-                            android:id="@+id/tvNoFiles"
-                            android:layout_width="328dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:gravity="center"
-                            android:text="@string/folder_is_empty"
-                            android:textSize="16sp"
-                            android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot == false ? View.VISIBLE : View.GONE}"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/ivNoFiles"
-                            app:layout_constraintVertical_bias="0.0" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.core.widget.NestedScrollView>
+                    android:clipToPadding="false"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="320dp"
+                    android:visibility="@{viewModel.existsFiles ? View.VISIBLE : View.GONE}" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <ImageView
+                    android:id="@+id/ivNoShares"
+                    android:layout_width="wrap_content"
+                    android:layout_height="112dp"
+                    android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.4"
+                    app:srcCompat="@drawable/ic_group" />
+
+                <TextView
+                    android:id="@+id/tvNoShares"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="40dp"
+                    android:gravity="center"
+                    android:text="@string/shares_by_me_no_items"
+                    android:textSize="16sp"
+                    android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivNoShares"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <ImageView
+                    android:id="@+id/ivNoFiles"
+                    android:layout_width="wrap_content"
+                    android:layout_height="112dp"
+                    android:src="@drawable/ic_empty_folder"
+                    android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot == false ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.40" />
+
+                <TextView
+                    android:id="@+id/tvNoFiles"
+                    android:layout_width="328dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:text="@string/folder_is_empty"
+                    android:textSize="16sp"
+                    android:visibility="@{viewModel.existsFiles == false &amp;&amp; viewModel.getExistsUploads == false &amp;&amp; viewModel.isRoot == false ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ivNoFiles"
+                    app:layout_constraintVertical_bias="0.0" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <View
                 android:id="@+id/vStickyFade"

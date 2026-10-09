@@ -170,7 +170,6 @@ class AddOptionsFragment : PermanentBottomSheetFragment() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "*/*"
-            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
         startActivityForResult(intent, REQUEST_CODE_PHOTO_LIBRARY_SELECT)

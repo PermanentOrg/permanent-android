@@ -21,12 +21,14 @@ class RecordGridViewHolder(
     private val showMyFilesSimplified: Boolean,
     private val showPendingInvitationsBadge: Boolean,
     private val recordListener: RecordListener
-) : RecyclerView.ViewHolder(binding.root) {
+) : RecyclerView.ViewHolder(binding.root), UnbindableRow {
 
     private val pendingBadgeBinder = PendingInvitationBadgeBinder(
         binding.tvPendingBadge,
         binding.btnOptions
     )
+
+    override fun unbind() = pendingBadgeBinder.detach()
 
     fun bind(
         record: Record,

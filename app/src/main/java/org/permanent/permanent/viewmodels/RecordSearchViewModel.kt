@@ -29,6 +29,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.FolderChildrenPager
 import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.listingFailureMessage
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
 import java.util.*
@@ -260,8 +261,8 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
 
                 override fun onFailed(error: String?) {
                     endListing()
-                    if (usesPagedList) pager.reset()
-                    showMessage.value = error
+                    if (usesPagedList) pager.onListingFailed()
+                    showMessage.value = listingFailureMessage(appContext)
                 }
             })
     }

@@ -1,9 +1,18 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import org.permanent.permanent.PermanentApplication
+import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.viewmodels.SingleLiveEvent
+
+// Shown when a folder can't be listed, instead of the raw network or server text.
+fun listingFailureMessage(context: Context): String = context.getString(
+    if (PermanentApplication.instance.connectivityMonitor.isConnected) R.string.generic_error
+    else R.string.no_internet_connection
+)
 
 // A folder listing on a paged screen: the pager, every row listed so far, and what the
 // list shows after them. Touched on main only.
@@ -67,6 +76,11 @@ class PagedFolderChildren(
     fun commitWholeFolder(records: List<Record>) {
         pager.markComplete(records)
         commit(records)
+    }
+
+    // Every route failed: a refresh keeps its rows, a first listing clears its skeleton.
+    fun onListingFailed() {
+        if (!pager.restoreAfterFailedRefresh()) reset()
     }
 
     fun reset() {

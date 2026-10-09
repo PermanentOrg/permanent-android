@@ -49,6 +49,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.FolderChildrenPager
 import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.listingFailureMessage
 import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
@@ -82,6 +83,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         MutableLiveData(SortType.NAME_ASCENDING)
     private var existsDownloads = MutableLiveData(false)
     private val showQuotaExceeded = SingleLiveEvent<Void?>()
+    private val showErrorMessage = SingleLiveEvent<String>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void?>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
@@ -166,7 +168,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                error?.let { showMessage.value = it }
+                showErrorMessage.value = listingFailureMessage(appContext)
             }
         })
     }
@@ -182,10 +184,10 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             if (BuildConfig.DEBUG) Log.d(
                 TAG, "V2 root resolution failed ($error), falling back to the V1 failsafe"
             )
-            resolveRootFailsafe(rootLoadListener(generation) { fallbackError ->
+            resolveRootFailsafe(rootLoadListener(generation) { _ ->
                 swipeRefreshLayout.isRefreshing = false
                 pager.reset()
-                fallbackError?.let { showMessage.value = it }
+                showErrorMessage.value = listingFailureMessage(appContext)
             })
         })
     }
@@ -276,7 +278,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
                 "Navigation dropped: folder missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
             )
             swipeRefreshLayout.isRefreshing = false
-            showMessage.value = appContext.getString(R.string.generic_error)
+            showErrorMessage.value = appContext.getString(R.string.generic_error)
         }
     }
 
@@ -303,8 +305,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
                 override fun onFailed(error: String?) {
                     swipeRefreshLayout.isRefreshing = false
-                    if (usesPagedList) pager.reset()
-                    error?.let { showMessage.value = it }
+                    if (usesPagedList) pager.onListingFailed()
+                    showErrorMessage.value = listingFailureMessage(appContext)
                 }
             })
     }
@@ -480,6 +482,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     fun onBackBtnClick() {
+        // The button can still show for a moment at the root, before the header updates.
+        if (folderPathStack.size <= 1) return
         currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
         // Popping the record of the current folder
         folderPathStack.pop()
@@ -717,6 +721,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getIsCreateAvailable(): Boolean = isCreateAvailable
 
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
+
+    fun getOnShowErrorMessage(): SingleLiveEvent<String> = showErrorMessage
 
     fun getOnShowQuotaExceeded(): SingleLiveEvent<Void?> = showQuotaExceeded
 

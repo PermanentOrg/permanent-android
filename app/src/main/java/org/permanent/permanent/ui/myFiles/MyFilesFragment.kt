@@ -238,6 +238,11 @@ class MyFilesFragment : PermanentBaseFragment() {
         snackbarMessage.value = message
     }
 
+    private val onShowErrorMessage = Observer<String> { message ->
+        snackbarType.value = TemporarySnackbarType.ERROR
+        snackbarMessage.value = message
+    }
+
     private val onShowQuotaExceeded = Observer<Void?> {
         val alertDialog: AlertDialog.Builder = AlertDialog.Builder(activity)
         alertDialog.setTitle(R.string.my_files_quota_exceeded_title)
@@ -291,7 +296,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private fun scrollToTop() {
         binding.appBarLayout.setExpanded(true, false)
-        binding.nestedScrollView.scrollTo(0, 0)
+        binding.rvFiles.scrollToPosition(0)
     }
 
     private val onNewTemporaryFiles = Observer<MutableList<Record>> {
@@ -558,7 +563,7 @@ class MyFilesFragment : PermanentBaseFragment() {
                 onRetry = viewModel::onRetryNextPageClick
             )
             this.pagedList = pagedList
-            binding.nestedScrollView.fadeInOnScroll(binding.vStickyFade)
+            binding.rvFiles.fadeInOnScroll(binding.vStickyFade)
             recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
             pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
             return
@@ -580,6 +585,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
+        viewModel.getOnShowErrorMessage().observe(this, onShowErrorMessage)
         viewModel.getOnShowQuotaExceeded().observe(this, onShowQuotaExceeded)
         viewModel.getOnChangeViewMode().observe(this, onChangeViewMode)
         viewModel.getOnDownloadsRetrieved().observe(this, onDownloadsRetrieved)
@@ -610,6 +616,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     override fun disconnectViewModelEvents() {
         viewModel.getOnShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnShowErrorMessage().removeObserver(onShowErrorMessage)
         viewModel.getOnShowQuotaExceeded().removeObserver(onShowQuotaExceeded)
         viewModel.getOnChangeViewMode().removeObserver(onChangeViewMode)
         viewModel.getOnDownloadsRetrieved().removeObserver(onDownloadsRetrieved)

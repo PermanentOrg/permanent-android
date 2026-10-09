@@ -39,6 +39,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
 import org.permanent.permanent.ui.myFiles.FolderChildrenPager
 import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.listingFailureMessage
 import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
@@ -207,6 +208,7 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
     }
 
     internal fun navigateBack() {
+        if (folderPathStack.isEmpty()) return
         currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
         // Popping the record of the current folder
         folderPathStack.pop()
@@ -284,8 +286,8 @@ class SharedXMeViewModel(application: Application) : SelectionViewModel(applicat
 
                 override fun onFailed(error: String?) {
                     swipeRefreshLayout.isRefreshing = false
-                    if (usesPagedList) pager.reset()
-                    error?.let { showMessage.value = it }
+                    if (usesPagedList) pager.onListingFailed()
+                    showMessage.value = listingFailureMessage(appContext)
                 }
             })
     }

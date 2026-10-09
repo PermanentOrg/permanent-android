@@ -79,6 +79,6 @@ class RecordsGridAdapter(
             fakeFile.isChecked = MutableLiveData<Boolean>(false)
             records.add(index, fakeFile)
         }
-        notifyDataSetChanged()
+        notifyItemRangeInserted(0, fakeFiles.size)
     }
 }

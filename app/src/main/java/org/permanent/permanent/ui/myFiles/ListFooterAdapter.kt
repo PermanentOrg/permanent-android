@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.permanent.permanent.R
+import org.permanent.permanent.ui.SKELETON_PULSE_MILLIS
+import org.permanent.permanent.ui.SKELETON_PULSE_MIN_ALPHA
 
 // Rows after a paged list: skeletons while a page loads, the page error with retry,
 // or the count of everything listed.
@@ -110,8 +112,8 @@ class ListFooterAdapter(private val onRetry: () -> Unit) :
 
     private class SkeletonViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var isAnimated = false
-        private val pulse = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, PULSE_MIN_ALPHA).apply {
-            duration = PULSE_MILLIS
+        private val pulse = ObjectAnimator.ofFloat(view, View.ALPHA, 1f, SKELETON_PULSE_MIN_ALPHA).apply {
+            duration = SKELETON_PULSE_MILLIS
             repeatMode = ValueAnimator.REVERSE
             repeatCount = ValueAnimator.INFINITE
         }
@@ -140,7 +142,5 @@ class ListFooterAdapter(private val onRetry: () -> Unit) :
         private const val FIRST_PAGE_TILES = 6
         private const val NEXT_PAGE_ROWS = 3
         private const val NEXT_PAGE_TILES = 2
-        private const val PULSE_MILLIS = 800L
-        private const val PULSE_MIN_ALPHA = 0.5f
     }
 }

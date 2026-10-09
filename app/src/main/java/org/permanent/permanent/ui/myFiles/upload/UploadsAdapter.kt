@@ -25,8 +25,9 @@ class UploadsAdapter(
         return UploadViewHolder(binding, cancelListener)
     }
 
+    // A copy: the queue removes a finished upload before remove() is called.
     fun set(uploads: MutableList<Upload>) {
-        this.uploads = uploads
+        this.uploads = ArrayList(uploads)
         existsUploads.value = this.uploads.isNotEmpty()
         notifyDataSetChanged()
     }
@@ -38,9 +39,11 @@ class UploadsAdapter(
     }
 
     fun remove(upload: Upload?) {
-        uploads.remove(upload)
+        val index = uploads.indexOf(upload)
+        if (index < 0) return
+        uploads.removeAt(index)
         existsUploads.value = uploads.isNotEmpty()
-        notifyDataSetChanged()
+        notifyItemRemoved(index)
     }
 
     fun getExistsUploads(): MutableLiveData<Boolean> {
