@@ -18,8 +18,8 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 36
-        versionCode 155
-        versionName "1.17.0"
+        versionCode 156
+        versionName "1.18.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,7 +42,7 @@ android {
     productFlavors {
         production {
             applicationId "org.permanent.PermanentArchive"
-            buildConfigField "boolean", "STELA_MIGRATION_DEFAULT", "false"
+            buildConfigField "boolean", "STELA_MIGRATION_DEFAULT", "true"
             buildConfigField "String", "BASE_URL", "\"https://app.permanent.org/\""
             buildConfigField "String", "BASE_API_URL", "\"https://app.permanent.org/api/\""
             buildConfigField "String", "BASE_API_URL_STELA", "\"https://api.permanent.org/\""

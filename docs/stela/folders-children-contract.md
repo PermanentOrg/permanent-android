@@ -360,13 +360,16 @@ this path is new information worth sharing with backend.
 ## Feature flag environment gating (fixed in VSP-1808)
 
 `FeatureFlags.useStelaMigration = BuildConfig.STELA_MIGRATION_DEFAULT` — a per-flavor
-boolean `buildConfigField` in `app/build.gradle` (`true` in staging, `false` in
-production), so the flavor block owns the environment fact and the rollout flip is a
+boolean `buildConfigField` in `app/build.gradle` (`true` in staging; `false` in
+production until release 1.18.0), so the flavor block owns the environment fact and the rollout flip is a
 one-word gradle edit. Before the fix the flag was `BuildConfig.DEBUG`, which let a
 productionDebug build send V2 calls to the production API — the exact leak iOS closed in
 PR #575, refined in PR #580 after their QA's release-type staging build silently pinned
 the flag OFF. Net rule on both platforms: flag on ⇔ environment is staging, in every
 build type.
+**Production flip (release 1.18.0, 2026-10-09):** production is now `true` too, matching
+iOS Release-1.17.0, which removed its flag (V2 first, V1 failsafe, no remote switch). The
+flag stays as a one-line rollback; removing it is a separate ticket.
 
 ## Request
 
