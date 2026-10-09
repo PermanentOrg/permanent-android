@@ -1,8 +1,6 @@
 package org.permanent.permanent.ui.myFiles
 
 import android.graphics.Rect
-import android.view.View
-import android.view.ViewTreeObserver
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,24 +18,13 @@ class PagedListController(
     private var footer: ListFooter = ListFooter.None
     private var isGrid = false
     private val visibleRect = Rect()
-
-    // Lists sit in different scroll containers, so any scroll in the window is checked.
-    private val onWindowScroll = ViewTreeObserver.OnScrollChangedListener { checkEndReached() }
+    private var isEndReachedPosted = false
 
     init {
+        recyclerView.itemAnimator?.addDuration = ROWS_FADE_IN_MS
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) = checkEndReached()
         })
-        recyclerView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(view: View) =
-                view.viewTreeObserver.addOnScrollChangedListener(onWindowScroll)
-
-            override fun onViewDetachedFromWindow(view: View) =
-                view.viewTreeObserver.removeOnScrollChangedListener(onWindowScroll)
-        })
-        if (recyclerView.isAttachedToWindow) {
-            recyclerView.viewTreeObserver.addOnScrollChangedListener(onWindowScroll)
-        }
     }
 
     fun attach(recordsAdapter: RecyclerView.Adapter<*>, isGrid: Boolean) {
@@ -74,10 +61,17 @@ class PagedListController(
         if ((footer as? ListFooter.NextPage)?.isLoading != false) return
         val firstFooterPosition = recordsAdapter?.itemCount ?: return
         val skeleton = recyclerView.layoutManager?.findViewByPosition(firstFooterPosition) ?: return
-        if (skeleton.getGlobalVisibleRect(visibleRect)) onEndReached()
+        if (!skeleton.getGlobalVisibleRect(visibleRect) || isEndReachedPosted) return
+        // Asking from a scroll callback would change the adapter mid-layout.
+        isEndReachedPosted = true
+        recyclerView.post {
+            isEndReachedPosted = false
+            onEndReached()
+        }
     }
 
     companion object {
         private const val GRID_SPAN_COUNT = 2
+        private const val ROWS_FADE_IN_MS = 250L
     }
 }

@@ -303,7 +303,7 @@
 
     <string name="add_options_menu_item_take_photo">Take Photo</string>
     <string name="add_options_menu_item_take_video">Take Video</string>
-    <string name="add_options_upload_photos_from_library">Upload Photos from Library</string>
+    <string name="add_options_upload_photos_from_library">Upload Photos and Files from Library</string>
     <string name="upload_record_not_created_error">Record could not be created</string>
     <string name="my_files_file_deleted">File has been deleted.</string>
     <string name="my_files_file_unshared">File has been unshared.</string>

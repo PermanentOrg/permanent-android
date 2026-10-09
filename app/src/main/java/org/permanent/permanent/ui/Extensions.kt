@@ -12,11 +12,13 @@ import android.os.Build
 import android.os.IBinder
 import android.provider.OpenableColumns
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.WindowCompat
-import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.RecyclerView
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.gson.Gson
@@ -267,9 +269,24 @@ fun Window.drawBehindSystemBars(screenWindow: Window?) {
     }
 }
 
+const val SKELETON_PULSE_MILLIS = 800L
+const val SKELETON_PULSE_MIN_ALPHA = 0.5f
+
+fun View.startSkeletonPulse() {
+    startAnimation(AlphaAnimation(1f, SKELETON_PULSE_MIN_ALPHA).apply {
+        duration = SKELETON_PULSE_MILLIS
+        repeatCount = Animation.INFINITE
+        repeatMode = Animation.REVERSE
+    })
+}
+
 // The fade under a pinned header appears once the list scrolls beneath it.
-fun NestedScrollView.fadeInOnScroll(fade: View) {
-    setOnScrollChangeListener { _: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
-        fade.alpha = (scrollY.toFloat() / fade.height.coerceAtLeast(1)).coerceAtMost(1f)
-    }
+fun RecyclerView.fadeInOnScroll(fade: View) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            if (dy > 0 && fade.alpha >= 1f) return
+            val offset = recyclerView.computeVerticalScrollOffset()
+            fade.alpha = (offset.toFloat() / fade.height.coerceAtLeast(1)).coerceAtMost(1f)
+        }
+    })
 }

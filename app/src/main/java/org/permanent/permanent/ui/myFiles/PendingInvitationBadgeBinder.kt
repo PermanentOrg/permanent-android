@@ -29,7 +29,7 @@ class PendingInvitationBadgeBinder(
         observedSelectMode = selectMode
     }
 
-    private fun detach() {
+    fun detach() {
         val current = observer ?: return
         observedSelectMode?.removeObserver(current)
         observer = null

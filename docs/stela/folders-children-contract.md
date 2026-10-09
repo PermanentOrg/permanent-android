@@ -817,6 +817,17 @@ un-blocks mid-processing fresh uploads on flag-on listings. Android otherwise ke
 surfacing (optimistic insert + one 3 s refresh, no iOS-style polling — decision
 2026-08-24).
 
+**Folder copy / folder publish — V1 `folder/copy` drops access copies (VSP-1868, live
+2026-10-08).** A folder is never V2-copy-eligible, so publishing (or copying) a folder is
+always V1 `folder/copy`, flag on or off. Its child copies hold **only** the
+`file.format.original` row; no `file.format.archivematica.access` row is copied or created
+later (still missing after 10+ min). Staging evidence: originals 96732–96735 each have an
+access copy; their folder-publish copies 96736–96739 do not. A single file published via
+the V2 copy (96740) gets its PDF access copy ~2 min later. Effect: DOCX/XLSX in a published
+folder have no `pdfPreviewURL`, so the viewer shows the failure card; PDFs and images open
+from their original. Backend-only — the client needs no change once the access copies exist.
+Reported to backend on Slack 2026-10-09; backend fix pending.
+
 **401 divergence (deliberate)** — iOS treats a copy 401 as real session expiry
 (`ignoreErrors=false` on writes; safety comes from their gate). Android's
 `UnauthorizedInterceptor` never treats Stela-host 401s as expiry while

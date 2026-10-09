@@ -16,6 +16,7 @@ import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.myFiles.FolderChildrenPager
 import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.listingFailureMessage
 import org.permanent.permanent.ui.myFiles.SortType
 import java.util.*
 
@@ -118,8 +119,8 @@ class PublicFolderViewModel(application: Application) : ObservableAndroidViewMod
 
                 override fun onFailed(error: String?) {
                     endListing()
-                    if (usesPagedList) pager.reset()
-                    showMessage.value = error
+                    if (usesPagedList) pager.onListingFailed()
+                    showMessage.value = listingFailureMessage(getApplication())
                 }
             })
     }
@@ -197,6 +198,7 @@ class PublicFolderViewModel(application: Application) : ObservableAndroidViewMod
      * @return true if Up navigation completed successfully, false otherwise.
      */
     fun onNavigateUp(): Boolean {
+        if (folderPathStack.isEmpty()) return false
         // Popping the record of the current folder
         folderPathStack.pop()
         if (folderPathStack.isEmpty()) {
@@ -208,7 +210,7 @@ class PublicFolderViewModel(application: Application) : ObservableAndroidViewMod
         return true
     }
 
-    fun getCurrentFolder(): Record? = folderPathStack.peek()
+    fun getCurrentFolder(): Record? = folderPathStack.lastOrNull()
 
     fun getOnFolderNameChanged(): MutableLiveData<String> = onFolderNameChanged
 

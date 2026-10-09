@@ -1,5 +1,8 @@
 package org.permanent.permanent.ui.myFiles
 
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.StelaAccountService
@@ -31,9 +34,19 @@ class FolderChildrenPager(
 
     var state = State.NONE
         private set(value) {
+            if (value == State.REFRESHING && field != State.REFRESHING) stateBeforeRefresh = field
+            if (value != State.LOADING_FIRST) {
+                skeletonShownAt = null
+            } else if (field != State.LOADING_FIRST) {
+                skeletonShownAt = SystemClock.uptimeMillis()
+            }
             field = value
             callback.onPagingStateChanged(value)
         }
+
+    private var stateBeforeRefresh = State.NONE
+    private var skeletonShownAt: Long? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private var listingGeneration = 0
     private var nextPageGeneration = 0
@@ -62,16 +75,23 @@ class FolderChildrenPager(
                         listener.onSuperseded()
                         return
                     }
-                    this@FolderChildrenPager.folderId = folderId
-                    listedFolderLinkIds.clear()
-                    val unique = records.filter { listedFolderLinkIds.add(it.folderLinkId ?: -1) }
-                    cursor = nextCursor
-                    state = if (isLastPage(records.size, pageSize, nextCursor)) {
-                        State.COMPLETE
-                    } else {
-                        State.HAS_MORE
+                    afterMinimumTime(skeletonShownAt, FIRST_PAGE_SKELETON_MINIMUM_MS) {
+                        if (generation != listingGeneration) {
+                            listener.onSuperseded()
+                            return@afterMinimumTime
+                        }
+                        this@FolderChildrenPager.folderId = folderId
+                        listedFolderLinkIds.clear()
+                        val unique =
+                            records.filter { listedFolderLinkIds.add(it.folderLinkId ?: -1) }
+                        cursor = nextCursor
+                        state = if (isLastPage(records.size, pageSize, nextCursor)) {
+                            State.COMPLETE
+                        } else {
+                            State.HAS_MORE
+                        }
+                        listener.onSuccess(unique)
                     }
-                    listener.onSuccess(unique)
                 }
 
                 override fun onFailed(error: String?) {
@@ -95,28 +115,34 @@ class FolderChildrenPager(
     private fun fetchNextPage() {
         val generation = ++nextPageGeneration
         val requestedCursor = cursor
+        val startedAt = SystemClock.uptimeMillis()
         state = State.LOADING_MORE
         fileRepository.getChildrenPageV2(folderId, PAGE_SIZE, requestedCursor,
             object : IFolderChildrenPageListener {
                 override fun onSuccess(records: List<Record>, nextCursor: String?) {
-                    if (generation != nextPageGeneration) return
-                    val unique = records.filter { listedFolderLinkIds.add(it.folderLinkId ?: -1) }
-                    if (records.isNotEmpty() && unique.isEmpty() && records.size == PAGE_SIZE) {
-                        callback.onPagesOutOfSync()
-                        return
+                    afterMinimumTime(startedAt, NEXT_PAGE_SKELETON_MINIMUM_MS) {
+                        if (generation != nextPageGeneration) return@afterMinimumTime
+                        val unique =
+                            records.filter { listedFolderLinkIds.add(it.folderLinkId ?: -1) }
+                        if (records.isNotEmpty() && unique.isEmpty() && records.size == PAGE_SIZE) {
+                            callback.onPagesOutOfSync()
+                            return@afterMinimumTime
+                        }
+                        cursor = nextCursor
+                        state = if (isLastPage(records.size, PAGE_SIZE, nextCursor)) {
+                            State.COMPLETE
+                        } else {
+                            State.HAS_MORE
+                        }
+                        if (unique.isNotEmpty()) callback.onPageAppended(unique)
                     }
-                    cursor = nextCursor
-                    state = if (isLastPage(records.size, PAGE_SIZE, nextCursor)) {
-                        State.COMPLETE
-                    } else {
-                        State.HAS_MORE
-                    }
-                    if (unique.isNotEmpty()) callback.onPageAppended(unique)
                 }
 
                 override fun onFailed(error: String?) {
-                    if (generation != nextPageGeneration) return
-                    state = State.FAILED
+                    afterMinimumTime(startedAt, NEXT_PAGE_SKELETON_MINIMUM_MS) {
+                        if (generation != nextPageGeneration) return@afterMinimumTime
+                        state = State.FAILED
+                    }
                 }
             })
     }
@@ -136,13 +162,32 @@ class FolderChildrenPager(
         state = State.COMPLETE
     }
 
+    // A failed refresh keeps what is listed; a next page it dropped is asked for again.
+    fun restoreAfterFailedRefresh(): Boolean {
+        if (state != State.REFRESHING) return false
+        state = when (stateBeforeRefresh) {
+            State.HAS_MORE, State.LOADING_MORE -> State.HAS_MORE
+            State.FAILED, State.COMPLETE -> stateBeforeRefresh
+            else -> return false
+        }
+        return true
+    }
+
     // Drops every reply in flight, e.g. when the screen leaves paged listing.
     fun reset() {
+        mainHandler.removeCallbacksAndMessages(null)
         listingGeneration++
         nextPageGeneration++
         cursor = null
         listedFolderLinkIds.clear()
         state = State.NONE
+    }
+
+    // A page that comes back at once would only flash the skeleton.
+    private fun afterMinimumTime(shownAt: Long?, minimumMs: Long, work: () -> Unit) {
+        val wait = if (shownAt == null) 0L
+        else minimumMs - (SystemClock.uptimeMillis() - shownAt)
+        if (wait > 0) mainHandler.postDelayed(work, wait) else work()
     }
 
     // nextCursor is not null on the last page, so a short page also ends the list.
@@ -152,6 +197,8 @@ class FolderChildrenPager(
     companion object {
         const val PAGE_SIZE = StelaAccountService.CHILDREN_PAGE_SIZE
         const val WHOLE_FOLDER = StelaAccountService.MAX_CHILDREN_PAGE_SIZE
+        private const val FIRST_PAGE_SKELETON_MINIMUM_MS = 400L
+        private const val NEXT_PAGE_SKELETON_MINIMUM_MS = 800L
     }
 }
 

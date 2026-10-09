@@ -231,7 +231,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
 
     private fun scrollToTop() {
         binding.appBarLayout.setExpanded(true, false)
-        binding.nestedScrollView.scrollTo(0, 0)
+        binding.rvShares.scrollToPosition(0)
     }
 
     private val onNewTemporaryFiles = Observer<MutableList<Record>> {
@@ -455,7 +455,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
                 onRetry = viewModel::onRetryNextPageClick
             )
             this.pagedList = pagedList
-            binding.nestedScrollView.fadeInOnScroll(binding.vStickyFade)
+            binding.rvShares.fadeInOnScroll(binding.vStickyFade)
             recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
             pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
             return

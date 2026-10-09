@@ -377,19 +377,13 @@
                 android:enabled="@{viewModel.isSelectionMode == false &amp;&amp; viewModel.showScreenSimplified == false}"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/nestedScrollView"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvFiles"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:fillViewport="true">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvFiles"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.VISIBLE : View.GONE}"
-                        android:paddingBottom="320dp" />
-                </androidx.core.widget.NestedScrollView>
+                    android:clipToPadding="false"
+                    android:paddingBottom="320dp"
+                    android:visibility="@{viewModel.existsFiles || viewModel.existsUploads ? View.VISIBLE : View.GONE}" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
             <View
