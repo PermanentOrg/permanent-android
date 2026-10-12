@@ -173,6 +173,12 @@ class RequestContainer {
         return this
     }
 
+    fun addFolder(folderLinkId: Int, sort: String): RequestContainer {
+        addFolder(folderLinkId)
+        RequestVO.data?.get(0)?.FolderVO?.sort = sort
+        return this
+    }
+
     fun addFolder(folderLinkId: Int): RequestContainer {
         val folderVO = FolderVO()
         folderVO.folder_linkId = folderLinkId

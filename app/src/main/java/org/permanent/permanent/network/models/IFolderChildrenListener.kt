@@ -6,3 +6,8 @@ interface IFolderChildrenListener {
     fun onSuccess(records: List<Record>)
     fun onFailed(error: String?)
 }
+
+interface IFolderChildrenPageListener {
+    fun onSuccess(records: List<Record>, nextCursor: String?)
+    fun onFailed(error: String?)
+}

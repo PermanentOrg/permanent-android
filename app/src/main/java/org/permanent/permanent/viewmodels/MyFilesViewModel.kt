@@ -19,8 +19,10 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.CurrentArchivePermissionsManager
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccountEventAction
@@ -34,6 +36,7 @@ import org.permanent.permanent.models.RecordEventAction
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
 import org.permanent.permanent.network.IRecordListener
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.repositories.EventsRepositoryImpl
@@ -44,6 +47,10 @@ import org.permanent.permanent.repositories.NotificationRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.myFiles.CancelListener
+import org.permanent.permanent.ui.myFiles.FolderChildrenPager
+import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.listingFailureMessage
+import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
 import org.permanent.permanent.ui.myFiles.SortType
@@ -60,15 +67,23 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     private val appContext = application.applicationContext
     private val folderName = MutableLiveData(Constants.PRIVATE_FILES)
     private var refreshJob: Job? = null
+
+    // Only the newest root load may commit (see loadRootFilesV2). Touched on main only.
+    private var rootLoadGeneration = 0
+
+    // Cleared only in rootLoadListener. Touched on main only.
+    private var isRootLoadInFlight = false
     private val isRoot = MutableLiveData(true)
     private val sortName: MutableLiveData<String> =
         MutableLiveData(SortType.NAME_ASCENDING.toUIString())
+    private val sortLabel = MutableLiveData(SortType.NAME_ASCENDING.toLabel(appContext))
     private val isListViewMode = MutableLiveData(true)
     private val isCreateAvailable = CurrentArchivePermissionsManager.instance.isCreateAvailable()
     private val currentSortType: MutableLiveData<SortType> =
         MutableLiveData(SortType.NAME_ASCENDING)
     private var existsDownloads = MutableLiveData(false)
     private val showQuotaExceeded = SingleLiveEvent<Void?>()
+    private val showErrorMessage = SingleLiveEvent<String>()
     private val onChangeViewMode = SingleLiveEvent<Boolean>()
     private val onCancelAllUploads = SingleLiveEvent<Void?>()
     private val onDownloadsRetrieved = SingleLiveEvent<MutableList<Download>>()
@@ -91,9 +106,17 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     protected lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var fragmentManager: FragmentManager
     protected lateinit var lifecycleOwner: LifecycleOwner
-    private val prefsHelper = PreferencesHelper(
+    protected val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     )
+
+    private var selectAllWhenListed = false
+    val usesPagedList get() = FeatureFlags.useStelaMigration
+    private val pager by lazy {
+        PagedFolderChildren(fileRepository) {
+            loadFilesOf(currentFolder.value, currentSortType.value, isRefresh = true, wholeFolder = true)
+        }
+    }
 
     init {
         PermanentApplication.instance.relocateData?.let {
@@ -126,20 +149,84 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     open fun loadRootFiles() {
+        if (FeatureFlags.useStelaMigration) {
+            loadRootFilesV2()
+        } else {
+            loadRootFilesV1()
+        }
+    }
+
+    protected open fun loadRootFilesV1() {
         swipeRefreshLayout.isRefreshing = true
         fileRepository.getMyFilesRecord(object : IRecordListener {
             override fun onSuccess(record: Record) {
                 swipeRefreshLayout.isRefreshing = false
                 folderPathStack.push(record)
-                loadFilesAndUploadsOf(record)
+                loadFilesAndUploadsOf(record, forwardNavigation = true)
                 loadEnqueuedDownloads(lifecycleOwner)
             }
 
             override fun onFailed(error: String?) {
                 swipeRefreshLayout.isRefreshing = false
-                error?.let { showMessage.value = it }
+                showErrorMessage.value = listingFailureMessage(appContext)
             }
         })
+    }
+
+    // Only the newest root load may commit — the archive-changed observer re-fires
+    // this on a live ViewModel. Subclasses supply the two resolver legs.
+    private fun loadRootFilesV2() {
+        showFirstPageSkeleton()
+        isRootLoadInFlight = true
+        val generation = ++rootLoadGeneration
+        val isStale = { generation != rootLoadGeneration }
+        resolveRootV2(isStale, rootLoadListener(generation, isFinalAttempt = false) { error ->
+            if (BuildConfig.DEBUG) Log.d(
+                TAG, "V2 root resolution failed ($error), falling back to the V1 failsafe"
+            )
+            resolveRootFailsafe(rootLoadListener(generation) { _ ->
+                swipeRefreshLayout.isRefreshing = false
+                pager.reset()
+                showErrorMessage.value = listingFailureMessage(appContext)
+            })
+        })
+    }
+
+    protected open fun resolveRootV2(isStale: () -> Boolean, listener: IRecordListener) {
+        fileRepository.getMyFilesRecordV2(isStale, listener)
+    }
+
+    protected open fun resolveRootFailsafe(listener: IRecordListener) {
+        fileRepository.getMyFilesRecord(listener)
+    }
+
+    // A superseded load neither commits nor runs its failsafe; the in-flight flag
+    // clears on success and on a final attempt's failure.
+    private fun rootLoadListener(
+        generation: Int, isFinalAttempt: Boolean = true, onFailure: (String?) -> Unit
+    ) = object : IRecordListener {
+        override fun onSuccess(record: Record) {
+            if (generation != rootLoadGeneration) return
+            isRootLoadInFlight = false
+            commitRootRecord(record)
+        }
+
+        override fun onFailed(error: String?) {
+            if (generation != rootLoadGeneration) return
+            if (isFinalAttempt) isRootLoadInFlight = false
+            onFailure(error)
+        }
+    }
+
+    protected open fun commitRootRecord(record: Record) {
+        swipeRefreshLayout.isRefreshing = false
+        // Reset instead of push: a root load on a surviving ViewModel (archive switch
+        // from the Save-to-Permanent sheet) must not leave the previous archive's root
+        // reachable through back navigation.
+        folderPathStack.clear()
+        folderPathStack.push(record)
+        loadFilesAndUploadsOf(record, forwardNavigation = true)
+        loadEnqueuedDownloads(lifecycleOwner)
     }
 
     fun setExistsDownloads(existsDownloads: MutableLiveData<Boolean>) {
@@ -149,49 +236,169 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun setShowScreenSimplified() {
         showScreenSimplified.value = true
         swipeRefreshLayout.isRefreshing = false
-        swipeRefreshLayout.isEnabled = false
     }
 
     fun refreshCurrentFolder() {
+        // A root load in flight repaints this screen anyway.
+        if (isRootLoadInFlight) return
         refreshJob?.cancel()
-        loadFilesOf(currentFolder.value, currentSortType.value)
+        loadFilesOf(currentFolder.value, currentSortType.value, isRefresh = true)
     }
 
-    private fun loadFilesOf(folder: NavigationFolder?, sortType: SortType?) {
+    private fun loadFilesOf(
+        folder: NavigationFolder?,
+        sortType: SortType?,
+        forwardNavigation: Boolean = false,
+        isRefresh: Boolean = false,
+        wholeFolder: Boolean = false
+    ) {
         val archiveNr = folder?.getArchiveNr()
         val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
-            swipeRefreshLayout.isRefreshing = true
-            fileRepository.getChildRecordsOf(archiveNr,
-                folderLinkId,
-                sortType?.toBackendString(),
-                object : IFileRepository.IOnRecordsRetrievedListener {
+            if (usesPagedList && !isRefresh) {
+                showFirstPageSkeleton()
+            } else {
+                swipeRefreshLayout.isRefreshing = true
+                if (usesPagedList) pager.startExternalListing(showsSkeleton = false)
+            }
+            // Private Files (VSP-1778) and Public Files (via PublicFilesViewModel,
+            // VSP-1808) take the Stela V2 children endpoint when the migration flag
+            // is on, with V1 as an automatic failsafe.
+            val folderId = folder.getFolderIdentifier()?.folderId
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
+                loadFilesOfV2(folder, sortType, forwardNavigation, isRefresh, wholeFolder)
+            } else {
+                loadFilesOfV1(folder, sortType)
+            }
+        } else {
+            // The folder can't be listed without its V1 address — report it instead
+            // of silently dropping the navigation with the spinner left running.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Navigation dropped: folder missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            swipeRefreshLayout.isRefreshing = false
+            showErrorMessage.value = appContext.getString(R.string.generic_error)
+        }
+    }
 
-                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
-                        swipeRefreshLayout.isRefreshing = false
-                        val parentName = folder.getDisplayName()
-                        isRoot.value =
-                            parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
-                                Constants.PUBLIC_FILES_FOLDER
-                            )
-                        folderName.value = when {
-                            parentName.equals(Constants.MY_FILES_FOLDER) -> Constants.PRIVATE_FILES
-                            parentName.equals(
-                                Constants.PUBLIC_FILES_FOLDER
-                            ) -> Constants.PUBLIC_FILES
+    private fun loadFilesOfV1(folder: NavigationFolder, sortType: SortType?) {
+        // Callers (loadFilesOf and the V2 failsafe) have already checked these.
+        val archiveNr = folder.getArchiveNr() ?: return
+        val folderLinkId = folder.getFolderIdentifier()?.folderLinkId ?: return
+        fileRepository.getChildRecordsOf(archiveNr,
+            folderLinkId,
+            sortType?.toBackendString(),
+            object : IFileRepository.IOnRecordsRetrievedListener {
 
-                            else -> parentName
-                        }
-
-                        existsFiles.value = !recordVOs.isNullOrEmpty()
+                override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
+                    swipeRefreshLayout.isRefreshing = false
+                    applyFolderHeader(folder)
+                    existsFiles.value = !recordVOs.isNullOrEmpty()
+                    if (usesPagedList) {
+                        val records = recordVOs?.let { getRecords(it) } ?: emptyList()
+                        commitListing(records, wholeFolder = true)
+                    } else {
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
                     }
+                }
 
-                    override fun onFailed(error: String?) {
+                override fun onFailed(error: String?) {
+                    swipeRefreshLayout.isRefreshing = false
+                    if (usesPagedList) pager.onListingFailed()
+                    showErrorMessage.value = listingFailureMessage(appContext)
+                }
+            })
+    }
+
+    // Stela V2 navigation. Every fetch completes exactly once: it either commits, falls
+    // back to V1, retries, or ends the refresh spinner quietly. Only the newest fetch may
+    // commit (see FolderChildrenPager).
+    private fun loadFilesOfV2(
+        folder: NavigationFolder,
+        sortType: SortType?,
+        forwardNavigation: Boolean,
+        isRefresh: Boolean,
+        forceWholeFolder: Boolean,
+        retriesLeft: Int = 1
+    ) {
+        val folderId = folder.getFolderIdentifier()?.folderId ?: return
+        // Server order is the folder's saved sort; any other sort needs the whole folder.
+        val wholeFolder = forceWholeFolder || sortType == null || folder.getSavedSort() != sortType
+        pager.list(folderId, wholeFolder, isRefresh,
+            object : FolderChildrenPager.ListingListener {
+
+                override fun onSuccess(records: List<Record>) {
+                    swipeRefreshLayout.isRefreshing = false
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
+                    applyFolderHeader(folder)
+                    val listed = if (wholeFolder && sortType != null) {
+                        records.sortedWith(sortType.toComparator())
+                    } else records
+                    existsFiles.value = listed.isNotEmpty()
+                    commitListing(listed)
+                }
+
+                override fun onFailed(error: String?) {
+                    // V1 failsafe: this fetch is the newest, so there is no ordering hazard.
+                    if (BuildConfig.DEBUG) Log.d(
+                        TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
+                    )
+                    loadFilesOfV1(folder, sortType)
+                }
+
+                override fun onSuperseded() {
+                    if (forwardNavigation && retriesLeft > 0 && currentFolder.value == folder) {
+                        // A background refresh raced the user's tap — retry once so the
+                        // tap is never eaten.
+                        loadFilesOfV2(
+                            folder, sortType, forwardNavigation, isRefresh, forceWholeFolder,
+                            retriesLeft - 1
+                        )
+                    } else {
+                        // The superseding fetch repaints this folder; only the spinner ends.
                         swipeRefreshLayout.isRefreshing = false
-                        error?.let { showMessage.value = it }
                     }
-                })
+                }
+            })
+    }
+
+    private fun showFirstPageSkeleton() {
+        swipeRefreshLayout.isRefreshing = false
+        pager.startExternalListing(showsSkeleton = true)
+        // Keeps the sort and Select row visible over the skeleton.
+        existsFiles.value = true
+        onRecordsRetrieved.value = emptyList()
+    }
+
+    private fun commitListing(records: List<Record>, wholeFolder: Boolean = false) {
+        if (wholeFolder) pager.commitWholeFolder(records) else pager.commit(records)
+        onRecordsRetrieved.value = records
+        if (selectAllWhenListed) {
+            selectAllWhenListed = false
+            super.onSelectAllRecords(pager.records)
+        }
+    }
+
+    fun onListEndReached() = pager.loadNextPage()
+
+    fun onRetryNextPageClick() = pager.retryNextPage()
+
+    // isRoot/folderName derive from the locally navigated folder (not the server
+    // response) — shared by the V1 and V2 paths.
+    private fun applyFolderHeader(folder: NavigationFolder) {
+        val parentName = folder.getDisplayName()
+        isRoot.value =
+            parentName.equals(Constants.MY_FILES_FOLDER) || parentName.equals(
+                Constants.PUBLIC_FILES_FOLDER
+            )
+        folderName.value = when {
+            parentName.equals(Constants.MY_FILES_FOLDER) -> Constants.PRIVATE_FILES
+            parentName.equals(
+                Constants.PUBLIC_FILES_FOLDER
+            ) -> Constants.PUBLIC_FILES
+
+            else -> parentName
         }
     }
 
@@ -216,7 +423,15 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     fun onSelectAllBtnClick() {
-        super.onSelectAllRecords(onRecordsRetrieved.value!!)
+        if (!usesPagedList) {
+            super.onSelectAllRecords(onRecordsRetrieved.value!!)
+        } else if (pager.isComplete) {
+            super.onSelectAllRecords(pager.records)
+        } else {
+            // Select all covers the whole folder, so the missing pages load first.
+            selectAllWhenListed = true
+            loadFilesOf(currentFolder.value, currentSortType.value, isRefresh = true, wholeFolder = true)
+        }
     }
 
     override fun onRecordDeleteClick(record: Record) {
@@ -243,13 +458,14 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             RecordType.FOLDER -> {
                 currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
                 folderPathStack.push(record)
-                loadFilesAndUploadsOf(record)
+                loadFilesAndUploadsOf(record, forwardNavigation = true)
             }
 
             else -> {
                 if (showScreenSimplified.value == false) {
                     record.displayFirstInCarousel = true
-                    onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
+                    onFileViewRequest.value =
+                        getFilesForViewing(if (usesPagedList) pager.records else onRecordsRetrieved.value)
                 }
             }
         }
@@ -266,6 +482,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     fun onBackBtnClick() {
+        // The button can still show for a moment at the root, before the header updates.
+        if (folderPathStack.size <= 1) return
         currentFolder.value?.getUploadQueue()?.clearEnqueuedUploadsAndRemoveTheirObservers()
         // Popping the record of the current folder
         folderPathStack.pop()
@@ -273,10 +491,12 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
         loadFilesAndUploadsOf(previousFolder)
     }
 
-    protected fun loadFilesAndUploadsOf(record: Record) {
+    protected fun loadFilesAndUploadsOf(record: Record, forwardNavigation: Boolean = false) {
         currentFolder.value = NavigationFolder(appContext, record)
+        // Entering a folder lists it in its saved sort.
+        if (usesPagedList) record.savedSort?.let { applySortType(it) }
         loadEnqueuedUploads(currentFolder.value, lifecycleOwner)
-        loadFilesOf(currentFolder.value, currentSortType.value)
+        loadFilesOf(currentFolder.value, currentSortType.value, forwardNavigation)
     }
 
     private fun loadEnqueuedUploads(folder: NavigationFolder?, lifecycleOwner: LifecycleOwner) {
@@ -377,10 +597,38 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     fun setSortType(sortType: SortType) {
+        applySortType(sortType)
+        val folder = currentFolder.value
+        val folderLinkId = folder?.getFolderIdentifier()?.folderLinkId
+        if (!usesPagedList || folder == null || folderLinkId == null || !canPersistSort()) {
+            loadFilesOf(folder, sortType)
+            return
+        }
+        showFirstPageSkeleton()
+        fileRepository.saveFolderSort(
+            folder.getFolderIdentifier()?.folderId, folderLinkId, folder.getArchiveId(), sortType,
+            object : IResponseListener {
+                override fun onSuccess(message: String?) {
+                    if (currentFolder.value !== folder || currentSortType.value != sortType) return
+                    folder.setSavedSort(sortType)
+                    loadFilesOf(folder, sortType)
+                }
+
+                // Not saved: the folder is listed whole and sorted on the device.
+                override fun onFailed(error: String?) {
+                    if (currentFolder.value !== folder || currentSortType.value != sortType) return
+                    loadFilesOf(folder, sortType)
+                }
+            })
+    }
+
+    private fun applySortType(sortType: SortType) {
         currentSortType.value = sortType
         sortName.value = sortType.toUIString()
-        loadFilesOf(currentFolder.value, currentSortType.value)
+        sortLabel.value = sortType.toLabel(appContext)
     }
+
+    private fun canPersistSort() = CurrentArchivePermissionsManager.instance.isEditAvailable()
 
     fun publishRecord(record: Record) {
         val folderLinkId = prefsHelper.getPublicRecordFolderLinkId()
@@ -389,6 +637,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
             swipeRefreshLayout.isRefreshing = true
             fileRepository.relocateRecords(mutableListOf(record),
                 folderLinkId,
+                prefsHelper.getPublicRecordFolderId(),
                 ModificationType.PUBLISH,
                 object : IResponseListener {
                     override fun onSuccess(message: String?) {
@@ -463,6 +712,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
 
     fun getSortName(): MutableLiveData<String> = sortName
 
+    fun getSortLabel(): MutableLiveData<String> = sortLabel
+
     fun getIsRelocationMode(): MutableLiveData<Boolean> = isRelocationMode
 
     fun getIsSelectionMode(): MutableLiveData<Boolean> = isSelectionMode
@@ -470,6 +721,8 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getIsCreateAvailable(): Boolean = isCreateAvailable
 
     fun getOnShowMessage(): MutableLiveData<String> = showMessage
+
+    fun getOnShowErrorMessage(): SingleLiveEvent<String> = showErrorMessage
 
     fun getOnShowQuotaExceeded(): SingleLiveEvent<Void?> = showQuotaExceeded
 
@@ -482,6 +735,10 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     fun getOnDownloadFinished(): MutableLiveData<Download> = onDownloadFinished
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
+
+    fun getOnRecordsAppended(): MutableLiveData<List<Record>> = pager.appended
+
+    fun getListFooter(): MutableLiveData<ListFooter> = pager.footer
 
     fun getOnNewTemporaryFiles(): MutableLiveData<MutableList<Record>> = onNewTemporaryFiles
 

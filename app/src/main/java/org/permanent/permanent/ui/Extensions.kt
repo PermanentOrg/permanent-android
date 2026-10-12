@@ -5,11 +5,20 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.OpenableColumns
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.Window
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.WindowCompat
+import androidx.recyclerview.widget.RecyclerView
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.gson.Gson
@@ -232,3 +241,52 @@ val Record.pendingInvitationCount: Int
 
 fun formatPendingInvitationCount(count: Int): String =
     if (count > 9) "9+" else count.toString()
+
+fun View.boundsOnScreen(): Rect {
+    val location = IntArray(2).also { getLocationOnScreen(it) }
+    return Rect(location[0], location[1], location[0] + width, location[1] + height)
+}
+
+// A full-screen popup window: the status and navigation bars keep the screen's own look.
+fun Window.drawBehindSystemBars(screenWindow: Window?) {
+    WindowCompat.setDecorFitsSystemWindows(this, false)
+    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    statusBarColor = Color.TRANSPARENT
+    navigationBarColor = Color.TRANSPARENT
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) isNavigationBarContrastEnforced = false
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        attributes = attributes.also {
+            it.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+    }
+    screenWindow?.let {
+        val screenBars = WindowCompat.getInsetsController(it, it.decorView)
+        WindowCompat.getInsetsController(this, decorView).apply {
+            isAppearanceLightStatusBars = screenBars.isAppearanceLightStatusBars
+            isAppearanceLightNavigationBars = screenBars.isAppearanceLightNavigationBars
+        }
+    }
+}
+
+const val SKELETON_PULSE_MILLIS = 800L
+const val SKELETON_PULSE_MIN_ALPHA = 0.5f
+
+fun View.startSkeletonPulse() {
+    startAnimation(AlphaAnimation(1f, SKELETON_PULSE_MIN_ALPHA).apply {
+        duration = SKELETON_PULSE_MILLIS
+        repeatCount = Animation.INFINITE
+        repeatMode = Animation.REVERSE
+    })
+}
+
+// The fade under a pinned header appears once the list scrolls beneath it.
+fun RecyclerView.fadeInOnScroll(fade: View) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            if (dy > 0 && fade.alpha >= 1f) return
+            val offset = recyclerView.computeVerticalScrollOffset()
+            fade.alpha = (offset.toFloat() / fade.height.coerceAtLeast(1)).coerceAtMost(1f)
+        }
+    })
+}

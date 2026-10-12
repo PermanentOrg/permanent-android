@@ -34,6 +34,7 @@ import org.permanent.permanent.network.IInviteListener
 import org.permanent.permanent.network.ILinkListener
 import org.permanent.permanent.network.IPendingInvitesListener
 import org.permanent.permanent.network.IRecordListener
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.ShareRequestType
 import org.permanent.permanent.network.models.BackendRecordType
@@ -225,26 +226,52 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         val folderLinkId = record.folderLinkId ?: return
         _isRefreshingShares.value = true
         if (record.type == RecordType.FOLDER) {
-            fileRepository.getFolder(folderLinkId, object : IRecordListener {
-                override fun onSuccess(record: Record) = onRefreshSucceeded(record)
-                override fun onFailed(error: String?) = onRefreshFailed(error)
-            })
-        } else {
-            fileRepository.getRecord(folderLinkId, record.recordId)
-                .enqueue(object : Callback<ResponseVO> {
-                    override fun onResponse(
-                        call: Call<ResponseVO>, response: Response<ResponseVO>
-                    ) {
-                        val freshRecord = response.body()?.getRecord()
-                        if (freshRecord != null) onRefreshSucceeded(freshRecord)
-                        else _isRefreshingShares.value = false
-                    }
-
-                    override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
-                        onRefreshFailed(t.message)
-                    }
+            val folderId = record.folderId
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
+                fileRepository.getFolderV2(folderId, folderLinkId, object : IRecordListener {
+                    override fun onSuccess(record: Record) = onRefreshSucceeded(record)
+                    override fun onFailed(error: String?) = refreshFolderSharesV1(folderLinkId)
                 })
+            } else {
+                refreshFolderSharesV1(folderLinkId)
+            }
+        } else {
+            val recordId = record.recordId
+            if (StelaAuthState.isV2ReadEnabled && recordId != null && recordId > 0 &&
+                record.archiveId == prefsHelper.getCurrentArchiveId()
+            ) {
+                fileRepository.getRecordV2(recordId, folderLinkId, object : IRecordListener {
+                    override fun onSuccess(record: Record) = onRefreshSucceeded(record)
+                    override fun onFailed(error: String?) = refreshRecordSharesV1(folderLinkId)
+                })
+            } else {
+                refreshRecordSharesV1(folderLinkId)
+            }
         }
+    }
+
+    private fun refreshRecordSharesV1(folderLinkId: Int) {
+        fileRepository.getRecord(folderLinkId, record.recordId)
+            .enqueue(object : Callback<ResponseVO> {
+                override fun onResponse(
+                    call: Call<ResponseVO>, response: Response<ResponseVO>
+                ) {
+                    val freshRecord = response.body()?.getRecord()
+                    if (freshRecord != null) onRefreshSucceeded(freshRecord)
+                    else _isRefreshingShares.value = false
+                }
+
+                override fun onFailure(call: Call<ResponseVO>, t: Throwable) {
+                    onRefreshFailed(t.message)
+                }
+            })
+    }
+
+    private fun refreshFolderSharesV1(folderLinkId: Int) {
+        fileRepository.getFolder(folderLinkId, object : IRecordListener {
+            override fun onSuccess(record: Record) = onRefreshSucceeded(record)
+            override fun onFailed(error: String?) = onRefreshFailed(error)
+        })
     }
 
     private fun onRefreshSucceeded(freshRecord: Record) {

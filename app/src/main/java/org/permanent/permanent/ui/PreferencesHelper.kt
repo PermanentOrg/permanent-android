@@ -253,29 +253,12 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
     fun savePublicRecordInfo(
         folderId: Int?, folderLinkId: Int?, archiveNr: String?, thumbURL2000: String?
     ) {
-        folderId?.let {
-            with(sharedPreferences.edit()) {
-                putInt(PREFS_PUBLIC_RECORD_FOLDER_ID, it)
-                apply()
-            }
-        }
-        folderLinkId?.let {
-            with(sharedPreferences.edit()) {
-                putInt(PREFS_PUBLIC_RECORD_FOLDER_LINK_ID, it)
-                apply()
-            }
-        }
-        archiveNr?.let {
-            with(sharedPreferences.edit()) {
-                putString(PREFS_PUBLIC_RECORD_ARCHIVE_NR, it)
-                apply()
-            }
-        }
-        thumbURL2000?.let {
-            with(sharedPreferences.edit()) {
-                putString(PREFS_PUBLIC_RECORD_THUMB_URL_2000, it)
-                apply()
-            }
+        with(sharedPreferences.edit()) {
+            folderId?.let { putInt(PREFS_PUBLIC_RECORD_FOLDER_ID, it) }
+            folderLinkId?.let { putInt(PREFS_PUBLIC_RECORD_FOLDER_LINK_ID, it) }
+            archiveNr?.let { putString(PREFS_PUBLIC_RECORD_ARCHIVE_NR, it) }
+            thumbURL2000?.let { putString(PREFS_PUBLIC_RECORD_THUMB_URL_2000, it) }
+            apply()
         }
     }
 

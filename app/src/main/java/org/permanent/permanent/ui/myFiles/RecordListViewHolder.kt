@@ -16,12 +16,14 @@ class RecordListViewHolder(
     private val isForSearchScreen: Boolean,
     private val showPendingInvitationsBadge: Boolean,
     private val recordListener: RecordListener
-) : RecyclerView.ViewHolder(binding.root) {
+) : RecyclerView.ViewHolder(binding.root), UnbindableRow {
 
     private val pendingBadgeBinder = PendingInvitationBadgeBinder(
         binding.tvPendingBadge,
         binding.btnOptions
     )
+
+    override fun unbind() = pendingBadgeBinder.detach()
 
     fun bind(record: Record, lifecycleOwner: LifecycleOwner) {
         binding.record = record
@@ -46,6 +48,7 @@ class RecordListViewHolder(
                 recordListener.onRecordClick(record)
             }
         }
+        recordListener.attachLongClick(binding.layoutOverlay, binding.root, binding.btnOptions, record)
         binding.layoutSwipeReveal.setLockDrag(record.isProcessing || isForSharesScreen || isForSearchScreen)
         binding.btnDelete.setOnClickListener {
             recordListener.onRecordDeleteClick(record)

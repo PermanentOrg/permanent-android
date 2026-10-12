@@ -25,6 +25,7 @@ import androidx.transition.TransitionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.ArchiveType
 import org.permanent.permanent.models.Notification
@@ -66,10 +67,17 @@ fun setViewModeIconDrawable(view: ImageView, isListViewMode: Boolean) {
     else view.setImageResource(R.drawable.ic_list_dark_blue)
 }
 
-@BindingAdapter("record")
-fun loadImage(view: ImageView, record: Record?) {
+@BindingAdapter(value = ["record", "skeletonRes"], requireAll = false)
+fun loadImage(view: ImageView, record: Record?, skeletonRes: Int) {
+    // A recycled row may still be loading its previous record's thumbnail.
+    Picasso.get().cancelRequest(view)
     // Recycled rows may still be running the processing RotateAnimation (fillAfter = true).
     view.clearAnimation()
+    if (record?.isProcessing == true && FeatureFlags.useStelaMigration) {
+        view.setImageResource(if (skeletonRes != 0) skeletonRes else R.drawable.bg_skeleton_shape)
+        view.startSkeletonPulse()
+        return
+    }
     if (record?.isProcessing == true) {
         view.setImageResource(R.drawable.ic_processing)
         val rotate = RotateAnimation(
@@ -93,18 +101,22 @@ fun loadImage(view: ImageView, record: Record?) {
         record.type == RecordType.FOLDER -> view.setImageResource(R.drawable.ic_folder_barney_purple)
         else -> loadUrl(
             view,
-            record.thumbnail256?.takeIf { it.isNotEmpty() } ?: record.thumbURL200
+            record.thumbnail256?.takeIf { it.isNotEmpty() } ?: record.thumbURL200,
+            fitCenterCrop = true
         )
     }
 }
 
 @BindingAdapter("imageUrl")
-fun loadUrl(view: ImageView, url: String?) {
+fun loadUrl(view: ImageView, url: String?) = loadUrl(view, url, fitCenterCrop = false)
+
+private fun loadUrl(view: ImageView, url: String?, fitCenterCrop: Boolean) {
     Picasso.get()
         // Empty (non-null) paths make Picasso throw; treat them as missing.
         .load(url?.takeIf { it.isNotEmpty() })
         .placeholder(R.drawable.ic_stop_light_grey)
         .error(R.drawable.ic_stop_light_grey)
+        .apply { if (fitCenterCrop) fit().centerCrop() }
         .into(view)
 }
 

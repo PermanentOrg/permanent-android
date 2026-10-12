@@ -3,15 +3,20 @@ package org.permanent.permanent.viewmodels
 import android.app.Application
 import android.content.Context
 import android.text.Editable
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Tag
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.IDataListener
 import org.permanent.permanent.network.models.Datum
 import org.permanent.permanent.network.models.RecordVO
@@ -21,6 +26,10 @@ import org.permanent.permanent.repositories.ITagRepository
 import org.permanent.permanent.repositories.TagRepositoryImpl
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.FolderChildrenPager
+import org.permanent.permanent.ui.myFiles.ListFooter
+import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.listingFailureMessage
 import org.permanent.permanent.ui.myFiles.RecordListener
 import org.permanent.permanent.ui.myFiles.SortType
 import java.util.*
@@ -28,6 +37,7 @@ import java.util.*
 class RecordSearchViewModel(application: Application) : ObservableAndroidViewModel(application),
     RecordListener {
 
+    private val TAG = RecordSearchViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -49,6 +59,13 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
     private var tagRepository: ITagRepository = TagRepositoryImpl(application)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var folderPathStack: Stack<Record> = Stack()
+    val usesPagedList get() = FeatureFlags.useStelaMigration
+    private var isListing = false
+    private val pager by lazy {
+        PagedFolderChildren(fileRepository) {
+            if (folderPathStack.isNotEmpty()) loadChildRecordsOf(folderPathStack.peek(), wholeFolder = true)
+        }
+    }
 
     init {
         requestTagsForCurrentArchive()
@@ -85,8 +102,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
         currentSearchQuery.value = query.toString()
         if (currentSearchQuery.value.isNullOrEmpty()) {
             searchJob?.cancel()
-            isRoot.value = true
-            existsRecords.value = false
+            returnToResultsRoot(hasRecords = false)
         }
         searchAndFilterDebounced()
     }
@@ -101,7 +117,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun searchRecords() {
-        if (isBusy.value != null && isBusy.value!!) {
+        if (isListing || isBusy.value == true) {
             return
         }
 
@@ -116,8 +132,7 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
 
                     override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
                         isBusy.value = false
-                        isRoot.value = true
-                        existsRecords.value = !recordVOs.isNullOrEmpty()
+                        returnToResultsRoot(hasRecords = !recordVOs.isNullOrEmpty())
                         recordVOs?.let { onRecordsRetrieved.value = getRecords(it) }
                     }
 
@@ -127,9 +142,18 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
                     }
                 })
         } else {
-            isRoot.value = true
-            existsRecords.value = false
+            returnToResultsRoot(hasRecords = false)
         }
+    }
+
+    // Every return to the results root goes through here: dropping the drilled-in
+    // trail together with the header state is what keeps Back from popping a folder
+    // that belongs to a previous search.
+    private fun returnToResultsRoot(hasRecords: Boolean) {
+        isRoot.value = true
+        folderPathStack.clear()
+        if (usesPagedList) pager.reset()
+        existsRecords.value = hasRecords
     }
 
     private fun getCheckedTags(visibleTags: ArrayList<Tag>?): ArrayList<Tag> {
@@ -180,37 +204,120 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
         if (record.type == RecordType.FOLDER) {
             folderPathStack.push(record)
             loadChildRecordsOf(record)
-        } else onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value, record)
+        } else onFileViewRequest.value = getFilesForViewing(
+            if (usesPagedList && folderPathStack.isNotEmpty()) pager.records else onRecordsRetrieved.value,
+            record
+        )
     }
 
-    private fun loadChildRecordsOf(record: Record) {
-        if (isBusy.value != null && isBusy.value!!) {
+    private fun loadChildRecordsOf(record: Record, wholeFolder: Boolean = false) {
+        if (isListing || isBusy.value == true) {
             return
         }
         val archiveNr = record.archiveNr
         val folderLinkId = record.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
-            isBusy.value = true
-            fileRepository.getChildRecordsOf(archiveNr,
-                folderLinkId,
-                SortType.NAME_ASCENDING.toBackendString(),
-                object : IFileRepository.IOnRecordsRetrievedListener {
-
-                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
-                        isBusy.value = false
-                        isRoot.value = false
-                        folderName.value = record.displayName
-                        existsRecords.value = !recordVOs.isNullOrEmpty()
-                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
-                    }
-
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        showMessage.value = error
-                    }
-                })
+            // Search drill-in (VSP-1806) takes the Stela V2 children endpoint when the
+            // migration flag is on, with V1 as an automatic failsafe. Folder results
+            // carry a folderId (it is what classifies them as folders); anything
+            // without one falls through to V1 here.
+            val folderId = record.folderId
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
+                loadChildRecordsOfV2(record, folderId, archiveNr, folderLinkId, wholeFolder)
+            } else {
+                loadChildRecordsOfV1(record, archiveNr, folderLinkId)
+            }
+        } else {
+            // The result can't be navigated without its V1 address — say so instead
+            // of silently ignoring the tap.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Drill-in dropped: result missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            showMessage.value = appContext.getString(R.string.generic_error)
         }
     }
+
+    private fun loadChildRecordsOfV1(record: Record, archiveNr: String, folderLinkId: Int) {
+        startListing()
+        fileRepository.getChildRecordsOf(archiveNr,
+            folderLinkId,
+            SortType.NAME_ASCENDING.toBackendString(),
+            object : IFileRepository.IOnRecordsRetrievedListener {
+
+                override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
+                    endListing()
+                    isRoot.value = false
+                    folderName.value = record.displayName
+                    existsRecords.value = !recordVOs.isNullOrEmpty()
+                    if (usesPagedList) {
+                        val records = recordVOs?.let { getRecords(it) } ?: emptyList()
+                        pager.commitWholeFolder(records)
+                        onRecordsRetrieved.value = records
+                    } else {
+                        recordVOs?.let { onRecordsRetrieved.value = getRecords(recordVOs) }
+                    }
+                }
+
+                override fun onFailed(error: String?) {
+                    endListing()
+                    if (usesPagedList) pager.onListingFailed()
+                    showMessage.value = listingFailureMessage(appContext)
+                }
+            })
+    }
+
+    // Stela V2 navigation, page by page in the server's order. At most one listing is in
+    // flight (the guard in loadChildRecordsOf); a next page in flight is dropped by the pager.
+    private fun loadChildRecordsOfV2(
+        record: Record, folderId: Int, archiveNr: String, folderLinkId: Int, wholeFolder: Boolean
+    ) {
+        startListing()
+        pager.list(folderId, wholeFolder, isRefresh = false,
+            object : FolderChildrenPager.ListingListener {
+
+                override fun onSuccess(records: List<Record>) {
+                    endListing()
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
+                    isRoot.value = false
+                    // V2 returns no parent name — the tapped folder's own displayName is
+                    // the same value the V1 listener uses.
+                    folderName.value = record.displayName
+                    existsRecords.value = records.isNotEmpty()
+                    pager.commit(records)
+                    onRecordsRetrieved.value = records
+                }
+
+                override fun onFailed(error: String?) {
+                    endListing()
+                    if (BuildConfig.DEBUG) Log.d(
+                        TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
+                    )
+                    loadChildRecordsOfV1(record, archiveNr, folderLinkId)
+                }
+            })
+    }
+
+    // A paged listing shows skeleton rows instead of the spinner.
+    private fun startListing() {
+        isListing = true
+        if (usesPagedList) {
+            pager.startExternalListing(showsSkeleton = true)
+            existsRecords.value = true
+            onRecordsRetrieved.value = emptyList()
+        } else {
+            isBusy.value = true
+        }
+    }
+
+    private fun endListing() {
+        isListing = false
+        isBusy.value = false
+    }
+
+    fun onListEndReached() = pager.loadNextPage()
+
+    fun onRetryNextPageClick() = pager.retryNextPage()
 
     override fun onRecordOptionsClick(record: Record) {}
 
@@ -235,8 +342,9 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun onBackBtnClick() {
-        // Popping the record of the current folder
-        folderPathStack.pop()
+        // Popping the record of the current folder; tolerate an already-empty stack
+        // (a tap can land in the frame before the binding hides the button)
+        folderPathStack.removeLastOrNull()
         if (folderPathStack.isEmpty()) searchRecords()
         else loadChildRecordsOf(folderPathStack.peek())
     }
@@ -258,6 +366,10 @@ class RecordSearchViewModel(application: Application) : ObservableAndroidViewMod
     fun getOnVisibleTagsReady(): MutableLiveData<ArrayList<Tag>> = onVisibleTagsReady
 
     fun getOnRecordsRetrieved(): MutableLiveData<List<Record>> = onRecordsRetrieved
+
+    fun getOnRecordsAppended(): LiveData<List<Record>> = pager.appended
+
+    fun getListFooter(): LiveData<ListFooter> = pager.footer
 
     fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 

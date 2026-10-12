@@ -2,9 +2,14 @@ package org.permanent.permanent.network
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Tags
+import org.permanent.permanent.network.models.ArchivesV2Response
+import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FolderPatchResponse
 import org.permanent.permanent.network.models.FolderResponse
+import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.RecordResponse
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.network.models.ShareLinkResponse
@@ -29,6 +34,30 @@ interface StelaAccountService {
     @GET("api/v2/records/{recordId}")
     fun getRecord(@Path("recordId") recordId: Int): Call<RecordResponse>
 
+    // Response deliberately not decoded — success is the 2xx; the copy surfaces via refetch.
+    @Headers("Request-Version: 2")
+    @POST("api/v2/records/{recordId}/copies")
+    fun copyRecord(
+        @Path("recordId") recordId: Int,
+        @Body body: CopyRecordV2Request
+    ): Call<Void>
+
+    // Flat body of the edited fields only; the server rejects unknown keys. Response not
+    // decoded — success is the 2xx, the UI refreshes the way it did after the V1 write.
+    @Headers("Request-Version: 2")
+    @PATCH("api/v2/records/{recordId}")
+    fun patchRecord(
+        @Path("recordId") recordId: Int,
+        @Body body: RequestBody
+    ): Call<Void>
+
+    @Headers("Request-Version: 2")
+    @PATCH("api/v2/folders/{folderId}")
+    fun patchFolder(
+        @Path("folderId") folderId: Int,
+        @Body body: RequestBody
+    ): Call<FolderPatchResponse>
+
     @Headers("Request-Version: 2")
     @GET("api/v2/folder")
     fun getFolder(
@@ -36,17 +65,44 @@ interface StelaAccountService {
         @Query("folderIds[]") folderId: Int
     ): Call<FolderResponse>
 
+    // Plural route requires pageSize; the singular alias above does not.
+    @Headers("Request-Version: 2")
+    @GET("api/v2/folders")
+    fun getFolders(
+        @Query("folderIds[]") folderIds: List<Int>,
+        @Query("pageSize") pageSize: Int
+    ): Call<FoldersResponse>
+
     @GET("api/v2/share-links")
     fun getShareLink(
         @Query("shareLinkIds[]") shareLinkIds: List<Int>? = null,
         @Query("shareTokens[]") shareTokens: List<String>? = null
     ): Call<ShareLinkVOResponse>
 
-    @GET("api/v2/folder/{folderId}/children")
+    @GET("api/v2/folders/{folderId}/children")
     fun getFolderChildren(
         @Header("X-Permanent-Share-Token") shareToken: String?,
         @Path("folderId") folderId: Int,
-        @Query("pageSize") pageSize: Int = 99999999
+        @Query("pageSize") pageSize: Int = MAX_CHILDREN_PAGE_SIZE
+    ): Call<FolderChildrenResponse>
+
+    // The caller's archive memberships; items[].rootFolderId replaces the V1 getRoot
+    // bootstrap (VSP-1788). Repeated (unbracketed) callerMembershipRole params — the
+    // form the server's own nextPage emits; Retrofit renders a List @Query that way.
+    @Headers("Request-Version: 2")
+    @GET("api/v2/archives")
+    fun getArchives(
+        @Query("callerMembershipRole") roles: List<String> = ALL_MEMBERSHIP_ROLES,
+        @Query("pageSize") pageSize: Int = ARCHIVES_PAGE_SIZE
+    ): Call<ArchivesV2Response>
+
+    // Bearer-token flavor for browsing the user's own archive.
+    @Headers("Request-Version: 2")
+    @GET("api/v2/folders/{folderId}/children")
+    fun getFolderChildrenV2(
+        @Path("folderId") folderId: Int,
+        @Query("pageSize") pageSize: Int = MAX_CHILDREN_PAGE_SIZE,
+        @Query("cursor") cursor: String? = null
     ): Call<FolderChildrenResponse>
 
     @POST("api/v2/share-links")
@@ -75,4 +131,21 @@ interface StelaAccountService {
 
     @POST("api/v2/idpuser/disable-two-factor")
     fun disableTwoFactor(@Body twoFAVO: TwoFAVO): Call<ResponseBody>
+
+    companion object {
+        // Interim page size for getFolderChildrenV2: request the whole folder in a
+        // single page (cursor pagination deferred — nextCursor is non-null even on a
+        // complete page, so loop termination is unreliable). Same value iOS ships.
+        const val MAX_CHILDREN_PAGE_SIZE = 99999999
+
+        // Paged children listing, same page size as iOS.
+        const val CHILDREN_PAGE_SIZE = 10
+
+        // The archives search requires a query or a role; passing every role resolves
+        // the selected archive whatever the caller's role on it. One page sized above
+        // any realistic membership count — more archives than that falls back to the
+        // V1 getRoot bootstrap. Same values iOS ships.
+        val ALL_MEMBERSHIP_ROLES = AccessRole.values().map { it.lowerCase() }
+        const val ARCHIVES_PAGE_SIZE = 100
+    }
 }

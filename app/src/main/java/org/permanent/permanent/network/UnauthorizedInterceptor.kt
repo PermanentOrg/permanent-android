@@ -11,6 +11,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.Constants
 import org.permanent.permanent.Constants.Companion.ERROR_MFA_TOKEN
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.PREFS_NAME
@@ -32,8 +33,18 @@ class UnauthorizedInterceptor : Interceptor {
         val request: Request = chain.request()
         val requestUrl = request.url.toString()
         val response = chain.proceed(request)
+        val isStelaUrl = requestUrl.contains(BuildConfig.BASE_API_URL_STELA)
 
-        if (requestUrl.contains(BuildConfig.BASE_API_URL)
+        // response.request carries the bearer the next interceptor attached.
+        if (response.code == 401 && isStelaUrl && response.request.header("Authorization") != null) {
+            StelaAuthState.isBearerRejected = true
+        }
+
+        val isOnV1Host = requestUrl.contains(BuildConfig.BASE_API_URL)
+        // Today a Stela 401 must fall through to the V1 failsafe — see the flag's kdoc.
+        val isOnStelaHost = FeatureFlags.treatStelaUnauthorizedAsSessionExpiry && isStelaUrl
+
+        if ((isOnV1Host || isOnStelaHost)
             && !requestUrl.contains(Constants.LOGIN_URL_SUFFIX)
         ) {
             response.body?.let { responseBody ->

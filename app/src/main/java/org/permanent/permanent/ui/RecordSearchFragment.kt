@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentRecordSearchBinding
 import org.permanent.permanent.models.FileSessionData
@@ -21,6 +22,8 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.fileView.FileActivity
 import org.permanent.permanent.ui.fileView.FileInfoFragment
+import org.permanent.permanent.ui.myFiles.ListFooter
+import org.permanent.permanent.ui.myFiles.PagedListController
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
 import org.permanent.permanent.viewmodels.RecordSearchViewModel
 
@@ -29,6 +32,7 @@ class RecordSearchFragment : PermanentBaseFragment() {
     private lateinit var viewModel: RecordSearchViewModel
     private lateinit var recordsRecyclerView: RecyclerView
     private lateinit var recordsListAdapter: RecordsListAdapter
+    private var pagedList: PagedListController? = null
     private var recordToView: Record? = null
 
     override fun onCreateView(
@@ -114,6 +118,15 @@ class RecordSearchFragment : PermanentBaseFragment() {
             isForSearchScreen = true,
             recordListener = viewModel
         )
+        if (FeatureFlags.useStelaMigration) {
+            pagedList = PagedListController(
+                recordsRecyclerView,
+                onEndReached = { viewModel.onListEndReached() },
+                onRetry = { viewModel.onRetryNextPageClick() }
+            ).also { it.attach(recordsListAdapter, isGrid = false) }
+            recordsRecyclerView.setHasFixedSize(true)
+            return
+        }
         recordsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = recordsListAdapter
@@ -121,10 +134,20 @@ class RecordSearchFragment : PermanentBaseFragment() {
         }
     }
 
+    private val onRecordsAppended = Observer<List<Record>> {
+        recordsListAdapter.appendRecords(it)
+    }
+
+    private val onListFooter = Observer<ListFooter> {
+        pagedList?.setFooter(it)
+    }
+
     override fun connectViewModelEvents() {
         viewModel.getOnShowMessage().observe(this, onShowMessage)
         viewModel.getOnVisibleTagsReady().observe(this, onVisibleTagsReady)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
+        viewModel.getOnRecordsAppended().observe(this, onRecordsAppended)
+        viewModel.getListFooter().observe(this, onListFooter)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
     }
 
@@ -132,6 +155,8 @@ class RecordSearchFragment : PermanentBaseFragment() {
         viewModel.getOnShowMessage().removeObserver(onShowMessage)
         viewModel.getOnVisibleTagsReady().removeObserver(onVisibleTagsReady)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
+        viewModel.getOnRecordsAppended().removeObserver(onRecordsAppended)
+        viewModel.getListFooter().removeObserver(onListFooter)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
     }
 

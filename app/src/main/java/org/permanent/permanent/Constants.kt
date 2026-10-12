@@ -19,6 +19,9 @@ class Constants {
         const val STRIPE_URL = "https://api.stripe.com/v1/payment_intents"
         const val MY_FILES_FOLDER = "My Files"
         const val PUBLIC_FILES_FOLDER = "Public"
+        // Section-root folder types on the V2 wire, post-mapper normalization.
+        const val MY_FILES_FOLDER_TYPE = "type.folder.private-root"
+        const val PUBLIC_FILES_FOLDER_TYPE = "type.folder.public-root"
         const val PRIVATE_FILES = "Private Files"
         const val PUBLIC_FILES = "Public Files"
         const val MEDIA_TYPE_JSON = "application/json;charset=UTF-8"

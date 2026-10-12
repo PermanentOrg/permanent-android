@@ -1,11 +1,8 @@
 package org.permanent.permanent.network.models
 
-data class RecordResponse(val data: RecordDataDTO?)
-
-data class RecordDataDTO(
-    val recordId: String?,
-    val pendingShares: List<PendingShareDTO>?
-)
+// GET /v2/records/{id}: a record is the children record-item shape plus detail fields.
+// A miss or an unauthorized read answers 200 with no data key.
+data class RecordResponse(val data: ItemDTO?)
 
 data class PendingShareDTO(
     val id: String?,

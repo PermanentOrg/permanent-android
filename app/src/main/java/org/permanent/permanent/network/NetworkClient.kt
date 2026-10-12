@@ -35,10 +35,14 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
+import org.permanent.permanent.network.models.ArchivesV2Response
 import org.permanent.permanent.network.models.ChecklistResponse
+import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.network.models.FolderChildrenResponse
+import org.permanent.permanent.network.models.FolderPatchResponse
 import org.permanent.permanent.network.models.FolderResponse
+import org.permanent.permanent.network.models.FoldersResponse
 import org.permanent.permanent.network.models.GetPresignedUrlResponse
 import org.permanent.permanent.network.models.InviteSharePayload
 import org.permanent.permanent.network.models.InviteVO
@@ -853,10 +857,38 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         pageSize: Int = 99999999
     ): Call<FolderChildrenResponse> = stelaAccountService.getFolderChildren(shareToken, folderId, pageSize)
 
+    fun getFolderChildrenV2(
+        folderId: Int,
+        pageSize: Int = StelaAccountService.MAX_CHILDREN_PAGE_SIZE,
+        cursor: String? = null
+    ): Call<FolderChildrenResponse> =
+        stelaAccountService.getFolderChildrenV2(folderId, pageSize, cursor)
+
+    fun getArchivesV2(): Call<ArchivesV2Response> = stelaAccountService.getArchives()
+
     fun getRecordV2(recordId: Int): Call<RecordResponse> = stelaAccountService.getRecord(recordId)
+
+    fun copyRecordV2(recordId: Int, destinationFolderId: Int): Call<Void> =
+        stelaAccountService.copyRecord(recordId, CopyRecordV2Request(destinationFolderId.toString()))
+
+    fun patchRecordV2(recordId: Int, body: JSONObject): Call<Void> =
+        stelaAccountService.patchRecord(recordId, body.toString().toRequestBody(jsonMediaType))
+
+    fun patchFolderV2(folderId: Int, body: JSONObject): Call<FolderPatchResponse> =
+        stelaAccountService.patchFolder(folderId, body.toString().toRequestBody(jsonMediaType))
+
+    fun sortFolder(folderLinkId: Int, sort: String): Call<ResponseVO> {
+        val request = toJson(RequestContainer().addFolder(folderLinkId, sort))
+        val requestBody: RequestBody = request.toRequestBody(jsonMediaType)
+        return fileService.sortFolder(requestBody)
+    }
 
     fun getFolderV2(folderId: Int, shareToken: String? = null): Call<FolderResponse> =
         stelaAccountService.getFolder(shareToken, folderId)
+
+    // pageSize = the id count: one page covers every requested folder, no cursor needed.
+    fun getFoldersV2(folderIds: List<Int>): Call<FoldersResponse> =
+        stelaAccountService.getFolders(folderIds, folderIds.size)
 
     fun generateShareLink(shareLink: ShareLinkVO): Call<ShareLinkResponse> = stelaAccountService.generateShareLink(shareLink)
 

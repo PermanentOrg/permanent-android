@@ -4,19 +4,26 @@ import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.network.IRecordListener
+import org.permanent.permanent.network.StelaAuthState
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ResponseVO
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.myFiles.FolderChildrenPager
+import org.permanent.permanent.ui.myFiles.ListFooter
+import org.permanent.permanent.ui.myFiles.PagedFolderChildren
+import org.permanent.permanent.ui.myFiles.listingFailureMessage
 import org.permanent.permanent.ui.myFiles.SortType
 import retrofit2.Call
 import retrofit2.Callback
@@ -24,6 +31,7 @@ import retrofit2.Response
 
 class PublicArchiveViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
+    private val TAG = PublicArchiveViewModel::class.java.simpleName
     private val appContext = application.applicationContext
     private val prefsHelper = PreferencesHelper(
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -37,6 +45,15 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
     private val onFolderViewRequest = SingleLiveEvent<Record>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var archiveNr: String? = null
+    val usesPagedList get() = FeatureFlags.useStelaMigration
+    private var isListing = false
+    private var listedArchiveNr: String? = null
+    private var listedFolderLinkId: Int? = null
+    private val pager by lazy {
+        PagedFolderChildren(fileRepository, prepareRecords = ::stampParentArchiveNr) {
+            currentFolder?.let { loadFilesOf(it, wholeFolder = true) }
+        }
+    }
 
     fun setArchiveNr(archiveNr: String?) {
         this.archiveNr = archiveNr
@@ -61,34 +78,122 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
         })
     }
 
-    private fun loadFilesOf(record: Record) {
-        if (isBusy.value != null && isBusy.value!!) {
+    private fun loadFilesOf(record: Record, wholeFolder: Boolean = false) {
+        if (isListing || isBusy.value == true) {
             return
         }
         val archiveNr = record.archiveNr
         val folderLinkId = record.folderLinkId
         if (archiveNr != null && folderLinkId != null) {
-            isBusy.value = true
-            fileRepository.getChildRecordsOf(archiveNr,
-                folderLinkId,
-                SortType.NAME_ASCENDING?.toBackendString(),
-                object : IFileRepository.IOnRecordsRetrievedListener {
+            // Public Gallery navigation (VSP-1810) takes the Stela V2 children endpoint
+            // when the migration flag is on, with V1 as an automatic failsafe. Root
+            // discovery stays V1 getPublicRoot (V2 has no root route for a foreign
+            // archive), and a deep-linked folder synthesized without a folderId falls
+            // through to V1 here.
+            val folderId = record.folderId
+            if (StelaAuthState.isV2ReadEnabled && folderId != null && folderId > 0) {
+                loadFilesOfV2(folderId, archiveNr, folderLinkId, wholeFolder)
+            } else {
+                loadFilesOfV1(archiveNr, folderLinkId)
+            }
+        } else {
+            // The folder can't be listed without its V1 address — report it instead
+            // of silently ignoring the navigation.
+            if (BuildConfig.DEBUG) Log.w(
+                TAG,
+                "Navigation dropped: record missing V1 ids (archiveNr=$archiveNr, folderLinkId=$folderLinkId)"
+            )
+            showMessage.value = appContext.getString(R.string.generic_error)
+        }
+    }
 
-                    override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
-                        isBusy.value = false
-                        existsRecords.value = !recordVOs.isNullOrEmpty()
+    private fun loadFilesOfV1(archiveNr: String, folderLinkId: Int) {
+        startListing(archiveNr, folderLinkId)
+        fileRepository.getChildRecordsOf(archiveNr,
+            folderLinkId,
+            SortType.NAME_ASCENDING?.toBackendString(),
+            object : IFileRepository.IOnRecordsRetrievedListener {
+
+                override fun onSuccess(parentFolderName: String?, recordVOs: List<RecordVO>?) {
+                    endListing()
+                    existsRecords.value = !recordVOs.isNullOrEmpty()
+                    if (usesPagedList) {
+                        val records = recordVOs?.let { getRecords(it, archiveNr) } ?: mutableListOf()
+                        pager.commitWholeFolder(records)
+                        onRecordsRetrieved.value = records
+                    } else {
                         recordVOs?.let {
                             onRecordsRetrieved.value = getRecords(recordVOs, archiveNr)
                         }
                     }
+                }
 
-                    override fun onFailed(error: String?) {
-                        isBusy.value = false
-                        showMessage.value = error
-                    }
-                })
-        }
+                override fun onFailed(error: String?) {
+                    endListing()
+                    if (usesPagedList) pager.onListingFailed()
+                    showMessage.value = listingFailureMessage(appContext)
+                }
+            })
     }
+
+    // Stela V2 navigation, page by page in the server's order. At most one listing is in
+    // flight (the guard in loadFilesOf); a next page in flight is dropped by the pager.
+    private fun loadFilesOfV2(
+        folderId: Int, archiveNr: String, folderLinkId: Int, wholeFolder: Boolean
+    ) {
+        val isRefresh = startListing(archiveNr, folderLinkId)
+        pager.list(folderId, wholeFolder, isRefresh,
+            object : FolderChildrenPager.ListingListener {
+
+                override fun onSuccess(records: List<Record>) {
+                    endListing()
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Children of folder $folderId served by V2")
+                    stampParentArchiveNr(records)
+                    existsRecords.value = records.isNotEmpty()
+                    pager.commit(records)
+                    onRecordsRetrieved.value = records.toMutableList()
+                }
+
+                override fun onFailed(error: String?) {
+                    endListing()
+                    if (BuildConfig.DEBUG) Log.d(
+                        TAG, "V2 children of folder $folderId failed ($error), falling back to V1"
+                    )
+                    loadFilesOfV1(archiveNr, folderLinkId)
+                }
+            })
+    }
+
+    // Returns whether this re-lists the folder already shown. A paged first listing shows
+    // skeleton rows instead of the spinner; a re-list keeps the rows and the spinner.
+    private fun startListing(archiveNr: String, folderLinkId: Int): Boolean {
+        val isRefresh = usesPagedList && folderLinkId == listedFolderLinkId
+        isListing = true
+        listedArchiveNr = archiveNr
+        listedFolderLinkId = folderLinkId
+        if (usesPagedList && !isRefresh) {
+            pager.startExternalListing(showsSkeleton = true)
+            existsRecords.value = true
+            onRecordsRetrieved.value = mutableListOf()
+        } else {
+            if (usesPagedList) pager.startExternalListing(showsSkeleton = false)
+            isBusy.value = true
+        }
+        return isRefresh
+    }
+
+    private fun endListing() {
+        isListing = false
+        isBusy.value = false
+    }
+
+    private fun stampParentArchiveNr(records: List<Record>) {
+        records.forEach { it.parentFolderArchiveNr = listedArchiveNr }
+    }
+
+    fun onListEndReached() = pager.loadNextPage()
+
+    fun onRetryNextPageClick() = pager.retryNextPage()
 
     private fun getRecords(
         recordVOs: List<RecordVO>,
@@ -119,7 +224,8 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
             onFolderViewRequest.value = record
         } else {
             record.displayFirstInCarousel = true
-            onFileViewRequest.value = getFilesForViewing(onRecordsRetrieved.value)
+            onFileViewRequest.value =
+                getFilesForViewing(if (usesPagedList) pager.records else onRecordsRetrieved.value)
         }
     }
 
@@ -157,6 +263,10 @@ class PublicArchiveViewModel(application: Application) : ObservableAndroidViewMo
     fun getShowMessage(): LiveData<String> = showMessage
 
     fun getOnRecordsRetrieved(): LiveData<MutableList<Record>> = onRecordsRetrieved
+
+    fun getOnRecordsAppended(): LiveData<List<Record>> = pager.appended
+
+    fun getListFooter(): LiveData<ListFooter> = pager.footer
 
     fun getOnFileViewRequest(): MutableLiveData<ArrayList<Record>> = onFileViewRequest
 

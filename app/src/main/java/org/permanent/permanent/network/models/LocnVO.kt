@@ -5,6 +5,8 @@ import android.os.Parcelable
 
 class LocnVO() : Parcelable {
     var locnId: Int? = null
+    var displayName: String? = null
+    var country: String? = null
     var streetNumber: String? = null
     var streetName: String? = null
     var locality: String? = null
@@ -16,6 +18,8 @@ class LocnVO() : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         locnId = parcel.readValue(Int::class.java.classLoader) as? Int
+        displayName = parcel.readString()
+        country = parcel.readString()
         streetNumber = parcel.readString()
         streetName = parcel.readString()
         locality = parcel.readString()
@@ -28,13 +32,11 @@ class LocnVO() : Parcelable {
 
     fun getUIAddress(): String {
         if (uiAddress.isNullOrEmpty()) {
-            val strName = if (streetName == null) "" else "$streetName, "
-            val localityName = if (locality == null) "" else "$locality, "
-            val adminName = if (adminOneName == null) "" else "$adminOneName, "
-            val countryCodeName = if (countryCode == null) "" else "$countryCode"
-            val addressValue = (streetNumber ?: "") + " " + strName +
-                    localityName + adminName + countryCodeName
-            uiAddress = if (!addressValue.contains("null")) addressValue.trim() else ""
+            // V2 writes store no countryCode, so fall back to the country name.
+            val street = listOfNotNull(streetNumber, streetName).joinToString(" ")
+            uiAddress = listOf(street, locality, adminOneName, countryCode ?: country)
+                .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
+                .joinToString(", ")
         }
 
         return uiAddress!!
@@ -42,6 +44,8 @@ class LocnVO() : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(locnId)
+        parcel.writeString(displayName)
+        parcel.writeString(country)
         parcel.writeString(streetNumber)
         parcel.writeString(streetName)
         parcel.writeString(locality)

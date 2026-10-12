@@ -26,12 +26,14 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.DialogCancelUploadsBinding
 import org.permanent.permanent.databinding.DialogTitleTextTwoButtonsBinding
 import org.permanent.permanent.databinding.FragmentSharedXMeBinding
 import org.permanent.permanent.models.Download
 import org.permanent.permanent.models.FileSessionData
+import org.permanent.permanent.models.NavigationFolder
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.ChecklistItem
@@ -40,10 +42,14 @@ import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
+import org.permanent.permanent.ui.boundsOnScreen
+import org.permanent.permanent.ui.fadeInOnScroll
 import org.permanent.permanent.ui.myFiles.AddOptionsFragment
+import org.permanent.permanent.ui.myFiles.ListFooter
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.MyFilesFragment
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
+import org.permanent.permanent.ui.myFiles.PagedListController
 import org.permanent.permanent.ui.myFiles.RecordsAdapter
 import org.permanent.permanent.ui.myFiles.RecordsGridAdapter
 import org.permanent.permanent.ui.myFiles.RecordsListAdapter
@@ -57,6 +63,7 @@ import org.permanent.permanent.ui.myFiles.checklist.toChecklistType
 import org.permanent.permanent.ui.myFiles.download.DownloadsAdapter
 import org.permanent.permanent.ui.openLink
 import org.permanent.permanent.ui.public.PublicFragment
+import org.permanent.permanent.ui.recordMenu.RecordMenuAnchor
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
 import org.permanent.permanent.ui.recordMenu.SelectionMenuFragment
@@ -69,12 +76,14 @@ class SharedXMeFragment : PermanentBaseFragment() {
 
     private lateinit var viewModel: SharedXMeViewModel
     private lateinit var binding: FragmentSharedXMeBinding
+    private var shownFolder: NavigationFolder? = null
     private lateinit var downloadsRecyclerView: RecyclerView
     private lateinit var downloadsAdapter: DownloadsAdapter
     private lateinit var recordsRecyclerView: RecyclerView
     private lateinit var recordsAdapter: RecordsAdapter
     private lateinit var recordsListAdapter: RecordsListAdapter
     private lateinit var recordsGridAdapter: RecordsGridAdapter
+    private var pagedList: PagedListController? = null
     private var nameInputFragment: NameInputFragment? = null
     private lateinit var record: Record
     private lateinit var prefsHelper: PreferencesHelper
@@ -128,6 +137,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
             val showScreenSimplified = getBoolean(SHOW_SCREEN_SIMPLIFIED_KEY)
             if (showScreenSimplified) viewModel.setShowScreenSimplified()
         }
+        // Selects the tab's role source.
+        viewModel.setIsSharedByMe(!isSharedWithMeFragment)
 
         val displayMetrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -166,11 +177,12 @@ class SharedXMeFragment : PermanentBaseFragment() {
         addOptionsFragment?.getOnRefreshFolder()?.observe(this, onRefreshFolder)
     }
 
-    private val onShowRecordMenuFragment = Observer<Record> {
-        this.record = it
+    private val onShowRecordMenuFragment = Observer<Pair<Record, RecordMenuAnchor?>> { (record, anchor) ->
+        this.record = record
         recordMenuFragment = RecordMenuFragment()
         recordMenuFragment?.setBundleArguments(
-            record, Workspace.SHARES, isSharedWithMeFragment, viewModel.isRoot.value ?: false
+            record, Workspace.SHARES, isSharedWithMeFragment, viewModel.isRoot.value ?: false,
+            anchor = anchor?.withRoundWashOut(binding.fabAdd, binding.fabChecklist)
         )
         recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
         recordMenuFragment?.getOnRecordLeaveShareRequest()?.observe(this, onRecordLeaveShareObserver)
@@ -205,18 +217,45 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     private val onRecordsRetrieved = Observer<MutableList<Record>> {
+        scrollToTopOnFolderChange(viewModel.currentFolder.value)
         recordsAdapter.setRecords(it)
+    }
+
+    // A refresh keeps the same NavigationFolder instance, so only navigation resets the scroll.
+    // The root shares list has no folder (null).
+    private fun scrollToTopOnFolderChange(folder: NavigationFolder?) {
+        if (folder === shownFolder) return
+        shownFolder = folder
+        scrollToTop()
+    }
+
+    private fun scrollToTop() {
+        binding.appBarLayout.setExpanded(true, false)
+        binding.rvShares.scrollToPosition(0)
     }
 
     private val onNewTemporaryFiles = Observer<MutableList<Record>> {
         recordsAdapter.addRecords(it)
     }
 
+    private val onRecordsAppended = Observer<List<Record>> {
+        recordsAdapter.appendRecords(it)
+    }
+
+    private val onListFooter = Observer<ListFooter> {
+        pagedList?.setFooter(it)
+    }
+
     private val onRootSharesNeeded = Observer<Void?> { getRootRecords.call() }
 
     private val onChangeViewMode = Observer<Boolean> { isListViewMode ->
         val records = recordsAdapter.getRecords()
-        recordsRecyclerView.apply {
+        val pagedList = pagedList
+        if (pagedList != null) {
+            recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
+            pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
+            recordsAdapter.setRecords(records)
+        } else recordsRecyclerView.apply {
             if (isListViewMode) {
                 layoutManager = LinearLayoutManager(context)
                 recordsAdapter = recordsListAdapter
@@ -409,6 +448,18 @@ class SharedXMeFragment : PermanentBaseFragment() {
         )
         val isListViewMode = prefsHelper.isListViewMode()
         viewModel.setIsListViewMode(isListViewMode)
+        if (FeatureFlags.useStelaMigration) {
+            val pagedList = PagedListController(
+                recordsRecyclerView,
+                onEndReached = viewModel::onListEndReached,
+                onRetry = viewModel::onRetryNextPageClick
+            )
+            this.pagedList = pagedList
+            binding.rvShares.fadeInOnScroll(binding.vStickyFade)
+            recordsAdapter = if (isListViewMode) recordsListAdapter else recordsGridAdapter
+            pagedList.attach(recordsAdapter, isGrid = !isListViewMode)
+            return
+        }
         recordsRecyclerView.apply {
             if (isListViewMode) {
                 recordsAdapter = recordsListAdapter
@@ -434,6 +485,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
     }
 
     fun setShares(records: MutableList<Record>) {
+        scrollToTopOnFolderChange(null)
         recordsAdapter.setRecords(records)
         viewModel.isRoot.value = true
         viewModel.existsFiles.value = true
@@ -449,13 +501,16 @@ class SharedXMeFragment : PermanentBaseFragment() {
 
     private val onShowSortOptionsFragment = Observer<SortType> {
         sortOptionsFragment = SortOptionsFragment()
-        sortOptionsFragment?.setBundleArguments(it)
+        val anchor = if (FeatureFlags.useStelaMigration) binding.llSortRow.boundsOnScreen() else null
+        sortOptionsFragment?.setBundleArguments(it, anchor)
         sortOptionsFragment?.show(parentFragmentManager, sortOptionsFragment?.tag)
         sortOptionsFragment?.getOnSortRequest()?.observe(this, onSortRequest)
     }
 
     private val onSortRequest = Observer<SortType> {
         viewModel.setSortType(it)
+        // A new sort lists from page 1, so the list starts from the top.
+        if (FeatureFlags.useStelaMigration) scrollToTop()
     }
 
     private fun checkForViewModeChange() {
@@ -475,6 +530,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadFinished().observe(this, onDownloadFinished)
         viewModel.getOnRecordsRetrieved().observe(this, onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().observe(this, onNewTemporaryFiles)
+        viewModel.getOnRecordsAppended().observe(this, onRecordsAppended)
+        viewModel.getListFooter().observe(this, onListFooter)
         viewModel.getOnRootSharesNeeded().observe(this, onRootSharesNeeded)
         viewModel.getOnFileViewRequest().observe(this, onFileViewRequest)
         viewModel.getShowRelocationCancellationDialog()
@@ -501,6 +558,8 @@ class SharedXMeFragment : PermanentBaseFragment() {
         viewModel.getOnDownloadFinished().removeObserver(onDownloadFinished)
         viewModel.getOnRecordsRetrieved().removeObserver(onRecordsRetrieved)
         viewModel.getOnNewTemporaryFiles().removeObserver(onNewTemporaryFiles)
+        viewModel.getOnRecordsAppended().removeObserver(onRecordsAppended)
+        viewModel.getListFooter().removeObserver(onListFooter)
         viewModel.getOnRootSharesNeeded().removeObserver(onRootSharesNeeded)
         viewModel.getOnFileViewRequest().removeObserver(onFileViewRequest)
         viewModel.getShowRelocationCancellationDialog().removeObserver(relocationCancellationObserver)

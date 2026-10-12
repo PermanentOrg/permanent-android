@@ -17,4 +17,5 @@ class ItemVO {
     var ShareVOs: List<ShareVO>? = null
     var status: String? = null
     var FileVOs: List<FileVO>? = null
+    var sort: String? = null
 }

@@ -22,6 +22,8 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 
 const val WORKER_INPUT_RECORD_ID_KEY = "worker_input_record_id"
+const val WORKER_INPUT_ARCHIVE_ID_KEY = "worker_input_archive_id"
+const val WORKER_INPUT_ALLOWS_FOREIGN_STELA_DETAIL_KEY = "worker_input_allows_foreign_stela_detail"
 const val DOWNLOAD_PROGRESS = "download_progress"
 class DownloadWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
@@ -49,8 +51,11 @@ class DownloadWorker(val context: Context, workerParams: WorkerParameters)
         val folderLinkId = inputData.getInt(WORKER_INPUT_FOLDER_LINK_ID_KEY, 0)
         val recordId = inputData.getInt(WORKER_INPUT_RECORD_ID_KEY, 0)
 
-        val fileData = fileRepository.getRecord(folderLinkId, recordId
-        ).execute().body()?.getFileData()
+        val fileData = fileRepository.getFileDataBlocking(
+            recordId, folderLinkId,
+            inputData.getInt(WORKER_INPUT_ARCHIVE_ID_KEY, -1),
+            inputData.getBoolean(WORKER_INPUT_ALLOWS_FOREIGN_STELA_DETAIL_KEY, false)
+        )
 
         val downloadURL = fileData?.downloadURL
         val fileName = fileData?.fileName

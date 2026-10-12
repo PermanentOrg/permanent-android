@@ -33,8 +33,10 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.ConfirmationDialogFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.drawBehindSystemBars
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
+import org.permanent.permanent.ui.recordMenu.compose.RecordMenuPopup
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuScreen
 import org.permanent.permanent.ui.shareManagement.ShareLinkFragment
 import org.permanent.permanent.viewmodels.RecordMenuItem
@@ -44,6 +46,7 @@ const val SHOWN_IN_WHICH_WORKSPACE = "shown_in_which_workspace_key"
 const val IS_SHOWN_IN_SHARED_WITH_ME = "is_shown_in_shared_with_me_key"
 const val IS_SHOWN_IN_ROOT_FOLDER = "is_shown_in_root_folder_key"
 const val CURRENT_ARCHIVE_NR = "current_archive_nr_key"
+const val RECORD_MENU_ANCHOR = "record_menu_anchor_key"
 
 class RecordMenuFragment : PermanentBottomSheetFragment() {
     private lateinit var record: Record
@@ -55,13 +58,15 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     private val onRecordDeleteRequest = MutableLiveData<Record>()
     private val viewModel: RecordMenuViewModel by viewModels()
     private var pendingConfirmationItem: RecordMenuItem? = null
+    private val anchor: RecordMenuAnchor? by lazy { arguments?.getParcelable(RECORD_MENU_ANCHOR) }
 
     fun setBundleArguments(
         record: Record,
         workspace: Workspace,
         isShownInSharedWithMe: Boolean = false,
         isShownInRootFolder: Boolean = false,
-        currentArchiveNr: String? = null
+        currentArchiveNr: String? = null,
+        anchor: RecordMenuAnchor? = null
     ) {
         val bundle = Bundle()
         bundle.putParcelable(PARCELABLE_RECORD_KEY, record)
@@ -69,10 +74,17 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         bundle.putBoolean(IS_SHOWN_IN_SHARED_WITH_ME, isShownInSharedWithMe)
         bundle.putBoolean(IS_SHOWN_IN_ROOT_FOLDER, isShownInRootFolder)
         bundle.putString(CURRENT_ARCHIVE_NR, currentArchiveNr)
+        bundle.putParcelable(RECORD_MENU_ANCHOR, anchor)
         this.arguments = bundle
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        if (anchor != null) {
+            return Dialog(requireContext(), android.R.style.Theme_Translucent_NoTitleBar).apply {
+                window?.drawBehindSystemBars(activity?.window)
+            }
+        }
+
         val dialog = BottomSheetDialog(requireContext(), theme)
 
         dialog.setOnShowListener { d ->
@@ -120,14 +132,24 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             MaterialTheme {
-                Surface(
-                    shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-                ) {
-                    RecordMenuScreen(
+                val popupAnchor = anchor
+                if (popupAnchor != null) {
+                    RecordMenuPopup(
                         viewModel = viewModel,
+                        anchor = popupAnchor,
                         onItemClick = { item -> handleMenuClick(item) },
-                        onClose = { dismiss() }
+                        onDismiss = { dismiss() }
                     )
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                    ) {
+                        RecordMenuScreen(
+                            viewModel = viewModel,
+                            onItemClick = { item -> handleMenuClick(item) },
+                            onClose = { dismiss() }
+                        )
+                    }
                 }
             }
         }
@@ -177,27 +199,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 dismiss()
             }
             else -> {}
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        val dialog = dialog ?: return
-        val bottomSheet =
-            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-                ?: return
-        val behavior = BottomSheetBehavior.from(bottomSheet)
-
-        // Allow dynamic height
-        bottomSheet.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        behavior.peekHeight = BottomSheetBehavior.PEEK_HEIGHT_AUTO
-        behavior.isFitToContents = true
-        behavior.skipCollapsed = true
-
-        // Expand naturally
-        bottomSheet.post {
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
