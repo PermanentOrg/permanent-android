@@ -108,11 +108,11 @@
 <header>
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
-  <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (staging flavor ON — any build type / production OFF, per iOS PRs #575/#580) ·
-  Updated <strong>2026-10-06</strong> · edit by hand, one item per surface.
+  <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (ON in staging and, from release 1.18.0, in production) ·
+  Updated <strong>2026-10-09</strong> · edit by hand, one item per surface.
   QA cross-check (Sergiu, iOS V1-vs-V2 sweep, 2026-08-26): 145 V2 calls vs 8 V1 — every remaining V1 call maps to a documented gap on this board (uploads, public/deep-link roots, own-archive public root — migrated since on Android, VSP-1839, V1 failsafe).
-  <strong>Storage purchases (VSP-1792) are the exception to the flag:</strong> they ship from <code>master</code> to production, gated by a Remote Config kill switch (first row below).
-  Note: iOS currently ships its flag <strong>OFF in every build</strong> (1.16.0 deferred the epic; re-enable with <code>--forceStelaNavigation</code> on debug/staging) — force it on for cross-platform QA.</p>
+  <strong>Storage purchases (VSP-1792) are not behind the flag:</strong> a Remote Config kill switch gates them (first row below).
+  iOS removed its flag in Release-1.17.0 (V2 first, V1 failsafe, no remote switch); Android keeps the flag as a one-line rollback.</p>
 </header>
 
 <div class="cols">
