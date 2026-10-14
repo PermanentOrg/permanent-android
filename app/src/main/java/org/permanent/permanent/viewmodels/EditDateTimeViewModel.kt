@@ -8,9 +8,10 @@ import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import org.permanent.permanent.ui.toLocalDateTimeOrNull
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class EditDateTimeViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -20,23 +21,19 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
     val showMessage = mutableStateOf("")
 
     private val onDateChanged = MutableLiveData<String>()
-    private val currentTime = Calendar.getInstance()
-    var initialDateMilis: Long = currentTime.timeInMillis
-    var initialHour: Int = currentTime.get(Calendar.HOUR_OF_DAY)
-    var initialMinute = currentTime.get(Calendar.MINUTE)
+    private val now = LocalDateTime.now()
+    // The Material3 DatePicker works in UTC-midnight millis.
+    var initialDateMilis: Long = now.toLocalDate().toUtcMillis()
+    var initialHour: Int = now.hour
+    var initialMinute = now.minute
 
     fun setRecords(records: ArrayList<Record>) {
         this.records.addAll(records)
-        records.firstOrNull()?.displayDate?.let {
-            val dateFormat = "yyyy-MM-dd HH:mm:ss"
-            extractDateHourMinute(it, dateFormat)
-        }
+        records.firstOrNull()?.shownDate?.let { seedPicker(it) }
     }
 
     fun updateDate(dateString: String) {
-        this.records.forEach {
-            it.displayDate = dateString
-        }
+        this.records.forEach { it.setEditedDate(dateString) }
         applyChanges(dateString)
     }
 
@@ -45,8 +42,7 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
             return
         }
         isBusy.value = true
-        fileRepository.updateMultipleRecords(records = records,
-            isFolderRecordType = false,
+        fileRepository.updateRecordDates(records,
             object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     isBusy.value = false
@@ -65,21 +61,15 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
 
     fun getOnDateChanged() = onDateChanged
 
-    private fun extractDateHourMinute(dateString: String, dateFormat: String) {
-        val simpleDateFormat = SimpleDateFormat(dateFormat, Locale.getDefault())
-        val date = simpleDateFormat.parse(dateString)
-
-        val hourFormatter = SimpleDateFormat("HH", Locale.getDefault())
-        val minuteFormatter = SimpleDateFormat("mm", Locale.getDefault())
-
-         date?.time?.let {
-             initialDateMilis = it
-        }
-        hourFormatter.format(date).toIntOrNull()?.let {
-            initialHour = it
-        }
-        minuteFormatter.format(date).toIntOrNull()?.let {
-            initialMinute = it
+    // Values that are not a full date (e.g. "1985", "1985-10~") keep the defaults.
+    private fun seedPicker(shownDate: String) {
+        val dateTime = shownDate.toLocalDateTimeOrNull() ?: return
+        initialDateMilis = dateTime.toLocalDate().toUtcMillis()
+        if (shownDate.length > 10) {
+            initialHour = dateTime.hour
+            initialMinute = dateTime.minute
         }
     }
+
+    private fun LocalDate.toUtcMillis(): Long = atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 }

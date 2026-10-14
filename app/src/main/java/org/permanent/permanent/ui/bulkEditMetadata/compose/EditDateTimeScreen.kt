@@ -45,9 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
 import org.permanent.permanent.viewmodels.EditDateTimeViewModel
-import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
-import java.util.Date
+import java.time.ZoneOffset
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -255,18 +255,11 @@ fun TimePickerDialog(
     )
 }
 
-fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return formatter.format(Date(millis))
-}
+fun convertMillisToDate(millis: Long): String =
+    Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate().toString()
 
-fun convertTimeToString(hour: Int, min: Int, sec: Int): String {
-    val hourString = String.format("%02d", hour)
-    val minString = String.format("%02d", min)
-    val secString = String.format("%02d", sec)
-
-    return "$hourString:$minString:$secString"
-}
+fun convertTimeToString(hour: Int, min: Int, sec: Int): String =
+    "%02d:%02d:%02d".format(Locale.US, hour, min, sec)
 
 @OptIn(ExperimentalMaterial3Api::class)
 private object PastOrPresentSelectableDates: SelectableDates {

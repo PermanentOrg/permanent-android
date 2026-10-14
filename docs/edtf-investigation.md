@@ -86,6 +86,12 @@ Source-verified 2026-08-26 against `PermanentOrg/stela` @ `b772396f` (HEAD of ma
 
 Verified in this repo on 2026-08-26 (branch `feature/VSP-1790`).
 
+> **Update 2026-10-13 (VSP-1726, Stage 0):** this section is a snapshot. Since then the app has
+> `PATCH /v2/records/{id}` (VSP-1841) and `PATCH /v2/folders/{id}` plumbing, decodes
+> `displayTime` (shown first, Level 0 reshaped, anything else verbatim), and writes record dates
+> as EDTF Level 0 `displayTime`. Current state: `docs/stela/folders-children-contract.md`
+> § "Display date/time".
+
 - **No EDTF anywhere.** Zero occurrences of "edtf" in source, docs, or build files.
 - **Dates are opaque strings end-to-end.** Inbound: `.replace("T", " ")` and store verbatim (`mapper/ItemMapper.kt:52`, `models/Record.kt:84`). Outbound: V1 only, raw passthrough of `displayDT` (`network/RequestContainer.kt:228,290`). There is **no V2 PATCH** for records or folders in `StelaAccountService.kt`, and `displayEndDate` / `displayTime` appear nowhere in Android source.
 - **Two divergent edit surfaces.** Compose bulk editor (`ui/bulkEditMetadata/compose/EditDateTimeScreen.kt`) emits `"yyyy-MM-dd HH:mm:ss"`; classic-View File Info (`viewmodels/FileInfoViewModel.kt:58`) emits unpadded `"$year-${month+1}-$day"` — a pre-existing bug (see §8 follow-ups). No folder display-date UI exists.
@@ -244,7 +250,7 @@ The wrapper (single Kotlin file, est. 150–250 lines) absorbs the five verified
 Phased effort:
 
 - **Phase 1 (unblocks VSP-1830 and the VSP-1765 background formatting): ~2–3 days.** Dependency + wrapper + golden-corpus unit tests + file the five upstream issues (each already has a minimal repro from this spike).
-- **Phase 2 (inside VSP-1765/VSP-1764, not this ticket):** wire `EdtfConverter` into the new date/time UI and the `displayTime` PATCH path (note: the app has no V2 record/folder PATCH plumbing yet — that's part of those tickets, and the V1 `displayDT` path stays untouched until then).
+- **Phase 2 (inside VSP-1765/VSP-1764, not this ticket):** wire `EdtfConverter` into the new date/time UI and the `displayTime` PATCH path (the V2 PATCH plumbing and Level 0 `displayTime` read/write landed in VSP-1726 — Phase 2 swaps its `toEdtfLevel0()` / `edtfToDisplayDate()` for `EdtfConverter`).
 - Optional: contribute the datetime-offset and qualifier+X fixes upstream and drop wrapper code as releases land.
 
 What it unblocks: VSP-1830 gets its validation rules from the same component checks the wrapper already does; VSP-1765 gets encode/parse/display of every construct in §1 with backend acceptance proven by the corpus.
@@ -257,10 +263,10 @@ What it unblocks: VSP-1830 gets its validation rules from the same component che
 
 Pre-existing issues that EDTF work will collide with (all verified in source, 2026-08-26):
 
-1. `FileInfoViewModel.kt:58` sends unpadded dates (`"2026-8-5"`) with no time — already non-conformant with the app's own de-facto format, invalid EDTF too.
+1. `FileInfoViewModel.kt:58` sends unpadded dates (`"2026-8-5"`) with no time — already non-conformant with the app's own de-facto format, invalid EDTF too. *Fixed in VSP-1726 (zero-padded).*
 2. `toDisplayDate()` (`Extensions.kt:146`) silently renders any unexpected shape as an empty string — reduced-precision EDTF values (`2016`, `2016-05`) would show blank.
 3. Date sort is lexicographic on the raw string (`SortType.kt:28`) — mixed-precision EDTF sorts wrong.
-4. The V2 single-record read (`network/models/RecordResponse.kt`) decodes no date field at all.
+4. The V2 single-record read (`network/models/RecordResponse.kt`) decodes no date field at all. *Fixed: `displayDate` since VSP-1840, `displayTime` since VSP-1726.*
 
 ---
 

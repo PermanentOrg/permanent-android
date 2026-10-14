@@ -109,7 +109,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
         _recordName.value = record.displayName ?: ""
         _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
-        _recordDate.value = record.displayDate.toDisplayDate()
+        _recordDate.value = record.shownDate.toDisplayDate()
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 ?: "" else ""
         _archiveThumb.value =
             record.archiveThumbURL200?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""

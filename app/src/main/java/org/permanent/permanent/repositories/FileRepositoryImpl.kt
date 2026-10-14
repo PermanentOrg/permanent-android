@@ -884,14 +884,16 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     ) {
         val sessionArchiveId = stelaPatchSessionArchiveId()
         val fileData = fileDataList.filterNotNull()
-        val patches = if (sessionArchiveId == null || RecordField.DATE in fields ||
-            fileData.size != fileDataList.size ||
+        val patches = if (sessionArchiveId == null || fileData.size != fileDataList.size ||
             !fileData.all { isEligibleForStelaPatch(it.recordId, it.archiveId, sessionArchiveId) }
         ) null
         else fileData.toPatchesOrNull({ it.recordId }) {
-            metadataPatchBody(it.displayName, it.description, fields)
+            metadataPatchBody(it.displayName, it.description, it.displayTime, fields)
         }
-        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
+        patchV2OrV1(
+            patches, R.string.file_info_update_success, listener,
+            retryOnV1 = RecordField.DATE !in fields
+        ) {
             updateRecordsV1(fileDataList, listener)
         }
     }
@@ -950,6 +952,46 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                 listener.onFailed(t.message)
             }
         })
+    }
+
+    override fun updateRecordDates(records: MutableList<Record>, listener: IResponseListener) {
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        val patches = if (sessionArchiveId == null ||
+            !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
+        ) null
+        else records.toPatchesOrNull({ it.stelaRecordId }) { datePatchBody(it.displayTime) }
+        patchV2OrV1(patches, R.string.file_info_update_success, listener, retryOnV1 = false) {
+            updateMultipleRecords(records, isFolderRecordType = false, listener)
+        }
+    }
+
+    override fun updateFolderDisplayTime(
+        folderId: Int, archiveId: Int?, displayTime: String?, listener: IResponseListener
+    ) {
+        val sessionArchiveId = stelaPatchSessionArchiveId()
+        if (sessionArchiveId == null || !isEligibleForStelaPatch(folderId, archiveId, sessionArchiveId)) {
+            listener.onFailed(context.getString(R.string.generic_error))
+            return
+        }
+        val body = JSONObject().put("displayTime", displayTime ?: JSONObject.NULL)
+        NetworkClient.instance().patchFolderV2(folderId, body)
+            .enqueue(object : Callback<FolderPatchResponse> {
+
+                override fun onResponse(
+                    call: Call<FolderPatchResponse>,
+                    response: Response<FolderPatchResponse>
+                ) {
+                    if (response.isSuccessful && response.body()?.data?.displayTime == displayTime) {
+                        listener.onSuccess(null)
+                    } else {
+                        listener.onFailed(context.getString(R.string.generic_error))
+                    }
+                }
+
+                override fun onFailure(call: Call<FolderPatchResponse>, t: Throwable) {
+                    listener.onFailed(t.message)
+                }
+            })
     }
 
     override fun renameRecords(records: MutableList<Record>, listener: IResponseListener) {
@@ -1090,16 +1132,20 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     private fun namePatchBody(displayName: String?): JSONObject? =
         displayName?.takeIf { it.isNotBlank() }?.let { JSONObject().put("displayName", it) }
 
+    private fun datePatchBody(displayTime: String?): JSONObject? =
+        displayTime?.let { JSONObject().put("displayTime", it) }
+
     // Null when a requested field cannot be expressed on V2 or nothing is left to send.
     // A blank description clears (the server rejects "").
     private fun metadataPatchBody(
-        displayName: String?, description: String?, fields: Set<RecordField>
+        displayName: String?, description: String?, displayTime: String?, fields: Set<RecordField>
     ): JSONObject? {
         val body = if (RecordField.NAME in fields) namePatchBody(displayName) ?: return null
         else JSONObject()
         if (RecordField.DESCRIPTION in fields) {
             body.put("description", description?.takeIf { it.isNotBlank() } ?: JSONObject.NULL)
         }
+        if (RecordField.DATE in fields) body.put("displayTime", displayTime ?: return null)
         return body.takeIf { it.length() > 0 }
     }
 
@@ -1112,17 +1158,22 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     ): List<Pair<Int, JSONObject>>? =
         mapNotNull { item -> body(item)?.let { recordId(item) to it } }.takeIf { it.size == size }
 
-    // V2 first; any failure re-applies the same values through the V1 call, which also runs
-    // when there is nothing eligible to PATCH.
+    // V2 first; the V1 call runs when there is nothing eligible to PATCH and, with retryOnV1,
+    // re-applies the same values after a V2 failure. Dates never retry: V1 writes displayDT,
+    // which reads ignore once displayTime is set.
     private fun patchV2OrV1(
         patches: List<Pair<Int, JSONObject>>?,
         successMessageRes: Int,
         listener: IResponseListener,
+        retryOnV1: Boolean = true,
         v1: () -> Unit
     ) {
         if (patches.isNullOrEmpty()) {
             v1()
             return
+        }
+        fun onV2Failure() {
+            if (retryOnV1) v1() else listener.onFailed(context.getString(R.string.generic_error))
         }
         // Serial, stops at the first failure. These PATCHes set values, so re-sending is harmless.
         fun patchNext(index: Int) {
@@ -1133,10 +1184,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             val (recordId, body) = patches[index]
             NetworkClient.instance().patchRecordV2(recordId, body).enqueue(object : Callback<Void> {
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    if (response.isSuccessful) patchNext(index + 1) else v1()
+                    if (response.isSuccessful) patchNext(index + 1) else onV2Failure()
                 }
 
-                override fun onFailure(call: Call<Void>, t: Throwable) = v1()
+                override fun onFailure(call: Call<Void>, t: Throwable) = onV2Failure()
             })
         }
         patchNext(0)

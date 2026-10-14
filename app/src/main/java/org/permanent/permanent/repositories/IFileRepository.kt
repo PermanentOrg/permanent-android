@@ -137,7 +137,7 @@ interface IFileRepository {
         listener: IResponseListener
     )
 
-    // The fields an edit changed: the V2 write carries only these. DATE has no V2 field.
+    // The fields an edit changed: the V2 write carries only these (DATE as displayTime).
     enum class RecordField { NAME, DESCRIPTION, DATE }
 
     fun updateRecords(
@@ -154,6 +154,14 @@ interface IFileRepository {
 
     // Bulk rename: each record's displayName is already set to its new value.
     fun renameRecords(records: MutableList<Record>, listener: IResponseListener)
+
+    // Bulk date: each record's displayTime (V2) and displayDate (V1) are already set.
+    fun updateRecordDates(records: MutableList<Record>, listener: IResponseListener)
+
+    // A null displayTime clears the date.
+    fun updateFolderDisplayTime(
+        folderId: Int, archiveId: Int?, displayTime: String?, listener: IResponseListener
+    )
 
     fun searchRecords(query: String?, tags: List<Tag>, listener: IOnRecordsRetrievedListener)
 

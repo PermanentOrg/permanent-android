@@ -56,10 +56,10 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun setDateMenuName() {
-        records.firstOrNull()?.fileData?.displayDate?.let { firstDate: String ->
-            var sameDate = records.all { it.fileData?.displayDate == firstDate}
+        records.firstOrNull()?.fileData?.shownDate?.let { firstDate: String ->
+            var sameDate = records.all { it.fileData?.shownDate == firstDate}
             if (sameDate) {
-                dateMenuName.value = records.firstOrNull()?.fileData?.displayDate
+                dateMenuName.value = firstDate
             } else {
                 dateMenuName.value = appContext.getString(R.string.various_date_times)
             }

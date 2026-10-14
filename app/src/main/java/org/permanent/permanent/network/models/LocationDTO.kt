@@ -10,4 +10,5 @@ data class LocationDTO(
     val countryCode: String?,
     val latitude: Double?,
     val longitude: Double?,
+    val timezone: String? = null,
 )

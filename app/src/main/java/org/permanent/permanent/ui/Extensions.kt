@@ -35,8 +35,11 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.YearMonth
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.Date
 import java.util.Locale
 
@@ -132,8 +135,11 @@ fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String 
     }.toString()
 }
 
-private val BACKEND_DATE_TIME_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+internal val BACKEND_DATE_TIME_FORMATTER: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US)
+
+private val EDTF_DATE_TIME_FORMATTER: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx", Locale.US)
 
 /**
  * Convert a LocalDate to a backend datetime string.
@@ -152,17 +158,42 @@ fun String.toLocalDateUtc(): LocalDate =
         .atZone(ZoneOffset.UTC)
         .toLocalDate()
 
-fun String?.toDisplayDate(): String {
-    if (this.isNullOrBlank()) return ""
+// "yyyy-MM-dd" (start of day) or "yyyy-MM-dd HH:mm:ss" (trailing fraction/zone ignored), else null.
+fun String.toLocalDateTimeOrNull(): LocalDateTime? = try {
+    if (length == 10) LocalDate.parse(this).atStartOfDay()
+    else LocalDateTime.parse(take(19), BACKEND_DATE_TIME_FORMATTER)
+} catch (e: DateTimeParseException) {
+    null
+}
+
+fun String?.toDisplayDate(): String =
+    this?.toLocalDateTimeOrNull()?.format(DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)) ?: ""
+
+private val EDTF_LEVEL_0 = Regex("""\d{4}(-\d{2}(-\d{2}(T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?)?)?)?""")
+
+// Level 0 EDTF -> the app's "yyyy-MM-dd HH:mm:ss" shape, keeping the wall-clock time as written.
+// Anything else (qualifiers, ranges, unspecified digits, invalid dates) is shown verbatim.
+fun String.edtfToDisplayDate(): String {
+    if (!EDTF_LEVEL_0.matches(this)) return this
+    val local = take(19)
     return try {
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US)
-        val outputFormatter = DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)
-        val date = LocalDateTime.parse(this, inputFormatter)
-        date.format(outputFormatter)
-    } catch (e: Exception) {
-        "" // return empty if parsing fails
+        when (local.length) {
+            7 -> YearMonth.parse(local)
+            10 -> LocalDate.parse(local)
+            19 -> LocalDateTime.parse(local)
+        }
+        local.replace('T', ' ')
+    } catch (e: DateTimeParseException) {
+        this
     }
 }
+
+// The editors' "yyyy-MM-dd" or local "yyyy-MM-dd HH:mm:ss" -> EDTF Level 0. Times carry the
+// device offset at that date, as Web writes them: never "Z", never offset-less.
+fun String.toEdtfLevel0(): String =
+    if (length == 10) this
+    else LocalDateTime.parse(this, BACKEND_DATE_TIME_FORMATTER)
+        .atZone(ZoneId.systemDefault()).format(EDTF_DATE_TIME_FORMATTER)
 
 @SuppressLint("SimpleDateFormat")
 fun Uri.getDisplayName(context: Context): String {

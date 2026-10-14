@@ -429,7 +429,7 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 | `recordId`, `folderId`, `archiveId`, `parentFolderId`, `parentFolderLinkId`, `folderLinkId` | **Numeric strings** (e.g. `"12345"`). Convert to Int at the mapper boundary only, with a `-1` sentinel for missing/non-numeric (`ItemMapper.toRecordV2`). The contract sheet's claim that `folderLinkId` is an integer is wrong — the wire sends strings. |
 | `archiveNumber` | Non-numeric string (e.g. `"0001-test"`) — **never** int-convert. Also available nested as `archive.archiveNumber`. |
 | `displayName` | Same as V1. |
-| `displayDate` / `displayTimestamp` | Split by kind: **records → `displayDate`**, **folders → `displayTimestamp`** (ISO-8601). Normalize with the existing `replace("T", " ")`. `fileCreatedAt`, `createdAt`, `updatedAt` also present. |
+| `displayDate` / `displayTimestamp` | Split by kind: **records → `displayDate`**, **folders → `displayTimestamp`** (ISO-8601). V2 sends them as `…T13:10:00.000Z` (live 2026-10-14); `toV1Timestamp()` normalizes them to `yyyy-MM-dd HH:mm:ss`. `fileCreatedAt`, `createdAt`, `updatedAt` also present. Both are the legacy `displaydt` column; the EDTF `displayTime` (both kinds) is shown first when set — see "Display date/time". |
 | `type` | **Records keep dotted legacy forms** (`type.record.image`); **folders answer new short forms** (`private`; section roots are `private-root`/`public-root`/`app-root` — live-verified 2026-08-20, the earlier `root.private` example here was wrong). Android normalizes folders back to `type.folder.<short>` in the mapper so downstream consumers see V1-shaped values. Confirmed intentional server-side (`prettifyFolderType` in stela). |
 | `status` | Same split: records dotted (`status.generic.ok`), folders short (`ok`, `copying`, `moving`). `copying`/`moving` → item non-tappable (`isProcessing`). There is **no `thumbStatus`** — a file with no thumbnails yet is treated as still processing (same derivation as the shares screen's `Record(ItemVO)`). |
 | `parentFolder { id, folderLinkId }` | **Folders nest** parent info here; **records send it flat** (`parentFolderId`/`parentFolderLinkId`). Resolve flat-then-nested. Added in stela PR #773. |
@@ -866,7 +866,7 @@ a 401), Editor+ on the record (403 otherwise), `Content-Type: application/json` 
 |---|---|---|
 | `displayName` | string, min 1, **not nullable** (`""`/`null` → 400) | rename, File Info name, bulk names; a blank name → not eligible → V1 |
 | `description` | string or `null`; **`""` → 400** (Joi) | File Info, bulk description; a blank description is sent as `null` (clears) |
-| `displayTime` | EDTF Level 2 (`@edtf-ts/core`) or `null` | **never sent** — see "stays V1" |
+| `displayTime` | EDTF Level 2 (`@edtf-ts/core`) or `null` | File Info date, bulk date/time — EDTF Level 0 only; see "Display date/time" |
 | `location` | object `{ name, sublocation, city, state, postalCode, country, latitude, longitude, altitudeMeters, precision, timezone }`, ≥ 1 key; `oxor` with `locationId` | File Info location, bulk location — iOS `toLocationInputPayload` key for key: `name ← displayName`, `sublocation ← "streetNumber streetName"`, `city ← locality`, `state ← adminOneName`, `country ← country`, `latitude`/`longitude` as numbers; empty values omitted |
 | `locationId` | integer or `null` (deprecated in the docs, still accepted) | never sent (iOS pins this) |
 
@@ -912,6 +912,9 @@ the opposite of the copy write, where a retry would duplicate. A V2 401 cannot l
 does set `isBearerRejected`, which is correct once the gate keeps foreign records away (a 401
 then means a dead token). iOS: a PATCH 401 *does* post their session-expiry notification
 (`ignoreErrors = false` on writes) — their safety comes from the gate alone.
+**Exception — dates never retry on V1:** V1 writes the legacy `displayDT`, which reads ignore once
+`displayTime` is set, so a retried date save would look lost. A failed date PATCH shows the
+generic error (`patchV2OrV1(retryOnV1 = false)`).
 
 **Post-edit refresh — unchanged from V1.** Listings refetch (`refreshCurrentFolder` / onResume,
 already V2-gated); File Info and the bulk screens mutate the local `FileData` / `Record`. No
@@ -920,19 +923,16 @@ extra GET (iOS re-reads the record after a details-screen PATCH; Android's V1 ne
 **Which edits carry which fields (Android):** `updateRecords` (File Info and bulk description)
 takes a `Set<IFileRepository.RecordField>` (`NAME`, `DESCRIPTION`, `DATE`) from the caller so the
 V2 body carries only the edited fields — `FileInfoViewModel.saveChanges` computes the changed set
-from its existing three comparisons, bulk description passes `{DESCRIPTION}`; `DATE` in the set →
-V1 directly. Bulk names call the intent-named `renameRecords`; bulk date/time keeps calling the
-untouched V1 `updateMultipleRecords`. The single rename and the two location methods are
+from its existing three comparisons, bulk description passes `{DESCRIPTION}`; `DATE` in the set adds
+`displayTime` to the same PATCH and turns off the V1 retry. Bulk names call the intent-named
+`renameRecords`; bulk date/time calls `updateRecordDates` (same gate, `{displayTime}` per record,
+no V1 retry; ineligible batches keep the V1 `updateMultipleRecords`). The single rename and the two location methods are
 single-intent and gate internally. The `location` body is built by
 `LocnVO.toLocationInputJson()` in `ItemMapper`, next to its inverse `LocationDTO.toLocnVO()`.
 
 **Stays V1 (listed):**
-- **Display date/time** (File Info date pick, bulk date/time): V1 writes the legacy `displayDT`
-  timestamp; the PATCH exposes only EDTF `displayTime` — a different column that the app's
-  listing/detail reads (`displayDate`) do not reflect. iOS identical (in-code comment: "the
-  PATCH exposes only the EDTF column, not the timestamp the Date row shows"). Belongs to the
-  EDTF entry tickets (VSP-1765). *Known pre-existing quirk, untouched: File Info sends an
-  unpadded `yyyy-M-d` (`docs/edtf-investigation.md` §3).*
+- **Display date/time** moved to V2 in VSP-1726 — see "Display date/time". Only date edits on
+  records the gate rejects (foreign records, flag off, rejected bearer) still write V1 `displayDT`.
 - **Folder rename** — `PATCH /v2/folders/{id}` has no `displayName` (see gap 4 / the status
   board); the rename dialog's folder branch is byte-identical to before.
 - **Foreign records** by the gate (Shared With Me content, other archives) — revisit when the
@@ -945,6 +945,59 @@ counterpart** (VSP-1803 lesson); if `ItemVO.archiveId` behaves the same, by-me r
 the gate and silently run V1 (safe), and with-me root rows must never pass it (a PATCH there
 would 401 → V1 failsafe, but trip `isBearerRejected`). Records inside folders come from the
 children read and carry the owning archive.
+
+## Display date/time — `displayTime` read + write (VSP-1726, source-verified 2026-10-13)
+
+Stage 0 of the EDTF work: data layer only, no UI change, no EDTF library. Sources: stela `main`
+(`record/validators.ts`, `folder/validators.ts`, `update_record.sql`, `update_folder.sql`,
+`get_records.sql`, `get_folders.sql`), web-app `main` @ `9e5cc00d` (`record.repo.ts`,
+`folder.repo.ts`, `edit.service.ts`, `sidebar.component.ts`), iOS `Development` @ `c75a679d`.
+
+**Wire.** `displayTime` is the raw EDTF column on records and folders (GET and PATCH), stored
+verbatim, validated at Level ≤ 2, `null` clears, `""` → 400. It is **a separate column from the
+legacy `displaydt`** that GET returns as `displayDate` (records) / `displayTimestamp` (folders); a
+`displayTime` PATCH leaves `displaydt` unchanged (folder source; records to confirm live). The
+time zone is `location.timezone` (free text, stored on `record.timezone` / `folder.timezone`);
+sending it on an item with no `locn` row makes stela insert an empty one.
+
+**Web parity.** Web PATCHes only `{displayTime}` (no time zone), writes times as
+`THH:MM:SS±HH:MM` with the device offset (never `Z`, never offset-less), and reads `displayTime`
+first with a `displayDT` fallback. iOS still writes dates through V1 and does not read
+`displayTime` (VSP-1727) — Android-written dates do not show there until it does.
+
+**Read (Android).** `ItemDTO.displayTime` → `Record` / `RecordVO` / `FileData.displayTime`;
+`LocationDTO.timezone` is decoded but not shown (no UI slot until Stage 1).
+`DisplayDated.shownDate` (implemented by `Record` and `FileData`) = `displayTime.edtfToDisplayDate()`
+?: legacy value, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
+`toDisplayDate()` headers. `displayDate` stays the **legacy** value on purpose: V1 bodies (bulk
+location, rename fallback, delete/move/copy) re-send it as `displayDT`.
+
+| `displayTime` | Shown |
+|---|---|
+| `1985` / `1985-10` / `1985-10-23` | as is |
+| `1985-10-23T17:00:00`, `…+03:00`, `…Z` | `1985-10-23 17:00:00` — wall-clock as written, no device-zone conversion |
+| anything else (qualifiers, `X`, ranges, `..`, seasons, invalid dates) | the raw string |
+
+**Write (Android).** Pickers produce `yyyy-MM-dd` (File Info) or local `yyyy-MM-dd HH:mm:ss`
+(bulk); `DisplayDated.setEditedDate()` stores it as the legacy value (V1) and, through
+`toEdtfLevel0()`, as `displayTime` — the date as is, a time with the device offset at that date
+(`1985-10-23T17:00:00+03:00`). Sent only when the date was edited (File Info tracks the picked
+date, not a string comparison), so values set on Web are never re-sent. No `location.timezone` (decision 2026-10-13, Web parity). Folder write:
+`updateFolderDisplayTime` (same gate, success = echoed `displayTime`, no V1) — no caller until
+Stage 1, Android has no folder date UI.
+
+**Still V1:** date edits on records the PATCH gate rejects (decision 2026-10-13, same split as
+name/description).
+
+**Shares top level shows the legacy date (live-verified 2026-10-14).** Both Shares tabs build their
+top-level rows from V1 `share/getShares` (`Record(ItemVO, ArchiveVO)`). Its `ItemVOs` carry
+`displayDT` and no `displayTime` key at all (V1 serializes its nulls, so the field is not in the V1
+VO). A date written through V2 cannot show there until that listing moves to V2. Rows inside a
+shared folder come from the V2 children listing and do show it.
+
+**Legacy timestamps in V2 lists (live-verified 2026-10-14).** V2 children return `displayDate` /
+`displayTimestamp` as `…T13:10:00.000Z`; the list mappers normalise them with `toV1Timestamp()`
+like record detail, so rows show `yyyy-MM-dd HH:mm:ss`.
 
 ## Impact summary (updated 2026-07-31)
 

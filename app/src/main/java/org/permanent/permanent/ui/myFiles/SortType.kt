@@ -33,8 +33,8 @@ enum class SortType(
         return when (this) {
             NAME_ASCENDING -> byName
             NAME_DESCENDING -> byName.reversed()
-            DATE_ASCENDING -> compareBy<Record> { it.displayDate.orEmpty() }.then(byName)
-            DATE_DESCENDING -> compareByDescending<Record> { it.displayDate.orEmpty() }.then(byName)
+            DATE_ASCENDING -> compareBy<Record> { it.shownDate.orEmpty() }.then(byName)
+            DATE_DESCENDING -> compareByDescending<Record> { it.shownDate.orEmpty() }.then(byName)
             FILE_TYPE_ASCENDING -> compareBy<Record> { it.backendType.orEmpty() }.then(byName)
             FILE_TYPE_DESCENDING -> compareByDescending<Record> { it.backendType.orEmpty() }.then(byName)
         }
