@@ -163,6 +163,11 @@ interface IFileRepository {
         folderId: Int, archiveId: Int?, displayTime: String?, listener: IResponseListener
     )
 
+    // Stela cannot clear a folder's location; only records have clearRecordLocation.
+    fun updateFolderLocation(folderId: Int, archiveId: Int?, locnVO: LocnVO, listener: IResponseListener)
+
+    fun clearRecordLocation(recordId: Int, archiveId: Int?, listener: IResponseListener)
+
     fun searchRecords(query: String?, tags: List<Tag>, listener: IOnRecordsRetrievedListener)
 
     interface IOnRecordsRetrievedListener {

@@ -149,10 +149,7 @@ class FileData private constructor() : Parcelable, DisplayDated {
     }
 
     fun update(locationVO: LocnVO) {
-        val streetName = if (locationVO.streetName == null) "" else locationVO.streetName + ", "
-        val addressValue = (locationVO.streetNumber ?: "") + " " + streetName +
-                locationVO.locality + ", " + locationVO.adminOneName + ", " + locationVO.countryCode
-        completeAddress = if (!addressValue.contains("null")) addressValue else ""
+        completeAddress = locationVO.getUIAddress()
         latitude = locationVO.latitude ?: -1.0
         longitude = locationVO.longitude ?: -1.0
     }

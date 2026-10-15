@@ -885,9 +885,9 @@ e.g. `postalCode`, or `name`/`country` when the geocoder returns none; `sublocat
 split back into the legacy `streetnumber`/`streetname` columns and `city` is copied to
 `locality`). `location.timezone` also writes `record.timezone`. The deprecated `locationId`
 path only sets `record.locnid` — exactly what V1 `record/update` does with `LocnVO.locnId`.
-Decision 2026-09-23 (Flavia): send the `location` object for iOS parity; **open question for
-the staging probe:** whether `locn` rows are shared between records (V1 PHP not inspectable) —
-if moving one record moves another, switch to `locationId`. iOS carries the same exposure.
+Decision 2026-09-23 (Flavia): send the `location` object for iOS parity. The row-sharing
+question is answered from the stela source in "Location — read + write": a V2 copy shares the
+original's row; decision 2026-10-14 keeps the `location` object and reports it to backend.
 `LocnVO` gained `displayName` and `country` (both on the V1 `locn/geomapLatLong` wire — iOS
 decodes them) to fill `name`/`country`.
 
@@ -912,9 +912,10 @@ the opposite of the copy write, where a retry would duplicate. A V2 401 cannot l
 does set `isBearerRejected`, which is correct once the gate keeps foreign records away (a 401
 then means a dead token). iOS: a PATCH 401 *does* post their session-expiry notification
 (`ignoreErrors = false` on writes) — their safety comes from the gate alone.
-**Exception — dates never retry on V1:** V1 writes the legacy `displayDT`, which reads ignore once
-`displayTime` is set, so a retried date save would look lost. A failed date PATCH shows the
-generic error (`patchV2OrV1(retryOnV1 = false)`).
+**Exception — dates and location never retry on V1:** V1 writes the legacy `displayDT`, which
+reads ignore once `displayTime` is set, so a retried date save would look lost; location went
+V2-only in VSP-1864 (decision 2026-10-14). A failed date or location PATCH shows the generic
+error (`patchV2OrV1(retryOnV1 = false)`).
 
 **Post-edit refresh — unchanged from V1.** Listings refetch (`refreshCurrentFolder` / onResume,
 already V2-gated); File Info and the bulk screens mutate the local `FileData` / `Record`. No
@@ -998,6 +999,57 @@ shared folder come from the V2 children listing and do show it.
 **Legacy timestamps in V2 lists (live-verified 2026-10-14).** V2 children return `displayDate` /
 `displayTimestamp` as `…T13:10:00.000Z`; the list mappers normalise them with `toV1Timestamp()`
 like record detail, so rows show `yyyy-MM-dd HH:mm:ss`.
+
+## Location — read + write (VSP-1864, source-verified 2026-10-14)
+
+Stage 0 of the location work: data layer only, no UI change. Sources: stela `main` @ `0bd9f5d6`
+(`location/validators.ts`, `location/service.ts`, `location/queries/update_location.sql`,
+`record/service.ts`, `record/queries/update_record.sql`, `record/queries/copy_record.sql`,
+`folder/validators.ts`, `folder/queries/update_folder.sql`, `get_records.sql`, `get_folders.sql`),
+web-app `main` @ `9e5cc00d`, iOS `Development` @ `c75a679d`.
+
+**Wire.** `location` input (records and folders): `name, sublocation, city, state, postalCode,
+country` (strings), `latitude, longitude, altitudeMeters`, `precision`, `timezone` (string or
+null); ≥ 1 key, unknown keys → 400, only `timezone` nullable, `""` → 400. Partial bodies merge
+(`COALESCE` per column); no row → a new one is inserted, otherwise the linked row is updated in
+place. GET (both kinds) returns `id, name, sublocation, city, state, postalCode, country,
+latitude, longitude, altitudeMeters, precision, streetNumber, streetName, locality, county,
+countryCode, displayName, timezone`; with no location every field is null (`id: null`).
+**Clear:** records only, `{"locationId": null}` (sets `locnid = NULL`; the row is orphaned).
+Folders have no `locationId` key and `locnid = COALESCE(:locationId, locnid)`, so a folder's
+location cannot be cleared.
+
+**Other clients.** Web writes location through V1 (`locn/geomapLatLong` → `locn/post` →
+`record/update` / `folder/update`) and reads V2. iOS writes records through V2 with a V1
+fallback, has no folder location and no clear. Both reverse-geocode through V1
+`locn/geomapLatLong` — **stela has no V2 geocoding route**, so Android keeps it too (the profile
+and milestone pickers share it; it is a lookup, not a save).
+
+**Android.**
+- **Read:** unchanged. `LocationDTO.toLocnVO()` reads the legacy columns, which stela fills on
+  every write (`sublocation` → street number + name, `city` → `locality`), so Web, iOS and
+  Android writes all show. Coordinates only → empty address with a map pin; address only → no
+  pin; partial address → the parts present; all-null → row hidden. Folders: `ItemDTO.location`
+  is decoded by the children listing and `GET /v2/folders`; no `Record` field until a Stage 3
+  screen needs one.
+- **Write:** File Info and bulk location PATCH `{location}` (`toLocationInputJson()`), **V2 only,
+  no V1 retry** (decision 2026-10-14). Records the gate rejects keep V1 `record/update`.
+  After a save, `FileData.update()` builds the address with `getUIAddress()`, so it matches a
+  reload (it used `countryCode` and blanked partial addresses).
+- **Plumbing, no caller until Stage 3:** `IFileRepository.updateFolderLocation` (`PATCH
+  /v2/folders/{id}` `{location}`, same gate, success = `data.location.id` present, no V1) and
+  `clearRecordLocation` (`{"locationId": null}`, same gate, no V1). Both folder writes share
+  `patchFolder` with `updateFolderDisplayTime`.
+
+**Backend gaps (source-read; a and b live-verified on staging 2026-10-15):** copy of record 96730
+→ 97173 pointed at the same row 2584; a coordinates-only PATCH on the copy moved the original too
+and kept the old city and state. Reported to backend on Slack 2026-10-15 (asked whether #746 covers it).
+- **a. Shared rows.** A V2 copy reuses the original's `locnid` (`copy_record.sql:142,208`), and a
+  location PATCH updates that row in place, so editing a copy's location also moves the
+  original's. Stela commit `3d6f6b97` notes the 1:1 schema (#746) is still pending. Likely on iOS too (same PATCH, not tested).
+- **b. No field clear.** The merge keeps omitted keys and rejects `""`/`null`, so picking a new
+  place without a street keeps the old street.
+- **c. No folder clear** (above).
 
 ## Impact summary (updated 2026-07-31)
 
