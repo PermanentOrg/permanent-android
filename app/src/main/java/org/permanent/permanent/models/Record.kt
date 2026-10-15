@@ -12,7 +12,7 @@ import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.myFiles.SortType
 
-open class Record : Parcelable {
+open class Record : Parcelable, DisplayDated {
     var id: Int? = null
     var archiveNr: String? = null
     var archiveId: Int? = null
@@ -22,7 +22,8 @@ open class Record : Parcelable {
     var parentFolderArchiveNr: String? = null
     var parentFolderLinkId: Int? = null
     var displayName: String? = null
-    var displayDate: String? = null
+    override var displayDate: String? = null
+    override var displayTime: String? = null
     var archiveFullName: String? = null
     var archiveThumbURL200: String? = null
     var showArchiveThumb: Boolean? = null
@@ -73,6 +74,7 @@ open class Record : Parcelable {
         fileData = parcel.readParcelable(FileData::class.java.classLoader)
         backendType = parcel.readString()
         savedSort = SortType.fromServerValue(parcel.readString())
+        displayTime = parcel.readString()
     }
 
     constructor(recordInfo: RecordVO) {
@@ -85,6 +87,7 @@ open class Record : Parcelable {
         parentFolderLinkId = recordInfo.parentFolder_linkId
         displayName = recordInfo.displayName
         displayDate = recordInfo.displayDT?.replace("T", " ")
+        displayTime = recordInfo.displayTime
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
         thumbnail256 = recordInfo.thumbnail256
@@ -257,6 +260,7 @@ open class Record : Parcelable {
         parcel.writeParcelable(fileData, flags)
         parcel.writeString(backendType)
         parcel.writeString(savedSort?.toBackendString())
+        parcel.writeString(displayTime)
     }
 
     override fun describeContents(): Int {

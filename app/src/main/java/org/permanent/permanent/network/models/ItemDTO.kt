@@ -17,6 +17,8 @@ data class ItemDTO(
     val type: String? = null,
     val status: String? = null,
     val displayTimestamp: String? = null,
+    // EDTF date (records and folders); shown before displayDate/displayTimestamp when set.
+    val displayTime: String? = null,
     val archiveNumber: String? = null,
     val thumbnail256: String? = null,
     val parentFolderId: String? = null,

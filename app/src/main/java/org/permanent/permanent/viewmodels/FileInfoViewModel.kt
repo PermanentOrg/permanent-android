@@ -14,6 +14,7 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IFileRepository.RecordField
+import java.time.LocalDate
 
 class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application),
     DatePickerDialog.OnDateSetListener {
@@ -23,6 +24,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     private val name = MutableLiveData<String>()
     private val description = MutableLiveData<String>()
     private val date = MutableLiveData<String>()
+    private var pickedDate: LocalDate? = null
     private val address = MutableLiveData<String>()
     private val onShowDatePickerRequest = SingleLiveEvent<Void?>()
     val onShowLocationSearchRequest = SingleLiveEvent<Void?>()
@@ -42,7 +44,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
                 || fileData.accessRole == AccessRole.CONTRIBUTOR)
         name.value = fileData.displayName
         description.value = fileData.description
-        date.value = fileData.displayDate
+        date.value = fileData.shownDate
         address.value = fileData.completeAddress
         existsTags.value = !fileData.tags.isNullOrEmpty()
     }
@@ -56,7 +58,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
-        date.value = "$year-${month + 1}-$day"
+        pickedDate = LocalDate.of(year, month + 1, day).also { date.value = it.toString() }
         saveChanges()
     }
 
@@ -82,7 +84,6 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
 
         val nameValue = name.value?.trim()
         val description = description.value?.trim()
-        val date = date.value
 
         if (nameValue.isNullOrEmpty()) {
             showError.value = appContext.getString(R.string.invalid_name_error)
@@ -93,12 +94,13 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
         val changedFields = buildSet {
             if (fileData.displayName != nameValue) add(RecordField.NAME)
             if (fileData.description != description) add(RecordField.DESCRIPTION)
-            if (fileData.displayDate != date) add(RecordField.DATE)
+            if (pickedDate != null) add(RecordField.DATE)
         }
         if (changedFields.isNotEmpty()) {
             fileData.displayName = nameValue
             fileData.description = description
-            fileData.displayDate = date
+            pickedDate?.let { fileData.setEditedDate(it.toString()) }
+            pickedDate = null
 
             isBusy.value = true
             fileRepository.updateRecords(mutableListOf(fileData), changedFields, object : IResponseListener {

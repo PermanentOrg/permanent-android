@@ -4,10 +4,11 @@ import android.os.Parcel
 import android.os.Parcelable
 import org.permanent.permanent.Constants
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.DisplayDated
 import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Tag
 
-class FileData private constructor() : Parcelable {
+class FileData private constructor() : Parcelable, DisplayDated {
     var recordId: Int = -1
     var folderLinkId: Int = -1
     var archiveId: Int = -1
@@ -16,7 +17,8 @@ class FileData private constructor() : Parcelable {
     var fileName: String? = null
     var displayName: String? = null
     var description: String? = null
-    var displayDate: String? = null
+    override var displayDate: String? = null
+    override var displayTime: String? = null
     var createdDate: String? = null
     var updatedDate: String? = null
     var derivedDate: String? = null
@@ -75,6 +77,7 @@ class FileData private constructor() : Parcelable {
         displayName = recordVO.displayName
         description = recordVO.description
         displayDate = recordVO.displayDT?.replace("T", " ")
+        displayTime = recordVO.displayTime
         createdDate = recordVO.createdDT?.replace("T", " ")
         updatedDate = recordVO.updatedDT?.replace("T", " ")
         derivedDate = recordVO.derivedDT?.replace("T", " ")
@@ -142,13 +145,11 @@ class FileData private constructor() : Parcelable {
         width = parcel.readInt()
         height = parcel.readInt()
         tags = parcel.createTypedArrayList(Tag)
+        displayTime = parcel.readString()
     }
 
     fun update(locationVO: LocnVO) {
-        val streetName = if (locationVO.streetName == null) "" else locationVO.streetName + ", "
-        val addressValue = (locationVO.streetNumber ?: "") + " " + streetName +
-                locationVO.locality + ", " + locationVO.adminOneName + ", " + locationVO.countryCode
-        completeAddress = if (!addressValue.contains("null")) addressValue else ""
+        completeAddress = locationVO.getUIAddress()
         latitude = locationVO.latitude ?: -1.0
         longitude = locationVO.longitude ?: -1.0
     }
@@ -182,6 +183,7 @@ class FileData private constructor() : Parcelable {
         parcel.writeInt(width)
         parcel.writeInt(height)
         parcel.writeTypedList(tags)
+        parcel.writeString(displayTime)
     }
 
     fun getTagIds(): ArrayList<String> {
