@@ -829,7 +829,7 @@ access copy; their folder-publish copies 96736–96739 do not. A single file pub
 the V2 copy (96740) gets its PDF access copy ~2 min later. Effect: DOCX/XLSX in a published
 folder have no `pdfPreviewURL`, so the viewer shows the failure card; PDFs and images open
 from their original. Backend-only — the client needs no change once the access copies exist.
-Reported to backend on Slack 2026-10-09; backend fix pending.
+Reported to backend on Slack 2026-10-09. In the 2026-10-15 meeting Cecilia said it may happen only on staging; next: check a folder publish on production.
 
 **401 divergence (deliberate)** — iOS treats a copy 401 as real session expiry
 (`ignoreErrors=false` on writes; safety comes from their gate). Android's
@@ -912,10 +912,10 @@ the opposite of the copy write, where a retry would duplicate. A V2 401 cannot l
 does set `isBearerRejected`, which is correct once the gate keeps foreign records away (a 401
 then means a dead token). iOS: a PATCH 401 *does* post their session-expiry notification
 (`ignoreErrors = false` on writes) — their safety comes from the gate alone.
-**Exception — dates and location never retry on V1:** V1 writes the legacy `displayDT`, which
-reads ignore once `displayTime` is set, so a retried date save would look lost; location went
-V2-only in VSP-1864 (decision 2026-10-14). A failed date or location PATCH shows the generic
-error (`patchV2OrV1(retryOnV1 = false)`).
+**Dates and location retry on V1 too** (Flavia, 2026-10-16, reversing the 2026-10-13/14 no-retry
+decision): every write keeps the failsafe. Known side effect for dates: the V1 retry writes the
+legacy `displayDT`, so on a record that already has a `displayTime` the screen keeps showing the
+old `displayTime` after a retried save.
 
 **Post-edit refresh — unchanged from V1.** Listings refetch (`refreshCurrentFolder` / onResume,
 already V2-gated); File Info and the bulk screens mutate the local `FileData` / `Record`. No
@@ -925,9 +925,9 @@ extra GET (iOS re-reads the record after a details-screen PATCH; Android's V1 ne
 takes a `Set<IFileRepository.RecordField>` (`NAME`, `DESCRIPTION`, `DATE`) from the caller so the
 V2 body carries only the edited fields — `FileInfoViewModel.saveChanges` computes the changed set
 from its existing three comparisons, bulk description passes `{DESCRIPTION}`; `DATE` in the set adds
-`displayTime` to the same PATCH and turns off the V1 retry. Bulk names call the intent-named
+`displayTime` to the same PATCH. Bulk names call the intent-named
 `renameRecords`; bulk date/time calls `updateRecordDates` (same gate, `{displayTime}` per record,
-no V1 retry; ineligible batches keep the V1 `updateMultipleRecords`). The single rename and the two location methods are
+V1 `updateMultipleRecords` for ineligible batches and as the failsafe). The single rename and the two location methods are
 single-intent and gate internally. The `location` body is built by
 `LocnVO.toLocationInputJson()` in `ItemMapper`, next to its inverse `LocationDTO.toLocnVO()`.
 
@@ -1032,8 +1032,8 @@ and milestone pickers share it; it is a lookup, not a save).
   pin; partial address → the parts present; all-null → row hidden. Folders: `ItemDTO.location`
   is decoded by the children listing and `GET /v2/folders`; no `Record` field until a Stage 3
   screen needs one.
-- **Write:** File Info and bulk location PATCH `{location}` (`toLocationInputJson()`), **V2 only,
-  no V1 retry** (decision 2026-10-14). Records the gate rejects keep V1 `record/update`.
+- **Write:** File Info and bulk location PATCH `{location}` (`toLocationInputJson()`), with the
+  V1 `record/update` failsafe (decision 2026-10-16). Records the gate rejects keep V1.
   After a save, `FileData.update()` builds the address with `getUIAddress()`, so it matches a
   reload (it used `countryCode` and blanked partial addresses).
 - **Plumbing, no caller until Stage 3:** `IFileRepository.updateFolderLocation` (`PATCH
@@ -1043,7 +1043,7 @@ and milestone pickers share it; it is a lookup, not a save).
 
 **Backend gaps (source-read; a and b live-verified on staging 2026-10-15):** copy of record 96730
 → 97173 pointed at the same row 2584; a coordinates-only PATCH on the copy moved the original too
-and kept the old city and state. Reported to backend on Slack 2026-10-15 (asked whether #746 covers it).
+and kept the old city and state. Reported to backend on Slack 2026-10-15; in the 2026-10-15 meeting Cecilia said she will file a backend ticket.
 - **a. Shared rows.** A V2 copy reuses the original's `locnid` (`copy_record.sql:142,208`), and a
   location PATCH updates that row in place, so editing a copy's location also moves the
   original's. Stela commit `3d6f6b97` notes the 1:1 schema (#746) is still pending. Likely on iOS too (same PATCH, not tested).
