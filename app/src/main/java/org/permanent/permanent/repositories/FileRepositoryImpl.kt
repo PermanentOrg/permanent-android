@@ -890,10 +890,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         else fileData.toPatchesOrNull({ it.recordId }) {
             metadataPatchBody(it.displayName, it.description, it.displayTime, fields)
         }
-        patchV2OrV1(
-            patches, R.string.file_info_update_success, listener,
-            retryOnV1 = RecordField.DATE !in fields
-        ) {
+        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
             updateRecordsV1(fileDataList, listener)
         }
     }
@@ -927,7 +924,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
         ) null
         else records.map { it.stelaRecordId to body }
-        patchV2OrV1(patches, R.string.file_info_update_success, listener, retryOnV1 = false) {
+        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
             updateMultipleRecordsV1(records, locnVO, listener)
         }
     }
@@ -960,7 +957,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
         ) null
         else records.toPatchesOrNull({ it.stelaRecordId }) { datePatchBody(it.displayTime) }
-        patchV2OrV1(patches, R.string.file_info_update_success, listener, retryOnV1 = false) {
+        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
             updateMultipleRecords(records, isFolderRecordType = false, listener)
         }
     }
@@ -1034,7 +1031,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
         ) null
         else records.toPatchesOrNull({ it.stelaRecordId }) { namePatchBody(it.displayName) }
-        patchV2OrV1(patches, R.string.file_info_update_success, listener, retryOnV1 = true) {
+        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
             updateMultipleRecords(records, isFolderRecordType = false, listener)
         }
     }
@@ -1115,7 +1112,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             !isEligibleForStelaPatch(fileData.recordId, fileData.archiveId, sessionArchiveId)
         ) null
         else listOf(fileData.recordId to body)
-        patchV2OrV1(patches, R.string.file_location_update_success, listener, retryOnV1 = false) {
+        patchV2OrV1(patches, R.string.file_location_update_success, listener) {
             updateRecordLocationV1(locnVO, fileData, listener)
         }
     }
@@ -1146,7 +1143,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         val sessionArchiveId = stelaPatchSessionArchiveId()
         val patches = if (sessionArchiveId == null || !record.isEligibleForStelaPatch(sessionArchiveId)) null
         else namePatchBody(newName)?.let { listOf(record.stelaRecordId to it) }
-        patchV2OrV1(patches, R.string.rename_record_rename_success, listener, retryOnV1 = true) {
+        patchV2OrV1(patches, R.string.rename_record_rename_success, listener) {
             renameRecordV1(record, newName, listener)
         }
     }
@@ -1192,23 +1189,19 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     ): List<Pair<Int, JSONObject>>? =
         mapNotNull { item -> body(item)?.let { recordId(item) to it } }.takeIf { it.size == size }
 
-    // V2 first; the V1 call runs when there is nothing eligible to PATCH and, with retryOnV1,
-    // re-applies the same values after a V2 failure. Dates and location never retry: V2 is their
-    // only write path (and V1 writes displayDT, which reads ignore once displayTime is set).
+    // V2 first; the V1 call runs when there is nothing eligible to PATCH, and re-applies the
+    // same values after a V2 failure.
     private fun patchV2OrV1(
         patches: List<Pair<Int, JSONObject>>?,
         successMessageRes: Int,
         listener: IResponseListener,
-        retryOnV1: Boolean,
         v1: () -> Unit
     ) {
         if (patches.isNullOrEmpty()) {
             v1()
             return
         }
-        patchRecordsV2(patches, successMessageRes, listener) {
-            if (retryOnV1) v1() else listener.onFailed(context.getString(R.string.generic_error))
-        }
+        patchRecordsV2(patches, successMessageRes, listener, v1)
     }
 
     // Serial, stops at the first failure. These PATCHes set values, so re-sending is harmless.
