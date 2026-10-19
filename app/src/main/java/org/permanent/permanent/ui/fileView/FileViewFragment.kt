@@ -1,7 +1,8 @@
 package org.permanent.permanent.ui.fileView
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,25 +16,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.Constants
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentFileViewBinding
+import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.models.FileData
-import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.PreferencesHelper
-import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.fileView.compose.PreviewStatusOverlay
 import org.permanent.permanent.ui.fileView.compose.ProgressiveImageViewer
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.myFiles.PublishFragment
 import org.permanent.permanent.ui.recordMenu.RecordMenuFragment
 import org.permanent.permanent.viewmodels.FileViewViewModel
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -49,7 +51,6 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     private var fileData: FileData? = null
     private var recordMenuFragment: RecordMenuFragment? = null
     private var renderedPdfUrl: String? = null
-    private lateinit var prefsHelper: PreferencesHelper
     private var isComposeViewerSet = false
 
     @SuppressLint("ClickableViewAccessibility")
@@ -62,10 +63,6 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
         binding = FragmentFileViewBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
-        prefsHelper = PreferencesHelper(
-            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        )
 
         record = arguments?.getParcelable(PARCELABLE_RECORD_KEY)
         isComposeViewerSet = false
@@ -134,6 +131,21 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
 
     private val onShowMessage = Observer<String> { message ->
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private val onOpenWithReady = Observer<Pair<File, String>> { (file, mimeType) ->
+        val context = context ?: return@Observer
+        val uri = FileProvider.getUriForFile(
+            context, context.packageName + Constants.FILE_PROVIDER_NAME, file
+        )
+        val intent = Intent(Intent.ACTION_VIEW)
+            .setDataAndType(uri, mimeType)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Snackbar.make(binding.root, R.string.preview_no_app_to_open, Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private val onIsImage = Observer<Boolean> { isImage ->
@@ -207,12 +219,8 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     private fun showRecordMenuFragment() {
         record?.let {
 
-            val workspace = if (prefsHelper.getCurrentWorkspace() == Workspace.PUBLIC_FILES) Workspace.FILE_VIEW_PUBLIC_FILES
-            else if (prefsHelper.getCurrentWorkspace() == Workspace.SHARES) Workspace.FILE_VIEW_SHARED_FILES
-            else Workspace.FILE_VIEW_PRIVATE_FILES
-
             recordMenuFragment = RecordMenuFragment()
-            recordMenuFragment?.setBundleArguments(it, workspace)
+            recordMenuFragment?.setBundleArguments(it, FileSessionData.workspace)
             recordMenuFragment?.show(parentFragmentManager, recordMenuFragment?.tag)
             recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
             recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)
@@ -232,11 +240,13 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
     override fun connectViewModelEvents() {
         viewModel.getFileData().observe(this, onFileData)
         viewModel.getShowMessage().observe(this, onShowMessage)
+        viewModel.getOnOpenWithReady().observe(this, onOpenWithReady)
     }
 
     override fun disconnectViewModelEvents() {
         viewModel.getFileData().removeObserver(onFileData)
         viewModel.getShowMessage().removeObserver(onShowMessage)
+        viewModel.getOnOpenWithReady().removeObserver(onOpenWithReady)
         recordMenuFragment?.getOnRecordPublishRequest()?.removeObserver(onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadObserver)
     }

@@ -32,3 +32,7 @@ enum class Workspace : Parcelable {
         }
     }
 }
+
+// Whether a file may leave the app from here ("Send a copy", "Open with…")
+val Workspace.allowsSendACopy: Boolean
+    get() = this != Workspace.SHARES && this != Workspace.FILE_VIEW_SHARED_FILES

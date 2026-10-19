@@ -12,6 +12,7 @@ import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
+import android.webkit.JavascriptInterface
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -148,7 +149,35 @@ fun interface OnPreviewResultListener {
     fun onPreviewResult(isSuccess: Boolean)
 }
 
-@SuppressLint("SetJavaScriptEnabled")
+private const val VIDEO_BRIDGE_NAME = "PermanentPreview"
+
+// Pauses the video, then watches it. The WebView shows Chromium's media page for a video URL;
+// a format it can't play ends with no usable source (networkState 3) or no picture (videoWidth 0).
+private const val VIDEO_PAGE_JS = """
+(function() {
+  var v = document.querySelector('video');
+  if (!v) return;
+  v.pause();
+  if (v.__failureWatched) return;
+  v.__failureWatched = true;
+  var reported = false;
+  function fail() {
+    if (reported) return;
+    reported = true;
+    $VIDEO_BRIDGE_NAME.onVideoUnplayable();
+  }
+  function check() {
+    if (v.error || v.networkState === 3) fail();
+    else if (v.readyState >= 1 && v.videoWidth === 0) fail();
+  }
+  v.addEventListener('error', function() { setTimeout(check, 0); }, true);
+  v.addEventListener('loadedmetadata', check);
+  check();
+  setTimeout(check, 3000);
+})();
+"""
+
+@SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
 @BindingAdapter("webViewPath", "isVideo", "onPreviewResult")
 fun WebView.updatePath(
     path: String?,
@@ -176,9 +205,7 @@ fun WebView.updatePath(
         // Fires after onReceivedError too — the view model only dismisses the
         // loader on success from LOADING, so a failure card set above survives
         override fun onPageFinished(view: WebView, url: String) {
-            if (isVideo == true) {
-                loadUrl("javascript:(function() { document.getElementsByTagName('video')[0].pause(); })()")
-            }
+            if (isVideo == true) view.evaluateJavascript(VIDEO_PAGE_JS, null)
             onPreviewResult?.onPreviewResult(true)
         }
     }
@@ -187,6 +214,17 @@ fun WebView.updatePath(
     // listener the preview stays blank with no failure surfaced
     setDownloadListener { _, _, _, _, _ ->
         onPreviewResult?.onPreviewResult(false)
+    }
+    // Media errors never reach onReceivedError, so the page reports them through this bridge
+    if (isVideo == true) {
+        addJavascriptInterface(object {
+            @JavascriptInterface
+            fun onVideoUnplayable() {
+                post { onPreviewResult?.onPreviewResult(false) }
+            }
+        }, VIDEO_BRIDGE_NAME)
+    } else {
+        removeJavascriptInterface(VIDEO_BRIDGE_NAME)
     }
 
     when {
