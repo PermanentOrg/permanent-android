@@ -52,6 +52,8 @@ class FolderChildrenPager(
     private var nextPageGeneration = 0
     private var folderId = 0
     private var cursor: String? = null
+    // Page slots asked for so far; compared with totalPages to find the end
+    private var requestedSlots = 0L
     private val listedFolderLinkIds = HashSet<Int>()
 
     val isComplete get() = state == State.COMPLETE
@@ -70,7 +72,9 @@ class FolderChildrenPager(
         state = if (showsSkeleton) State.LOADING_FIRST else State.REFRESHING
         fileRepository.getChildrenPageV2(folderId, pageSize, null,
             object : IFolderChildrenPageListener {
-                override fun onSuccess(records: List<Record>, nextCursor: String?) {
+                override fun onSuccess(
+                    records: List<Record>, nextCursor: String?, totalPages: Int?
+                ) {
                     if (generation != listingGeneration) {
                         listener.onSuperseded()
                         return
@@ -85,7 +89,8 @@ class FolderChildrenPager(
                         val unique =
                             records.filter { listedFolderLinkIds.add(it.folderLinkId ?: -1) }
                         cursor = nextCursor
-                        state = if (isLastPage(records.size, pageSize, nextCursor)) {
+                        requestedSlots = pageSize.toLong()
+                        state = if (isLastPage(records.size, pageSize, nextCursor, totalPages)) {
                             State.COMPLETE
                         } else {
                             State.HAS_MORE
@@ -119,7 +124,9 @@ class FolderChildrenPager(
         state = State.LOADING_MORE
         fileRepository.getChildrenPageV2(folderId, PAGE_SIZE, requestedCursor,
             object : IFolderChildrenPageListener {
-                override fun onSuccess(records: List<Record>, nextCursor: String?) {
+                override fun onSuccess(
+                    records: List<Record>, nextCursor: String?, totalPages: Int?
+                ) {
                     afterMinimumTime(startedAt, NEXT_PAGE_SKELETON_MINIMUM_MS) {
                         if (generation != nextPageGeneration) return@afterMinimumTime
                         val unique =
@@ -129,7 +136,8 @@ class FolderChildrenPager(
                             return@afterMinimumTime
                         }
                         cursor = nextCursor
-                        state = if (isLastPage(records.size, PAGE_SIZE, nextCursor)) {
+                        requestedSlots += PAGE_SIZE
+                        state = if (isLastPage(records.size, PAGE_SIZE, nextCursor, totalPages)) {
                             State.COMPLETE
                         } else {
                             State.HAS_MORE
@@ -179,6 +187,7 @@ class FolderChildrenPager(
         listingGeneration++
         nextPageGeneration++
         cursor = null
+        requestedSlots = 0L
         listedFolderLinkIds.clear()
         state = State.NONE
     }
@@ -190,9 +199,14 @@ class FolderChildrenPager(
         if (wait > 0) mainHandler.postDelayed(work, wait) else work()
     }
 
-    // nextCursor is not null on the last page, so a short page also ends the list.
-    private fun isLastPage(itemCount: Int, pageSize: Int, nextCursor: String?) =
-        nextCursor == null || itemCount < pageSize
+    // The server keeps nextCursor on the last page and can return a short page before the
+    // end, so totalPages decides when present; otherwise a short page ends the list.
+    private fun isLastPage(itemCount: Int, pageSize: Int, nextCursor: String?, totalPages: Int?) =
+        when {
+            nextCursor == null -> true
+            totalPages != null -> requestedSlots >= totalPages.toLong() * pageSize
+            else -> itemCount < pageSize
+        }
 
     companion object {
         const val PAGE_SIZE = StelaAccountService.CHILDREN_PAGE_SIZE

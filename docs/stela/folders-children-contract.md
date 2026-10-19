@@ -468,10 +468,13 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
 
 ### Pagination — pages of 10 (VSP-1812, behind the flag; iOS PR #595)
 
-- **Rules (iOS parity):** page 1 = 10 items; each next page = 10 with `cursor = nextCursor`.
-  The list **ends when `nextCursor` is null or a page is shorter than `pageSize`** —
-  `nextCursor` is non-null on the last page, so a folder of exactly 10·n items costs one extra
-  request that answers `items: []`. A refresh (pull, return to the screen, post-upload/delete
+- **Rules:** page 1 = 10 items; each next page = 10 with `cursor = nextCursor`.
+  The list **ends when `nextCursor` is null, or when the page slots asked for reach
+  `totalPages × pageSize`** (`FolderChildrenPager.isLastPage`, VSP-1868). Without `totalPages`
+  a page shorter than `pageSize` ends it (the old rule, still iOS's `isLastChildrenPage`).
+  Why: `nextCursor` stays set on the last page, and the server can return a **short page
+  before the end** — staging folder 44881 (2026-10-19): page 1 had 9 items for `pageSize=10`
+  with `totalPages: 2`; page 2 held 5 more. A refresh (pull, return to the screen, post-upload/delete
   reload) asks for `(loaded / 10 + 1) · 10` from page 1, so the user keeps what they scrolled.
 - **Whole-folder listing (`pageSize = 99_999_999`)** when: the chosen sort is not the folder's
   saved sort (viewer, failed save, unknown saved sort) — then sorted locally; Select all on a
@@ -479,13 +482,18 @@ merged iOS code ignores it and discriminates by id presence; Android does the sa
   section-root lookup (a root could sit past page 1). The V1 failsafe is always whole-folder.
 - **Late replies:** `FolderChildrenPager` lets only the newest listing commit, and drops a next
   page as soon as another listing starts (sort change, refresh, navigation).
-- Rows repeated across pages are dropped by `folderLinkId`.
-- **No totals on the wire** (`totalPages` unreliable — `0` with 9 items; no item count): the
-  "N Folders, M Files" end footer is **counted from the loaded rows** and shown only when the
-  list is complete (iOS does the same).
+- Rows repeated across pages are dropped by `folderLinkId` (kept as a guard; the 2026-10-16
+  tiebreaker should stop repeats).
+- **`totalPages`** = page count of the whole folder at the requested `pageSize` (staging
+  2026-10-19: folder 45495 → 17 at 10, 6 at 30; single-page folders → 1; empty → 0 with no
+  cursor). It was `0` with 9 items until the stela pagination fixes (Cecilia, Slack
+  2026-10-16), which also added a sort tiebreaker so equal names keep one order across pages
+  and calls. There is still **no item
+  count**: the "N Folders, M Files" end footer is **counted from the loaded rows** and shown
+  only when the list is complete (iOS does the same).
 - **Share-link preview** requests one page of 10 (it shows ≤ 4 tiles).
 - Backend ticket **PER-10803** (2026-09-25, epic PER-10752) still covers a reliable
-  `nextCursor`/`totalPages`; the end rule above works without it.
+  `nextCursor` (null on the last page) and full pages; the end rule above works around both.
 - An undocumented `pagination.nextPage` convenience URL exists (itself on the plural path).
 
 ## Folder sort — save + server order (VSP-1812, behind the flag; iOS PR #592)
@@ -650,8 +658,8 @@ platform adopted it — an optional later optimisation.
   `get_record_legacy.test.ts`) and share-membership foreign records alike.
 - **Android access gate (client-side, `FileRepositoryImpl.isEligibleForStelaDetail`):**
   own-archive records (`archiveId == session archive`) plus foreign records the caller vouches
-  are public — the gallery sets `FileSessionData.allowsForeignStelaDetail` next to the records
-  it hands the viewer (iOS: `allowsForeignStelaDetail` when the presenter is
+  are public — `FileSessionData.allowsForeignStelaDetail` is true when the viewer was opened
+  from the gallery (`FileSessionData.workspace == PUBLIC_ARCHIVES`, set by each opener) (iOS: `allowsForeignStelaDetail` when the presenter is
   `PublicArchiveViewModel`). **Shared With Me detail stays V1 by this gate** (decision
   2026-09-21, iOS parity) although the server would authorize it — opening it is a follow-up
   needing one live check. A missing `archiveId` fails closed to V1.
@@ -830,6 +838,14 @@ the V2 copy (96740) gets its PDF access copy ~2 min later. Effect: DOCX/XLSX in 
 folder have no `pdfPreviewURL`, so the viewer shows the failure card; PDFs and images open
 from their original. Backend-only — the client needs no change once the access copies exist.
 Reported to backend on Slack 2026-10-09; backend fix pending.
+
+**Client fallback (VSP-1868, 2026-10-19):** QA on staging found 17 of 27 types failing in a
+published folder (office/email, GIF/TIFF, AVI/OGV). When the viewer can't show a record, the
+failure card now offers **"Open with…"**: it downloads the `file.format.original` row
+(`downloadURL`, else `fileURL`) to `cache/open_with/<recordId>/` and opens it with
+`ACTION_VIEW` — hidden where "Send a copy" is (Shares). Videos the WebView can't play (AVI,
+Theora OGV) now reach the failure card through a JS bridge (`networkState 3` or
+`videoWidth 0`); before, they showed a broken player and no card.
 
 **401 divergence (deliberate)** — iOS treats a copy 401 as real session expiry
 (`ignoreErrors=false` on writes; safety comes from their gate). Android's
@@ -1111,7 +1127,7 @@ record-miss item a possible duplicate of PER-10798. Answered in Slack 2026-09-28
 | `itemType` discriminator | Present on staging (2026-07-23), but unused — both platforms discriminate by `recordId`/`folderId` presence (iOS models predate it) |
 | `folderLinkId: integer` | Numeric **string** |
 | `/folder/<id>/children` (singular, Jira) | Alias; use plural |
-| Reliable `nextCursor`/`totalPages` | Both unreliable (above); paging ends on a short page instead |
+| Reliable `nextCursor`/`totalPages` | `nextCursor` stays set on the last page; `totalPages` correct since 2026-10-16 and used for the end (above) |
 | Folder sort saved through `PATCH /v2/folders/{id}` (iOS #592, Android VSP-1812) | Docs list no `sort` on the PATCH body (2026-10-05) — saves fall back to V1 `folder/sort` |
 | Uniform dotted enum values | Folders use short forms, records dotted |
 | iOS gated by a "remote flag" | iOS's merged flag is a compile-time constant (Android mirrors: `FeatureFlags.useStelaMigration`) |

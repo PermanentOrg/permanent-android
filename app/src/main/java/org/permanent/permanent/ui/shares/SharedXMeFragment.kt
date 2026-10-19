@@ -308,6 +308,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         val files = ArrayList<Record>()
         files.add(it)
         FileSessionData.records = files
+        FileSessionData.workspace = Workspace.FILE_VIEW_SHARED_FILES
         requireParentFragment().findNavController()
             .navigate(R.id.action_sharesFragment_to_fileActivity)
     }

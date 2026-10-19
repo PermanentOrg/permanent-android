@@ -16,6 +16,7 @@ import org.permanent.permanent.databinding.ActivityFileBinding
 import org.permanent.permanent.models.FileSessionData
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
 import org.permanent.permanent.ui.computeWindowSizeClasses
 
@@ -103,6 +104,6 @@ class FileActivity : PermanentBaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         FileSessionData.records = null
-        FileSessionData.allowsForeignStelaDetail = false
+        FileSessionData.workspace = Workspace.FILE_VIEW_PRIVATE_FILES
     }
 }
