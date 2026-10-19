@@ -6,5 +6,7 @@ data class FolderChildrenResponse(
 )
 
 data class PaginationDTO(
-    val nextCursor: String? = null
+    val nextCursor: String? = null,
+    // Page count of the whole folder at the requested page size
+    val totalPages: Int? = null
 )

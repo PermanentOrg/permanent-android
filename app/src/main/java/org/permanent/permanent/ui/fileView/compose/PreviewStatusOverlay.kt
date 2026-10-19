@@ -28,6 +28,7 @@ import org.permanent.permanent.viewmodels.FileViewViewModel
 fun PreviewStatusOverlay(viewModel: FileViewViewModel, thumbnailUrl: String?) {
     val state by viewModel.previewState.collectAsState()
     val isBusy by viewModel.isBusy.observeAsState(false)
+    val canOpenWith by viewModel.canOpenWith.collectAsState()
     // Hoisted above the state check so the bitmap survives NONE and each state
     // transition reuses it instead of cancelling and re-issuing the request
     val thumbnail by rememberThumbnailBitmap(thumbnailUrl, onFailed = {})
@@ -63,6 +64,7 @@ fun PreviewStatusOverlay(viewModel: FileViewViewModel, thumbnailUrl: String?) {
                 },
                 onCardTap = viewModel::onPreviewCardTapped,
                 isImageContent = false,
+                onOpenWith = if (canOpenWith) viewModel::openWith else null,
                 modifier = Modifier.align(Alignment.Center)
             )
         }

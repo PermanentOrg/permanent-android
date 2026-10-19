@@ -243,8 +243,9 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     ) {
         getChildrenPageV2(folderId, StelaAccountService.MAX_CHILDREN_PAGE_SIZE, null,
             object : IFolderChildrenPageListener {
-                override fun onSuccess(records: List<Record>, nextCursor: String?) =
-                    listener.onSuccess(records)
+                override fun onSuccess(
+                    records: List<Record>, nextCursor: String?, totalPages: Int?
+                ) = listener.onSuccess(records)
 
                 override fun onFailed(error: String?) = listener.onFailed(error)
             })
@@ -340,7 +341,8 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
                         listener.onFailed(context.getString(R.string.generic_error))
                         return
                     }
-                    listener.onSuccess(records, response.body()?.pagination?.nextCursor)
+                    val pagination = response.body()?.pagination
+                    listener.onSuccess(records, pagination?.nextCursor, pagination?.totalPages)
                 }
 
                 override fun onFailure(call: Call<FolderChildrenResponse>, t: Throwable) {

@@ -30,6 +30,7 @@ import org.permanent.permanent.models.FileType
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.RecordType
 import org.permanent.permanent.models.Upload
+import org.permanent.permanent.ui.allowsSendACopy
 import org.permanent.permanent.ui.pendingInvitationCount
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.models.FileSessionData
@@ -142,6 +143,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             hidden.add(RecordMenuItem.SendACopy)
             hidden.add(RecordMenuItem.Download)
         }
+        if (!workspace.allowsSendACopy) hidden.add(RecordMenuItem.SendACopy)
 
         // GetLink is the public web URL of the item, only built when browsing a public archive
         if (publicLink == null) hidden.add(RecordMenuItem.GetLink)
@@ -207,12 +209,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             }
 
             Workspace.SHARES -> {
-                hidden.addAll(
-                    listOf(
-                        RecordMenuItem.Publish,
-                        RecordMenuItem.SendACopy
-                    )
-                )
+                hidden.add(RecordMenuItem.Publish)
 
                 val isSharedWithMe = isFragmentShownInSharedWithMe.value == true
                 val isRoot = isFragmentShownInRootFolder.value == true
@@ -241,7 +238,6 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
                 hidden.addAll(
                     listOf(
                         RecordMenuItem.Publish,
-                        RecordMenuItem.SendACopy,
                         RecordMenuItem.Rename,
                         RecordMenuItem.Move,
                         RecordMenuItem.Copy,

@@ -40,6 +40,7 @@ import org.permanent.permanent.network.models.ChecklistItem
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.VIEWER_WORKSPACE_KEY
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.archives.PARCELABLE_ARCHIVE_KEY
 import org.permanent.permanent.ui.boundsOnScreen
@@ -201,7 +202,10 @@ class PublicFilesFragment : PermanentBaseFragment() {
     }
 
     private val onShowRecordSearchFragment = Observer<Void?> {
-        findNavController().navigate(R.id.action_publicFilesFragment_to_recordSearchFragment)
+        findNavController().navigate(
+            R.id.action_publicFilesFragment_to_recordSearchFragment,
+            bundleOf(VIEWER_WORKSPACE_KEY to Workspace.FILE_VIEW_PUBLIC_FILES)
+        )
     }
 
     private val onShowAddOptionsFragment = Observer<NavigationFolderIdentifier> {
@@ -271,6 +275,7 @@ class PublicFilesFragment : PermanentBaseFragment() {
 
     private val onFileViewRequest = Observer<ArrayList<Record>> {
         FileSessionData.records = it
+        FileSessionData.workspace = Workspace.FILE_VIEW_PUBLIC_FILES
         findNavController().navigate(R.id.action_publicFilesFragment_to_fileActivity)
     }
 

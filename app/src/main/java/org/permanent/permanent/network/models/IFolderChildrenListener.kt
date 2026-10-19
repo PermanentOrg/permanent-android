@@ -8,6 +8,6 @@ interface IFolderChildrenListener {
 }
 
 interface IFolderChildrenPageListener {
-    fun onSuccess(records: List<Record>, nextCursor: String?)
+    fun onSuccess(records: List<Record>, nextCursor: String?, totalPages: Int?)
     fun onFailed(error: String?)
 }

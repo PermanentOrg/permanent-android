@@ -5,18 +5,23 @@ import android.content.Context
 import android.os.Environment
 import android.os.SystemClock
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.ResponseBody
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.Constants
 import org.permanent.permanent.PermanentApplication
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Download
@@ -35,11 +40,15 @@ import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.ui.OnPreviewResultListener
 import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
+import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.allowsSendACopy
 import org.permanent.permanent.ui.fileView.ImageViewUiState
 import org.permanent.permanent.ui.fileView.PreviewOverlayState
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
+import retrofit2.Call
 import java.io.File
+import java.io.IOException
 
 class FileViewViewModel(application: Application) : ObservableAndroidViewModel(application),
     OnFinishedListener {
@@ -74,6 +83,10 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
     private var progressiveFlowStartMs = 0L
     private var isSharpScheduled = false
     private val showMessage = MutableLiveData<String>()
+    private val _canOpenWith = MutableStateFlow(false)
+    val canOpenWith: StateFlow<Boolean> = _canOpenWith
+    private val onOpenWithReady = SingleLiveEvent<Pair<File, String>>()
+    private var openWithCall: Call<ResponseBody>? = null
     val isBusy = MutableLiveData(false)
     private val prefsHelper = PreferencesHelper(
         appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -324,6 +337,8 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
 
                 override fun onSuccess(newFileData: FileData) {
                     fileData.value = newFileData
+                    _canOpenWith.value = newFileData.originalURL != null &&
+                        FileSessionData.workspace.allowsSendACopy
                     newFileData.let { data ->
                         // Non-null for native PDFs and for documents with a PDF access
                         // copy (e.g. spreadsheets) — the single routing rule, see FileData
@@ -405,6 +420,65 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
         }
     }
 
+    /** Downloads the original into the cache and hands it to the fragment to open in another app. */
+    fun openWith() {
+        val data = fileData.value ?: return
+        val url = data.originalURL ?: return
+        if (isBusy.value == true) return
+        isBusy.value = true
+        viewModelScope.launch {
+            val fileName = openWithFileName(data)
+            val file = withContext(Dispatchers.IO) {
+                downloadForOpenWith(url, data.recordId, fileName)
+            }
+            isBusy.value = false
+            if (file != null) {
+                onOpenWithReady.value = file to openWithMimeType(fileName, data.originalContentType)
+            } else {
+                showMessage.value = appContext.getString(R.string.generic_error)
+            }
+        }
+    }
+
+    // One record's original is kept, so a second tap opens it without downloading again
+    private fun downloadForOpenWith(url: String, recordId: Int, fileName: String): File? {
+        return try {
+            val root = File(appContext.cacheDir, OPEN_WITH_DIR)
+            val file = File(File(root, recordId.toString()), fileName)
+            if (file.exists()) return file
+            root.deleteRecursively()
+            file.parentFile?.mkdirs()
+            val call = fileRepository.downloadFile(url).also { openWithCall = it }
+            val body = call.execute().takeIf { it.isSuccessful }?.body() ?: return null
+            val partial = File(file.path + ".part")
+            body.byteStream().use { input -> partial.outputStream().use { input.copyTo(it) } }
+            file.takeIf { partial.renameTo(it) }
+        } catch (e: IOException) {
+            Log.e("FileViewViewModel", "Open with download failed", e)
+            null
+        }
+    }
+
+    private fun openWithFileName(data: FileData): String {
+        val name = data.originalUploadName?.takeIf { it.isNotBlank() }
+            ?: data.displayName?.takeIf { it.isNotBlank() }
+            ?: "file"
+        return name.replace(Regex("[/\\\\:*?\"<>|]"), "_")
+    }
+
+    private fun openWithMimeType(fileName: String, contentType: String?): String {
+        if (contentType != null && contentType != Constants.MEDIA_TYPE_OCTET_STREAM) return contentType
+        val extension = fileName.substringAfterLast('.', "").lowercase()
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+            ?: contentType
+            ?: "*/*"
+    }
+
+    override fun onCleared() {
+        openWithCall?.cancel()
+        super.onCleared()
+    }
+
     fun clearCache(context: Context) {
         try {
             val cacheDir = context.cacheDir
@@ -471,10 +545,13 @@ class FileViewViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getIsPDF(): MutableLiveData<Boolean> = isPDF
 
+    fun getOnOpenWithReady(): LiveData<Pair<File, String>> = onOpenWithReady
+
     companion object {
         // Per spec, the blurred thumbnail is the only state for the first 500 ms: the loader
         // appears only after this window, and an early full-res arrival waits it out
         private const val S1_MIN_DURATION_MS = 500L
+        private const val OPEN_WITH_DIR = "open_with"
 
         // Manual-test hook (debug builds only): set to e.g. 3000L to keep the full-res
         // image artificially slow so S2/S3 can be observed deterministically
