@@ -39,6 +39,10 @@ class FileData private constructor() : Parcelable, DisplayDated {
     // WebView can't render (spreadsheets etc.). This is the single source of the PDF-vs-
     // WebView routing decision. Preview-only: download/share/filename stay on the original.
     var pdfPreviewURL: String? = null
+    // The user's own upload, which "Open with…" hands to another app when no preview renders
+    var originalUploadName: String? = null
+    var originalURL: String? = null
+    var originalContentType: String? = null
     var width: Int = -1
     var height: Int = -1
     var tags: List<Tag>? = null
@@ -102,6 +106,9 @@ class FileData private constructor() : Parcelable, DisplayDated {
         }
         // Access copies carry null dimensions — fall back to the original file's
         val originalVO = fileVOs.firstOrNull { it.format == Constants.FILE_FORMAT_ORIGINAL }
+        originalUploadName = recordVO.uploadFileName
+        originalURL = originalVO?.downloadURL ?: originalVO?.fileURL
+        originalContentType = originalVO?.contentType
         width = fileVO?.width ?: originalVO?.width ?: -1
         height = fileVO?.height ?: originalVO?.height ?: -1
         initTags(recordVO.TagVOs)
@@ -146,6 +153,9 @@ class FileData private constructor() : Parcelable, DisplayDated {
         height = parcel.readInt()
         tags = parcel.createTypedArrayList(Tag)
         displayTime = parcel.readString()
+        originalUploadName = parcel.readString()
+        originalURL = parcel.readString()
+        originalContentType = parcel.readString()
     }
 
     fun update(locationVO: LocnVO) {
@@ -184,6 +194,9 @@ class FileData private constructor() : Parcelable, DisplayDated {
         parcel.writeInt(height)
         parcel.writeTypedList(tags)
         parcel.writeString(displayTime)
+        parcel.writeString(originalUploadName)
+        parcel.writeString(originalURL)
+        parcel.writeString(originalContentType)
     }
 
     fun getTagIds(): ArrayList<String> {

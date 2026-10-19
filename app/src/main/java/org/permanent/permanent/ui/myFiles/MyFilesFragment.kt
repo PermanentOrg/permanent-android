@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import org.permanent.permanent.ui.VIEWER_WORKSPACE_KEY
 import org.permanent.permanent.ui.boundsOnScreen
 import org.permanent.permanent.ui.composeComponents.AnimatedTemporarySnackbar
 import org.permanent.permanent.ui.composeComponents.TemporarySnackbarType
@@ -312,7 +313,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     private val onShowRecordSearchFragment = Observer<Void?> {
-        findNavController().navigate(R.id.action_myFilesFragment_to_recordSearchFragment)
+        findNavController().navigate(
+            R.id.action_myFilesFragment_to_recordSearchFragment,
+            bundleOf(VIEWER_WORKSPACE_KEY to Workspace.FILE_VIEW_PRIVATE_FILES)
+        )
     }
 
     private fun showSaveToPermanentFragment(uris: ArrayList<Uri>) {
@@ -396,6 +400,7 @@ class MyFilesFragment : PermanentBaseFragment() {
 
     private val onFileViewRequest = Observer<ArrayList<Record>> {
         FileSessionData.records = it
+        FileSessionData.workspace = Workspace.FILE_VIEW_PRIVATE_FILES
         findNavController().navigate(R.id.action_myFilesFragment_to_fileActivity)
     }
 

@@ -937,6 +937,8 @@
     <string name="preview_tap_to_retry">Tap to Retry.</string>
     <string name="preview_youre_offline">You\'re offline.</string>
     <string name="preview_connect_full_quality">Connect to load full quality.</string>
+    <string name="preview_open_with">Open with…</string>
+    <string name="preview_no_app_to_open">No app found to open this file.</string>
 
     <!-- Paged file lists -->
     <string name="list_loading_items">Loading items</string>

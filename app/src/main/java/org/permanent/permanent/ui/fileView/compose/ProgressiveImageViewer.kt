@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -33,6 +34,7 @@ import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.BlurTransformation
 import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 import org.permanent.permanent.BuildConfig
+import org.permanent.permanent.ui.composeComponents.CircularProgressIndicator
 import org.permanent.permanent.ui.fileView.ImageViewUiState
 import org.permanent.permanent.viewmodels.FileViewViewModel
 
@@ -75,6 +77,7 @@ fun ProgressiveImageViewer(viewModel: FileViewViewModel, onTap: () -> Unit) {
     val uiState by viewModel.imageViewUiState.collectAsState()
     val thumbnailUrl by viewModel.thumbnailUrl.collectAsState()
     val isThumbnailFailed by viewModel.isThumbnailFailed.collectAsState()
+    val canOpenWith by viewModel.canOpenWith.collectAsState()
     val fullResSource by viewModel.fullResImageSource.collectAsState()
     val retryNonce by viewModel.fullResRetryNonce.collectAsState()
     val context = LocalContext.current
@@ -160,9 +163,19 @@ fun ProgressiveImageViewer(viewModel: FileViewViewModel, onTap: () -> Unit) {
             },
             onCardTap = viewModel::onErrorCardTapped,
             dissolveMillis = dissolveMillis,
+            onOpenWith = if (canOpenWith) viewModel::openWith else null,
             modifier = Modifier.align(Alignment.Center)
         )
     }
+
+    BusyIndicator(viewModel)
+}
+
+// Own scope, so a busy toggle doesn't recompose the image
+@Composable
+private fun BusyIndicator(viewModel: FileViewViewModel) {
+    val isBusy by viewModel.isBusy.observeAsState(false)
+    if (isBusy == true) CircularProgressIndicator()
 }
 
 /**

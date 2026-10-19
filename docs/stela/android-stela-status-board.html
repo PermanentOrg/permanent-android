@@ -109,7 +109,7 @@
   <p class="eyebrow">Permanent Android · Stela backend migration</p>
   <h1>Android Stela Migration — Status Board</h1>
   <p class="meta">Flag: compile-time <code>FeatureFlags.useStelaMigration</code> (ON in staging and, from release 1.18.0, in production) ·
-  Updated <strong>2026-10-14</strong> · edit by hand, one item per surface.
+  Updated <strong>2026-10-19</strong> · edit by hand, one item per surface.
   QA cross-check (Sergiu, iOS V1-vs-V2 sweep, 2026-08-26): 145 V2 calls vs 8 V1 — every remaining V1 call maps to a documented gap on this board (uploads, public/deep-link roots, own-archive public root — migrated since on Android, VSP-1839, V1 failsafe).
   <strong>Storage purchases (VSP-1792) are not behind the flag:</strong> a Remote Config kill switch gates them (first row below).
   iOS removed its flag in Release-1.17.0 (V2 first, V1 failsafe, no remote switch); Android keeps the flag as a one-line rollback.</p>
@@ -302,7 +302,7 @@
       </li>
       <li class="item">
         <div class="row"><span class="name">Reliable pagination</span><span class="pill st-prog">Worked around · PER-10803</span></div>
-        <p class="note"><code>nextCursor</code> non-null on complete pages; <code>totalPages</code> on <code>/children</code> rounds correctly since the 2026-10-09 release (backend notes, not re-checked). Filed as <strong>PER-10803</strong> (2026-09-25). Both apps now page anyway (iOS #595, Android VSP-1812): the list ends on a page shorter than <code>pageSize</code>, which costs one empty extra request for folders of exactly 10·n items. No totals on the wire, so the end footer counts the loaded rows.</p>
+        <p class="note"><code>nextCursor</code> non-null on complete pages; <code>totalPages</code> on <code>/children</code> is correct since the stela pagination fixes (Cecilia, Slack 2026-10-16; re-checked on staging 2026-10-19), which also added a sort tiebreaker so equal names keep one order across pages. Filed as <strong>PER-10803</strong> (2026-09-25). The server can also return a short page before the end (staging folder 44881: 9 of 10, then 5 more). Android (VSP-1868) now ends the list when the pages asked for reach <code>totalPages</code>, falling back to a short page only without it; iOS #595 ends on a short page. No item count on the wire, so the end footer counts the loaded rows.</p>
       </li>
       <li class="item">
         <div class="row"><span class="name">Link-address resolution (V1 link ids → V2 ids)</span><span class="pill st-block">Blocked · PER-10800</span></div>

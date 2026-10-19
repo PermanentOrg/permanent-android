@@ -82,7 +82,8 @@ fun ImageStatusOverlay(
     onCardTap: () -> Unit,
     modifier: Modifier = Modifier,
     dissolveMillis: Int = CROSS_DISSOLVE_MILLIS,
-    isImageContent: Boolean = true
+    isImageContent: Boolean = true,
+    onOpenWith: (() -> Unit)? = null
 ) {
     AnimatedContent(
         targetState = kind,
@@ -113,15 +114,21 @@ fun ImageStatusOverlay(
                     .graphicsLayer { alpha = 0.5f }
             )
 
-            ImageOverlayKind.LOAD_FAILED -> ImageErrorCard(
-                iconRes = R.drawable.ic_retry_arrow_white,
-                line1 = stringResource(
-                    if (isImageContent) R.string.preview_couldnt_load_image
-                    else R.string.preview_couldnt_load_file
-                ),
-                line2 = stringResource(R.string.preview_tap_to_retry),
-                onTap = onCardTap
-            )
+            ImageOverlayKind.LOAD_FAILED -> Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                ImageErrorCard(
+                    iconRes = R.drawable.ic_retry_arrow_white,
+                    line1 = stringResource(
+                        if (isImageContent) R.string.preview_couldnt_load_image
+                        else R.string.preview_couldnt_load_file
+                    ),
+                    line2 = stringResource(R.string.preview_tap_to_retry),
+                    onTap = onCardTap
+                )
+                onOpenWith?.let { OpenWithButton(onClick = it) }
+            }
 
             ImageOverlayKind.OFFLINE -> ImageErrorCard(
                 iconRes = R.drawable.ic_wifi_exclamation_white,
@@ -225,8 +232,7 @@ private fun ImageErrorCard(
                 scaleY = pressScale
                 alpha = pressAlpha
             }
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color.Black.copy(alpha = 0.32f))
+            .overlaySurface()
             .clickable(
                 interactionSource = interactionSource, indication = null
             ) { onTap() }
@@ -248,3 +254,22 @@ private fun ImageErrorCard(
         )
     }
 }
+
+/** Opens the original in another app when the in-app preview can't show it. */
+@Composable
+private fun OpenWithButton(onClick: () -> Unit) {
+    Text(
+        text = stringResource(R.string.preview_open_with),
+        color = Color.White,
+        fontSize = 14.sp,
+        lineHeight = 24.sp,
+        fontFamily = UsualRegularFontFamily,
+        modifier = Modifier
+            .overlaySurface()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 24.dp, vertical = 12.dp)
+    )
+}
+
+private fun Modifier.overlaySurface() =
+    clip(RoundedCornerShape(24.dp)).background(Color.Black.copy(alpha = 0.32f))

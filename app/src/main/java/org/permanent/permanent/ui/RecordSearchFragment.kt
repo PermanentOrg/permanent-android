@@ -94,6 +94,8 @@ class RecordSearchFragment : PermanentBaseFragment() {
         }
         val intent = Intent(context, FileActivity::class.java)
         FileSessionData.records = it
+        FileSessionData.workspace = arguments?.getParcelable(VIEWER_WORKSPACE_KEY)
+            ?: Workspace.FILE_VIEW_PRIVATE_FILES
         startActivityForResult(intent, FileInfoFragment.ACTIVITY_RESULT_REQUEST_CODE)
 
     }
@@ -172,3 +174,5 @@ class RecordSearchFragment : PermanentBaseFragment() {
         disconnectViewModelEvents()
     }
 }
+
+const val VIEWER_WORKSPACE_KEY = "viewer_workspace_key"
