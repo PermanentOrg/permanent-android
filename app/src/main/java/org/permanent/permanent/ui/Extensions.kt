@@ -35,6 +35,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.OffsetDateTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -169,23 +170,45 @@ fun String.toLocalDateTimeOrNull(): LocalDateTime? = try {
 fun String?.toDisplayDate(): String =
     this?.toLocalDateTimeOrNull()?.format(DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)) ?: ""
 
-private val EDTF_LEVEL_0 = Regex("""\d{4}(-\d{2}(-\d{2}(T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?)?)?)?""")
+private val EDTF_LEVEL_0 =
+    Regex("""\d{4}(-\d{2}(-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?)?)?""")
 
-// Level 0 EDTF -> the app's "yyyy-MM-dd HH:mm:ss" shape, keeping the wall-clock time as written.
-// Anything else (qualifiers, ranges, unspecified digits, invalid dates) is shown verbatim.
+// Level 0 EDTF -> the app's "yyyy-MM-dd HH:mm:ss" shape. Times with a zone are shown in device
+// local time, dates and zone-less times as written. Anything else (qualifiers, ranges,
+// unspecified digits, invalid dates) is shown verbatim.
 fun String.edtfToDisplayDate(): String {
-    if (!EDTF_LEVEL_0.matches(this)) return this
-    val local = take(19)
+    val zone = EDTF_LEVEL_0.matchEntire(this)?.groupValues?.get(5) ?: return this
     return try {
-        when (local.length) {
-            7 -> YearMonth.parse(local)
-            10 -> LocalDate.parse(local)
-            19 -> LocalDateTime.parse(local)
+        when {
+            length == 4 -> this
+            length == 7 -> this.also { YearMonth.parse(it) }
+            length == 10 -> this.also { LocalDate.parse(it) }
+            zone.isNotEmpty() -> toDateTimeIn(ZoneId.systemDefault()) ?: this
+            else -> LocalDateTime.parse(this).format(BACKEND_DATE_TIME_FORMATTER)
         }
-        local.replace('T', ' ')
     } catch (e: DateTimeParseException) {
         this
     }
+}
+
+// An ISO date-time with "Z" or an offset -> "yyyy-MM-dd HH:mm:ss" in [zone], else null.
+fun String.toDateTimeIn(zone: ZoneId): String? = try {
+    OffsetDateTime.parse(this).atZoneSameInstant(zone).format(BACKEND_DATE_TIME_FORMATTER)
+} catch (e: DateTimeParseException) {
+    null
+}
+
+// Legacy dates are UTC "yyyy-MM-dd HH:mm:ss" on the wire; the app shows and edits them in local
+// time. Dates without a time, and anything unparseable, pass through unchanged.
+fun String.utcToLocalDateTime(): String = shiftDateTime(ZoneOffset.UTC, ZoneId.systemDefault())
+
+fun String.localToUtcDateTime(): String = shiftDateTime(ZoneId.systemDefault(), ZoneOffset.UTC)
+
+private fun String.shiftDateTime(from: ZoneId, to: ZoneId): String = if (length != 19) this else try {
+    LocalDateTime.parse(this, BACKEND_DATE_TIME_FORMATTER).atZone(from)
+        .withZoneSameInstant(to).format(BACKEND_DATE_TIME_FORMATTER)
+} catch (e: DateTimeParseException) {
+    this
 }
 
 // The editors' "yyyy-MM-dd" or local "yyyy-MM-dd HH:mm:ss" -> EDTF Level 0. Times carry the

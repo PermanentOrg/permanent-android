@@ -101,7 +101,7 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
             override fun onSuccess(locnVO: LocnVO) {
                 locationVO = locnVO
                 locationVO?.let {
-                    searchText.value = it.getUIAddress()
+                    searchText.value = it.getRecordAddress()
                 }
             }
 
@@ -138,15 +138,13 @@ class EditLocationViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun updateRecords() {
+        val address = locationVO?.getRecordAddress()
         records.forEach {
             it.fileData?.latitude = selectedLocation.value.latitude
             it.fileData?.longitude = selectedLocation.value.longitude
-            val address = locationVO?.getUIAddress()
             it.fileData?.completeAddress = address
-            address?.let { address ->
-                onLocationChanged.value = address
-            }
         }
+        if (records.isNotEmpty()) address?.let { onLocationChanged.value = it }
     }
 
     fun getOnLocationChanged() = onLocationChanged

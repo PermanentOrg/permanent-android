@@ -90,7 +90,7 @@ class FileData private constructor() : Parcelable, DisplayDated {
         originalFileName = recordVO.uploadFileName?.substringBefore(".")
         originalFileType = recordVO.uploadFileName?.substringAfter(".")
 
-        completeAddress = recordVO.LocnVO?.getUIAddress()
+        completeAddress = recordVO.LocnVO?.getRecordAddress()
         latitude = recordVO.LocnVO?.latitude ?: -1.0
         longitude = recordVO.LocnVO?.longitude ?: -1.0
 
@@ -159,7 +159,7 @@ class FileData private constructor() : Parcelable, DisplayDated {
     }
 
     fun update(locationVO: LocnVO) {
-        completeAddress = locationVO.getUIAddress()
+        completeAddress = locationVO.getRecordAddress()
         latitude = locationVO.latitude ?: -1.0
         longitude = locationVO.longitude ?: -1.0
     }
