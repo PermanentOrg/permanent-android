@@ -985,23 +985,27 @@ first with a `displayDT` fallback. iOS still writes dates through V1 and does no
 **Read (Android).** `ItemDTO.displayTime` → `Record` / `RecordVO` / `FileData.displayTime`;
 `LocationDTO.timezone` is decoded but not shown (no UI slot until Stage 1).
 `DisplayDated.shownDate` (implemented by `Record` and `FileData`) = `displayTime.edtfToDisplayDate()`
-?: legacy value, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
-`toDisplayDate()` headers. `displayDate` stays the **legacy** value on purpose: V1 bodies (bulk
-location, rename fallback, delete/move/copy) re-send it as `displayDT`.
+?: `displayDate.utcToLocalDateTime()`, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
+`toDisplayDate()` headers. `displayDate` stays the **legacy UTC** value on purpose: V1 bodies (bulk
+location, rename fallback, delete/move/copy) re-send it as `displayDT`. Legacy values are UTC on
+both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDate`
+`2023-03-30T14:08:00.000Z`), so they are converted to device local time only when shown.
 
 | `displayTime` | Shown |
 |---|---|
 | `1985` / `1985-10` / `1985-10-23` | as is |
-| `1985-10-23T17:00:00`, `…+03:00`, `…Z` | `1985-10-23 17:00:00` — wall-clock as written, no device-zone conversion |
+| `1985-10-23T17:00:00` (no zone, optional fraction) | `1985-10-23 17:00:00` — as written |
+| `…+03:00`, `…Z`, `….000Z` | converted to device local time (`1985-10-23T23:30:00.000Z` → `1985-10-23 17:30:00` in CST) |
 | anything else (qualifiers, `X`, ranges, `..`, seasons, invalid dates) | the raw string |
 
 **Write (Android).** Pickers produce `yyyy-MM-dd` (File Info) or local `yyyy-MM-dd HH:mm:ss`
-(bulk); `DisplayDated.setEditedDate()` stores it as the legacy value (V1) and, through
+(bulk); `DisplayDated.setEditedDate()` stores it as the legacy value converted to UTC (V1) and, through
 `toEdtfLevel0()`, as `displayTime` — the date as is, a time with the device offset at that date
 (`1985-10-23T17:00:00+03:00`). Sent only when the date was edited (File Info tracks the picked
 date, not a string comparison), so values set on Web are never re-sent. No `location.timezone` (decision 2026-10-13, Web parity). Folder write:
 `updateFolderDisplayTime` (same gate, success = echoed `displayTime`, no V1) — no caller until
-Stage 1, Android has no folder date UI.
+Stage 1, Android has no folder date UI. No V1 failsafe is possible yet: `folder/update` only sends
+the name and no V1 call sends a folder `displayDT`.
 
 **Still V1:** date edits on records the PATCH gate rejects (decision 2026-10-13, same split as
 name/description).
@@ -1013,8 +1017,8 @@ VO). A date written through V2 cannot show there until that listing moves to V2.
 shared folder come from the V2 children listing and do show it.
 
 **Legacy timestamps in V2 lists (live-verified 2026-10-14).** V2 children return `displayDate` /
-`displayTimestamp` as `…T13:10:00.000Z`; the list mappers normalise them with `toV1Timestamp()`
-like record detail, so rows show `yyyy-MM-dd HH:mm:ss`.
+`displayTimestamp` as `…T13:10:00.000Z`; the list mappers normalise them to UTC
+`yyyy-MM-dd HH:mm:ss` with `toV1Timestamp()` like record detail, and rows show them in local time.
 
 ## Location — read + write (VSP-1864, source-verified 2026-10-14)
 
@@ -1042,20 +1046,23 @@ fallback, has no folder location and no clear. Both reverse-geocode through V1
 and milestone pickers share it; it is a lookup, not a save).
 
 **Android.**
-- **Read:** unchanged. `LocationDTO.toLocnVO()` reads the legacy columns, which stela fills on
-  every write (`sublocation` → street number + name, `city` → `locality`), so Web, iOS and
-  Android writes all show. Coordinates only → empty address with a map pin; address only → no
+- **Read:** `LocationDTO.toLocnVO()` reads the legacy columns, which stela fills on every V2
+  write (`sublocation` → street number + name, `city` → `locality`); `locality` falls back to
+  `city` when empty. Web fills `city` and leaves `locality` null (live 2026-10-20, record 96770:
+  `city "Cluj-Napoca"`, `locality null`, `countryCode null`), which is why a Web-set city was
+  missing before the fallback. Coordinates only → empty address with a map pin; address only → no
   pin; partial address → the parts present; all-null → row hidden. Folders: `ItemDTO.location`
   is decoded by the children listing and `GET /v2/folders`; no `Record` field until a Stage 3
   screen needs one.
 - **Write:** File Info and bulk location PATCH `{location}` (`toLocationInputJson()`), with the
   V1 `record/update` failsafe (decision 2026-10-16). Records the gate rejects keep V1.
-  After a save, `FileData.update()` builds the address with `getUIAddress()`, so it matches a
-  reload (it used `countryCode` and blanked partial addresses).
+  Record addresses use `LocnVO.getRecordAddress()`: the country name, with the code only as a
+  fallback (Web parity; V2 writes store no code, V1 writes do), so the text after a save matches
+  a reload on both paths. Profile and milestones keep `getUIAddress()` (code first).
 - **Plumbing, no caller until Stage 3:** `IFileRepository.updateFolderLocation` (`PATCH
   /v2/folders/{id}` `{location}`, same gate, success = `data.location.id` present, no V1) and
   `clearRecordLocation` (`{"locationId": null}`, same gate, no V1). Both folder writes share
-  `patchFolder` with `updateFolderDisplayTime`.
+  `patchFolder` with `updateFolderDisplayTime`. No V1 failsafe: `FolderVO` has no location field.
 
 **Backend gaps (source-read; a and b live-verified on staging 2026-10-15):** copy of record 96730
 → 97173 pointed at the same row 2584; a coordinates-only PATCH on the copy moved the original too

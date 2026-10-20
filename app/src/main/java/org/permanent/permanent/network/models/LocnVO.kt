@@ -32,14 +32,20 @@ class LocnVO() : Parcelable {
 
     fun getUIAddress(): String {
         if (uiAddress.isNullOrEmpty()) {
-            // V2 writes store no countryCode, so fall back to the country name.
-            val street = listOfNotNull(streetNumber, streetName).joinToString(" ")
-            uiAddress = listOf(street, locality, adminOneName, countryCode ?: country)
-                .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
-                .joinToString(", ")
+            uiAddress = address(countryCode ?: country)
         }
 
         return uiAddress!!
+    }
+
+    // Records show the country name, like Web: V2 writes store no countryCode, V1 writes do.
+    fun getRecordAddress(): String = address(country ?: countryCode)
+
+    private fun address(countryPart: String?): String {
+        val street = listOfNotNull(streetNumber, streetName).joinToString(" ")
+        return listOf(street, locality, adminOneName, countryPart)
+            .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
+            .joinToString(", ")
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

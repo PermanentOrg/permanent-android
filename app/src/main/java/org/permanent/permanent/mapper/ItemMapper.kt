@@ -18,6 +18,8 @@ import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.TagVO
 import org.permanent.permanent.ui.myFiles.SortType
+import org.permanent.permanent.ui.toDateTimeIn
+import java.time.ZoneOffset
 
 
 fun ItemDTO.toRecord(): Record {
@@ -152,7 +154,7 @@ private fun LocationDTO.toLocnVO(): LocnVO? = LocnVO().also { vo ->
     vo.locnId = id?.toIntOrNull()
     vo.streetNumber = streetNumber.orNullIfBlank()
     vo.streetName = streetName.orNullIfBlank()
-    vo.locality = locality.orNullIfBlank()
+    vo.locality = locality.orNullIfBlank() ?: city.orNullIfBlank()
     vo.adminOneName = state.orNullIfBlank()
     vo.country = country.orNullIfBlank()
     vo.countryCode = countryCode.orNullIfBlank()
@@ -163,9 +165,9 @@ private fun LocationDTO.toLocnVO(): LocnVO? = LocnVO().also { vo ->
         .any { it != null }
 }
 
-// V2 timestamps ("2022-01-01T00:00:00.000Z", "…+00:00") -> V1's "yyyy-MM-dd HH:mm:ss".
+// V2 timestamps ("2022-01-01T00:00:00.000Z", "…+00:00") -> V1's UTC "yyyy-MM-dd HH:mm:ss".
 private fun String.toV1Timestamp(): String =
-    substringBefore('.').substringBefore('+').removeSuffix("Z").replace('T', ' ')
+    toDateTimeIn(ZoneOffset.UTC) ?: take(19).replace('T', ' ')
 
 // Records send archive/parent ids flat, folders nest them.
 private fun ItemDTO.resolvedArchiveId(): Int? = (archive?.id ?: archiveId)?.toIntOrNull()

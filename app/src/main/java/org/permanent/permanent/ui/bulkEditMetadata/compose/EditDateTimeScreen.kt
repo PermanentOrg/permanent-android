@@ -169,6 +169,7 @@ fun EditDateTimeScreen(
                 .height(48.dp),
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = blue900),
+                enabled = selectedDate.isNotEmpty(),
                 onClick = {
                     openAlertDialog.value = true
                 }) {

@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.bytesToHumanReadableString
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -43,7 +44,11 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
             dateFormat.applyPattern("yyyy-MM-dd HH:mm:ss")
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
 
-            val parsedDate = dateFormat.parse(date)
+            val parsedDate = try {
+                dateFormat.parse(date)
+            } catch (e: ParseException) {
+                return date
+            }
 
             dateFormat.applyPattern("yyyy-MM-dd h:mm a zzz")
             dateFormat.setTimeZone(TimeZone.getDefault())
