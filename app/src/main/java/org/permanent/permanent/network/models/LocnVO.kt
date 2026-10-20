@@ -10,6 +10,8 @@ class LocnVO() : Parcelable {
     var streetNumber: String? = null
     var streetName: String? = null
     var locality: String? = null
+    // V1 reads send Web-set cities here, with locality empty.
+    var city: String? = null
     var adminOneName: String? = null
     var countryCode: String? = null
     var latitude: Double? = null
@@ -23,6 +25,7 @@ class LocnVO() : Parcelable {
         streetNumber = parcel.readString()
         streetName = parcel.readString()
         locality = parcel.readString()
+        city = parcel.readString()
         adminOneName = parcel.readString()
         countryCode = parcel.readString()
         latitude = parcel.readValue(Double::class.java.classLoader) as? Double
@@ -43,7 +46,7 @@ class LocnVO() : Parcelable {
 
     private fun address(countryPart: String?): String {
         val street = listOfNotNull(streetNumber, streetName).joinToString(" ")
-        return listOf(street, locality, adminOneName, countryPart)
+        return listOf(street, locality ?: city, adminOneName, countryPart)
             .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
             .joinToString(", ")
     }
@@ -55,6 +58,7 @@ class LocnVO() : Parcelable {
         parcel.writeString(streetNumber)
         parcel.writeString(streetName)
         parcel.writeString(locality)
+        parcel.writeString(city)
         parcel.writeString(adminOneName)
         parcel.writeString(countryCode)
         parcel.writeValue(latitude)

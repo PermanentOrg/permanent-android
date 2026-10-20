@@ -925,7 +925,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         val patches = if (sessionArchiveId == null || body == null ||
             !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
         ) null
-        else records.map { it.stelaRecordId to body }
+        else records.flatMap { locationPatches(it.stelaRecordId, body) }
         patchV2OrV1(patches, R.string.file_info_update_success, listener) {
             updateMultipleRecordsV1(records, locnVO, listener)
         }
@@ -988,7 +988,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
             listener.onFailed(context.getString(R.string.generic_error))
             return
         }
-        val patches = listOf(recordId to JSONObject().put("locationId", JSONObject.NULL))
+        val patches = listOf(recordId to clearLocationBody())
         patchRecordsV2(patches, R.string.file_location_update_success, listener) {
             listener.onFailed(context.getString(R.string.generic_error))
         }
@@ -1113,7 +1113,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         val patches = if (sessionArchiveId == null || body == null ||
             !isEligibleForStelaPatch(fileData.recordId, fileData.archiveId, sessionArchiveId)
         ) null
-        else listOf(fileData.recordId to body)
+        else locationPatches(fileData.recordId, body)
         patchV2OrV1(patches, R.string.file_location_update_success, listener) {
             updateRecordLocationV1(locnVO, fileData, listener)
         }
@@ -1184,6 +1184,13 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
 
     private fun LocnVO.toLocationPatchBody(): JSONObject? =
         toLocationInputJson()?.let { JSONObject().put("location", it) }
+
+    private fun clearLocationBody(): JSONObject = JSONObject().put("locationId", JSONObject.NULL)
+
+    // Stela merges a location PATCH into the record's current row, so old fields survive and
+    // copies sharing that row change too. Unlinking first makes the PATCH write a new row.
+    private fun locationPatches(recordId: Int, body: JSONObject): List<Pair<Int, JSONObject>> =
+        listOf(recordId to clearLocationBody(), recordId to body)
 
     // Null when any item has no expressible body — the whole edit then runs V1.
     private fun <T> List<T>.toPatchesOrNull(
