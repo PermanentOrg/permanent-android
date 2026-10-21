@@ -30,7 +30,6 @@ import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.viewmodels.FileInfoViewModel
-import java.util.Calendar
 
 class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
@@ -107,11 +106,8 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     private val onShowDatePicker = Observer<Void?> {
         viewModel.saveChanges()
         context?.let { context ->
-            val c = Calendar.getInstance()
-            val year = c.get(Calendar.YEAR)
-            val month = c.get(Calendar.MONTH)
-            val day = c.get(Calendar.DAY_OF_MONTH)
-            DatePickerDialog(context, viewModel, year, month, day).show()
+            val date = viewModel.getPickerStartDate()
+            DatePickerDialog(context, viewModel, date.year, date.monthValue - 1, date.dayOfMonth).show()
         }
     }
 

@@ -1050,12 +1050,18 @@ and milestone pickers share it; it is a lookup, not a save).
   write (`sublocation` → street number + name, `city` → `locality`); `locality` falls back to
   `city` when empty. Web fills `city` and leaves `locality` null (live 2026-10-20, record 96770:
   `city "Cluj-Napoca"`, `locality null`, `countryCode null`), which is why a Web-set city was
-  missing before the fallback. Coordinates only → empty address with a map pin; address only → no
+  missing before the fallback. V1 reads (`record/get`, used when Search opens a record) send it
+  in `LocnVO.city` too, so `LocnVO` decodes `city` and the address uses it when `locality` is
+  empty (live 2026-10-20). Coordinates only → empty address with a map pin; address only → no
   pin; partial address → the parts present; all-null → row hidden. Folders: `ItemDTO.location`
   is decoded by the children listing and `GET /v2/folders`; no `Record` field until a Stage 3
   screen needs one.
-- **Write:** File Info and bulk location PATCH `{location}` (`toLocationInputJson()`), with the
-  V1 `record/update` failsafe (decision 2026-10-16). Records the gate rejects keep V1.
+- **Write:** File Info and bulk location send two PATCHes per record: `{"locationId": null}`, then
+  `{location}` (`toLocationInputJson()`), with the V1 `record/update` failsafe (decision
+  2026-10-16). Unlinking first makes stela insert a new row, so fields of the old location don't
+  survive the merge and a copy sharing the row keeps its own location (gaps a and b below).
+  Live 2026-10-20, record 96770: row 2616 (Cluj-Napoca) → new row 2622 with only the new
+  coordinates. Records the gate rejects keep V1.
   Record addresses use `LocnVO.getRecordAddress()`: the country name, with the code only as a
   fallback (Web parity; V2 writes store no code, V1 writes do), so the text after a save matches
   a reload on both paths. Profile and milestones keep `getUIAddress()` (code first).
@@ -1067,6 +1073,8 @@ and milestone pickers share it; it is a lookup, not a save).
 **Backend gaps (source-read; a and b live-verified on staging 2026-10-15):** copy of record 96730
 → 97173 pointed at the same row 2584; a coordinates-only PATCH on the copy moved the original too
 and kept the old city and state. Reported to backend on Slack 2026-10-15; in the 2026-10-15 meeting Cecilia said she will file a backend ticket.
+Android works around a and b for record writes since 2026-10-20 (unlink first, see Write above);
+folders can't be unlinked, and other clients are still affected.
 - **a. Shared rows.** A V2 copy reuses the original's `locnid` (`copy_record.sql:142,208`), and a
   location PATCH updates that row in place, so editing a copy's location also moves the
   original's. Stela commit `3d6f6b97` notes the 1:1 schema (#746) is still pending. Likely on iOS too (same PATCH, not tested).

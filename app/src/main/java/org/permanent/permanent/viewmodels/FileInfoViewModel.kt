@@ -14,6 +14,7 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IFileRepository.RecordField
+import org.permanent.permanent.ui.toLocalDateTimeOrNull
 import java.time.LocalDate
 
 class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -61,6 +62,9 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
         pickedDate = LocalDate.of(year, month + 1, day).also { date.value = it.toString() }
         saveChanges()
     }
+
+    fun getPickerStartDate(): LocalDate =
+        date.value?.toLocalDateTimeOrNull()?.toLocalDate() ?: LocalDate.now()
 
     fun onDateClick() {
         if (isEditable.value == true)
