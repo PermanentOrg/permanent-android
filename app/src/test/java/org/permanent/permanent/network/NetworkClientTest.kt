@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.common.truth.Truth
 import okhttp3.OkHttpClient
 import org.junit.Test
+import org.permanent.permanent.Constants
 
 import org.mockito.Mockito
 
@@ -17,14 +18,11 @@ class NetworkClientTest {
 
         val networkClient = NetworkClient(okHttpClient, Mockito.mock(Context::class.java))
 
-        val responseVO = networkClient
-            .signUp("name", MockInterceptor.SUCCESSFUL_EMAIL, "abcd1234")
+        val response = networkClient
+            .signUp("name", MockInterceptor.SUCCESSFUL_EMAIL, "abcd1234", false, "")
             .execute()
-            .body()
 
-        val signupResponseSuccessful = responseVO?.isSuccessful != null && responseVO.isSuccessful!!
-
-        Truth.assertThat(signupResponseSuccessful).isTrue()
+        Truth.assertThat(response.body()?.accountId).isEqualTo(1640)
     }
 
     @Test
@@ -35,14 +33,12 @@ class NetworkClientTest {
 
         val networkClient = NetworkClient(okHttpClient, Mockito.mock(Context::class.java))
 
-        val responseVO = networkClient
-            .signUp("name", MockInterceptor.DUPLICATED_EMAIL, "abcd1234")
+        val response = networkClient
+            .signUp("name", MockInterceptor.DUPLICATED_EMAIL, "abcd1234", false, "")
             .execute()
-            .body()
 
-        val signupResponseSuccessful = responseVO?.isSuccessful != null && responseVO.isSuccessful!!
-
-        Truth.assertThat(signupResponseSuccessful).isFalse()
+        Truth.assertThat(response.body()).isNull()
+        Truth.assertThat(response.errorBody()?.string()).contains(Constants.ERROR_EMAIL_DUPLICATED)
     }
 
     @Test
