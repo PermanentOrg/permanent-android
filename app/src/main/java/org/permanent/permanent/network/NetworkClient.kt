@@ -158,6 +158,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
             .client(okHttpClient).build()
 
         authService = retrofit.create(IAuthService::class.java)
+        // An injected client (tests) brings its own interceptors and has no cookie client.
+        if (!::authServiceWithCookies.isInitialized) authServiceWithCookies = authService
         accountService = retrofit.create(IAccountService::class.java)
         fileService = retrofit.create(IFileService::class.java)
         shareService = retrofit.create(IShareService::class.java)

@@ -16,35 +16,35 @@ class ValidatorTest {
 
     @Test
     fun validator_CorrectName_ReturnsTrue() {
-        val errorMessageToShow = MutableLiveData<Int>()
+        val errorMessageToShow = MutableLiveData<Int?>()
 
         assertThat(Validator.isValidName(Mockito.mock(Context::class.java), "John Doe", errorMessageToShow, null)).isTrue()
     }
 
     @Test
     fun validator_EmptyName_ReturnsTrue() {
-        val errorMessageToShow = MutableLiveData<Int>()
+        val errorMessageToShow = MutableLiveData<Int?>()
 
         assertThat(Validator.isValidName(Mockito.mock(Context::class.java), "", errorMessageToShow, null)).isFalse()
     }
 
     @Test
     fun validator_CorrectEmail_ReturnsTrue() {
-        val errorMessageToShow = MutableLiveData<Int>()
+        val errorMessageToShow = MutableLiveData<Int?>()
 
         assertThat(Validator.isValidEmail(Mockito.mock(Context::class.java),"name@email.com", errorMessageToShow, null)).isTrue()
     }
 
     @Test
     fun validator_IncorrectEmail_ReturnsFalse() {
-        val errorMessageToShow = MutableLiveData<Int>()
+        val errorMessageToShow = MutableLiveData<Int?>()
 
         assertThat(Validator.isValidEmail(Mockito.mock(Context::class.java),"name@email", errorMessageToShow, null)).isFalse()
     }
 
     @Test
     fun validator_EmptyEmail_ReturnsFalse() {
-        val errorMessageToShow = MutableLiveData<Int>()
+        val errorMessageToShow = MutableLiveData<Int?>()
 
         assertThat(Validator.isValidEmail(Mockito.mock(Context::class.java),"", errorMessageToShow, null)).isFalse()
     }
@@ -72,21 +72,21 @@ class ValidatorTest {
 
     @Test
     fun validator_CorrectPhone_ReturnsTrue() {
-        val errorMessageToShow = MutableLiveData<String>()
+        val errorMessageToShow = MutableLiveData<String?>()
 
         assertThat(Validator.isValidPhone(Mockito.mock(Context::class.java),"+40773909845", errorMessageToShow)).isTrue()
     }
 
     @Test
     fun validator_EmptyPhone_ReturnsTrue() {
-        val errorMessageToShow = MutableLiveData<String>()
+        val errorMessageToShow = MutableLiveData<String?>()
 
         assertThat(Validator.isValidPhone(Mockito.mock(Context::class.java),"", errorMessageToShow)).isTrue()
     }
 
     @Test
     fun validator_IncorrectPhone_ReturnsFalse() {
-        val errorMessageToShow = MutableLiveData<String>()
+        val errorMessageToShow = MutableLiveData<String?>()
 
         assertThat(Validator.isValidPhone(Mockito.mock(Context::class.java),"012234", errorMessageToShow)).isFalse()
     }

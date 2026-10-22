@@ -4,6 +4,10 @@
 
 All claims below carry a "checked" note saying where they were verified. Verified on 2026-08-26 unless stated otherwise.
 
+**Re-checked 2026-10-21 (before VSP-1849):** the recommendation stands — no new JVM library, edtf-java unchanged, backend still on `@edtf-ts/core` 0.5.0. Web's output changed when PR #1056 merged; §2 and §9 are updated. Details in §4 "Re-check 2026-10-21".
+
+**Implemented in VSP-1849:** `edtf/EdtfConverter.kt` (encode/decode) and `edtf/EdtfValue.kt` (model). The test-case set is `app/src/test/resources/edtf/edtf-cases.json`, run by `EdtfConverterTest`. Nothing calls the converter yet. Two more library gaps came up during that work (§4, gaps 6–7).
+
 ---
 
 ## 1. The bounded requirement scope
@@ -22,14 +26,14 @@ From **VSP-1764** (basic entry), **VSP-1765** (advanced entry), **VSP-1830** (va
 | Approximate toggle | trailing `~` | 1 |
 | Both toggles | trailing `%` | 2 |
 | Unknown toggle ("all X") | `XXXX-XX-XX` | 1 |
-| Partially-filled dates | X-padded digits: `19XX`, `1985-1X`, `XXXX-05`, `1985-XX-20`, `2024-XX-09` (days always real, zero-padded) | 1–2 |
+| Partially-filled dates | X-padded digits: `19XX`, `XXXX-05`, `1985-XX-20`, `2024-XX-09` (single-digit month/day zero-padded; `1985-1X` is read-only since 2026-09-16, §2) | 1–2 |
 | Validation: year 4-digit, month 1–12, day 1–31, h/m/s ranges, only for filled fields | parser-side checks | — |
 
 **Not needed:** seasons (`2001-21`), sets/lists (`[1667,1668]`), exponential years (`Y17E7`), significant digits, decades/centuries as types, per-component qualifiers (`2004-06?-11`). This exclusion is what makes a native converter tractable.
 
 Two scope facts the tickets don't state, established during verification:
 
-- **Interior X patterns ARE needed.** Web really produces `2024-XX-09`, `1985-1X`, `XXXX-05`, `XXXX-XX-20` — unspecified month with a real day, partial-digit months — which is Level 2 territory. The table above includes them.
+- **Interior X patterns ARE needed.** Web really produces `2024-XX-09`, `XXXX-05`, `XXXX-XX-20` — unspecified month with a real day — which is Level 2 territory. The table above includes them. Partial-digit months (`1985-1X`) were produced until 2026-09-16 and must still be read.
 - **Time + qualifier is not expressible** (next subsection), so "uncertain datetime" never reaches the wire.
 
 ### A constraint the tickets don't state: EDTF cannot qualify times
@@ -69,13 +73,14 @@ Source-verified 2026-08-26 against `PermanentOrg/stela` @ `b772396f` (HEAD of ma
 
 - Dependency: `edtf` ^4.9.1 (resolves 4.10.1) — used **only** in `shared/services/edtf-service/edtf.service.ts`; UI components exchange a `DateTimeModel`, never strings. The whole EDTF picker UI is behind the server feature flag **`edtf-date`** (on/off state in prod/staging not verifiable from source).
 - Web **PATCHes only `{displayTime}`** to the V2 routes (`record.repo.ts:518-528`, `folder.repo.ts:249-256` — with the in-code comment "For now we only send displayTime"); every other field, including legacy `displayDT`, still goes through V1 `/record/update` / `/folder/update`.
-- Web's **output vocabulary** (from `toEdtfDate` + its spec, incl. open validation PR #1056):
-  - `YYYY`, `YYYY-MM`, `YYYY-MM-DD`; missing digits padded with `X` (`19XX`, `1985-1X`, `XXXX-05`, `2024-XX-09`) — except **days are zero-padded real digits, never X-padded**;
+- Web's **output vocabulary** (from `toEdtfDate` + its spec; PR #1056 merged 2026-09-16, re-checked on `main` @ `02eefea1` 2026-10-21):
+  - `YYYY`, `YYYY-MM`, `YYYY-MM-DD`; missing year digits padded with `X` (`19XX`, `198X`), missing month = `XX` (`XXXX-05`, `2024-XX-09`); **a single-digit month or day is zero-padded** (`"1"` → `01`, `buildDateString` / `padMonthOrDay`) — so `1985-1X` is no longer written, but older data has it;
+  - rejected before save: month `0` / day `0` ("Month must be between 1 and 12." / "Day must be between 1 and 31."), and impossible days such as `2021-02-29` or `1985-04-31` (`INVALID_DAY_FOR_MONTH_ERROR`), because edtf.js would roll them forward;
   - time appended **only when year+month+day are all present**, always as `THH:MM:SS±HH:MM` — **never `Z`, never offset-less** (unset timezone = local offset stamped at save);
   - trailing `~` / `?` / `%` (whole-side only);
   - unknown single date = the literal `XXXX-XX-XX`;
   - ranges `start/end` where an **empty** side becomes `..` (open) and an **unknown-toggled** side becomes the empty string (`2024/`, `/2024`, `../2024`);
-  - qualifier + X combos (`19XX?`, `2024-XX-05?`) are produced and, per PR #1056's in-code comment, "valid EDTF the backend accepts."
+  - qualifier + X combos are produced (`19XX?`, `2024-XX-05?`, `2026-XX-11~`, `198X-05-20%`, `XXXX-05?`); Web parses them by stripping the trailing qualifier, parsing the base and re-attaching it. All are backend-accepted (§9).
 - Read side unchanged from the repo docs: records → `displayDate`, folders → `displayTimestamp` (both legacy ISO timestamps); `displayTime` now also present on GET (`get_records.sql:195-196`, `get_folders.sql:225-227`), round-tripping unchanged.
 
 **The compatibility bar, in one sentence:** Android must write `displayTime` strings that `@edtf-ts/core@0.5.0` accepts at Level ≤ 2 and read back the vocabulary listed above; the corpus in §9 encodes exactly that.
@@ -116,7 +121,7 @@ A note on verification: search.maven.org's search API returns 0 hits for "edtf" 
 | License | BSD-2-Clause; bundles edtf.js's BSD notice + ATTRIBUTION.md | pom + jar META-INF |
 | Runtime deps | **Zero** (only test-scoped junit/assertj) | published pom |
 | Size | 86 KB jar, pure Java — no native code, no per-ABI cost | jar download |
-| Bytecode | Java 17 (major 61) — matches the app's Java 17 target; D8/AGP 8.13 handles it; uses `java.time` (fine on minSdk 26); `module-info` absent, `package-info` harmless | `javap` + class-file header |
+| Bytecode | Java 17 (major 61) — matches the app's Java 17 target; D8/AGP 8.13 handles it; uses `java.time` (fine on minSdk 26); the jar ships `module-info.class` (exports `edtf`, `edtf.types`, `edtf.format`, not `edtf.internal`); it is left out of the APK | `javap` + class-file header; jar listing 2026-10-21 |
 | Coverage | L0 full incl. datetimes+offset; L1 `?~`, X, open/unknown endpoints; L2 `%` and arbitrary-position X — both directions (`Edtf.parse` / `EdtfDate.of*` + `withQualifiers` + `EdtfInterval.of(Endpoint, Endpoint)` with `Open`/`Unknown`/`Bounded`) | `javap` API dump + spike below |
 | Maturity | Created 2026-04-22; 3 releases; 13 test classes + 6 TSV vector suites incl. a LoC-spec suite; daily CI smoke against the Central artifact passing this week. **0 stars, no visible adopters** — well-engineered but 4 months old | repo + Actions API |
 
@@ -135,6 +140,11 @@ Everything else — all qualifier forms incl. `%`, all X patterns, unknown/open 
 
 All five gaps are wrapper-absorbable (see §7) and worth filing as upstream issues — the project is receptive (active daily CI, dependabot, planned features in its tracker).
 
+Found while building the converter (VSP-1849, 2026-10-21):
+
+6. **Masked dates lose their qualifier on encode**: `EdtfDate.toEdtfString()` → `renderMasked()` ignores the uncertain/approximate masks. Decoding through `EdtfDate` also loses data: masked months/days become `1` (`2016-13-XX` and `1985-2X` both turn into month 1), and the X digits only exist in the internal `Bitmask`. So the converter builds strings itself and reads components with its own regex. The library is only used to validate (gate) and to classify values the converter doesn't model.
+7. **No range-order check**: `2020/2019` parses. The backend rejects it (`start.min > end.max`). The backend compares the times **as written and ignores offsets**: it rejects `…T12:00:00+02:00/…T11:00:00+00:00` and accepts `…T10:00:00+00:00/…T11:00:00+02:00`, checked in `jsc` 2026-10-21. The converter does the same, comparing with offsets removed.
+
 ### Other candidates — not viable
 
 | Candidate | Verdict | Why | Checked |
@@ -144,6 +154,19 @@ All five gaps are wrapper-absorbable (see §7) and worth filing as upstream issu
 | `rwelty1889/EDTF-Parser` | not viable | OpenHistoricalMap's own earlier attempt, superseded by edtf-java; L0–1 only, "needs a formal set of tests" | repo README |
 | Europeana `metis-normalization` | not extractable | Real EDTF package (`eu.europeana.normalization.dates.edtf`) but coupled into their module, EUPL-ish licensing unverified, no standalone artifact | repo |
 | Rust `edtf` crate via JNI | not worth it | Stale (2021), small; strictly worse than a pure-Java lib | crates.io |
+
+### Re-check 2026-10-21
+
+| Check | Result | Checked |
+|---|---|---|
+| edtf-java releases | still 0.3.1 (2026-04-25) | repo1 `maven-metadata.xml` |
+| edtf-java activity | no commits on `main` since 2026-04-25; only dependabot PRs since; open issues are formatter extras (#11–#16), none about our five gaps | GitHub API commits / issues / branches |
+| New JVM libraries | none — GitHub repo search `edtf language:java` / `language:kotlin` returns the same candidates as below | GitHub search API |
+| `edtf4k` | unchanged (last push 2025-01-27, LGPL-2.1) | GitHub API |
+| Backend validator | stela `packages/api/package.json` pins `@edtf-ts/core` `^0.5.0` (0.6.0, released 2026-09-05, is not picked up by a 0.x caret) | raw `package.json` on `main` + npm registry |
+| Web vocabulary | changed — see §2 and §9 | web-app `main` @ `02eefea1` |
+
+Impact: none on the library choice. The quiet upstream makes the vendoring fallback (§10) more likely, not less. Gap 5 (qualifier + X) now matters more, because Web writes it in more forms.
 
 **Library of Congress implementations list** (read via Wayback snapshot 2026-06-05 — live page is behind a Cloudflare challenge): still **no Java/Kotlin/JVM entry**; edtf-java isn't listed yet. KMP: nothing exists.
 
@@ -301,9 +324,18 @@ Assembled from three sources: the in-scope subset of edtf.js's own test suite (`
 
 ### Web-vocabulary cases (from web-app `edtf.service.spec.ts` at `bdeff309` + PR #1056)
 
-These are strings Web actually stores in `displayTime` today (or will, once its open validation PR merges) — Android must parse all of them for display parity:
+These are strings Web stores in `displayTime` — Android must parse all of them for display parity:
 
 `1985` · `1985-05` · `1985-05-20` · `198X` · `19XX` · `XXXX-05` · `XXXX-XX-20` · `1985-XX-20` · `1985-1X` · `198X-05-20` · `2024-XX-09` · `XXXX-XX-XX` · `1985-05-20T14:30:45+05:30` · `1985-05-20~` · `19XX?` · `2024-XX-05?` · `2024/` · `/2024` · `../2024` · `2024/..` · `1985-05/2024-06-15` · `1985~/2024?`
+
+**Added 2026-10-21** (PR #1056 merged 2026-09-16, `main` @ `02eefea1`):
+
+- Parse + encode: `2026-XX-11~` · `198X-05-20%` · `XXXX-05?`
+- Encode from fields: month `"1"` → `1985-01`, month `"5"` + day `"2"` → `1985-05-02`
+- Encode rejects: month `"0"`, day `"0"`, `2021-02-29`, `1985-04-31`
+- Read-only (in older data, never written now): `1985-1X`
+
+Backend check (`@edtf-ts/core@0.5.0` in `jsc`, 2026-10-21): all parse strings above accepted; `2021-02-29` and `1985-04-31` rejected ("Day must be 01-28 for 2021-02" / "01-30 for 1985-04"); `2024-02-29` accepted.
 
 ### Backend-evidenced cases (from stela's own tests, accepted → stored verbatim)
 
@@ -323,6 +355,8 @@ Excluded groups (out of scope, for the record): seasons `YYYY-SS`, `Y`-prefixed 
 | `…T16:54:59+0200` | rejected ("Invalid datetime format") | edtf-java rejects this too — edtf.js is the outlier; §4 gap 5 is not a gap vs the real gatekeeper |
 | `-0000` | accepted | edtf.js rejects; cosmetic, never produced |
 
+**Re-run 2026-10-21 on the VSP-1849 case file:** all 135 strings the converter writes are accepted. Of the inputs the converter treats as invalid, 3 are accepted by the backend: `-0000`, `…+19:00` and `XXXX-02-30`. The converter is stricter on purpose (no negative years, real offsets only, Web's day-in-month rule), and these only show as unsupported.
+
 Notably, `19XX?` and `2024-XX-05?` **are backend-accepted** — direct confirmation of Web PR #1056's in-code claim. Every string the Android UI will emit under the §7 recommendation is now proven acceptable to the backend, not inferred.
 
 ---
@@ -336,7 +370,7 @@ Notably, `19XX?` and `2024-XX-05?` **are backend-accepted** — direct confirmat
 | edtf-java is 4 months old with no visible adopters; it could be abandoned | BSD-2-Clause + zero deps + 86 KB means we can **fork or vendor the source** at any time with no license or build friction; the corpus tests would catch any regression on upgrade, and A′ remains a bounded fallback (§5) |
 | Backend gatekeeper is edtf-ts, and no two of the three parsers (edtf-ts, edtf.js, edtf-java) agree on every string | **Largely closed 2026-08-27**: all 106 corpus parse strings were run through the actual `@edtf-ts/core@0.5.0` (§9) — every UI-producible string is backend-accepted; the 3 divergences are edge cases we never emit. Residual: anything outside the corpus stays Unsupported rather than guessed |
 | `2016-13-XX`-style silent corruption on parse of hostile/legacy data | Wrapper month guard (§7); values reaching us come from Web/our own encoder in practice |
-| Web's behavior may shift (PR #1056 and the record-viewer PR are still open) | Both PR branches were diffed — the PATCH payload shape is unchanged; re-check the corpus when they merge |
+| Web's behavior may shift | PR #1056 merged 2026-09-16; the PATCH payload shape is unchanged, the vocabulary changes are in §2 and §9 (re-checked 2026-10-21) |
 
 ### iOS alignment (VSP-1831 findings published — reviewed 2026-08-27)
 
