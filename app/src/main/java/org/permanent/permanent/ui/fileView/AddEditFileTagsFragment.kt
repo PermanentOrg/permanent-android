@@ -49,7 +49,7 @@ class AddEditFileTagsFragment : PermanentBaseFragment() {
 
     private fun initDeviceBackPressCallback() {
         requireActivity().onBackPressedDispatcher
-            .addCallback(object : OnBackPressedCallback(true) {
+            .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     navigateUp(fileData)
                 }
@@ -96,6 +96,8 @@ class AddEditFileTagsFragment : PermanentBaseFragment() {
     }
 
     private fun navigateUp(it: FileData?) {
+        // A second back press can arrive while the exit transition is still running
+        if (findNavController().currentDestination?.id != R.id.addEditFileTagsFragment) return
         context?.hideKeyboardFrom(binding.root.windowToken)
         val bundle = bundleOf(
             PARCELABLE_FILE_DATA_KEY to it, BOOLEAN_SHOULD_SCROLL_KEY to true

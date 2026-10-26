@@ -49,8 +49,8 @@ class RecordSearchFragment : PermanentBaseFragment() {
         return binding.root
     }
 
-    private val onShowMessage = Observer<String> {
-        Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    private val onShowMessage = Observer<String?> {
+        if (it != null) Toast.makeText(context, it, Toast.LENGTH_LONG).show()
     }
 
     private val onVisibleTagsReady = Observer<ArrayList<Tag>> {

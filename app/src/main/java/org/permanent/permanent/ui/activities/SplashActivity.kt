@@ -76,26 +76,20 @@ class SplashActivity : PermanentBaseActivity() {
     }
 
     private fun shouldUpdateApp(remoteConfig: FirebaseRemoteConfig): Boolean {
-        var shouldUpdateApp = false
-        val minimumVersionSplit = remoteConfig.getString(MINIMUM_APP_VERSION_KEY).split(".")
-        val currentVersionSplit = BuildConfig.VERSION_NAME.split(".")
+        // Empty until the async defaults land, so a fast fetch can return ""
+        val minimumVersion = parseVersion(remoteConfig.getString(MINIMUM_APP_VERSION_KEY))
+        val currentVersion = parseVersion(BuildConfig.VERSION_NAME)
+        if (minimumVersion == null || currentVersion == null) return false
 
-        val remoteMajor = minimumVersionSplit[0].toInt()
-        val remoteMinor = minimumVersionSplit[1].toInt()
-        val remotePatch = minimumVersionSplit[2].toInt()
-        val currentMajor = currentVersionSplit[0].toInt()
-        val currentMinor = currentVersionSplit[1].toInt()
-        val currentPatch = currentVersionSplit[2].toInt()
-
-        if (remoteMajor > currentMajor) {
-            shouldUpdateApp = true
-        } else if (remoteMajor == currentMajor && remoteMinor > currentMinor) {
-            shouldUpdateApp = true
-        } else if (remoteMinor == currentMinor && remotePatch > currentPatch) {
-            shouldUpdateApp = true
+        for (i in 0..2) {
+            if (minimumVersion[i] != currentVersion[i]) return minimumVersion[i] > currentVersion[i]
         }
+        return false
+    }
 
-        return shouldUpdateApp
+    private fun parseVersion(version: String): List<Int>? {
+        val parts = version.split(".").map { it.toIntOrNull() ?: return null }
+        return if (parts.size >= 3) parts else null
     }
 
     private fun setupRemoteConfig(): FirebaseRemoteConfig {

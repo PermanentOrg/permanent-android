@@ -18,8 +18,8 @@ android {
         applicationId "org.permanent.PermanentArchive"
         minSdkVersion 26
         targetSdkVersion 36
-        versionCode 157
-        versionName "1.18.0"
+        versionCode 158
+        versionName "1.18.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

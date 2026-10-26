@@ -415,7 +415,7 @@ open class MyFilesViewModel(application: Application) : SelectionViewModel(appli
     }
 
     fun onAddFabClick() {
-        onShowAddOptionsFragment.value = currentFolder.value?.getFolderIdentifier()
+        currentFolder.value?.getFolderIdentifier()?.let { onShowAddOptionsFragment.value = it }
     }
 
     fun onChecklistFabClick() {
