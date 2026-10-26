@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.tasks.Task
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -29,6 +30,9 @@ class SplashActivity : PermanentBaseActivity() {
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var binding: ActivitySplashBinding
     private lateinit var viewModel: SplashViewModel
+    private lateinit var remoteConfig: FirebaseRemoteConfig
+    private lateinit var remoteConfigFetch: Task<Boolean>
+    private var isRouted = false
 
     private val errorObserver = Observer<String> {
         prefsHelper.saveUserLoggedIn(false)
@@ -65,14 +69,23 @@ class SplashActivity : PermanentBaseActivity() {
         // Clear deep links that weren't consumed
         prefsHelper.saveShareLinkUrlToken("")
         prefsHelper.saveDeepLinkArchiveNr("")
-        val remoteConfig = setupRemoteConfig()
+        remoteConfig = setupRemoteConfig()
+        remoteConfigFetch = remoteConfig.fetchAndActivate()
+    }
 
-        remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
-            if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
-            else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
-            else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
-            else viewModel.switchArchiveToCurrent()
-        }
+    override fun onStart() {
+        super.onStart()
+        // Activity-scoped listeners are dropped in onStop; a finished task calls a new one at once
+        remoteConfigFetch.addOnCompleteListener(this) { routeAfterRemoteConfig() }
+    }
+
+    private fun routeAfterRemoteConfig() {
+        if (isRouted) return
+        isRouted = true
+        if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
+        else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
+        else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
+        else viewModel.switchArchiveToCurrent()
     }
 
     private fun shouldUpdateApp(remoteConfig: FirebaseRemoteConfig): Boolean {
