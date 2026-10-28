@@ -56,9 +56,12 @@ class FileActivity : PermanentBaseActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fileNavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
-        navController.setGraph(R.navigation.file_navigation_graph, intent.extras)
+        val graph = navController.navInflater.inflate(R.navigation.file_navigation_graph)
+        if (intent.hasExtra(PARCELABLE_FILE_DATA_KEY)) graph.setStartDestination(R.id.fileMetadataFragment)
+        navController.setGraph(graph, intent.extras)
 
-        appBarConfig = AppBarConfiguration(navController.graph)
+        // Only the viewer is top level, so Info keeps its back arrow when it starts the activity
+        appBarConfig = AppBarConfiguration(setOf(R.id.filesContainerFragment))
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 
         setToolbarAndStatusBarColor(R.color.black)

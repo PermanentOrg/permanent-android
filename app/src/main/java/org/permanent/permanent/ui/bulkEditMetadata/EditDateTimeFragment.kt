@@ -2,6 +2,7 @@ package org.permanent.permanent.ui.bulkEditMetadata
 
 import android.app.Dialog
 import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -60,6 +61,7 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
             val sheetDialog = dialog as BottomSheetDialog
             val bottomSheet =
                 sheetDialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundColor(Color.TRANSPARENT)
             BottomSheetBehavior.from(bottomSheet as FrameLayout)
                 .setState(BottomSheetBehavior.STATE_EXPANDED)
         }

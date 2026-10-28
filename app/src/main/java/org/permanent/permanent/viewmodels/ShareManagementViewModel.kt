@@ -213,7 +213,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
         this.record = record
 
         _recordName.value = record.displayName ?: ""
-        _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
+        _recordSize.value = bytesToHumanReadableString(record.size)
         _recordDate.value = record.shownDate.toDisplayDate()
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 ?: "" else ""
 

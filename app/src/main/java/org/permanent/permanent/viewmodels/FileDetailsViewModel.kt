@@ -31,7 +31,7 @@ class FileDetailsViewModel(application: Application) : ObservableAndroidViewMode
         lastModified.value = formattedDate(fileData.updatedDate) ?: "-"
         created.value = formattedDate(fileData.derivedDate) ?: "-"
         fileCreated.value = formattedDate(fileData.derivedCreatedDate) ?: "-"
-        size.value = if (fileData.size != -1L) bytesToHumanReadableString(fileData.size) else "-"
+        size.value = bytesToHumanReadableString(fileData.size).ifEmpty { "-" }
         fileType.value = fileData.contentType?.substringBefore("/") ?: "-"
         originalFileName.value = fileData.originalFileName ?: "-"
         originalFileType.value = fileData.originalFileType ?: "-"

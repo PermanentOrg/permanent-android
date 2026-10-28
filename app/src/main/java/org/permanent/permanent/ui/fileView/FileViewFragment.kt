@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
+import androidx.core.view.doOnAttach
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -166,23 +167,26 @@ class FileViewFragment : PermanentBaseFragment(), View.OnTouchListener, View.OnC
             Thread {
                 try {
                     val inputStream: InputStream = URL(pdfUrl).openStream()
+                    // PDFView crashes if loaded while detached (its render thread is gone)
                     activity?.runOnUiThread {
-                        binding.pdfView.recycle()
-                        binding.pdfView.fromStream(inputStream)
-                            .enableSwipe(false)
-                            .onLoad {
-                                renderedPdfUrl = pdfUrl
-                                viewModel.onPreviewRendered()
-                            }
-                            .onError { error ->
-                                error.message?.let { errorMsg ->
-                                    Log.e(FileViewFragment::class.java.simpleName, errorMsg)
+                        binding.pdfView.doOnAttach {
+                            binding.pdfView.recycle()
+                            binding.pdfView.fromStream(inputStream)
+                                .enableSwipe(false)
+                                .onLoad {
+                                    renderedPdfUrl = pdfUrl
+                                    viewModel.onPreviewRendered()
                                 }
-                                viewModel.onPreviewLoadFailed()
-                            }
-                            .enableAnnotationRendering(false)
-                            .password(null)
-                            .load()
+                                .onError { error ->
+                                    error.message?.let { errorMsg ->
+                                        Log.e(FileViewFragment::class.java.simpleName, errorMsg)
+                                    }
+                                    viewModel.onPreviewLoadFailed()
+                                }
+                                .enableAnnotationRendering(false)
+                                .password(null)
+                                .load()
+                        }
                     }
                 } catch (e: IOException) {
                     e.message?.let { errorMsg ->

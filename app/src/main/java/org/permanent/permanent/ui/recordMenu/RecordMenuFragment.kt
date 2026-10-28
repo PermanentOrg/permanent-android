@@ -30,10 +30,14 @@ import org.permanent.permanent.R
 import org.permanent.permanent.REQUEST_CODE_WRITE_STORAGE_PERMISSION
 import org.permanent.permanent.models.AccountEventAction
 import org.permanent.permanent.models.Record
+import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.ConfirmationDialogFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.bulkEditMetadata.EditDateTimeFragment
 import org.permanent.permanent.ui.drawBehindSystemBars
+import org.permanent.permanent.ui.fileView.FileActivity
+import org.permanent.permanent.ui.fileView.PARCELABLE_FILE_DATA_KEY
 import org.permanent.permanent.ui.myFiles.ModificationType
 import org.permanent.permanent.ui.myFiles.PARCELABLE_RECORD_KEY
 import org.permanent.permanent.ui.recordMenu.compose.RecordMenuPopup
@@ -56,6 +60,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     private val onRecordRenameRequest = MutableLiveData<Record>()
     private val onRecordRelocateRequest = MutableLiveData<Pair<Record, ModificationType>>()
     private val onRecordDeleteRequest = MutableLiveData<Record>()
+    private val onRecordDateChanged = MutableLiveData<Record>()
     private val viewModel: RecordMenuViewModel by viewModels()
     private var pendingConfirmationItem: RecordMenuItem? = null
     private val anchor: RecordMenuAnchor? by lazy { arguments?.getParcelable(RECORD_MENU_ANCHOR) }
@@ -169,6 +174,11 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 onRecordRenameRequest.value = record
                 dismiss()
             }
+            RecordMenuItem.AdjustDateTime -> {
+                showEditDateTimeFragment()
+                dismiss()
+            }
+            RecordMenuItem.ViewInformation -> viewModel.onViewInformationClick()
             RecordMenuItem.Move -> {
                 onRecordRelocateRequest.value = Pair(record, ModificationType.MOVE)
                 dismiss()
@@ -233,6 +243,14 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
         sheet.show(parentFragmentManager, "confirmation_sheet")
     }
 
+    private fun showEditDateTimeFragment() {
+        val dateFragment = EditDateTimeFragment()
+        dateFragment.setBundleArguments(arrayListOf(record))
+        dateFragment.show(parentFragmentManager, dateFragment.tag)
+        // Observed on the sheet, which outlives this menu
+        dateFragment.getOnDateChanged().observe(dateFragment) { onRecordDateChanged.value = record }
+    }
+
     private fun showShareManagementFragment() {
         val shareManagementScreen = ShareLinkFragment()
         shareManagementScreen.setBundleArguments(record)
@@ -266,6 +284,13 @@ private val showSnackbar = Observer<String> { message ->
 
     private val onFileDownloadedForSharing = Observer<String> { contentType ->
         viewModel.getUriForSharing()?.let { shareFile(it, contentType) }
+        dismiss()
+    }
+
+    private val onViewInformationObserver = Observer<FileData> { fileData ->
+        val intent = Intent(context, FileActivity::class.java)
+        intent.putExtra(PARCELABLE_FILE_DATA_KEY, fileData)
+        startActivity(intent)
         dismiss()
     }
 
@@ -307,12 +332,15 @@ private val showSnackbar = Observer<String> { message ->
 
     fun getOnRecordLeaveShareRequest(): MutableLiveData<Record> = onRecordLeaveShareRequest
 
+    fun getOnRecordDateChanged(): MutableLiveData<Record> = onRecordDateChanged
+
     override fun connectViewModelEvents() {
         viewModel.getShowSnackbar().observe(this, showSnackbar)
         viewModel.getOnShareToAnotherAppRequest().observe(this, onShareToAnotherAppObserver)
         viewModel.getOnFileDownloadedForSharing().observe(this, onFileDownloadedForSharing)
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
+        viewModel.getOnViewInformationRequest().observe(this, onViewInformationObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -321,6 +349,7 @@ private val showSnackbar = Observer<String> { message ->
         viewModel.getOnFileDownloadedForSharing().removeObserver(onFileDownloadedForSharing)
         viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
+        viewModel.getOnViewInformationRequest().removeObserver(onViewInformationObserver)
     }
 
     override fun onResume() {
