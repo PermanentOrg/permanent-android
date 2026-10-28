@@ -88,6 +88,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     private val onFileDownloadRequest = SingleLiveEvent<Void?>()
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
+    private val onViewInformationRequest = SingleLiveEvent<FileData>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
@@ -109,7 +110,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
                 ?: AccessRole.VIEWER
 
         _recordName.value = record.displayName ?: ""
-        _recordSize.value = if (record.size != -1L) bytesToHumanReadableString(record.size) else ""
+        _recordSize.value = bytesToHumanReadableString(record.size)
         _recordDate.value = record.shownDate.toDisplayDate()
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 ?: "" else ""
         _archiveThumb.value =
@@ -129,6 +130,8 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             RecordMenuItem.GetLink,
             RecordMenuItem.Download,
             RecordMenuItem.Rename,
+            RecordMenuItem.AdjustDateTime,
+            RecordMenuItem.ViewInformation,
             RecordMenuItem.Move,
             RecordMenuItem.Copy,
             RecordMenuItem.Delete,
@@ -218,8 +221,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
                 if (!role.isOwnershipAvailable() || isSharedWithMe)
                     hidden.add(RecordMenuItem.Share)
 
-                if (!role.isEditAvailable())
-                    hidden.add(RecordMenuItem.Rename)
+                if (!role.isEditAvailable()) hidden.add(RecordMenuItem.Rename)
 
                 if (!role.isMoveAvailable() || isRoot)
                     hidden.add(RecordMenuItem.Move)
@@ -269,6 +271,14 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
             }
         }
 
+        if (record.type == RecordType.FOLDER || RecordMenuItem.Rename in hidden)
+            hidden.add(RecordMenuItem.AdjustDateTime)
+
+        // The Info screen reads the record from the user's own archive
+        val isOwnList = workspace == Workspace.PRIVATE_FILES || workspace == Workspace.PUBLIC_FILES ||
+                (workspace == Workspace.SHARES && isFragmentShownInSharedWithMe.value != true)
+        if (record.type == RecordType.FOLDER || !isOwnList) hidden.add(RecordMenuItem.ViewInformation)
+
         // --- Final visible menu items ---
         return baseItems.filterNot { it in hidden }
     }
@@ -298,14 +308,18 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     }
 
     fun onSendACopyClick() {
-        requestFileData()
+        requestFileData { onShareToAnotherAppRequest.value = it.contentType }
+    }
+
+    fun onViewInformationClick() {
+        requestFileData { onViewInformationRequest.value = it }
     }
 
     fun onDownloadClick() {
         checkForPermission()
     }
 
-    private fun requestFileData() {
+    private fun requestFileData(onLoaded: (FileData) -> Unit) {
         val folderLinkId = record.folderLinkId
         val recordId = record.recordId
 
@@ -318,7 +332,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
                 override fun onSuccess(newFileData: FileData) {
                     _isBusyState.value = false
                     fileData = newFileData
-                    onShareToAnotherAppRequest.value = newFileData.contentType
+                    onLoaded(newFileData)
                 }
 
                 override fun onFailed(error: String?) {
@@ -458,6 +472,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     fun getOnFileDownloadedForSharing(): LiveData<String> = onFileDownloadedForSharing
     fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission
     fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
+    fun getOnViewInformationRequest(): LiveData<FileData> = onViewInformationRequest
 
     fun isTablet() = isTablet
 }
@@ -469,6 +484,8 @@ enum class RecordMenuItem {
     GetLink,
     Download,
     Rename,
+    AdjustDateTime,
+    ViewInformation,
     EditMetadata,
     Move,
     Copy,

@@ -10,7 +10,9 @@ import org.permanent.permanent.network.models.ItemVO
 import org.permanent.permanent.network.models.RecordVO
 import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
+import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.myFiles.SortType
+import org.permanent.permanent.ui.toDisplayDate
 
 open class Record : Parcelable, DisplayDated {
     var id: Int? = null
@@ -43,6 +45,14 @@ open class Record : Parcelable, DisplayDated {
     var isProcessing = false
     var displayInShares = false
     var fileData: FileData? = null
+
+    // Folders and files without a size show the date only
+    val sizeAndDate: String
+        get() {
+            val date = shownDate.toDisplayDate().ifEmpty { shownDate.orEmpty() }
+            val shownSize = if (type == RecordType.FILE) bytesToHumanReadableString(size) else ""
+            return listOf(shownSize, date).filter { it.isNotEmpty() }.joinToString(" • ")
+        }
     var localDrawableRes: Int? = null
     var savedSort: SortType? = null
 

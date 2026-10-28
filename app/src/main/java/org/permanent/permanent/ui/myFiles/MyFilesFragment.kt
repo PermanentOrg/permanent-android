@@ -342,6 +342,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadObserver)
         recordMenuFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameObserver)
+        recordMenuFragment?.getOnRecordDateChanged()?.observe(this, onRecordDateChangedObserver)
         recordMenuFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateObserver)
         recordMenuFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteObserver)
     }
@@ -366,6 +367,10 @@ class MyFilesFragment : PermanentBaseFragment() {
         val fragment = PublishFragment.forRecord(record)
         fragment.setOnPublishConfirmedCallback { viewModel.publishRecord(record) }
         fragment.show(parentFragmentManager, fragment.tag)
+    }
+
+    private val onRecordDateChangedObserver = Observer<Record> {
+        viewModel.refreshCurrentFolder()
     }
 
     private val onRecordRenameObserver = Observer<Record> { record ->
@@ -654,6 +659,7 @@ class MyFilesFragment : PermanentBaseFragment() {
         recordMenuFragment?.getOnRecordPublishRequest()?.removeObserver(onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadObserver)
         recordMenuFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameObserver)
+        recordMenuFragment?.getOnRecordDateChanged()?.removeObserver(onRecordDateChangedObserver)
         recordMenuFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
         recordMenuFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteObserver)
         sortOptionsFragment?.getOnSortRequest()?.removeObserver(onSortRequest)

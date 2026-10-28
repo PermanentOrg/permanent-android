@@ -30,6 +30,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -86,25 +88,20 @@ fun gbToBytes(gb: Int): Long = gb.toLong() * 1024 * 1024 * 1024
 
 fun mbToBytes(mb: Int): Long = mb.toLong() * 1024 * 1024
 
+// Must match iOS readableFileSize: 1000-based units, at most one decimal, always a period
 fun bytesToHumanReadableString(bytes: Long): String {
-    val unit = 1024.0
-    if (bytes < unit)
-        return "$bytes B"
-    var result = bytes.toDouble()
-    val unitsToUse = "KMGTPE"
-    var i = 0
-    val unitsCount = unitsToUse.length
-    while (true) {
-        result /= unit
-        if (result < unit || i == unitsCount - 1)
-            break
-        ++i
+    if (bytes <= 0) return ""
+    val units = listOf("bytes", "KB", "MB", "GB", "TB", "PB")
+    var value = bytes.toDouble()
+    var unitIndex = 0
+    while (value >= 1000 && unitIndex < units.lastIndex) {
+        value /= 1000
+        unitIndex++
     }
-    return with(StringBuilder(9)) {
-        append(String.format("%.2f ", result))
-        append(unitsToUse[i])
-        append("B")
-    }.toString()
+    val number = if (unitIndex == 0) bytes.toString()
+    else DecimalFormat("0.#", DecimalFormatSymbols(Locale.US)).format(value)
+    val unit = if (bytes == 1L) "byte" else units[unitIndex]
+    return "$number $unit"
 }
 
 fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String {

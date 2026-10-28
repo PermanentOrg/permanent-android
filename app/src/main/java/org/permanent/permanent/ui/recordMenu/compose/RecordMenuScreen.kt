@@ -134,7 +134,9 @@ fun RecordMenuPopup(
     val isBusyState by viewModel.isBusyState.collectAsState()
     val menuItems by viewModel.menuItems.collectAsState()
     val headerItems = remember(menuItems) { popupHeaderItems.filter { it in menuItems } }
-    val listItems = remember(menuItems) { menuItems - popupHeaderItems.toSet() }
+    val listItems = remember(menuItems) {
+        menuItems - popupHeaderItems.toSet() - popupExcludedItems
+    }
     val view = LocalView.current
     val margin = with(LocalDensity.current) { 8.dp.roundToPx() }
     var origin by remember { mutableStateOf<IntOffset?>(null) }
@@ -233,6 +235,7 @@ private fun BoxScope.BusyOverlay() {
 }
 
 private val popupHeaderItems = listOf(RecordMenuItem.Copy, RecordMenuItem.Move, RecordMenuItem.Share)
+private val popupExcludedItems = setOf(RecordMenuItem.AdjustDateTime)
 
 @Composable
 private fun RecordMenuHeaderAction(
@@ -319,6 +322,18 @@ fun RecordMenuItems(
                 RecordMenuItem.Rename -> SettingsMenuItem(
                     iconResource = painterResource(id = R.drawable.ic_rename_primary),
                     text = stringResource(R.string.rename),
+                    verticalPadding = itemVerticalPadding,
+                ) { onItemClick(item) }
+
+                RecordMenuItem.AdjustDateTime -> SettingsMenuItem(
+                    iconResource = painterResource(id = R.drawable.ic_calendar_primary),
+                    text = stringResource(R.string.adjust_date_and_time),
+                    verticalPadding = itemVerticalPadding,
+                ) { onItemClick(item) }
+
+                RecordMenuItem.ViewInformation -> SettingsMenuItem(
+                    iconResource = painterResource(id = R.drawable.ic_info_primary),
+                    text = stringResource(R.string.view_information),
                     verticalPadding = itemVerticalPadding,
                 ) { onItemClick(item) }
 

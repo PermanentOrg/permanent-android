@@ -37,7 +37,7 @@ class SelectionMenuViewModel(application: Application) : ObservableAndroidViewMo
         )
 
         val totalFileSize = files.sumOf { it.sizeBytes.coerceAtLeast(0L) }
-        val totalSizeText = if (totalFileSize > 0) bytesToHumanReadableString(totalFileSize) else ""
+        val totalSizeText = bytesToHumanReadableString(totalFileSize)
 
         val firstFolderDate = folders.firstOrNull()?.createdDate?.toDisplayDate() ?: ""
 

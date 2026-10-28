@@ -6,9 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -18,6 +20,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,14 +38,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.permanent.permanent.R
@@ -57,8 +63,11 @@ fun EditDateTimeScreen(
     cancel: () -> Unit) {
 
     val superLightBlue = colorResource(id = R.color.blue25)
+    val blue50 = colorResource(R.color.blue50)
+    val blue400 = colorResource(R.color.blue400)
     val blue900 = colorResource(R.color.blue900)
-    val regularFont = FontFamily(Font(R.font.open_sans_regular_ttf))
+    val regularFont = FontFamily(Font(R.font.usual_regular))
+    val mediumFont = FontFamily(Font(R.font.usual_medium))
 
     val openAlertDialog = remember { mutableStateOf(false) }
 
@@ -84,12 +93,45 @@ fun EditDateTimeScreen(
     )}
 
     Column(
-        horizontalAlignment = Alignment.End
+        modifier = Modifier
+            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+            .background(Color.White)
     ) {
-        BottomSheetHeader(
-            painterResource(id = R.drawable.ic_date_time),
-            screenTitle = stringResource(id = R.string.add_date_time)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(superLightBlue)
+                .padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_calendar_primary),
+                contentDescription = null,
+                tint = blue900,
+                modifier = Modifier.size(20.dp)
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = stringResource(id = R.string.add_date_time),
+                modifier = Modifier.weight(1f),
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = mediumFont,
+                    color = blue900
+                )
+            )
+
+            IconButton(onClick = cancel) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_close_light_blue),
+                    contentDescription = stringResource(R.string.button_cancel),
+                    tint = blue400
+                )
+            }
+        }
 
         DatePicker(
             state = datePickerState,
@@ -97,60 +139,65 @@ fun EditDateTimeScreen(
             title = null,
             headline = null,
             colors = DatePickerDefaults.colors(
+                containerColor = Color.White,
+                subheadContentColor = blue900,
+                navigationContentColor = blue900,
+                weekdayContentColor = blue400,
                 selectedDayContainerColor = blue900,
-                dayContentColor = Color.Black,
-                todayContentColor = Color.Black,
+                dayContentColor = blue900,
+                todayContentColor = blue900,
                 todayDateBorderColor = blue900,
                 selectedYearContainerColor = blue900,
-                yearContentColor = Color.Black,
-                currentYearContentColor = Color.Black
+                yearContentColor = blue900,
+                currentYearContentColor = blue900
             )
         )
+
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp), color = blue50)
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Time",
                 style = TextStyle(
-                    fontSize = 17.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight(600),
-                    color = Color(0xFF000000)
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = mediumFont,
+                    color = blue900
                 )
             )
 
             Text(
                 text = selectedTime,
                 style = TextStyle(
-                    fontSize = 17.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFF000000),
-
-                    ),
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontFamily = regularFont,
+                    color = blue900
+                ),
                 modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(superLightBlue)
                     .clickable {
                         showTimePicker = true
                     }
-                    .background(color = Color(0x1F767680), shape = RoundedCornerShape(size = 8.dp))
-                    .padding(start = 12.dp, top = 6.dp, end = 12.dp, bottom = 6.dp)
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
             )
         }
 
         Row(
-            modifier = Modifier.padding(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(modifier = Modifier
-                .fillMaxWidth()
                 .weight(1.0f)
                 .height(48.dp),
-                shape = RoundedCornerShape(0.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = superLightBlue),
                 onClick = {
                     cancel()
@@ -159,15 +206,14 @@ fun EditDateTimeScreen(
                     text = stringResource(R.string.button_cancel),
                     fontSize = 14.sp,
                     color = blue900,
-                    fontFamily = regularFont,
+                    fontFamily = mediumFont,
                 )
             }
 
             Button(modifier = Modifier
-                .fillMaxWidth()
                 .weight(1.0f)
                 .height(48.dp),
-                shape = RoundedCornerShape(0.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = blue900),
                 enabled = selectedDate.isNotEmpty(),
                 onClick = {
@@ -175,15 +221,15 @@ fun EditDateTimeScreen(
                 }) {
                 if (viewModel.isBusy.value) {
                     CircularProgressIndicator(
-                        modifier = Modifier.width(32.dp),
-                        color = blue900,
-                        trackColor = superLightBlue,
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
                     )
                 } else {
                     Text(
                         text = stringResource(R.string.add_date),
                         fontSize = 14.sp,
-                        fontFamily = regularFont,
+                        fontFamily = mediumFont,
                     )
                 }
             }
@@ -200,6 +246,8 @@ fun EditDateTimeScreen(
                 TimePicker(
                     state = timePickerState,
                     colors = TimePickerDefaults.colors(
+                        clockDialColor = superLightBlue,
+                        timeSelectorUnselectedContainerColor = superLightBlue,
                         timeSelectorSelectedContainerColor = blue900,
                         timeSelectorSelectedContentColor = Color.White,
                         selectorColor = blue900,
@@ -214,7 +262,7 @@ fun EditDateTimeScreen(
             openAlertDialog.value -> {
                 CustomDialog(
                     title = stringResource(id = R.string.date_confirmation_title),
-                    subtitle = stringResource(id = R.string.date_confirmation_substring),
+                    subtitle = pluralStringResource(R.plurals.date_confirmation_message, viewModel.recordsCount, viewModel.recordsCount),
                     okButtonText = stringResource(id = R.string.set_date_and_time),
                     cancelButtonText = stringResource(id = R.string.button_cancel),
                     onConfirm = {
@@ -242,14 +290,15 @@ fun TimePickerDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color.White,
         dismissButton = {
             TextButton(onClick = { onDismiss() }) {
-                Text(stringResource(id = R.string.button_cancel))
+                Text(stringResource(id = R.string.button_cancel), color = colorResource(R.color.blue900))
             }
         },
         confirmButton = {
             TextButton(onClick = { onConfirm() }) {
-                Text(stringResource(id = R.string.save))
+                Text(stringResource(id = R.string.save), color = colorResource(R.color.blue900))
             }
         },
         text = { content() }

@@ -15,6 +15,8 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -96,9 +98,16 @@ class SharedXMeFragment : PermanentBaseFragment() {
     private var bottomSheetFragment: ChecklistBottomSheetFragment? = null
     private val onRecordSelectedEvent = SingleLiveEvent<Record>()
     private var islandExpandedWidth = 960
+    private var shouldRefreshCurrentFolder = false
+
+    // Another screen covered Shares; a tab switch doesn't pause the activity
+    private val activityPauseObserver = LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_PAUSE) shouldRefreshCurrentFolder = true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requireActivity().lifecycle.addObserver(activityPauseObserver)
         parentFragmentManager.setFragmentResultListener(
             ShareLinkFragment.SHARES_CHANGED_RESULT_KEY, this
         ) { _, _ ->
@@ -189,6 +198,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordMenuFragment?.getOnRecordPublishRequest()?.observe(this, onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.observe(this, onFileDownloadRequest)
         recordMenuFragment?.getOnRecordRenameRequest()?.observe(this, onRecordRenameObserver)
+        recordMenuFragment?.getOnRecordDateChanged()?.observe(this, onRecordDateChangedObserver)
         recordMenuFragment?.getOnRecordRelocateRequest()?.observe(this, onRecordRelocateObserver)
         recordMenuFragment?.getOnRecordDeleteRequest()?.observe(this, onRecordDeleteObserver)
     }
@@ -280,6 +290,10 @@ class SharedXMeFragment : PermanentBaseFragment() {
         val fragment = PublishFragment.forRecord(record)
         fragment.setOnPublishConfirmedCallback { viewModel.publishRecord(record) }
         fragment.show(parentFragmentManager, fragment.tag)
+    }
+
+    private val onRecordDateChangedObserver = Observer<Record> {
+        viewModel.refreshCurrentFolder()
     }
 
     private val onRecordRenameObserver = Observer<Record> { record ->
@@ -579,6 +593,7 @@ class SharedXMeFragment : PermanentBaseFragment() {
         recordMenuFragment?.getOnRecordPublishRequest()?.removeObserver(onRecordPublishObserver)
         recordMenuFragment?.getOnFileDownloadRequest()?.removeObserver(onFileDownloadRequest)
         recordMenuFragment?.getOnRecordRenameRequest()?.removeObserver(onRecordRenameObserver)
+        recordMenuFragment?.getOnRecordDateChanged()?.removeObserver(onRecordDateChangedObserver)
         recordMenuFragment?.getOnRecordRelocateRequest()?.removeObserver(onRecordRelocateObserver)
         recordMenuFragment?.getOnRecordDeleteRequest()?.removeObserver(onRecordDeleteObserver)
         recordMenuFragment?.getOnRecordLeaveShareRequest()?.removeObserver(onRecordLeaveShareObserver)
@@ -591,10 +606,17 @@ class SharedXMeFragment : PermanentBaseFragment() {
         super.onResume()
         connectViewModelEvents()
         checkForViewModeChange()
+        if (shouldRefreshCurrentFolder) viewModel.refreshCurrentFolder()
+        shouldRefreshCurrentFolder = false
     }
 
     override fun onPause() {
         super.onPause()
         disconnectViewModelEvents()
+    }
+
+    override fun onDestroy() {
+        activity?.lifecycle?.removeObserver(activityPauseObserver)
+        super.onDestroy()
     }
 }

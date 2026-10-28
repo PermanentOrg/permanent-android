@@ -16,6 +16,8 @@ import java.time.ZoneOffset
 class EditDateTimeViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var records: MutableList<Record> = mutableListOf()
+    val recordsCount: Int
+        get() = records.size
     var shouldClose: MutableState<Boolean> = mutableStateOf(false)
     var isBusy: MutableState<Boolean> = mutableStateOf(false)
     val showMessage = mutableStateOf("")
