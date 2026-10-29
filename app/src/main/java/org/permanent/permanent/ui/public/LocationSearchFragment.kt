@@ -16,11 +16,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLocationSearchBinding
 import org.permanent.permanent.models.ProfileItem
@@ -56,8 +54,6 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     }
 
     private fun initAutocompleteFragment() {
-        Places.initialize(requireContext(), BuildConfig.GMP_KEY)
-
         autocompleteFragment = AutocompleteSupportFragment()
         val transaction = childFragmentManager.beginTransaction()
         transaction.add(R.id.cvSearch, autocompleteFragment, "autocompleteFragment")
@@ -112,7 +108,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
 
     private fun initDeviceBackPressCallback() {
         requireActivity().onBackPressedDispatcher
-            .addCallback(object : OnBackPressedCallback(true) {
+            .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     navigateUp()
                 }

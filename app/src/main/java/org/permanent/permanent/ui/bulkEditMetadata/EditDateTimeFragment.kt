@@ -13,10 +13,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.libraries.places.api.Places
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.bulkEditMetadata.compose.EditDateTimeScreen
@@ -31,7 +29,6 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        Places.initialize(requireContext(), BuildConfig.GMP_KEY)
         viewModel = ViewModelProvider(this)[EditDateTimeViewModel::class.java]
 
         arguments?.getParcelableArrayList<Record>(PARCELABLE_FILES_KEY)?.let {

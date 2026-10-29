@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -125,5 +126,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Stripe screens we never open (only GooglePayLauncher is used); they crash when launched without args -->
+        <activity
+            android:name="com.stripe.android.paymentsheet.PaymentSheetActivity"
+            tools:node="remove" />
+        <activity
+            android:name="com.stripe.android.paymentsheet.PaymentOptionsActivity"
+            tools:node="remove" />
+        <activity
+            android:name="com.stripe.android.view.PaymentMethodsActivity"
+            tools:node="remove" />
+        <activity
+            android:name="com.stripe.android.view.AddPaymentMethodActivity"
+            tools:node="remove" />
+        <activity
+            android:name="com.stripe.android.view.PaymentFlowActivity"
+            tools:node="remove" />
+        <activity
+            android:name="com.stripe.android.payments.paymentlauncher.PaymentLauncherConfirmationActivity"
+            tools:node="remove" />
     </application>
 </manifest>

@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.tasks.Task
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -29,6 +30,9 @@ class SplashActivity : PermanentBaseActivity() {
     private lateinit var prefsHelper: PreferencesHelper
     private lateinit var binding: ActivitySplashBinding
     private lateinit var viewModel: SplashViewModel
+    private lateinit var remoteConfig: FirebaseRemoteConfig
+    private lateinit var remoteConfigFetch: Task<Boolean>
+    private var isRouted = false
 
     private val errorObserver = Observer<String> {
         prefsHelper.saveUserLoggedIn(false)
@@ -65,37 +69,40 @@ class SplashActivity : PermanentBaseActivity() {
         // Clear deep links that weren't consumed
         prefsHelper.saveShareLinkUrlToken("")
         prefsHelper.saveDeepLinkArchiveNr("")
-        val remoteConfig = setupRemoteConfig()
+        remoteConfig = setupRemoteConfig()
+        remoteConfigFetch = remoteConfig.fetchAndActivate()
+    }
 
-        remoteConfig.fetchAndActivate().addOnCompleteListener(this) {
-            if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
-            else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
-            else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
-            else viewModel.switchArchiveToCurrent()
-        }
+    override fun onStart() {
+        super.onStart()
+        // Activity-scoped listeners are dropped in onStop; a finished task calls a new one at once
+        remoteConfigFetch.addOnCompleteListener(this) { routeAfterRemoteConfig() }
+    }
+
+    private fun routeAfterRemoteConfig() {
+        if (isRouted) return
+        isRouted = true
+        if (shouldUpdateApp(remoteConfig)) startUpdateAppActivity()
+        else if (!prefsHelper.isUserLoggedIn()) startLoginActivity()
+        else if (prefsHelper.getDefaultArchiveId() == 0) startArchiveOnboardingActivity()
+        else viewModel.switchArchiveToCurrent()
     }
 
     private fun shouldUpdateApp(remoteConfig: FirebaseRemoteConfig): Boolean {
-        var shouldUpdateApp = false
-        val minimumVersionSplit = remoteConfig.getString(MINIMUM_APP_VERSION_KEY).split(".")
-        val currentVersionSplit = BuildConfig.VERSION_NAME.split(".")
+        // Empty until the async defaults land, so a fast fetch can return ""
+        val minimumVersion = parseVersion(remoteConfig.getString(MINIMUM_APP_VERSION_KEY))
+        val currentVersion = parseVersion(BuildConfig.VERSION_NAME)
+        if (minimumVersion == null || currentVersion == null) return false
 
-        val remoteMajor = minimumVersionSplit[0].toInt()
-        val remoteMinor = minimumVersionSplit[1].toInt()
-        val remotePatch = minimumVersionSplit[2].toInt()
-        val currentMajor = currentVersionSplit[0].toInt()
-        val currentMinor = currentVersionSplit[1].toInt()
-        val currentPatch = currentVersionSplit[2].toInt()
-
-        if (remoteMajor > currentMajor) {
-            shouldUpdateApp = true
-        } else if (remoteMajor == currentMajor && remoteMinor > currentMinor) {
-            shouldUpdateApp = true
-        } else if (remoteMinor == currentMinor && remotePatch > currentPatch) {
-            shouldUpdateApp = true
+        for (i in 0..2) {
+            if (minimumVersion[i] != currentVersion[i]) return minimumVersion[i] > currentVersion[i]
         }
+        return false
+    }
 
-        return shouldUpdateApp
+    private fun parseVersion(version: String): List<Int>? {
+        val parts = version.split(".").map { it.toIntOrNull() ?: return null }
+        return if (parts.size >= 3) parts else null
     }
 
     private fun setupRemoteConfig(): FirebaseRemoteConfig {
