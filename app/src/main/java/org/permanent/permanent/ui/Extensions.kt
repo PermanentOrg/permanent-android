@@ -47,7 +47,7 @@ import java.util.Date
 import java.util.Locale
 
 
-fun Context.hideKeyboardFrom(windowToken: IBinder) {
+fun Context.hideKeyboardFrom(windowToken: IBinder?) {
     (getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             ).hideSoftInputFromWindow(windowToken, 0)
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.google.android.libraries.places.api.Places
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.network.ConnectivityMonitorImpl
 import org.permanent.permanent.network.IConnectivityMonitor
@@ -49,5 +50,7 @@ class PermanentApplication : Application(), LifecycleObserver {
         super.onCreate()
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
         instance = this
+        // AutocompleteActivity can be restored after process death before any of our screens runs
+        Places.initialize(this, BuildConfig.GMP_KEY)
     }
 }

@@ -13,11 +13,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import org.permanent.permanent.BuildConfig
 import org.permanent.permanent.R
 import org.permanent.permanent.databinding.FragmentLocationSearchBinding
 import org.permanent.permanent.network.models.FileData
@@ -56,8 +54,6 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     }
 
     private fun initAutocompleteFragment() {
-        Places.initialize(requireContext(), BuildConfig.GMP_KEY)
-
         autocompleteFragment = AutocompleteSupportFragment()
         val transaction = childFragmentManager.beginTransaction()
         transaction.add(R.id.cvSearch, autocompleteFragment, "autocompleteFragment")
@@ -101,7 +97,7 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
 
     private fun initDeviceBackPressCallback() {
         requireActivity().onBackPressedDispatcher
-            .addCallback(object : OnBackPressedCallback(true) {
+            .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     navigateUp(viewModel.getCurrentFileData())
                 }
@@ -142,6 +138,8 @@ class LocationSearchFragment : PermanentBaseFragment(), OnMapReadyCallback, Plac
     private val onLocationUpdated = Observer<FileData> { navigateUp(it) }
 
     private fun navigateUp(it: FileData?) {
+        // A second back press can arrive while the exit transition is still running
+        if (findNavController().currentDestination?.id != R.id.locationSearchFragment) return
         val bundle = bundleOf(
             PARCELABLE_FILE_DATA_KEY to it, BOOLEAN_SHOULD_SCROLL_KEY to true
         )
