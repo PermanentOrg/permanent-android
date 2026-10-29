@@ -837,7 +837,15 @@ access copy; their folder-publish copies 96736–96739 do not. A single file pub
 the V2 copy (96740) gets its PDF access copy ~2 min later. Effect: DOCX/XLSX in a published
 folder have no `pdfPreviewURL`, so the viewer shows the failure card; PDFs and images open
 from their original. Backend-only — the client needs no change once the access copies exist.
-Reported to backend on Slack 2026-10-09. In the 2026-10-15 meeting Cecilia said it may happen only on staging; next: check a folder publish on production.
+Reported to backend on Slack 2026-10-09. In the 2026-10-15 meeting Cecilia said it may happen only on staging.
+**Production works (Slack, 2026-10-19):** Robert published a folder from Web on production (7 types incl. DOCX/XLSX/GIF/TIFF); every copy had its own access copy within ~70 s (copies 2307652–2307658). Sergiu reported the mobile folder publish on production also worked that day. Earlier production checks fell inside the Archivematica pause for the DB upgrade (from 2026-10-15 ~00:52 CDT until 2026-10-16 afternoon), which held back access copies even for originals.
+**Staging (Slack, 2026-10-26):** Cecilia reproduced it on staging but then saw it working, after an Archivematica deploy; she asked Android to try again.
+**Staging re-test 2026-10-29 (Android, emulator): still broken.** Folder publish at 13:10 UTC (folder
+53855 → published 54097): copies 97822–97826 (GIF, AVI, OGV, MP4, TIFF) still had only
+`file.format.original`, `accessCopyStatus: processing`, after 22 min; their originals 97486–97490 have
+access copies. A second publish at 13:12 UTC (folder 54095, a DOCX + an XLSX → published 54098) stayed
+**empty** for 20 min: no children were copied at all (new symptom). The same two files copied through
+V2 (`POST /v2/records/{id}/copies`, records 97820/97821) got access copies in ~2.5 min.
 
 **Client fallback (VSP-1868, 2026-10-19):** QA on staging found 17 of 27 types failing in a
 published folder (office/email, GIF/TIFF, AVI/OGV). When the viewer can't show a record, the
@@ -1072,8 +1080,8 @@ and milestone pickers share it; it is a lookup, not a save).
 
 **Backend gaps (source-read; a and b live-verified on staging 2026-10-15):** copy of record 96730
 → 97173 pointed at the same row 2584; a coordinates-only PATCH on the copy moved the original too
-and kept the old city and state. Reported to backend on Slack 2026-10-15; in the 2026-10-15 meeting Cecilia said she will file a backend ticket.
-Android works around a and b for record writes since 2026-10-20 (unlink first, see Write above);
+and kept the old city and state. Reported to backend on Slack 2026-10-15; filed by Cecilia as **PER-10864** "[stela] Location API bugs"
+(2026-10-26, epic PER-10417, Open). Android works around a and b for record writes since 2026-10-20 (unlink first, see Write above);
 folders can't be unlinked, and other clients are still affected.
 - **a. Shared rows.** A V2 copy reuses the original's `locnid` (`copy_record.sql:142,208`), and a
   location PATCH updates that row in place, so editing a copy's location also moves the
