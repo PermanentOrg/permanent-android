@@ -59,6 +59,7 @@
     <color name="whiteSuperTransparent">#50FFFFFF</color>
     <color name="whiteSuperExtraTransparent">#20FFFFFF</color>
     <color name="whiteUltraTransparent">#0AFFFFFF</color>
+    <color name="white64">#A3FFFFFF</color>
     <color name="superLightGrey">#EBEBEB</color>
     <color name="lighterGrey">#DADADA</color>
     <color name="lightGrey">#B4B4B4</color>

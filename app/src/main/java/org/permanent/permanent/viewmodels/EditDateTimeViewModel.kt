@@ -16,8 +16,10 @@ import java.time.ZoneOffset
 class EditDateTimeViewModel(application: Application) : ObservableAndroidViewModel(application) {
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var records: MutableList<Record> = mutableListOf()
+    // Pick-only: the caller saves the picked value for its one file.
+    private var isPickOnly = false
     val recordsCount: Int
-        get() = records.size
+        get() = if (isPickOnly) 1 else records.size
     var shouldClose: MutableState<Boolean> = mutableStateOf(false)
     var isBusy: MutableState<Boolean> = mutableStateOf(false)
     val showMessage = mutableStateOf("")
@@ -34,7 +36,17 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
         records.firstOrNull()?.shownDate?.let { seedPicker(it) }
     }
 
+    fun setPickOnly(shownDate: String?) {
+        isPickOnly = true
+        shownDate?.let { seedPicker(it) }
+    }
+
     fun updateDate(dateString: String) {
+        if (isPickOnly) {
+            onDateChanged.value = dateString
+            shouldClose.value = true
+            return
+        }
         this.records.forEach { it.setEditedDate(dateString) }
         applyChanges(dateString)
     }

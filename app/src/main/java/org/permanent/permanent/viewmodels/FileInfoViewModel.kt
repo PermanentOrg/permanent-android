@@ -1,9 +1,7 @@
 package org.permanent.permanent.viewmodels
 
 import android.app.Application
-import android.app.DatePickerDialog
 import android.text.Editable
-import android.widget.DatePicker
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.CurrentArchivePermissionsManager
@@ -14,18 +12,16 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IFileRepository.RecordField
-import org.permanent.permanent.ui.toLocalDateTimeOrNull
-import java.time.LocalDate
+import org.permanent.permanent.ui.toInfoRowDate
 
-class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application),
-    DatePickerDialog.OnDateSetListener {
+class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
     private val appContext = application.applicationContext
     private lateinit var fileData: FileData
     private val name = MutableLiveData<String>()
     private val description = MutableLiveData<String>()
     private val date = MutableLiveData<String>()
-    private var pickedDate: LocalDate? = null
+    private var pickedDate: String? = null
     private val address = MutableLiveData<String>()
     private val onShowDatePickerRequest = SingleLiveEvent<Void?>()
     val onShowLocationSearchRequest = SingleLiveEvent<Void?>()
@@ -34,6 +30,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     private val showMessage = SingleLiveEvent<String>()
     private val showError = SingleLiveEvent<String>()
     private val existsTags = MutableLiveData(false)
+    private val hasCoordinates = MutableLiveData(false)
     private val isEditable = MutableLiveData(false)
     private val isBusy = MutableLiveData(false)
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
@@ -45,9 +42,10 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
                 || fileData.accessRole == AccessRole.CONTRIBUTOR)
         name.value = fileData.displayName
         description.value = fileData.description
-        date.value = fileData.shownDate
+        refreshDate()
         address.value = fileData.completeAddress
         existsTags.value = !fileData.tags.isNullOrEmpty()
+        hasCoordinates.value = fileData.hasCoordinates
     }
 
     fun onNameTextChanged(text: Editable) {
@@ -58,13 +56,18 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
         description.value = text.toString()
     }
 
-    override fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
-        pickedDate = LocalDate.of(year, month + 1, day).also { date.value = it.toString() }
+    fun onDatePicked(value: String) {
+        pickedDate = value
         saveChanges()
     }
 
-    fun getPickerStartDate(): LocalDate =
-        date.value?.toLocalDateTimeOrNull()?.toLocalDate() ?: LocalDate.now()
+    private fun refreshDate() {
+        val text = fileData.shownDate?.toInfoRowDate()
+        val zone = fileData.zoneAbbreviation
+        date.value = if (text == null || zone.isNullOrBlank()) text else "$text $zone"
+    }
+
+    fun getShownDate(): String? = fileData.shownDate
 
     fun onDateClick() {
         if (isEditable.value == true)
@@ -103,23 +106,32 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
         if (changedFields.isNotEmpty()) {
             fileData.displayName = nameValue
             fileData.description = description
-            pickedDate?.let { fileData.setEditedDate(it.toString()) }
+            pickedDate?.let {
+                fileData.setEditedDate(it)
+                refreshDate()
+            }
             pickedDate = null
 
             isBusy.value = true
             fileRepository.updateRecords(mutableListOf(fileData), changedFields, object : IResponseListener {
                 override fun onSuccess(message: String?) {
-                    isBusy.value = false
                     message?.let { showMessage.value = it }
                     onFileInfoUpdated.value = nameValue
+                    onSaveFinished()
                 }
 
                 override fun onFailed(error: String?) {
-                    isBusy.value = false
                     error?.let { showError.value = it }
+                    onSaveFinished()
                 }
             })
         }
+    }
+
+    // Edits made while the previous save was running are saved now
+    private fun onSaveFinished() {
+        isBusy.value = false
+        saveChanges()
     }
 
     fun getName(): LiveData<String> = name
@@ -143,6 +155,8 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     fun getShowMessage(): LiveData<String> = showMessage
 
     fun getExistsTags(): LiveData<Boolean> = existsTags
+
+    fun getHasCoordinates(): LiveData<Boolean> = hasCoordinates
 
     fun getIsEditable(): LiveData<Boolean> = isEditable
 

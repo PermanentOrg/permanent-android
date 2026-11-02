@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.os.bundleOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,6 +35,9 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         arguments?.getParcelableArrayList<Record>(PARCELABLE_FILES_KEY)?.let {
             viewModel.setRecords(it)
         }
+        if (arguments?.containsKey(SHOWN_DATE_KEY) == true) {
+            viewModel.setPickOnly(arguments?.getString(SHOWN_DATE_KEY))
+        }
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -50,6 +54,10 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         val bundle = Bundle()
         bundle.putParcelableArrayList(PARCELABLE_FILES_KEY, records)
         this.arguments = bundle
+    }
+
+    fun setPickOnlyArguments(shownDate: String?) {
+        arguments = bundleOf(SHOWN_DATE_KEY to shownDate)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -88,4 +96,8 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
     }
 
     fun getOnDateChanged() = onDateChanged
+
+    companion object {
+        private const val SHOWN_DATE_KEY = "shown_date_key"
+    }
 }
