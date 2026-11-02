@@ -188,6 +188,27 @@ fun String.edtfToDisplayDate(): String {
     }
 }
 
+private val INFO_ROW_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
+private val INFO_ROW_DAY = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.US)
+private val INFO_ROW_HOUR = DateTimeFormatter.ofPattern("ha", Locale.US)
+private val INFO_ROW_MINUTE = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
+
+// A shownDate as File Info's Date row: "October 23, 1985 • 5PM", "October 1985" or "1985".
+// Anything else is shown verbatim.
+fun String.toInfoRowDate(): String = try {
+    when (length) {
+        4 -> this
+        7 -> YearMonth.parse(this).format(INFO_ROW_MONTH)
+        10 -> LocalDate.parse(this).format(INFO_ROW_DAY)
+        else -> toLocalDateTimeOrNull()?.let { dateTime ->
+            val clock = if (dateTime.minute == 0) INFO_ROW_HOUR else INFO_ROW_MINUTE
+            "${dateTime.format(INFO_ROW_DAY)} • ${dateTime.format(clock)}"
+        } ?: this
+    }
+} catch (e: DateTimeParseException) {
+    this
+}
+
 // An ISO date-time with "Z" or an offset -> "yyyy-MM-dd HH:mm:ss" in [zone], else null.
 fun String.toDateTimeIn(zone: ZoneId): String? = try {
     OffsetDateTime.parse(this).atZoneSameInstant(zone).format(BACKEND_DATE_TIME_FORMATTER)

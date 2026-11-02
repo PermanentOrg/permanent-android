@@ -1006,8 +1006,15 @@ both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDa
 | `…+03:00`, `…Z`, `….000Z` | converted to device local time (`1985-10-23T23:30:00.000Z` → `1985-10-23 17:30:00` in CST) |
 | anything else (qualifiers, `X`, ranges, `..`, seasons, invalid dates) | the raw string |
 
-**Write (Android).** Pickers produce `yyyy-MM-dd` (File Info) or local `yyyy-MM-dd HH:mm:ss`
-(bulk); `DisplayDated.setEditedDate()` stores it as the legacy value converted to UTC (V1) and, through
+**File Info Date row (VSP-1764).** `shownDate.toInfoRowDate()` re-formats that value: `1985` as is,
+`October 1985`, `October 23, 1985`, `October 23, 1985 • 5PM` (`• 4:16 PM` when minutes ≠ 0);
+anything else stays raw. Then a space and the record's zone abbreviation when it has one —
+V1 `TimezoneVO.stdAbbrev` → `FileData.zoneAbbreviation` only; the V2 record has no abbreviation
+(only free-text `location.timezone`, null on the record checked 2026-10-29), so V2-read records
+show no zone (same as iOS, whose V2 mapping leaves `timezoneVO` nil).
+
+**Write (Android).** The date sheet (`EditDateTimeFragment`) produces local `yyyy-MM-dd HH:mm:ss` —
+bulk saves it itself; File Info opens it pick-only and saves through `updateRecords`; `DisplayDated.setEditedDate()` stores it as the legacy value converted to UTC (V1) and, through
 `toEdtfLevel0()`, as `displayTime` — the date as is, a time with the device offset at that date
 (`1985-10-23T17:00:00+03:00`). Sent only when the date was edited (File Info tracks the picked
 date, not a string comparison), so values set on Web are never re-sent. No `location.timezone` (decision 2026-10-13, Web parity). Folder write:

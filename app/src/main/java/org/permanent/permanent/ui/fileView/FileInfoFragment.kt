@@ -1,18 +1,22 @@
 package org.permanent.permanent.ui.fileView
 
 import android.app.Activity
-import android.app.DatePickerDialog
 import android.content.Intent
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -29,6 +33,8 @@ import org.permanent.permanent.databinding.FragmentFileInfoBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
+import org.permanent.permanent.ui.bulkEditMetadata.EditDateTimeFragment
+import org.permanent.permanent.ui.showKeyboardFor
 import org.permanent.permanent.viewmodels.FileInfoViewModel
 
 class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
@@ -54,25 +60,59 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
             getParcelable<FileData>(PARCELABLE_FILE_DATA_KEY)?.also {
                 fileData = it
                 viewModel.setFileData(it)
-                binding.etName.setOnFocusChangeListener { _, hasFocus ->
-                    if (!hasFocus) viewModel.saveChanges()
-                }
-                binding.etDescription.setRawInputType(InputType.TYPE_CLASS_TEXT)
-                binding.etDescription.setOnFocusChangeListener { _, hasFocus ->
-                    if (!hasFocus) viewModel.saveChanges()
-                }
-                binding.etDescription.setOnEditorActionListener { _, _, _ -> viewModel.saveChanges()
-                    false
-                }
+                setUpTextRows()
+                binding.dateRow.llBox.setOnClickListener { viewModel.onDateClick() }
+                binding.locationRow.llBox.setOnClickListener { viewModel.onLocationClick() }
                 it.tags?.let { tags -> val mutableTags = tags.toMutableList()
                     mutableTags.sortBy { tag -> tag.name.lowercase() }
                     createChipsFor(mutableTags)
                 }
-                if (it.latitude != -1.0 && it.longitude != -1.0)
-                    mapView?.getMapAsync(this@FileInfoFragment)
+                if (it.hasCoordinates) mapView?.getMapAsync(this@FileInfoFragment)
             }
         }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            if (insets.isVisible(WindowInsetsCompat.Type.ime())) view.post { scrollFocusedRowIntoView() }
+            insets
+        }
         return binding.root
+    }
+
+    private fun setUpTextRows() {
+        binding.nameRow.etValue.doAfterTextChanged { text -> text?.let(viewModel::onNameTextChanged) }
+
+        val description = binding.descriptionRow.etValue
+        description.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        description.setRawInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES)
+        description.doAfterTextChanged { text -> text?.let(viewModel::onDescriptionTextChanged) }
+
+        textRows.forEach { row ->
+            row.etValue.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) row.root.post { scrollFocusedRowIntoView() } else viewModel.saveChanges()
+            }
+            row.etValue.setOnEditorActionListener { _, _, _ ->
+                viewModel.saveChanges()
+                false
+            }
+            row.llBox.setOnClickListener {
+                if (viewModel.getIsEditable().value == true) row.etValue.focusAndShowKeyboard()
+            }
+        }
+    }
+
+    private val textRows get() = listOf(binding.nameRow, binding.descriptionRow)
+
+    // The whole row being typed in, plus a row gap, stays above the keyboard
+    private fun scrollFocusedRowIntoView() {
+        val box = textRows.firstOrNull { it.etValue.hasFocus() }?.llBox ?: return
+        val gap = resources.getDimensionPixelSize(R.dimen.info_row_gap_boxed)
+        box.requestRectangleOnScreen(Rect(0, 0, box.width, box.height + gap), false)
+    }
+
+    private fun EditText.focusAndShowKeyboard() {
+        requestFocus()
+        setSelection(text.length)
+        requireContext().showKeyboardFor(this)
     }
 
     private fun createChipsFor(tags: List<Tag>) {
@@ -105,10 +145,10 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
 
     private val onShowDatePicker = Observer<Void?> {
         viewModel.saveChanges()
-        context?.let { context ->
-            val date = viewModel.getPickerStartDate()
-            DatePickerDialog(context, viewModel, date.year, date.monthValue - 1, date.dayOfMonth).show()
-        }
+        val dateFragment = EditDateTimeFragment()
+        dateFragment.setPickOnlyArguments(viewModel.getShownDate())
+        dateFragment.show(childFragmentManager, dateFragment.tag)
+        dateFragment.getOnDateChanged().observe(dateFragment) { viewModel.onDatePicked(it) }
     }
 
     private val onShowLocationSearch = Observer<Void?> {

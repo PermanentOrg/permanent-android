@@ -15,248 +15,110 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/black">
 
-            <TextView
-                android:id="@+id/tvName"
+            <LinearLayout
+                android:id="@+id/llRows"
                 android:layout_width="match_parent"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/file_info_name"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="24dp">
 
-            <EditText
-                android:id="@+id/etName"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:afterTextChanged="@{(editable) -> viewModel.onNameTextChanged(editable)}"
-                android:background="@{viewModel.isEditable? @drawable/rounded_border_grey_background : null}"
-                android:focusableInTouchMode="@{viewModel.isEditable? true : false}"
-                android:fontFamily="@font/open_sans"
-                android:letterSpacing="-0.01"
-                android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_set : @string/file_info_none}"
-                android:padding="8dp"
-                android:singleLine="true"
-                android:text="@{viewModel.name}"
-                android:textColor="@color/white"
-                android:textColorHint="@color/lightGrey"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvName" />
+                <include
+                    android:id="@+id/nameRow"
+                    layout="@layout/item_info_text_row"
+                    app:editable="@{safeUnbox(viewModel.isEditable)}"
+                    app:label="@{@string/file_info_name}"
+                    app:placeholder="@{``}"
+                    app:value="@{viewModel.name}" />
 
-            <TextView
-                android:id="@+id/tvDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/file_info_description"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etName" />
+                <include
+                    android:id="@+id/descriptionRow"
+                    layout="@layout/item_info_text_row"
+                    app:editable="@{safeUnbox(viewModel.isEditable)}"
+                    app:label="@{@string/file_info_description}"
+                    app:placeholder="@{@string/file_info_add_description}"
+                    app:value="@{viewModel.description}" />
 
-            <EditText
-                android:id="@+id/etDescription"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:afterTextChanged="@{(editable) -> viewModel.onDescriptionTextChanged(editable)}"
-                android:background="@{viewModel.isEditable? @drawable/rounded_border_grey_background : null}"
-                android:focusableInTouchMode="@{viewModel.isEditable? true : false}"
-                android:fontFamily="@font/open_sans"
-                android:letterSpacing="-0.01"
-                android:gravity="start"
-                android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_add : @string/file_info_none}"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
-                android:padding="8dp"
-                android:text="@{viewModel.description}"
-                android:textColor="@color/white"
-                android:textColorHint="@color/lightGrey"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvDescription" />
+                <include
+                    android:id="@+id/dateRow"
+                    layout="@layout/item_info_tap_row"
+                    app:editable="@{safeUnbox(viewModel.isEditable)}"
+                    app:label="@{@string/file_info_date}"
+                    app:placeholder="@{@string/file_info_add_date_time}"
+                    app:value="@{viewModel.date}" />
 
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/file_info_date"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etDescription" />
+                <include
+                    android:id="@+id/locationRow"
+                    layout="@layout/item_info_tap_row"
+                    app:editable="@{safeUnbox(viewModel.isEditable)}"
+                    app:label="@{@string/file_info_location}"
+                    app:placeholder="@{@string/file_info_add_location}"
+                    app:value="@{viewModel.address}" />
 
+                <com.google.android.gms.maps.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="@{safeUnbox(viewModel.hasCoordinates) ? View.VISIBLE : View.GONE}" />
 
-            <EditText
-                android:id="@+id/etDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:background="@{viewModel.isEditable? @drawable/rounded_border_grey_background : null}"
-                android:focusable="false"
-                android:fontFamily="@font/open_sans"
-                android:letterSpacing="-0.01"
-                android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_set : @string/file_info_none}"
-                android:onClick="@{() -> viewModel.onDateClick()}"
-                android:padding="8dp"
-                android:text="@{viewModel.date}"
-                android:textColor="@color/white"
-                android:textColorHint="@color/lightGrey"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvDate" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="@{safeUnbox(viewModel.isEditable) ? @dimen/info_row_gap_boxed : @dimen/info_row_gap_plain}"
+                    android:visibility="@{safeUnbox(viewModel.isEditable) || safeUnbox(viewModel.existsTags) ? View.VISIBLE : View.GONE}">
 
-            <TextView
-                android:id="@+id/tvLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/file_info_location"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etDate" />
+                    <TextView
+                        android:id="@+id/tvTags"
+                        style="@style/InfoRowLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@{safeUnbox(viewModel.isEditable) ? @dimen/info_row_box_padding : 0f}"
+                        android:paddingEnd="@{safeUnbox(viewModel.isEditable) ? @dimen/info_row_box_padding : 0f}"
+                        android:text="@string/file_info_tags" />
 
-            <com.google.android.gms.maps.MapView
-                android:id="@+id/mapView"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:visibility="@{viewModel.address == null ? View.GONE : View.VISIBLE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvLocation" />
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupFileTags"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:onClick="@{() -> viewModel.onEditTagsClick()}"
+                        android:visibility="@{safeUnbox(viewModel.existsTags) ? View.VISIBLE : View.GONE}"
+                        app:chipSpacingVertical="8dp" />
 
-            <EditText
-                android:id="@+id/etLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:background="@{viewModel.isEditable? @drawable/rounded_border_grey_background : null}"
-                android:focusable="false"
-                android:fontFamily="@font/open_sans"
-                android:letterSpacing="-0.01"
-                android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_set : @string/file_info_none}"
-                android:onClick="@{() -> viewModel.onLocationClick()}"
-                android:padding="8dp"
-                android:text="@{viewModel.address}"
-                android:textColor="@color/white"
-                android:textColorHint="@color/lightGrey"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/mapView" />
-
-            <TextView
-                android:id="@+id/tvTags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/file_info_tags"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etLocation" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupFileTags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="24dp"
-                android:onClick="@{() -> viewModel.onEditTagsClick()}"
-                android:padding="8dp"
-                app:chipSpacingVertical="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvTags" />
-
-            <EditText
-                android:id="@+id/etTags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="24dp"
-                android:background="@{viewModel.isEditable? @drawable/rounded_border_grey_background : null}"
-                android:focusable="false"
-                android:fontFamily="@font/open_sans"
-                android:letterSpacing="-0.01"
-                android:hint="@{viewModel.isEditable ? @string/file_info_tap_to_add : @string/file_info_none}"
-                android:onClick="@{() -> viewModel.onEditTagsClick()}"
-                android:padding="8dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/lightGrey"
-                android:textSize="16sp"
-                android:visibility="@{viewModel.existsTags ? View.GONE : View.VISIBLE}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvTags" />
+                    <TextView
+                        android:id="@+id/tvAddTags"
+                        style="@style/InfoRowValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_info_row_box"
+                        android:drawablePadding="12dp"
+                        android:hint="@string/file_info_tap_to_add"
+                        android:onClick="@{() -> viewModel.onEditTagsClick()}"
+                        android:padding="@dimen/info_row_box_padding"
+                        android:visibility="@{safeUnbox(viewModel.isEditable) &amp;&amp; !safeUnbox(viewModel.existsTags) ? View.VISIBLE : View.GONE}"
+                        app:drawableEndCompat="@drawable/ic_info_plus_white" />
+                </LinearLayout>
+            </LinearLayout>
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressBar"
                 style="@style/Widget.AppCompat.ProgressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:indeterminate="true"
-                android:visibility="@{viewModel.isBusy ? View.VISIBLE : View.GONE}"
-                app:layout_constraintBottom_toBottomOf="@+id/tvTags"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tvName" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:visibility="@{safeUnbox(viewModel.isBusy) ? View.VISIBLE : View.GONE}" />
+        </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>

@@ -85,6 +85,7 @@
         <activity
             android:name=".ui.fileView.FileActivity"
             android:resizeableActivity="false"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false">
             <nav-graph android:value="@navigation/file_navigation_graph" />
         </activity>

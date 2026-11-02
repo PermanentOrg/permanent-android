@@ -1,6 +1,8 @@
 package org.permanent.permanent.ui.fileView
 
 import android.os.Bundle
+import android.view.MotionEvent
+import android.widget.EditText
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -18,7 +20,9 @@ import org.permanent.permanent.ui.PREFS_NAME
 import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.activities.PermanentBaseActivity
+import org.permanent.permanent.ui.boundsOnScreen
 import org.permanent.permanent.ui.computeWindowSizeClasses
+import org.permanent.permanent.ui.hideKeyboardFrom
 
 class FileActivity : PermanentBaseActivity() {
 
@@ -44,8 +48,9 @@ class FileActivity : PermanentBaseActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.fileRoot)) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
 
-            view.setPadding(0, statusBarHeight, 0, navBarHeight)
+            view.setPadding(0, statusBarHeight, 0, maxOf(navBarHeight, imeHeight))
             insets
         }
 
@@ -81,6 +86,18 @@ class FileActivity : PermanentBaseActivity() {
             }
             else -> navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
         }
+    }
+
+    // On Info, a tap outside the focused field closes the keyboard, so the field saves on focus loss
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN && navController.currentDestination?.id == R.id.fileMetadataFragment) {
+            val focused = currentFocus
+            if (focused is EditText && !focused.boundsOnScreen().contains(event.rawX.toInt(), event.rawY.toInt())) {
+                focused.clearFocus()
+                hideKeyboardFrom(focused.windowToken)
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     fun setToolbarAndStatusBarColor(colorId: Int) {
