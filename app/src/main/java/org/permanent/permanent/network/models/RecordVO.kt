@@ -27,7 +27,6 @@ class RecordVO {
     var thumbnail256: String? = null
     var thumbURL2000: String? = null
     var LocnVO: LocnVO? = null
-    var TimezoneVO: TimezoneVO? = null
     var FileVOs: List<FileVO>? = null
     var TagVOs: List<TagVO>? = null
     var ShareVOs: List<ShareVO>? = null

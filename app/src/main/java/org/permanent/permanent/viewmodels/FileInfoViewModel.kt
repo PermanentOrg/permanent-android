@@ -62,9 +62,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     private fun refreshDate() {
-        val text = fileData.shownDate?.toInfoRowDate()
-        val zone = fileData.zoneAbbreviation
-        date.value = if (text == null || zone.isNullOrBlank()) text else "$text $zone"
+        date.value = fileData.shownDate?.toInfoRowDate()
     }
 
     fun getShownDate(): String? = fileData.shownDate

@@ -1008,10 +1008,10 @@ both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDa
 
 **File Info Date row (VSP-1764).** `shownDate.toInfoRowDate()` re-formats that value: `1985` as is,
 `October 1985`, `October 23, 1985`, `October 23, 1985 • 5PM` (`• 4:16 PM` when minutes ≠ 0);
-anything else stays raw. Then a space and the record's zone abbreviation when it has one —
-V1 `TimezoneVO.stdAbbrev` → `FileData.zoneAbbreviation` only; the V2 record has no abbreviation
-(only free-text `location.timezone`, null on the record checked 2026-10-29), so V2-read records
-show no zone (same as iOS, whose V2 mapping leaves `timezoneVO` nil).
+anything else stays raw. No zone label: the time is in device local time, so the record's zone
+name would not match it (V1 `TimezoneVO.stdAbbrev` was shown first and labelled Bucharest times
+"CST"; removed after VSP-1764 QA, 2026-11-04). The record's zone (V2 `location.timezone`) comes
+with VSP-1826. iOS Stage 1 shows the time as written plus that zone's name, and ignores the offset.
 
 **Write (Android).** The date sheet (`EditDateTimeFragment`) produces local `yyyy-MM-dd HH:mm:ss` —
 bulk saves it itself; File Info opens it pick-only and saves through `updateRecords`; `DisplayDated.setEditedDate()` stores it as the legacy value converted to UTC (V1) and, through

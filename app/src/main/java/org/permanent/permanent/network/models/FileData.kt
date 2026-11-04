@@ -27,8 +27,6 @@ class FileData private constructor() : Parcelable, DisplayDated {
     var originalFileName: String? = null
     var originalFileType: String? = null
     var completeAddress: String? = null
-    // V1 only: the V2 record carries no zone abbreviation.
-    var zoneAbbreviation: String? = null
     var latitude: Double = -1.0
     var longitude: Double = -1.0
     val hasCoordinates: Boolean
@@ -95,7 +93,6 @@ class FileData private constructor() : Parcelable, DisplayDated {
         originalFileType = recordVO.uploadFileName?.substringAfter(".")
 
         completeAddress = recordVO.LocnVO?.getRecordAddress()
-        zoneAbbreviation = recordVO.TimezoneVO?.stdAbbrev
         latitude = recordVO.LocnVO?.latitude ?: -1.0
         longitude = recordVO.LocnVO?.longitude ?: -1.0
 
@@ -161,7 +158,6 @@ class FileData private constructor() : Parcelable, DisplayDated {
         originalUploadName = parcel.readString()
         originalURL = parcel.readString()
         originalContentType = parcel.readString()
-        zoneAbbreviation = parcel.readString()
     }
 
     fun update(locationVO: LocnVO) {
@@ -203,7 +199,6 @@ class FileData private constructor() : Parcelable, DisplayDated {
         parcel.writeString(originalUploadName)
         parcel.writeString(originalURL)
         parcel.writeString(originalContentType)
-        parcel.writeString(zoneAbbreviation)
     }
 
     fun getTagIds(): ArrayList<String> {
