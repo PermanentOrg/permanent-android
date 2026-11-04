@@ -114,7 +114,9 @@ fun EditDateTimeScreen(
             Spacer(modifier = Modifier.width(16.dp))
 
             Text(
-                text = stringResource(id = R.string.add_date_time),
+                text = stringResource(
+                    id = if (viewModel.hasDate) R.string.adjust_date_and_time else R.string.add_date_time
+                ),
                 modifier = Modifier.weight(1f),
                 style = TextStyle(
                     fontSize = 14.sp,
@@ -227,7 +229,7 @@ fun EditDateTimeScreen(
                     )
                 } else {
                     Text(
-                        text = stringResource(R.string.add_date),
+                        text = stringResource(if (viewModel.hasDate) R.string.save else R.string.add_date),
                         fontSize = 14.sp,
                         fontFamily = mediumFont,
                     )

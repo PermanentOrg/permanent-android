@@ -23,6 +23,8 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
     var shouldClose: MutableState<Boolean> = mutableStateOf(false)
     var isBusy: MutableState<Boolean> = mutableStateOf(false)
     val showMessage = mutableStateOf("")
+    var hasDate = false
+        private set
 
     private val onDateChanged = MutableLiveData<String>()
     private val now = LocalDateTime.now()
@@ -77,6 +79,7 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
 
     // Values that are not a full date (e.g. "1985", "1985-10~") keep the defaults.
     private fun seedPicker(shownDate: String) {
+        hasDate = true
         val dateTime = shownDate.toLocalDateTimeOrNull() ?: return
         initialDateMilis = dateTime.toLocalDate().toUtcMillis()
         if (shownDate.length > 10) {

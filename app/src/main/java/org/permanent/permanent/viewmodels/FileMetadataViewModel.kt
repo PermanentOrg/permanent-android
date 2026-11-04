@@ -12,7 +12,7 @@ class FileMetadataViewModel(application: Application) : ObservableAndroidViewMod
     val isBusy = MutableLiveData(false)
 
     fun setFileData(fileData: FileData) {
-        thumbURL.value = fileData.thumbnail256 ?: fileData.thumbURL2000 ?: ""
+        thumbURL.value = fileData.thumbURL2000?.takeIf { it.isNotEmpty() } ?: fileData.thumbnail256 ?: ""
     }
 
     fun getFileThumbURL(): MutableLiveData<String> = thumbURL
