@@ -882,7 +882,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecords(
-        fileDataList: List<FileData?>, fields: Set<RecordField>, listener: IResponseListener
+        fileDataList: List<FileData?>,
+        fields: Set<RecordField>,
+        listener: IResponseListener,
+        retryOnV1: Boolean
     ) {
         val sessionArchiveId = stelaPatchSessionArchiveId()
         val fileData = fileDataList.filterNotNull()
@@ -892,9 +895,9 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         else fileData.toPatchesOrNull({ it.recordId }) {
             metadataPatchBody(it.displayName, it.description, it.displayTime, fields)
         }
-        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
-            updateRecordsV1(fileDataList, listener)
-        }
+        val clearsDate = RecordField.DATE in fields && fileData.any { it.displayTime == null }
+        val v1 = if (clearsDate) null else { { updateRecordsV1(fileDataList, listener) } }
+        patchV2OrV1(patches, R.string.file_info_update_success, listener, retryOnV1, v1)
     }
 
     private fun updateRecordsV1(fileDataList: List<FileData?>, listener: IResponseListener) {
@@ -953,22 +956,23 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         })
     }
 
-    override fun updateRecordDates(records: MutableList<Record>, listener: IResponseListener) {
+    override fun updateRecordDates(
+        records: MutableList<Record>, retryOnV1: Boolean, listener: IResponseListener
+    ) {
         val sessionArchiveId = stelaPatchSessionArchiveId()
         val patches = if (sessionArchiveId == null ||
             !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
         ) null
-        else records.toPatchesOrNull({ it.stelaRecordId }) { datePatchBody(it.displayTime) }
-        patchV2OrV1(patches, R.string.file_info_update_success, listener) {
-            updateMultipleRecords(records, isFolderRecordType = false, listener)
-        }
+        else records.map { it.stelaRecordId to datePatchBody(it.displayTime) }
+        val clearsDate = records.any { it.displayTime == null }
+        val v1 = if (clearsDate) null else { { updateMultipleRecords(records, isFolderRecordType = false, listener) } }
+        patchV2OrV1(patches, R.string.file_info_update_success, listener, retryOnV1, v1)
     }
 
     override fun updateFolderDisplayTime(
         folderId: Int, archiveId: Int?, displayTime: String?, listener: IResponseListener
     ) {
-        val body = JSONObject().put("displayTime", displayTime ?: JSONObject.NULL)
-        patchFolder(folderId, archiveId, body, listener) { it?.displayTime == displayTime }
+        patchFolder(folderId, archiveId, datePatchBody(displayTime), listener) { it?.displayTime == displayTime }
     }
 
     override fun updateFolderLocation(
@@ -1165,8 +1169,9 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     private fun namePatchBody(displayName: String?): JSONObject? =
         displayName?.takeIf { it.isNotBlank() }?.let { JSONObject().put("displayName", it) }
 
-    private fun datePatchBody(displayTime: String?): JSONObject? =
-        displayTime?.let { JSONObject().put("displayTime", it) }
+    // A null displayTime clears the date. V1 cannot clear.
+    private fun datePatchBody(displayTime: String?): JSONObject =
+        JSONObject().put("displayTime", displayTime ?: JSONObject.NULL)
 
     // Null when a requested field cannot be expressed on V2 or nothing is left to send.
     // A blank description clears (the server rejects "").
@@ -1178,7 +1183,7 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         if (RecordField.DESCRIPTION in fields) {
             body.put("description", description?.takeIf { it.isNotBlank() } ?: JSONObject.NULL)
         }
-        if (RecordField.DATE in fields) body.put("displayTime", displayTime ?: return null)
+        if (RecordField.DATE in fields) body.put("displayTime", displayTime ?: JSONObject.NULL)
         return body.takeIf { it.length() > 0 }
     }
 
@@ -1199,18 +1204,21 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         mapNotNull { item -> body(item)?.let { recordId(item) to it } }.takeIf { it.size == size }
 
     // V2 first; the V1 call runs when there is nothing eligible to PATCH, and re-applies the
-    // same values after a V2 failure.
+    // same values after a V2 failure unless retryOnV1 is off. A null v1 is an edit V1 can't make.
     private fun patchV2OrV1(
         patches: List<Pair<Int, JSONObject>>?,
         successMessageRes: Int,
         listener: IResponseListener,
-        v1: () -> Unit
+        retryOnV1: Boolean = true,
+        v1: (() -> Unit)?
     ) {
+        val fallback = v1?.takeIf { retryOnV1 || patches.isNullOrEmpty() }
+            ?: { listener.onFailed(context.getString(R.string.generic_error)) }
         if (patches.isNullOrEmpty()) {
-            v1()
+            fallback()
             return
         }
-        patchRecordsV2(patches, successMessageRes, listener, v1)
+        patchRecordsV2(patches, successMessageRes, listener, fallback)
     }
 
     // Serial, stops at the first failure. These PATCHes set values, so re-sending is harmless.

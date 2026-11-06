@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import org.permanent.permanent.R
 import org.permanent.permanent.models.Record
+import java.util.IdentityHashMap
 
 enum class SortType(
     private val backendString: String,
@@ -33,11 +34,17 @@ enum class SortType(
         return when (this) {
             NAME_ASCENDING -> byName
             NAME_DESCENDING -> byName.reversed()
-            DATE_ASCENDING -> compareBy<Record> { it.shownDate.orEmpty() }.then(byName)
-            DATE_DESCENDING -> compareByDescending<Record> { it.shownDate.orEmpty() }.then(byName)
+            DATE_ASCENDING -> compareBy(dateKey()).then(byName)
+            DATE_DESCENDING -> compareByDescending(dateKey()).then(byName)
             FILE_TYPE_ASCENDING -> compareBy<Record> { it.backendType.orEmpty() }.then(byName)
             FILE_TYPE_DESCENDING -> compareByDescending<Record> { it.backendType.orEmpty() }.then(byName)
         }
+    }
+
+    // shownDate decodes EDTF on each read, so one sort reads it once per record, not per comparison.
+    private fun dateKey(): (Record) -> String {
+        val keys = IdentityHashMap<Record, String>()
+        return { record -> keys.getOrPut(record) { record.shownDate.orEmpty() } }
     }
 
     val field: SortField

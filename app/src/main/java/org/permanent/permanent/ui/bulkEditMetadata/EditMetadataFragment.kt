@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import org.permanent.permanent.models.EditedDate
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.ui.PermanentBaseFragment
@@ -85,7 +86,7 @@ class EditMetadataFragment : PermanentBaseFragment() {
         viewModel.onLocationChanged(it)
     }
 
-    private val onDateChangedObserver = Observer<String> {
+    private val onDateChangedObserver = Observer<EditedDate> {
         viewModel.onDateChanged(it)
     }
 

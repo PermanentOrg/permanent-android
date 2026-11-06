@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.R
+import org.permanent.permanent.models.EditedDate
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.IResponseListener
@@ -257,8 +258,13 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
         locationMenuName.value = address
     }
 
-    fun onDateChanged(dateString: String) {
-        dateMenuName.value = dateString
+    fun onDateChanged(date: EditedDate) {
+        records.forEach {
+            it.setEditedDate(date)
+            it.fileData?.setEditedDate(date)
+        }
+        dateMenuName.value = appContext.getString(R.string.date_time)
+        setDateMenuName()
     }
 
     fun getIsBusy() = isBusy

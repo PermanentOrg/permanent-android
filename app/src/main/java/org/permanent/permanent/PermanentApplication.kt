@@ -38,6 +38,7 @@ class PermanentApplication : Application(), LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onAppForegrounded() {
         isAppInForeground = true
+        ServerFeatureFlags.refreshOnce()
         Log.i(getString(R.string.app_name), "App in foreground")
     }
 
@@ -52,5 +53,6 @@ class PermanentApplication : Application(), LifecycleObserver {
         instance = this
         // AutocompleteActivity can be restored after process death before any of our screens runs
         Places.initialize(this, BuildConfig.GMP_KEY)
+        ServerFeatureFlags.load(this)
     }
 }

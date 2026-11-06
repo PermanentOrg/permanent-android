@@ -5,6 +5,7 @@ import okhttp3.ResponseBody
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.ArchivesV2Response
+import org.permanent.permanent.network.models.FeatureFlagsResponse
 import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FolderChildrenResponse
 import org.permanent.permanent.network.models.FolderPatchResponse
@@ -29,6 +30,10 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface StelaAccountService {
+
+    // Public: the server answers without a session.
+    @GET("api/v2/feature-flags")
+    fun getFeatureFlags(): Call<FeatureFlagsResponse>
 
     @Headers("Request-Version: 2")
     @GET("api/v2/records/{recordId}")

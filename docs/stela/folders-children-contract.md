@@ -993,8 +993,8 @@ first with a `displayDT` fallback. iOS still writes dates through V1 and does no
 **Read (Android).** `ItemDTO.displayTime` → `Record` / `RecordVO` / `FileData.displayTime`;
 `LocationDTO.timezone` is decoded but not shown (no UI slot until Stage 1).
 `DisplayDated.shownDate` (implemented by `Record` and `FileData`) = `displayTime.edtfToDisplayDate()`
-?: `displayDate.utcToLocalDateTime()`, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
-`toDisplayDate()` headers. `displayDate` stays the **legacy UTC** value on purpose: V1 bodies (bulk
+?: `shownLegacyDate.utcToLocalDateTime()`, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
+`toDisplayDate()` headers ("Oct. 23, 1985", "Oct. 1985" or "1985"). `displayDate` stays the **legacy UTC** value on purpose: V1 bodies (bulk
 location, rename fallback, delete/move/copy) re-send it as `displayDT`. Legacy values are UTC on
 both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDate`
 `2023-03-30T14:08:00.000Z`), so they are converted to device local time only when shown.
@@ -1006,6 +1006,12 @@ both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDa
 | `…+03:00`, `…Z`, `….000Z` | converted to device local time (`1985-10-23T23:30:00.000Z` → `1985-10-23 17:30:00` in CST) |
 | anything else (qualifiers, `X`, ranges, `..`, seasons, invalid dates) | the raw string |
 
+`edtfToDisplayDate()` decodes through `EdtfConverter.decodeLevel0` (VSP-1765). `shownLegacyDate` is
+`displayDate` unless the server switch **`edtf-date`** is on (`GET /api/v2/feature-flags`, public,
+`{"items":[{"name":…}]}`; read once per process on the first foreground, last answer kept in prefs —
+`ServerFeatureFlags`). On, no screen falls back to the legacy date (Web and iOS #607 parity). Off on
+staging and production (live 2026-11-04).
+
 **File Info Date row (VSP-1764).** `shownDate.toInfoRowDate()` re-formats that value: `1985` as is,
 `October 1985`, `October 23, 1985`, `October 23, 1985 • 5PM` (`• 4:16 PM` when minutes ≠ 0);
 anything else stays raw. No zone label: the time is in device local time, so the record's zone
@@ -1013,14 +1019,22 @@ name would not match it (V1 `TimezoneVO.stdAbbrev` was shown first and labelled 
 "CST"; removed after VSP-1764 QA, 2026-11-04). The record's zone (V2 `location.timezone`) comes
 with VSP-1826. iOS Stage 1 shows the time as written plus that zone's name, and ignores the offset.
 
-**Write (Android).** The date sheet (`EditDateTimeFragment`) produces local `yyyy-MM-dd HH:mm:ss` —
-bulk saves it itself; File Info opens it pick-only and saves through `updateRecords`; `DisplayDated.setEditedDate()` stores it as the legacy value converted to UTC (V1) and, through
-`toEdtfLevel0()`, as `displayTime` — the date as is, a time with the device offset at that date
-(`1985-10-23T17:00:00+03:00`). Sent only when the date was edited (File Info tracks the picked
-date, not a string comparison), so values set on Web are never re-sent. No `location.timezone` (decision 2026-10-13, Web parity). Folder write:
-`updateFolderDisplayTime` (same gate, success = echoed `displayTime`, no V1) — no caller until
-Stage 1, Android has no folder date UI. No V1 failsafe is possible yet: `folder/update` only sends
-the name and no V1 call sends a folder `displayDT`.
+**Write (Android, VSP-1765).** One sheet (`EditDateTimeFragment`) for the Info tab (pick-only, saved
+through `updateRecords`), the item menu and bulk Edit Metadata (saved by the sheet through
+`updateRecordDates`). Typed fields (`DateTimeEntry`) → `EdtfConverter.encode`: `1985`, `1985-10`,
+`1985-10-23`, or a time with the **device offset at the entered date** (`1985-07-04T21:30:00+03:00`,
+`2026-10-27T13:00:00+02:00` in Bucharest; seconds always written; offsets truncated to whole minutes).
+A short year is padded (`85` → `0085`). A time is used only with a full date: with a year or year-month the time fields are greyed out and not sent (Flavia 2026-11-05; iOS sends an invalid `1985T17:00:00`). The V1 value (`displayDate`) is the same wall clock in UTC with
+a missing month/day = 1 and a missing time = midnight (iOS). No `location.timezone` until VSP-1826.
+**Clear** sends `{"displayTime": null}` and keeps the legacy value, so with `edtf-date` off the upload
+date shows again (as on Web and iOS). Sent only when the date was edited. Folder write:
+`updateFolderDisplayTime` (same gate, success = echoed `displayTime`, no V1) — no caller yet.
+
+**V1 failsafe for dates (2026-11-05).** V1 writes only `displayDT`, which no screen shows once an item
+has a `displayTime` or `edtf-date` is on. After a V2 failure, the save retries on V1 only when no
+selected item has a `displayTime` and `edtf-date` is off (`applyEditedDate`, decided before the edit);
+otherwise it reports the error. V1 cannot clear, so a clear never goes to V1 (also for records the
+gate rejects). Name, description and location keep the V1 retry.
 
 **Still V1:** date edits on records the PATCH gate rejects (decision 2026-10-13, same split as
 name/description).
