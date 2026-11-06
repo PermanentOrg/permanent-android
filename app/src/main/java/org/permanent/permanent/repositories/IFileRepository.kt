@@ -140,8 +140,12 @@ interface IFileRepository {
     // The fields an edit changed: the V2 write carries only these (DATE as displayTime).
     enum class RecordField { NAME, DESCRIPTION, DATE }
 
+    // retryOnV1 = false: a V2 failure is reported instead of re-sent through V1.
     fun updateRecords(
-        fileDataList: List<FileData?>, fields: Set<RecordField>, listener: IResponseListener
+        fileDataList: List<FileData?>,
+        fields: Set<RecordField>,
+        listener: IResponseListener,
+        retryOnV1: Boolean = true
     )
 
     fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener)
@@ -155,8 +159,9 @@ interface IFileRepository {
     // Bulk rename: each record's displayName is already set to its new value.
     fun renameRecords(records: MutableList<Record>, listener: IResponseListener)
 
-    // Bulk date: each record's displayTime (V2) and displayDate (V1) are already set.
-    fun updateRecordDates(records: MutableList<Record>, listener: IResponseListener)
+    // Bulk date: each record's displayTime (V2) and displayDate (V1) are already set; a null
+    // displayTime clears. retryOnV1 = false: a V2 failure is reported instead of re-sent through V1.
+    fun updateRecordDates(records: MutableList<Record>, retryOnV1: Boolean, listener: IResponseListener)
 
     // A null displayTime clears the date.
     fun updateFolderDisplayTime(

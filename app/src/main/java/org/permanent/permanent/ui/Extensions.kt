@@ -23,6 +23,9 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.permanent.permanent.edtf.EdtfConverter
+import org.permanent.permanent.edtf.decodeLevel0
+import org.permanent.permanent.edtf.toShownDate
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.models.TwoFAVO
@@ -136,9 +139,6 @@ fun bytesToCustomHumanReadableString(bytes: Long, showDecimal: Boolean): String 
 internal val BACKEND_DATE_TIME_FORMATTER: DateTimeFormatter =
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.US)
 
-private val EDTF_DATE_TIME_FORMATTER: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx", Locale.US)
-
 /**
  * Convert a LocalDate to a backend datetime string.
  *
@@ -164,29 +164,25 @@ fun String.toLocalDateTimeOrNull(): LocalDateTime? = try {
     null
 }
 
-fun String?.toDisplayDate(): String =
-    this?.toLocalDateTimeOrNull()?.format(DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)) ?: ""
+private val DISPLAY_MONTH = DateTimeFormatter.ofPattern("MMM. yyyy", Locale.US)
+private val DISPLAY_DAY = DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)
 
-private val EDTF_LEVEL_0 =
-    Regex("""\d{4}(-\d{2}(-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?)?)?""")
-
-// Level 0 EDTF -> the app's "yyyy-MM-dd HH:mm:ss" shape. Times with a zone are shown in device
-// local time, dates and zone-less times as written. Anything else (qualifiers, ranges,
-// unspecified digits, invalid dates) is shown verbatim.
-fun String.edtfToDisplayDate(): String {
-    val zone = EDTF_LEVEL_0.matchEntire(this)?.groupValues?.get(5) ?: return this
-    return try {
-        when {
-            length == 4 -> this
-            length == 7 -> this.also { YearMonth.parse(it) }
-            length == 10 -> this.also { LocalDate.parse(it) }
-            zone.isNotEmpty() -> toDateTimeIn(ZoneId.systemDefault()) ?: this
-            else -> LocalDateTime.parse(this).format(BACKEND_DATE_TIME_FORMATTER)
-        }
+// A shownDate as a short label: "Oct. 23, 1985", "Oct. 1985" or "1985"; "" when it isn't one.
+fun String?.toDisplayDate(): String = when {
+    this == null -> ""
+    length == 4 && all(Char::isDigit) -> this
+    length == 7 -> try {
+        YearMonth.parse(this).format(DISPLAY_MONTH)
     } catch (e: DateTimeParseException) {
-        this
+        ""
     }
+    else -> toLocalDateTimeOrNull()?.format(DISPLAY_DAY) ?: ""
 }
+
+// Level 0 EDTF -> the app's shown-date shape. Times with a zone are shown in device local time,
+// dates and zone-less times as written. Anything else (qualifiers, ranges, X digits) is shown verbatim.
+fun String.edtfToDisplayDate(): String =
+    EdtfConverter.decodeLevel0(this)?.toShownDate(ZoneId.systemDefault()) ?: this
 
 private val INFO_ROW_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
 private val INFO_ROW_DAY = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.US)
@@ -220,21 +216,12 @@ fun String.toDateTimeIn(zone: ZoneId): String? = try {
 // time. Dates without a time, and anything unparseable, pass through unchanged.
 fun String.utcToLocalDateTime(): String = shiftDateTime(ZoneOffset.UTC, ZoneId.systemDefault())
 
-fun String.localToUtcDateTime(): String = shiftDateTime(ZoneId.systemDefault(), ZoneOffset.UTC)
-
 private fun String.shiftDateTime(from: ZoneId, to: ZoneId): String = if (length != 19) this else try {
     LocalDateTime.parse(this, BACKEND_DATE_TIME_FORMATTER).atZone(from)
         .withZoneSameInstant(to).format(BACKEND_DATE_TIME_FORMATTER)
 } catch (e: DateTimeParseException) {
     this
 }
-
-// The editors' "yyyy-MM-dd" or local "yyyy-MM-dd HH:mm:ss" -> EDTF Level 0. Times carry the
-// device offset at that date, as Web writes them: never "Z", never offset-less.
-fun String.toEdtfLevel0(): String =
-    if (length == 10) this
-    else LocalDateTime.parse(this, BACKEND_DATE_TIME_FORMATTER)
-        .atZone(ZoneId.systemDefault()).format(EDTF_DATE_TIME_FORMATTER)
 
 @SuppressLint("SimpleDateFormat")
 fun Uri.getDisplayName(context: Context): String {

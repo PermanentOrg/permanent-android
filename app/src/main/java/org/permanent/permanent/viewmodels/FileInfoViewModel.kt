@@ -7,6 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import org.permanent.permanent.CurrentArchivePermissionsManager
 import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
+import org.permanent.permanent.models.DisplayDated
+import org.permanent.permanent.models.EditedDate
+import org.permanent.permanent.models.applyEditedDate
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
@@ -21,7 +24,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     private val name = MutableLiveData<String>()
     private val description = MutableLiveData<String>()
     private val date = MutableLiveData<String>()
-    private var pickedDate: String? = null
+    private var pickedDate: EditedDate? = null
     private val address = MutableLiveData<String>()
     private val onShowDatePickerRequest = SingleLiveEvent<Void?>()
     val onShowLocationSearchRequest = SingleLiveEvent<Void?>()
@@ -56,7 +59,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
         description.value = text.toString()
     }
 
-    fun onDatePicked(value: String) {
+    fun onDatePicked(value: EditedDate) {
         pickedDate = value
         saveChanges()
     }
@@ -65,7 +68,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
         date.value = fileData.shownDate?.toInfoRowDate()
     }
 
-    fun getShownDate(): String? = fileData.shownDate
+    fun savedDate(): DisplayDated = fileData
 
     fun onDateClick() {
         if (isEditable.value == true)
@@ -104,14 +107,12 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
         if (changedFields.isNotEmpty()) {
             fileData.displayName = nameValue
             fileData.description = description
-            pickedDate?.let {
-                fileData.setEditedDate(it)
-                refreshDate()
-            }
+            val retryOnV1 = pickedDate?.let { listOf(fileData).applyEditedDate(it) } ?: true
+            if (pickedDate != null) refreshDate()
             pickedDate = null
 
             isBusy.value = true
-            fileRepository.updateRecords(mutableListOf(fileData), changedFields, object : IResponseListener {
+            fileRepository.updateRecords(mutableListOf(fileData), changedFields, retryOnV1 = retryOnV1, listener = object : IResponseListener {
                 override fun onSuccess(message: String?) {
                     message?.let { showMessage.value = it }
                     onFileInfoUpdated.value = nameValue

@@ -36,6 +36,7 @@ import org.permanent.permanent.models.Tags
 import org.permanent.permanent.network.models.AccountVO
 import org.permanent.permanent.network.models.ArchiveSteward
 import org.permanent.permanent.network.models.ArchivesV2Response
+import org.permanent.permanent.network.models.FeatureFlagsResponse
 import org.permanent.permanent.network.models.ChecklistResponse
 import org.permanent.permanent.network.models.CopyRecordV2Request
 import org.permanent.permanent.network.models.FileData
@@ -867,6 +868,8 @@ class NetworkClient(private var okHttpClient: OkHttpClient?, context: Context) {
         stelaAccountService.getFolderChildrenV2(folderId, pageSize, cursor)
 
     fun getArchivesV2(): Call<ArchivesV2Response> = stelaAccountService.getArchives()
+
+    fun getFeatureFlags(): Call<FeatureFlagsResponse> = stelaAccountService.getFeatureFlags()
 
     fun getRecordV2(recordId: Int): Call<RecordResponse> = stelaAccountService.getRecord(recordId)
 

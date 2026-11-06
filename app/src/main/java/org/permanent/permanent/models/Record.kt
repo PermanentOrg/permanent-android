@@ -49,7 +49,8 @@ open class Record : Parcelable, DisplayDated {
     // Folders and files without a size show the date only
     val sizeAndDate: String
         get() {
-            val date = shownDate.toDisplayDate().ifEmpty { shownDate.orEmpty() }
+            val shown = shownDate
+            val date = shown.toDisplayDate().ifEmpty { shown.orEmpty() }
             val shownSize = if (type == RecordType.FILE) bytesToHumanReadableString(size) else ""
             return listOf(shownSize, date).filter { it.isNotEmpty() }.joinToString(" • ")
         }

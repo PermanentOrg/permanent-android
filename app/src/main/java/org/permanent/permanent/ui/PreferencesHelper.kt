@@ -44,6 +44,7 @@ const val PREFS_DEEP_LINK_FOLDER_LINK_ID = "preferences_deep_link_folder_link_id
 const val KEY_TWO_FA_LIST = "key_two_fa_list"
 const val KEY_CHECKLIST_TOOLTIP_SHOWN = "key_checklist_tooltip_shown"
 private const val KEY_CURRENT_WORKSPACE = "key_current_workspace"
+private const val KEY_SERVER_FEATURE_FLAGS = "key_server_feature_flags"
 
 class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
 
@@ -467,4 +468,13 @@ class PreferencesHelper(private val sharedPreferences: SharedPreferences) {
         )
         return Workspace.valueOf(value!!)
     }
+
+    fun saveServerFeatureFlags(names: Set<String>) {
+        sharedPreferences.edit {
+            putStringSet(KEY_SERVER_FEATURE_FLAGS, names)
+        }
+    }
+
+    fun getServerFeatureFlags(): Set<String> =
+        sharedPreferences.getStringSet(KEY_SERVER_FEATURE_FLAGS, null).orEmpty()
 }

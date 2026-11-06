@@ -146,7 +146,7 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
     private val onShowDatePicker = Observer<Void?> {
         viewModel.saveChanges()
         val dateFragment = EditDateTimeFragment()
-        dateFragment.setPickOnlyArguments(viewModel.getShownDate())
+        dateFragment.setPickOnlyArguments(viewModel.savedDate())
         dateFragment.show(childFragmentManager, dateFragment.tag)
         dateFragment.getOnDateChanged().observe(dateFragment) { viewModel.onDatePicked(it) }
     }

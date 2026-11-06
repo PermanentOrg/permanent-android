@@ -16,6 +16,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import org.permanent.permanent.models.DatedValue
+import org.permanent.permanent.models.DisplayDated
+import org.permanent.permanent.models.EditedDate
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.bulkEditMetadata.compose.EditDateTimeScreen
@@ -24,7 +27,7 @@ import org.permanent.permanent.viewmodels.EditDateTimeViewModel
 
 class EditDateTimeFragment : PermanentBottomSheetFragment() {
     private lateinit var viewModel: EditDateTimeViewModel
-    private val onDateChanged = MutableLiveData<String>()
+    private val onDateChanged = MutableLiveData<EditedDate>()
 
 
     override fun onCreateView(
@@ -35,8 +38,8 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         arguments?.getParcelableArrayList<Record>(PARCELABLE_FILES_KEY)?.let {
             viewModel.setRecords(it)
         }
-        if (arguments?.containsKey(SHOWN_DATE_KEY) == true) {
-            viewModel.setPickOnly(arguments?.getString(SHOWN_DATE_KEY))
+        if (arguments?.containsKey(DISPLAY_TIME_KEY) == true) {
+            viewModel.setPickOnly(DatedValue(arguments?.getString(LEGACY_DATE_KEY), arguments?.getString(DISPLAY_TIME_KEY)))
         }
 
         return ComposeView(requireContext()).apply {
@@ -56,8 +59,9 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         this.arguments = bundle
     }
 
-    fun setPickOnlyArguments(shownDate: String?) {
-        arguments = bundleOf(SHOWN_DATE_KEY to shownDate)
+    // The item's raw values, not its shown date: the sheet decodes the EDTF string itself.
+    fun setPickOnlyArguments(dated: DisplayDated) {
+        arguments = bundleOf(DISPLAY_TIME_KEY to dated.displayTime, LEGACY_DATE_KEY to dated.displayDate)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -73,7 +77,7 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
         return bottomSheetDialog
     }
 
-    private val onDateChangedObserver = Observer<String> {
+    private val onDateChangedObserver = Observer<EditedDate> {
         onDateChanged.value = it
     }
 
@@ -98,6 +102,7 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
     fun getOnDateChanged() = onDateChanged
 
     companion object {
-        private const val SHOWN_DATE_KEY = "shown_date_key"
+        private const val DISPLAY_TIME_KEY = "display_time_key"
+        private const val LEGACY_DATE_KEY = "legacy_date_key"
     }
 }
