@@ -848,6 +848,12 @@
     <string name="date_time_pick_a_date">Pick a date</string>
     <string name="date_time_clear">Clear date and time</string>
     <string name="date_time_select_time_zone">Select time zone</string>
+    <string name="date_time_zone_title">Time zone</string>
+    <string name="date_time_zone_needs_time">Add a time to choose a zone</string>
+    <string name="date_time_zone_search_hint">Search city, country or offset</string>
+    <string name="date_time_zone_clear_search">Clear search</string>
+    <string name="date_time_no_zone">No time zone</string>
+    <string name="date_time_no_matching_zones">No matching time zones</string>
     <string name="date_time_format_am">AM</string>
     <string name="date_time_format_pm">PM</string>
     <string name="date_time_format_24h">24H</string>

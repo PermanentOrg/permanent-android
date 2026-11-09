@@ -25,6 +25,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.permanent.permanent.edtf.EdtfConverter
 import org.permanent.permanent.edtf.decodeLevel0
+import org.permanent.permanent.edtf.isUtcTime
 import org.permanent.permanent.edtf.toShownDate
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Status
@@ -179,10 +180,10 @@ fun String?.toDisplayDate(): String = when {
     else -> toLocalDateTimeOrNull()?.format(DISPLAY_DAY) ?: ""
 }
 
-// Level 0 EDTF -> the app's shown-date shape. Times with a zone are shown in device local time,
-// dates and zone-less times as written. Anything else (qualifiers, ranges, X digits) is shown verbatim.
+// Level 0 EDTF -> the app's shown-date shape, the clock as written (a "Z" time in device time).
+// Anything else (qualifiers, ranges, X digits) is shown verbatim.
 fun String.edtfToDisplayDate(): String =
-    EdtfConverter.decodeLevel0(this)?.toShownDate(ZoneId.systemDefault()) ?: this
+    EdtfConverter.decodeLevel0(this)?.toShownDate(isUtcTime()) ?: this
 
 private val INFO_ROW_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
 private val INFO_ROW_DAY = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.US)
@@ -204,6 +205,9 @@ fun String.toInfoRowDate(): String = try {
 } catch (e: DateTimeParseException) {
     this
 }
+
+// The Info row date with the zone after the time ("May 12, 1990 • 10:30 AM EDT").
+fun String.withZone(zone: String?): String = zone?.let { "$this $it" } ?: this
 
 // An ISO date-time with "Z" or an offset -> "yyyy-MM-dd HH:mm:ss" in [zone], else null.
 fun String.toDateTimeIn(zone: ZoneId): String? = try {

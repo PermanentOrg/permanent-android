@@ -34,6 +34,7 @@ fun ItemDTO.toRecord(): Record {
     rec.displayName = displayName
     rec.displayDate = displayDate?.toV1Timestamp()
     rec.displayTime = displayTime
+    rec.timezone = location?.timezone.orNullIfBlank()
     rec.thumbURL200 = thumbUrl200
     rec.thumbURL2000 = thumbUrl2000
     rec.archiveId = archive?.id?.toIntOrNull()
@@ -64,6 +65,7 @@ fun ItemDTO.toRecordV2(includePendingInvitesAsShares: Boolean = true): Record {
     // Records date via displayDate, folders via displayTimestamp.
     rec.displayDate = (displayDate ?: displayTimestamp)?.toV1Timestamp()
     rec.displayTime = displayTime
+    rec.timezone = location?.timezone.orNullIfBlank()
     rec.archiveId = resolvedArchiveId()
     rec.archiveNr = resolvedArchiveNr()
     rec.parentFolderLinkId = resolvedParentFolderLinkId()
@@ -108,6 +110,7 @@ fun ItemDTO.toRecordVO(): RecordVO = RecordVO().also { vo ->
     vo.description = description
     vo.displayDT = displayDate?.toV1Timestamp()
     vo.displayTime = displayTime
+    vo.timezone = location?.timezone.orNullIfBlank()
     // No derivedDT on V2; displayDate starts as the derived date, so the "Created" row uses it.
     vo.derivedDT = vo.displayDT
     vo.createdDT = createdAt?.toV1Timestamp()

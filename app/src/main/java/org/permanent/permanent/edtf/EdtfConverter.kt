@@ -47,9 +47,12 @@ object EdtfConverter {
     private val ONE_OR_TWO_DIGITS = Regex("""\d{1,2}""")
     private val UP_TO_FOUR_DIGITS = Regex("""\d{1,4}""")
 
+    fun formatOffset(offset: ZoneOffset): String = OFFSET_FORMATTER.format(offset)
+
     fun deviceOffsetNow(): ZoneOffset = ZoneId.systemDefault().rules.getOffset(Instant.now())
 
-    fun encode(value: EdtfValue, defaultOffset: ZoneOffset = deviceOffsetNow()): EdtfEncodeResult {
+    // A null offset writes zone-less times.
+    fun encode(value: EdtfValue, defaultOffset: ZoneOffset? = deviceOffsetNow()): EdtfEncodeResult {
         val gateSide = if (value is EdtfValue.Range) Side.RANGE else Side.START
         return try {
             val errors = mutableListOf<EdtfError>()
@@ -112,14 +115,14 @@ object EdtfConverter {
         }
     }
 
-    private fun format(parts: EdtfDateParts, defaultOffset: ZoneOffset): String = buildString {
+    private fun format(parts: EdtfDateParts, defaultOffset: ZoneOffset?): String = buildString {
         val (year, month, day, time) = parts
         append(year.padEnd(4, 'X'))
         if (month.isNotEmpty() || day.isNotEmpty()) append('-').append(month.ifEmpty { "XX" }.padStart(2, '0'))
         if (day.isNotEmpty()) append('-').append(day.padStart(2, '0'))
         if (time != null) {
             append(String.format(Locale.US, "T%02d:%02d:%02d", time.hour, time.minute, time.second))
-            append(OFFSET_FORMATTER.format(time.offset ?: defaultOffset))
+            (time.offset ?: defaultOffset)?.let { append(OFFSET_FORMATTER.format(it)) }
         }
         append(
             when {

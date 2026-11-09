@@ -12,6 +12,7 @@ import org.permanent.permanent.R
 import org.permanent.permanent.mapper.toLocationInputJson
 import org.permanent.permanent.mapper.toRecordV2
 import org.permanent.permanent.mapper.toRecordVO
+import org.permanent.permanent.models.ZoneChange
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
@@ -885,15 +886,13 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
         fileDataList: List<FileData?>,
         fields: Set<RecordField>,
         listener: IResponseListener,
-        retryOnV1: Boolean
+        retryOnV1: Boolean,
+        zone: ZoneChange
     ) {
-        val sessionArchiveId = stelaPatchSessionArchiveId()
         val fileData = fileDataList.filterNotNull()
-        val patches = if (sessionArchiveId == null || fileData.size != fileDataList.size ||
-            !fileData.all { isEligibleForStelaPatch(it.recordId, it.archiveId, sessionArchiveId) }
-        ) null
+        val patches = if (fileData.size != fileDataList.size || !fileData.all(::canPatchOnV2)) null
         else fileData.toPatchesOrNull({ it.recordId }) {
-            metadataPatchBody(it.displayName, it.description, it.displayTime, fields)
+            metadataPatchBody(it.displayName, it.description, it.displayTime, fields)?.putZone(zone, it.timezone)
         }
         val clearsDate = RecordField.DATE in fields && fileData.any { it.displayTime == null }
         val v1 = if (clearsDate) null else { { updateRecordsV1(fileDataList, listener) } }
@@ -957,13 +956,10 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     }
 
     override fun updateRecordDates(
-        records: MutableList<Record>, retryOnV1: Boolean, listener: IResponseListener
+        records: MutableList<Record>, zone: ZoneChange, retryOnV1: Boolean, listener: IResponseListener
     ) {
-        val sessionArchiveId = stelaPatchSessionArchiveId()
-        val patches = if (sessionArchiveId == null ||
-            !records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
-        ) null
-        else records.map { it.stelaRecordId to datePatchBody(it.displayTime) }
+        val patches = if (!canPatchOnV2(records)) null
+        else records.map { it.stelaRecordId to datePatchBody(it.displayTime).putZone(zone, it.timezone) }
         val clearsDate = records.any { it.displayTime == null }
         val v1 = if (clearsDate) null else { { updateMultipleRecords(records, isFolderRecordType = false, listener) } }
         patchV2OrV1(patches, R.string.file_info_update_success, listener, retryOnV1, v1)
@@ -1172,6 +1168,27 @@ class FileRepositoryImpl(val context: Context) : IFileRepository {
     // A null displayTime clears the date. V1 cannot clear.
     private fun datePatchBody(displayTime: String?): JSONObject =
         JSONObject().put("displayTime", displayTime ?: JSONObject.NULL)
+
+    // [current] is the item's zone before the edit. A null on an item without a zone is not sent:
+    // on an item with no Location it would create an empty Location row.
+    private fun JSONObject.putZone(change: ZoneChange, current: String?): JSONObject = apply {
+        val value: Any = when (change) {
+            ZoneChange.Keep -> return@apply
+            is ZoneChange.Set -> change.id
+            ZoneChange.Clear -> if (current == null) return@apply else JSONObject.NULL
+        }
+        put("location", JSONObject().put("timezone", value))
+    }
+
+    override fun canPatchOnV2(records: List<Record>): Boolean {
+        val sessionArchiveId = stelaPatchSessionArchiveId() ?: return false
+        return records.isNotEmpty() && records.all { it.isEligibleForStelaPatch(sessionArchiveId) }
+    }
+
+    override fun canPatchOnV2(fileData: FileData): Boolean {
+        val sessionArchiveId = stelaPatchSessionArchiveId() ?: return false
+        return isEligibleForStelaPatch(fileData.recordId, fileData.archiveId, sessionArchiveId)
+    }
 
     // Null when a requested field cannot be expressed on V2 or nothing is left to send.
     // A blank description clears (the server rejects "").

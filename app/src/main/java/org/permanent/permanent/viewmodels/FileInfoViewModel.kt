@@ -9,13 +9,16 @@ import org.permanent.permanent.R
 import org.permanent.permanent.models.AccessRole
 import org.permanent.permanent.models.DisplayDated
 import org.permanent.permanent.models.EditedDate
+import org.permanent.permanent.models.ZoneChange
 import org.permanent.permanent.models.applyEditedDate
 import org.permanent.permanent.network.IResponseListener
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IFileRepository.RecordField
+import org.permanent.permanent.ui.bulkEditMetadata.shownZone
 import org.permanent.permanent.ui.toInfoRowDate
+import org.permanent.permanent.ui.withZone
 
 class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -65,10 +68,12 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     private fun refreshDate() {
-        date.value = fileData.shownDate?.toInfoRowDate()
+        date.value = fileData.shownDate?.toInfoRowDate()?.withZone(fileData.shownZone)
     }
 
     fun savedDate(): DisplayDated = fileData
+
+    fun savesZone(): Boolean = fileRepository.canPatchOnV2(fileData)
 
     fun onDateClick() {
         if (isEditable.value == true)
@@ -108,12 +113,15 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
             fileData.displayName = nameValue
             fileData.description = description
             val retryOnV1 = pickedDate?.let { listOf(fileData).applyEditedDate(it) } ?: true
+            val zone = pickedDate?.zone ?: ZoneChange.Keep
             if (pickedDate != null) refreshDate()
             pickedDate = null
 
             isBusy.value = true
-            fileRepository.updateRecords(mutableListOf(fileData), changedFields, retryOnV1 = retryOnV1, listener = object : IResponseListener {
+            fileRepository.updateRecords(mutableListOf(fileData), changedFields, retryOnV1 = retryOnV1, zone = zone, listener = object : IResponseListener {
                 override fun onSuccess(message: String?) {
+                    fileData.applyZone(zone)
+                    refreshDate()
                     message?.let { showMessage.value = it }
                     onFileInfoUpdated.value = nameValue
                     onSaveFinished()
