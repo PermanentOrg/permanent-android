@@ -2,6 +2,7 @@ package org.permanent.permanent.repositories
 
 import okhttp3.MediaType
 import okhttp3.ResponseBody
+import org.permanent.permanent.models.ZoneChange
 import org.permanent.permanent.models.NavigationFolderIdentifier
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
@@ -145,7 +146,8 @@ interface IFileRepository {
         fileDataList: List<FileData?>,
         fields: Set<RecordField>,
         listener: IResponseListener,
-        retryOnV1: Boolean = true
+        retryOnV1: Boolean = true,
+        zone: ZoneChange = ZoneChange.Keep
     )
 
     fun updateRecord(locnVO: LocnVO, fileData: FileData, listener: IResponseListener)
@@ -161,7 +163,14 @@ interface IFileRepository {
 
     // Bulk date: each record's displayTime (V2) and displayDate (V1) are already set; a null
     // displayTime clears. retryOnV1 = false: a V2 failure is reported instead of re-sent through V1.
-    fun updateRecordDates(records: MutableList<Record>, retryOnV1: Boolean, listener: IResponseListener)
+    fun updateRecordDates(
+        records: MutableList<Record>, zone: ZoneChange, retryOnV1: Boolean, listener: IResponseListener
+    )
+
+    // True when the edit goes to a V2 PATCH, the only route that stores a time zone.
+    fun canPatchOnV2(records: List<Record>): Boolean
+
+    fun canPatchOnV2(fileData: FileData): Boolean
 
     // A null displayTime clears the date.
     fun updateFolderDisplayTime(

@@ -6,6 +6,7 @@ class RecordVO {
     var description: String? = null
     var displayDT: String? = null
     var displayTime: String? = null
+    var timezone: String? = null
     var createdDT: String? = null
     var updatedDT: String? = null
     var derivedDT: String? = null

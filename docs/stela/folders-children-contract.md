@@ -983,15 +983,19 @@ verbatim, validated at Level ≤ 2, `null` clears, `""` → 400. It is **a separ
 legacy `displaydt`** that GET returns as `displayDate` (records) / `displayTimestamp` (folders); a
 `displayTime` PATCH leaves `displaydt` unchanged (folder source; records to confirm live). The
 time zone is `location.timezone` (free text, stored on `record.timezone` / `folder.timezone`);
-sending it on an item with no `locn` row makes stela insert an empty one.
+sending it on an item with no `locn` row makes stela insert a row (empty again after `timezone: null`).
+The zone lives on the record, not in the `locn` row: it survives `{"locationId": null}` and a
+re-linked row, and `{"location":{"timezone":…}}` on a linked row keeps its other fields (live 2026-11-09).
 
 **Web parity.** Web PATCHes only `{displayTime}` (no time zone), writes times as
 `THH:MM:SS±HH:MM` with the device offset (never `Z`, never offset-less), and reads `displayTime`
-first with a `displayDT` fallback. iOS still writes dates through V1 and does not read
-`displayTime` (VSP-1727) — Android-written dates do not show there until it does.
+first with a `displayDT` fallback. iOS Stage 1 (`feature/VSP-1725-iOS-EDTF`, PRs #607–#610) writes
+`displayTime` + `location.timezone` through V2 and shows the time as written plus the zone's name;
+Android follows it since VSP-1826.
 
 **Read (Android).** `ItemDTO.displayTime` → `Record` / `RecordVO` / `FileData.displayTime`;
-`LocationDTO.timezone` is decoded but not shown (no UI slot until Stage 1).
+`ItemDTO.location.timezone` → `.timezone` on the same models (the children listing carries it too, so
+the item menu needs no extra GET).
 `DisplayDated.shownDate` (implemented by `Record` and `FileData`) = `displayTime.edtfToDisplayDate()`
 ?: `shownLegacyDate.utcToLocalDateTime()`, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
 `toDisplayDate()` headers ("Oct. 23, 1985", "Oct. 1985" or "1985"). `displayDate` stays the **legacy UTC** value on purpose: V1 bodies (bulk
@@ -1002,11 +1006,12 @@ both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDa
 | `displayTime` | Shown |
 |---|---|
 | `1985` / `1985-10` / `1985-10-23` | as is |
-| `1985-10-23T17:00:00` (no zone, optional fraction) | `1985-10-23 17:00:00` — as written |
-| `…+03:00`, `…Z`, `….000Z` | converted to device local time (`1985-10-23T23:30:00.000Z` → `1985-10-23 17:30:00` in CST) |
+| `1985-10-23T17:00:00`, `…+03:00` (optional fraction) | `1985-10-23 17:00:00` — the clock as written, offset ignored (iOS, VSP-1826) |
+| `…Z`, `….000Z` | a UTC moment, converted to device local time (`1985-10-23T23:30:00.000Z` → `1985-10-24 01:30:00` in Bucharest) |
 | anything else (qualifiers, `X`, ranges, `..`, seasons, invalid dates) | the raw string |
 
-`edtfToDisplayDate()` decodes through `EdtfConverter.decodeLevel0` (VSP-1765). `shownLegacyDate` is
+`edtfToDisplayDate()` decodes through `EdtfConverter.decodeLevel0` (VSP-1765); `decodeWrittenTime`
+gives the clock and the written offset to the sheet and the Info row (`Z` vs offset: `isUtcTime()`). `shownLegacyDate` is
 `displayDate` unless the server switch **`edtf-date`** is on (`GET /api/v2/feature-flags`, public,
 `{"items":[{"name":…}]}`; read once per process on the first foreground, last answer kept in prefs —
 `ServerFeatureFlags`). On, no screen falls back to the legacy date (Web and iOS #607 parity). Off on
@@ -1014,18 +1019,33 @@ staging and production (live 2026-11-04).
 
 **File Info Date row (VSP-1764).** `shownDate.toInfoRowDate()` re-formats that value: `1985` as is,
 `October 1985`, `October 23, 1985`, `October 23, 1985 • 5PM` (`• 4:16 PM` when minutes ≠ 0);
-anything else stays raw. No zone label: the time is in device local time, so the record's zone
-name would not match it (V1 `TimezoneVO.stdAbbrev` was shown first and labelled Bucharest times
-"CST"; removed after VSP-1764 QA, 2026-11-04). The record's zone (V2 `location.timezone`) comes
-with VSP-1826. iOS Stage 1 shows the time as written plus that zone's name, and ignores the offset.
+anything else stays raw. After a time comes `shownZone` (VSP-1826, iOS `timeSuffix`): the record
+zone's English short name when it is letters (`10:30 AM EDT`), else the offset in tz style (`+03`,
+`+0530`); with no zone, the offset the string carries (`12:02 PM +02`); nothing for a `Z` time
+without a zone.
 
 **Write (Android, VSP-1765).** One sheet (`EditDateTimeFragment`) for the Info tab (pick-only, saved
 through `updateRecords`), the item menu and bulk Edit Metadata (saved by the sheet through
 `updateRecordDates`). Typed fields (`DateTimeEntry`) → `EdtfConverter.encode`: `1985`, `1985-10`,
-`1985-10-23`, or a time with the **device offset at the entered date** (`1985-07-04T21:30:00+03:00`,
-`2026-10-27T13:00:00+02:00` in Bucharest; seconds always written; offsets truncated to whole minutes).
+`1985-10-23`, or a time with the **chosen zone's offset at that clock time**
+(`1990-05-12T10:30:00-04:00` for New York; in a repeated hour the stored offset is kept when it fits,
+else the earlier one; a skipped hour moves forward — `ZonedDateTime.ofLocal`), or **no offset without
+a zone** (`1990-05-12T10:30:00`, iOS; VSP-1826 replaced the VSP-1765 device offset). Seconds always
+written; offsets truncated to whole minutes.
 A short year is padded (`85` → `0085`). A time is used only with a full date: with a year or year-month the time fields are greyed out and not sent (Flavia 2026-11-05; iOS sends an invalid `1985T17:00:00`). The V1 value (`displayDate`) is the same wall clock in UTC with
-a missing month/day = 1 and a missing time = midnight (iOS). No `location.timezone` until VSP-1826.
+a missing month/day = 1 and a missing time = midnight (iOS), in the chosen zone (else device zone).
+
+**Time zone (VSP-1826).** The sheet's zone row opens a list of the 418 zone.tab ids
+(`TimeZoneCountryCodes.kt`, generated from tzdata 2026e like iOS; ICU's own list uses old names such
+as `Asia/Calcutta`), grouped by region, sorted by offset at the entered clock then city; search by
+city, country, generic name or offset (`+5`, `GMT-3`, `+0530`); "No time zone" pinned on top. The row
+is disabled until a time is entered, and **hidden** when the save cannot go V2 (`canPatchOnV2`:
+Shared With Me, other archives — V1 has no zone). Opening zone: the record's zone for one item
+(Info tab, item menu); none for several files (no guess from the offset, Flavia 2026-11-09).
+The body adds `"location":{"timezone":"Europe/Paris"}` when a zone goes with a time, and
+`"timezone": null` when the zone the sheet opened with is removed or the date is cleared — but only
+for items that had a zone (`putZone`), so no empty `locn` row is created. A date-only save leaves the
+zone as it is (hidden). Location edits keep the zone (stored on the record).
 **Clear** sends `{"displayTime": null}` and keeps the legacy value, so with `edtf-date` off the upload
 date shows again (as on Web and iOS). Sent only when the date was edited. Folder write:
 `updateFolderDisplayTime` (same gate, success = echoed `displayTime`, no V1) — no caller yet.

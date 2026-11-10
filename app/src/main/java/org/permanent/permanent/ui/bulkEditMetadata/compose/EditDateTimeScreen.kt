@@ -80,6 +80,11 @@ fun EditDateTimeScreen(
     var sheetTop by remember { mutableFloatStateOf(0f) }
     var timeBoxTop by remember { mutableFloatStateOf(0f) }
 
+    if (viewModel.showZonePicker.value) {
+        TimeZonePicker(viewModel)
+        return
+    }
+
     Box(modifier = Modifier.onGloballyPositioned { sheetTop = it.positionInRoot().y }) {
         Column(
             modifier = Modifier
@@ -170,28 +175,17 @@ fun EditDateTimeScreen(
                     }
                 }
 
-                // Not tappable until the time zone picker lands.
-                Row(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_globe_primary),
-                        contentDescription = null,
-                        tint = blue900,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.date_time_select_time_zone),
-                        modifier = Modifier.weight(1f),
-                        style = TextStyle(fontSize = 14.sp, lineHeight = 24.sp, fontFamily = regularFont, color = blue400)
-                    )
-                    Icon(
-                        painter = painterResource(R.drawable.ic_angle_right_grey),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(24.dp)
+                // Hidden where the save can't store a zone (V1 only, e.g. Shared With Me).
+                if (viewModel.savesZone) {
+                    TimeZoneRow(
+                        zone = entry.zone,
+                        offsetLabel = entry.zone?.let(viewModel::zoneOffsetLabel),
+                        enabled = viewModel.canPickZone,
+                        onClick = {
+                            focusManager.clearFocus()
+                            showTimeWheel = false
+                            viewModel.onZoneRowClick()
+                        }
                     )
                 }
 

@@ -19,6 +19,7 @@ class FileData private constructor() : Parcelable, DisplayDated {
     var description: String? = null
     override var displayDate: String? = null
     override var displayTime: String? = null
+    override var timezone: String? = null
     var createdDate: String? = null
     var updatedDate: String? = null
     var derivedDate: String? = null
@@ -84,6 +85,7 @@ class FileData private constructor() : Parcelable, DisplayDated {
         description = recordVO.description
         displayDate = recordVO.displayDT?.replace("T", " ")
         displayTime = recordVO.displayTime
+        timezone = recordVO.timezone
         createdDate = recordVO.createdDT?.replace("T", " ")
         updatedDate = recordVO.updatedDT?.replace("T", " ")
         derivedDate = recordVO.derivedDT?.replace("T", " ")
@@ -158,6 +160,7 @@ class FileData private constructor() : Parcelable, DisplayDated {
         originalUploadName = parcel.readString()
         originalURL = parcel.readString()
         originalContentType = parcel.readString()
+        timezone = parcel.readString()
     }
 
     fun update(locationVO: LocnVO) {
@@ -199,6 +202,7 @@ class FileData private constructor() : Parcelable, DisplayDated {
         parcel.writeString(originalUploadName)
         parcel.writeString(originalURL)
         parcel.writeString(originalContentType)
+        parcel.writeString(timezone)
     }
 
     fun getTagIds(): ArrayList<String> {

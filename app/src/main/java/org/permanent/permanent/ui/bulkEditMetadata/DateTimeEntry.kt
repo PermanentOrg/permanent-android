@@ -5,11 +5,11 @@ import org.permanent.permanent.edtf.EdtfDateParts
 import org.permanent.permanent.edtf.EdtfEncodeResult
 import org.permanent.permanent.edtf.EdtfTime
 import org.permanent.permanent.edtf.EdtfValue
-import org.permanent.permanent.edtf.decodeLevel0Start
-import org.permanent.permanent.edtf.localDateTime
+import org.permanent.permanent.edtf.decodeWrittenTime
 import org.permanent.permanent.edtf.toShownDate
 import org.permanent.permanent.models.DisplayDated
 import org.permanent.permanent.models.EditedDate
+import org.permanent.permanent.models.ZoneChange
 import org.permanent.permanent.ui.BACKEND_DATE_TIME_FORMATTER
 import org.permanent.permanent.ui.toLocalDateTimeOrNull
 import org.permanent.permanent.ui.utcToLocalDateTime
@@ -52,6 +52,9 @@ data class DateTimeEntry(
     val minute: String = "",
     val second: String = "",
     val format: TimeFormat = TimeFormat.AM,
+    val zoneId: String? = null,
+    // The offset the record's string carried: kept in a repeated hour, shown when there is no zone.
+    val storedOffset: ZoneOffset? = null,
 ) {
     operator fun get(field: DateTimeField): String = when (field) {
         DateTimeField.YEAR -> year
@@ -83,6 +86,13 @@ data class DateTimeEntry(
 
     private val hasTime: Boolean
         get() = hour.isNotEmpty() || minute.isNotEmpty() || second.isNotEmpty()
+
+    // A zone goes only with a time (iOS).
+    val canPickZone: Boolean
+        get() = usesTime && hasTime
+
+    val zone: TimeZoneOption?
+        get() = zoneId?.let(TimeZoneCatalog::option)
 
     fun bounds(field: DateTimeField, today: LocalDate = LocalDate.now()): IntRange = when (field) {
         DateTimeField.YEAR -> 1..today.year
@@ -141,7 +151,7 @@ data class DateTimeEntry(
 
     // The wall clock the fields describe; a missing month or day is 1, a missing time is midnight (iOS).
     // Null while a field is still being typed out of range (a lone "0" is clamped only when it is left).
-    private fun wallClock(): LocalDateTime? {
+    fun wallClock(): LocalDateTime? {
         if (errors.isNotEmpty() || year.isEmpty()) return null
         val parts = parts
         val time = parts.time
@@ -156,23 +166,35 @@ data class DateTimeEntry(
     }
 
     // The value to save, or null while the fields have an error. An empty entry clears.
-    // A time carries the device offset at that date, so it reads back as the same wall clock.
-    fun toEditedDate(): EditedDate? {
-        if (isEmpty) return EditedDate(displayTime = null, legacyUtc = null)
+    // A time carries the zone's offset at that clock time, or no offset without a zone (iOS).
+    fun toEditedDate(openingZone: String?): EditedDate? {
+        if (isEmpty) return EditedDate(displayTime = null, legacyUtc = null, zone = ZoneChange.Clear)
         val wallClock = wallClock() ?: return null
-        // Old local mean times have offsets with seconds, which EDTF can't write.
-        val zoned = wallClock.atZone(ZoneId.systemDefault())
-        val offset = ZoneOffset.ofTotalSeconds(zoned.offset.totalSeconds / 60 * 60)
+        val zone = zone?.takeIf { canPickZone }
+        val offset = zone?.offsetAt(wallClock, storedOffset)
         val edtf = (EdtfConverter.encode(EdtfValue.Single(parts), offset) as? EdtfEncodeResult.Success)?.edtf
             ?: return null
-        val legacyUtc = zoned.withZoneSameInstant(ZoneOffset.UTC).format(BACKEND_DATE_TIME_FORMATTER)
-        return EditedDate(edtf, legacyUtc)
+        val legacyUtc = wallClock.atZone(zone?.zone ?: ZoneId.systemDefault())
+            .withZoneSameInstant(ZoneOffset.UTC).format(BACKEND_DATE_TIME_FORMATTER)
+        val change = when {
+            zone != null -> ZoneChange.Set(zone.id)
+            zoneId == null && openingZone != null -> ZoneChange.Clear
+            else -> ZoneChange.Keep
+        }
+        return EditedDate(edtf, legacyUtc, change)
     }
 
+    // After the time in the preview: the chosen zone's short name; the saved string has no offset without one.
+    val zoneSuffix: String?
+        get() {
+            if (!canPickZone) return null
+            val clock = wallClock() ?: return null
+            return zone?.shortName(clock, storedOffset)
+        }
+
     // The shown-date shape the Info row formatter reads, or null while the fields don't make a date.
-    // The parts carry no offset, so the zone is not used.
     val shownDate: String?
-        get() = wallClock()?.let { parts.toShownDate(ZoneOffset.UTC) }
+        get() = wallClock()?.let { parts.toShownDate() }
 
     // The typed date when all three date fields make a real day, for the calendar to open on.
     fun fullDate(): LocalDate? = try {
@@ -191,14 +213,13 @@ data class DateTimeEntry(
     private fun Int.padded(width: Int): String = toString().padStart(width, '0')
 
     companion object {
-        // A Level 0 displayTime (or a range of two, on its start) fills the fields; zoned times on the
-        // device clock. Without a displayTime the legacy date is used where screens show it.
+        // A Level 0 displayTime (or a range of two, on its start) fills the fields with the clock as
+        // written. Without a displayTime the legacy date is used where screens show it. No zone.
         fun from(dated: DisplayDated): DateTimeEntry {
             dated.displayTime?.let { displayTime ->
-                val parts = EdtfConverter.decodeLevel0Start(displayTime) ?: return DateTimeEntry()
-                val clock = parts.localDateTime(ZoneId.systemDefault())
-                    ?: return DateTimeEntry(parts.year, parts.month, parts.day)
-                return fromClock(clock)
+                val written = EdtfConverter.decodeWrittenTime(displayTime, rangeStart = true) ?: return DateTimeEntry()
+                val clock = written.clock ?: return DateTimeEntry(written.parts.year, written.parts.month, written.parts.day)
+                return fromClock(clock).copy(storedOffset = written.storedOffset)
             }
             val legacy = dated.shownLegacyDate?.utcToLocalDateTime()?.toLocalDateTimeOrNull() ?: return DateTimeEntry()
             return fromClock(legacy)

@@ -39,7 +39,14 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
             viewModel.setRecords(it)
         }
         if (arguments?.containsKey(DISPLAY_TIME_KEY) == true) {
-            viewModel.setPickOnly(DatedValue(arguments?.getString(LEGACY_DATE_KEY), arguments?.getString(DISPLAY_TIME_KEY)))
+            viewModel.setPickOnly(
+                DatedValue(
+                    arguments?.getString(LEGACY_DATE_KEY),
+                    arguments?.getString(DISPLAY_TIME_KEY),
+                    arguments?.getString(TIMEZONE_KEY)
+                ),
+                arguments?.getBoolean(SAVES_ZONE_KEY) == true
+            )
         }
 
         return ComposeView(requireContext()).apply {
@@ -60,8 +67,13 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
     }
 
     // The item's raw values, not its shown date: the sheet decodes the EDTF string itself.
-    fun setPickOnlyArguments(dated: DisplayDated) {
-        arguments = bundleOf(DISPLAY_TIME_KEY to dated.displayTime, LEGACY_DATE_KEY to dated.displayDate)
+    fun setPickOnlyArguments(dated: DisplayDated, savesZone: Boolean) {
+        arguments = bundleOf(
+            DISPLAY_TIME_KEY to dated.displayTime,
+            LEGACY_DATE_KEY to dated.displayDate,
+            TIMEZONE_KEY to dated.timezone,
+            SAVES_ZONE_KEY to savesZone
+        )
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -104,5 +116,7 @@ class EditDateTimeFragment : PermanentBottomSheetFragment() {
     companion object {
         private const val DISPLAY_TIME_KEY = "display_time_key"
         private const val LEGACY_DATE_KEY = "legacy_date_key"
+        private const val TIMEZONE_KEY = "timezone_key"
+        private const val SAVES_ZONE_KEY = "saves_zone_key"
     }
 }

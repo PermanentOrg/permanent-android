@@ -26,6 +26,7 @@ open class Record : Parcelable, DisplayDated {
     var displayName: String? = null
     override var displayDate: String? = null
     override var displayTime: String? = null
+    override var timezone: String? = null
     var archiveFullName: String? = null
     var archiveThumbURL200: String? = null
     var showArchiveThumb: Boolean? = null
@@ -86,6 +87,7 @@ open class Record : Parcelable, DisplayDated {
         backendType = parcel.readString()
         savedSort = SortType.fromServerValue(parcel.readString())
         displayTime = parcel.readString()
+        timezone = parcel.readString()
     }
 
     constructor(recordInfo: RecordVO) {
@@ -99,6 +101,7 @@ open class Record : Parcelable, DisplayDated {
         displayName = recordInfo.displayName
         displayDate = recordInfo.displayDT?.replace("T", " ")
         displayTime = recordInfo.displayTime
+        timezone = recordInfo.timezone
         showArchiveThumb = false
         thumbURL200 = recordInfo.thumbURL200
         thumbnail256 = recordInfo.thumbnail256
@@ -272,6 +275,7 @@ open class Record : Parcelable, DisplayDated {
         parcel.writeString(backendType)
         parcel.writeString(savedSort?.toBackendString())
         parcel.writeString(displayTime)
+        parcel.writeString(timezone)
     }
 
     override fun describeContents(): Int {
