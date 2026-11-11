@@ -55,6 +55,11 @@ open class Record : Parcelable, DisplayDated {
             val shownSize = if (type == RecordType.FILE) bytesToHumanReadableString(size) else ""
             return listOf(shownSize, date).filter { it.isNotEmpty() }.joinToString(" • ")
         }
+
+    // Nothing shows under the name: no size or date, no share icons, no archive name.
+    val showsNameOnly: Boolean
+        get() = sizeAndDate.isEmpty() && shares.isNullOrEmpty() &&
+            !(displayInShares && showArchiveThumb == true && archiveFullName != null)
     var localDrawableRes: Int? = null
     var savedSort: SortType? = null
 

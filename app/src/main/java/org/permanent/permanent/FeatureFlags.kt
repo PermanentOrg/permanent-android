@@ -24,4 +24,7 @@ object FeatureFlags {
      * (403 for permission denials). Details: docs/stela/folders-children-contract.md, gap 7.
      */
     var treatStelaUnauthorizedAsSessionExpiry: Boolean = false
+
+    // Off until every item has a displayTime: clearing one now falls back to the legacy date.
+    var allowsClearingDate: Boolean = false
 }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.permanent.permanent.FeatureFlags
 import org.permanent.permanent.models.DisplayDated
 import org.permanent.permanent.models.EditedDate
 import org.permanent.permanent.models.Record
@@ -86,6 +87,13 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
     val canPickZone: Boolean
         get() = savesZone && entry.value.canPickZone
 
+    val canClear: Boolean
+        get() = FeatureFlags.allowsClearingDate
+
+    // An empty entry clears the date, so it saves only while clearing is allowed.
+    val canSave: Boolean
+        get() = entry.value.errors.isEmpty() && (canClear || !entry.value.isEmpty)
+
     // The clock the list's offsets are taken at: the fields, else now.
     private val offsetClock: LocalDateTime
         get() = entry.value.wallClock() ?: LocalDateTime.now()
@@ -158,7 +166,7 @@ class EditDateTimeViewModel(application: Application) : ObservableAndroidViewMod
             shouldClose.value = true
             return
         }
-        if (entry.value.toEditedDate(openingZone) == null) return
+        if (!canSave || entry.value.toEditedDate(openingZone) == null) return
         if (recordsCount > 1) showConfirmation.value = true else save()
     }
 

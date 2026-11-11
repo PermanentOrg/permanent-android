@@ -1047,7 +1047,10 @@ The body adds `"location":{"timezone":"Europe/Paris"}` when a zone goes with a t
 for items that had a zone (`putZone`), so no empty `locn` row is created. A date-only save leaves the
 zone as it is (hidden). Location edits keep the zone (stored on the record).
 **Clear** sends `{"displayTime": null}` and keeps the legacy value, so with `edtf-date` off the upload
-date shows again (as on Web and iOS). Sent only when the date was edited. Folder write:
+date shows again (as on Web and iOS). Sent only when the date was edited. **Hidden for now**
+(`FeatureFlags.allowsClearingDate = false`, 2026-11-11): no Clear row, and Save is disabled while
+every field is empty, so no path sends `null` until the backend fills `displayTime` for all items.
+The clear code stays for when the flag is turned on. Folder write:
 `updateFolderDisplayTime` (same gate, success = echoed `displayTime`, no V1) — no caller yet.
 
 **V1 failsafe for dates (2026-11-05).** V1 writes only `displayDT`, which no screen shows once an item

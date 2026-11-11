@@ -189,31 +189,33 @@ fun EditDateTimeScreen(
                     )
                 }
 
-                HorizontalDivider(color = blue50)
+                if (viewModel.canClear) {
+                    HorizontalDivider(color = blue50)
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable {
-                            focusManager.clearFocus()
-                            showTimeWheel = false
-                            viewModel.onClearClick()
-                        }
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_broom_error),
-                        contentDescription = null,
-                        tint = error500,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.date_time_clear),
-                        style = TextStyle(fontSize = 14.sp, lineHeight = 24.sp, fontFamily = regularFont, color = error500)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                focusManager.clearFocus()
+                                showTimeWheel = false
+                                viewModel.onClearClick()
+                            }
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_broom_error),
+                            contentDescription = null,
+                            tint = error500,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.date_time_clear),
+                            style = TextStyle(fontSize = 14.sp, lineHeight = 24.sp, fontFamily = regularFont, color = error500)
+                        )
+                    }
                 }
             }
 
@@ -243,7 +245,7 @@ fun EditDateTimeScreen(
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = blue900),
-                    enabled = errors.isEmpty(),
+                    enabled = viewModel.canSave,
                     onClick = {
                         focusManager.clearFocus()
                         showTimeWheel = false

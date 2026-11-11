@@ -19,6 +19,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.databinding.BindingAdapter
@@ -427,4 +428,14 @@ fun showChecklistFabAnimated(fabChecklist: FloatingActionButton, show: Boolean) 
             }
         }
     }
+}
+
+// A row with nothing under the name centers it; otherwise it sits above the guideline.
+@BindingAdapter("centersName")
+fun TextView.setCentersName(centers: Boolean) {
+    val params = layoutParams as? ConstraintLayout.LayoutParams ?: return
+    params.bottomToTop = if (centers) ConstraintLayout.LayoutParams.UNSET else R.id.guideline
+    params.bottomToBottom = if (centers) ConstraintLayout.LayoutParams.PARENT_ID else ConstraintLayout.LayoutParams.UNSET
+    params.verticalBias = if (centers) 0.5f else 1f
+    layoutParams = params
 }
