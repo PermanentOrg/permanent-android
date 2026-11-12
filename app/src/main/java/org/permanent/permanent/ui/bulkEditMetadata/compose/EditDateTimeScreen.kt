@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -85,10 +86,15 @@ fun EditDateTimeScreen(
         return
     }
 
-    Box(modifier = Modifier.onGloballyPositioned { sheetTop = it.positionInRoot().y }) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight(0.95f)
+            .onGloballyPositioned { sheetTop = it.positionInRoot().y }
+    ) {
         Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(topStart = 38.dp, topEnd = 38.dp))
                 .background(Color.White)
                 .pointerInput(Unit) { detectTapGestures { focusManager.clearFocus(); showTimeWheel = false } }
                 .navigationBarsPadding()
@@ -218,6 +224,8 @@ fun EditDateTimeScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
