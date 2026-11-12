@@ -277,6 +277,10 @@ private fun FormatPill(format: TimeFormat, onClick: () -> Unit, modifier: Modifi
     }
 }
 
+// Shared by the date sheet and its time zone list, so switching between them doesn't jump.
+internal const val SHEET_HEIGHT_FRACTION = 0.95f
+internal val SheetShape = RoundedCornerShape(topStart = 38.dp, topEnd = 38.dp)
+
 @Composable
 internal fun SheetCircleButton(iconRes: Int, description: String, dark: Boolean, onClick: () -> Unit) {
     val blue900 = colorResource(R.color.blue900)

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -85,10 +86,15 @@ fun EditDateTimeScreen(
         return
     }
 
-    Box(modifier = Modifier.onGloballyPositioned { sheetTop = it.positionInRoot().y }) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight(SHEET_HEIGHT_FRACTION)
+            .onGloballyPositioned { sheetTop = it.positionInRoot().y }
+    ) {
         Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                .fillMaxHeight()
+                .clip(SheetShape)
                 .background(Color.White)
                 .pointerInput(Unit) { detectTapGestures { focusManager.clearFocus(); showTimeWheel = false } }
                 .navigationBarsPadding()
@@ -189,33 +195,37 @@ fun EditDateTimeScreen(
                     )
                 }
 
-                HorizontalDivider(color = blue50)
+                if (viewModel.canClear) {
+                    HorizontalDivider(color = blue50)
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable {
-                            focusManager.clearFocus()
-                            showTimeWheel = false
-                            viewModel.onClearClick()
-                        }
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_broom_error),
-                        contentDescription = null,
-                        tint = error500,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.date_time_clear),
-                        style = TextStyle(fontSize = 14.sp, lineHeight = 24.sp, fontFamily = regularFont, color = error500)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                focusManager.clearFocus()
+                                showTimeWheel = false
+                                viewModel.onClearClick()
+                            }
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_broom_error),
+                            contentDescription = null,
+                            tint = error500,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.date_time_clear),
+                            style = TextStyle(fontSize = 14.sp, lineHeight = 24.sp, fontFamily = regularFont, color = error500)
+                        )
+                    }
                 }
             }
+
+            Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
@@ -243,7 +253,7 @@ fun EditDateTimeScreen(
                         .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = blue900),
-                    enabled = errors.isEmpty(),
+                    enabled = viewModel.canSave,
                     onClick = {
                         focusManager.clearFocus()
                         showTimeWheel = false

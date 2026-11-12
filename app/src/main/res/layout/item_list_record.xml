@@ -119,6 +119,7 @@
                     android:fontFamily="@font/open_sans_bold"
                     android:maxLines="1"
                     android:text="@{record.displayName}"
+                    app:centersName="@{record.showsNameOnly}"
                     app:layout_constraintBottom_toTopOf="@+id/guideline"
                     app:layout_constraintEnd_toStartOf="@+id/tvPendingBadge"
                     app:layout_constraintStart_toEndOf="@+id/ivFileThumb"
