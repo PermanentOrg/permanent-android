@@ -88,13 +88,13 @@ fun EditDateTimeScreen(
 
     Box(
         modifier = Modifier
-            .fillMaxHeight(0.95f)
+            .fillMaxHeight(SHEET_HEIGHT_FRACTION)
             .onGloballyPositioned { sheetTop = it.positionInRoot().y }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(topStart = 38.dp, topEnd = 38.dp))
+                .clip(SheetShape)
                 .background(Color.White)
                 .pointerInput(Unit) { detectTapGestures { focusManager.clearFocus(); showTimeWheel = false } }
                 .navigationBarsPadding()
