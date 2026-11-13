@@ -14,9 +14,11 @@ const val REQUEST_CODE_NOTIFICATIONS_PERMISSION = 127
 
 class DevicePermissionsHelper {
 
+    // READ_EXTERNAL_STORAGE can't be granted on Android 13+, so there is nothing to ask for.
     fun hasReadStoragePermission(ctx: Context): Boolean {
-        return (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED)
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
     }
 
     fun requestReadStoragePermission(fragment: Fragment) {

@@ -106,6 +106,7 @@ class MyFilesFragment : PermanentBaseFragment() {
     private var shouldRefreshCurrentFolder = false
     private var showScreenSimplified = false
     private var islandExpandedWidth = 960
+    private var notificationsPermissionAsked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -209,8 +210,10 @@ class MyFilesFragment : PermanentBaseFragment() {
     }
 
     // Asked next to the FCM registration, so the prompt appears when the device
-    // is actually about to receive push.
+    // is actually about to receive push. Once per instance: see FilesContainerFragment.onCreate.
     private fun requestNotificationsPermissionIfNeeded() {
+        if (notificationsPermissionAsked) return
+        notificationsPermissionAsked = true
         val permissionsHelper = DevicePermissionsHelper()
         if (!permissionsHelper.hasNotificationsPermission(requireContext())) {
             permissionsHelper.requestNotificationsPermission(this)

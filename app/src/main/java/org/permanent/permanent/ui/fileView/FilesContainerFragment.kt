@@ -22,6 +22,17 @@ class FilesContainerFragment : PermanentBaseFragment() {
     private lateinit var viewAdapter: FilesContainerPagerAdapter
     private lateinit var viewModel: FilesContainerViewModel
 
+    // Not in onCreateView: a permission request while the view is rebuilt by the back gesture
+    // pauses the activity mid-gesture and crashes the FragmentNavigator.
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Requesting permission for viewing files stored locally
+        val permissionHelper = DevicePermissionsHelper()
+        if (!permissionHelper.hasReadStoragePermission(requireContext())) {
+            permissionHelper.requestReadStoragePermission(this)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,11 +44,6 @@ class FilesContainerFragment : PermanentBaseFragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         setHasOptionsMenu(true)
-        // Requesting permission for viewing files stored locally
-        val permissionHelper = DevicePermissionsHelper()
-        if (!permissionHelper.hasReadStoragePermission(requireContext())) {
-            permissionHelper.requestReadStoragePermission(this)
-        }
         return binding.root
     }
 
