@@ -135,8 +135,8 @@ internal fun TimeZonePicker(viewModel: EditDateTimeViewModel) {
     val blue50 = colorResource(R.color.blue50)
     val blue400 = colorResource(R.color.blue400)
     val blue900 = colorResource(R.color.blue900)
-    val chosenId = viewModel.entry.value.zoneId
-    val chosen = viewModel.entry.value.zone
+    val chosenId = viewModel.range.value.start.zoneId
+    val chosen = viewModel.range.value.start.zone
     val regions = viewModel.zoneRegions.value
     val query = viewModel.zoneQuery.value
     val unlistedChosen = chosen?.takeIf { option ->

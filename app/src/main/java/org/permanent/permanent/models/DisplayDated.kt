@@ -1,7 +1,8 @@
 package org.permanent.permanent.models
 
 import org.permanent.permanent.ServerFeatureFlags
-import org.permanent.permanent.ui.edtfToDisplayDate
+import org.permanent.permanent.edtf.EdtfConverter
+import org.permanent.permanent.edtf.decodeShown
 import org.permanent.permanent.ui.utcToLocalDateTime
 
 sealed interface ZoneChange {
@@ -15,6 +16,8 @@ data class EditedDate(
     val displayTime: String?,
     val legacyUtc: String?,
     val zone: ZoneChange = ZoneChange.Keep,
+    // V1 holds one plain moment: never a qualifier, an unknown date or a range.
+    val allowsV1Retry: Boolean = true,
 )
 
 interface DisplayDated {
@@ -28,8 +31,18 @@ interface DisplayDated {
     val shownLegacyDate: String?
         get() = displayDate?.takeUnless { ServerFeatureFlags.showsOnlyEdtfDate }
 
+    // The first written side of displayTime (null when it holds no date), a displayTime the app
+    // can't read verbatim, else the legacy date.
     val shownDate: String?
-        get() = displayTime?.edtfToDisplayDate() ?: shownLegacyDate?.utcToLocalDateTime()
+        get() {
+            val edtf = displayTime ?: return shownLegacyDate?.utcToLocalDateTime()
+            val shown = EdtfConverter.decodeShown(edtf) ?: return edtf
+            return shown.firstWritten?.shownDate
+        }
+
+    // True also for an unknown date, which shows no date in lists.
+    val hasDate: Boolean
+        get() = !displayTime.isNullOrEmpty() || shownDate != null
 
     fun setEditedDate(date: EditedDate) {
         setDateOnly(date)
@@ -62,5 +75,5 @@ data class DatedValue(
 fun Collection<DisplayDated>.applyEditedDate(date: EditedDate): Boolean {
     val showsV1Date = !ServerFeatureFlags.showsOnlyEdtfDate && all { it.displayTime.isNullOrEmpty() }
     forEach { it.setDateOnly(date) }
-    return showsV1Date
+    return showsV1Date && date.allowsV1Retry
 }

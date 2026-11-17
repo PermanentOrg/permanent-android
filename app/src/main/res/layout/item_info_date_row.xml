@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="label"
+            type="String" />
+
+        <variable
+            name="date"
+            type="org.permanent.permanent.ui.fileView.InfoRowDate" />
+
+        <variable
+            name="placeholder"
+            type="String" />
+
+        <variable
+            name="editable"
+            type="boolean" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="@{editable ? @dimen/info_row_gap_boxed : @dimen/info_row_gap_plain}"
+        android:visibility="@{editable || date != null ? View.VISIBLE : View.GONE}">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="@{editable ? @dimen/info_row_box_padding : 0f}"
+            android:paddingEnd="@{editable ? @dimen/info_row_box_padding : 0f}">
+
+            <TextView
+                android:id="@+id/tvLabel"
+                style="@style/InfoRowLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{label}" />
+
+            <TextView
+                android:id="@+id/tvLabelDetail"
+                style="@style/InfoRowLabelDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@{date.labelDetail}"
+                android:visibility="@{TextUtils.isEmpty(date.labelDetail) ? View.GONE : View.VISIBLE}" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@{editable ? @drawable/bg_info_row_box : null}"
+            android:orientation="horizontal"
+            android:padding="@{editable ? @dimen/info_row_box_padding : 0f}">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/InfoRowCaption"
+                        android:layout_width="46dp"
+                        android:layout_height="wrap_content"
+                        android:text="@{date.firstLine.caption}"
+                        android:visibility="@{TextUtils.isEmpty(date.firstLine.caption) ? View.GONE : View.VISIBLE}" />
+
+                    <TextView
+                        android:id="@+id/tvValue"
+                        style="@style/InfoRowValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@{placeholder}"
+                        android:padding="0dp"
+                        android:text="@{date.firstLine.text}" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="@{date.secondLine == null ? View.GONE : View.VISIBLE}">
+
+                    <TextView
+                        style="@style/InfoRowCaption"
+                        android:layout_width="46dp"
+                        android:layout_height="wrap_content"
+                        android:text="@{date.secondLine.caption}" />
+
+                    <TextView
+                        android:id="@+id/tvSecondValue"
+                        style="@style/InfoRowValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="0dp"
+                        android:text="@{date.secondLine.text}" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ivIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="12dp"
+                android:contentDescription="@null"
+                android:src="@{date == null ? @drawable/ic_info_plus_white : @drawable/ic_info_edit_white}"
+                android:visibility="@{editable ? View.VISIBLE : View.GONE}" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>

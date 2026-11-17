@@ -3,16 +3,21 @@ package org.permanent.permanent.ui.bulkEditMetadata
 import org.permanent.permanent.edtf.EdtfConverter
 import org.permanent.permanent.edtf.EdtfDateParts
 import org.permanent.permanent.edtf.EdtfEncodeResult
+import org.permanent.permanent.edtf.EdtfError
 import org.permanent.permanent.edtf.EdtfTime
+import org.permanent.permanent.edtf.EdtfSide
 import org.permanent.permanent.edtf.EdtfValue
-import org.permanent.permanent.edtf.decodeWrittenTime
+import org.permanent.permanent.edtf.ShownSide
+import org.permanent.permanent.edtf.decodeShown
 import org.permanent.permanent.edtf.toShownDate
 import org.permanent.permanent.models.DisplayDated
 import org.permanent.permanent.models.EditedDate
 import org.permanent.permanent.models.ZoneChange
 import org.permanent.permanent.ui.BACKEND_DATE_TIME_FORMATTER
+import org.permanent.permanent.ui.toInfoRowDate
 import org.permanent.permanent.ui.toLocalDateTimeOrNull
 import org.permanent.permanent.ui.utcToLocalDateTime
+import org.permanent.permanent.ui.withZone
 import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -42,7 +47,13 @@ enum class DateTimeField(val width: Int) {
 
 enum class DateTimeEntryError { MISSING_YEAR, MISSING_MONTH, MISSING_HOUR, HOUR_RANGE }
 
-// The date sheet's typed fields. Digits are kept as typed: a format switch never converts them,
+enum class DateQualifier { APPROXIMATE, UNCERTAIN, UNKNOWN }
+
+enum class RangeSide { START, END }
+
+enum class DateRangeError { END_BEFORE_START, NOT_ACCEPTED }
+
+// One side of the date sheet: its typed fields and toggles. Digits are kept as typed: a format switch never converts them,
 // and a short year stays short on screen (it is padded only in the saved string).
 data class DateTimeEntry(
     val year: String = "",
@@ -55,6 +66,10 @@ data class DateTimeEntry(
     val zoneId: String? = null,
     // The offset the record's string carried: kept in a repeated hour, shown when there is no zone.
     val storedOffset: ZoneOffset? = null,
+    val approximate: Boolean = false,
+    val uncertain: Boolean = false,
+    // An unknown side keeps no fields; what it held waits in DateRangeEntry.
+    val unknown: Boolean = false,
 ) {
     operator fun get(field: DateTimeField): String = when (field) {
         DateTimeField.YEAR -> year
@@ -80,11 +95,18 @@ data class DateTimeEntry(
     val isEmpty: Boolean
         get() = DateTimeField.entries.all { this[it].isEmpty() }
 
-    // A time needs a full date (EDTF). With a partial date the time fields are kept but not used.
-    val usesTime: Boolean
+    val hasFullDate: Boolean
         get() = year.isNotEmpty() && month.isNotEmpty() && day.isNotEmpty()
 
-    private val hasTime: Boolean
+    // EDTF has no symbol for a time, so a qualified side is a date only.
+    val hasQualifier: Boolean
+        get() = approximate || uncertain
+
+    // A time needs a full date (EDTF). With a partial date the time fields are kept but not used.
+    val usesTime: Boolean
+        get() = hasFullDate && !hasQualifier
+
+    val hasTime: Boolean
         get() = hour.isNotEmpty() || minute.isNotEmpty() || second.isNotEmpty()
 
     // A zone goes only with a time (iOS).
@@ -147,7 +169,16 @@ data class DateTimeEntry(
             month = month.padStart(2, '0').takeIf { month.isNotEmpty() }.orEmpty(),
             day = day.padStart(2, '0').takeIf { day.isNotEmpty() }.orEmpty(),
             time = hour24?.takeIf { usesTime }?.let { EdtfTime(it, minute.toIntOrNull() ?: 0, second.toIntOrNull() ?: 0) },
+            uncertain = uncertain,
+            approximate = approximate,
         )
+
+    // The fields with the zone's offset at this side's clock time; no offset without a zone (iOS).
+    fun encodedParts(): EdtfDateParts? {
+        val clock = wallClock() ?: return null
+        val offset = zone?.takeIf { canPickZone }?.offsetAt(clock, storedOffset)
+        return parts.let { it.copy(time = it.time?.copy(offset = offset)) }
+    }
 
     // The wall clock the fields describe; a missing month or day is 1, a missing time is midnight (iOS).
     // Null while a field is still being typed out of range (a lone "0" is clamped only when it is left).
@@ -165,25 +196,6 @@ data class DateTimeEntry(
         }
     }
 
-    // The value to save, or null while the fields have an error. An empty entry clears.
-    // A time carries the zone's offset at that clock time, or no offset without a zone (iOS).
-    fun toEditedDate(openingZone: String?): EditedDate? {
-        if (isEmpty) return EditedDate(displayTime = null, legacyUtc = null, zone = ZoneChange.Clear)
-        val wallClock = wallClock() ?: return null
-        val zone = zone?.takeIf { canPickZone }
-        val offset = zone?.offsetAt(wallClock, storedOffset)
-        val edtf = (EdtfConverter.encode(EdtfValue.Single(parts), offset) as? EdtfEncodeResult.Success)?.edtf
-            ?: return null
-        val legacyUtc = wallClock.atZone(zone?.zone ?: ZoneId.systemDefault())
-            .withZoneSameInstant(ZoneOffset.UTC).format(BACKEND_DATE_TIME_FORMATTER)
-        val change = when {
-            zone != null -> ZoneChange.Set(zone.id)
-            zoneId == null && openingZone != null -> ZoneChange.Clear
-            else -> ZoneChange.Keep
-        }
-        return EditedDate(edtf, legacyUtc, change)
-    }
-
     // After the time in the preview: the chosen zone's short name; the saved string has no offset without one.
     val zoneSuffix: String?
         get() {
@@ -194,7 +206,16 @@ data class DateTimeEntry(
 
     // The shown-date shape the Info row formatter reads, or null while the fields don't make a date.
     val shownDate: String?
-        get() = wallClock()?.let { parts.toShownDate() }
+        get() = wallClock()?.let { clock ->
+            if (parts.time != null) clock.format(BACKEND_DATE_TIME_FORMATTER) else parts.toShownDate()
+        }
+
+    // The side for the line under the title, the symbol first; null while the fields don't make a date.
+    fun preview(shortMonth: Boolean, unknownText: String): String? {
+        if (unknown) return unknownText
+        val text = shownDate?.toInfoRowDate(shortMonth)?.withZone(zoneSuffix) ?: return null
+        return parts.qualifierSymbol?.let { "$it $text" } ?: text
+    }
 
     // The typed date when all three date fields make a real day, for the calendar to open on.
     fun fullDate(): LocalDate? = try {
@@ -213,24 +234,163 @@ data class DateTimeEntry(
     private fun Int.padded(width: Int): String = toString().padStart(width, '0')
 
     companion object {
-        // A Level 0 displayTime (or a range of two, on its start) fills the fields with the clock as
-        // written. Without a displayTime the legacy date is used where screens show it. No zone.
-        fun from(dated: DisplayDated): DateTimeEntry {
-            dated.displayTime?.let { displayTime ->
-                val written = EdtfConverter.decodeWrittenTime(displayTime, rangeStart = true) ?: return DateTimeEntry()
-                val clock = written.clock ?: return DateTimeEntry(written.parts.year, written.parts.month, written.parts.day)
-                return fromClock(clock).copy(storedOffset = written.storedOffset)
+        fun from(side: ShownSide): DateTimeEntry = when (side) {
+            ShownSide.Empty -> DateTimeEntry()
+            ShownSide.Unknown -> DateTimeEntry(unknown = true)
+            is ShownSide.Written -> {
+                val parts = side.parts
+                val fields = side.clock?.let { fromClock(it).copy(storedOffset = side.storedOffset) }
+                    ?: DateTimeEntry(parts.year, parts.month, parts.day)
+                fields.copy(approximate = parts.approximate, uncertain = parts.uncertain)
             }
-            val legacy = dated.shownLegacyDate?.utcToLocalDateTime()?.toLocalDateTimeOrNull() ?: return DateTimeEntry()
-            return fromClock(legacy)
         }
 
         // A time opens in AM/PM, never 24H (iOS).
-        private fun fromClock(clock: LocalDateTime): DateTimeEntry {
+        fun fromClock(clock: LocalDateTime): DateTimeEntry {
             val hour12 = (clock.hour % 12).let { if (it == 0) 12 else it }
             return DateTimeEntry(format = if (clock.hour < 12) TimeFormat.AM else TimeFormat.PM)
                 .withDate(clock.toLocalDate())
                 .withTime(hour12, clock.minute, clock.second)
+        }
+    }
+}
+
+// The date sheet: one date, or the two sides of a range, and what a side held before a toggle
+// emptied it. Both sides share one time zone.
+data class DateRangeEntry(
+    val start: DateTimeEntry = DateTimeEntry(),
+    // Null while "Use a date range" is off.
+    val end: DateTimeEntry? = null,
+    private val keptSides: Map<RangeSide, DateTimeEntry> = emptyMap(),
+    private val keptClocks: Map<RangeSide, DateTimeEntry> = emptyMap(),
+    private val keptEnd: DateTimeEntry? = null,
+) {
+    operator fun get(side: RangeSide): DateTimeEntry? = if (side == RangeSide.START) start else end
+
+    private val sides: List<DateTimeEntry>
+        get() = listOfNotNull(start, end)
+
+    val isRange: Boolean
+        get() = end != null
+
+    // Nothing to save but a clear.
+    val isEmpty: Boolean
+        get() = sides.all { it.isEmpty && !it.unknown }
+
+    private val holdsNoDate: Boolean
+        get() = sides.all { it.isEmpty }
+
+    // A record with a qualifier or a second side opens in the full view.
+    val opensFull: Boolean
+        get() = isRange || start.hasQualifier || start.unknown
+
+    fun with(side: RangeSide, entry: DateTimeEntry): DateRangeEntry =
+        if (side == RangeSide.START) copy(start = entry) else copy(end = entry)
+
+    fun withZone(zoneId: String?): DateRangeEntry =
+        copy(start = start.copy(zoneId = zoneId), end = end?.copy(zoneId = zoneId))
+
+    // Unknown empties the side; Approximate and Uncertain empty its clock. Each comes back when
+    // its toggle goes off.
+    fun withQualifier(side: RangeSide, qualifier: DateQualifier, on: Boolean): DateRangeEntry {
+        val entry = this[side] ?: return this
+        if (qualifier == DateQualifier.UNKNOWN) {
+            if (entry.unknown == on) return this
+            val changed = if (on) DateTimeEntry(format = entry.format, unknown = true)
+            else (keptSides[side] ?: DateTimeEntry(format = entry.format)).copy(unknown = false)
+            val kept = if (on) keptSides + (side to entry) else keptSides - side
+            return copy(keptSides = kept).with(side, changed.copy(zoneId = start.zoneId))
+        }
+        if (entry.unknown) return this
+        var changed = if (qualifier == DateQualifier.APPROXIMATE) entry.copy(approximate = on) else entry.copy(uncertain = on)
+        var clocks = keptClocks
+        if (changed.hasQualifier && changed.hasTime) {
+            clocks = clocks + (side to changed)
+            changed = changed.copy(hour = "", minute = "", second = "")
+        } else if (!changed.hasQualifier) {
+            clocks[side]?.let { changed = changed.copy(hour = it.hour, minute = it.minute, second = it.second, format = it.format) }
+            clocks = clocks - side
+        }
+        return copy(keptClocks = clocks).with(side, changed)
+    }
+
+    fun withRange(on: Boolean): DateRangeEntry = when {
+        on == isRange -> this
+        on -> copy(end = (keptEnd ?: DateTimeEntry()).copy(zoneId = start.zoneId), keptEnd = null)
+        else -> copy(end = null, keptEnd = end)
+    }
+
+    // Empties everything: toggles and range off, no zone.
+    fun cleared(): DateRangeEntry = DateRangeEntry(start = DateTimeEntry(format = start.format))
+
+    // An emptied side saves as open; the shared zone stays.
+    fun cleared(side: RangeSide): DateRangeEntry {
+        val entry = this[side] ?: return this
+        return copy(keptSides = keptSides - side, keptClocks = keptClocks - side)
+            .with(side, DateTimeEntry(format = entry.format, zoneId = start.zoneId))
+    }
+
+    private fun encode(): EdtfEncodeResult? {
+        fun rangeSide(entry: DateTimeEntry): EdtfSide? = when {
+            entry.unknown -> EdtfSide.Unknown
+            entry.isEmpty -> EdtfSide.Open
+            else -> entry.encodedParts()?.let { EdtfSide.Dated(it) }
+        }
+        val value = when {
+            end != null -> EdtfValue.Range(rangeSide(start) ?: return null, rangeSide(end) ?: return null)
+            start.unknown -> EdtfValue.UnknownDate
+            else -> EdtfValue.Single(start.encodedParts() ?: return null)
+        }
+        return EdtfConverter.encode(value, defaultOffset = null)
+    }
+
+    // Why the whole value can't be saved; a side's own errors show under its boxes instead.
+    val error: DateRangeError?
+        get() {
+            if (isEmpty) return null
+            val invalid = encode() as? EdtfEncodeResult.Invalid ?: return null
+            return if (invalid.errors.any { it.code == EdtfError.Code.RANGE_ORDER }) DateRangeError.END_BEFORE_START
+            else DateRangeError.NOT_ACCEPTED
+        }
+
+    // The value to save, or null while it can't be saved. An empty sheet clears.
+    fun toEditedDate(openingZone: String?): EditedDate? {
+        if (isEmpty) return EditedDate(displayTime = null, legacyUtc = null, zone = ZoneChange.Clear)
+        val edtf = (encode() as? EdtfEncodeResult.Success)?.edtf ?: return null
+        val zone = start.zone?.takeIf { sides.any { it.canPickZone } }
+        val change = when {
+            zone != null -> ZoneChange.Set(zone.id)
+            holdsNoDate || (start.zoneId == null && openingZone != null) -> ZoneChange.Clear
+            else -> ZoneChange.Keep
+        }
+        val isPlain = !opensFull
+        val legacyUtc = start.wallClock()?.takeIf { isPlain }?.atZone(zone?.zone ?: ZoneId.systemDefault())
+            ?.withZoneSameInstant(ZoneOffset.UTC)?.format(BACKEND_DATE_TIME_FORMATTER)
+        return EditedDate(edtf, legacyUtc, change, allowsV1Retry = isPlain)
+    }
+
+    // The line under the title: a full month for one date, "Oct." on each side of a range.
+    fun preview(unknownText: String): String? {
+        val end = end ?: return start.preview(shortMonth = false, unknownText)
+        if (isEmpty) return null
+        val texts = listOf(start, end).map {
+            if (it.isEmpty && !it.unknown) "" else it.preview(shortMonth = true, unknownText) ?: return null
+        }
+        return "${texts[0]} — ${texts[1]}".trim()
+    }
+
+    companion object {
+        // Every shape displayTime can hold; not [full], its first written side as one plain date.
+        // Without a displayTime the legacy date is used where screens show it. No zone.
+        fun from(dated: DisplayDated, full: Boolean): DateRangeEntry {
+            dated.displayTime?.let { displayTime ->
+                val shown = EdtfConverter.decodeShown(displayTime) ?: return DateRangeEntry()
+                if (full) return DateRangeEntry(DateTimeEntry.from(shown.start), shown.end?.let(DateTimeEntry::from))
+                val first = shown.firstWritten ?: return DateRangeEntry()
+                return DateRangeEntry(DateTimeEntry.from(first).copy(approximate = false, uncertain = false))
+            }
+            val legacy = dated.shownLegacyDate?.utcToLocalDateTime()?.toLocalDateTimeOrNull() ?: return DateRangeEntry()
+            return DateRangeEntry(DateTimeEntry.fromClock(legacy))
         }
     }
 }

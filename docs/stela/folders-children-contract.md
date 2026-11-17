@@ -996,8 +996,8 @@ Android follows it since VSP-1826.
 **Read (Android).** `ItemDTO.displayTime` → `Record` / `RecordVO` / `FileData.displayTime`;
 `ItemDTO.location.timezone` → `.timezone` on the same models (the children listing carries it too, so
 the item menu needs no extra GET).
-`DisplayDated.shownDate` (implemented by `Record` and `FileData`) = `displayTime.edtfToDisplayDate()`
-?: `shownLegacyDate.utcToLocalDateTime()`, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
+`DisplayDated.shownDate` (implemented by `Record` and `FileData`) = the first written side of
+`displayTime` (`EdtfConverter.decodeShown`) ?: `shownLegacyDate.utcToLocalDateTime()`, used by the list row, File Info, bulk Date/Time label, rename-by-date, local date sort and the
 `toDisplayDate()` headers ("Oct. 23, 1985", "Oct. 1985" or "1985"). `displayDate` stays the **legacy UTC** value on purpose: V1 bodies (bulk
 location, rename fallback, delete/move/copy) re-send it as `displayDT`. Legacy values are UTC on
 both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDate`
@@ -1008,10 +1008,15 @@ both APIs (live 2026-10-20: V1 `displayDT` `2023-03-30T14:08:00` = V2 `displayDa
 | `1985` / `1985-10` / `1985-10-23` | as is |
 | `1985-10-23T17:00:00`, `…+03:00` (optional fraction) | `1985-10-23 17:00:00` — the clock as written, offset ignored (iOS, VSP-1826) |
 | `…Z`, `….000Z` | a UTC moment, converted to device local time (`1985-10-23T23:30:00.000Z` → `1985-10-24 01:30:00` in Bucharest) |
-| anything else (qualifiers, `X`, ranges, `..`, seasons, invalid dates) | the raw string |
+| `1985~`, `1985-10-23?`, `1985-10%` | the date without its symbol (VSP-1860) |
+| a range (`1985~/1990`, `../1985-11-23`, `1985/..`, `/1985`) | its first written side, the same way |
+| `XXXX-XX-XX`, `../`, `/..` (no written side) | no date |
+| anything else (`X` digits, seasons, invalid dates) | the raw string |
 
-`edtfToDisplayDate()` decodes through `EdtfConverter.decodeLevel0` (VSP-1765); `decodeWrittenTime`
-gives the clock and the written offset to the sheet and the Info row (`Z` vs offset: `isUtcTime()`). `shownLegacyDate` is
+`decodeShown` (`EdtfLevel0.kt`) reads a value as a `ShownValue`: one or two `ShownSide`s (`Written`
+with its clock and written offset, `Empty` for `..`, `Unknown`); it returns null for a string the app
+cannot show, which callers show verbatim. `DisplayDated.hasDate` is true also for a value with no
+written side. `shownLegacyDate` is
 `displayDate` unless the server switch **`edtf-date`** is on (`GET /api/v2/feature-flags`, public,
 `{"items":[{"name":…}]}`; read once per process on the first foreground, last answer kept in prefs —
 `ServerFeatureFlags`). On, no screen falls back to the legacy date (Web and iOS #607 parity). Off on
@@ -1019,10 +1024,16 @@ staging and production (live 2026-11-04).
 
 **File Info Date row (VSP-1764).** `shownDate.toInfoRowDate()` re-formats that value: `1985` as is,
 `October 1985`, `October 23, 1985`, `October 23, 1985 • 5PM` (`• 4:16 PM` when minutes ≠ 0);
-anything else stays raw. After a time comes `shownZone` (VSP-1826, iOS `timeSuffix`): the record
+anything else stays raw. After a time comes `zoneSuffix` (VSP-1826, iOS `timeSuffix`): the record
 zone's English short name when it is letters (`10:30 AM EDT`), else the offset in tz style (`+03`,
 `+0530`); with no zone, the offset the string carries (`12:02 PM +02`); nothing for a `Z` time
 without a zone.
+
+Qualifiers and ranges (VSP-1860, `InfoRowDate`, same wording as iOS #611): "Approximate",
+"Uncertain" or "Approximate • Uncertain" after the row label when every written side carries the
+same ones, else the symbol before each side (`~ 1985`); an open start shows "Before …", an open end
+"After …"; two sides show a "From" and a "To" line, an unknown side as "Unknown"; a value with no
+written side shows "Unknown date and time". Each timed side gets its own zone suffix.
 
 **Write (Android, VSP-1765).** One sheet (`EditDateTimeFragment`) for the Info tab (pick-only, saved
 through `updateRecords`), the item menu and bulk Edit Metadata (saved by the sheet through
@@ -1034,6 +1045,19 @@ a zone** (`1990-05-12T10:30:00`, iOS; VSP-1826 replaced the VSP-1765 device offs
 written; offsets truncated to whole minutes.
 A short year is padded (`85` → `0085`). A time is used only with a full date: with a year or year-month the time fields are greyed out and not sent (Flavia 2026-11-05; iOS sends an invalid `1985T17:00:00`). The V1 value (`displayDate`) is the same wall clock in UTC with
 a missing month/day = 1 and a missing time = midnight (iOS), in the chosen zone (else device zone).
+
+**More options and range (VSP-1860).** A "More options" row (shown when the save goes V2, like the
+zone row) opens the full view: an Approximate, Uncertain and Unknown switch per side and "Use a date
+range" with a From and a To side (`DateRangeEntry`). Bytes as iOS #611: `~`, `?`, `%` after the
+date; `XXXX-XX-XX` for one unknown date; in a range `..` for an emptied side and nothing for an
+unknown side (`1985~/..`, `/1985-11-23`). A symbol cannot go with a time, so a qualified side sends
+no clock (fields greyed, value kept until the switch goes off). Both sides share one zone; each
+timed side gets that zone's offset at its own clock
+(`1985-07-23T17:00:00+02:00/1985-11-23T09:00:00+01:00`). `location.timezone` is set when any side
+has a time and a zone, and cleared when no side holds a date. A record with a qualifier or a range
+opens in the full view. An end before the start, or a value the converter rejects, shows a red line
+under the preview. Save is disabled whenever the sheet's value cannot be saved (`canSave`). All
+shapes accepted by staging through the app (2026-11-16).
 
 **Time zone (VSP-1826).** The sheet's zone row opens a list of the 418 zone.tab ids
 (`TimeZoneCountryCodes.kt`, generated from tzdata 2026e like iOS; ICU's own list uses old names such
@@ -1047,17 +1071,19 @@ The body adds `"location":{"timezone":"Europe/Paris"}` when a zone goes with a t
 for items that had a zone (`putZone`), so no empty `locn` row is created. A date-only save leaves the
 zone as it is (hidden). Location edits keep the zone (stored on the record).
 **Clear** sends `{"displayTime": null}` and keeps the legacy value, so with `edtf-date` off the upload
-date shows again (as on Web and iOS). Sent only when the date was edited. **Hidden for now**
-(`FeatureFlags.allowsClearingDate = false`, 2026-11-11): no Clear row, and Save is disabled while
-every field is empty, so no path sends `null` until the backend fills `displayTime` for all items.
-The clear code stays for when the flag is turned on. Folder write:
+date shows again (as on Web and iOS). Sent only when the date was edited. The "Clear date and time"
+row is back with Stage 2 (`FeatureFlags.allowsClearingDate = true`, VSP-1860; off since
+VSP-1881, 2026-11-11): shown when the save goes V2 and the sheet holds one date; in a range each side has its own
+"Clear". Where the save goes V1 there is no Clear row and Save is disabled while the sheet is empty.
+Folder write:
 `updateFolderDisplayTime` (same gate, success = echoed `displayTime`, no V1) — no caller yet.
 
 **V1 failsafe for dates (2026-11-05).** V1 writes only `displayDT`, which no screen shows once an item
 has a `displayTime` or `edtf-date` is on. After a V2 failure, the save retries on V1 only when no
 selected item has a `displayTime` and `edtf-date` is off (`applyEditedDate`, decided before the edit);
-otherwise it reports the error. V1 cannot clear, so a clear never goes to V1 (also for records the
-gate rejects). Name, description and location keep the V1 retry.
+otherwise it reports the error. A qualified date or a range never retries on V1
+(`EditedDate.allowsV1Retry`; V1 has no field for them). V1 cannot clear, so a clear never goes to V1
+(also for records the gate rejects). Name, description and location keep the V1 retry.
 
 **Still V1:** date edits on records the PATCH gate rejects (decision 2026-10-13, same split as
 name/description).
