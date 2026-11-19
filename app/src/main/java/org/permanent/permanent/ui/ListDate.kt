@@ -52,29 +52,26 @@ private class ListSide(
     val day: Int?,
     val clock: LocalDateTime?,
     val zone: String?,
-    val approximate: Boolean = false,
-    val uncertain: Boolean = false,
+    private val qualifiers: EdtfDateParts? = null,
 ) {
     val isQualified: Boolean
-        get() = approximate || uncertain
+        get() = qualifiers?.run { approximate || uncertain } == true
 
     fun monthAndDay(): String = "${shortMonth(month)} $day"
 
-    fun dateText(): String = qualified(
-        when {
+    fun dateText(): String {
+        val date = when {
             day != null -> "${monthAndDay()}, $year"
             month != null -> "${Month.of(month).getDisplayName(TextStyle.FULL, Locale.US)} $year"
             else -> year
         }
-    )
+        return qualifiers?.qualified(date) ?: date
+    }
 
     fun clockText(withZone: Boolean = true): String? =
         clock?.toClockText()?.withZone(zone.takeIf { withZone })
 
     fun text(): String = listOfNotNull(dateText(), clockText()).joinToString(BULLET)
-
-    private fun qualified(date: String): String =
-        (if (approximate) "c. " else "") + date + (if (uncertain) " ?" else "")
 }
 
 // Null for a date with a gap ("1985-XX-03") or no year.
@@ -87,8 +84,7 @@ private fun listSide(parts: EdtfDateParts, isUtc: Boolean, timezone: String?): L
         day = clock?.dayOfMonth ?: parts.day.toIntOrNull(),
         clock = clock,
         zone = clock?.let { zoneSuffix(it, parts.time?.offset?.takeUnless { isUtc }, timezone) },
-        approximate = parts.approximate,
-        uncertain = parts.uncertain,
+        qualifiers = parts,
     )
 }
 

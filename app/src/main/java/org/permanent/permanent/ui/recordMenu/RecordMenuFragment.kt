@@ -34,7 +34,6 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.ConfirmationDialogFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
-import org.permanent.permanent.ui.ComingSoonDialogFragment
 import org.permanent.permanent.ui.bulkEditMetadata.EditDateTimeFragment
 import org.permanent.permanent.ui.drawBehindSystemBars
 import org.permanent.permanent.ui.fileView.FileActivity
@@ -242,7 +241,6 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     }
 
     private fun showEditDateTimeFragment() {
-        if (ComingSoonDialogFragment.showForComplexDates(parentFragmentManager, requireContext(), listOf(record))) return
         val dateFragment = EditDateTimeFragment()
         dateFragment.setBundleArguments(arrayListOf(record))
         dateFragment.show(parentFragmentManager, dateFragment.tag)

@@ -21,6 +21,9 @@ data class EdtfDateParts(
     val isBlank: Boolean
         get() = year.isBlank() && month.isBlank() && day.isBlank() && time == null
 
+    // As screens show the qualifiers: "c. 1985", "1985 ?", "c. 1985 ?".
+    fun qualified(date: String): String = (if (approximate) "c. " else "") + date + (if (uncertain) " ?" else "")
+
     // "%" is both at once.
     val qualifierSymbol: String?
         get() = when {
