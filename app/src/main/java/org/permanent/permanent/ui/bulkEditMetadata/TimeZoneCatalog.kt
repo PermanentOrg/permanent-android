@@ -4,6 +4,7 @@ import android.icu.text.TimeZoneNames
 import android.icu.util.TimeZone
 import android.icu.util.ULocale
 import org.permanent.permanent.edtf.EdtfConverter
+import org.permanent.permanent.edtf.ShownSide
 import org.permanent.permanent.edtf.decodeWrittenTime
 import org.permanent.permanent.models.DisplayDated
 import java.text.Normalizer
@@ -102,10 +103,13 @@ object TimeZoneCatalog {
 val DisplayDated.shownZone: String?
     get() {
         val written = displayTime?.let { EdtfConverter.decodeWrittenTime(it, rangeStart = false) } ?: return null
-        val clock = written.clock ?: return null
-        timezone?.let(TimeZoneCatalog::option)?.let { return it.shortName(clock, written.storedOffset) }
-        return written.storedOffset?.let(::tzdataOffset)
+        return zoneSuffix(written.clock ?: return null, written.storedOffset, timezone)
     }
+
+fun ShownSide.Written.zoneSuffix(timezone: String?): String? = clock?.let { zoneSuffix(it, storedOffset, timezone) }
+
+fun zoneSuffix(clock: LocalDateTime, storedOffset: ZoneOffset?, timezone: String?): String? =
+    timezone?.let(TimeZoneCatalog::option)?.shortName(clock, storedOffset) ?: storedOffset?.let(::tzdataOffset)
 
 private val TZDATA_OFFSET: DateTimeFormatter = DateTimeFormatter.ofPattern("x", Locale.US)
 private val COMBINING_MARKS = Regex("\\p{Mn}+")

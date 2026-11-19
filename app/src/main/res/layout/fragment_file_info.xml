@@ -49,11 +49,11 @@
 
                 <include
                     android:id="@+id/dateRow"
-                    layout="@layout/item_info_tap_row"
+                    layout="@layout/item_info_date_row"
+                    app:date="@{viewModel.infoDate}"
                     app:editable="@{safeUnbox(viewModel.isEditable)}"
                     app:label="@{@string/file_info_date}"
-                    app:placeholder="@{@string/file_info_add_date_time}"
-                    app:value="@{viewModel.date}" />
+                    app:placeholder="@{@string/file_info_add_date_time}" />
 
                 <include
                     android:id="@+id/locationRow"

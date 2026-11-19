@@ -23,10 +23,6 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.WindowMetricsCalculator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import org.permanent.permanent.edtf.EdtfConverter
-import org.permanent.permanent.edtf.decodeLevel0
-import org.permanent.permanent.edtf.isUtcTime
-import org.permanent.permanent.edtf.toShownDate
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Status
 import org.permanent.permanent.network.models.TwoFAVO
@@ -165,26 +161,6 @@ fun String.toLocalDateTimeOrNull(): LocalDateTime? = try {
     null
 }
 
-private val DISPLAY_MONTH = DateTimeFormatter.ofPattern("MMM. yyyy", Locale.US)
-private val DISPLAY_DAY = DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)
-
-// A shownDate as a short label: "Oct. 23, 1985", "Oct. 1985" or "1985"; "" when it isn't one.
-fun String?.toDisplayDate(): String = when {
-    this == null -> ""
-    length == 4 && all(Char::isDigit) -> this
-    length == 7 -> try {
-        YearMonth.parse(this).format(DISPLAY_MONTH)
-    } catch (e: DateTimeParseException) {
-        ""
-    }
-    else -> toLocalDateTimeOrNull()?.format(DISPLAY_DAY) ?: ""
-}
-
-// Level 0 EDTF -> the app's shown-date shape, the clock as written (a "Z" time in device time).
-// Anything else (qualifiers, ranges, X digits) is shown verbatim.
-fun String.edtfToDisplayDate(): String =
-    EdtfConverter.decodeLevel0(this)?.toShownDate(isUtcTime()) ?: this
-
 private val INFO_ROW_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
 private val INFO_ROW_DAY = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.US)
 private val INFO_ROW_HOUR = DateTimeFormatter.ofPattern("ha", Locale.US)
@@ -197,14 +173,14 @@ fun String.toInfoRowDate(): String = try {
         4 -> this
         7 -> YearMonth.parse(this).format(INFO_ROW_MONTH)
         10 -> LocalDate.parse(this).format(INFO_ROW_DAY)
-        else -> toLocalDateTimeOrNull()?.let { dateTime ->
-            val clock = if (dateTime.minute == 0) INFO_ROW_HOUR else INFO_ROW_MINUTE
-            "${dateTime.format(INFO_ROW_DAY)} • ${dateTime.format(clock)}"
-        } ?: this
+        else -> toLocalDateTimeOrNull()?.let { "${it.format(INFO_ROW_DAY)} • ${it.toClockText()}" } ?: this
     }
 } catch (e: DateTimeParseException) {
     this
 }
+
+// "5PM" or "5:30 PM".
+fun LocalDateTime.toClockText(): String = format(if (minute == 0) INFO_ROW_HOUR else INFO_ROW_MINUTE)
 
 // The Info row date with the zone after the time ("May 12, 1990 • 10:30 AM EDT").
 fun String.withZone(zone: String?): String = zone?.let { "$this $it" } ?: this

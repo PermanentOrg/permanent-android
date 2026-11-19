@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import org.permanent.permanent.R
 import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.recordMenu.RecordUiModel
-import org.permanent.permanent.ui.toDisplayDate
 
 data class HeaderInfo(
     val thumbUrl: String?,
@@ -39,19 +38,19 @@ class SelectionMenuViewModel(application: Application) : ObservableAndroidViewMo
         val totalFileSize = files.sumOf { it.sizeBytes.coerceAtLeast(0L) }
         val totalSizeText = bytesToHumanReadableString(totalFileSize)
 
-        val firstFolderDate = folders.firstOrNull()?.createdDate?.toDisplayDate() ?: ""
+        val firstFolderDate = folders.firstOrNull()?.createdDate ?: ""
 
         val infoText = when {
             // Single selection: 1 file → size + date
             records.size == 1 && !first.isFolder -> {
-                val date = first.createdDate.toDisplayDate()
+                val date = first.createdDate
                 listOfNotNull(totalSizeText.ifEmpty { null }, date.ifEmpty { null })
                     .joinToString(" • ")
             }
 
             // Single selection: 1 folder → only date
             records.size == 1 && first.isFolder -> {
-                first.createdDate.toDisplayDate()
+                first.createdDate
             }
 
             // Multiple: only files

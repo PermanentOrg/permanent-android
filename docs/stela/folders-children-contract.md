@@ -120,8 +120,8 @@ this path is new information worth sharing with backend.
   share-membership leg (caller account → `access` table on the item's own
   `folder_linkid`); access rows **propagate to descendants** of shared folders. iOS
   shipped the same drill-in in PR #574 and never reverted it. The old "membership-foreign
-  ✗" access-map entry was inferred from #576's PATCH failure — a write; reads and writes
-  authorize differently (reads filter, writes reject).
+  ✗" access-map entry was inferred from a PATCH — a write, and one never reproduced on
+  Android; reads and writes authorize differently (reads filter, writes reject).
 - **Per-item permissions come from the payload, not a stamp.** V2 children DO carry a
   top-level caller-resolved `accessRole` (share-membership-aware — stela computes
   least-permissive of caller-archive role and share role per pair, most permissive
@@ -140,6 +140,10 @@ this path is new information worth sharing with backend.
   `isCreateAvailable`/the record menu rely on that. The by-me tab overrides with the
   session archive's role — retained VSP-1803 behavior, equivalent for own-archive
   content, not a payload gap.
+- **The shares ROOT listing carries no `displayTime`** — the V1 `getShares` items hold only
+  the legacy `displayDT`. Root rows therefore show no date while `edtf-date` is on, and
+  "Adjust date and time" from the root item menu loads the record (`getFileData`) before
+  it opens, so a complex EDTF date is blocked there too (verified on staging 2026-11-19).
 - **The shares ROOT listing stays V1** (`POST share/getShares`) — at VSP-1802 time no V2
   aggregate route existed; `/folders/{id}/children` cannot serve it because the root
   spans many foreign archives with no single parent folder. *(Update 2026-08-17: the
@@ -179,12 +183,12 @@ this path is new information worth sharing with backend.
   **shares root listing stays V1** (`POST share/getShares` — no V2 route exists on either
   platform; iOS's proposed `GET /v2/shares?direction=…` was never built).
 - **Shares-territory access map on V2** *(corrected 2026-08-14, VSP-1802 — the ✗ was
-  inferred from iOS #576's PATCH, a write; reads authorize differently)*: own-archive
+  inferred from a PATCH, a write; reads authorize differently)*: own-archive
   content ✓ bearer-only V2 · public foreign content ✓ bearer-only V2 · share-membership
   foreign content **✓ for READS** (stela's hydration SQL checks the caller's `access`
-  rows, descendants included; see the VSP-1802 section) · foreign **writes** ✗ today
-  (strict auth, rejected — keep them V1/own-archive-gated; the backend confirmed
-  2026-08-17 this is a bug and share-permitted writes are intended to succeed, gap 7).
+  rows, descendants included; see the VSP-1802 section) · foreign **writes**: a record
+  PATCH with an Editor share answers **200** (staging, 2026-11-18, gap 7); the Android
+  gate still keeps them V1/own-archive-gated, and other foreign writes are unchecked.
   Shared By Me is the first bucket
   **by construction**: `SharesViewModel.requestShares` splits by-me/with-me on
   `currentArchiveId == archive.archiveId` against the SESSION archive, so by-me items —
@@ -208,7 +212,7 @@ this path is new information worth sharing with backend.
   holds, the field is on the wire)*. The `isSharedByMe` bundle discriminator
   (the with-me page always carries `SHARED_WITH_ME_ITEM_LIST_KEY`, the by-me page never
   does) now selects the gate variant and role source instead of locking with-me out.
-- **401 semantics, verified structurally:** Android cannot repeat iOS's #576 logout bug.
+- **401 semantics, verified structurally:** a V2 401 cannot log the user out.
   `UnauthorizedInterceptor` fires only on URLs containing `BASE_API_URL` (the V1 host);
   the Stela base is a different host, so a V2 401 surfaces as `onFailed` → V1 failsafe,
   never a session-expiry logout. A genuinely expired session then fails on the V1
@@ -919,8 +923,8 @@ decodes them) to fill `name`/`country`.
 `StelaAuthState.isV2WriteEnabled && recordId > 0 && archiveId == prefsHelper.getCurrentArchiveId()`
 (the **session's** selected archive, never the viewed one — iOS `isInSessionArchive` reads
 `session.selectedArchive`), plus `type == FILE` for `Record` callers. Foreign records (Shared
-With Me, other archives) stay V1: a bearer-only PATCH on a share-membership record answers
-**401** today (gap 7 — iOS #576's reproducer; backend agreed it should be 403 or succeed).
+With Me, other archives) stay V1 by the gate. The backend no longer forces this: a bearer-only
+PATCH on a record in an Editor-shared folder answers **200** (staging, 2026-11-18, gap 7).
 Batches (bulk names / description / location) ride V2 only when **every** record passes,
 otherwise the whole batch runs V1 unchanged — **platform difference:** iOS's three batch flows
 check only `recordId > 0 && !folder` (no archive check), a gap not copied. `isV2WriteEnabled`
@@ -960,8 +964,8 @@ single-intent and gate internally. The `location` body is built by
   records the gate rejects (foreign records, flag off, rejected bearer) still write V1 `displayDT`.
 - **Folder rename** — `PATCH /v2/folders/{id}` has no `displayName` (see gap 4 / the status
   board); the rename dialog's folder branch is byte-identical to before.
-- **Foreign records** by the gate (Shared With Me content, other archives) — revisit when the
-  gap-7 fix ships (backend intends share-permitted writes to succeed).
+- **Foreign records** by the gate (Shared With Me content, other archives) — opening the gate
+  is a possible follow-up: share-permitted PATCHes succeed on staging since 2026-11-18 (gap 7).
 - **Tags** (`tag/post`, `tag/DeleteTagLink`) — no V2 per-record tag route on either platform.
 
 **Gate edge case to verify on staging (plan §4 pre-check):** on the Shares root listing a
@@ -1127,6 +1131,18 @@ and milestone pickers share it; it is a lookup, not a save).
 and kept the old city and state. Reported to backend on Slack 2026-10-15; filed by Cecilia as **PER-10864** "[stela] Location API bugs"
 (2026-10-26, epic PER-10417, Open). Android works around a and b for record writes since 2026-10-20 (unlink first, see Write above);
 folders can't be unlinked, and other clients are still affected.
+
+**Status 2026-11-18:** the backend fixed a and b — **PER-10879** and **PER-10880**, Done, release
+`prod-2026-11-12` (Cecilia and Dan, Slack 2026-11-13): a copy gets its own location, and single
+location fields can be cleared. c is **PER-10881**, in code review. PER-10864 was closed
+2026-11-03 and split into these three.
+**Live-verified on staging 2026-11-18 (Android session token):** a new copy of record 96730
+(98754) got its own row (2669, original 2584). A coordinates-only PATCH on the old copy 97173,
+which still shared row 2584, moved it to a new row (2670) and left the original unchanged;
+omitted keys still keep their value (the city stayed). `{"location":{"city":null}}` on 98754
+answered 200 and cleared `city` and `locality` in place (row 2669), the other fields kept.
+So a field is cleared with an explicit `null`. Android still unlinks first; that is no longer
+needed for a or b, and dropping it is a possible follow-up.
 - **a. Shared rows.** A V2 copy reuses the original's `locnid` (`copy_record.sql:142,208`), and a
   location PATCH updates that row in place, so editing a copy's location also moves the
   original's. Stela commit `3d6f6b97` notes the 1:1 schema (#746) is still pending. Likely on iOS too (same PATCH, not tested).
@@ -1240,21 +1256,23 @@ start of next quarter): PER-10798 (gap 8), PER-10799 (gap 7), PER-10800 (gap 5),
    the code is already in place behind
    `FeatureFlags.treatStelaUnauthorizedAsSessionExpiry` (**default OFF in every
    build**, added 2026-08-13). **It must stay OFF until the backend reserves 401 for
-   invalid/expired tokens and returns 403 for permission denials.** Known
-   counterexample under today's semantics — iOS PR #576's reproducer: a bearer-only
-   `PATCH /api/v2/records/{id}` on a shared-with-me (foreign-archive) record answers
-   **401**, not 403, for what is a permission/credential-shape problem; enabling the
-   switch now would log users out on exactly the failures the failsafe exists to
-   absorb (iOS's #576 bug, reintroduced on Android). **Ask:** confirm or change the
+   invalid/expired tokens and returns 403 for permission denials.** The example
+   given to the backend was a bearer-only `PATCH /api/v2/records/{id}` on a
+   shared-with-me (foreign-archive) record answering **401**. That 401 was never
+   reproduced on Android (see the retest below). **Ask:** confirm or change the
    401/403 split across `/api/v2/*`; then the rollout is one boolean flip.
    **Backend answer (Slack, 2026-08-17, Liam): confirmed.** The intent is 401
-   strictly for invalid tokens; the shared-record PATCH answering 401 is acknowledged
-   as a bug — it should be **403**, or **no error at all when the share grants
-   sufficient permissions** (which also means shared-record writes over bearer V2 are
-   *intended* to work; revisit the write gates when the fix ships). The switch stays
-   OFF until the fix lands and is re-verified on staging (re-run the #576 reproducer);
-   then the rollout is the one boolean flip. Fallback options below are moot unless
-   the fix stalls: a token-refresh `Authenticator`
+   strictly for invalid tokens; a shared-record PATCH should answer **403**, or
+   **no error at all when the share grants sufficient permissions** (so
+   shared-record writes over bearer V2 are *intended* to work).
+   **Retest (staging, 2026-11-18, Android session token):** bearer-only
+   `PATCH /api/v2/records/71998` with `{"displayName": <current name>}` answers
+   **200** — the record is in archive 2137, inside a folder shared with archive 2245
+   as Editor. The backend reports 403 for a Viewer share and 200 for Editor
+   (PER-10799 comment, 2026-11-13); the Viewer case is not checked from Android.
+   The switch stays OFF until PER-10799 closes (it also covers the other endpoints)
+   and gap 8 (PER-10798) ships. Fallback options below are moot unless
+   that stalls: a token-refresh `Authenticator`
    (needs `/v2/idpuser/*` refresh support — unverified) or per-call exemption tags
    (iOS's `ignoreErrors` shape). Not urgent while any regularly-hit call is still V1
    (login, `getShares`, root discovery all are) — but a hard prerequisite for the V1
@@ -1275,7 +1293,7 @@ start of next quarter): PER-10798 (gap 8), PER-10799 (gap 7), PER-10800 (gap 5),
    `UnauthorizedInterceptor` on any Stela 401 whose request carried a bearer, cleared when a
    root load's `/v2/archives` answers 2xx; every flag-gated V2 read runs V1 while set.
    Best-effort: a screen reached before any authenticated Stela call still trusts an empty
-   answer, and a gap-7 permission 401 also trips it. **V1 masks the problem until the V1
+   answer, and any other Stela 401 on a bearer request also trips it. **V1 masks the problem until the V1
    sunset.**
    **Backend answer (Slack, 2026-09-18, Cecilia + Liam):** the anonymous 200 is intended (one
    route serves public and private content). Agreed split: missing bearer → public view,
@@ -1307,7 +1325,7 @@ record-miss item a possible duplicate of PER-10798. Answered in Slack 2026-09-28
 | iOS artifacts: foreign public browsing "confirmed solvable, not yet wired" | Superseded — **PR #576** (merged 2026-07-29) wired it (drill-in V2, root stays V1 `getPublicRoot`) |
 | iOS artifacts + old gap 1: "V2 children carry no per-child caller `accessRole`" | Was true when written — the field was delivered 2026-08-13 by PER-10716 (stela PR #835). Android decodes it since VSP-1802; iOS derives child roles by inheritance |
 | PER-10716 folders-page test: `accessRole` = short `"viewer"` | Resolved 2026-08-20: stela **main** now emits the short form for the caller-level `accessRole` on folder/record/children responses (`resolveAccessRole` returns `ArchiveMembershipRole` — source-verified), but **staging still sends dotted** (live capture 2026-08-20) — the deploy is pending. Web adapted ahead of it (web-app PR #1139). Android is safe both ways: `fromStelaBackendValue`'s dot-tolerance parses both forms, and **released** Android builds don't decode the field at all (master's ItemDTO/RecordResponse/FolderResponse have no caller accessRole; Moshi drops unknown keys). `pendingShares[].accessRole` and `shares[].accessRole` are raw DB passthrough (dotted) — NOT routed through `resolveAccessRole`, so they don't change with this deploy; their parsers clamp unknowns to VIEWER anyway |
-| Access map: "share-membership foreign content ✗ on V2" | Wrong for READS — inferred from #576's PATCH (a write). Reads authorize via the `access` table, descendants included; corrected 2026-08-14 |
+| Access map: "share-membership foreign content ✗ on V2" | Wrong for READS — inferred from a PATCH (a write). Reads authorize via the `access` table, descendants included; corrected 2026-08-14 |
 | VSP-1788 ticket: "the call to change archives should return the rootFolderId" | It does not — live staging capture 2026-08-19 shows no root identity anywhere in the `archive/change` response; the source is `GET /v2/archives` `items[].rootFolderId` |
 | Field-notes short-form example `root.private` for section roots | Wrong — live staging (2026-08-20) sends `private-root`/`public-root`/`app-root`, matching iOS's `FileType.fromV2` spellings. Android matches `type.folder.private-root` post-normalization (underscore tolerated), display name as safety net |
 | Docs: `GET /folders` has no query parameters | `folderIds[]` required; **`pageSize` required on the plural route** (400 without), `cursor` optional — validators.ts (VSP-1842) |
@@ -1323,7 +1341,7 @@ record-miss item a possible duplicate of PER-10798. Answered in Slack 2026-09-28
 | Docs: record PATCH path param `id: integer`; `locationId` "deprecated" | Code: `recordId`, validated as a string; `locationId` still accepted (`Joi.number().integer()`), `oxor` with `location` (VSP-1841) |
 | Docs: record PATCH `description: string`, `displayName: string` | `description` allows `null` but rejects `""`; `displayName` rejects both `""` and `null` (min 1) — pinned in `update_record.test.ts` |
 | Docs: record PATCH errors 400/403/404/500 | Also 401 (strict bearer route); every body is `{ error: … }` |
-| Status board (pre-VSP-1841): "shared-record PATCH currently 401s … foreign writes may open up" | Still true; the gate keeps Android off that path — re-verify the #576 reproducer when the gap-7 fix ships |
+| Status board (pre-VSP-1841): "shared-record PATCH currently 401s … foreign writes may open up" | Not reproduced on Android — staging answers 200 for an Editor share (2026-11-18, gap 7); the gate still keeps Android off that path |
 | Record `thumbnailUrls` in the stela TS interface | Absent from the interface, present on the wire (SQL alias) |
 | One timestamp format per response | Record fields `…T00:00:00.000Z`, `files[].createdAt` `…+00:00` |
 | iOS preview and download pick the same rendition | iOS `DownloadManagerGCD.fileVO` still prefers `file.format.converted` while the preview plays the original; Android's one `FileData` feeds both, so no equivalent |

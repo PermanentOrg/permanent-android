@@ -16,9 +16,7 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.repositories.FileRepositoryImpl
 import org.permanent.permanent.repositories.IFileRepository
 import org.permanent.permanent.repositories.IFileRepository.RecordField
-import org.permanent.permanent.ui.bulkEditMetadata.shownZone
-import org.permanent.permanent.ui.toInfoRowDate
-import org.permanent.permanent.ui.withZone
+import org.permanent.permanent.ui.fileView.InfoRowDate
 
 class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(application) {
 
@@ -26,7 +24,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     private lateinit var fileData: FileData
     private val name = MutableLiveData<String>()
     private val description = MutableLiveData<String>()
-    private val date = MutableLiveData<String>()
+    private val infoDate = MutableLiveData<InfoRowDate?>()
     private var pickedDate: EditedDate? = null
     private val address = MutableLiveData<String>()
     private val onShowDatePickerRequest = SingleLiveEvent<Void?>()
@@ -68,7 +66,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
     }
 
     private fun refreshDate() {
-        date.value = fileData.shownDate?.toInfoRowDate()?.withZone(fileData.shownZone)
+        infoDate.value = InfoRowDate.from(fileData, appContext)
     }
 
     fun savedDate(): DisplayDated = fileData
@@ -145,7 +143,7 @@ class FileInfoViewModel(application: Application) : ObservableAndroidViewModel(a
 
     fun getDescription(): LiveData<String> = description
 
-    fun getDate(): LiveData<String> = date
+    fun getInfoDate(): LiveData<InfoRowDate?> = infoDate
 
     fun getAddress(): LiveData<String> = address
 

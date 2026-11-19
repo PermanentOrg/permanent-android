@@ -1,5 +1,6 @@
 package org.permanent.permanent.viewmodels
 
+import org.permanent.permanent.ui.toListDate
 import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
@@ -57,8 +58,8 @@ class EditMetadataViewModel(application: Application) : ObservableAndroidViewMod
     }
 
     fun setDateMenuName() {
-        records.firstOrNull()?.fileData?.shownDate?.let { firstDate: String ->
-            var sameDate = records.all { it.fileData?.shownDate == firstDate}
+        records.firstOrNull()?.fileData?.toListDate()?.takeIf { it.isNotEmpty() }?.let { firstDate: String ->
+            var sameDate = records.all { it.fileData?.toListDate() == firstDate}
             if (sameDate) {
                 dateMenuName.value = firstDate
             } else {

@@ -117,6 +117,19 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="InfoRowLabelDetail" parent="InfoRowLabel">
+        <item name="android:fontFamily">@font/usual_regular</item>
+        <item name="android:textColor">@color/white64</item>
+    </style>
+
+    <style name="InfoRowCaption">
+        <item name="android:fontFamily">@font/usual_regular</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:letterSpacing">0.16</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/white64</item>
+    </style>
+
     <style name="InfoRowValue">
         <item name="android:fontFamily">@font/usual_regular</item>
         <item name="android:textSize">14sp</item>

@@ -1,7 +1,9 @@
 package org.permanent.permanent.models
 
 import org.permanent.permanent.ServerFeatureFlags
-import org.permanent.permanent.ui.edtfToDisplayDate
+import org.permanent.permanent.edtf.EdtfConverter
+import org.permanent.permanent.edtf.decodeLevel0
+import org.permanent.permanent.edtf.decodeShown
 import org.permanent.permanent.ui.utcToLocalDateTime
 
 sealed interface ZoneChange {
@@ -28,8 +30,22 @@ interface DisplayDated {
     val shownLegacyDate: String?
         get() = displayDate?.takeUnless { ServerFeatureFlags.showsOnlyEdtfDate }
 
+    // The first written side of displayTime (null when it holds no date), a displayTime the app
+    // can't read verbatim, else the legacy date.
     val shownDate: String?
-        get() = displayTime?.edtfToDisplayDate() ?: shownLegacyDate?.utcToLocalDateTime()
+        get() {
+            val edtf = displayTime ?: return shownLegacyDate?.utcToLocalDateTime()
+            val shown = EdtfConverter.decodeShown(edtf) ?: return edtf
+            return shown.firstWritten?.shownDate
+        }
+
+    // shownDate for a file name: never a displayTime the app can't read.
+    val fileNameDate: String?
+        get() = shownDate?.takeUnless { it == displayTime && EdtfConverter.decodeShown(it) == null }
+
+    // Set, but not one exact date: shown, never edited.
+    val hasComplexDate: Boolean
+        get() = displayTime?.takeIf { it.isNotEmpty() }?.let { EdtfConverter.decodeLevel0(it) == null } ?: false
 
     fun setEditedDate(date: EditedDate) {
         setDateOnly(date)
