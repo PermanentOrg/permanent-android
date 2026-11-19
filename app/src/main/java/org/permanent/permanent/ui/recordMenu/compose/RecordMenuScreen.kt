@@ -455,7 +455,7 @@ fun RecordMenuHeader(
                         lineHeight = 16.sp,
                         fontFamily = FontFamily(Font(R.font.usual_regular)),
                         color = colorResource(R.color.blue400),
-                    )
+                    ), maxLines = 1, overflow = TextOverflow.Ellipsis
                 )
             }
 
