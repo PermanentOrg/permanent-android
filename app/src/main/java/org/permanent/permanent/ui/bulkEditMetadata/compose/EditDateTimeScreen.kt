@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -28,12 +30,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -94,6 +99,12 @@ fun EditDateTimeScreen(
         return
     }
 
+    var buttonsHeight by remember { mutableIntStateOf(0) }
+    // The part of the keyboard that rises above the button row.
+    val keyboardOverFields = with(LocalDensity.current) {
+        (WindowInsets.ime.getBottom(this) - WindowInsets.navigationBars.getBottom(this) - buttonsHeight).coerceAtLeast(0).toDp()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxHeight(SHEET_HEIGHT_FRACTION)
@@ -106,7 +117,6 @@ fun EditDateTimeScreen(
                 .background(Color.White)
                 .pointerInput(Unit) { detectTapGestures { leaveFields() } }
                 .navigationBarsPadding()
-                .imePadding()
         ) {
             Row(
                 modifier = Modifier
@@ -151,6 +161,8 @@ fun EditDateTimeScreen(
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    // Only the fields make room for the keyboard; the buttons stay at the bottom, under it.
+                    .padding(bottom = keyboardOverFields)
                     // Without this the bottom sheet takes the drag and the content can't scroll back up.
                     .nestedScroll(rememberNestedScrollInteropConnection())
                     .verticalScroll(rememberScrollState())
@@ -198,7 +210,9 @@ fun EditDateTimeScreen(
             }
 
             Row(
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
+                modifier = Modifier
+                    .onSizeChanged { buttonsHeight = it.height }
+                    .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 Button(
