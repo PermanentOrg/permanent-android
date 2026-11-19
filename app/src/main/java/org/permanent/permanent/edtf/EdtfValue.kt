@@ -20,6 +20,15 @@ data class EdtfDateParts(
 ) {
     val isBlank: Boolean
         get() = year.isBlank() && month.isBlank() && day.isBlank() && time == null
+
+    // "%" is both at once.
+    val qualifierSymbol: String?
+        get() = when {
+            uncertain && approximate -> "%"
+            approximate -> "~"
+            uncertain -> "?"
+            else -> null
+        }
 }
 
 sealed interface EdtfSide {

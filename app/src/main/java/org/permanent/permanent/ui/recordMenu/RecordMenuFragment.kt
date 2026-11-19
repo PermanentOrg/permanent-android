@@ -34,6 +34,7 @@ import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.ConfirmationDialogFragment
 import org.permanent.permanent.ui.PermanentBottomSheetFragment
 import org.permanent.permanent.ui.Workspace
+import org.permanent.permanent.ui.ComingSoonDialogFragment
 import org.permanent.permanent.ui.bulkEditMetadata.EditDateTimeFragment
 import org.permanent.permanent.ui.drawBehindSystemBars
 import org.permanent.permanent.ui.fileView.FileActivity
@@ -174,10 +175,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
                 onRecordRenameRequest.value = record
                 dismiss()
             }
-            RecordMenuItem.AdjustDateTime -> {
-                showEditDateTimeFragment()
-                dismiss()
-            }
+            RecordMenuItem.AdjustDateTime -> viewModel.onAdjustDateTimeClick()
             RecordMenuItem.ViewInformation -> viewModel.onViewInformationClick()
             RecordMenuItem.Move -> {
                 onRecordRelocateRequest.value = Pair(record, ModificationType.MOVE)
@@ -244,6 +242,7 @@ class RecordMenuFragment : PermanentBottomSheetFragment() {
     }
 
     private fun showEditDateTimeFragment() {
+        if (ComingSoonDialogFragment.showForComplexDates(parentFragmentManager, requireContext(), listOf(record))) return
         val dateFragment = EditDateTimeFragment()
         dateFragment.setBundleArguments(arrayListOf(record))
         dateFragment.show(parentFragmentManager, dateFragment.tag)
@@ -294,6 +293,11 @@ private val showSnackbar = Observer<String> { message ->
         dismiss()
     }
 
+    private val onAdjustDateTimeObserver = Observer<Void?> {
+        showEditDateTimeFragment()
+        dismiss()
+    }
+
     private val onRequestWritePermission = Observer<Void?> {
         DevicePermissionsHelper().requestWriteStoragePermission(this)
     }
@@ -341,6 +345,7 @@ private val showSnackbar = Observer<String> { message ->
         viewModel.getOnRequestWritePermission().observe(this, onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().observe(this, onFileDownloadRequestObserver)
         viewModel.getOnViewInformationRequest().observe(this, onViewInformationObserver)
+        viewModel.getOnAdjustDateTimeRequest().observe(this, onAdjustDateTimeObserver)
     }
 
     override fun disconnectViewModelEvents() {
@@ -350,6 +355,7 @@ private val showSnackbar = Observer<String> { message ->
         viewModel.getOnRequestWritePermission().removeObserver(onRequestWritePermission)
         viewModel.getOnFileDownloadRequest().removeObserver(onFileDownloadRequestObserver)
         viewModel.getOnViewInformationRequest().removeObserver(onViewInformationObserver)
+        viewModel.getOnAdjustDateTimeRequest().removeObserver(onAdjustDateTimeObserver)
     }
 
     override fun onResume() {

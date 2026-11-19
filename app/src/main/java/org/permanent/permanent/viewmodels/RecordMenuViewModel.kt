@@ -44,7 +44,7 @@ import org.permanent.permanent.ui.PreferencesHelper
 import org.permanent.permanent.ui.Workspace
 import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.myFiles.OnFinishedListener
-import org.permanent.permanent.ui.toDisplayDate
+import org.permanent.permanent.ui.toListDate
 import java.io.File
 
 class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel(application),
@@ -89,6 +89,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     private val onShareToAnotherAppRequest = SingleLiveEvent<String>()
     private val onFileDownloadedForSharing = SingleLiveEvent<String>()
     private val onViewInformationRequest = SingleLiveEvent<FileData>()
+    private val onAdjustDateTimeRequest = SingleLiveEvent<Void?>()
     private var fileRepository: IFileRepository = FileRepositoryImpl(application)
     private var eventsRepository: IEventsRepository = EventsRepositoryImpl(application)
 
@@ -111,7 +112,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
 
         _recordName.value = record.displayName ?: ""
         _recordSize.value = bytesToHumanReadableString(record.size)
-        _recordDate.value = record.shownDate.toDisplayDate()
+        _recordDate.value = record.toListDate()
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 ?: "" else ""
         _archiveThumb.value =
             record.archiveThumbURL200?.takeIf { isShownInSharedWithMe && isShownInRootFolder } ?: ""
@@ -315,6 +316,19 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
         requestFileData { onViewInformationRequest.value = it }
     }
 
+    // The Shared Files root list comes without displayTime, so the date is loaded first.
+    fun onAdjustDateTimeClick() {
+        if (workspace == Workspace.SHARES && isFragmentShownInRootFolder.value == true) {
+            requestFileData {
+                record.displayTime = it.displayTime
+                record.timezone = it.timezone
+                onAdjustDateTimeRequest.call()
+            }
+        } else {
+            onAdjustDateTimeRequest.call()
+        }
+    }
+
     fun onDownloadClick() {
         checkForPermission()
     }
@@ -473,6 +487,7 @@ class RecordMenuViewModel(application: Application) : ObservableAndroidViewModel
     fun getOnRequestWritePermission(): MutableLiveData<Void?> = onRequestWritePermission
     fun getOnFileDownloadRequest(): MutableLiveData<Void?> = onFileDownloadRequest
     fun getOnViewInformationRequest(): LiveData<FileData> = onViewInformationRequest
+    fun getOnAdjustDateTimeRequest(): LiveData<Void?> = onAdjustDateTimeRequest
 
     fun isTablet() = isTablet
 }

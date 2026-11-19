@@ -85,7 +85,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     fun formatDate(text: String, before: Boolean, dateOption: SequenceDateOptions) {
         var record = records.firstOrNull()
         var date = when(dateOption) {
-            SequenceDateOptions.CREATED -> record?.fileData?.shownDate
+            SequenceDateOptions.CREATED -> record?.fileData?.fileNameDate.orEmpty()
             SequenceDateOptions.UPLOADED -> record?.fileData?.createdDate
             SequenceDateOptions.LAST_MODIFIED -> record?.fileData?.updatedDate
         }
@@ -136,7 +136,7 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     fun applyChanges(text: String, before: Boolean, dateOption: SequenceDateOptions) {
         for (record in records) {
             var date = when(dateOption) {
-                SequenceDateOptions.CREATED -> record.fileData?.shownDate
+                SequenceDateOptions.CREATED -> record.fileData?.fileNameDate.orEmpty()
                 SequenceDateOptions.UPLOADED -> record.fileData?.createdDate
                 SequenceDateOptions.LAST_MODIFIED -> record.fileData?.updatedDate
             }

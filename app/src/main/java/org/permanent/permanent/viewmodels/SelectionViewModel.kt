@@ -1,5 +1,6 @@
 package org.permanent.permanent.viewmodels
 
+import org.permanent.permanent.ui.toListDate
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -152,7 +153,7 @@ abstract class SelectionViewModel(application: Application) : RelocationViewMode
                 isFolder = record.type == RecordType.FOLDER,
                 thumbUrl = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 else null,
                 sizeBytes = record.size,
-                createdDate = record.shownDate ?: ""
+                createdDate = record.toListDate()
             )
         }
 
