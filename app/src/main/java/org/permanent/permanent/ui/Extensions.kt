@@ -164,18 +164,6 @@ fun String.toLocalDateTimeOrNull(): LocalDateTime? = try {
 private val DISPLAY_MONTH = DateTimeFormatter.ofPattern("MMM. yyyy", Locale.US)
 private val DISPLAY_DAY = DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)
 
-// A shownDate as a short label: "Oct. 23, 1985", "Oct. 1985" or "1985"; "" when it isn't one.
-fun String?.toDisplayDate(): String = when {
-    this == null -> ""
-    length == 4 && all(Char::isDigit) -> this
-    length == 7 -> try {
-        YearMonth.parse(this).format(DISPLAY_MONTH)
-    } catch (e: DateTimeParseException) {
-        ""
-    }
-    else -> toLocalDateTimeOrNull()?.format(DISPLAY_DAY) ?: ""
-}
-
 private val INFO_ROW_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
 private val INFO_ROW_DAY = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.US)
 private val INFO_ROW_HOUR = DateTimeFormatter.ofPattern("ha", Locale.US)
@@ -190,14 +178,14 @@ fun String.toInfoRowDate(shortMonth: Boolean = false): String = try {
         4 -> this
         7 -> YearMonth.parse(this).format(month)
         10 -> LocalDate.parse(this).format(day)
-        else -> toLocalDateTimeOrNull()?.let { dateTime ->
-            val clock = if (dateTime.minute == 0) INFO_ROW_HOUR else INFO_ROW_MINUTE
-            "${dateTime.format(day)} • ${dateTime.format(clock)}"
-        } ?: this
+        else -> toLocalDateTimeOrNull()?.let { "${it.format(day)} • ${it.toClockText()}" } ?: this
     }
 } catch (e: DateTimeParseException) {
     this
 }
+
+// "5PM" or "5:30 PM".
+fun LocalDateTime.toClockText(): String = format(if (minute == 0) INFO_ROW_HOUR else INFO_ROW_MINUTE)
 
 // The Info row date with the zone after the time ("May 12, 1990 • 10:30 AM EDT").
 fun String.withZone(zone: String?): String = zone?.let { "$this $it" } ?: this

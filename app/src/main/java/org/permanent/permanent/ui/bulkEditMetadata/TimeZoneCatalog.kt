@@ -97,12 +97,11 @@ object TimeZoneCatalog {
     }
 }
 
-// After a side's time on the Info row: the zone's short name, else the offset the string carries ("+03").
-fun ShownSide.Written.zoneSuffix(timezone: String?): String? {
-    val clock = clock ?: return null
-    timezone?.let(TimeZoneCatalog::option)?.let { return it.shortName(clock, storedOffset) }
-    return storedOffset?.let(::tzdataOffset)
-}
+
+fun ShownSide.Written.zoneSuffix(timezone: String?): String? = clock?.let { zoneSuffix(it, storedOffset, timezone) }
+
+fun zoneSuffix(clock: LocalDateTime, storedOffset: ZoneOffset?, timezone: String?): String? =
+    timezone?.let(TimeZoneCatalog::option)?.shortName(clock, storedOffset) ?: storedOffset?.let(::tzdataOffset)
 
 private val TZDATA_OFFSET: DateTimeFormatter = DateTimeFormatter.ofPattern("x", Locale.US)
 private val COMBINING_MARKS = Regex("\\p{Mn}+")

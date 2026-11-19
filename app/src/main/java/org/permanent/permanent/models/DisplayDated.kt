@@ -44,6 +44,10 @@ interface DisplayDated {
     val hasDate: Boolean
         get() = !displayTime.isNullOrEmpty() || shownDate != null
 
+    // shownDate for a file name: never a displayTime the app can't read.
+    val fileNameDate: String?
+        get() = shownDate?.takeUnless { it == displayTime && EdtfConverter.decodeShown(it) == null }
+
     fun setEditedDate(date: EditedDate) {
         setDateOnly(date)
         applyZone(date.zone)

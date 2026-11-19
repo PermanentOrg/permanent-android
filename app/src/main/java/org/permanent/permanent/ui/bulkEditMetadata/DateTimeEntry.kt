@@ -210,11 +210,11 @@ data class DateTimeEntry(
             if (parts.time != null) clock.format(BACKEND_DATE_TIME_FORMATTER) else parts.toShownDate()
         }
 
-    // The side for the line under the title, the symbol first; null while the fields don't make a date.
+    // The side for the line under the title, with its qualifiers; null while the fields don't make a date.
     fun preview(shortMonth: Boolean, unknownText: String): String? {
         if (unknown) return unknownText
         val text = shownDate?.toInfoRowDate(shortMonth)?.withZone(zoneSuffix) ?: return null
-        return parts.qualifierSymbol?.let { "$it $text" } ?: text
+        return parts.qualified(text)
     }
 
     // The typed date when all three date fields make a real day, for the calendar to open on.

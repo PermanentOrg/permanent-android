@@ -65,7 +65,7 @@ import org.permanent.permanent.ui.shareManagement.compose.AccessType
 import org.permanent.permanent.ui.shareManagement.compose.LinkDuration
 import org.permanent.permanent.ui.shareManagement.compose.SharePage
 import org.permanent.permanent.ui.toBackendDateTimeString
-import org.permanent.permanent.ui.toDisplayDate
+import org.permanent.permanent.ui.toListDate
 import org.permanent.permanent.ui.toLocalDateUtc
 import retrofit2.Call
 import retrofit2.Callback
@@ -214,7 +214,7 @@ class ShareManagementViewModel(application: Application) : ObservableAndroidView
 
         _recordName.value = record.displayName ?: ""
         _recordSize.value = bytesToHumanReadableString(record.size)
-        _recordDate.value = record.shownDate.toDisplayDate()
+        _recordDate.value = record.toListDate()
         _recordThumb.value = if (record.type == RecordType.FILE) record.thumbnail256 ?: record.thumbURL200 ?: "" else ""
 
         checkForExistingLink(record)

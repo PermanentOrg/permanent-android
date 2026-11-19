@@ -12,7 +12,7 @@ import org.permanent.permanent.network.models.ShareVO
 import org.permanent.permanent.network.models.Shareby_urlVO
 import org.permanent.permanent.ui.bytesToHumanReadableString
 import org.permanent.permanent.ui.myFiles.SortType
-import org.permanent.permanent.ui.toDisplayDate
+import org.permanent.permanent.ui.toListDate
 
 open class Record : Parcelable, DisplayDated {
     var id: Int? = null
@@ -50,8 +50,7 @@ open class Record : Parcelable, DisplayDated {
     // Folders and files without a size show the date only
     val sizeAndDate: String
         get() {
-            val shown = shownDate
-            val date = shown.toDisplayDate().ifEmpty { shown.orEmpty() }
+            val date = toListDate()
             val shownSize = if (type == RecordType.FILE) bytesToHumanReadableString(size) else ""
             return listOf(shownSize, date).filter { it.isNotEmpty() }.joinToString(" • ")
         }

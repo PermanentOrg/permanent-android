@@ -12,23 +12,15 @@ val EdtfDateParts.isPlainDate: Boolean
 sealed interface ShownSide {
     // "Z" marks a UTC moment (old Web editor); an offset only records where the time was written.
     class Written(val parts: EdtfDateParts, private val isUtc: Boolean) : ShownSide {
-        // The clock as written; only a UTC moment is moved to device time (iOS).
         val clock: LocalDateTime?
-            get() {
-                val time = parts.time ?: return null
-                val written = LocalDateTime.of(
-                    parts.year.toInt(), parts.month.toInt(), parts.day.toInt(), time.hour, time.minute, time.second
-                )
-                return if (isUtc) written.atOffset(ZoneOffset.UTC).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
-                else written
-            }
+            get() = parts.localDateTime(isUtc)
 
         val storedOffset: ZoneOffset?
             get() = parts.time?.offset?.takeUnless { isUtc }
 
         // The app's shown-date shape: "yyyy", "yyyy-MM", "yyyy-MM-dd" or "yyyy-MM-dd HH:mm:ss".
         val shownDate: String
-            get() = clock?.format(BACKEND_DATE_TIME_FORMATTER) ?: parts.toShownDate()
+            get() = parts.toShownDate(isUtc)
     }
 
     // ".." in a range.
@@ -63,4 +55,15 @@ fun EdtfConverter.decodeShown(edtf: String): ShownValue? {
     }
 }
 
-fun EdtfDateParts.toShownDate(): String = listOf(year, month, day).filter { it.isNotEmpty() }.joinToString("-")
+// The clock as written; only a UTC moment is moved to device time (iOS).
+fun EdtfDateParts.localDateTime(isUtc: Boolean): LocalDateTime? {
+    val time = time ?: return null
+    val written = LocalDateTime.of(year.toInt(), month.toInt(), day.toInt(), time.hour, time.minute, time.second)
+    return if (isUtc) written.atOffset(ZoneOffset.UTC).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
+    else written
+}
+
+// The app's shown-date shape: "yyyy", "yyyy-MM", "yyyy-MM-dd" or "yyyy-MM-dd HH:mm:ss".
+fun EdtfDateParts.toShownDate(isUtc: Boolean = false): String =
+    localDateTime(isUtc)?.format(BACKEND_DATE_TIME_FORMATTER)
+        ?: listOf(year, month, day).filter { it.isNotEmpty() }.joinToString("-")

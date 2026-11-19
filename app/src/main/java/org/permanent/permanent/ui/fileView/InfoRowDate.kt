@@ -8,6 +8,7 @@ import org.permanent.permanent.edtf.decodeShown
 import org.permanent.permanent.models.DisplayDated
 import org.permanent.permanent.ui.bulkEditMetadata.zoneSuffix
 import org.permanent.permanent.ui.toInfoRowDate
+import org.permanent.permanent.ui.toListDate
 import org.permanent.permanent.ui.withZone
 
 // What File Info's Date row shows: the words after its label, and one line or a From and a To line.
@@ -17,8 +18,10 @@ class InfoRowDate(val labelDetail: String?, val firstLine: Line, val secondLine:
     companion object {
         // Null when the item has no date to show, so the row shows its placeholder.
         fun from(dated: DisplayDated, context: Context): InfoRowDate? {
-            val shown = dated.displayTime?.let(EdtfConverter::decodeShown)
-                ?: return (dated.displayTime ?: dated.shownDate)?.let { InfoRowDate(null, Line(null, it.toInfoRowDate())) }
+            // A displayTime the row can't lay out gets the list text ("198X ?", or as stored).
+            val shown = dated.displayTime?.takeIf { it.isNotEmpty() }?.let(EdtfConverter::decodeShown)
+                ?: return dated.displayTime?.takeIf { it.isNotEmpty() }?.let { InfoRowDate(null, Line(null, dated.toListDate(context))) }
+                    ?: dated.shownDate?.let { InfoRowDate(null, Line(null, it.toInfoRowDate())) }
 
             val written = listOfNotNull(shown.start, shown.end).filterIsInstance<ShownSide.Written>()
             // The words go on the label only when every written side carries the same ones.
@@ -33,7 +36,7 @@ class InfoRowDate(val labelDetail: String?, val firstLine: Line, val secondLine:
             fun text(side: ShownSide?): String = when (side) {
                 is ShownSide.Written -> {
                     val date = side.shownDate.toInfoRowDate().withZone(side.zoneSuffix(dated.timezone))
-                    side.parts.qualifierSymbol?.takeUnless { sharesQualifiers }?.let { "$it $date" } ?: date
+                    if (sharesQualifiers) date else side.parts.qualified(date)
                 }
                 else -> context.getString(R.string.date_time_unknown)
             }
