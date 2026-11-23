@@ -83,18 +83,29 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun formatDate(text: String, before: Boolean, dateOption: SequenceDateOptions) {
-        var record = records.firstOrNull()
-        var date = when(dateOption) {
-            SequenceDateOptions.CREATED -> record?.fileData?.fileNameDate.orEmpty()
-            SequenceDateOptions.UPLOADED -> record?.fileData?.createdDate
-            SequenceDateOptions.LAST_MODIFIED -> record?.fileData?.updatedDate
+        val record = records.firstOrNull() ?: return
+        val date = sequenceDate(record, dateOption)
+        val name = when {
+            date == null -> record.displayName
+            before -> date + text
+            else -> text + date
         }
-        if(before) {
-            uiState.value = uiState.value.copy(fileName = date + text)
-        } else {
-            uiState.value = uiState.value.copy(fileName = text + date)
-        }
+        uiState.value = uiState.value.copy(fileName = name)
     }
+
+    // Null when every selected file has the chosen date.
+    fun dateMissingMessage(dateOption: SequenceDateOptions): String? =
+        if (records.all { sequenceDate(it, dateOption) != null }) null
+        else appContext.getString(
+            R.string.sequence_date_missing, appContext.getString(dateOption.titleID)
+        )
+
+    private fun sequenceDate(record: Record, dateOption: SequenceDateOptions): String? =
+        when (dateOption) {
+            SequenceDateOptions.CREATED -> record.fileData?.fileNameDate
+            SequenceDateOptions.UPLOADED -> record.fileData?.createdDate
+            SequenceDateOptions.LAST_MODIFIED -> record.fileData?.updatedDate
+        }?.takeIf { it.isNotEmpty() }
 
     fun formatCount(text: String, before: Boolean, count: String) {
         if(before) {
@@ -134,19 +145,10 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun applyChanges(text: String, before: Boolean, dateOption: SequenceDateOptions) {
+        dateMissingMessage(dateOption)?.let { return updateError(it) }
         for (record in records) {
-            var date = when(dateOption) {
-                SequenceDateOptions.CREATED -> record.fileData?.fileNameDate.orEmpty()
-                SequenceDateOptions.UPLOADED -> record.fileData?.createdDate
-                SequenceDateOptions.LAST_MODIFIED -> record.fileData?.updatedDate
-            }
-
-            var newName = if(before) {
-                date + text
-            } else {
-                text + date
-            }
-            record.displayName = newName
+            val date = sequenceDate(record, dateOption) ?: continue
+            record.displayName = if (before) date + text else text + date
         }
 
         applyChanges()

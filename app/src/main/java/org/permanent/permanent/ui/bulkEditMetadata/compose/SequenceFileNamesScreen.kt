@@ -50,6 +50,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                           formatCount:(String, Boolean, String) -> Unit,
                           applyDateChanges: (String, Boolean, SequenceDateOptions) -> Unit,
                           applyCountChanges: (String, Boolean, String) -> Unit,
+                          dateMissingMessage: (SequenceDateOptions) -> String?,
                           cancel: () -> Unit) {
 
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
@@ -60,6 +61,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
     val middleGrey = Color(ContextCompat.getColor(context, R.color.middleGrey))
     val superLightBlue = Color(ContextCompat.getColor(context, R.color.blue25))
     val blue900 = Color(ContextCompat.getColor(context, R.color.blue900))
+    val error500 = Color(ContextCompat.getColor(context, R.color.error500))
     val openAlertDialog = remember { mutableStateOf(false) }
 
     var expandedField: SequenceDropdownOptions? by remember { mutableStateOf(null) }
@@ -91,6 +93,9 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
         SequenceDateOptions.UPLOADED,
     )
     var selectedDateOption by remember { mutableStateOf(SequenceDateOptions.CREATED) }
+    val dateError = if (selectedFormatOption == SequenceFormatOptions.DATETIME) {
+        dateMissingMessage(selectedDateOption)
+    } else null
 
     fun updateFormat() {
         if (selectedFormatOption == SequenceFormatOptions.DATETIME) {
@@ -362,6 +367,16 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                         }
                     }
                 }
+                dateError?.let {
+                    Text(
+                        text = it,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = regularFont,
+                            color = error500
+                        )
+                    )
+                }
             } else {
                 Text(text = stringResource(id = R.string.count).uppercase(),
                     style = TextStyle(
@@ -408,6 +423,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
         }
         Spacer(modifier = Modifier.weight(1.0f))
         EditFileNamesFooter(uiState,
+            applyEnabled = dateError == null,
             cancel = {
                 cancel()
             }, apply = {

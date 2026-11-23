@@ -156,6 +156,7 @@ fun EditFileNamesScreen(
                         formatCount = viewModel::formatCount,
                         applyDateChanges = viewModel::applyChanges,
                         applyCountChanges = viewModel::applyChanges,
+                        dateMissingMessage = viewModel::dateMissingMessage,
                         cancel = cancel
                     )
                 }
