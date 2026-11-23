@@ -32,6 +32,7 @@ import org.permanent.permanent.viewmodels.EditFileNamesUIState
 
 @Composable
 fun EditFileNamesFooter(uiState: EditFileNamesUIState,
+                        applyEnabled: Boolean = true,
                         cancel: () -> Unit,
                         apply: () -> Unit) {
     val context = LocalContext.current
@@ -119,7 +120,7 @@ fun EditFileNamesFooter(uiState: EditFileNamesUIState,
                 .height(48.dp),
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
-                enabled = !uiState.isBusy,
+                enabled = applyEnabled && !uiState.isBusy,
                 onClick = {
                     apply()
                 }

@@ -775,6 +775,7 @@
     <string name="created">Created</string>
     <string name="last_modified">Last modified</string>
     <string name="uploaded">Uploaded</string>
+    <string name="sequence_date_missing">Some selected files have no \"%1$s\" date. Choose another date value or use Count.</string>
     <string name="base">Base</string>
     <string name="format">Format</string>
     <string name="date_value">Date Value</string>
