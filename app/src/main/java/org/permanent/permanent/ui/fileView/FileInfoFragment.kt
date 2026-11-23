@@ -33,7 +33,6 @@ import org.permanent.permanent.databinding.FragmentFileInfoBinding
 import org.permanent.permanent.models.Tag
 import org.permanent.permanent.network.models.FileData
 import org.permanent.permanent.ui.PermanentBaseFragment
-import org.permanent.permanent.ui.ComingSoonDialogFragment
 import org.permanent.permanent.ui.bulkEditMetadata.EditDateTimeFragment
 import org.permanent.permanent.ui.showKeyboardFor
 import org.permanent.permanent.viewmodels.FileInfoViewModel
@@ -146,7 +145,6 @@ class FileInfoFragment : PermanentBaseFragment(), OnMapReadyCallback, GoogleMap.
 
     private val onShowDatePicker = Observer<Void?> {
         viewModel.saveChanges()
-        if (ComingSoonDialogFragment.showForComplexDates(childFragmentManager, requireContext(), listOf(viewModel.savedDate()))) return@Observer
         val dateFragment = EditDateTimeFragment()
         dateFragment.setPickOnlyArguments(viewModel.savedDate(), viewModel.savesZone())
         dateFragment.show(childFragmentManager, dateFragment.tag)

@@ -161,19 +161,24 @@ fun String.toLocalDateTimeOrNull(): LocalDateTime? = try {
     null
 }
 
+private val DISPLAY_MONTH = DateTimeFormatter.ofPattern("MMM. yyyy", Locale.US)
+private val DISPLAY_DAY = DateTimeFormatter.ofPattern("MMM. d, yyyy", Locale.US)
+
 private val INFO_ROW_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
 private val INFO_ROW_DAY = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.US)
 private val INFO_ROW_HOUR = DateTimeFormatter.ofPattern("ha", Locale.US)
 private val INFO_ROW_MINUTE = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
 
-// A shownDate as File Info's Date row: "October 23, 1985 • 5PM", "October 1985" or "1985".
-// Anything else is shown verbatim.
-fun String.toInfoRowDate(): String = try {
+// A shownDate as File Info's Date row: "October 23, 1985 • 5PM", "October 1985" or "1985";
+// "Oct." with a short month. Anything else is shown verbatim.
+fun String.toInfoRowDate(shortMonth: Boolean = false): String = try {
+    val month = if (shortMonth) DISPLAY_MONTH else INFO_ROW_MONTH
+    val day = if (shortMonth) DISPLAY_DAY else INFO_ROW_DAY
     when (length) {
         4 -> this
-        7 -> YearMonth.parse(this).format(INFO_ROW_MONTH)
-        10 -> LocalDate.parse(this).format(INFO_ROW_DAY)
-        else -> toLocalDateTimeOrNull()?.let { "${it.format(INFO_ROW_DAY)} • ${it.toClockText()}" } ?: this
+        7 -> YearMonth.parse(this).format(month)
+        10 -> LocalDate.parse(this).format(day)
+        else -> toLocalDateTimeOrNull()?.let { "${it.format(day)} • ${it.toClockText()}" } ?: this
     }
 } catch (e: DateTimeParseException) {
     this

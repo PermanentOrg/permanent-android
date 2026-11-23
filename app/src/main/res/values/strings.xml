@@ -869,21 +869,20 @@
     <string name="date_time_hint_time_needs_full_date">Add a full date to set a time</string>
     <string name="date_time_error_missing_hour">Add an hour</string>
     <string name="date_time_error_hour_range">Use an hour from 1 to 12, or switch to 24H</string>
+    <string name="date_time_more_options">More options</string>
+    <string name="date_time_fewer_options">Fewer options</string>
+    <string name="date_time_use_range">Use a date range</string>
     <string name="date_time_approximate">Approximate</string>
     <string name="date_time_uncertain">Uncertain</string>
     <string name="date_time_unknown">Unknown</string>
     <string name="date_time_unknown_date_and_time">Unknown date and time</string>
     <string name="date_time_range_from">From</string>
     <string name="date_time_range_to">To</string>
+    <string name="date_time_range_clear_side">Clear %1$s</string>
     <string name="date_time_before">Before %1$s</string>
     <string name="date_time_after">After %1$s</string>
-    <string name="coming_soon_to_mobile">Coming soon to mobile</string>
-    <string name="complex_date_edit_message">Complex EDTF dates aren\'t available in the app yet. Open this item on the web to edit it.</string>
-    <plurals name="complex_date_bulk_edit_message">
-        <item quantity="one">%1$d of the %2$d selected items has a complex EDTF date set on the web, which the app can\'t change yet. Remove it from the selection and try again or edit it on the web.</item>
-        <item quantity="other">%1$d of the %2$d selected items have complex EDTF dates set on the web, which the app can\'t change yet. Remove them from the selection and try again or edit them on the web.</item>
-    </plurals>
-    <string name="got_it">Got it</string>
+    <string name="date_time_error_end_before_start">The end must come after the start</string>
+    <string name="date_time_error_not_accepted">This date cannot be saved</string>
     <string name="view_information">View information</string>
     <string name="move_to_another_folder">Move to another folder</string>
     <string name="copy_to_another_folder">Copy to another folder</string>

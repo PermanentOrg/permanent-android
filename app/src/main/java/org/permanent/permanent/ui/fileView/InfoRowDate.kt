@@ -36,7 +36,7 @@ class InfoRowDate(val labelDetail: String?, val firstLine: Line, val secondLine:
             fun text(side: ShownSide?): String = when (side) {
                 is ShownSide.Written -> {
                     val date = side.shownDate.toInfoRowDate().withZone(side.zoneSuffix(dated.timezone))
-                    side.parts.qualifierSymbol?.takeUnless { sharesQualifiers }?.let { "$it $date" } ?: date
+                    if (sharesQualifiers) date else side.parts.qualified(date)
                 }
                 else -> context.getString(R.string.date_time_unknown)
             }

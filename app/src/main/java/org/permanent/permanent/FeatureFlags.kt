@@ -25,6 +25,6 @@ object FeatureFlags {
      */
     var treatStelaUnauthorizedAsSessionExpiry: Boolean = false
 
-    // Off until every item has a displayTime: clearing one now falls back to the legacy date.
-    var allowsClearingDate: Boolean = false
+    // Needs every item to have a displayTime: before that, a cleared one falls back to the legacy date.
+    var allowsClearingDate: Boolean = true
 }

@@ -124,14 +124,7 @@ object EdtfConverter {
             append(String.format(Locale.US, "T%02d:%02d:%02d", time.hour, time.minute, time.second))
             (time.offset ?: defaultOffset)?.let { append(OFFSET_FORMATTER.format(it)) }
         }
-        append(
-            when {
-                parts.uncertain && parts.approximate -> "%"
-                parts.approximate -> "~"
-                parts.uncertain -> "?"
-                else -> ""
-            }
-        )
+        append(parts.qualifierSymbol.orEmpty())
     }
 
     private fun fieldError(value: String, range: IntRange, format: Code, outOfRange: Code): Code? = when {

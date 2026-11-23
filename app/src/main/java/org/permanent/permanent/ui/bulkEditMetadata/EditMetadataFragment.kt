@@ -12,7 +12,6 @@ import com.google.android.material.snackbar.Snackbar
 import org.permanent.permanent.models.EditedDate
 import org.permanent.permanent.models.Record
 import org.permanent.permanent.models.Tag
-import org.permanent.permanent.ui.ComingSoonDialogFragment
 import org.permanent.permanent.ui.PermanentBaseFragment
 import org.permanent.permanent.ui.bulkEditMetadata.compose.EditMetadataScreen
 import org.permanent.permanent.ui.myFiles.PARCELABLE_FILES_KEY
@@ -60,9 +59,6 @@ class EditMetadataFragment : PermanentBaseFragment() {
                                 ?.observe(lifecycleOwner, onFilenameChangedObserver)
                         },
                         openDateAndTimeScreen = {
-                            // The record list carries no displayTime for some lists; its file data does.
-                            val dated = records.map { record -> record.takeIf { it.hasComplexDate } ?: record.fileData }
-                            if (ComingSoonDialogFragment.showForComplexDates(parentFragmentManager, requireContext(), dated)) return@EditMetadataScreen
                             dateFragment = EditDateTimeFragment()
                             dateFragment?.setBundleArguments(records)
                             dateFragment?.show(parentFragmentManager, dateFragment?.tag)

@@ -5,8 +5,6 @@ import android.icu.util.TimeZone
 import android.icu.util.ULocale
 import org.permanent.permanent.edtf.EdtfConverter
 import org.permanent.permanent.edtf.ShownSide
-import org.permanent.permanent.edtf.decodeWrittenTime
-import org.permanent.permanent.models.DisplayDated
 import java.text.Normalizer
 import java.time.DateTimeException
 import java.time.LocalDateTime
@@ -99,12 +97,6 @@ object TimeZoneCatalog {
     }
 }
 
-// After the Info row's time: the zone's short name, else the offset the string carries ("+03").
-val DisplayDated.shownZone: String?
-    get() {
-        val written = displayTime?.let { EdtfConverter.decodeWrittenTime(it, rangeStart = false) } ?: return null
-        return zoneSuffix(written.clock ?: return null, written.storedOffset, timezone)
-    }
 
 fun ShownSide.Written.zoneSuffix(timezone: String?): String? = clock?.let { zoneSuffix(it, storedOffset, timezone) }
 

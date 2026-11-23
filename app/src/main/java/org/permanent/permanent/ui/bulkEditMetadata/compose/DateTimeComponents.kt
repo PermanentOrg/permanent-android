@@ -3,6 +3,7 @@ package org.permanent.permanent.ui.bulkEditMetadata.compose
 import android.graphics.Color as AndroidColor
 import android.os.Build
 import android.widget.NumberPicker
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,10 +14,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -50,6 +53,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -274,6 +280,108 @@ private fun FormatPill(format: TimeFormat, onClick: () -> Unit, modifier: Modifi
                 color = colorResource(R.color.blue900)
             )
         )
+    }
+}
+
+// One switch row of the full view: the name, and a 36 by 20 switch at the end.
+@Composable
+internal fun OptionSwitchRow(title: String, checked: Boolean, enabled: Boolean = true, onToggle: (Boolean) -> Unit) {
+    val knobOffset by animateDpAsState(if (checked) 16.dp else 0.dp, label = "knob")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .toggleable(value = checked, enabled = enabled, role = Role.Switch, onValueChange = onToggle)
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            style = TextStyle(
+                fontSize = 14.sp, lineHeight = 24.sp, fontFamily = regularFont,
+                color = colorResource(if (enabled) R.color.blue900 else R.color.blue200)
+            )
+        )
+        Box(
+            modifier = Modifier
+                .alpha(if (enabled) 1f else 0.5f)
+                .size(width = 36.dp, height = 20.dp)
+                .clip(CircleShape)
+                .background(colorResource(if (checked) R.color.success500 else R.color.blue50))
+                .padding(2.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .offset(x = knobOffset)
+                    .size(16.dp)
+                    .shadow(1.dp, CircleShape)
+                    .background(Color.White, CircleShape)
+            )
+        }
+    }
+}
+
+// Heads one side of a range: "FROM" or "TO", and the side's own Clear.
+@Composable
+internal fun RangeSideLabel(title: String, onClear: () -> Unit) {
+    val error500 = colorResource(R.color.error500)
+    val clearDescription = stringResource(R.string.date_time_range_clear_side, title)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title.uppercase(Locale.US),
+            modifier = Modifier
+                .weight(1f)
+                .semantics { heading() },
+            style = TextStyle(
+                fontSize = 10.sp, lineHeight = 24.sp, fontFamily = regularFont, letterSpacing = 1.6.sp,
+                color = colorResource(R.color.blue900)
+            )
+        )
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(onClickLabel = clearDescription, role = Role.Button, onClick = onClear),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_broom_error),
+                contentDescription = null,
+                tint = error500,
+                modifier = Modifier.size(24.dp)
+            )
+            Text(
+                text = stringResource(R.string.button_clear),
+                style = TextStyle(fontSize = 14.sp, lineHeight = 24.sp, fontFamily = regularFont, color = error500)
+            )
+        }
+    }
+}
+
+// An icon and its words; only they take the tap.
+@Composable
+internal fun SheetActionRow(iconRes: Int, text: String, color: Color, fontFamily: FontFamily, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(24.dp)
+        )
+        Text(text = text, style = TextStyle(fontSize = 14.sp, lineHeight = 24.sp, fontFamily = fontFamily, color = color))
     }
 }
 
