@@ -1022,8 +1022,9 @@ gives the clock and the written offset to the sheet and the Info row (`Z` vs off
 staging and production (live 2026-11-04).
 
 **File Info Date row (VSP-1764).** `shownDate.toInfoRowDate()` re-formats that value: `1985` as is,
-`October 1985`, `October 23, 1985`, `October 23, 1985 • 5PM` (`• 4:16 PM` when minutes ≠ 0);
-anything else stays raw. After a time comes `shownZone` (VSP-1826, iOS `timeSuffix`): the record
+`October 1985`, `October 23, 1985`, `October 23, 1985 • 5:00 PM` (minutes always shown, also in lists);
+anything else stays raw. Approximate and uncertain dates read `c. 1985`, `1985 ?`, `c. 1985 ?` on each
+value, also on each side of a From/To range (VSP-1905); the Date label carries no words. After a time comes `shownZone` (VSP-1826, iOS `timeSuffix`): the record
 zone's English short name when it is letters (`10:30 AM EDT`), else the offset in tz style (`+03`,
 `+0530`); with no zone, the offset the string carries (`12:02 PM +02`); nothing for a `Z` time
 without a zone.
