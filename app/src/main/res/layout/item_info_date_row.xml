@@ -44,17 +44,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{label}" />
-
-            <TextView
-                android:id="@+id/tvLabelDetail"
-                style="@style/InfoRowLabelDetail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@{date.labelDetail}"
-                android:visibility="@{TextUtils.isEmpty(date.labelDetail) ? View.GONE : View.VISIBLE}" />
         </LinearLayout>
 
         <LinearLayout

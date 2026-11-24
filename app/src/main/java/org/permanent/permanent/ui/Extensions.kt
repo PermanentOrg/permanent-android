@@ -163,10 +163,9 @@ fun String.toLocalDateTimeOrNull(): LocalDateTime? = try {
 
 private val INFO_ROW_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)
 private val INFO_ROW_DAY = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.US)
-private val INFO_ROW_HOUR = DateTimeFormatter.ofPattern("ha", Locale.US)
-private val INFO_ROW_MINUTE = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
+private val CLOCK = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
 
-// A shownDate as File Info's Date row: "October 23, 1985 • 5PM", "October 1985" or "1985".
+// A shownDate as File Info's Date row: "October 23, 1985 • 5:00 PM", "October 1985" or "1985".
 // Anything else is shown verbatim.
 fun String.toInfoRowDate(): String = try {
     when (length) {
@@ -179,8 +178,8 @@ fun String.toInfoRowDate(): String = try {
     this
 }
 
-// "5PM" or "5:30 PM".
-fun LocalDateTime.toClockText(): String = format(if (minute == 0) INFO_ROW_HOUR else INFO_ROW_MINUTE)
+// "5:00 PM".
+fun LocalDateTime.toClockText(): String = format(CLOCK)
 
 // The Info row date with the zone after the time ("May 12, 1990 • 10:30 AM EDT").
 fun String.withZone(zone: String?): String = zone?.let { "$this $it" } ?: this
