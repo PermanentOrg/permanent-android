@@ -93,12 +93,9 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
         uiState.value = uiState.value.copy(fileName = name)
     }
 
-    // Null when every selected file has the chosen date.
-    fun dateMissingMessage(dateOption: SequenceDateOptions): String? =
-        if (records.all { sequenceDate(it, dateOption) != null }) null
-        else appContext.getString(
-            R.string.sequence_date_missing, appContext.getString(dateOption.titleID)
-        )
+    // Files that keep their names: the chosen date is missing or not one exact date.
+    fun skippedCount(dateOption: SequenceDateOptions): Int =
+        records.count { sequenceDate(it, dateOption) == null }
 
     private fun sequenceDate(record: Record, dateOption: SequenceDateOptions): String? =
         when (dateOption) {
@@ -145,13 +142,15 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
     }
 
     fun applyChanges(text: String, before: Boolean, dateOption: SequenceDateOptions) {
-        dateMissingMessage(dateOption)?.let { return updateError(it) }
+        val renamed = mutableListOf<Record>()
         for (record in records) {
             val date = sequenceDate(record, dateOption) ?: continue
             record.displayName = if (before) date + text else text + date
+            renamed += record
         }
+        if (renamed.isEmpty()) return
 
-        applyChanges()
+        applyChanges(renamed)
     }
 
     fun applyChanges(text: String, before: Boolean, count: String) {
@@ -176,9 +175,9 @@ class EditFileNamesViewModel(application: Application) : ObservableAndroidViewMo
         uiState.value = currentState.toggleIsBusy()
     }
 
-    private fun applyChanges() {
+    private fun applyChanges(renamed: MutableList<Record> = records) {
         toggleLoading()
-        fileRepository.renameRecords(records, object : IResponseListener {
+        fileRepository.renameRecords(renamed, object : IResponseListener {
             override fun onSuccess(message: String?) {
                 onFileNameChanged.value = appContext.getString(R.string.file_names_updated)
                 toggleLoading()

@@ -775,7 +775,15 @@
     <string name="created">Created</string>
     <string name="last_modified">Last modified</string>
     <string name="uploaded">Uploaded</string>
-    <string name="sequence_date_missing">Some selected files have no \"%1$s\" date. Choose another date value or use Count.</string>
+    <string name="sequence_no_file_has_date">None of the selected files has an exact \"%1$s\" date. Choose another date value or use Count.</string>
+    <plurals name="sequence_confirmation_renamed">
+        <item quantity="one">Are you sure you want to modify %d file name?</item>
+        <item quantity="other">Are you sure you want to modify %d file names?</item>
+    </plurals>
+    <plurals name="sequence_confirmation_skipped">
+        <item quantity="one">%1$d of %2$d files will keep its name. It has no exact \"%3$s\" date to use in a file name.</item>
+        <item quantity="other">%1$d of %2$d files will keep their names. They have no exact \"%3$s\" date to use in a file name.</item>
+    </plurals>
     <string name="base">Base</string>
     <string name="format">Format</string>
     <string name="date_value">Date Value</string>

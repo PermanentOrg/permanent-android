@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -50,7 +51,7 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
                           formatCount:(String, Boolean, String) -> Unit,
                           applyDateChanges: (String, Boolean, SequenceDateOptions) -> Unit,
                           applyCountChanges: (String, Boolean, String) -> Unit,
-                          dateMissingMessage: (SequenceDateOptions) -> String?,
+                          skippedCount: (SequenceDateOptions) -> Int,
                           cancel: () -> Unit) {
 
     val semiBoldFont = FontFamily(Font(R.font.open_sans_semibold_ttf))
@@ -93,8 +94,14 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
         SequenceDateOptions.UPLOADED,
     )
     var selectedDateOption by remember { mutableStateOf(SequenceDateOptions.CREATED) }
-    val dateError = if (selectedFormatOption == SequenceFormatOptions.DATETIME) {
-        dateMissingMessage(selectedDateOption)
+    // Read on every recomposition: file data loads in the background and is not observable.
+    val skipped = if (selectedFormatOption == SequenceFormatOptions.DATETIME) {
+        skippedCount(selectedDateOption)
+    } else 0
+    val renamed = uiState.recordsNumber - skipped
+    val dateTitle = stringResource(id = selectedDateOption.titleID)
+    val dateError = if (skipped > 0 && renamed == 0) {
+        stringResource(id = R.string.sequence_no_file_has_date, dateTitle)
     } else null
 
     fun updateFormat() {
@@ -433,7 +440,15 @@ fun SequenceFileNamesScreen(uiState: EditFileNamesUIState,
             openAlertDialog.value -> {
                 CustomDialog(
                     title = stringResource(id = R.string.modify_file_names),
-                    subtitle = stringResource(id = R.string.replace_confirmation_substring, uiState.recordsNumber),
+                    subtitle = if (skipped == 0) {
+                        stringResource(id = R.string.replace_confirmation_substring, uiState.recordsNumber)
+                    } else {
+                        pluralStringResource(R.plurals.sequence_confirmation_renamed, renamed, renamed) +
+                            "\n\n" + pluralStringResource(
+                                R.plurals.sequence_confirmation_skipped, skipped,
+                                skipped, uiState.recordsNumber, dateTitle
+                            )
+                    },
                     okButtonText = stringResource(id = R.string.modify),
                     cancelButtonText = stringResource(id = R.string.button_cancel),
                     onConfirm = {
