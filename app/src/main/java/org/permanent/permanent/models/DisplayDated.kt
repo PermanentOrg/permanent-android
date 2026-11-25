@@ -39,9 +39,9 @@ interface DisplayDated {
             return shown.firstWritten?.shownDate
         }
 
-    // shownDate for a file name: never a displayTime the app can't read.
+    // shownDate for a file name: only one exact date.
     val fileNameDate: String?
-        get() = shownDate?.takeUnless { it == displayTime && EdtfConverter.decodeShown(it) == null }
+        get() = shownDate?.takeUnless { hasComplexDate }
 
     // Set, but not one exact date: shown, never edited.
     val hasComplexDate: Boolean
